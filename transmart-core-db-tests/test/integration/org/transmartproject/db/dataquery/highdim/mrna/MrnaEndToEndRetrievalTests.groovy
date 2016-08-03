@@ -199,6 +199,7 @@ class MrnaEndToEndRetrievalTests {
         def concept_code = 'concept code #1'
         // test multiple result, alphabetical order
         def symbols = mrnaResource.searchAnnotation(concept_code, 'BOGUS', 'geneSymbol')
+
         assertThat symbols, allOf(
                 hasSize(3),
                 // should be in alphabetical order
@@ -247,10 +248,11 @@ class MrnaEndToEndRetrievalTests {
                 property: "geneSymbol",
                 projectionType: Projection.LOG_INTENSITY_PROJECTION
         )
+        def concept_code = 'concept code #1'
 
         def geneSymbol = "BOGUSCPO"
 
-        def geneSymbolConstraint = mrnaResource.createDataConstraint([property: 'geneSymbol', term: geneSymbol, gplId: 'BOGUSGPL570'], DataConstraint.ANNOTATION_CONSTRAINT)
+        def geneSymbolConstraint = mrnaResource.createDataConstraint([property: 'geneSymbol', term: geneSymbol, concept_code: concept_code], DataConstraint.ANNOTATION_CONSTRAINT)
         def logIntensityProjection = mrnaResource.createProjection([:], Projection.LOG_INTENSITY_PROJECTION)
 
         def result = mrnaResource.retrieveData([trialNameConstraint],[geneSymbolConstraint], logIntensityProjection)

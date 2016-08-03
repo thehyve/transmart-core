@@ -15,25 +15,30 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 class SimpleAnnotationConstraintFactory extends AbstractMethodBasedParameterFactory {
     String field
     Class annotationClass
-    private List<String> requiredParams = ['property','term','concept_key']
 
     @ProducerFor(DataConstraint.ANNOTATION_CONSTRAINT)
     DataConstraint createAnnotationConstraint(Map<String, Object> params) {
 
-        if (requiredParams.inject(true, {result, i -> result && params.containsKey(i)})) {
-
-            def concept_path = keyToPath(params['concept_key'])
+        if (params.keySet().containsAll(['property','term'])) {
             DetachedCriteria dc = DetachedCriteria.forClass(annotationClass)
             dc.setProjection(Projections.distinct(Projections.property('id')))
             dc.add(Restrictions.eq(params['property'], params['term']))
-            dc.add(Restrictions.eq('platform', DeSubjectSampleMapping.findByConceptCode(ConceptDimension.findByConceptPath(concept_path).getConceptCode()).getPlatform()))
+            if (params.containsKey('concept_code')) {
+                dc.add(Restrictions.eq('platform', DeSubjectSampleMapping.findByConceptCode(params['concept_code']).getPlatform()))
+            }
+            else if (params.containsKey('concept_key')) {
+                def concept_path = keyToPath(params['concept_key'])
+                dc.add(Restrictions.eq('platform', DeSubjectSampleMapping.findByConceptCode(ConceptDimension.findByConceptPath(concept_path).getConceptCode()).getPlatform()))
+            }
+            else
+                throw new InvalidArgumentsException("SimpleAnnotationDataConstraint needs the following parameters: ['property','term','concept_key' OR 'concept_code'], but got $params")
             return new SubqueryInDataConstraint (
                     field: this.field + '.id',
                     detachedCriteria: dc
             )
         }
         else
-            throw new InvalidArgumentsException("SimpleAnnotationDataConstraint needs the following parameters: $requiredParams, but got $params")
+            throw new InvalidArgumentsException("SimpleAnnotationDataConstraint needs the following parameters: ['property','term','concept_key' OR 'concept_code'], but got $params")
     }
 
     private def keyToPath(String concept_key) {
