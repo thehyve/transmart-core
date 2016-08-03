@@ -105,7 +105,11 @@ public interface DataConstraint {
      *
      * Parameters: 'property' => name of the annotation property to search in
      *             'term'     => string the property should match exactly
-     *             'gplId'    => gpl id of the platform
+     *            (
+     *             'concept_key'  => concept key of the high dimensional concept
+     *             XOR
+     *             'concept_code' => concept code of the high dimensional concept
+     *            )
      */
     public final static String ANNOTATION_CONSTRAINT = 'annotation'
 }
