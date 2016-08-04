@@ -47,8 +47,8 @@ public interface Projection<CELL> {
     public static final ALL_DATA_PROJECTION = 'all_data'
 
 
-    public static final NORMALIZED_READ_COUNT_PROJECTION = 'normalized_read_count'
-    public static final LOG_NORMALIZED_READ_COUNT_PROJECTION = 'log_normalized_read_count'
+    public static final NORMALIZED_READ_COUNT_PROJECTION = 'normalized_readcount'
+    public static final LOG_NORMALIZED_READ_COUNT_PROJECTION = 'log_normalized_readcount'
 
     // ACGH types
     public static final CHIP_COPYNUMBER_VALUE = 'chip_copy_number_value'
@@ -68,6 +68,8 @@ public interface Projection<CELL> {
             (LOG_INTENSITY_PROJECTION): 'Log Intensity',
             (DEFAULT_REAL_PROJECTION) : 'Raw Intensity',
             (ZSCORE_PROJECTION)       : 'Z-Score',
+            (ALL_DATA_PROJECTION)     : 'All data',
+            (NORMALIZED_READ_COUNT_PROJECTION) : 'Normalized Readcount',
             (LOG_NORMALIZED_READ_COUNT_PROJECTION): 'Log Normalized Readcount',
             (REF_ALT)                 : 'Reference',
             (VAR_CLASS)               : 'Variant',
@@ -75,6 +77,7 @@ public interface Projection<CELL> {
             (PROB_LOSS)               : 'Probability of Loss',
             (PROB_AMP)                : 'Probability of Amplification',
             (CHIP_COPYNUMBER_VALUE)   : 'Chip Copy Number Value',
+            (FLAG)                    : 'Flag',
             (SEGMENT_COPY_NUMBER_VALUE): 'Segment Copy Number Value',
             (PROB_NORM)               : 'Probability of Normal',
             (PROB_GAIN)               : 'Probablity of Gain'
