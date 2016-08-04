@@ -137,6 +137,7 @@ class MetaboliteTestData {
         def createDataEntry = { assay, annotation, intensity ->
             new DeSubjectMetabolomicsData(
                     assay: assay,
+                    patient: assay.patient,
                     annotation: annotation,
                     rawIntensity: intensity,
                     logIntensity: Math.log(intensity),

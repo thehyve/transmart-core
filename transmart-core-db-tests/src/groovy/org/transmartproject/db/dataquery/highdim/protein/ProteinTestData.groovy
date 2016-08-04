@@ -72,6 +72,7 @@ class ProteinTestData {
         def createDataEntry = { assay, annotation, intensity ->
             new DeSubjectProteinData(
                     assay: assay,
+                    patient: assay.patient,
                     annotation: annotation,
                     intensity: intensity,
                     logIntensity: Math.log(intensity),

@@ -71,6 +71,7 @@ class RnaSeqCogTestData {
         def createDataEntry = { assay, annotation, intensity ->
             new DeSubjectRnaData(
                     assay: assay,
+                    patient: assay.patient,
                     annotation:   annotation,
                     rawIntensity: intensity,
                     logIntensity: Math.log(intensity),

@@ -84,6 +84,7 @@ class RbmTestData {
             new DeSubjectRbmData(
                     annotations:  annotations,
                     assay:        assay,
+                    patient:      assay.patient,
                     value:        value,
                     logIntensity: Math.log(value),
                     unit:         unit ? "(${unit})" : null,
