@@ -79,6 +79,8 @@ class AcrossTrialsDataRetrievalTests {
         assertThat innerMatchers, is(not(empty())) /* sanity check */
 
         assertThat Lists.newArrayList(result), contains(innerMatchers)
+
+        result.close()
     }
 
     /* TODO
