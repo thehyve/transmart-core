@@ -185,11 +185,11 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
      * The projectionType should correspond to a member of the list {@link #getSearchableProjections()}, e.g. 'log_intensity'
      * The property should be a valid property of this high-dimensional data, i.e. it should be a member of the list {@link #getSearchableAnnotationProperties()}, e.g. 'geneSymbol'
      * The selector is used to match a property against, e.g. 'KRAS'
-     * @param concept_code The concept code associated with the high dimensional data
+     * @param concept_key The concept key associated with the high dimensional data
      * @param result_instance_id If this is null it will be ignored. Otherwise only the values for patients that are members
      * of the given result instance will be returned.
      *
      * @return A map where the keys are patient ids, and the values are the data for that patient.
      */
-    def getDistribution(ConstraintByOmicsValue constraint, String concept_code, Long result_instance_id)
+    def getDistribution(ConstraintByOmicsValue constraint, String concept_key, Long result_instance_id)
 }
