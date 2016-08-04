@@ -18,11 +18,8 @@
  */
 
 package org.transmartproject.db.dataquery.highdim.mrna
-
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
-import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.Subqueries
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,7 +37,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProje
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleAnnotationConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
-import org.transmartproject.db.util.GormWorkarounds
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder

@@ -21,6 +21,7 @@ package org.transmartproject.db.dataquery.highdim.rbm
 
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
+import groovy.test.GroovyAssert
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -30,6 +31,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
@@ -321,8 +323,7 @@ class RbmDataRetrievalTests {
         def empty = rbmResource.searchAnnotation(concept_code, 'FOO', 'geneSymbol')
         assertThat empty, hasSize(0)
 
-        empty = rbmResource.searchAnnotation(concept_code, 'A', 'FOO')
-        assertThat empty, hasSize(0)
+        GroovyAssert.shouldFail(InvalidArgumentsException.class) {rbmResource.searchAnnotation(concept_code, 'A', 'FOO')}
     }
 
     @Before

@@ -21,6 +21,7 @@ package org.transmartproject.db.dataquery.highdim.metabolite
 
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
+import groovy.test.GroovyAssert
 import org.hamcrest.Matcher
 import org.junit.After
 import org.junit.Before
@@ -33,6 +34,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -283,7 +285,6 @@ class MetaboliteEndToEndRetrievalTest {
         def empty = metaboliteResource.searchAnnotation(concept_code, 'FOO', 'biochemicalName')
         assertThat empty, hasSize(0)
 
-        empty = metaboliteResource.searchAnnotation(concept_code, 'HMDB', 'FOO')
-        assertThat empty, hasSize(0)
+        GroovyAssert.shouldFail(InvalidArgumentsException.class) {metaboliteResource.searchAnnotation(concept_code, 'HMDB', 'FOO')}
     }
 }

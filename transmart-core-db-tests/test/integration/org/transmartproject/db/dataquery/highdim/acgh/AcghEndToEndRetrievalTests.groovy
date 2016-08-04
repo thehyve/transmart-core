@@ -21,6 +21,7 @@ package org.transmartproject.db.dataquery.highdim.acgh
 
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
+import groovy.test.GroovyAssert
 import org.hibernate.SessionFactory
 import org.junit.After
 import org.junit.Before
@@ -36,6 +37,7 @@ import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
@@ -60,6 +62,8 @@ class AcghEndToEndRetrievalTests {
     SessionFactory sessionFactory
 
     AcghTestData testData = new AcghTestData()
+
+    private static final String concept_code = 'concept code #1'
 
     @Before
     void setUp() {
@@ -297,7 +301,6 @@ class AcghEndToEndRetrievalTests {
 
     @Test
     void testSearchAnnotationGeneSymbol() {
-        def concept_code = 'concept code #1'
         def symbols = acghResource.searchAnnotation(concept_code, 'A', 'geneSymbol')
         assertThat symbols, allOf(
                 hasSize(2),
@@ -310,7 +313,6 @@ class AcghEndToEndRetrievalTests {
 
     @Test
     void testSearchAnnotationCytoband() {
-        def concept_code = 'concept code #1'
         def cyto = acghResource.searchAnnotation(concept_code, 'cyto', 'cytoband')
         assertThat cyto, allOf(
                 hasSize(2),
@@ -323,7 +325,6 @@ class AcghEndToEndRetrievalTests {
 
     @Test
     void testSearchAnnotationRegionName() {
-        def concept_code = 'concept code #1'
         def names = acghResource.searchAnnotation(concept_code, 'region 1', 'name')
         assertThat names, allOf(
                 hasSize(1),
@@ -335,15 +336,12 @@ class AcghEndToEndRetrievalTests {
 
     @Test
     void testSearchAnnotationGeneSymbolNoResult() {
-        def concept_code = 'concept code #1'
         def empty = acghResource.searchAnnotation(concept_code, 'FOO', 'geneSymbol')
         assertThat empty, hasSize(0)
     }
 
     @Test
     void testSearchAnnotationInvalidProperty() {
-        def concept_code = 'concept code #1'
-        def empty = acghResource.searchAnnotation(concept_code, 'A', 'FOO')
-        assertThat empty, hasSize(0)
+        GroovyAssert.shouldFail(InvalidArgumentsException.class) {acghResource.searchAnnotation(concept_code, 'A', 'FOO')}
     }
 }

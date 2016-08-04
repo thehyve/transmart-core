@@ -21,6 +21,7 @@ package org.transmartproject.db.dataquery.highdim.protein
 
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
+import groovy.test.GroovyAssert
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -32,7 +33,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -55,6 +56,7 @@ class ProteinEndToEndRetrievalTests {
     ProteinTestData testData = new ProteinTestData()
 
     static final Double DELTA = 0.00005
+    private static final String concept_code = 'concept code #1'
 
     String ureaTransporterPeptide,
            adiponectinPeptide,
@@ -216,7 +218,7 @@ class ProteinEndToEndRetrievalTests {
 
     @Test
     void testSearchAnnotation() {
-        def gene_symbols = proteinResource.searchAnnotation('concept code #1', 'PVR', 'uniprotName')
+        def gene_symbols = proteinResource.searchAnnotation(concept_code, 'PVR', 'uniprotName')
         assertThat gene_symbols, allOf(
                 hasSize(3),
                 contains(
@@ -226,13 +228,15 @@ class ProteinEndToEndRetrievalTests {
                 )
         )
 
-        gene_symbols = proteinResource.searchAnnotation('concept code #1', 'PVR_HUMAN1', 'uniprotName')
+        gene_symbols = proteinResource.searchAnnotation(concept_code, 'PVR_HUMAN1', 'uniprotName')
         assertThat gene_symbols, allOf(
                 hasSize(1),
                 contains(equalTo('PVR_HUMAN1'))
         )
 
-        gene_symbols = proteinResource.searchAnnotation('concept code #1', 'H', 'uniprotName')
+        gene_symbols = proteinResource.searchAnnotation(concept_code, 'H', 'uniprotName')
         assertThat gene_symbols, hasSize(0)
+
+        GroovyAssert.shouldFail(InvalidArgumentsException.class) {proteinResource.searchAnnotation(concept_code, 'PVR', 'FOO')}
     }
 }

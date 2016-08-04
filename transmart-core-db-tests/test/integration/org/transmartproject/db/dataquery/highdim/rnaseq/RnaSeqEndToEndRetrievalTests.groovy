@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.highdim.rnaseq
 
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
-import org.apache.log4j.Logger
+import groovy.test.GroovyAssert
 import org.hibernate.SessionFactory
 import org.junit.After
 import org.junit.Before
@@ -37,6 +37,7 @@ import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.rnaseq.RnaSeqValues
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
@@ -362,33 +363,35 @@ class RnaSeqEndToEndRetrievalTests {
     void testAnnotationSearch() {
         def concept_code = 'concept code #1'
 
-        def gene_symbols = rnaseqResource.searchAnnotation(concept_code, 'E', 'geneSymbol')
+        def gene_symbols = rnaseqResource.searchAnnotation(concept_code, 'AD', 'geneSymbol')
         assertThat gene_symbols, allOf(
                 hasSize(1),
                 contains(
-                        equalTo("ERG")
+                        equalTo("ADIRF")
                 )
         )
 
-        gene_symbols = rnaseqResource.searchAnnotation(concept_code, 'T', 'geneSymbol')
+        gene_symbols = rnaseqResource.searchAnnotation(concept_code, 'AU', 'geneSymbol')
         assertThat gene_symbols, allOf(
                 hasSize(1),
                 contains(
-                        equalTo("TMPRSS")
-                )
-        )
-
-        gene_symbols = rnaseqResource.searchAnnotation(concept_code, '', 'geneSymbol')
-        assertThat gene_symbols, allOf(
-                hasSize(2),
-                // should be in alphabetical order
-                contains(
-                        equalTo("ERG"),
-                        equalTo("TMPRSS")
+                        equalTo("AURKA")
                 )
         )
 
         gene_symbols = rnaseqResource.searchAnnotation(concept_code, 'A', 'geneSymbol')
+        assertThat gene_symbols, allOf(
+                hasSize(2),
+                // should be in alphabetical order
+                contains(
+                        equalTo("ADIRF"),
+                        equalTo("AURKA")
+                )
+        )
+
+        gene_symbols = rnaseqResource.searchAnnotation(concept_code, 'FOO', 'geneSymbol')
         assertThat gene_symbols, hasSize(0)
+
+        GroovyAssert.shouldFail(InvalidArgumentsException.class) {rnaseqResource.searchAnnotation(concept_code, 'T', 'FOO')}
     }
 }

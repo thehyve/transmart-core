@@ -21,6 +21,7 @@ package org.transmartproject.db.dataquery.highdim.mrna
 
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
+import groovy.test.GroovyAssert
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -29,6 +30,7 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
@@ -52,6 +54,8 @@ class MrnaEndToEndRetrievalTests {
     MrnaTestData testData = new MrnaTestData()
 
     AssayConstraint trialNameConstraint
+
+    private static final String concept_code = 'concept code #1'
 
     @Before
     void setUp() {
@@ -196,7 +200,6 @@ class MrnaEndToEndRetrievalTests {
 
     @Test
     void testAnnotationSearchMulti() {
-        def concept_code = 'concept code #1'
         // test multiple result, alphabetical order
         def symbols = mrnaResource.searchAnnotation(concept_code, 'BOGUS', 'geneSymbol')
 
@@ -213,7 +216,6 @@ class MrnaEndToEndRetrievalTests {
 
     @Test
     void testAnnotationSearchSingle() {
-        def concept_code = 'concept code #1'
         // test single result
         def symbols = mrnaResource.searchAnnotation(concept_code, 'BOGUSC', 'geneSymbol')
         assertThat symbols, allOf(
@@ -224,7 +226,6 @@ class MrnaEndToEndRetrievalTests {
 
     @Test
     void testAnnotationSearchNoResult() {
-        def concept_code = 'concept code #1'
         // test non-occuring name
         def symbols = mrnaResource.searchAnnotation(concept_code, 'FOO', 'geneSymbol')
         assertThat symbols, hasSize(0)
@@ -232,34 +233,22 @@ class MrnaEndToEndRetrievalTests {
 
     @Test
     void testAnnotationSearchInvalidProperty() {
-        def concept_code = 'concept code #1'
         // test invalid search property
-        def symbols = mrnaResource.searchAnnotation(concept_code, 'BOGUS', 'FOO')
-        assertThat symbols, hasSize(0)
+        GroovyAssert.shouldFail(InvalidArgumentsException.class) {mrnaResource.searchAnnotation(concept_code, 'BOGUS', 'FOO')}
     }
 
     @Test
     void testGetDistributionMulti() {
-        ConstraintByOmicsValue constraint = new ConstraintByOmicsValue(
-                operator: ConstraintByOmicsValue.Operator.BETWEEN,
-                constraint: "-10.0:10.0",
-                omicsType: ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION,
-                selector: "BOGUSCPO",
-                property: "geneSymbol",
-                projectionType: Projection.LOG_INTENSITY_PROJECTION
-        )
-        def concept_code = 'concept code #1'
-
         def geneSymbol = "BOGUSCPO"
 
         def geneSymbolConstraint = mrnaResource.createDataConstraint([property: 'geneSymbol', term: geneSymbol, concept_code: concept_code], DataConstraint.ANNOTATION_CONSTRAINT)
         def logIntensityProjection = mrnaResource.createProjection([:], Projection.LOG_INTENSITY_PROJECTION)
 
-        def result = mrnaResource.retrieveData([trialNameConstraint],[geneSymbolConstraint], logIntensityProjection)
+        dataQueryResult = mrnaResource.retrieveData([trialNameConstraint],[geneSymbolConstraint], logIntensityProjection)
 
         // find the assays that should be in the result
         def correctAssays = testData.microarrayData.findAll {it.probe.geneSymbol == geneSymbol}.collectEntries {[it.assay, it.logIntensity]}
-        def rows = result.rows.collect()
+        def rows = dataQueryResult.rows.collect()
         assertThat rows, hasSize(1)     // we expect data for only one probe
 
 
@@ -268,38 +257,4 @@ class MrnaEndToEndRetrievalTests {
             assertThat rows[0].data[index] as Double, equalTo(intensity as Double)
         }
     }
-
-    /*
-    @Test
-    void testGetDistributionSingle() {
-        // more constrained version of testGetDistributionMulti(), should return one result with current test data
-        ConstraintByOmicsValue constraint = new ConstraintByOmicsValue(
-                operator: ConstraintByOmicsValue.Operator.BETWEEN,
-                constraint: "-4.0:-3.0",
-                omicsType: ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION,
-                selector: "BOGUSCPO",
-                property: "geneSymbol",
-                projectionType: ConstraintByOmicsValue.ProjectionType.LOGINTENSITY
-        )
-        def result = mrnaResource.getDistribution(constraint, 'concept code #1', null)
-        // check number of returned results
-        assertThat result, hasSize(1)
-
-        // check patient ids, should be ordered by logIntensity value, so -301 before -302
-        // patient ids are of type long
-        assertThat result.collect {it[0]}, allOf(
-                hasSize(1),
-                contains(
-                        equalTo(-301L)
-                )
-        )
-
-        // check logIntensity values, should be in ascending order
-        assertThat result.collect {it[1]}, allOf(
-                hasSize(1),
-                contains(
-                        equalTo(-3.3219 as Double)
-                )
-        )
-    }*/
 }

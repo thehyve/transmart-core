@@ -18,18 +18,14 @@
  */
 
 package org.transmartproject.db.dataquery.highdim.metabolite
-
 import grails.orm.HibernateCriteriaBuilder
-import org.hibernate.Criteria
 import org.hibernate.ScrollableResults
-import org.hibernate.criterion.Restrictions
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
@@ -104,7 +100,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
-                new SimpleAnnotationConstraintFactory(field: 'annotation', annotationCriteraBuilder: DeMetaboliteAnnotation.class),
+                new SimpleAnnotationConstraintFactory(field: 'annotation', annotationClass: DeMetaboliteAnnotation.class),
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
                         'METABOLITE', 'a', 'hmdbId')]
     }

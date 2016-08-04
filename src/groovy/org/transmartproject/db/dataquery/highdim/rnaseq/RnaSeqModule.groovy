@@ -20,9 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.rnaseq
 
 import grails.orm.HibernateCriteriaBuilder
-import org.hibernate.Criteria
 import org.hibernate.ScrollableResults
-import org.hibernate.criterion.Restrictions
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,7 +30,6 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
@@ -122,7 +119,7 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
                         (Projection.LOG_INTENSITY_PROJECTION): 'logNormalizedReadcount',
                         (Projection.LOG_NORMALIZED_READ_COUNT_PROJECTION): 'logNormalizedReadcount',  // alias that is more descriptive
                         (Projection.DEFAULT_REAL_PROJECTION):  'normalizedReadcount',
-                        (Projection.NORMALIZED_READ_COUNT): 'normalizedReadcount',                    // alias that is more descriptive
+                        (Projection.NORMALIZED_READ_COUNT_PROJECTION): 'normalizedReadcount',                    // alias that is more descriptive
                         (Projection.ZSCORE_PROJECTION):        'zscore'
                 ),
                 new AllDataProjectionFactory(dataProperties, rowProperties)
@@ -226,12 +223,14 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
         if (!getSearchableAnnotationProperties().contains(search_property))
             return []
         DeChromosomalRegion.createCriteria().list {
-            dataRowsRnaSeq {
-                'in'('assay', DeSubjectSampleMapping.createCriteria().listDistinct {eq('conceptCode', concept_code)} )
-            }
+            eq('gplId', DeSubjectSampleMapping.createCriteria().get {
+                eq('conceptCode', concept_code)
+                projections {distinct 'platform.id'}
+            })
             ilike(search_property, search_term + '%')
             projections { distinct(search_property) }
             order(search_property, 'ASC')
+            maxResults(100)
         }
     }
 

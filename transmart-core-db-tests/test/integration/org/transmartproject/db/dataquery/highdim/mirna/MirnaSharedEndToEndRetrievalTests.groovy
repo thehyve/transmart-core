@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.mirna
 
 import com.google.common.collect.Lists
+import groovy.test.GroovyAssert
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -42,6 +43,7 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTe
 abstract class MirnaSharedEndToEndRetrievalTests {
 
     private static final double DELTA = 0.0001
+    private static final String concept_code = 'concept code #1'
 
     MirnaTestData testData
 
@@ -212,7 +214,7 @@ abstract class MirnaSharedEndToEndRetrievalTests {
 
     @Test
     void testSearchAnnotation() {
-        def mirna_ids = mirnaResource.searchAnnotation('concept code #1', 'hsa', 'mirnaId')
+        def mirna_ids = mirnaResource.searchAnnotation(concept_code, 'hsa', 'mirnaId')
         assertThat mirna_ids, allOf(
                 hasSize(2),
                 contains(
@@ -221,7 +223,7 @@ abstract class MirnaSharedEndToEndRetrievalTests {
                 )
         )
 
-        mirna_ids = mirnaResource.searchAnnotation('concept code #1', 'hsa-mir-32', 'mirnaId')
+        mirna_ids = mirnaResource.searchAnnotation(concept_code, 'hsa-mir-32', 'mirnaId')
         assertThat mirna_ids, allOf(
                 hasSize(1),
                 contains(
@@ -229,7 +231,9 @@ abstract class MirnaSharedEndToEndRetrievalTests {
                 )
         )
 
-        mirna_ids = mirnaResource.searchAnnotation('concept code #1', 'bogus', 'mirnaId')
+        mirna_ids = mirnaResource.searchAnnotation(concept_code, 'bogus', 'mirnaId')
         assertThat mirna_ids, hasSize(0)
+
+        GroovyAssert.shouldFail(InvalidArgumentsException.class) {mirnaResource.searchAnnotation(concept_code, 'hsa', 'FOO')}
     }
 }

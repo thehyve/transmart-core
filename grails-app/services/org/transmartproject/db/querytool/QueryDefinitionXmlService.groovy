@@ -20,6 +20,7 @@
 package org.transmartproject.db.querytool
 
 import groovy.xml.MarkupBuilder
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.*
 
@@ -74,6 +75,9 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
                     throw new InvalidRequestException(
                             'Invalid XML query definition highdimension value constraint', err)
                 }
+                if (!Projection.prettyNames.keySet().contains(data.constraintByOmicsValue.projectionType))
+                    throw new InvalidRequestException('Invalid projection type in highdimension value constraint: ' +
+                    data.constraintByOmicsValue.projectionType + '. Expected one of ' + Projection.prettyNames.keySet() + '.')
             }
 
             new Item(data)

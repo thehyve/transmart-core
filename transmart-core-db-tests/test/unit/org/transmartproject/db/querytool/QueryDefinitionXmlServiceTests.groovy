@@ -18,7 +18,6 @@
  */
 
 package org.transmartproject.db.querytool
-
 import grails.test.mixin.TestFor
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
@@ -27,11 +26,7 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.querytool.ConstraintByOmicsValue
-import org.transmartproject.core.querytool.ConstraintByValue
-import org.transmartproject.core.querytool.Item
-import org.transmartproject.core.querytool.Panel
-import org.transmartproject.core.querytool.QueryDefinition
+import org.transmartproject.core.querytool.*
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
 
@@ -40,7 +35,6 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import static org.transmartproject.core.querytool.ConstraintByValue.Operator.BETWEEN
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.LOWER_OR_EQUAL_TO
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.LOWER_THAN
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
@@ -133,7 +127,7 @@ class QueryDefinitionXmlServiceTests {
                              <omics_value_type>Gene Expression</omics_value_type>
                              <omics_property>geneSymbol</omics_property>
                              <omics_selector>TNF</omics_selector>
-                             <omics_projection_type>LOG_INTENSITY</omics_projection_type>
+                             <omics_projection_type>log_intensity</omics_projection_type>
                            </constrain_by_omics_value>
                          </item>
                          <panel_timing>ANY</panel_timing>
@@ -174,7 +168,7 @@ class QueryDefinitionXmlServiceTests {
                              <omics_value_constraint>-0.5:0.5</omics_value_constraint>
                              <omics_value_type>RNASEQ_RCNT</omics_value_type>
                              <omics_selector>TNF</omics_selector>
-                             <omics_projection_type>LOG_NORMALIZED_READCOUNT</omics_projection_type>
+                             <omics_projection_type>log_normalized_readcount</omics_projection_type>
                            </constrain_by_omics_value>
                          </item>
                          <panel_timing>ANY</panel_timing>
@@ -214,7 +208,7 @@ class QueryDefinitionXmlServiceTests {
                              <omics_value_constraint>-0.5:0.5</omics_value_constraint>
                              <omics_value_type>PROTEOMICS</omics_value_type>
                              <omics_selector>TNF</omics_selector>
-                             <omics_projection_type>LOG_INTENSITY</omics_projection_type>
+                             <omics_projection_type>log_intensity</omics_projection_type>
                            </constrain_by_omics_value>
                          </item>
                          <panel_timing>ANY</panel_timing>
@@ -254,7 +248,7 @@ class QueryDefinitionXmlServiceTests {
                              <omics_value_constraint>-0.5:0.5</omics_value_constraint>
                              <omics_value_type>MIRNA_QPCR</omics_value_type>
                              <omics_selector>TNF</omics_selector>
-                             <omics_projection_type>LOG_INTENSITY</omics_projection_type>
+                             <omics_projection_type>log_intensity</omics_projection_type>
                            </constrain_by_omics_value>
                          </item>
                          <panel_timing>ANY</panel_timing>
@@ -379,7 +373,7 @@ class QueryDefinitionXmlServiceTests {
     @Test
     void testBadProjectionType() {
         expectedException.expect(InvalidRequestException)
-        expectedException.expectMessage(containsString("Invalid XML query definition highdimension value constraint"))
+        expectedException.expectMessage(containsString("Invalid projection type in highdimension value constraint"))
 
         def xml = '''<ns4:query_definition xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">
                        <specificity_scale>0</specificity_scale>
@@ -431,7 +425,7 @@ class QueryDefinitionXmlServiceTests {
                              <omics_value_constraint>-0.5:0.5</omics_value_constraint>
                              <omics_value_type>Gene Expression</omics_value_type>
                              <omics_selector>TNF</omics_selector>
-                             <omics_projection_type>LOG_INTENSITY</omics_projection_type>
+                             <omics_projection_type>log_intensity</omics_projection_type>
                            </constrain_by_omics_value>
                          </item>
                          <panel_timing>ANY</panel_timing>
@@ -520,7 +514,7 @@ class QueryDefinitionXmlServiceTests {
                 hasXPath('//panel/item/constrain_by_omics_value/omics_value_constraint', equalTo('-1:1')),
                 hasXPath('//panel/item/constrain_by_omics_value/omics_value_type', equalTo('Gene Expression')),
                 hasXPath('//panel/item/constrain_by_omics_value/omics_selector', equalTo('TNF')),
-                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('LOG_INTENSITY'))
+                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('log_intensity'))
         )
     }
 
@@ -550,7 +544,7 @@ class QueryDefinitionXmlServiceTests {
                 hasXPath('//panel/item/constrain_by_omics_value/omics_value_constraint', equalTo('-1:1')),
                 hasXPath('//panel/item/constrain_by_omics_value/omics_value_type', equalTo('RNASEQ_RCNT')),
                 hasXPath('//panel/item/constrain_by_omics_value/omics_selector', equalTo('TNF')),
-                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('LOG_NORMALIZED_READCOUNT'))
+                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('log_normalized_readcount'))
         )
     }
 
@@ -580,7 +574,7 @@ class QueryDefinitionXmlServiceTests {
                 hasXPath('//panel/item/constrain_by_omics_value/omics_value_constraint', equalTo('-1:1')),
                 hasXPath('//panel/item/constrain_by_omics_value/omics_value_type', equalTo('PROTEOMICS')),
                 hasXPath('//panel/item/constrain_by_omics_value/omics_selector', equalTo('TNF')),
-                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('LOG_INTENSITY'))
+                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('log_intensity'))
         )
     }
 
@@ -610,7 +604,7 @@ class QueryDefinitionXmlServiceTests {
                 hasXPath('//panel/item/constrain_by_omics_value/omics_value_constraint', equalTo('-1:1')),
                 hasXPath('//panel/item/constrain_by_omics_value/omics_value_type', equalTo('MIRNA_QPCR')),
                 hasXPath('//panel/item/constrain_by_omics_value/omics_selector', equalTo('TNF')),
-                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('LOG_INTENSITY'))
+                hasXPath('//panel/item/constrain_by_omics_value/omics_projection_type', equalTo('log_intensity'))
         )
     }
 

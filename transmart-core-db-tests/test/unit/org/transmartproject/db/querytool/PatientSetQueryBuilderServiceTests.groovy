@@ -18,7 +18,6 @@
  */
 
 package org.transmartproject.db.querytool
-
 import grails.test.mixin.TestFor
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
@@ -27,10 +26,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.transmartproject.core.concept.ConceptKey
-import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.ontology.ConceptsResource
-import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
@@ -262,131 +259,6 @@ class PatientSetQueryBuilderServiceTests {
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
         assertThat sql, containsString("AND (valueflag_cd = 'N')")
-    }
-
-
-    @Test
-    void testMRNAConstraint() {
-        def definition = new QueryDefinition([
-                new Panel(
-                        items: [
-                                new Item(
-                                        conceptKey: '\\\\code\\full\\name\\',
-                                        constraintByOmicsValue: new ConstraintByOmicsValue(
-                                                operator: ConstraintByOmicsValue.Operator.BETWEEN,
-                                                constraint: '-1:1',
-                                                omicsType: ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION,
-                                                selector: 'TNF',
-                                                projectionType: Projection.LOG_INTENSITY_PROJECTION
-                                        )
-                                )
-                        ]
-                )
-        ])
-
-        def sql = service.buildPatientSetQuery(resultInstance, definition)
-
-        assertThat sql, containsString(" AND patient_num IN (" +
-                "select patient_id from deapp.de_subject_sample_mapping where assay_id in " +
-                "(select assay_id from (" +
-                "select assay_id, avg(LOG_INTENSITY) as score from deapp.de_subject_microarray_data where " +
-                "probeset_id in (select probeset_id from deapp.de_mrna_annotation where gene_symbol='TNF') " +
-                "and assay_id in (select assay_id from deapp.de_subject_sample_mapping WHERE (CONCEPT_CODE IN " +
-                "(SELECT concept_cd FROM concept_dimension WHERE concept_path LIKE '\\\\full\\\\name\\\\%')) " +
-                ") group by assay_id) A where score BETWEEN -1.0 AND 1.0))")
-    }
-
-    @Test
-    void testRNASEQConstraint() {
-        def definition = new QueryDefinition([
-                new Panel(
-                        items: [
-                                new Item(
-                                        conceptKey: '\\\\code\\full\\name\\',
-                                        constraintByOmicsValue: new ConstraintByOmicsValue(
-                                                operator: ConstraintByOmicsValue.Operator.BETWEEN,
-                                                constraint: '-1:1',
-                                                omicsType: ConstraintByOmicsValue.OmicsType.RNASEQ_RCNT,
-                                                selector: 'TNF',
-                                                projectionType: Projection.LOG_NORMALIZED_READ_COUNT_PROJECTION
-                                        )
-                                )
-                        ]
-                )
-        ])
-
-        def sql = service.buildPatientSetQuery(resultInstance, definition)
-
-        assertThat sql, containsString(" AND patient_num IN (" +
-                "select patient_id from deapp.de_subject_sample_mapping where assay_id in " +
-                "(select assay_id from (" +
-                "select assay_id, avg(LOG_NORMALIZED_READCOUNT) as score from deapp.de_subject_rnaseq_data where " +
-                "region_id in (select region_id from deapp.de_chromosomal_region where gene_symbol='TNF') " +
-                "and assay_id in (select assay_id from deapp.de_subject_sample_mapping WHERE (CONCEPT_CODE IN " +
-                "(SELECT concept_cd FROM concept_dimension WHERE concept_path LIKE '\\\\full\\\\name\\\\%')) " +
-                ") group by assay_id) A where score BETWEEN -1.0 AND 1.0))")
-    }
-
-    @Test
-    void testProteomicsConstraint() {
-        def definition = new QueryDefinition([
-                new Panel(
-                        items: [
-                                new Item(
-                                        conceptKey: '\\\\code\\full\\name\\',
-                                        constraintByOmicsValue: new ConstraintByOmicsValue(
-                                                operator: ConstraintByOmicsValue.Operator.BETWEEN,
-                                                constraint: '-1:1',
-                                                omicsType: ConstraintByOmicsValue.OmicsType.PROTEOMICS,
-                                                selector: 'TNF',
-                                                projectionType: Projection.LOG_INTENSITY_PROJECTION
-                                        )
-                                )
-                        ]
-                )
-        ])
-
-        def sql = service.buildPatientSetQuery(resultInstance, definition)
-
-        assertThat sql, containsString(" AND patient_num IN (" +
-                "select patient_id from deapp.de_subject_sample_mapping where assay_id in " +
-                "(select assay_id from (" +
-                "select assay_id, avg(LOG_INTENSITY) as score from deapp.de_subject_protein_data where " +
-                "protein_annotation_id in (select id from deapp.de_protein_annotation where uniprot_name='TNF') " +
-                "and assay_id in (select assay_id from deapp.de_subject_sample_mapping WHERE (CONCEPT_CODE IN " +
-                "(SELECT concept_cd FROM concept_dimension WHERE concept_path LIKE '\\\\full\\\\name\\\\%')) " +
-                ") group by assay_id) A where score BETWEEN -1.0 AND 1.0))")
-    }
-
-    @Test
-    void testMIRNAQPCRConstraint() {
-        def definition = new QueryDefinition([
-                new Panel(
-                        items: [
-                                new Item(
-                                        conceptKey: '\\\\code\\full\\name\\',
-                                        constraintByOmicsValue: new ConstraintByOmicsValue(
-                                                operator: ConstraintByOmicsValue.Operator.BETWEEN,
-                                                constraint: '-1:1',
-                                                omicsType: ConstraintByOmicsValue.OmicsType.MIRNA_QPCR,
-                                                selector: 'TNF',
-                                                projectionType: Projection.LOG_INTENSITY_PROJECTION
-                                        )
-                                )
-                        ]
-                )
-        ])
-
-        def sql = service.buildPatientSetQuery(resultInstance, definition)
-
-        assertThat sql, containsString(" AND patient_num IN (" +
-                "select patient_id from deapp.de_subject_sample_mapping where assay_id in " +
-                "(select assay_id from (" +
-                "select assay_id, avg(LOG_INTENSITY) as score from deapp.de_subject_mirna_data where " +
-                "probeset_id in (select probeset_id from deapp.de_qpcr_mirna_annotation where mirna_id='TNF') " +
-                "and assay_id in (select assay_id from deapp.de_subject_sample_mapping WHERE (CONCEPT_CODE IN " +
-                "(SELECT concept_cd FROM concept_dimension WHERE concept_path LIKE '\\\\full\\\\name\\\\%')) " +
-                ") group by assay_id) A where score BETWEEN -1.0 AND 1.0))")
     }
 
     // The rest are error tests
