@@ -25,6 +25,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.ontology.ConceptTestData
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
@@ -33,6 +34,8 @@ class RnaSeqCogTestData {
     public static final String TRIAL_NAME = 'RNASEQ_COG_SAMP_TRIAL'
 
     SampleBioMarkerTestData biomarkerTestData = new SampleBioMarkerTestData()
+
+    ConceptTestData concept = HighDimTestData.createConcept('RNASEQCOGPUBLIC', 'concept code #1', TRIAL_NAME, 'PROTEIN_CONCEPT')
 
     DeGplInfo platform = {
         def res = new DeGplInfo(
@@ -102,5 +105,7 @@ class RnaSeqCogTestData {
         save assays
         save annotations
         save data
+
+        concept.saveAll()
     }
 }

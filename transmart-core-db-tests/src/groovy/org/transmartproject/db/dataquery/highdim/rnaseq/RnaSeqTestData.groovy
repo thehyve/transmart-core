@@ -23,9 +23,11 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
@@ -39,6 +41,8 @@ class RnaSeqTestData {
     static final String REGION_PLATFORM_MARKER_TYPE = 'RNASEQ_RCNT'
 
     SampleBioMarkerTestData bioMarkerTestData
+
+    ConceptTestData concept = HighDimTestData.createConcept('RNASEQPUBLIC', 'concept code #1', TRIAL_NAME, 'RNASEQ_CONCEPT')
 
     private String conceptCode
 
@@ -147,6 +151,8 @@ class RnaSeqTestData {
         save([ allPatientsQueryResult ])
         save assays
         save rnaseqData
+
+        concept.saveAll()
     }
 
 }

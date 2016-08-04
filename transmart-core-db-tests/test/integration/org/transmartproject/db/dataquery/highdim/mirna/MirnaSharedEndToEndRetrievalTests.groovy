@@ -32,6 +32,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
@@ -57,6 +58,8 @@ abstract class MirnaSharedEndToEndRetrievalTests {
 
     TabularResult result
 
+    String conceptKey
+
     abstract String getTypeName()
 
     @Before
@@ -70,6 +73,8 @@ abstract class MirnaSharedEndToEndRetrievalTests {
                 name: MirnaTestData.TRIAL_NAME,
         )
         projection = mirnaResource.createProjection [:], Projection.ZSCORE_PROJECTION
+
+        conceptKey = '\\\\' + testData.concept.tableAccesses[0].tableCode + testData.concept.conceptDimensions[0].conceptPath
     }
 
     @After
@@ -213,7 +218,7 @@ abstract class MirnaSharedEndToEndRetrievalTests {
     }
 
     @Test
-    void testSearchAnnotation() {
+    void testSearchAnnotationMirnaId() {
         def mirna_ids = mirnaResource.searchAnnotation(concept_code, 'hsa', 'mirnaId')
         assertThat mirna_ids, allOf(
                 hasSize(2),
@@ -230,10 +235,80 @@ abstract class MirnaSharedEndToEndRetrievalTests {
                         equalTo('hsa-mir-323b')
                 )
         )
+    }
 
-        mirna_ids = mirnaResource.searchAnnotation(concept_code, 'bogus', 'mirnaId')
+    @Test
+    void testSearchAnnotationDetector() {
+        def detectors = mirnaResource.searchAnnotation(concept_code, 'mmu', 'detector')
+        assertThat detectors, allOf(
+                hasSize(2),
+                contains(
+                        equalTo('mmu-miR-3161-4395373'),
+                        equalTo('mmu-miR-323b-4373305')
+                )
+        )
+    }
+
+    @Test
+    void testSearchAnnotationEmpty() {
+        def mirna_ids = mirnaResource.searchAnnotation(concept_code, 'bogus', 'mirnaId')
         assertThat mirna_ids, hasSize(0)
 
+    }
+
+    @Test
+    void testSearchAnnotationInvalid() {
         GroovyAssert.shouldFail(InvalidArgumentsException.class) {mirnaResource.searchAnnotation(concept_code, 'hsa', 'FOO')}
+    }
+
+    @Test
+    void testLogIntensityConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.MIRNA_QPCR,
+                property: 'mirnaId',
+                selector: 'hsa-mir-3161',
+                projectionType: Projection.LOG_INTENSITY_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '-3:-2'
+        )
+
+        def distribution = mirnaResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.mirnaData.findAll {it.probe.mirnaId == 'hsa-mir-3161' && -3 <= it.logIntensity && it.logIntensity <= -2}.collectEntries {[it.patient.id, it.logIntensity]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
+
+    @Test
+    void testRawIntensityConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.MIRNA_QPCR,
+                property: 'mirnaId',
+                selector: 'hsa-mir-3161',
+                projectionType: Projection.DEFAULT_REAL_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '0.05:0.15'
+        )
+
+        def distribution = mirnaResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.mirnaData.findAll {it.probe.mirnaId == 'hsa-mir-3161' && 0.05 <= it.rawIntensity && it.rawIntensity <= 0.15}.collectEntries {[it.patient.id, it.rawIntensity]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
+
+    @Test
+    void testZScoreConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: typeName == 'mirnaseq' ? ConstraintByOmicsValue.OmicsType.MIRNA_SEQ : ConstraintByOmicsValue.OmicsType.MIRNA_QPCR,
+                property: 'mirnaId',
+                selector: 'hsa-mir-3161',
+                projectionType: Projection.ZSCORE_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '0.1:0.3'
+        )
+
+        def distribution = mirnaResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.mirnaData.findAll {it.probe.mirnaId == 'hsa-mir-3161' && 0.1 <= it.zscore && it.zscore <= 0.3}.collectEntries {[it.patient.id, it.zscore]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
     }
 }

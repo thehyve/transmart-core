@@ -18,7 +18,6 @@
  */
 
 package org.transmartproject.db.dataquery.highdim.mrna
-
 import grails.util.Holders
 import org.transmartproject.db.biomarker.BioMarkerCoreDb
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
@@ -26,6 +25,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -40,6 +40,8 @@ class MrnaTestData {
     SampleBioMarkerTestData bioMarkerTestData
 
     private String conceptCode
+
+    ConceptTestData concept = HighDimTestData.createConcept('MRNAPUBLIC', conceptCode, TRIAL_NAME, 'MRNA_CONCEPT', 'mrna i2b2 main')
 
     DeGplInfo platform = {
         def res = new DeGplInfo(
@@ -135,6 +137,8 @@ class MrnaTestData {
         save patients
         save assays
         save microarrayData
+
+        concept.saveAll()
     }
 
     void updateDoubleScaledValues() {

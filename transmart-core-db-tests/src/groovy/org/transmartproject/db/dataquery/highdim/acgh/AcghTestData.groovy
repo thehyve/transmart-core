@@ -23,9 +23,11 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
@@ -41,6 +43,8 @@ class AcghTestData {
     SampleBioMarkerTestData bioMarkerTestData
 
     private String conceptCode
+
+    ConceptTestData concept = HighDimTestData.createConcept('ACGHPUBLIC', 'concept code #1', TRIAL_NAME, 'REGION_CONCEPT', 'acgh i2b2 main')
 
     AcghTestData(String conceptCode = 'concept code #1',
                  SampleBioMarkerTestData bioMarkerTestData = null) {
@@ -149,6 +153,7 @@ class AcghTestData {
         save([ allPatientsQueryResult ])
         save assays
         save acghData
+        concept.saveAll()
     }
 
 }

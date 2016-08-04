@@ -18,7 +18,6 @@
  */
 
 package org.transmartproject.db.dataquery.highdim
-
 import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.biomarker.BioDataCorrelDescr
 import org.transmartproject.db.biomarker.BioDataCorrelationCoreDb
@@ -27,6 +26,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.search.SearchGeneSignature
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
@@ -64,6 +64,16 @@ class HighDimTestData {
             s.id = --baseId
             s
         }
+    }
+
+    static ConceptTestData createConcept(String root = 'PUBLIC',
+                                     String concept_code = 'concept code #1',
+                                     String trialName = 'SAMP_TRIAL',
+                                     String name =  'SAMP_CONCEPT',
+                                     String tableCode = 'i2b2 main') {
+        ConceptTestData result = new ConceptTestData()
+        result.addLeafConcept(root, trialName, name, concept_code, tableCode)
+        result
     }
 
     //to be removed (unnecessary indirection)

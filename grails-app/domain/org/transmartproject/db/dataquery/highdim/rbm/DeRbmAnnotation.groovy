@@ -23,6 +23,7 @@ import org.transmartproject.db.dataquery.highdim.DeGplInfo
 
 class DeRbmAnnotation {
 
+    Long id
     String gplId
     String antigenName
     String uniprotId

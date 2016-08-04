@@ -25,6 +25,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
@@ -43,6 +44,8 @@ class RbmTestData {
         res.id = 'BOGUSRBMplatform'
         res
     }()
+
+    ConceptTestData concept = HighDimTestData.createConcept('RBMPUBLIC', 'concept code #1', TRIAL_NAME, 'RBM_CONCEPT')
 
     List<PatientDimension> patients =
         HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
@@ -121,6 +124,8 @@ class RbmTestData {
         save assays
         save annotations
         save data
+
+        concept.saveAll()
     }
 
 }

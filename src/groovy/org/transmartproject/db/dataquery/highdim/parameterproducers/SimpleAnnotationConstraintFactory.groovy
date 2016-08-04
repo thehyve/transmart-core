@@ -19,26 +19,24 @@ class SimpleAnnotationConstraintFactory extends AbstractMethodBasedParameterFact
     @ProducerFor(DataConstraint.ANNOTATION_CONSTRAINT)
     DataConstraint createAnnotationConstraint(Map<String, Object> params) {
 
-        if (params.keySet().containsAll(['property','term'])) {
-            DetachedCriteria dc = DetachedCriteria.forClass(annotationClass)
-            dc.setProjection(Projections.distinct(Projections.property('id')))
-            dc.add(Restrictions.eq(params['property'], params['term']))
-            if (params.containsKey('concept_code')) {
-                dc.add(Restrictions.eq('platform', DeSubjectSampleMapping.findByConceptCode(params['concept_code']).getPlatform()))
-            }
-            else if (params.containsKey('concept_key')) {
-                def concept_path = keyToPath(params['concept_key'])
-                dc.add(Restrictions.eq('platform', DeSubjectSampleMapping.findByConceptCode(ConceptDimension.findByConceptPath(concept_path).getConceptCode()).getPlatform()))
-            }
-            else
-                throw new InvalidArgumentsException("SimpleAnnotationDataConstraint needs the following parameters: ['property','term','concept_key' OR 'concept_code'], but got $params")
-            return new SubqueryInDataConstraint (
-                    field: this.field + '.id',
-                    detachedCriteria: dc
-            )
-        }
-        else
+        if (!params.keySet().containsAll(['property','term']) ||
+                !(params.keySet().contains('concept_code') || params.keySet().contains('concept_key')))
             throw new InvalidArgumentsException("SimpleAnnotationDataConstraint needs the following parameters: ['property','term','concept_key' OR 'concept_code'], but got $params")
+        DetachedCriteria dc = DetachedCriteria.forClass(annotationClass)
+        dc.setProjection(Projections.distinct(Projections.property('id')))
+        dc.add(Restrictions.eq(params['property'], params['term']))
+        if (params.containsKey('concept_code')) {
+            dc.add(Restrictions.eq('platform', DeSubjectSampleMapping.findByConceptCode(params['concept_code']).getPlatform()))
+        }
+        else if (params.containsKey('concept_key')) {
+            def concept_path = keyToPath(params['concept_key'])
+            dc.add(Restrictions.eq('platform', DeSubjectSampleMapping.findByConceptCode(ConceptDimension.findByConceptPath(concept_path).getConceptCode()).getPlatform()))
+        }
+        return new SubqueryInDataConstraint (
+                field: this.field + '.id',
+                detachedCriteria: dc
+        )
+
     }
 
     private def keyToPath(String concept_key) {

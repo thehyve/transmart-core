@@ -24,6 +24,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.ontology.ConceptTestData
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
@@ -39,6 +40,8 @@ class MirnaTestData {
     List<DeSubjectSampleMapping> assays
     List<DeQpcrMirnaAnnotation> probes
     List<DeSubjectMirnaData> mirnaData
+
+    ConceptTestData concept = HighDimTestData.createConcept('MIRNAPUBLIC', 'concept code #1', TRIAL_NAME, 'MIRNA_CONCEPT')
     
     public MirnaTestData() {
         generateTestData()
@@ -116,6 +119,8 @@ class MirnaTestData {
         save assays
         save probes
         save mirnaData
+
+        concept.saveAll()
     }
 
 }

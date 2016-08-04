@@ -24,6 +24,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
@@ -32,6 +33,8 @@ class MetaboliteTestData {
     public static final String TRIAL_NAME = 'METABOLITE_EXAMPLE_TRIAL'
 
     SampleBioMarkerTestData biomarkerTestData = new SampleBioMarkerTestData()
+
+    ConceptTestData concept = HighDimTestData.createConcept('METABOLITEPUBLIC', 'concept code #1', TRIAL_NAME, 'METABOLITE_CONCEPT')
 
     DeGplInfo platform = {
         def res = new DeGplInfo(
@@ -168,5 +171,6 @@ class MetaboliteTestData {
         save searchKeywordsForSubPathways
         save annotations
         save data
+        concept.saveAll()
     }
 }

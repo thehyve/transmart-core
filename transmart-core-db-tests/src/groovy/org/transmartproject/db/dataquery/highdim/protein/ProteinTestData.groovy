@@ -25,6 +25,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.ontology.ConceptTestData
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
@@ -42,6 +43,8 @@ class ProteinTestData {
         res.id = 'BOGUS_PROTEIN_PLATFORM'                  // ?? what should be here
         res
     }()
+
+    ConceptTestData concept = HighDimTestData.createConcept('PROTEINPUBLIC', 'concept code #1', TRIAL_NAME, 'PROTEIN_CONCEPT')
 
     List<PatientDimension> patients =
         HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
@@ -103,5 +106,7 @@ class ProteinTestData {
         save assays
         save annotations
         save data
+
+        concept.saveAll()
     }
 }

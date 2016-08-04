@@ -18,7 +18,6 @@
  */
 
 package org.transmartproject.db.dataquery.highdim.mrna
-
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import groovy.test.GroovyAssert
@@ -36,7 +35,6 @@ import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-
 /**
  * Created by glopes on 11/18/13.
  *
@@ -55,7 +53,9 @@ class MrnaEndToEndRetrievalTests {
 
     AssayConstraint trialNameConstraint
 
-    private static final String concept_code = 'concept code #1'
+    private static final String conceptCode = 'concept code #1'
+
+    String conceptKey
 
     @Before
     void setUp() {
@@ -67,6 +67,9 @@ class MrnaEndToEndRetrievalTests {
         trialNameConstraint = mrnaResource.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: MrnaTestData.TRIAL_NAME)
+
+        // there should only be one tableAccess and one conceptDimension in the testData
+        conceptKey = '\\\\' + testData.concept.tableAccesses[0].tableCode + testData.concept.conceptDimensions[0].conceptPath
     }
 
     @After
@@ -201,7 +204,7 @@ class MrnaEndToEndRetrievalTests {
     @Test
     void testAnnotationSearchMulti() {
         // test multiple result, alphabetical order
-        def symbols = mrnaResource.searchAnnotation(concept_code, 'BOGUS', 'geneSymbol')
+        def symbols = mrnaResource.searchAnnotation(conceptCode, 'BOGUS', 'geneSymbol')
 
         assertThat symbols, allOf(
                 hasSize(3),
@@ -217,7 +220,7 @@ class MrnaEndToEndRetrievalTests {
     @Test
     void testAnnotationSearchSingle() {
         // test single result
-        def symbols = mrnaResource.searchAnnotation(concept_code, 'BOGUSC', 'geneSymbol')
+        def symbols = mrnaResource.searchAnnotation(conceptCode, 'BOGUSC', 'geneSymbol')
         assertThat symbols, allOf(
                 hasSize(1),
                 contains(equalTo('BOGUSCPO'))
@@ -227,34 +230,79 @@ class MrnaEndToEndRetrievalTests {
     @Test
     void testAnnotationSearchNoResult() {
         // test non-occuring name
-        def symbols = mrnaResource.searchAnnotation(concept_code, 'FOO', 'geneSymbol')
+        def symbols = mrnaResource.searchAnnotation(conceptCode, 'FOO', 'geneSymbol')
         assertThat symbols, hasSize(0)
     }
 
     @Test
     void testAnnotationSearchInvalidProperty() {
         // test invalid search property
-        GroovyAssert.shouldFail(InvalidArgumentsException.class) {mrnaResource.searchAnnotation(concept_code, 'BOGUS', 'FOO')}
+        GroovyAssert.shouldFail(InvalidArgumentsException.class) {mrnaResource.searchAnnotation(conceptCode, 'BOGUS', 'FOO')}
     }
 
     @Test
-    void testGetDistributionMulti() {
-        def geneSymbol = "BOGUSCPO"
+    void testAnnotationConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION,
+                property: 'geneSymbol',
+                selector: 'BOGUSCPO',
+                projectionType: Projection.LOG_INTENSITY_PROJECTION
+        )
 
-        def geneSymbolConstraint = mrnaResource.createDataConstraint([property: 'geneSymbol', term: geneSymbol, concept_code: concept_code], DataConstraint.ANNOTATION_CONSTRAINT)
-        def logIntensityProjection = mrnaResource.createProjection([:], Projection.LOG_INTENSITY_PROJECTION)
+        def distribution = mrnaResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.microarrayData.findAll {it.probe.geneSymbol == 'BOGUSCPO'}.collectEntries {[it.patient.id, it.logIntensity]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
 
-        dataQueryResult = mrnaResource.retrieveData([trialNameConstraint],[geneSymbolConstraint], logIntensityProjection)
+    @Test
+    void testLogIntensityConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION,
+                property: 'geneSymbol',
+                selector: 'BOGUSCPO',
+                projectionType: Projection.LOG_INTENSITY_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '-3:-2'
+        )
 
-        // find the assays that should be in the result
-        def correctAssays = testData.microarrayData.findAll {it.probe.geneSymbol == geneSymbol}.collectEntries {[it.assay, it.logIntensity]}
-        def rows = dataQueryResult.rows.collect()
-        assertThat rows, hasSize(1)     // we expect data for only one probe
+        def distribution = mrnaResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.microarrayData.findAll {it.probe.geneSymbol == 'BOGUSCPO' && -3 <= it.logIntensity && it.logIntensity <= -2}.collectEntries {[it.patient.id, it.logIntensity]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
 
+    @Test
+    void testRawIntensityConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION,
+                property: 'geneSymbol',
+                selector: 'BOGUSCPO',
+                projectionType: Projection.DEFAULT_REAL_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '0.05:0.15'
+        )
 
-        correctAssays.each {assay, intensity ->
-            def index = rows[0].assayIndexMap.find {it.key.assay == assay}.value
-            assertThat rows[0].data[index] as Double, equalTo(intensity as Double)
-        }
+        def distribution = mrnaResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.microarrayData.findAll {it.probe.geneSymbol == 'BOGUSCPO' && 0.05 <= it.rawIntensity && it.rawIntensity <= 0.15}.collectEntries {[it.patient.id, it.rawIntensity]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
+
+    @Test
+    void testZScoreConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.GENE_EXPRESSION,
+                property: 'geneSymbol',
+                selector: 'BOGUSCPO',
+                projectionType: Projection.ZSCORE_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '0.3:0.5'
+        )
+
+        def distribution = mrnaResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.microarrayData.findAll {it.probe.geneSymbol == 'BOGUSCPO' && 0.3 <= it.zscore && it.zscore <= 0.5}.collectEntries {[it.patient.id, it.zscore]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
     }
 }

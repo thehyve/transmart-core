@@ -223,16 +223,18 @@ class ConceptTestData {
      * @param study name of the folder concept to be created
      * @param concept name of the concep to be created
      * @param code concept code
+     * @param tableCode table code
      * @return new concept
      */
     I2b2 addLeafConcept(String root = 'base',
                         String study = 'folder',
                         String concept = 'leaf',
-                        String code = 'mycode') {
+                        String code = 'mycode',
+                        String tableCode = 'i2b2 main') {
 
         initListsIfNull()
 
-        tableAccesses << createTableAccess(fullName: "\\$root\\", name: root, tableCode: 'i2b2 main', tableName: 'i2b2')
+        tableAccesses << createTableAccess(fullName: "\\$root\\", name: root, tableCode: tableCode, tableName: 'i2b2')
         i2b2List << createI2b2Concept(level: 1, fullName: "\\$root\\$study\\", name: study,
                 code: study, cVisualattributes: 'FA')
         I2b2 result = createI2b2Concept(level: 2, fullName: "\\$root\\$study\\$concept\\", name: concept,

@@ -34,6 +34,7 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -62,6 +63,8 @@ class ProteinEndToEndRetrievalTests {
            adiponectinPeptide,
            adipogenesisFactorPeptide
 
+    String conceptKey
+
     @Before
     void setUp() {
         testData.saveAll()
@@ -79,6 +82,8 @@ class ProteinEndToEndRetrievalTests {
         ureaTransporterPeptide = testData.annotations[-1].peptide
         adiponectinPeptide = testData.annotations[-2].peptide
         adipogenesisFactorPeptide = testData.annotations[-3].peptide
+
+        conceptKey = '\\\\' + testData.concept.tableAccesses[0].tableCode + testData.concept.conceptDimensions[0].conceptPath
     }
 
     @After
@@ -217,9 +222,9 @@ class ProteinEndToEndRetrievalTests {
     }
 
     @Test
-    void testSearchAnnotation() {
-        def gene_symbols = proteinResource.searchAnnotation(concept_code, 'PVR', 'uniprotName')
-        assertThat gene_symbols, allOf(
+    void testSearchAnnotationUniprotNameMulti() {
+        def uniprotNames = proteinResource.searchAnnotation(concept_code, 'PVR', 'uniprotName')
+        assertThat uniprotNames, allOf(
                 hasSize(3),
                 contains(
                         equalTo('PVR_HUMAN1'),
@@ -227,16 +232,98 @@ class ProteinEndToEndRetrievalTests {
                         equalTo('PVR_HUMAN3')
                 )
         )
+    }
 
-        gene_symbols = proteinResource.searchAnnotation(concept_code, 'PVR_HUMAN1', 'uniprotName')
-        assertThat gene_symbols, allOf(
+    @Test
+    void testSearchAnnotationUniprotNameSingle() {
+        def uniprotNames = proteinResource.searchAnnotation(concept_code, 'PVR_HUMAN1', 'uniprotName')
+        assertThat uniprotNames, allOf(
                 hasSize(1),
                 contains(equalTo('PVR_HUMAN1'))
         )
+    }
 
-        gene_symbols = proteinResource.searchAnnotation(concept_code, 'H', 'uniprotName')
-        assertThat gene_symbols, hasSize(0)
+    @Test
+    void testSearchAnnotationUniprotNameEmpty() {
+        def uniprotNames = proteinResource.searchAnnotation(concept_code, 'H', 'uniprotName')
+        assertThat uniprotNames, hasSize(0)
+    }
 
+    @Test
+    void testSearchAnnotationPeptideMulti() {
+        def peptides = proteinResource.searchAnnotation(concept_code, 'M', 'peptide')
+        assertThat peptides, allOf(
+                hasSize(3),
+                contains(
+                        equalTo('MASKGLQDLK'),
+                        equalTo('MLLLGAVLLL'),
+                        equalTo('MSDPHSSPLL')
+                )
+        )
+    }
+
+    @Test
+    void testSearchAnnotationPeptideSingle() {
+        def peptides = proteinResource.searchAnnotation(concept_code, 'MA', 'peptide')
+        assertThat peptides, allOf(
+                hasSize(1),
+                contains(equalTo('MASKGLQDLK'))
+        )
+    }
+
+    @Test
+    void testSearchAnnotationInvalid() {
         GroovyAssert.shouldFail(InvalidArgumentsException.class) {proteinResource.searchAnnotation(concept_code, 'PVR', 'FOO')}
+    }
+
+    @Test
+    void testLogIntensityConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.PROTEOMICS,
+                property: 'uniprotName',
+                selector: 'PVR_HUMAN1',
+                projectionType: Projection.LOG_INTENSITY_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '-3:-2'
+        )
+
+        def distribution = proteinResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.data.findAll {it.annotation.uniprotName == 'PVR_HUMAN1' && -3 <= it.logIntensity && it.logIntensity <= -2}.collectEntries {[it.patient.id, it.logIntensity]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
+
+    @Test
+    void testRawIntensityConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.PROTEOMICS,
+                property: 'uniprotName',
+                selector: 'PVR_HUMAN1',
+                projectionType: Projection.DEFAULT_REAL_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '0.05:0.15'
+        )
+
+        def distribution = proteinResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.data.findAll {it.annotation.uniprotName == 'PVR_HUMAN1' && 0.05 <= it.intensity && it.intensity <= 0.15}.collectEntries {[it.patient.id, it.intensity]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
+
+    @Test
+    void testZScoreConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.PROTEOMICS,
+                property: 'uniprotName',
+                selector: 'PVR_HUMAN1',
+                projectionType: Projection.ZSCORE_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '-1.5:-1'
+        )
+
+        def distribution = proteinResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.data.findAll {it.annotation.uniprotName == 'PVR_HUMAN1' && -1.5 <= it.zscore && it.zscore <= -1}.collectEntries {[it.patient.id, it.zscore]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
     }
 }

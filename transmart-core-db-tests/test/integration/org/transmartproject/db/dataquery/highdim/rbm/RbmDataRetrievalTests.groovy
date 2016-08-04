@@ -18,7 +18,6 @@
  */
 
 package org.transmartproject.db.dataquery.highdim.rbm
-
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import groovy.test.GroovyAssert
@@ -32,6 +31,7 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
@@ -54,6 +54,9 @@ class RbmDataRetrievalTests {
     TabularResult result
 
     double DELTA = 0.0001
+
+    private static final String conceptCode = 'concept code #1'
+    String conceptKey
 
     @Test
     void testRetrievalByTrialNameAssayConstraint() {
@@ -287,10 +290,8 @@ class RbmDataRetrievalTests {
     }
 
     @Test
-    void testSearchAnnotation() {
-        def concept_code = 'concept code #1'
-
-        def antigens = rbmResource.searchAnnotation(concept_code, 'Anti', 'antigenName')
+    void testSearchAnnotationAntigenName() {
+        def antigens = rbmResource.searchAnnotation(conceptCode, 'Anti', 'antigenName')
         assertThat antigens, allOf(
                 hasSize(3),
                 contains(
@@ -299,8 +300,11 @@ class RbmDataRetrievalTests {
                         equalTo('Antigene3')
                 )
         )
+    }
 
-        def names = rbmResource.searchAnnotation(concept_code, 'PVR_', 'uniprotName')
+    @Test
+    void testSearchAnnotationUniprotName() {
+        def names = rbmResource.searchAnnotation(conceptCode, 'PVR_', 'uniprotName')
         assertThat names, allOf(
                 hasSize(4),
                 contains(
@@ -310,8 +314,11 @@ class RbmDataRetrievalTests {
                         equalTo('PVR_HUMAN4')
                 )
         )
+    }
 
-        def symbols = rbmResource.searchAnnotation(concept_code, 'A', 'geneSymbol')
+    @Test
+    void testSearchAnnotationGeneSymbol() {
+        def symbols = rbmResource.searchAnnotation(conceptCode, 'A', 'geneSymbol')
         assertThat symbols, allOf(
                 hasSize(2),
                 contains(
@@ -319,11 +326,112 @@ class RbmDataRetrievalTests {
                         equalTo('AURKA')
                 )
         )
+    }
 
-        def empty = rbmResource.searchAnnotation(concept_code, 'FOO', 'geneSymbol')
+    @Test
+    void testSearchAnnotationEmpty() {
+        def empty = rbmResource.searchAnnotation(conceptCode, 'FOO', 'geneSymbol')
         assertThat empty, hasSize(0)
+    }
+    @Test
+    void testSearchAnnotationInvalid() {
+        GroovyAssert.shouldFail(InvalidArgumentsException.class) {rbmResource.searchAnnotation(conceptCode, 'A', 'FOO')}
+    }
 
-        GroovyAssert.shouldFail(InvalidArgumentsException.class) {rbmResource.searchAnnotation(concept_code, 'A', 'FOO')}
+    @Test
+    void testUniprotNameAnnotationConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.RBM,
+                property: 'uniprotName',
+                selector: 'PVR_HUMAN1',
+                projectionType: Projection.LOG_INTENSITY_PROJECTION,
+        )
+
+        def distribution = rbmResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.data.findAll {it.annotations.any {it.uniprotName == 'PVR_HUMAN1'}}.collectEntries {[it.patient.id, it.logIntensity]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
+
+    @Test
+    void testAntigenNameAnnotationConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.RBM,
+                property: 'antigenName',
+                selector: 'Antigene1',
+                projectionType: Projection.LOG_INTENSITY_PROJECTION,
+        )
+
+        def distribution = rbmResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.data.findAll {it.annotations.any {it.antigenName == 'Antigene1'}}.collectEntries {[it.patient.id, it.logIntensity]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
+
+    @Test
+    void testGeneSymbolAnnotationConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.RBM,
+                property: 'geneSymbol',
+                selector: 'AURKA',
+                projectionType: Projection.LOG_INTENSITY_PROJECTION,
+        )
+
+        def distribution = rbmResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.data.findAll {it.annotations.any {it.geneSymbol == 'AURKA'}}.collectEntries {[it.patient.id, it.logIntensity]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
+
+    @Test
+    void testLogIntensityConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.RBM,
+                property: 'uniprotName',
+                selector: 'PVR_HUMAN1',
+                projectionType: Projection.LOG_INTENSITY_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '-3:-2'
+        )
+
+        def distribution = rbmResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.data.findAll {it.annotations.any {it.uniprotName == 'PVR_HUMAN1'} && -3 <= it.logIntensity && it.logIntensity <= -2}.collectEntries {[it.patient.id, it.logIntensity]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
+
+    @Test
+    void testRawIntensityConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.RBM,
+                property: 'uniprotName',
+                selector: 'PVR_HUMAN1',
+                projectionType: Projection.DEFAULT_REAL_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '0.05:0.15'
+        )
+
+        def distribution = rbmResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.data.findAll {it.annotations.any {it.uniprotName == 'PVR_HUMAN1'} && 0.05 <= it.value && it.value <= 0.15}.collectEntries {[it.patient.id, it.value]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
+    }
+
+    @Test
+    void testZScoreConstraint() {
+        def constraint = new ConstraintByOmicsValue(
+                omicsType: ConstraintByOmicsValue.OmicsType.RBM,
+                property: 'uniprotName',
+                selector: 'PVR_HUMAN1',
+                projectionType: Projection.ZSCORE_PROJECTION,
+                operator: 'BETWEEN',
+                constraint: '-1.5:-1'
+        )
+
+        def distribution = rbmResource.getDistribution(constraint, conceptKey, null)
+        def correctValues = testData.data.findAll {it.annotations.any {it.uniprotName == 'PVR_HUMAN1'} && -1.5 <= it.zscore && it.zscore <= -1}.collectEntries {[it.patient.id, it.zscore]}
+        assertThat distribution.size(), greaterThanOrEqualTo(1)
+        assert distribution.equals(correctValues) // groovy maps are equal if they have same size, keys and values
     }
 
     @Before
@@ -336,6 +444,8 @@ class RbmDataRetrievalTests {
                 name: RbmTestData.TRIAL_NAME,
         )
         projection = rbmResource.createProjection [:], Projection.ZSCORE_PROJECTION
+
+        conceptKey = '\\\\' + testData.concept.tableAccesses[0].tableCode + testData.concept.conceptDimensions[0].conceptPath
     }
 
     @After
