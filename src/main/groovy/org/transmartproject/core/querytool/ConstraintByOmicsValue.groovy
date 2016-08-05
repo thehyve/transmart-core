@@ -58,10 +58,15 @@ class ConstraintByOmicsValue {
 
     static enum OmicsType {
         GENE_EXPRESSION ('Gene Expression'),
+        RNASEQ ('RNASEQ'),
         RNASEQ_RCNT ('RNASEQ_RCNT'),
         PROTEOMICS ('PROTEOMICS'),
         CHROMOSOMAL ('Chromosomal'),
         MIRNA_QPCR ('MIRNA_QPCR'),
+        MIRNA_SEQ ('MIRNA_SEQ'),
+        METABOLOMICS ('METABOLOMICS'),
+        RBM ('RBM'),
+
         VCF ('VCF')
 
         final String value
