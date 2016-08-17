@@ -1,44 +1,42 @@
 package org.transmartproject.batch.highdim.cnv.data
 
-import org.springframework.stereotype.Component
 import org.transmartproject.batch.batchartifacts.AbstractMultipleVariablesPerSampleFieldSetMapper
 
 /**
  * Implementation of {@link AbstractMultipleVariablesPerSampleFieldSetMapper} for {@link CnvDataValue}
  */
-@Component
 class CnvDataMultipleVariablesPerSampleFieldSetMapper
-        extends AbstractMultipleVariablesPerSampleFieldSetMapper {
+        extends AbstractMultipleVariablesPerSampleFieldSetMapper<CnvDataValue> {
     @Override
-    Object newInstance(String annotation, String sampleCode) {
+    CnvDataValue newInstance(String annotation, String sampleCode) {
         new CnvDataValue(regionName: annotation, sampleCode: sampleCode)
     }
 
     final Map<String, Closure> fieldSetters =
             [
                     flag       : { CnvDataValue instance, String value ->
-                        instance.flag = (value.trim() ?: null) as Integer
+                        instance.flag = numberFormat.parse(value).intValue()
                     },
                     chip       : { CnvDataValue instance, String value ->
-                        instance.chip = (value.trim() ?: null) as Double
+                        instance.chip = numberFormat.parse(value).doubleValue()
                     },
                     segmented  : { CnvDataValue instance, String value ->
-                        instance.segmented = (value.trim() ?: null) as Double
+                        instance.segmented = numberFormat.parse(value).doubleValue()
                     },
                     probhomloss: { CnvDataValue instance, String value ->
-                        instance.probHomLoss = (value.trim() ?: null) as Double
+                        instance.probHomLoss = numberFormat.parse(value).doubleValue()
                     },
                     probloss   : { CnvDataValue instance, String value ->
-                        instance.probLoss = (value.trim() ?: null) as Double
+                        instance.probLoss = numberFormat.parse(value)?.doubleValue()
                     },
                     probnorm   : { CnvDataValue instance, String value ->
-                        instance.probNorm = (value.trim() ?: null) as Double
+                        instance.probNorm = numberFormat.parse(value).doubleValue()
                     },
                     probgain   : { CnvDataValue instance, String value ->
-                        instance.probGain = (value.trim() ?: null) as Double
+                        instance.probGain = numberFormat.parse(value).doubleValue()
                     },
                     probamp    : { CnvDataValue instance, String value ->
-                        instance.probAmp = (value.trim() ?: null) as Double
+                        instance.probAmp = numberFormat.parse(value).doubleValue()
                     },
             ]
 

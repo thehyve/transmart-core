@@ -40,7 +40,8 @@ Data
 The parameters file should be named `metabolomics.params`.
 For the content of this file see [the HD data parameters](hd-params.md) and [the study-specific parameters](study-params.md).
 
-[Read more on how HD data are processed.](../hd-data-processing-details.md)
+[How HD data are processed.](../hd-data-processing-details.md)
+[How to upload zscores](../zscore-upload.md)
 
 <!-- vim: tw=80 et ft=markdown spell:
 -->
