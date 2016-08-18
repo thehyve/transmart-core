@@ -19,9 +19,13 @@
 
 package org.transmartproject.db.querytool
 
+<<<<<<< HEAD
 import grails.transaction.Transactional
+=======
+>>>>>>> d15504c... Merge branch 'cohort-disabling' into gb-dev
 import grails.gorm.DetachedCriteria
 import org.hibernate.jdbc.Work
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.QueriesResource
@@ -164,10 +168,51 @@ class QueriesResourceService implements QueriesResource {
     }
 
     @Override
+    QueryResult runDisablingQuery(Long id,
+                         String username) throws InvalidRequestException
+    {
+        QtQueryResultInstance resultInstance = getQueryResultFromId(id)
+
+        if (resultInstance.queryInstance.userId == username) {
+            resultInstance.deleteFlag = "Y"
+        }
+        else{
+            throw new AccessDeniedException("User ${username} has no permission" +
+                    " to disable query result instance with id $id")
+        }
+
+        def newResultInstance = resultInstance.save()
+        if (!newResultInstance) {
+            throw new RuntimeException('Failure disabling resultInstance ' +
+                    'Errors: ' +
+                    resultInstance.errors)
+        }
+
+        resultInstance
+    }
+
+    @Override
     QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
-        QtQueryResultInstance.get(id) ?:
-                {  throw new NoSuchResourceException(
-                        "Could not find query result instance with id $id") }()
+        List answer = QtQueryResultInstance.executeQuery(
+                '''SELECT R.queryInstance.queryResults FROM
+                        QtQueryResultInstance R WHERE R.id = ?
+        AND R.deleteFlag = ?''',
+                [id, 'N']
+        )
+        if (!answer) {
+            throw new NoSuchResourceException(
+                    "Could not find query result instance with id $id" +
+                            "+ and delete_flag = 'N'")
+        }
+        answer[0]
+    }
+
+    @Override
+    List<QueryResult> getQueryResultsByUsername(String username) {
+        def query = QtQueryResultInstance.where {
+            queryInstance.userId == username
+        }
+        query.findAll()
     }
 
     @Override

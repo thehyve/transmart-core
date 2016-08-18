@@ -27,7 +27,10 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.concept.ConceptKey
+<<<<<<< HEAD:src/main/groovy/org/transmartproject/db/ontology/AbstractI2b2Metadata.groovy
 import org.transmartproject.db.util.StringUtils
+=======
+>>>>>>> d15504c... Merge branch 'cohort-disabling' into gb-dev:src/groovy/org/transmartproject/db/ontology/AbstractI2b2Metadata.groovy
 import org.transmartproject.db.i2b2data.PatientDimension
 
 @EqualsAndHashCode(includes = [ 'fullName', 'name' ])
