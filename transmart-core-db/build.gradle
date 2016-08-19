@@ -5,6 +5,9 @@ buildscript {
     repositories {
         mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
+        mavenCentral()
+        maven { url 'https://repo.transmartfoundation.org/content/repositories/public/' }
+        maven { url 'https://repo.thehyve.nl/content/repositories/public/' }
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
@@ -13,14 +16,14 @@ buildscript {
 }
 
 version "17.1"
-group "transmart.core.db"
+group "core"
 
-apply plugin:"eclipse"
-apply plugin:"idea"
-apply plugin:"org.grails.grails-plugin"
-apply plugin:"org.grails.grails-plugin-publish"
-apply plugin:"org.grails.grails-gsp"
-apply plugin:"asset-pipeline"
+apply plugin: "eclipse"
+apply plugin: "idea"
+apply plugin: "org.grails.grails-plugin"
+apply plugin: "org.grails.grails-plugin-publish"
+apply plugin: "org.grails.grails-gsp"
+apply plugin: "asset-pipeline"
 
 ext {
     grailsVersion = project.grailsVersion
@@ -58,6 +61,14 @@ dependencies {
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+
+    compile 'org.transmartproject:transmart-core-api:1.2.4'
+    compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
+
+    runtime('org.postgresql:postgresql:9.3-1100-jdbc41')
+    // https://mvnrepository.com/artifact/org.hibernate/hibernate-core
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '4.3.5.Final'
+
 }
 grailsPublish {
     // TODO: Provide values here
@@ -65,13 +76,18 @@ grailsPublish {
     key = 'key'
     githubSlug = 'foo/bar'
     license {
-        name = 'Apache-2.0'
+        name = 'GPL3'
     }
-    title = "My Plugin"
-    desc = "Full plugin description"
-    developers = [johndoe:"John Doe"]
+    title = "Transmart Core DB Plugin"
+    desc = '''\
+A runtime dependency for tranSMART that implements the Core API
+'''
+    /developers = [
+            [ name: "Kees van Bochove",  email: "kees@thehyve.nl"],
+            [ name: "Gustavo Lopes"   ,  email: "gustavo@thehyve.nl" ],
+    ]*/
     portalUser = ""
-    portalPassword = ""    
+    portalPassword = ""
 }
 
 assets {
