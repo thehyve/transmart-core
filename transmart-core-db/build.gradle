@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "0.1"
+version "17.1"
 group "transmart.core.db"
 
 apply plugin:"eclipse"
