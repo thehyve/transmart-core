@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import org.hibernate.cfg.NotYetImplementedException
 import org.transmartproject.core.dataquery.highdim.Platform
 
 class DeGplInfo implements Platform {
@@ -34,7 +35,7 @@ class DeGplInfo implements Platform {
         table         schema: 'deapp'
 
         id              column: 'platform',   generator: 'assigned'
-        genomeReleaseId column: 'genome_build'
+        genomeReleaseId column: 'release_nbr'
 
         version      false
     }
@@ -51,6 +52,6 @@ class DeGplInfo implements Platform {
 
     @Override
     Iterable<?> getTemplate() {
-        throw new UnsupportedOperationException()
+        throw new NotYetImplementedException()
     }
 }

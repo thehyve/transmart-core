@@ -1,1 +1,1 @@
-include 'transmart-core-api','transmart-core-db', 'transmartApp', 'Rmodules', 'transmart-rest-api', 'transmart-legacy-db'
+include 'transmart-core-db', 'transmartApp'

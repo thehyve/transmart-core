@@ -2,7 +2,7 @@
 grails:
     profile: web-plugin
     codegen:
-        defaultPackage: transmart.core.db
+        defaultPackage: core.db
     spring:
         transactionManagement:
             proxies: false

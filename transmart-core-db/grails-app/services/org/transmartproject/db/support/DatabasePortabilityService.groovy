@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.support
 
-import grails.orm.HibernateCriteriaBuilder
+//import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.Criteria
 import org.hibernate.criterion.LikeExpression
 import org.springframework.beans.factory.annotation.Autowired
@@ -142,13 +142,6 @@ class DatabasePortabilityService {
         runCorrectImplementation(
                 { [limit, offset] }, /* do not convert for PostgreSQL */
                 { [offset + limit, offset + 1] }
-        )
-    }
-
-    String toChar(String expr){
-        runCorrectImplementation(
-                {"CAST($expr as character varying)"},
-                {"to_char($expr)"}
         )
     }
 

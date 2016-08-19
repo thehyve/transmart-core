@@ -116,11 +116,11 @@ dependencies {
     /*compile 'org.grails.plugins:rdc-rmodules:1.2.4'
     runtime 'org.grails.plugins:transmart-core:1.2.4'
     compile 'org.grails.plugins:transmart-gwas:1.2.4'*/
-    compile project(':transmart-legacy-db')
-    compile project(':transmart-core-api')
+    //compile project(':transmart-legacy-db')
+    //compile project(':transmart-core-api')
     compile project(':transmart-core-db')
-    compile project(':Rmodules')
-    compile project(':transmart-rest-api')
+    //compile project(':Rmodules')
+    //compile project(':transmart-rest-api')
 }
 
 

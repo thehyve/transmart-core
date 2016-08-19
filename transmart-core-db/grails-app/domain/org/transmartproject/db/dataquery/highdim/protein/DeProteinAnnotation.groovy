@@ -27,10 +27,6 @@ class DeProteinAnnotation {
     String   uniprotId
     String   uniprotName
 
-    String   chromosome
-    Long     startBp
-    Long     endBp
-
     // irrelevant
     //String biomarkerId
     //String organism
@@ -53,9 +49,6 @@ class DeProteinAnnotation {
         peptide     maxSize:  800
         uniprotId   nullable: true, maxSize: 200
         uniprotName nullable: true, maxSize: 200
-        chromosome  nullable: true
-        startBp     nullable: true
-        endBp       nullable: true
 
         //biomarkerId nullable: true, maxSize: 400
         //organism    nullable: true, maxSize: 800
