@@ -1,0 +1,5 @@
+{
+	"github": true,
+	"glob": ["src/main/groovy/**/*.groovy", "README.md"]
+}
+
