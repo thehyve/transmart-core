@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery.highdim.correlations
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Iterables
 import com.google.common.collect.Multimap
-import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
@@ -119,7 +119,7 @@ class SearchKeywordDataConstraint implements CriteriaDataConstraint {
     }
 
     @Override
-    void doWithCriteriaBuilder(HibernateCriteriaBuilder criteria) {
+    void doWithCriteriaBuilder(CriteriaBuilder criteria) {
         innerConstraint.doWithCriteriaBuilder criteria
     }
 

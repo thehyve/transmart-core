@@ -19,9 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.rnaseqcog
 
-import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 import org.hibernate.ScrollableResults
-import org.hibernate.engine.SessionImplementor
+import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
@@ -35,7 +35,6 @@ import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataC
 import org.transmartproject.db.dataquery.highdim.parameterproducers.*
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 /**
  * Module for RNA-seq, as implemented for Oracle by Cognizant.
@@ -65,8 +64,8 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
     CorrelationTypesRegistry correlationTypesRegistry
 
     @Override
-    HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
-        HibernateCriteriaBuilder criteriaBuilder =
+    CriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
+        CriteriaBuilder criteriaBuilder =
             createCriteriaBuilder(DeSubjectRnaData, 'rnadata', session)
 
         criteriaBuilder.with {
@@ -141,7 +140,7 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'ann', 'geneId') ]
+                        'GENE', 'jAnnotation', 'geneId') ]
     }
 
     @Override

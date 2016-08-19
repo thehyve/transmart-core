@@ -1,5 +1,5 @@
 /*
- * Copyright © 2013-2016 The Hyve B.V.
+ * Copyright © 2013-2014 The Hyve B.V.
  *
  * This file is part of transmart-core-db.
  *
@@ -32,6 +32,9 @@ import org.transmartproject.db.dataquery.highdim.assayconstraints.*
 
 import static org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils.*
 
+/**
+ * Created by glopes on 11/18/13.
+ */
 @Component
 class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory {
 
@@ -42,7 +45,7 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
     QueriesResource queriesResource
 
     private DisjunctionConstraintFactory disjunctionConstraintFactory =
-            new DisjunctionConstraintFactory(DisjunctionAssayCriteriaConstraint, NoopAssayCriteriaConstraint)
+            new DisjunctionConstraintFactory(DisjunctionAssayConstraint, NoopAssayConstraint)
 
     @ProducerFor(AssayConstraint.ONTOLOGY_TERM_CONSTRAINT)
     AssayConstraint createOntologyTermConstraint(Map<String, Object> params) {
@@ -59,7 +62,7 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
             throw new InvalidArgumentsException(nse)
         }
 
-        new DefaultOntologyTermCriteriaConstraint(term: term)
+        new DefaultOntologyTermConstraint(term: term)
     }
 
     @ProducerFor(AssayConstraint.PATIENT_SET_CONSTRAINT)
@@ -78,7 +81,7 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
             throw new InvalidArgumentsException(nse)
         }
 
-        new DefaultPatientSetCriteriaConstraint(queryResult: result)
+        new DefaultPatientSetConstraint(queryResult: result)
     }
 
     @ProducerFor(AssayConstraint.TRIAL_NAME_CONSTRAINT)
@@ -87,7 +90,7 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
         validateParameterNames(['name'], params)
         def name = getParam params, 'name', String
 
-        new DefaultTrialNameCriteriaConstraint(trialName: name)
+        new DefaultTrialNameConstraint(trialName: name)
     }
 
     @ProducerFor(AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
@@ -95,15 +98,7 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
         validateParameterNames(['ids'], params)
         def ids = processLongList 'ids', params.ids
 
-        new AssayIdListCriteriaConstraint(ids: ids)
-    }
-
-    @ProducerFor(AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)
-    AssayConstraint createPatientIdListConstraint(Map<String, Object> params) {
-        validateParameterNames(['ids'], params)
-        def ids = processStringList 'ids', params.ids
-
-        new PatientIdListCriteriaConstraint(patientIdList: ids)
+        new AssayIdListConstraint(ids: ids)
     }
 
     @ProducerFor(AssayConstraint.DISJUNCTION_CONSTRAINT)

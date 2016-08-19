@@ -107,7 +107,7 @@ class TerminalClinicalVariablesTabularResult extends
 
     final String columnEntityName = 'concept'
 
-    @Override
+   // @Override
     protected Object getIndexObjectId(TerminalConceptVariable object) {
         object.conceptCode
     }
@@ -123,7 +123,8 @@ class TerminalClinicalVariablesTabularResult extends
 
         /* don't take Object[] otherwise would be vararg func and
          * further unwrapping needed */
-        list.each { Object rawRowUntyped ->
+        // Object rawRowUntyped
+        list.each { rawRowUntyped ->
             /* array with 5 elements */
             if (!rawRowUntyped) {
                 return

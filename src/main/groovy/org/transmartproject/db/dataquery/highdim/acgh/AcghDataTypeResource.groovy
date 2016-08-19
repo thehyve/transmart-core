@@ -32,19 +32,18 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceIm
  */
 @InheritConstructors
 class AcghDataTypeResource extends HighDimensionDataTypeResourceImpl {
-
     List<ChromosomalSegment> retrieveChromosomalSegments(
             List<AssayConstraint> assayConstraints) {
 
-        def assayQuery = new AssayQuery(assayConstraints)
-        def assayPlatformsQuery = assayQuery.forEntities().where {
+        def criteriaBuilder = new AssayQuery(assayConstraints).
+                prepareCriteriaWithConstraints()
+        criteriaBuilder.with {
             projections {
-                distinct 'platform.id'
-                id()
+                groupProperty 'platform.id'
             }
         }
 
-        def platformIds = assayPlatformsQuery.list().collect { it[0] } as Set
+        def platformIds = criteriaBuilder.instance.list().collect { it }
 
         if (platformIds.empty) {
             throw new EmptySetException(

@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.rnaseq
 
-import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
 import org.transmartproject.core.dataquery.highdim.rnaseq.RnaSeqValues
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
@@ -31,7 +31,7 @@ class RnaSeqValuesProjection implements CriteriaProjection<RnaSeqValues>, MultiV
     }
 
     @Override
-    void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {
+    void doWithCriteriaBuilder(CriteriaBuilder builder) {
         // RnaSeqModule.prepareDataQuery already projects all the columns
     }
 
