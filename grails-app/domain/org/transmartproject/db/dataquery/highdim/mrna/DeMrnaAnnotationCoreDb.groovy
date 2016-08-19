@@ -49,6 +49,6 @@ class DeMrnaAnnotationCoreDb {
     }
 
     BioMarkerCoreDb getBioMarkerGene() {
-        BioMarkerCoreDb.findByExternalId(geneId as String)
+        BioMarkerCoreDb.findByPrimaryExternalId(geneId as String)
     }
 }
