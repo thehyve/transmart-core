@@ -211,6 +211,7 @@ class QueriesResourceService implements QueriesResource {
     List<QueryResult> getQueryResultsByUsername(String username) {
         def query = QtQueryResultInstance.where {
             queryInstance.userId == username
+            deleteFlag == 'N'
         }
         query.findAll()
     }
