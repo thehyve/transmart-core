@@ -22,11 +22,9 @@ package org.transmartproject.db.dataquery.highdim
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.Iterators
 import com.google.common.collect.PeekingIterator
-import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.TabularResult
 
-@CompileStatic
 class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> {
 
     @Delegate
@@ -34,7 +32,7 @@ class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> {
 
     Closure<Object> collectBy = Closure.IDENTITY
 
-    Closure<T> resultItem = { List<T> it -> (T) it[0] }
+    Closure<T> resultItem = { it[0] }
 
     Iterator<T> getRows() {
         new RepeatedEntriesCollectingIterator(tabularResult.iterator())
@@ -44,13 +42,12 @@ class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> {
         getRows()
     }
 
-    @CompileStatic
     public class RepeatedEntriesCollectingIterator extends AbstractIterator<T> {
 
         PeekingIterator<T> sourceIterator
 
         RepeatedEntriesCollectingIterator(Iterator<T> sourceIterator) {
-            this.sourceIterator = (PeekingIterator<T>) Iterators.peekingIterator((Iterator) sourceIterator)
+            this.sourceIterator = Iterators.peekingIterator sourceIterator
         }
 
         @Override
@@ -61,14 +58,14 @@ class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> {
                 return
             }
 
-            collected.add((T) sourceIterator.next())
+            collected << sourceIterator.next()
             while (sourceIterator.hasNext() &&
-                    collectBy.call(sourceIterator.peek()) != null &&
-                    collectBy.call(sourceIterator.peek()) == collectBy.call(collected[0])) {
-                collected.add((T) sourceIterator.next())
+                    collectBy(sourceIterator.peek()) != null &&
+                    collectBy(sourceIterator.peek()) == collectBy(collected[0])) {
+                collected << sourceIterator.next()
             }
 
-            (T) resultItem.call(collected)
+            resultItem(collected)
         }
     }
 }

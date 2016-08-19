@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.vcf
 
-import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
@@ -30,7 +30,7 @@ import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 class VariantProjection implements CriteriaProjection<String> {
 
     @Override
-    void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {
+    void doWithCriteriaBuilder(CriteriaBuilder builder) {
         // Retrieving the criteriabuilder projection (which contains
         // the fields to be retrieved from the database)
         // N.B. This is a different object than the object we are 

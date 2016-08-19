@@ -19,9 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.mirna
 
-import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 import org.hibernate.ScrollableResults
-import org.hibernate.engine.SessionImplementor
+import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
@@ -37,7 +37,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.*
 import javax.annotation.PostConstruct
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 /*
  * Mirna QPCR and Mirna SEQ are different data types (according to the user), but they have basically the same
@@ -77,7 +76,7 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
 
     @Lazy private DataRetrievalParameterFactory searchKeywordDataConstraintFactory =
         new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                'MIRNA', 'p', 'mirnaId')
+                'MIRNA', 'jProbe', 'mirnaId')
 
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
@@ -95,15 +94,15 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
     }
 
     @Override
-    HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
-        HibernateCriteriaBuilder criteriaBuilder =
+    CriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
+        CriteriaBuilder criteriaBuilder =
             createCriteriaBuilder(DeSubjectMirnaData, 'm', session)
 
         criteriaBuilder.with {
             createAlias 'jProbe', 'p', INNER_JOIN
 
             projections {
-                property 'assay.id',   'assayId'
+                property 'assay',      'assay'
 
                 property 'p.id',       'probeId'
                 property 'p.mirnaId',  'mirna'
@@ -133,7 +132,7 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
                 indicesList:           assays,
                 results:               results,
                 allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
+                assayIdFromRow:        { it[0].assay.id },
                 inSameGroup:           { a, b -> a.probeId == b.probeId },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     def firstNonNullCell = list.find()
