@@ -19,9 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.metabolite
 
-import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 import org.hibernate.ScrollableResults
-import org.hibernate.engine.SessionImplementor
+import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
@@ -39,7 +39,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealPr
 import javax.annotation.PostConstruct
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
@@ -99,7 +98,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'METABOLITE', 'a', 'hmdbId')]
+                        'METABOLITE', 'jAnnotation', 'hmdbId')]
     }
 
     @Override
@@ -112,16 +111,16 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     }
 
     @Override
-    HibernateCriteriaBuilder prepareDataQuery(Projection projection,
+    CriteriaBuilder prepareDataQuery(Projection projection,
                                               SessionImplementor session) {
-        HibernateCriteriaBuilder criteriaBuilder =
+        CriteriaBuilder criteriaBuilder =
             createCriteriaBuilder(DeSubjectMetabolomicsData, 'metabolitedata', session)
 
         criteriaBuilder.with {
             createAlias 'jAnnotation', 'a', INNER_JOIN
 
             projections {
-                property 'assay.id',          'assayId'
+                property 'assay',             'assay'
                 property 'a.id',              'annotationId'
                 property 'a.hmdbId',          'hmdbId'
                 property 'a.biochemicalName', 'biochemicalName'
@@ -146,7 +145,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
                 indicesList:           assays,
                 results:               results,
                 allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
+                assayIdFromRow:        { it[0].assay.id },
                 inSameGroup:           { a, b -> a.annotationId == b.annotationId },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     def firstNonNullCell = list.find()

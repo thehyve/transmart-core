@@ -19,9 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.mrna
 
-import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 import org.hibernate.ScrollableResults
-import org.hibernate.engine.SessionImplementor
+import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
@@ -37,7 +37,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrieva
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
@@ -63,16 +62,16 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     CorrelationTypesRegistry correlationTypesRegistry
 
     @Override
-    HibernateCriteriaBuilder prepareDataQuery(Projection projection,
+    CriteriaBuilder prepareDataQuery(Projection projection,
                                               SessionImplementor session) {
-        HibernateCriteriaBuilder criteriaBuilder =
+        CriteriaBuilder criteriaBuilder =
             createCriteriaBuilder(DeSubjectMicroarrayDataCoreDb, 'mrnadata', session)
 
         criteriaBuilder.with {
             createAlias 'jProbe', 'p', INNER_JOIN
 
             projections {
-                property 'assay.id',     'assayId'
+                property 'assay',        'assay'
 
                 property 'p.id',         'probeId'
                 property 'p.probeId',    'probeName'
@@ -106,7 +105,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                 indicesList:           assays,
                 results:               results,
                 allowMissingAssays:    true,
-                assayIdFromRow:        { it[0].assayId },
+                assayIdFromRow:        { it[0].assay.id },
                 inSameGroup:           { a, b -> a.probeId == b.probeId && a.geneSymbol == b.geneSymbol },
                 finalizeGroup:         { List list -> /* list of arrays with one element: a map */
                     /* we may have nulls if allowMissingAssays is true,
@@ -152,7 +151,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'p', 'geneId') ]
+                        'GENE', 'jProbe', 'geneId') ]
     }
 
     @Override

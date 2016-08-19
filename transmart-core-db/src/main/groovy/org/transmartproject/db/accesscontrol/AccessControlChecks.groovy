@@ -21,7 +21,7 @@ package org.transmartproject.db.accesscontrol
 
 import groovy.util.logging.Log4j
 import org.hibernate.SessionFactory
-import org.hibernate.classic.Session
+import org.hibernate.Session
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.UnexpectedResultException
@@ -33,7 +33,8 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedOperation
-import org.transmartproject.core.concept.ConceptKey
+import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User
 

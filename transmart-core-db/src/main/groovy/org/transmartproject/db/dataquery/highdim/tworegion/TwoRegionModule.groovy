@@ -1,9 +1,9 @@
 package org.transmartproject.db.dataquery.highdim.tworegion
 
 import com.google.common.collect.ImmutableMap
-import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 import org.hibernate.ScrollableResults
-import org.hibernate.engine.SessionImplementor
+import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
@@ -17,7 +17,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrieva
 
 import static org.hibernate.criterion.CriteriaSpecification.INNER_JOIN
 import static org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 /**
  * Created by j.hudecek on 4-12-2014.
@@ -75,8 +74,8 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
     }
 
     @Override
-    HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
-        HibernateCriteriaBuilder criteriaBuilder =
+    CriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
+        CriteriaBuilder criteriaBuilder =
                 createCriteriaBuilder(DeTwoRegionJunction, 'junction', session)
 
         criteriaBuilder.with {

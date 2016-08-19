@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.correlations
 
-import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 import grails.util.Holders
 import groovy.util.logging.Log4j
 import org.hibernate.Criteria
@@ -59,7 +59,7 @@ class CorrelatedBiomarkersDataConstraint implements CriteriaDataConstraint {
     String correlationColumn = 'BIO_MARKER_ID' // in $correlationTable
 
     @Override
-    void doWithCriteriaBuilder(HibernateCriteriaBuilder criteriaBuilder) {
+    void doWithCriteriaBuilder(CriteriaBuilder criteriaBuilder) {
         /* call private addToCriteria, but this is necessary. Calling
          * just add() would add the criterion to the root of the criteria,
          * not to any open or() or and() criteria */
@@ -94,28 +94,14 @@ class CorrelatedBiomarkersDataConstraint implements CriteriaDataConstraint {
 
         @Override
         String toSqlString(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
-            Criteria relevantCriteria =
-                    criteriaQuery.getAliasedCriteria(outer.entityAlias)
-            if (relevantCriteria == null) {
-                throw new HibernateException("Could not find Criteria with " +
-                        "alias ${outer.entityAlias}. Available aliases " +
-                        "are ${criteriaQuery.aliasCriteriaMap.keySet()}")
-            }
-
-            String entityName = criteriaQuery.getEntityName(relevantCriteria)
-            if (entityName == null) {
-                throw new HibernateException("Could not find entity name " +
-                        "for criteria ${relevantCriteria}. Map of criteria " +
-                        "entity names is " +
-                        relevantCriteria.criteriaEntityNames)
-            }
+            Criteria associationCriteria = criteriaQuery.getCriteria(outer.entityAlias)
 
             // Yikes!
             String propertyColumn = Holders.applicationContext.sessionFactory.
-                    getClassMetadata(entityName).
+                    getClassMetadata(criteriaQuery.getEntityName(associationCriteria)).
                     getPropertyColumnNames(outer.propertyToRestrict)[0]
 
-            String sqlAlias = criteriaQuery.getSQLAlias(relevantCriteria)
+            String sqlAlias = criteriaQuery.getSQLAlias(associationCriteria)
             toString().replaceAll(/\{alias\}/, sqlAlias).
                     replaceAll(/\{property\}/, propertyColumn)
         }

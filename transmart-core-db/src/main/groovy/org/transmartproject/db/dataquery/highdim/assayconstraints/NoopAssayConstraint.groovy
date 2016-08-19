@@ -17,25 +17,15 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.dataquery.highdim
+package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import groovy.transform.ToString
-import org.transmartproject.core.dataquery.DataRow
-import org.transmartproject.core.dataquery.highdim.AssayColumn
-import org.transmartproject.db.dataquery.CollectingTabularResult
+import grails.gorm.CriteriaBuilder
+import org.transmartproject.core.exceptions.InvalidRequestException
 
-@ToString
-class DefaultHighDimensionTabularResult<R extends DataRow>
-        extends CollectingTabularResult<AssayColumn, R> {
+class NoopAssayConstraint extends AbstractAssayConstraint {
 
-    final String columnEntityName = 'assay'
-
-    /* aliases */
-    public void setAllowMissingAssays(Boolean value) {
-        allowMissingColumns = value
-    }
-
-    public void setAssayIdFromRow(Closure<Object> value) {
-        columnIdFromRow = value
+    @Override
+    void addConstraintsToCriteria(CriteriaBuilder builder) throws InvalidRequestException {
+        // purposefully left empty
     }
 }

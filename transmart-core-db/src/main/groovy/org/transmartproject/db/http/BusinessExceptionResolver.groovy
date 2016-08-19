@@ -19,11 +19,11 @@
 
 package org.transmartproject.db.http
 
+import grails.web.mapping.UrlMappingData
+import grails.web.mapping.UrlMappingInfo
 import org.apache.log4j.Logger
-import org.codehaus.groovy.grails.web.mapping.DefaultUrlMappingInfo
-import org.codehaus.groovy.grails.web.mapping.UrlMappingData
-import org.codehaus.groovy.grails.web.mapping.UrlMappingInfo
-import org.codehaus.groovy.grails.web.util.WebUtils
+import org.grails.web.mapping.DefaultUrlMappingInfo
+import org.grails.web.util.WebUtils
 import org.springframework.core.Ordered
 import org.springframework.web.context.ServletContextAware
 import org.springframework.web.servlet.HandlerExceptionResolver

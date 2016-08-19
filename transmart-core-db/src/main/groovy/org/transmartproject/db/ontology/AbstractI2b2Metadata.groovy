@@ -19,13 +19,14 @@
 
 package org.transmartproject.db.ontology
 
-import grails.orm.HibernateCriteriaBuilder
+//import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 import groovy.transform.EqualsAndHashCode
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.core.concept.ConceptKey
+import org.transmartproject.db.concept.ConceptKey
 
 @EqualsAndHashCode(includes = [ 'fullName', 'name' ])
 abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
@@ -48,29 +49,29 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     static transients = [ 'synonym', 'metadata', 'tableCode' ]
 
     static mapping = {
-        fullName           column: 'C_FULLNAME'
-        level              column: 'C_HLEVEL'
-        name               column: 'C_NAME'
-        code               column: 'C_BASECODE'
-        tooltip            column: 'C_TOOLTIP'
-        factTableColumn    column: 'C_FACTTABLECOLUMN'
-        dimensionTableName column: 'C_TABLENAME'
-        columnName         column: 'C_COLUMNNAME'
-        columnDataType     column: 'C_COLUMNDATATYPE'
-        operator           column: 'C_OPERATOR'
-        dimensionCode      column: 'C_DIMCODE'
-        metadataxml        column: 'C_METADATAXML'
+        fullName             column:   'C_FULLNAME'
+        level                column:   'C_HLEVEL'
+        name                 column:   'C_NAME'
+        code                 column:   'C_BASECODE'
+        tooltip              column:   'C_TOOLTIP'
+        factTableColumn      column:   'C_FACTTABLECOLUMN'
+        dimensionTableName   column:   'C_TABLENAME'
+        columnName           column:   'C_COLUMNNAME'
+        columnDataType       column:   'C_COLUMNDATATYPE'
+        operator             column:   'C_OPERATOR'
+        dimensionCode        column:   'C_DIMCODE'
+        metadataxml          column:   'C_METADATAXML'
     }
 
     static constraints = {
-        level             nullable: false, min:     0
-        fullName          nullable: false, size:    2..700
-        name              nullable: false, size:    1..2000
-        code              nullable: true,  maxSize: 50
-        tooltip           nullable: true,  maxSize: 900
-        cVisualattributes nullable: false, size:    1..3
-        cSynonymCd        nullable: false
-        metadataxml       nullable: true
+        level               nullable:   false,   min:       0
+        fullName            nullable:   false,   size:      2..700
+        name                nullable:   false,   size:      1..2000
+        code                nullable:   true,    maxSize:   50
+        tooltip             nullable:   true,    maxSize:   900
+        cVisualattributes   nullable:   false,   size:      1..3
+        cSynonymCd          nullable:   false
+        metadataxml         nullable:   true
 
         AbstractQuerySpecifyingType.constraints.delegate = delegate
         AbstractQuerySpecifyingType.constraints()
@@ -170,7 +171,8 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     private List<OntologyTerm> getDescendants(boolean allDescendants,
                                               boolean showHidden = false,
                                               boolean showSynonyms = false) {
-        HibernateCriteriaBuilder c
+        //HibernateCriteriaBuilder c
+        CriteriaBuilder c
         def fullNameSearch = this.conceptKey.conceptFullName.toString()
                 .asLikeLiteral() + '%'
 

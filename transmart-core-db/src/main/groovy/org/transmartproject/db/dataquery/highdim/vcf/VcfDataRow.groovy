@@ -20,15 +20,13 @@
 package org.transmartproject.db.dataquery.highdim.vcf
 
 import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.vcf.VcfCohortInfo
 import org.transmartproject.core.dataquery.highdim.vcf.VcfValues
 import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
-class VcfDataRow extends AbstractDataRow
-        implements VcfValues, RegionRow, BioMarkerDataRow {
+class VcfDataRow extends AbstractDataRow implements VcfValues, RegionRow {
     String datasetId
     
     // Chromosome to define the position
@@ -39,7 +37,6 @@ class VcfDataRow extends AbstractDataRow
     // Reference and alternatives for this position
     String referenceAllele
     String alternatives
-    Boolean reference
     
     // Study level properties
     String quality
@@ -47,9 +44,6 @@ class VcfDataRow extends AbstractDataRow
     String info
     String format
     String variants
-
-    // Gene data
-    String geneName
     
     List<String> getAlternativeAlleles() {
         return alternatives.split(",")
@@ -84,9 +78,8 @@ class VcfDataRow extends AbstractDataRow
             if (it && it.subjectPosition != null && it.subjectId != null) {
                 // Position starts at 1
                 def index = (int) it.subjectPosition - 1
-                if (index < variantsInOrder.size()) {
+                if (variantsInOrder.size() > index)
                     subjectVariants[it.subjectId] = variantsInOrder[index]
-                }
             }
         }
         
@@ -149,8 +142,4 @@ class VcfDataRow extends AbstractDataRow
         }
     }
 
-    @Override
-    String getBioMarker() {
-        geneName
-    }
 }

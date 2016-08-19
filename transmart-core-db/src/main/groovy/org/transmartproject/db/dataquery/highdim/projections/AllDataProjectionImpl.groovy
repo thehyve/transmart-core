@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.projections
 
-import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.hibernate.criterion.ProjectionList
@@ -42,7 +42,7 @@ class AllDataProjectionImpl implements CriteriaProjection<Map<String, Object>>, 
     }
 
     @Override
-    void doWithCriteriaBuilder(HibernateCriteriaBuilder builder){
+    void doWithCriteriaBuilder(CriteriaBuilder builder){
         def projection = builder.instance.projection
 
         if (!projection) {

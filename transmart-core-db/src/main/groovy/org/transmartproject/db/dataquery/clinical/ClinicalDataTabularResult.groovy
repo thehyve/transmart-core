@@ -23,7 +23,7 @@ import com.google.common.collect.*
 import com.google.common.io.Closer
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
-import org.hibernate.engine.SessionImplementor
+import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult

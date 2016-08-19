@@ -19,14 +19,14 @@
 
 package org.transmartproject.db.dataquery.highdim.dataconstraints
 
-import grails.orm.HibernateCriteriaBuilder
+import grails.gorm.CriteriaBuilder
 
 class DisjunctionDataConstraint implements CriteriaDataConstraint {
 
     List<CriteriaDataConstraint> constraints
 
     @Override
-    void doWithCriteriaBuilder(HibernateCriteriaBuilder criteria) {
+    void doWithCriteriaBuilder(CriteriaBuilder criteria) {
         criteria.with {
             or {
                 constraints.each { CriteriaDataConstraint subConstraint ->
