@@ -1,0 +1,6 @@
+.gradle
+.idea
+out
+.class
+.jar
+transmart-core-db/build

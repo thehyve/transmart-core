@@ -128,4 +128,5 @@ class DeSubjectSampleMapping implements Assay {
         new TissueType(code: tissueTypeCd, label: tissueTypeName)
     }
 //  endregion
+
 }

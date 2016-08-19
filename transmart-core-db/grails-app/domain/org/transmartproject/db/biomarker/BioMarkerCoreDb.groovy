@@ -24,8 +24,8 @@ class BioMarkerCoreDb {
     String name
     String description
     String organism
-    String sourceCode
-    String externalId
+    String primarySourceCode
+    String primaryExternalId
     String type
 
     static mapping = {
@@ -34,8 +34,6 @@ class BioMarkerCoreDb {
 
         name        column: 'bio_marker_name'
         description column: 'bio_marker_description'
-        sourceCode  column: 'primary_source_code'
-        externalId  column: 'primary_external_id'
         type        column: 'bio_marker_type'
 
         version false
@@ -45,8 +43,8 @@ class BioMarkerCoreDb {
         name              nullable: true, maxSize: 400
         description       nullable: true, maxSize: 2000
         organism          nullable: true, maxSize: 400
-        sourceCode        nullable: true, maxSize: 400
-        externalId        nullable: true, maxSize: 400
+        primarySourceCode nullable: true, maxSize: 400
+        primaryExternalId nullable: true, maxSize: 400
         type              maxSize:  400
     }
 }
