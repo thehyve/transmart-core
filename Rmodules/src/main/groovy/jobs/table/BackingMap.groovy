@@ -50,7 +50,7 @@ class BackingMap implements AutoCloseable {
         }
     }
 
-    void putCell(String primaryKey, int columnNumber, Map mapValue) {
+    void putCell(String primaryKey, int columnNumber, Map<String, Object> mapValue) {
         mapValue.each { String k, Object v ->
             putCell primaryKey, columnNumber, k, v
         }

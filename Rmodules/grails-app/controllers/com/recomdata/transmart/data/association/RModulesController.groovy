@@ -18,6 +18,7 @@ package com.recomdata.transmart.data.association
 
 import com.google.common.collect.Maps
 import grails.converters.JSON
+import grails.core.GrailsApplication
 import grails.util.Holders
 import jobs.*
 import jobs.misc.AnalysisConstraints
@@ -52,7 +53,7 @@ class RModulesController {
     def asyncJobService
     def currentUserBean
     def RModulesService
-    def grailsApplication
+    GrailsApplication grailsApplication
     def jobResultsService
 
     /**

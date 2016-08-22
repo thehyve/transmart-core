@@ -87,7 +87,7 @@ abstract class AcghAnalysisJob extends AbstractAnalysisJob {
         steps
     }
 
-    @Override
+    //@Override
     protected Step createDumpHighDimensionDataStep(Closure resultsHolder) {
         new AcghRegionDumpDataStep(
                 temporaryDirectory: temporaryDirectory,

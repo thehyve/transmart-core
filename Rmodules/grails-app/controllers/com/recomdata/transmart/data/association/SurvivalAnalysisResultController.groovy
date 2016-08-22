@@ -19,11 +19,12 @@ package com.recomdata.transmart.data.association
  *
  ******************************************************************/
 import grails.converters.JSON
+import grails.core.GrailsApplication
 import org.transmartproject.utils.FileUtils
 
 class SurvivalAnalysisResultController {
 
-    def grailsApplication
+    GrailsApplication grailsApplication
 
     def RModulesOutputRenderService
 

@@ -9,7 +9,6 @@ import org.transmartproject.core.dataquery.clinical.PatientRow
  * Column for censoring variable. Results in CENSORING_TRUE when the patient
  * matches one of the leaf nodes or CENSORING_FALSE if not.
  */
-@CompileStatic
 class CensorColumn extends AbstractColumn {
 
     public static def CENSORING_TRUE = '1'

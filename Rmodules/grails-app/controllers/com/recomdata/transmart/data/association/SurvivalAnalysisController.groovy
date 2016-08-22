@@ -16,9 +16,11 @@
 
 package com.recomdata.transmart.data.association
 
+import grails.core.GrailsApplication
+
 class SurvivalAnalysisController {
-	
-	def grailsApplication;
+
+	GrailsApplication grailsApplication
 	def RModulesOutputRenderService;
 	
 	def survivalAnalysisOutput = 

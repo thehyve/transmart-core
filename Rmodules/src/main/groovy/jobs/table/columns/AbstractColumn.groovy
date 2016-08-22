@@ -5,7 +5,6 @@ import jobs.table.BackingMap
 import jobs.table.Column
 import jobs.table.MissingValueAction
 
-@CompileStatic
 abstract class AbstractColumn implements Column {
 
     String header

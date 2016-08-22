@@ -1,12 +1,13 @@
 package com.recomdata.transmart.data.association
 
 import grails.converters.JSON
+import grails.core.GrailsApplication
 import org.transmartproject.utils.FileUtils
 
 class RNASeqgroupTestController {
 
     def RModulesOutputRenderService;
-    def grailsApplication;
+    GrailsApplication grailsApplication
 
     final
     def DEFAULT_FIELDS = ['genes', 'logFC', 'logCPM', 'PValue', 'FDR'] as Set

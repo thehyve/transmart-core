@@ -1,12 +1,13 @@
 package com.recomdata.transmart.data.association
 
 import grails.converters.JSON
+import grails.core.GrailsApplication
 import org.transmartproject.utils.FileUtils
 
 class aCGHgroupTestController {
 
     def RModulesOutputRenderService
-    def grailsApplication
+    GrailsApplication grailsApplication
 
     final def DEFAULT_FIELDS = ['chromosome', 'cytoband', 'start', 'end', 'pvalue', 'fdr'] as Set
     final Set DEFAULT_NUMBER_FIELDS = ['start', 'end', 'pvalue', 'fdr'] as Set
