@@ -6,7 +6,6 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
-@CompileStatic
 class SimpleConceptVariableColumn extends AbstractColumn {
 
     ClinicalVariableColumn column

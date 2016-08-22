@@ -14,7 +14,6 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
  * {@link Map}. The keys are the patient ids, the values are maps with
  * a single entry: row label -> value
  */
-@CompileStatic
 class HighDimensionalDataRowMapAdapter extends ForwardingMap<String, Map<String, Object>> {
 
     Map<String, Map<String, Object>> innerMap

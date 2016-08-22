@@ -1,11 +1,12 @@
 package com.recomdata.transmart.data.association
 
+import grails.core.GrailsApplication
 
 
 class AcghFrequencyPlotController {
 
     def RModulesOutputRenderService;
-    def grailsApplication;
+    GrailsApplication grailsApplication;
 
     private getConfig() {
         grailsApplication.config.RModules

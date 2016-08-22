@@ -12,7 +12,6 @@ import org.transmartproject.core.dataquery.clinical.PatientRow
  * value or are empty (as opposed to a single concept that takes several
  * distinct values).
  */
-@CompileStatic
 class CategoricalVariableColumn extends AbstractColumn {
 
     Set<ClinicalVariableColumn> leafNodes

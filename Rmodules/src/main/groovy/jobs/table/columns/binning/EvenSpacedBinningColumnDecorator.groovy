@@ -31,8 +31,9 @@ class EvenSpacedBinningColumnDecorator implements ColumnDecorator {
 
     private Map<String, BigDecimal> inverseBinInterval = {
         def ret = [:]
-        ret.withDefault { String ctx ->
-            ret[ctx] = numberOfBins / (max[ctx] - min[ctx])
+        ret.withDefault { ctx ->
+            ctx = (String)ctx
+            ret[ctx] = numberOfBins / (( (Double)max[ctx] ) - ((Double)min[ctx]))
         }
     }()
 

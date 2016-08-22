@@ -11,7 +11,6 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
  * and collects the values under a map where the keys are configurable
  * via the provided clinical variable -> string map.
  */
-@CompileStatic
 class MultiNumericClinicalVariableColumn extends AbstractColumn {
 
     /* clinical variable -> name of the group */

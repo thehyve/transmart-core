@@ -9,7 +9,6 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.exceptions.UnexpectedResultException
 
-@CompileStatic
 class HighDimensionMultipleRowsResultColumn extends AbstractColumn {
 
     public static final String SEPARATOR = '|'

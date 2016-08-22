@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component
 
 @Component
 @Scope('job')
-@CompileStatic
 class Table implements AutoCloseable {
 
     private BiMap<String, Iterable> dataSources = HashBiMap.create()
