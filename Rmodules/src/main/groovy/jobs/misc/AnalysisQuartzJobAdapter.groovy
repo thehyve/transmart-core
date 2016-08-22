@@ -1,9 +1,9 @@
 package jobs.misc
 
+import grails.persistence.support.PersistenceContextInterceptor
 import grails.util.Holders
 import groovy.util.logging.Log4j
 import jobs.AbstractAnalysisJob
-import org.codehaus.groovy.grails.support.PersistenceContextInterceptor
 import org.quartz.Job
 import org.quartz.JobDataMap
 import org.quartz.JobExecutionContext

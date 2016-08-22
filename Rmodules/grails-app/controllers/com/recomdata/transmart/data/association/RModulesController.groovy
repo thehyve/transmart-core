@@ -22,8 +22,8 @@ import grails.util.Holders
 import jobs.*
 import jobs.misc.AnalysisConstraints
 import jobs.misc.AnalysisQuartzJobAdapter
-import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
-import org.codehaus.groovy.grails.web.json.JSONElement
+import org.grails.web.converters.exceptions.ConverterException
+import org.grails.web.json.JSONElement
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.SimpleTrigger

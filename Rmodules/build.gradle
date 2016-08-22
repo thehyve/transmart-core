@@ -30,6 +30,9 @@ ext {
 repositories {
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
+    maven {
+        url  "http://jcenter.bintray.com"
+    }
 }
 
 dependencyManagement {
@@ -54,11 +57,28 @@ dependencies {
     provided "org.grails:grails-plugin-services"
     provided "org.grails:grails-plugin-domain-class"
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
-    testCompile "org.grails:grails-plugin-testing"
-    testCompile "org.grails.plugins:geb"
-    testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
-    testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+    compile 'net.sf.opencsv:opencsv:2.3'
+    compile 'org.rosuda:Rserve:1.7.3'
+    compile 'org.mapdb:mapdb:0.9.10'
+
+    /* serializable ImmutableMap only on guava 16 */
+    compile group: 'com.google.guava', name: 'guava', version: '16.0-dev-20140115-68c8348'
+    compile 'org.transmartproject:transmart-core-api:16.2-SNAPSHOT'
+
+    /* compile instead of test due to technical limitations
+     * (referenced from resources.groovy) */
+    runtime 'org.gmock:gmock:0.8.3'
+    runtime 'org.hamcrest:hamcrest-library:1.3'
+    runtime 'org.hamcrest:hamcrest-core:1.3'
+    compile 'quartz:quartz:1.5.1-atlassian-2'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-io
+    compile group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'
+    // https://mvnrepository.com/artifact/org.xhtmlrenderer/flying-saucer-pdf
+    compile group: 'org.xhtmlrenderer', name: 'flying-saucer-pdf', version: '9.0.4'
 }
+
+
+
 grailsPublish {
     // TODO: Provide values here
     user = 'user'

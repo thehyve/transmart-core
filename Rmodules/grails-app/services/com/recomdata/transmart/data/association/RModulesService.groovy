@@ -17,6 +17,7 @@
 package com.recomdata.transmart.data.association
 
 import com.recomdata.transmart.data.association.asynchronous.RModulesJobService
+import org.grails.web.json.JSONObject
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.SimpleTrigger
@@ -172,7 +173,7 @@ class RModulesService {
 		def moduleMapStr = pluginModuleInstance?.paramsStr
 		
 		try {
-			moduleMap = new org.codehaus.groovy.grails.web.json.JSONObject(moduleMapStr) as Map
+			moduleMap = new JSONObject(moduleMapStr) as Map
 		} catch (Exception e) {
 			log.error('Module '+params.analysis+' params could not be loaded', e)
 		}
