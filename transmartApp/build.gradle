@@ -48,6 +48,7 @@ dependencyManagement {
     applyMavenExclusions false
 }
 
+//noinspection GroovyAssignabilityCheck
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
@@ -111,7 +112,6 @@ dependencies {
     // https://mvnrepository.com/artifact/com.jcraft/jsch
     compile group: 'com.jcraft', name: 'jsch', version: '0.1.53'
 
-
     //compile project(':core-db')
     /*compile 'org.grails.plugins:rdc-rmodules:1.2.4'
     runtime 'org.grails.plugins:transmart-core:1.2.4'
@@ -119,6 +119,7 @@ dependencies {
     //compile project(':transmart-legacy-db')
     //compile project(':transmart-core-api')
     compile project(':transmart-core-db')
+    compile(':transmart-java:16.2-SNAPSHOT')
     //compile project(':Rmodules')
     //compile project(':transmart-rest-api')
 }
