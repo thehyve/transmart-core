@@ -59,7 +59,7 @@ dependencies {
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    compile ':biomart-domain:16.2-SNAPSHOT' // replace with
+    compile project(':biomart-domain')
 }
 grailsPublish {
     // TODO: Provide values here
