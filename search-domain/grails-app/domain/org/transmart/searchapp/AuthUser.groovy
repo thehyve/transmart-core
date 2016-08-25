@@ -1,8 +1,5 @@
 package org.transmart.searchapp
 
-import org.hibernate.SQLQuery
-import org.hibernate.classic.Session
-import org.hibernate.type.StandardBasicTypes
 
 /*************************************************************************
  * tranSMART - translational medicine data mart
