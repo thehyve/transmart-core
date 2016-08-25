@@ -112,20 +112,14 @@ dependencies {
     // https://mvnrepository.com/artifact/com.jcraft/jsch
     compile group: 'com.jcraft', name: 'jsch', version: '0.1.53'
 
-    //compile project(':core-db')
-    /*compile 'org.grails.plugins:rdc-rmodules:1.2.4'
-    runtime 'org.grails.plugins:transmart-core:1.2.4'
-    compile 'org.grails.plugins:transmart-gwas:1.2.4'*/
-    //compile project(':transmart-legacy-db')
-    //compile project(':transmart-core-api')
-    compile project(':transmart-core-db')
+
     compile project(':transmart-java')
     compile project(':Rmodules')
-    //compile project(':transmart-rest-api')
     // https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
     compile group: 'org.fusesource.jansi', name: 'jansi', version: '1.8'
     // https://mvnrepository.com/artifact/jline/jline
     compile group: 'jline', name: 'jline', version: '2.12.1'
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '4.3.5.Final'
 
 }
 
