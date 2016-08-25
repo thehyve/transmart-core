@@ -122,6 +122,11 @@ dependencies {
     compile project(':transmart-java')
     compile project(':Rmodules')
     //compile project(':transmart-rest-api')
+    // https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
+    compile group: 'org.fusesource.jansi', name: 'jansi', version: '1.8'
+    // https://mvnrepository.com/artifact/jline/jline
+    compile group: 'jline', name: 'jline', version: '2.12.1'
+
 }
 
 
