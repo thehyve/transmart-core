@@ -119,8 +119,8 @@ dependencies {
     //compile project(':transmart-legacy-db')
     //compile project(':transmart-core-api')
     compile project(':transmart-core-db')
-    compile(':transmart-java:16.2-SNAPSHOT')
-    //compile project(':Rmodules')
+    compile project(':transmart-java')
+    compile project(':Rmodules')
     //compile project(':transmart-rest-api')
 }
 
