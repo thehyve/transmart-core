@@ -20,6 +20,8 @@
 package org.transmartproject.db.dataquery.highdim
 
 import grails.gorm.CriteriaBuilder
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder
+import org.hibernate.cfg.Configuration
 import org.hibernate.internal.CriteriaImpl
 
 import javax.annotation.PostConstruct
@@ -38,6 +40,14 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
 
     @Autowired
     SessionFactory sessionFactory
+
+    def onbesiegvar() {
+        Configuration configuration = new Configuration();
+        configuration.configure("hibernate_sp.cfg.xml");
+        StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
+        sessionFactory = configuration.buildSessionFactory(ssrb.build());
+        //Session session = sessionFactory.openSession();
+    }
 
     protected List<DataRetrievalParameterFactory> assayConstraintFactories
 
