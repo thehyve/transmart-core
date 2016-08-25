@@ -30,6 +30,7 @@ ext {
 repositories {
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
+    maven { url "https://repo.transmartfoundation.org/content/repositories/public/" }
 }
 
 dependencyManagement {
@@ -58,6 +59,7 @@ dependencies {
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+    compile ':biomart-domain:16.2-SNAPSHOT' // replace with
 }
 grailsPublish {
     // TODO: Provide values here

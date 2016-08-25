@@ -1,1 +1,1 @@
-include 'transmart-core-db', 'transmartApp'
+include 'transmart-core-db', 'transmartApp', 'Rmodules', 'transmart-java'
