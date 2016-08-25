@@ -62,12 +62,12 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 
-    compile 'org.transmartproject:transmart-core-api:1.2.4'
     compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
 
     runtime('org.postgresql:postgresql:9.3-1100-jdbc41')
     // https://mvnrepository.com/artifact/org.hibernate/hibernate-core
     compile group: 'org.hibernate', name: 'hibernate-core', version: '4.3.5.Final'
+    compile project(':transmart-core-api')
 
 }
 grailsPublish {
