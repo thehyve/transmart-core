@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.transmartproject.core.concept.ConceptKeyTests" tests="3" skipped="0" failures="0" errors="0" timestamp="2016-08-25T14:36:14" hostname="Piotrs-MacBook-Pro.local" time="0.021">
-  <properties/>
-  <testcase name="basicTest" classname="org.transmartproject.core.concept.ConceptKeyTests" time="0.011"/>
-  <testcase name="basicTestAlternativeConstructor" classname="org.transmartproject.core.concept.ConceptKeyTests" time="0.005"/>
-  <testcase name="badInput" classname="org.transmartproject.core.concept.ConceptKeyTests" time="0.004"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
