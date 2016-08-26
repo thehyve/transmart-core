@@ -26,43 +26,6 @@ if (!Environment.isWarDeployed() && Environment.isWithinShell()) {
  */
 org.transmart.originalConfigBinding = getBinding()
 
-grails.config.locations = []
-def defaultConfigFiles
-if (Environment.current != Environment.TEST) {
-    defaultConfigFiles = [
-            "${userHome}/.grails/${appName}Config/Config.groovy",
-            "${userHome}/.grails/${appName}Config/RModulesConfig.groovy",
-            "${userHome}/.grails/${appName}Config/DataSource.groovy"
-    ]
-} else {
-    // settings for the test environment
-    org.transmart.configFine = true
-}
-
-defaultConfigFiles.each { filePath ->
-    def f = new File(filePath)
-    if (f.exists()) {
-        if (f.name == 'RModulesConfig.groovy') {
-            console.warn "RModulesConfig.groovy is deprecated, it has been merged into Config.groovy. " +
-                    "Loading it anyway."
-        }
-        grails.config.locations << "file:${filePath}"
-    } else if (f.name != 'RModulesConfig.groovy') {
-        console.info "Configuration file ${filePath} does not exist."
-    }
-}
-String bashSafeEnvAppName = appName.toString().toUpperCase(Locale.ENGLISH).replaceAll(/-/, '_')
-
-def externalConfig = System.getenv("${bashSafeEnvAppName}_CONFIG_LOCATION")
-if (externalConfig) {
-    grails.config.locations << "file:" + externalConfig
-}
-def externalDataSource = System.getenv("${bashSafeEnvAppName}_DATASOURCE_LOCATION")
-if (externalDataSource) {
-    grails.config.locations << "file:" + externalDataSource
-}
-grails.config.locations.each { console.info "Including configuration file [${it}] in configuration building." }
-
 grails.mime.disable.accept.header.userAgents = []
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.types = [html         : [
@@ -293,7 +256,8 @@ hibernate {
 
     // make sure hibernate.cache.provider_class is not being set
     // see http://stackoverflow.com/a/3690212/127724 and the docs for the cache-ehcache plugin
-    cache.region.factory_class   = 'grails.plugin.cache.ehcache.hibernate.BeanEhcacheRegionFactory'
+    //cache.region.factory_class   = 'grails.plugin.cache.ehcache.hibernate.BeanEhcacheRegionFactory'
+    cache.region.factory_class = 'org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory'
 }
 
 environments {
