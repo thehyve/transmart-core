@@ -3,7 +3,6 @@ package org.transmartproject.rest
 import grails.web.mime.MimeType
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryDefinitionXmlConverter
@@ -36,8 +35,7 @@ class PatientSetController {
      * GET /v1/patient_sets
      */
     def index() {
-        throw new NoSuchResourceException('Listing previously created ' +
-                'patient resources is not yet possible')
+        respond queriesResource.getQueryResultsSummaryByUsername(currentUser.getUsername() )
     }
 
     /**
