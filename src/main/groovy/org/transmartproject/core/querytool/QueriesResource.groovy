@@ -68,6 +68,6 @@ interface QueriesResource {
      * @param username of the creator of queries from which QueryResult originated
      * @return List of all QueryResults created by given user
      */
-    List<QueryResult> getQueryResultsByUsername(String username)
+    List<QueryResultSummary> getQueryResultsSummaryByUsername(String username)
 
 }
