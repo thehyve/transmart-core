@@ -21,7 +21,9 @@ package org.transmartproject.db.dataquery.clinical.variables
 
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.DataColumn
+import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 
 @EqualsAndHashCode(includes = [ 'modifierCode', 'conceptPath' ])
 @ToString
@@ -47,5 +49,10 @@ class AcrossTrialsTerminalVariable implements TerminalClinicalVariable, DataColu
     @Override
     String getCode() {
         modifierCode
+    }
+
+    @Override
+    ConceptKey getKey() {
+        new ConceptKey(ACROSS_TRIALS_TABLE_CODE, conceptPath)
     }
 }

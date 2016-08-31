@@ -19,13 +19,12 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import groovy.util.logging.Log4j
-
 import org.hibernate.ScrollMode
+import org.hibernate.StatelessSession
 import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -35,11 +34,12 @@ import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 import org.transmartproject.db.ontology.I2b2
-import org.transmartproject.db.support.ChoppedInQueryCondition
+
+import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
 @Log4j
 class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource {
@@ -52,17 +52,16 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         this.module = module
     }
 
-    @Override
-    String getDataTypeName() {
-        module.name
-    }
+    // Lazy otherwise EqualsAndHashCode does not pick it up
+    @Lazy
+    String dataTypeName = module.name
 
     @Override
     String getDataTypeDescription() {
         module.description
     }
 
-    protected SessionImplementor openSession() {
+    protected StatelessSession openSession() {
         module.sessionFactory.openStatelessSession()
     }
 
@@ -80,23 +79,23 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         // Each module should only return assays that match 
         // the markertypes specified, in addition to the 
         // constraints given
-        assayConstraints << new MarkerTypeConstraint(
+        assayConstraints << new MarkerTypeCriteriaConstraint(
                 platformNames: module.platformMarkerTypes)
-                                                                  
-        def assayQuery = new AssayQuery(assayConstraints)
-        List<AssayColumn> assays
 
-        assays = assayQuery.retrieveAssays()
-        if (assays.empty) {
+        def assaysQuery = new AssayQuery(assayConstraints)
+
+        def assays = assaysQuery.list()
+        if (!assays) {
             throw new EmptySetException(
                     'No assays satisfy the provided criteria')
         }
 
-        CriteriaBuilder criteriaBuilder =
+        HibernateCriteriaBuilder criteriaBuilder =
             module.prepareDataQuery(projection, openSession())
 
-        new ChoppedInQueryCondition('assay.id', assays*.id)
-            .addConstraintsToCriteria(criteriaBuilder)
+        //We have to specify projection explicitly because of the grails bug
+        //https://jira.grails.org/browse/GRAILS-12107
+        criteriaBuilder.add(getHibernateInCriterion('assay.id', assaysQuery.forIds()))
 
         /* apply changes to criteria from projection, if any */
         if (projection instanceof CriteriaProjection) {
@@ -112,7 +111,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
 
         module.transformResults(
                 criteriaBuilder.instance.scroll(ScrollMode.FORWARD_ONLY),
-                assays,
+                assays.collect { new AssayColumnImpl(it) },
                 projection)
     }
 
@@ -163,14 +162,36 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     @Override
     Set<OntologyTerm> getAllOntologyTermsForDataTypeBy(QueryResult queryResult) {
         I2b2.executeQuery '''
-            select
-                distinct t
-            from QtPatientSetCollection ps, I2b2 t, DeSubjectSampleMapping ssm
-            inner join ssm.platform as p
-            where p.markerType in (:markerTypes)
-                and ssm.conceptCode = t.code
-                and ssm.patient = ps.patient
-                and ps.resultInstance.id = :resultInstanceId
+            from I2b2 where code in
+                (select
+                    distinct ssm.conceptCode
+                from QtPatientSetCollection ps, DeSubjectSampleMapping ssm
+                inner join ssm.platform as p
+                where p.markerType in (:markerTypes)
+                    and ssm.patient = ps.patient
+                    and ps.resultInstance.id = :resultInstanceId)
         ''', [markerTypes : module.platformMarkerTypes, resultInstanceId: queryResult.id]
+    }
+
+
+    @Override
+    public String toString() {
+        return "HighDimensionDataTypeResourceImpl{dataTypeName=$dataTypeName, " +
+                "identity=${System.identityHashCode(this)}"
+    }
+
+    boolean equals(o) {
+        if (this.is(o)) return true
+        if (getClass() != o.class) return false
+
+        HighDimensionDataTypeResourceImpl that = (HighDimensionDataTypeResourceImpl) o
+
+        if (dataTypeName != that.dataTypeName) return false
+
+        return true
+    }
+
+    int hashCode() {
+        return dataTypeName.hashCode()
     }
 }

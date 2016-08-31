@@ -20,11 +20,18 @@
 package org.transmartproject.db.dataquery.highdim.protein
 
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
+import org.transmartproject.core.dataquery.highdim.Platform
+import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.db.dataquery.highdim.AbstractDataRow
 
-class ProteinDataRow extends AbstractDataRow implements BioMarkerDataRow<Object> {
+class ProteinDataRow extends AbstractDataRow implements BioMarkerDataRow<Object>, RegionRow {
 
-    String uniprotName
+    Long     id
+    String   uniprotName
+    Platform platform
+    String   chromosome
+    Long     start
+    Long     end
 
     String peptide
 
@@ -42,5 +49,20 @@ class ProteinDataRow extends AbstractDataRow implements BioMarkerDataRow<Object>
     public String toString() {
         com.google.common.base.Objects.toStringHelper(this)
                 .add('data', data).toString()
+    }
+
+    @Override
+    String getName() {
+        peptide
+    }
+
+    @Override
+    String getCytoband() {
+        return null
+    }
+
+    @Override
+    Integer getNumberOfProbes() {
+        return null
     }
 }

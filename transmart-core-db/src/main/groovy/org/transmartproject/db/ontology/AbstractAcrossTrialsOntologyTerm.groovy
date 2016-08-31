@@ -22,8 +22,8 @@ package org.transmartproject.db.ontology
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.db.concept.ConceptFullName
-import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.core.concept.ConceptFullName
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.db.user.User
 
 abstract class AbstractAcrossTrialsOntologyTerm
