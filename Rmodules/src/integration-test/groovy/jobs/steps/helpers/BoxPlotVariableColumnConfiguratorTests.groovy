@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.*
 class BoxPlotVariableColumnConfiguratorTests {
 
     public static final String VALUE_FOR_COLUMN_BEING_BINNED = 'IND'
-    public static final String TEST_HEADER = 'TEST_HEADER'
+
     @Autowired
     Table table
 
@@ -43,23 +43,23 @@ class BoxPlotVariableColumnConfiguratorTests {
     void setUp() {
         initializeAsBean configuratorTestsHelper
 
-        testee.projection            = Projection.DEFAULT_REAL_PROJECTION
-        testee.keyForConceptPaths    = 'variable'
-        testee.keyForDataType        = 'divVariableType'
+        testee.projection = Projection.DEFAULT_REAL_PROJECTION
+        testee.keyForConceptPaths = 'variable'
+        testee.keyForDataType = 'divVariableType'
         testee.keyForSearchKeywordId = 'divVariablePathway'
 
         BinningColumnConfigurator binningColumnConfigurator = testee.binningConfigurator
 
-        binningColumnConfigurator.keyForDoBinning       = 'binning'
-        binningColumnConfigurator.keyForManualBinning   = 'manualBinning'
-        binningColumnConfigurator.keyForNumberOfBins    = 'numberOfBins'
+        binningColumnConfigurator.keyForDoBinning = 'binning'
+        binningColumnConfigurator.keyForManualBinning = 'manualBinning'
+        binningColumnConfigurator.keyForNumberOfBins = 'numberOfBins'
         binningColumnConfigurator.keyForBinDistribution = 'binDistribution'
-        binningColumnConfigurator.keyForBinRanges       = 'binRanges'
+        binningColumnConfigurator.keyForBinRanges = 'binRanges'
         // distinct from testee.keyForDataType!
-        binningColumnConfigurator.keyForVariableType    = 'variableType'
+        binningColumnConfigurator.keyForVariableType = 'variableType'
 
         testee.valueForThisColumnBeingBinned = VALUE_FOR_COLUMN_BEING_BINNED
-        testee.keyForIsCategorical           = 'variableCategorical'
+        testee.keyForIsCategorical = 'variableCategorical'
     }
 
     @Test
@@ -102,8 +102,8 @@ class BoxPlotVariableColumnConfiguratorTests {
                     contains(allOf(
                             dot(['\\var 1\\', '\\var 2\\', '\\var 3\\'],
                                     valuesForColumns[3..5], { a, b ->
-                                        hasEntry(is(a), is(b))
-                                    }
+                                hasEntry(is(a), is(b))
+                            }
                             ))))
 
             // Y is the header for the numeric col

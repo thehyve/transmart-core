@@ -1,52 +1,52 @@
 package jobs.steps.helpers
 
 import grails.test.mixin.TestMixinTargetAware
-import org.codehaus.groovy.grails.test.runner.phase.IntegrationTestPhaseConfigurer
-import org.codehaus.groovy.grails.test.support.GrailsTestInterceptor
-import org.codehaus.groovy.grails.test.support.GrailsTestMode
+import grails.util.Holders
+import org.grails.test.support.GrailsTestInterceptor
+import org.grails.test.support.GrailsTestMode
 import org.junit.After
 import org.junit.Before
-import org.springframework.beans.MutablePropertyValues
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.beans.factory.config.ConstructorArgumentValues
 import org.springframework.beans.factory.support.GenericBeanDefinition
+import org.springframework.context.ApplicationContext
 
 import static jobs.misc.AnalysisQuartzJobAdapter.cleanJobBeans
-import static org.codehaus.groovy.grails.test.runner.phase.IntegrationTestPhaseConfigurer.currentApplicationContext
 
 /*
  * based on IntegrationTestMixin, but I couldn't extend it because it would
  * screw up the weaving of the mixin
  */
+
 class JobsIntegrationTestMixin implements TestMixinTargetAware {
 
     Object target
     GrailsTestInterceptor interceptor
 
-    @Override
+    static ApplicationContext getCurrentApplicationContext() {
+        Holders.applicationContext
+    }
+
     void setTarget(Object target) {
         this.target = target
         try {
-            final applicationContext = IntegrationTestPhaseConfigurer.currentApplicationContext
-            if (applicationContext && target) {
+            if (currentApplicationContext && target) {
 
                 interceptor = new GrailsTestInterceptor(target, new GrailsTestMode(
                         autowire: false, /* GrailsTestInterceptor's autowiring is too limited */
                         wrapInRequestEnvironment: true,
                         wrapInTransaction: target.hasProperty('transactional') ? target['transactional'] : true),
-                        applicationContext,
-                        ['Spec', 'Specification','Test', 'Tests'] as String[] )
+                        currentApplicationContext,
+                        ['Spec', 'Specification', 'Test', 'Tests'] as String[])
             }
         } catch (IllegalStateException ise) {
             // ignore, thrown when application context hasn't been bootstrapped
         }
     }
 
-    @Override
     @Before
     void initIntegrationTest() {
-        //addTestJobsParamsBean()
         addJobNameBean()
         interceptor?.init()
         initializeTargetAsBean()
@@ -65,15 +65,6 @@ class JobsIntegrationTestMixin implements TestMixinTargetAware {
         cleanJobBeans()
     }
 
-    private void addTestJobsParamsBean() {
-        currentApplicationContext.registerBeanDefinition(
-                'jobParameters',
-                new GenericBeanDefinition(
-                        beanClass:     TestJobParamsBean,
-                        scope:         'job',
-                        propertyValues: new MutablePropertyValues(map: [:])))
-    }
-
     private void addJobNameBean() {
         ConstructorArgumentValues constructorArgs = new ConstructorArgumentValues()
         constructorArgs.addIndexedArgumentValue(0, 'testJobName')
@@ -81,9 +72,9 @@ class JobsIntegrationTestMixin implements TestMixinTargetAware {
         currentApplicationContext.registerBeanDefinition(
                 'jobName',
                 new GenericBeanDefinition(
-                        beanClass:                 String,
+                        beanClass: String,
                         constructorArgumentValues: constructorArgs,
-                        scope:                     'job'))
+                        scope: 'job'))
     }
 
     private void initializeTargetAsBean() {

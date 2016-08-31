@@ -69,6 +69,8 @@ dependencies {
 
     /* compile instead of test due to technical limitations
      * (referenced from resources.groovy) */
+    testCompile "org.grails:grails-plugin-testing"
+    testCompile "org.grails:grails-test"
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile 'org.gmock:gmock:0.8.3'
     testCompile 'org.hamcrest:hamcrest-library:1.3'
