@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.dataconstraints
 
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.criterion.Restrictions
 
 class PropertyDataConstraint implements CriteriaDataConstraint {
@@ -29,7 +29,7 @@ class PropertyDataConstraint implements CriteriaDataConstraint {
     Object values // list or single object
 
     @Override
-    void doWithCriteriaBuilder(CriteriaBuilder criteria) {
+    void doWithCriteriaBuilder(HibernateCriteriaBuilder criteria) {
         criteria.with {
             if (values instanceof Collection) {
                 if (!values.isEmpty()) {

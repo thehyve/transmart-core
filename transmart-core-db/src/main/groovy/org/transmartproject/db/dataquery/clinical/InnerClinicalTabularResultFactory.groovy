@@ -19,20 +19,20 @@
 
 package org.transmartproject.db.dataquery.clinical
 
-//import org.hibernate.engine.SessionImplementor
 import org.hibernate.engine.spi.SessionImplementor
 import org.springframework.stereotype.Component
-import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.dataquery.clinical.variables.AcrossTrialsTerminalVariable
 import org.transmartproject.db.dataquery.clinical.variables.TerminalClinicalVariable
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
+import org.transmartproject.db.i2b2data.PatientDimension
 
-@Component /* not scanned; explicit bean definition */
+@Component
+/* not scanned; explicit bean definition */
 class InnerClinicalTabularResultFactory {
 
     public Collection<TerminalClinicalVariablesTabularResult> createIntermediateResults(
             SessionImplementor session,
-            Collection<Patient> patients,
+            Iterable<PatientDimension> patients,
             List<TerminalClinicalVariable> flattenedVariables) {
         flattenedVariables.groupBy { it.group }.
                 collect { group, variables ->
@@ -43,22 +43,22 @@ class InnerClinicalTabularResultFactory {
     public TerminalClinicalVariablesTabularResult createForGroup(
             String group,
             SessionImplementor session,
-            Collection<Patient> patients,
+            Iterable<PatientDimension> patients,
             List<TerminalClinicalVariable> relevantVariables) {
         switch (group) {
             case TerminalConceptVariable.GROUP_NAME:
                 def query = new TerminalConceptVariablesDataQuery(
-                        session:           session,
-                        patientIds:        patients*.id,
+                        session: session,
+                        patients: patients,
                         clinicalVariables: relevantVariables)
                 query.init()
 
                 return new TerminalClinicalVariablesTabularResult(
-                                query.openResultSet(), relevantVariables)
+                        query.openResultSet(), relevantVariables)
             case AcrossTrialsTerminalVariable.GROUP_NAME:
                 def query = new AcrossTrialsDataQuery(
-                        session:           session,
-                        patientIds:        patients*.id,
+                        session: session,
+                        patients: patients,
                         clinicalVariables: relevantVariables)
                 query.init()
 

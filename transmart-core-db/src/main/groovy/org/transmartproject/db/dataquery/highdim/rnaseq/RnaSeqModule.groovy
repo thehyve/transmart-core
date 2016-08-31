@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.rnaseq
 
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -32,6 +32,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.PlatformImpl
 import org.transmartproject.db.dataquery.highdim.acgh.AcghDataTypeResource
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
 import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
@@ -43,6 +44,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedPara
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 /**
  * Module for RNA-seq, as implemented for Postgres by TraIT.
@@ -93,7 +95,7 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
                 standardDataConstraintFactory,
                 chromosomeSegmentConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'jRegion', 'geneId')
+                        'GENE', 'region', 'geneId')
         ]
     }
 
@@ -118,12 +120,13 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
     }
 
     @Override
-    CriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
-        CriteriaBuilder criteriaBuilder =
+    HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
+        HibernateCriteriaBuilder criteriaBuilder =
             createCriteriaBuilder(DeSubjectRnaseqData, 'rnaseqdata', session)
 
         criteriaBuilder.with {
             createAlias 'jRegion', 'region', INNER_JOIN
+            createAlias 'jRegion.platform', 'platform', INNER_JOIN
 
             projections {
                 property 'rnaseqdata.assay.id',               'assayId'
@@ -140,6 +143,13 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
                 property 'region.end',                        'end'
                 property 'region.numberOfProbes',             'numberOfProbes'
                 property 'region.geneSymbol',                 'geneSymbol'
+
+                property 'platform.id', 'platformId'
+                property 'platform.title', 'platformTitle'
+                property 'platform.organism', 'platformOrganism'
+                property 'platform.annotationDate', 'platformAnnotationDate'
+                property 'platform.markerType', 'platformMarkerType'
+                property 'platform.genomeReleaseId', 'platformGenomeReleaseId'
             }
 
             order 'region.id', 'asc'
@@ -183,6 +193,17 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
                                 end:            firstNonNullCell.end,
                                 numberOfProbes: firstNonNullCell.numberOfProbes,
                                 bioMarker:      firstNonNullCell.geneSymbol,
+                                platform: new PlatformImpl(
+                                        id:              firstNonNullCell.platformId,
+                                        title:           firstNonNullCell.platformTitle,
+                                        organism:        firstNonNullCell.platformOrganism,
+                                        //It converts timestamp to date
+                                        annotationDate:  firstNonNullCell.platformAnnotationDate ?
+                                                new Date(firstNonNullCell.platformAnnotationDate.getTime())
+                                                : null,
+                                        markerType:      firstNonNullCell.platformMarkerType,
+                                        genomeReleaseId: firstNonNullCell.platformGenomeReleaseId
+                                ),
                                 assayIndexMap:  assayIndexMap,
                                 data:           list.collect { projection.doWithResult it?.getAt(0) }
                         )

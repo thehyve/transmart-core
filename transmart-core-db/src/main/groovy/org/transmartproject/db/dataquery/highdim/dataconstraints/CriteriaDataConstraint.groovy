@@ -19,11 +19,11 @@
 
 package org.transmartproject.db.dataquery.highdim.dataconstraints
 
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 
 interface CriteriaDataConstraint extends DataConstraint {
 
-    void doWithCriteriaBuilder(CriteriaBuilder criteria)
+    void doWithCriteriaBuilder(HibernateCriteriaBuilder criteria)
 
 }

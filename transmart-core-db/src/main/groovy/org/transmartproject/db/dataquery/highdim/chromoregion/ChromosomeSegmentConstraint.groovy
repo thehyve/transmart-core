@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.chromoregion
 
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 
 class ChromosomeSegmentConstraint implements CriteriaDataConstraint {
@@ -37,7 +37,7 @@ class ChromosomeSegmentConstraint implements CriteriaDataConstraint {
     //after construction, chromosome || (start && end)
 
     @Override
-    void doWithCriteriaBuilder(CriteriaBuilder criteria) {
+    void doWithCriteriaBuilder(HibernateCriteriaBuilder criteria) {
         // NOTE: depends on the alias of DeChromosomalRegion in the Criteria
         //       being called 'region'
         criteria.with {

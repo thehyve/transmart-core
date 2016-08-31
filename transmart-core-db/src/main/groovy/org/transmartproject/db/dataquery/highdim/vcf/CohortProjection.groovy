@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.vcf
 
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
@@ -32,7 +32,7 @@ import static org.hibernate.sql.JoinFragment.LEFT_OUTER_JOIN
 class CohortProjection implements CriteriaProjection<Map> {
 
     @Override
-    void doWithCriteriaBuilder(CriteriaBuilder builder) {
+    void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {
         // Retrieving the criteriabuilder projection (which contains
         // the fields to be retrieved from the database)
         // N.B. This is a different object than the object we are

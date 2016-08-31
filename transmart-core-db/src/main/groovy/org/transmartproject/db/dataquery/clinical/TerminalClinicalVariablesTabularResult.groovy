@@ -28,7 +28,6 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.CollectingTabularResult
 import org.transmartproject.db.dataquery.clinical.variables.TerminalClinicalVariable
-import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
 @CompileStatic
 class TerminalClinicalVariablesTabularResult extends
@@ -36,10 +35,10 @@ class TerminalClinicalVariablesTabularResult extends
 
     public static final String TEXT_VALUE_TYPE = 'T'
 
-    public static final int PATIENT_NUM_COLUMN_INDEX  = 0
-    public static final int CODE_COLUMN_INDEX         = 1
-    public static final int VALUE_TYPE_COLUMN_INDEX   = 2
-    public static final int TEXT_VALUE_COLUMN_INDEX   = 3
+    public static final int PATIENT_NUM_COLUMN_INDEX = 0
+    public static final int CODE_COLUMN_INDEX = 1
+    public static final int VALUE_TYPE_COLUMN_INDEX = 2
+    public static final int TEXT_VALUE_COLUMN_INDEX = 3
     public static final int NUMBER_VALUE_COLUMN_INDEX = 4
 
     /* XXX: this class hierarchy needs some refactoring, we're depending on
@@ -58,7 +57,7 @@ class TerminalClinicalVariablesTabularResult extends
     final String variableGroup
 
     TerminalClinicalVariablesTabularResult(ScrollableResults results,
-                                          List<TerminalClinicalVariable> indicesList) {
+                                           List<TerminalClinicalVariable> indicesList) {
         this.results = results
 
         this.indicesList = indicesList
@@ -85,10 +84,10 @@ class TerminalClinicalVariablesTabularResult extends
 
         /* ** */
         columnsDimensionLabel = 'Clinical Variables'
-        rowsDimensionLabel    = 'Patients'
+        rowsDimensionLabel = 'Patients'
         // actually yes, but this skips the complex logic in
         // addToCollectedEntries() and just adds the row to the list
-        allowMissingColumns   = false
+        allowMissingColumns = false
 
         columnIdFromRow = { Object[] row ->
             row[CODE_COLUMN_INDEX]
@@ -107,11 +106,6 @@ class TerminalClinicalVariablesTabularResult extends
 
     final String columnEntityName = 'concept'
 
-   // @Override
-    protected Object getIndexObjectId(TerminalConceptVariable object) {
-        object.conceptCode
-    }
-
     protected void finalizeCollectedEntries(ArrayList collectedEntries) {
         /* nothing to do here. All the logic in finalizePatientGroup */
     }
@@ -123,13 +117,11 @@ class TerminalClinicalVariablesTabularResult extends
 
         /* don't take Object[] otherwise would be vararg func and
          * further unwrapping needed */
-        // Object rawRowUntyped
-        list.each { rawRowUntyped ->
+        list.each { Object[] rawRow ->
             /* array with 5 elements */
-            if (!rawRowUntyped) {
+            if (!rawRow) {
                 return
             }
-            Object[] rawRow = (Object[])rawRowUntyped
 
             /* find out the position of this concept in the final result */
             Integer index = codeToIndex[rawRow[CODE_COLUMN_INDEX] as String]
@@ -152,8 +144,8 @@ class TerminalClinicalVariablesTabularResult extends
         }
 
         new PatientIdAnnotatedDataRow(
-                patientId:     (list.find { it != null})[PATIENT_NUM_COLUMN_INDEX] as Long,
-                data:          Arrays.asList(transformedData) as List,
+                patientId: (list.find { it != null })[PATIENT_NUM_COLUMN_INDEX] as Long,
+                data: Arrays.asList(transformedData) as List,
                 columnToIndex: localIndexMap as Map)
     }
 

@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.projections
 
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.hibernate.criterion.ProjectionList
@@ -34,7 +34,7 @@ class SimpleRealProjection implements CriteriaProjection<Double> {
     private boolean addedProjection = false
 
     @Override
-    void doWithCriteriaBuilder(CriteriaBuilder builder) {
+    void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {
         def projection = builder.instance.projection
 
         if (!projection) {

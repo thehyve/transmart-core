@@ -19,6 +19,8 @@
 
 package org.transmartproject.db.dataquery.clinical.variables
 
+import org.transmartproject.core.concept.ConceptFullName
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.exceptions.UnexpectedResultException
@@ -51,5 +53,11 @@ class CategoricalVariable extends AbstractComposedVariable implements
     @Override
     String getLabel() {
         conceptPath
+    }
+
+    @Override
+    ConceptKey getKey() {
+        def fullName = new ConceptFullName(conceptPath)
+        new ConceptKey(fullName.parts[0], fullName.toString())
     }
 }

@@ -19,15 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.gorm.CriteriaBuilder
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder
-import org.hibernate.cfg.Configuration
-import org.hibernate.internal.CriteriaImpl
-
-import javax.annotation.PostConstruct
-
 import org.hibernate.SessionFactory
-import org.hibernate.engine.spi.SessionImplementor
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -36,18 +28,12 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 
+import javax.annotation.PostConstruct
+
 abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataTypeModule {
 
     @Autowired
     SessionFactory sessionFactory
-
-    def onbesiegvar() {
-        Configuration configuration = new Configuration();
-        configuration.configure("hibernate_sp.cfg.xml");
-        StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
-        sessionFactory = configuration.buildSessionFactory(ssrb.build());
-        //Session session = sessionFactory.openSession();
-    }
 
     protected List<DataRetrievalParameterFactory> assayConstraintFactories
 
@@ -159,30 +145,6 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
 
         throw new UnsupportedByDataTypeException("The data type ${this.name} " +
                 "does not support the projection $name")
-    }
-
-    final protected CriteriaBuilder createCriteriaBuilder(
-            Class targetClass, String alias, SessionImplementor session) {
-
-        CriteriaBuilder builder = new CriteriaBuilder(targetClass, sessionFactory)
-
-        /* we have to write a private here */
-        if (session) {
-            //force usage of a specific session (probably stateless)
-            builder.criteria = new CriteriaImpl(targetClass.canonicalName,
-                                                alias,
-                                                session)
-            builder.criteriaMetaClass = GroovySystem.metaClassRegistry.
-                    getMetaClass(builder.criteria.getClass())
-        } else {
-            builder.createCriteriaInstance()
-        }
-
-        /* builder.instance.is(builder.criteria) */
-        builder.instance.readOnly = true
-        builder.instance.cacheable = false
-
-        builder
     }
 
     final protected Map createAssayIndexMap(List assays) {

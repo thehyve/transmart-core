@@ -29,7 +29,7 @@ import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.db.dataquery.highdim.assayconstraints.AbstractAssayConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
 
 @Component
@@ -80,8 +80,8 @@ class HighDimensionResourceService implements HighDimensionResource {
                 // fetch platforms
             }
 
-            assayConstraints.each { AbstractAssayConstraint constraint ->
-                constraint.addConstraintsToCriteria owner.delegate
+            assayConstraints.each { AssayCriteriaConstraint constraint ->
+                constraint.addToCriteria owner.delegate
             }
 
             isNotNull 'platform'
@@ -127,6 +127,9 @@ class HighDimensionResourceService implements HighDimensionResource {
     /**
      * Register a new high dimensional type. Factory is a closure that takes a
      * map with one entry: name: <module name>
+     *
+     * The factory should produce objects that, if not identical, are at least
+     * equal to each other.
      * @param moduleName
      * @param factory
      */

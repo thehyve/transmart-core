@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.acgh
 
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import org.transmartproject.core.dataquery.highdim.acgh.AcghValues
 import org.transmartproject.core.dataquery.highdim.acgh.CopyNumberState
 import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
@@ -32,7 +32,7 @@ class AcghValuesProjection implements CriteriaProjection<AcghValues>, MultiValue
     }
 
     @Override
-    void doWithCriteriaBuilder(CriteriaBuilder builder) {
+    void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {
         // AcghModule.prepareDataQuery already projects all the columns
     }
 

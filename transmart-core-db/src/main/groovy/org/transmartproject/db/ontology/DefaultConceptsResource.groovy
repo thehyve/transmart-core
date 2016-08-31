@@ -22,7 +22,7 @@ package org.transmartproject.db.ontology
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.db.concept.ConceptKey
+import org.transmartproject.core.concept.ConceptKey
 
 /**
  * Handles loading {@link OntologyTerm}s from <code>table_access</code> and

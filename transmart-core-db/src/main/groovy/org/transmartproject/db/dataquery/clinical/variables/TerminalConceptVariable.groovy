@@ -21,6 +21,8 @@ package org.transmartproject.db.dataquery.clinical.variables
 
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
+import org.transmartproject.core.concept.ConceptFullName
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.DataColumn
 
 @EqualsAndHashCode(includes = [ 'conceptCode', 'conceptPath' ])
@@ -47,5 +49,11 @@ class TerminalConceptVariable implements TerminalClinicalVariable, DataColumn {
     @Override
     String getCode() {
         conceptCode
+    }
+
+    @Override
+    ConceptKey getKey() {
+        def fullName = new ConceptFullName(conceptPath)
+        new ConceptKey(fullName.parts[0], fullName.toString())
     }
 }

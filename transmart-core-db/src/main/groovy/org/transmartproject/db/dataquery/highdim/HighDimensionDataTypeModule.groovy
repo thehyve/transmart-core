@@ -19,8 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.gorm.CriteriaBuilder
-
+import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
 import org.hibernate.engine.spi.SessionImplementor
@@ -95,7 +94,7 @@ public interface HighDimensionDataTypeModule {
      * @param projection
      * @return
      */
-    CriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session)
+    HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session)
 
     /**
      * Transform the query result into the final object to be returned by
