@@ -19,11 +19,11 @@
 
 package org.transmartproject.db.dataquery.highdim.projections
 
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 interface CriteriaProjection<T> extends Projection<T> {
 
-    void doWithCriteriaBuilder(CriteriaBuilder builder)
+    void doWithCriteriaBuilder(HibernateCriteriaBuilder builder)
 
 }
