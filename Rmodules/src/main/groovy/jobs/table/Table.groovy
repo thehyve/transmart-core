@@ -156,7 +156,7 @@ class Table implements AutoCloseable {
         String dataSourceName = Iterables.getFirst dataSources.keySet(), null
         Iterable dataSource = (Iterable) Iterables.getFirst(dataSources.values(), null)
 
-        dataSource.each { Object row ->
+        for (Object row in dataSource) {
             processSourceRow row, dataSourceName, dataSource
         }
 

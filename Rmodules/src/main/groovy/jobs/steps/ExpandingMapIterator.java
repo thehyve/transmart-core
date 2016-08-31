@@ -32,8 +32,6 @@ public class ExpandingMapIterator extends AbstractIterator<String[]> {
     private String[] _returnArray;
 
     protected String[] getReturnArray() {
-        assert originalRow != null;
-
         if (_returnArray == null) {
             int outputSize = originalRow.size() +
                     transformedColumnsMap.size() * numberOfNewRowsPerMapColumn;
