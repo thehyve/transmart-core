@@ -4,7 +4,9 @@ buildscript {
     }
     repositories {
         mavenLocal()
-        maven { url "https://repo.grails.org/grails/core" }
+        maven { url "https://repo.transmartfoundation.org/content/repositories/public" }
+    	maven { url "https://repo.thehyve.nl/content/repositories/public" }
+	maven { url "https://repo.grails.org/grails/core" }
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
@@ -28,8 +30,10 @@ ext {
 }
 
 repositories {
-    mavenLocal()
-    maven { url "https://repo.grails.org/grails/core" }
+	mavenLocal()
+    	maven { url "https://repo.thehyve.nl/content/repositories/public" }
+        maven { url "https://repo.transmartfoundation.org/content/repositories/public" }
+	maven { url "https://repo.grails.org/grails/core" }
 }
 
 dependencyManagement {
