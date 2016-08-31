@@ -31,6 +31,8 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryResultSummary
+import org.transmartproject.core.querytool.QueryResultSummaryImplementation
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.user.User
 
@@ -208,13 +210,13 @@ class QueriesResourceService implements QueriesResource {
     }
 
     @Override
-    List<QueryResult> getQueryResultsByUsername(String username) {
+    List<QueryResultSummary> getQueryResultsSummaryByUsername(String username) {
         def query = QtQueryResultInstance.where {
             queryInstance.userId == username
             deleteFlag == 'N'
         }
-        query.findAll()
-    }
+        query.collect { new QueryResultSummaryImplementation(it)}
+}
 
     @Override
     List<QueryResult> getQueryResultsByUsername(String username) {
