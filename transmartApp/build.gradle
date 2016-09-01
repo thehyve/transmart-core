@@ -112,7 +112,10 @@ dependencies {
     compile group: 'com.jcraft', name: 'jsch', version: '0.1.53'
 
     compile project(':transmart-core-api')
+    compile project(':transmart-core-db')
     compile project(':transmart-java')
+    compile project(':search-domain')
+    compile project(':biomart-domain')
     compile project(':Rmodules')
     compile project(':transmart-legacy-db')
     // https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
