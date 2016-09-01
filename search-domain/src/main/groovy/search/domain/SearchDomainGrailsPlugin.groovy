@@ -6,7 +6,7 @@ class SearchDomainGrailsPlugin extends Plugin {
     // the plugin version
     def version = "16.2-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "1.3.7 > *"
+    def grailsVersion = "3.1.10 > *"
     // the other plugins this plugin depends on
     def dependsOn = [:]
     // resources that are excluded from plugin packaging

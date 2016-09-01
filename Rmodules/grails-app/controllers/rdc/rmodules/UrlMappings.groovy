@@ -1,4 +1,4 @@
-package rmodules
+package rdc.rmodules
 
 class UrlMappings {
 
