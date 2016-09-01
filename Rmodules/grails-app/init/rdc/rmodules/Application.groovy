@@ -1,4 +1,4 @@
-package rmodules
+package rdc.rmodules
 
 import grails.boot.*
 import grails.boot.config.GrailsAutoConfiguration

@@ -25,7 +25,7 @@ import org.transmartproject.db.test.H2Views
 
 class TransmartCoreDbTestsGrailsPlugin extends Plugin {
     def version = "16.2-SNAPSHOT"
-    def grailsVersion = "2.2 > *"
+    def grailsVersion = "3.1.10 > *"
 
     def title = "Transmart Core Db Tests Plugin"
     def author = "Transmart Foundation"

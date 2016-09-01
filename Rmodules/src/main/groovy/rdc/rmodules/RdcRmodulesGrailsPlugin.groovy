@@ -1,4 +1,4 @@
-package rmodules
+package rdc.rmodules
 
 import grails.plugins.*
 
@@ -24,11 +24,11 @@ import org.transmartproject.core.users.User
 * limitations under the License.
 ******************************************************************/
 
-class RmodulesGrailsPlugin extends Plugin {
+class RdcRmodulesGrailsPlugin extends Plugin {
     // the plugin version
     def version = "16.2-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "2.2.4 > *"
+    def grailsVersion = "3.1.10 > *"
     // the other plugins this plugin depends on
     def dependsOn = [:]
     // resources that are excluded from plugin packaging

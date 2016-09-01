@@ -1,10 +1,7 @@
-package biomart.domain
-
-import grails.plugins.*
-
-class BiomartDomainGrailsPlugin extends Plugin {
+package transmart.gwas
+class TransmartGwasGrailsPlugin {
     // the plugin version
-    def version = "16.2-SNAPSHOT"
+	def version = "16.2-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "3.1.10 > *"
     // the other plugins this plugin depends on
@@ -17,13 +14,13 @@ class BiomartDomainGrailsPlugin extends Plugin {
     // TODO Fill in these fields
     def author = "David Newton"
     def authorEmail = "davinewton@deloitte.com"
-    def title = "tranSMART Biomart Domain Objects"
+    def title = "tranSMART GWAS Plugin"
     def description = '''\\
-Domain objects for the tranSMART Biomart schema
+Plugin to support the display of GWAS data, including eQTL and metabolic GWAS.
 '''
 
     // URL to the plugin's documentation
-    def documentation = ""
+    def documentation = "http://grails.org/plugin/transmart-gwas"
 
     def doWithWebDescriptor = { xml ->
         // TODO Implement additions to web.xml (optional), this event occurs before 
