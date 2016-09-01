@@ -1,3 +1,4 @@
+package org.transmartproject.rest
 /*
  * Copyright 2014 Janssen Research & Development, LLC.
  *
@@ -22,7 +23,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 import org.grails.plugins.web.rest.render.DefaultRendererRegistry
 import org.springframework.aop.scope.ScopedProxyFactoryBean
