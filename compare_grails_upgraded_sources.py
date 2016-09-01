@@ -28,7 +28,7 @@ dirmap = [
     ['src/java', 'src/main/groovy'],
     ['test/unit', 'src/test/groovy'],
     ['test/integration', 'src/integration-test/groovy'],
-    ['web-app', 'src/main/resources/'],
+    ['web-app', 'src/main/resources/'], # note: can also go to src/main/webapp/ but src/main/resources/ is recommended
     ['*GrailsPlugin.groovy', 'src/main/groovy']
 ]
 
@@ -48,6 +48,7 @@ def diff(grails2, grails3):
         grails3_root = path.join(grails3, t)
 
         if '*' in s:
+            # find the new location of *GrailsPlugin.groovy
             grails2_root = glob.glob(grails2_root)[0]
             grails3_root = subprocess.check_output(['find', grails3_root, '-name', path.basename(grails2_root)]).split(b'\n')[0].decode()
     
