@@ -1,1 +1,1 @@
-include 'transmart-core-db', 'transmart-core-db-tests', 'transmart-core-api', 'transmartApp', 'Rmodules', 'transmart-java', 'biomart-domain', 'search-domain'
+include 'transmart-core-db', 'transmart-core-db-tests', 'transmart-core-api', 'transmartApp', 'Rmodules', 'transmart-java', 'biomart-domain', 'search-domain', 'transmart-legacy-db'
