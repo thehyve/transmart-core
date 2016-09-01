@@ -1,7 +1,11 @@
 package org.transmartproject.utils
 
-import grails.test.GrailsUnitTestCase
-import org.transmartproject.utils.FileUtils
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertNotNull
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,7 +15,7 @@ import org.transmartproject.utils.FileUtils
  * To change this template use File | Settings | File Templates.
  */
 //TODO Add more test cases
-class FileUtilsTest extends GrailsUnitTestCase {
+class FileUtilsTest {
 
     def testCsvFileContent = '"title 1", "title 2", "title 3"\n"1", "Aa", "0.1"\n"2", "Bb", "0.2"\n"3", "Cc", "0.3"'
     def testTsvFileContent = '"title 1"\t"title 2"\t"title 3"\n"1"\t"Aa"\t"0.1"\n"2"\t"Bb"\t"0.2"\n"3"\t"Cc"\t"0.3"'
@@ -19,19 +23,20 @@ class FileUtilsTest extends GrailsUnitTestCase {
     File testCsvFile
     File testTsvFile
 
-    protected void setUp() {
-        super.setUp()
+    @Before
+    void setUp() {
         testCsvFile = File.createTempFile("file_utils_test_csv", '.tmp')
         testCsvFile.withWriter { it << testCsvFileContent }
         testTsvFile = File.createTempFile("file_utils_test_tsv", '.tmp')
         testTsvFile.withWriter { it << testTsvFileContent }
     }
 
-    protected void tearDown() {
-        super.tearDown()
+    @After
+    void tearDown() {
         testCsvFile.delete()
     }
 
+    @Test
     void testParseTable_basic() {
         def actualResult = FileUtils.parseTable([:], testCsvFile)
 
@@ -40,9 +45,9 @@ class FileUtilsTest extends GrailsUnitTestCase {
         assertNotNull actualResult.result
         assertEquals actualResult.totalCount, actualResult.result.size()
         assertEquals([
-                    ['title 1' : '1', 'title 2' : 'Aa', 'title 3' : '0.1'],
-                    ['title 1' : '2', 'title 2' : 'Bb', 'title 3' : '0.2'],
-                    ['title 1' : '3', 'title 2' : 'Cc', 'title 3' : '0.3']
-                ], actualResult.result)
+                ['title 1': '1', 'title 2': 'Aa', 'title 3': '0.1'],
+                ['title 1': '2', 'title 2': 'Bb', 'title 3': '0.2'],
+                ['title 1': '3', 'title 2': 'Cc', 'title 3': '0.3']
+        ], actualResult.result)
     }
 }

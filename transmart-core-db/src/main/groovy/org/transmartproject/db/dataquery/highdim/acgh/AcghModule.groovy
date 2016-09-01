@@ -19,8 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.acgh
 
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
+import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,6 +33,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.PlatformImpl
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
 import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
@@ -41,6 +43,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrieva
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 class AcghModule extends AbstractHighDimensionDataTypeModule {
 
@@ -89,7 +92,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                 standardDataConstraintFactory,
                 chromosomeSegmentConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'jRegion', 'geneId')
+                        'GENE', 'region', 'geneId')
         ]
     }
 
@@ -109,12 +112,13 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
     }
 
     @Override
-    CriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
-        CriteriaBuilder criteriaBuilder =
+    HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
+        HibernateCriteriaBuilder criteriaBuilder =
                 createCriteriaBuilder(DeSubjectAcghData, 'acgh', session)
 
         criteriaBuilder.with {
             createAlias 'jRegion', 'region', INNER_JOIN
+            createAlias 'jRegion.platform', 'platform', INNER_JOIN
 
             projections {
                 property 'acgh.assay.id', 'assayId'
@@ -134,6 +138,13 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                 property 'region.end', 'end'
                 property 'region.numberOfProbes', 'numberOfProbes'
                 property 'region.geneSymbol', 'geneSymbol'
+
+                property 'platform.id', 'platformId'
+                property 'platform.title', 'platformTitle'
+                property 'platform.organism', 'platformOrganism'
+                property 'platform.annotationDate', 'platformAnnotationDate'
+                property 'platform.markerType', 'platformMarkerType'
+                property 'platform.genomeReleaseId', 'platformGenomeReleaseId'
             }
 
             order 'region.id', 'asc'
@@ -174,6 +185,17 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                             end: cell.end,
                             numberOfProbes: cell.numberOfProbes,
                             bioMarker: cell.geneSymbol,
+                            platform: new PlatformImpl(
+                                    id:              cell.platformId,
+                                    title:           cell.platformTitle,
+                                    organism:        cell.platformOrganism,
+                                    //It converts timestamp to date
+                                    annotationDate:  cell.platformAnnotationDate ?
+                                            new Date(cell.platformAnnotationDate.getTime())
+                                            : null,
+                                    markerType:      cell.platformMarkerType,
+                                    genomeReleaseId: cell.platformGenomeReleaseId
+                            ),
 
                             assayIndexMap: assayIndexMap
                     )

@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.rbm
 
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
@@ -37,6 +37,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrieva
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 class RbmModule extends AbstractHighDimensionDataTypeModule {
 
@@ -70,7 +71,8 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [
                 standardDataConstraintFactory,
-                new SearchKeywordDataConstraintFactory(correlationTypesRegistry, 'PROTEIN', 'annotations', 'uniprotId'),
+                new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
+                        'PROTEIN', 'p', 'uniprotId'),
         ]
     }
 
@@ -84,15 +86,15 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     }
 
     @Override
-    CriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
-        CriteriaBuilder criteriaBuilder =
+    HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
+        HibernateCriteriaBuilder criteriaBuilder =
             createCriteriaBuilder(DeSubjectRbmData, 'rbmdata', session)
 
         criteriaBuilder.with {
             createAlias 'annotations', 'p', INNER_JOIN
 
             projections {
-                property 'assay', 'assay'
+                property 'assay.id', 'assayId'
                 property 'p.id', 'annotationId'
                 property 'p.antigenName', 'antigenName'
                 property 'p.uniprotName', 'uniprotName'
@@ -118,7 +120,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                 results: results,
                 //TODO Remove this. On real data missing assays are signaling about problems
                 allowMissingAssays: true,
-                assayIdFromRow: { it[0].assay.id },
+                assayIdFromRow: { it[0].assayId },
                 inSameGroup: {a, b -> a.annotationId == b.annotationId && a.uniprotId == b.uniprotId },
                 finalizeGroup: {List list ->
                     def firstNonNullCell = list.find()
