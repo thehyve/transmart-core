@@ -1,3 +1,4 @@
+/*
 @ artifact.package
 @ import grails.test.AbstractCliTestCase
 @ import grails.test.AbstractCliTestCase
@@ -19,3 +20,4 @@ class @artifact.name @ extends AbstractCliTestCase {
         verifyHeader()
     }
 }
+*/
