@@ -138,7 +138,7 @@ class ConceptTestData {
         //3 - properties: values given by the client (these will override all others)
         //4 - completes any remaining mandatory fields with a dummy value
         def o = new I2b2([*:getConceptDefaultValues(), *:extraProps, *:properties])
-        TestDataHelper.completeObject(I2b2, o)
+        fillInNotNullFields(o)
         //we need to make sure the i2b2 instance is valid for the ontology queries
         checkValidForOntologyQueries(o)
         o
@@ -166,6 +166,11 @@ class ConceptTestData {
         assert createTableAccess(properties).save() != null
     }
 
+    static fillInNotNullFields(I2b2 i2b2) {
+        i2b2.mAppliedPath = '/test/'
+        i2b2.updateDate = new Date()
+    }
+
     static List<I2b2> createMultipleI2B2(int count, String basePath = "\\test", String codePrefix = "test", int level = 1) {
         (1..count).collect { int i ->
             def name = "concept$i"
@@ -179,7 +184,7 @@ class ConceptTestData {
             ]
 
             I2b2 o = new I2b2([*: getConceptDefaultValues(), *:props])
-            TestDataHelper.completeObject(I2b2, o) //completes the object with any missing values for mandatory fields
+            fillInNotNullFields(o)
             o
         }
     }
