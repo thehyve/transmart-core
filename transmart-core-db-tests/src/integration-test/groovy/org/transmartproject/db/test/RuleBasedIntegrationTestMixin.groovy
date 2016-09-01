@@ -17,7 +17,7 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package groovy.org.transmartproject.db.test
+package org.transmartproject.db.test
 
 import grails.test.mixin.TestMixinTargetAware
 import grails.test.mixin.integration.IntegrationTestMixin

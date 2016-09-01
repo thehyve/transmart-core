@@ -57,6 +57,7 @@ dependencies {
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails:grails-test"
     testCompile "org.grails.plugins:geb"
+    testCompile group: 'org.hibernate', name: 'hibernate-core', version: '4.3.5.Final'
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     testCompile 'org.gmock:gmock:0.8.3'
