@@ -31,7 +31,6 @@ import org.transmartproject.rest.marshallers.MarshallersRegistrar
 import org.transmartproject.rest.marshallers.TransmartRendererRegistry
 
 class TransmartRestApiGrailsPlugin {
-    def version = "16.2-SNAPSHOT"
     def grailsVersion = "3.1.10 > *"
     def title = "Transmart Rest Api Plugin"
     def author = "Transmart Foundation"
