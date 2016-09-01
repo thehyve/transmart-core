@@ -4,8 +4,6 @@ class Blend4jPluginGrailsPlugin {
 
     public static final String TRANSMART_EXTENSIONS_REGISTRY_BEAN_NAME = 'transmartExtensionsRegistry'
 
-    // the plugin version
-    def version = "16.2-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "3.1.10 > *"
     // resources that are excluded from plugin packaging
