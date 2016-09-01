@@ -1,2 +1,5 @@
 - (maybe) move */src/main/resources/* to */src/main/resources/public/*, I'm not sure if that is needed or not, see https://github.com/grails/grails-core/releases/tag/v3.0.12
 	I think this is only needed if the resources in question are to be serverd under the /static path in the web application, but not sure.
+- Replace WEB-INF/applicationContext.xml and sitemesh.xml. Beans from applicationContext are now defined in grails-app/conf/spring/resources.groovy, sitemesh functionality is gone (so we'll need to see if it's needed and if so figure out a replacement)
+- move version from *GrailsPlugin.groovy to build.gradle
+
