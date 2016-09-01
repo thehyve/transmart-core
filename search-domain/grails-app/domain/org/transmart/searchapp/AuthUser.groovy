@@ -1,5 +1,7 @@
 package org.transmart.searchapp
 
+import org.hibernate.Session
+
 
 /*************************************************************************
  * tranSMART - translational medicine data mart
