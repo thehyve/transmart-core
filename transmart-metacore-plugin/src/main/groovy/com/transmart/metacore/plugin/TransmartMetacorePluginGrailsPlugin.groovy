@@ -1,3 +1,5 @@
+package com.transmart.metacore.plugin
+
 import grails.util.Holders
 
 class TransmartMetacorePluginGrailsPlugin {

@@ -1,4 +1,4 @@
-
+package blend4j.plugin
 
 class Blend4jPluginGrailsPlugin {
 
