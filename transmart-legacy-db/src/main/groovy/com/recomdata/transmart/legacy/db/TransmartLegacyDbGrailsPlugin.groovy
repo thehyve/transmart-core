@@ -1,3 +1,5 @@
+package com.recomdata.transmart.legacy.db
+
 class TransmartLegacyDbGrailsPlugin {
     // the plugin version
 	def version = "16.2-SNAPSHOT"
