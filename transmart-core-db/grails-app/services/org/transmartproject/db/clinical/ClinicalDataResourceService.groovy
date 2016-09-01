@@ -52,7 +52,7 @@ class ClinicalDataResourceService implements ClinicalDataResource {
 
     @Override
     TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(List<QueryResult> queryResults,
-                                                                   List<ClinicalVariable> variables) {
+                                           List<ClinicalVariable> variables) {
         def patientQuery = new PatientQuery([
                 new PatientSetsConstraint(queryResults)
         ])
@@ -76,7 +76,7 @@ class ClinicalDataResourceService implements ClinicalDataResource {
     }
 
     private TabularResult<ClinicalVariableColumn, PatientRow> retrieveDataImpl(Iterable<PatientDimension> patients,
-                                                                               List<ClinicalVariable> variables) {
+                                                                   List<ClinicalVariable> variables) {
 
         if (!variables) {
             throw new InvalidArgumentsException(

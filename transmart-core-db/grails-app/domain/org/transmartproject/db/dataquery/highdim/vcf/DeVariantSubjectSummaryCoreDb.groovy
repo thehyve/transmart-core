@@ -32,6 +32,8 @@ class DeVariantSubjectSummaryCoreDb {
     Boolean reference
     Integer allele1
     Integer allele2
+    String chr
+    Long pos
 
     DeVariantSubjectDetailCoreDb jDetail
     DeVariantSubjectIdxCoreDb subjectIndex
@@ -52,18 +54,20 @@ class DeVariantSubjectSummaryCoreDb {
             generator: 'sequence',
             params: [sequence: 'de_variant_subject_summary_seq', schema: 'deapp']
             
-        dataset column: 'dataset_id', insertable: false, updateable: false
+        dataset column: 'dataset_id'
         assay   column: 'assay_id'
-        subjectId column: 'subject_id', insertable: false, updateable: false
+        subjectId column: 'subject_id'
 
         // this is needed due to a Criteria bug.
         // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
         columns {
-            jDetail {
+            jDetail(insertable: false, updateable: false) {
+                column name: 'dataset_id'
+                column name: 'rs_id'
                 column name: 'chr'
                 column name: 'pos'
             }
-            subjectIndex {
+            subjectIndex(insertable: false, updateable: false) {
                 column name: 'dataset_id'
                 column name: 'subject_id'
             }

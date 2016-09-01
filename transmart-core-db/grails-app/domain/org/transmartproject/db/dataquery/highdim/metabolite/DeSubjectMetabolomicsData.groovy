@@ -25,9 +25,9 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 @EqualsAndHashCode(includes = 'assay,annotation')
 class DeSubjectMetabolomicsData implements Serializable {
 
-    BigDecimal zscore
-    BigDecimal rawIntensity
-    BigDecimal logIntensity
+    double zscore
+    double rawIntensity
+    double logIntensity
     DeMetaboliteAnnotation jAnnotation
 
     static belongsTo = [
@@ -46,11 +46,5 @@ class DeSubjectMetabolomicsData implements Serializable {
         // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
         jAnnotation column: 'metabolite_annotation_id', updateable: false, insertable: false
         version false
-    }
-
-    static constraints = {
-        zscore scale: 5
-        rawIntensity nullable: true, scale: 5
-        logIntensity nullable: true, scale: 5
     }
 }

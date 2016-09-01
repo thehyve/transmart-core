@@ -105,4 +105,5 @@ class PatientDimension implements Patient {
     Sex getSex() {
         Sex.fromString sexCd
     }
+
 }

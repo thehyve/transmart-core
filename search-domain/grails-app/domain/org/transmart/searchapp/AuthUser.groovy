@@ -97,18 +97,12 @@ class AuthUser extends Principal {
     /*
      * Should be called with an open session and active transaction
      */
+
     static AuthUser createFederatedUser(String federatedId,
                                         String username,
                                         String realName,
-                                        String email,
-                                        Session session)
-    {
-//G
-        //Long id = query.uniqueResult()
-        //log.debug("New user will have id '$id'")
-
+                                        String email) {
         def ret = AuthUser.create()
-        //ret.id = id
 
         ret.federatedId = federatedId
         ret.username = username ?: federatedId
