@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim
 
 import com.google.common.collect.HashMultimap
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.assay.Assay
@@ -33,6 +34,7 @@ import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayCriteriaC
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
 
 @Component
+@Slf4j
 class HighDimensionResourceService implements HighDimensionResource {
 
     private static final int MAX_CACHED_DATA_TYPE_RESOURCES = 50
@@ -136,7 +138,7 @@ class HighDimensionResourceService implements HighDimensionResource {
     void registerHighDimensionDataTypeModule(String moduleName,
                                              Closure<HighDimensionDataTypeResource> factory) {
         this.dataTypeRegistry[moduleName] = factory
-        HighDimensionResourceService.log.debug "Registered high dimensional data type module '$moduleName'"
+        log.debug "Registered high dimensional data type module '$moduleName'"
     }
 
 
