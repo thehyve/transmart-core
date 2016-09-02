@@ -3,7 +3,7 @@ import com.recomdata.security.ActiveDirectoryLdapAuthenticationExtension
 import grails.plugin.springsecurity.SpringSecurityUtils
 import com.recomdata.extensions.ExtensionsRegistry
 import org.apache.log4j.Logger
-import org.codehaus.groovy.grails.commons.spring.DefaultBeanConfiguration
+import org.grails.spring.DefaultBeanConfiguration
 import org.springframework.beans.factory.config.CustomScopeConfigurer
 import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider
@@ -31,6 +31,7 @@ def logger = Logger.getLogger('com.recomdata.conf.resources')
 
 beans = {
     xmlns context: "http://www.springframework.org/schema/context"
+    xmlns aop:"http://www.springframework.org/schema/aop"
 
     if (grailsApplication.config.org.transmart.security.samlEnabled) {
         importBeans('classpath:/spring/spring-security-saml.xml')
@@ -78,7 +79,10 @@ beans = {
                 type: 'assignable',
                 expression: HighDimExporter.canonicalName)
     }
-
+/*
+    // FIXME: this part causes:
+    // ERROR grails.boot.config.GrailsApplicationPostProcessor - Error loading spring/resources.groovy file: null
+    // java.util.NoSuchElementException: null
 
     // We need to inject the RestBuilder with its bean declaration because its *crappy* constructor
     // would reinitialize the JSON marshaller we use later; rendering the application incompetent
@@ -91,8 +95,8 @@ beans = {
         logger.info "Disabling hostname and certification verification"
         SSLCertificateValidation.disable()
     }
-    restBuilder(grails.plugins.rest.client.RestBuilder)
-
+    restBuilder(grailsApplication.config.grails.plugins.rest.client.RestBuilder)
+*/
 
     sessionRegistry(SessionRegistryImpl)
     sessionAuthenticationStrategy(ConcurrentSessionControlStrategy, sessionRegistry) {
@@ -140,7 +144,6 @@ beans = {
         }
 
         if (grailsApplication.config.org.transmart.security.ldap.ad.domain) {
-            xmlns aop:"http://www.springframework.org/schema/aop"
 
             adExtension(ActiveDirectoryLdapAuthenticationExtension)
 
@@ -173,18 +176,6 @@ beans = {
 //        }
     }
 
-    if (!('clientCredentialsAuthenticationProvider' in
-            grailsApplication.config.grails.plugin.springsecurity.providerNames)) {
-        SpringSecurityOauth2ProviderGrailsPlugin.metaClass.getDoWithSpring = { ->
-            logger.info "Skipped Oauth2 Grails plugin initialization (doWithSpring)"
-            return {}
-        }
-        SpringSecurityOauth2ProviderGrailsPlugin.metaClass.getDoWithApplicationContext = { ->
-            logger.info "Skipped Oauth2 Grails plugin initialization (doWithApplicationContext)"
-            return {}
-        }
-    }
-
     bruteForceLoginLockService(BruteForceLoginLockService) {
         allowedNumberOfAttempts = grailsApplication.config.bruteForceLoginLock.allowedNumberOfAttempts
         lockTimeInMinutes = grailsApplication.config.bruteForceLoginLock.lockTimeInMinutes
@@ -204,4 +195,5 @@ beans = {
 
     transmartExtensionsRegistry(ExtensionsRegistry) {
     }
+
 }

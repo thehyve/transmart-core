@@ -166,55 +166,6 @@ bruteForceLoginLock {
     lockTimeInMinutes = 10
 }
 
-log4j = {
-    /**
-     * Configuration for writing audit metrics.
-     * This needs to be placed in the out-of-tree Config.groovy, as the log4j config there will override this.
-     * (and don't forget to 'import org.apache.log4j.DailyRollingFileAppender',
-     * 'import org.transmart.logging.ChildProcessAppender' and 'import org.transmart.logging.JsonLayout'.)
-     */
-    /*
-    appenders {
-        // default log directory is either the tomcat root directory or the
-        // current working directory.
-        def catalinaBase = System.getProperty('catalina.base') ?: '.'
-        def logDirectory = "${catalinaBase}/logs".toString()
-
-        // Use layout: JsonLayout(conversionPattern: '%m%n', singleLine: true) to get each message as a single line
-        // json the same way as ChildProcessAppender sends it.
-        appender new DailyRollingFileAppender(
-            name: 'fileAuditLogger',
-            datePattern: "'.'yyyy-MM-dd",
-            fileName: "${logDirectory}/audit.log",
-            layout: JsonLayout(conversionPattern:'%d %m%n')
-        )
-        // the default layout is a JsonLayout(conversionPattern: '%m%n, singleLine: true)
-        appender new ChildProcessAppender(
-                name: 'processAuditLogger',
-                command: ['/usr/bin/your/command/here', 'arg1', 'arg2']
-        )
-    }
-    trace fileAuditLogger: 'org.transmart.audit'
-    trace processAuditLogger: 'org.transmart.audit'
-    trace stdout: 'org.transmart.audit'
-    */
-
-    environments {
-        test {
-            warn 'org.codehaus.groovy.grails.commons.spring'
-            warn 'org.codehaus.groovy.grails.domain.GrailsDomainClassCleaner'
-            warn 'org.codehaus.groovy.grails.plugins.DefaultGrailsPluginManager' //info to show plugin versions
-            warn 'org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsDomainBinder' //info to show joined-subclass indo
-
-            root {
-                info('stdout')
-            }
-        }
-    }
-
-    warn 'org.codehaus.groovy.grails.commons.cfg.ConfigurationHelper'
-}
-
 grails {
     cache {
         enabled = true

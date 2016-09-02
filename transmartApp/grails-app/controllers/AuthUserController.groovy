@@ -1,4 +1,4 @@
-import org.codehaus.groovy.grails.exceptions.InvalidPropertyException
+import org.grails.core.exceptions.InvalidPropertyException
 import org.springframework.transaction.TransactionStatus
 import org.transmart.searchapp.*
 

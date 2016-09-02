@@ -1,7 +1,7 @@
 package com.recomdata.transmart.plugin
 
 import grails.converters.JSON
-import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
+import org.grails.web.converters.exceptions.ConverterException
 import org.json.JSONObject
 
 class PluginModuleController {

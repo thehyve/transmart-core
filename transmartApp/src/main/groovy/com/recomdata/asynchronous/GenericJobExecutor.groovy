@@ -7,7 +7,7 @@ import grails.util.Holders
 import groovy.util.logging.Log4j
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.StringUtils
-import org.codehaus.groovy.grails.support.PersistenceContextInterceptor
+import grails.persistence.support.PersistenceContextInterceptor
 import org.quartz.Job
 import org.quartz.JobDetail
 import org.quartz.JobExecutionContext

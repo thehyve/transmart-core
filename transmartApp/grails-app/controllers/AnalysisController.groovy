@@ -4,7 +4,7 @@ import com.recomdata.export.SnpViewerFiles
 import com.recomdata.genepattern.JobStatus
 import com.recomdata.genepattern.WorkflowStatus
 import grails.converters.JSON
-import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
+import org.grails.plugins.web.taglib.ApplicationTagLib
 import org.genepattern.webservice.JobResult
 import org.genepattern.webservice.WebServiceException
 import org.json.JSONException

@@ -4,10 +4,7 @@
  */
 package command
 
-import grails.validation.Validateable
-
-@Validateable
-public class SecureObjectAccessCommand {
+public class SecureObjectAccessCommand implements grails.validation.Validateable {
     String[] sobjectstoadd
     String[] sobjectstoremove
     String[] groupstoadd

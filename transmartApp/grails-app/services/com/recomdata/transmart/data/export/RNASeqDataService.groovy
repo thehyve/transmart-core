@@ -71,7 +71,7 @@ class RNASeqDataService {
         for (Iterator<RegionRow> iterator = rnaseqRegionResult.rows; iterator.hasNext();) {
             RegionRow row = (RegionRow) iterator.next()
 
-            String[] line = templateArray.clone()
+            String[] line = templateArray.clone() as String[]
 
             line[0] = i++ as String
             line[1] = row.name as String
@@ -92,8 +92,8 @@ class RNASeqDataService {
         }
     }
 
-    private static final Map PER_ASSAY_COLUMNS = [
-            readcount: { RnaSeqValues v -> v.getReadCount() },
+    private static final Map<String, Closure<RnaSeqValues>> PER_ASSAY_COLUMNS = [
+            readcount: { RnaSeqValues v -> v.getReadcount() },
     ]
 
     private String[] createHeader(List<AssayColumn> assays) {
