@@ -118,6 +118,7 @@ dependencies {
     compile project(':biomart-domain')
     compile project(':Rmodules')
     compile project(':transmart-legacy-db')
+    compile project(':folder-management-plugin')
     // https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
     compile group: 'org.fusesource.jansi', name: 'jansi', version: '1.8'
     // https://mvnrepository.com/artifact/jline/jline
