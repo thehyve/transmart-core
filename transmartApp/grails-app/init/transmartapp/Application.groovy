@@ -5,10 +5,13 @@ import grails.boot.config.GrailsAutoConfiguration
 import groovy.util.logging.Slf4j
 import org.grails.config.NavigableMap
 import org.grails.config.NavigableMapPropertySource
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.autoconfigure.security.SecurityFilterAutoConfiguration
 import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.Environment
 
 @Slf4j
+@EnableAutoConfiguration(exclude = [SecurityFilterAutoConfiguration])
 class Application extends GrailsAutoConfiguration implements EnvironmentAware {
     static void main(String[] args) {
         GrailsApp.run(Application, args)
@@ -25,6 +28,7 @@ class Application extends GrailsAutoConfiguration implements EnvironmentAware {
 
         addToEnvironmentAsFirstSource(environment, "${userHome}/.grails/${applicationName}Config/Config.groovy")
         addToEnvironmentAsFirstSource(environment, "${userHome}/.grails/${applicationName}Config/DataSource.groovy")
+        addToEnvironmentAsFirstSource(environment, "${userHome}/.grails/${applicationName}Config/application.groovy")
 
         def externalConfig = System.getenv("${applicationName.toUpperCase(Locale.ENGLISH)}_CONFIG_LOCATION")
         if (externalConfig) {

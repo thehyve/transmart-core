@@ -53,6 +53,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
+    compile 'org.grails.plugins:spring-security-core:3.1.1'
     compile "org.springframework.boot:spring-boot-starter-actuator"
     compile "org.springframework.boot:spring-boot-starter-tomcat"
     compile "org.grails:grails-dependencies"
@@ -77,17 +78,23 @@ dependencies {
 
     runtime 'org.javassist:javassist:3.16.1-GA'
 
-
+    compile "org.swinglabs:pdf-renderer:1.0.5"
     compile 'antlr:antlr:2.7.7'
     compile 'net.sf.opencsv:opencsv:2.3'
     compile "org.apache.lucene:lucene-core:2.4.0"
     compile "org.apache.lucene:lucene-demos:2.4.0"
     compile "org.apache.lucene:lucene-highlighter:2.4.0"
+    compile "org.apache.solr:solr-solrj:6.2.0"
     compile 'commons-net:commons-net:3.3' // used for ftp transfers
     compile 'org.apache.commons:commons-math:2.2' //>2MB lib briefly used in ChartController
     compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.1'
     compile 'org.rosuda:Rserve:1.7.3'
     compile 'com.google.guava:guava:14.0.1'
+    //compile 'org.springframework.ldap:spring-ldap-core:2.1.0.RELEASE'
+    compile 'org.springframework.security:spring-security-ldap:3.2.3.RELEASE'
+    compile group: 'org.springframework.security', name: 'spring-security-web', version: '3.2.3.RELEASE'
+    compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.11.RELEASE'
+    compile group: 'log4j', name: 'apache-log4j-extras', version: '1.2.17'
 
     /* for GeneGo web services: */
     compile 'axis:axis:1.4'
@@ -97,6 +104,7 @@ dependencies {
     // spring security version should be in sync with that brought with
     // grails-spring-security-core
     runtime 'org.springframework.security:spring-security-config:3.2.3.RELEASE'
+
 
     testRuntime 'junit:junit:4.11'
 
@@ -125,6 +133,8 @@ dependencies {
     compile group: 'jline', name: 'jline', version: '2.12.1'
     compile group: 'org.hibernate', name: 'hibernate-core', version: '4.3.5.Final'
 
+    compile files('lib/GenePattern.jar')
+    compile 'org.jfree:jfreesvg:3.1'
 }
 
 

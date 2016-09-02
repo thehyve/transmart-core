@@ -1,7 +1,7 @@
 package com.recomdata.transmart.externaltool
 
 import com.recomdata.export.IgvFiles
-import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
+import org.grails.plugins.web.taglib.ApplicationTagLib
 
 class IgvController {
 
@@ -64,7 +64,7 @@ class IgvController {
         String fileDirName = grailsApplication.config.com.recomdata.analysis.data.file.dir;
         if (fileDirName == null)
             throw new Exception("property com.recomdata.analysis.data.file.dir is not set ")
-        String newIGVLink = new ApplicationTagLib().createLink(controller: fileDirName, , absolute: true)
+        String newIGVLink = new ApplicationTagLib().createLink(controller: fileDirName, absolute: true)
 
         IgvFiles igvFiles = new IgvFiles(getIgvFileDirName(), newIGVLink)
 

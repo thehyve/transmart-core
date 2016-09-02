@@ -1,6 +1,5 @@
 package org.transmartproject.app.user
 
-import grails.validation.Validateable
 import org.springframework.web.servlet.support.RequestContextUtils
 import org.transmart.searchapp.AuthUser
 
@@ -36,8 +35,7 @@ class ChangeMyPasswordController {
 
 }
 
-@Validateable
-class ChangePasswordCommand {
+class ChangePasswordCommand implements grails.validation.Validateable {
 
     def grailsApplication
     def springSecurityService
