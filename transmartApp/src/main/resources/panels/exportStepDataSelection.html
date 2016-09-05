@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>exportStepDataSelection.html</title>
+	
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  
+  </head>
+  
+  <body>
+  <script type="text/javascript">
+    function exportDataCheckboxClick(ctl)
+    {	//outputSelected(ctl);
+    	
+    	if(getSelected(ctl).length>0)
+    		{
+    			Ext.getCmp("exportStepDataSelectionNextButton").enable();
+    		}
+    		else
+    		{
+    			Ext.getCmp("exportStepDataSelectionNextButton").disable();
+    		}
+    }  
+    </script>
+  <div style="background:#eee;height:100%;padding:5px; font:12pt arial">
+  <form name="exportDSForm">
+	Provide values for:
+	<table cellpadding="5px">
+	<tr>
+	<td><input type="checkbox" name="exportDataCheckbox" onclick="exportDataCheckboxClick(exportDSForm.exportDataCheckbox)" value="RBM"></td><td>Rules Based Medicine</td></tr>
+  	<tr><td><input type="checkbox" name="exportDataCheckbox" onclick="exportDataCheckboxClick(this.form.exportDataCheckbox)" value="GENE"></td><td>Gene</td></tr>
+ 	<tr><td><input type="checkbox" name="exportDataCheckbox" onclick="exportDataCheckboxClick(this.form.exportDataCheckbox)" value="SNP"></td><td>SNP</td></tr>
+ 	<tr><td><input type="checkbox" name="exportDataCheckbox" onclick="exportDataCheckboxClick(this.form.exportDataCheckbox)" value="CLINICAL"></td><td>Clinical</td></tr>
+  	</table>
+  </form>
+  </div>
+  </body>
+</html>
