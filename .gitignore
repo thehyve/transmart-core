@@ -4,3 +4,5 @@ out
 .class
 .jar
 transmart-core-db/build
+/build/
+*.iml
