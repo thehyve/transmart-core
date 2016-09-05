@@ -51,7 +51,7 @@ def diff(grails2, grails3):
             # find the new location of *GrailsPlugin.groovy
             grails2_root = glob.glob(grails2_root)[0]
             find_output = subprocess.check_output(['find', grails3_root, '-name', path.basename(grails2_root)]).split(b'\n')
-            if length(find_output) == 0:
+            if len(find_output) == 0:
                 print("Ported equivalent of {} not found".format(grails2_root))
                 print("Skipping", grails2_root)
                 continue
