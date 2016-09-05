@@ -12,7 +12,7 @@ grails-app/conf/UrlMappings.groovy	grails-app/controllers/UrlMappings.groovy	Mov
 grails-app/conf/BootStrap.groovy	grails-app/init/BootStrap.groovy	Moved since grails-app/conf is not a source directory anymore
 scripts	src/main/scripts	Moved for consistency with Gradle
 src/groovy	src/main/groovy	Moved for consistency with Gradle
-src/java	src/main/groovy	Moved for consistency with Gradle
+src/java	src/main/java	Moved for consistency with Gradle
 test/unit	src/test/groovy	Moved for consistency with Gradle
 test/integration	src/integration-test/groovy	Moved for consistency with Gradle
 web-app	src/main/webapp or src/main/resources/	Moved for consistency with Gradle
@@ -25,10 +25,10 @@ dirmap = [
     ['grails-app/conf/BootStrap.groovy', 'grails-app/init/BootStrap.groovy'],
     ['scripts', 'src/main/scripts'],
     ['src/groovy', 'src/main/groovy'],
-    ['src/java', 'src/main/groovy'],
+    ['src/java', 'src/main/java'],
     ['test/unit', 'src/test/groovy'],
     ['test/integration', 'src/integration-test/groovy'],
-    ['web-app', 'src/main/resources/'], # note: can also go to src/main/webapp/ but src/main/resources/ is recommended
+    ['web-app', 'src/main/resources/'],
     ['*GrailsPlugin.groovy', 'src/main/groovy']
 ]
 
@@ -50,7 +50,12 @@ def diff(grails2, grails3):
         if '*' in s:
             # find the new location of *GrailsPlugin.groovy
             grails2_root = glob.glob(grails2_root)[0]
-            grails3_root = subprocess.check_output(['find', grails3_root, '-name', path.basename(grails2_root)]).split(b'\n')[0].decode()
+            find_output = subprocess.check_output(['find', grails3_root, '-name', path.basename(grails2_root)]).split(b'\n')
+            if length(find_output) == 0:
+                print("Ported equivalent of {} not found".format(grails2_root))
+                print("Skipping", grails2_root)
+                continue
+            grails3_root = find_output[0].decode()
     
         if path.exists(grails2_root):
             print("Running meld", grails2_root, grails3_root)
