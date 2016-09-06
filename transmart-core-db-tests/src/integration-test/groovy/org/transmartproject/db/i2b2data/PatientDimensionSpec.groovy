@@ -19,32 +19,33 @@
 
 package org.transmartproject.db.i2b2data
 
-import grails.test.mixin.TestMixin
-import org.junit.Before
-import org.junit.Test
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
+import groovy.util.logging.Slf4j
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.dataquery.highdim.SampleHighDimTestData
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
+import spock.lang.Specification
 
-import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-@TestMixin(RuleBasedIntegrationTestMixin)
-class PatientDimensionTests {
+@Integration
+@Rollback
+@Slf4j
+class PatientDimensionSpec extends Specification {
 
     SampleHighDimTestData testData = new SampleHighDimTestData()
 
-    @Before
-    void setUp() {
+    void setup() {
         testData.saveAll()
     }
 
-    @Test
-    void testScalarPublicProperties() {
+    void "test scalar public properties"() {
         /* Test properties defined in Patient */
         def patient = PatientDimension.get(testData.patients[0].id)
+        println "patients: $testData.patients"
 
-        assertThat patient, allOf(
+        expect:
+        patient allOf(
                 is(notNullValue(Patient)),
                 hasProperty('id', equalTo(-2001L)),
                 hasProperty('trial', equalTo(testData.TRIAL_NAME)),
@@ -52,14 +53,16 @@ class PatientDimensionTests {
         )
     }
 
-    @Test
-    void testAssaysProperty() {
+    void "test assays property"() {
         testData.patients[1].assays = testData.assays
         testData.patients[1].assays = testData.assays.reverse()
+        testData.patients[1].save() // added this. how could the test pass before? - GK
 
         def patient = PatientDimension.get(testData.patients[1].id)
+        println "patient.assays: ${patient.assays}"
 
-        assertThat patient, allOf(
+        expect:
+        patient allOf(
                 is(notNullValue(Patient)),
                 hasProperty('assays', containsInAnyOrder(
                         allOf(
