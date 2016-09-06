@@ -1,7 +1,10 @@
 package org.transmartproject.batch.batchartifacts
 
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExpectedException
 import org.springframework.batch.item.file.transform.DefaultFieldSet
+import org.springframework.batch.test.MetaDataInstanceFactory
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -13,25 +16,40 @@ class AbstractMultipleSamplesFieldSetMapperTests {
 
     private static final double DELTA = 0.005d
 
-    AbstractMultipleVariablesPerSampleFieldSetMapper testee =
-            new AbstractMultipleVariablesPerSampleFieldSetMapper<TestBean>() {
+    @Rule
+    @SuppressWarnings('PublicInstanceField')
+    public final ExpectedException exception = ExpectedException.none()
 
-                @Override
-                TestBean newInstance(String annotation, String sampleCode) {
-                    new TestBean(annotation: annotation, sampleCode: sampleCode)
-                }
+    AbstractMultipleVariablesPerSampleFieldSetMapper testee
 
-                @Override
-                Map<String, Closure> getFieldSetters() {
-                    [
-                            dfld: { TestBean bean, String value -> bean.doubleField = value as Double },
-                            ifld: { TestBean bean, String value -> bean.intField = value as Integer },
-                    ]
+    void init(parsedHeaderMap) {
+        testee =
+                new AbstractMultipleVariablesPerSampleFieldSetMapper<TestBean>() {
+
+                    @Override
+                    TestBean newInstance(String annotation, String sampleCode) {
+                        new TestBean(annotation: annotation, sampleCode: sampleCode)
+                    }
+
+                    @Override
+                    Map<String, Closure> getFieldSetters() {
+                        [
+                                dfld: { TestBean bean, String value -> bean.doubleField = value as Double },
+                                ifld: { TestBean bean, String value -> bean.intField = value as Integer },
+                        ]
+                    }
                 }
-            }
+        testee.stepExecution = MetaDataInstanceFactory.createStepExecution()
+        testee.stepExecution.executionContext
+                .put(HeaderParsingLineCallbackHandler.PARSED_HEADER_OUT_KEY, parsedHeaderMap)
+    }
 
     @Test
     void testSingleSample() {
+        init([
+                's1.dfld': [sample: 's1', suffix: 'dfld'],
+                's1.ifld': [sample: 's1', suffix: 'ifld'],
+        ])
         def fieldSet = new DefaultFieldSet(['test-annot', '23.45', '10'] as String[],
                 ['annot', 's1.dfld', 's1.ifld'] as String[])
         def items = testee.mapFieldSet(fieldSet)
@@ -46,6 +64,12 @@ class AbstractMultipleSamplesFieldSetMapperTests {
 
     @Test
     void testMultipleSamples() {
+        init([
+                's1.dfld': [sample: 's1', suffix: 'dfld'],
+                's1.ifld': [sample: 's1', suffix: 'ifld'],
+                's2.dfld': [sample: 's2', suffix: 'dfld'],
+                's2.ifld': [sample: 's2', suffix: 'ifld'],
+        ])
         def fieldSet = new DefaultFieldSet(['test-annot', '12.13', '22', '35.67', '19'] as String[],
                 ['annot', 's1.dfld', 's1.ifld', 's2.dfld', 's2.ifld'] as String[])
         def items = testee.mapFieldSet(fieldSet)
@@ -66,6 +90,10 @@ class AbstractMultipleSamplesFieldSetMapperTests {
 
     @Test
     void testLoyalToNulls() {
+        init([
+                's1.dfld': [sample: 's1', suffix: 'dfld'],
+                's1.ifld': [sample: 's1', suffix: 'ifld'],
+        ])
         def fieldSet = new DefaultFieldSet([null, null, null] as String[],
                 ['annot', 's1.dfld', 's1.ifld'] as String[])
         def items = testee.mapFieldSet(fieldSet)
@@ -78,8 +106,16 @@ class AbstractMultipleSamplesFieldSetMapperTests {
         ))
     }
 
-    @Test(expected = UnsupportedOperationException)
+    @Test
     void testUnknownVariable() {
+        init([
+                's1.dfld'   : [sample: 's1', suffix: 'dfld'],
+                's1.unknown': [sample: 's1', suffix: 'unknown'],
+        ])
+        exception.expect(UnsupportedOperationException)
+        exception.expectMessage(
+                equalTo('Variable unknown is not supported.'))
+
         def fieldSet = new DefaultFieldSet(['test-annot', '1.2', 'doesn\'t matter'] as String[],
                 ['annot', 's1.dfld', 's1.unknown'] as String[])
 
@@ -87,22 +123,13 @@ class AbstractMultipleSamplesFieldSetMapperTests {
     }
 
     @Test
-    void testSampleWithDots() {
-        def fieldSet = new DefaultFieldSet(['annot', '5'] as String[],
-                ['annot', 'sample.could.contain.dots.ifld'] as String[])
-        def items = testee.mapFieldSet(fieldSet)
+    void testNotParsedColumn() {
+        init([:])
+        exception.expect(IllegalStateException)
+        exception.expectMessage('Column unparsable has not been parsed.')
 
-        assertThat items, contains(allOf(
-                hasProperty('annotation', equalTo('annot')),
-                hasProperty('sampleCode', equalTo('sample.could.contain.dots')),
-                hasProperty('intField', equalTo(5)),
-        ))
-    }
-
-    @Test(expected = UnsupportedOperationException)
-    void testCaseMatters() {
         def fieldSet = new DefaultFieldSet(['test-annot', '1.2'] as String[],
-                ['annot', 's1.Dfld'] as String[])
+                ['annot', 'unparsable'] as String[])
 
         testee.mapFieldSet(fieldSet)
     }
