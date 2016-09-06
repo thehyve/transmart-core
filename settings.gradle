@@ -1,1 +1,3 @@
-include 'transmart-core-db', 'transmart-core-db-tests', 'transmart-core-api', 'transmartApp', 'Rmodules', 'transmart-java', 'biomart-domain', 'search-domain', 'transmart-legacy-db', 'folder-management-plugin'
+include 'transmart-core-db', 'transmart-core-db-tests', 'transmart-core-api', 'transmartApp', 'Rmodules',
+        'transmart-java', 'biomart-domain', 'search-domain', 'transmart-legacy-db', 'folder-management-plugin',
+        'transmart-rest-api'
