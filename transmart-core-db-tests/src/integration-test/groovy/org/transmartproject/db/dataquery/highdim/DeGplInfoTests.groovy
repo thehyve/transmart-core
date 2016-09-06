@@ -19,12 +19,14 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import grails.test.mixin.integration.Integration
 import org.junit.Test
 import org.transmartproject.core.dataquery.highdim.GenomeBuildNumber
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
+@Integration
 class DeGplInfoTests {
 
     SampleHighDimTestData testData = new SampleHighDimTestData()
