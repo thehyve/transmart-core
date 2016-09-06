@@ -35,8 +35,11 @@ class DeVariantSubjectSummaryCoreDb {
     String chr
     Long pos
 
-    DeVariantSubjectDetailCoreDb jDetail
-    DeVariantSubjectIdxCoreDb subjectIndex
+    // FIXME:
+    // These fields are currently commented out because Grails 3 has problems
+    // with referencing composite keys.
+    //DeVariantSubjectDetailCoreDb jDetail
+    //DeVariantSubjectIdxCoreDb subjectIndex
 
     static belongsTo = [dataset: DeVariantDatasetCoreDb, assay: DeSubjectSampleMapping]   //TODO: implement constraint on dataset
 
@@ -44,7 +47,7 @@ class DeVariantSubjectSummaryCoreDb {
         variant(nullable: true)
         variantFormat(nullable: true)
         variantType(nullable: true)
-        subjectIndex(nullable: true)
+        //subjectIndex(nullable: true)
     }
 
     static mapping = {
@@ -60,6 +63,7 @@ class DeVariantSubjectSummaryCoreDb {
 
         // this is needed due to a Criteria bug.
         // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372
+        /*
         columns {
             jDetail(insertable: false, updateable: false) {
                 column name: 'dataset_id'
@@ -72,5 +76,6 @@ class DeVariantSubjectSummaryCoreDb {
                 column name: 'subject_id'
             }
         }
+        */
     }
 }
