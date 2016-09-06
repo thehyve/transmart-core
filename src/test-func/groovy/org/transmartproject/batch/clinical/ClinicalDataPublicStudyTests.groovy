@@ -1,5 +1,6 @@
 package org.transmartproject.batch.clinical
 
+import org.hamcrest.MatcherAssert
 import org.junit.AfterClass
 import org.junit.ClassRule
 import org.junit.Test
@@ -22,7 +23,7 @@ import static org.hamcrest.Matchers.*
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
-class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
+class ClinicalDataPublicStudyTests implements JobRunningTestTrait {
 
     public static final String STUDY_ID = 'GSE8581'
 
@@ -30,7 +31,7 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
     public final static TestRule RUN_JOB_RULE = new RunJobRule(
             "${STUDY_ID}_simple",
             'clinical',
-            ['-d', 'SECURITY_REQUIRED=Y'])
+            ['-d', 'SECURITY_REQUIRED=N'])
 
     @AfterClass
     static void cleanDatabase() {
@@ -40,7 +41,7 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
     }
 
     @Test
-    void testTopNodeIsUnderPrivateStudies() {
+    void testTopNodeIsUnderPublicStudies() {
         def q = """
             SELECT c_fullname
             FROM ${Tables.I2B2}
@@ -49,7 +50,7 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
         def res = queryForList(q, [study: STUDY_ID], String)
 
         assertThat res, everyItem(
-                startsWith('\\Private Studies\\GSE8581\\'))
+                startsWith('\\Public Studies\\GSE8581\\'))
     }
 
     @Test
@@ -60,7 +61,7 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
             WHERE sourcesystem_cd = :study"""
         String sot = jdbcTemplate.queryForObject(qSec, [study: STUDY_ID], String)
 
-        assertThat sot, is("EXP:$STUDY_ID" as String)
+        MatcherAssert.assertThat sot, is("EXP:PUBLIC" as String)
     }
 
     @Test
@@ -72,11 +73,7 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
 
         def res = queryForList(q, [study: STUDY_ID])
 
-        assertThat res, hasSize(1)
-        assertThat res[0], allOf(
-                hasEntry('title', 'Metadata not available'),
-                hasEntry('etl_id', "METADATA:$STUDY_ID" as String),
-                hasEntry(is('bio_experiment_id'), isA(Number)))
+        assertThat res, hasSize(0)
     }
 
     @Test
@@ -89,14 +86,10 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
                 FROM ${Tables.SECURE_OBJECT} S
                 LEFT JOIN ${Tables.BIO_EXPERIMENT} B ON (S.bio_data_id = B.bio_experiment_id)
                 WHERE S.bio_data_unique_id = :sot"""
-        def res = queryForList(q, [sot: "EXP:$STUDY_ID" as String])
+        def res = queryForList(q, [sot: "EXP:PUBLIC" as String])
 
-        assertThat res, hasSize(1)
-        assertThat res[0], allOf(
-                hasEntry('display_name', "Private Studies - $STUDY_ID" as String),
-                hasEntry('data_type', 'BIO_CLINICAL_TRIAL'),
-                hasEntry(is('search_secure_object_id'), isA(Number)),
-                hasEntry('accession', STUDY_ID),)
+        assertThat res, hasSize(0)
+
     }
 
     @Test
@@ -107,12 +100,8 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
                 WHERE O.sourcesystem_cd = :studyId and O.concept_cd = :conceptCd"""
         def res = queryForList(q, [studyId: STUDY_ID, conceptCd: 'SECURITY'])
 
-        assertThat res, hasSize(1)
-        assertThat res[0], allOf(
-                hasEntry('valtype_cd', 'T'),
-                hasEntry('tval_char', "EXP:$STUDY_ID" as String),
-                hasEntry('modifier_cd', STUDY_ID),
-        )
+        assertThat res, hasSize(0)
+
     }
 
 }
