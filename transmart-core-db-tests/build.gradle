@@ -9,6 +9,7 @@ buildscript {
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.8.2"
+        classpath "org.grails.plugins:hibernate4:5.0.10"
     }
 }
 
@@ -57,7 +58,7 @@ dependencies {
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails:grails-test"
     testCompile "org.grails.plugins:geb"
-    testCompile group: 'org.hibernate', name: 'hibernate-core', version: '4.3.5.Final'
+    testCompile "org.grails.plugins:hibernate4:5.0.10"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     testCompile 'org.gmock:gmock:0.8.3'
