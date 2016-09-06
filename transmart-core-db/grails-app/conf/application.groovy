@@ -33,6 +33,27 @@ hibernate {
 
 // environment specific settings
 environments {
+    test {
+        dataSource {
+            driverClassName = "org.h2.Driver"
+            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM './h2_init.sql'"
+            username = "sa"
+            password = ""
+
+            logSql    = true
+            formatSql = true
+
+            dbCreate = "update"
+            pooled = true
+
+            properties {
+                // these small values make it easier to find leaks
+                maxActive = 3
+                minIdle = 1
+                maxIdle = 1
+            }
+        }
+    }
     development {
         dataSource {
             driverClassName = 'org.postgresql.Driver'
