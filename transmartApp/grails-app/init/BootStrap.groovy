@@ -110,7 +110,7 @@ class BootStrap {
 
         File rScriptsDir = new File(rdcModulesDir, 'Rscripts')
         if (!rScriptsDir || !rScriptsDir.isDirectory()) {
-            rScriptsDir = new File(rdcModulesDir, 'web-app/Rscripts')
+            rScriptsDir = new File(rdcModulesDir, 'src/main/resources/Rscripts')
         }
         if (!rScriptsDir.isDirectory()) {
             throw new RuntimeException('Could not determine proper for ' +
