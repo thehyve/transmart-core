@@ -70,7 +70,8 @@ class BootStrap {
             servletContext.getRealPath("/") + "../",
             servletContext.getResource("/")?.file,
             "webapps${servletContext.contextPath}",
-            "web-app/"
+            "web-app/",
+            servletContext.getRealPath("/") + "../resources/"
 
         ]).find { obj ->
             obj && (tsAppRScriptsDir = new File(obj, 'dataExportRScripts')).isDirectory()
