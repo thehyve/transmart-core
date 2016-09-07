@@ -118,14 +118,6 @@ dependencies {
     // https://mvnrepository.com/artifact/com.jcraft/jsch
     compile group: 'com.jcraft', name: 'jsch', version: '0.1.53'
 
-    compile project(':transmart-core-api')
-    compile project(':transmart-core-db')
-    compile project(':transmart-java')
-    compile project(':search-domain')
-    compile project(':biomart-domain')
-    compile project(':Rmodules')
-    compile project(':transmart-legacy-db')
-    compile project(':folder-management-plugin')
     // https://mvnrepository.com/artifact/org.fusesource.jansi/jansi
     compile group: 'org.fusesource.jansi', name: 'jansi', version: '1.8'
     // https://mvnrepository.com/artifact/jline/jline
@@ -134,6 +126,20 @@ dependencies {
 
     compile files('lib/GenePattern.jar')
     compile 'org.jfree:jfreesvg:3.1'
+}
+
+grails {
+    plugins {
+        compile project(':Rmodules')
+        compile project(':transmart-core-api')
+        compile project(':transmart-core-db')
+        compile project(':transmart-java')
+        compile project(':search-domain')
+        compile project(':biomart-domain')
+
+        compile project(':transmart-legacy-db')
+        compile project(':folder-management-plugin')
+    }
 }
 
 
