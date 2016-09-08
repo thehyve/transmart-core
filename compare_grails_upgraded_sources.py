@@ -23,6 +23,7 @@ dirmap = [
     ['grails-app/conf/Config.groovy', 'grails-app/conf/application.groovy'],
     ['grails-app/conf/UrlMappings.groovy', 'grails-app/controllers/UrlMappings.groovy'],
     ['grails-app/conf/BootStrap.groovy', 'grails-app/init/BootStrap.groovy'],
+    ['grails-app/views','grails-app/views'],
     ['scripts', 'src/main/scripts'],
     ['src/groovy', 'src/main/groovy'],
     ['src/java', 'src/main/java'],
@@ -56,7 +57,7 @@ def diff(grails2, grails3):
                 print("Skipping", grails2_root)
                 continue
             grails3_root = find_output[0].decode()
-    
+
         if path.exists(grails2_root):
             print("Running meld", grails2_root, grails3_root)
             subprocess.call(['meld', grails2_root, grails3_root])
@@ -64,6 +65,6 @@ def diff(grails2, grails3):
             print("Skipping", grails2_root)
 
 
-    
+
 if __name__ == '__main__':
     diff()
