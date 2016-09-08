@@ -24,6 +24,7 @@ dirmap = [
     ['grails-app/conf/UrlMappings.groovy', 'grails-app/controllers/UrlMappings.groovy'],
     ['grails-app/conf/BootStrap.groovy', 'grails-app/init/BootStrap.groovy'],
     ['grails-app/views','grails-app/views'],
+    ['grails-app', 'grails-app'],
     ['scripts', 'src/main/scripts'],
     ['src/groovy', 'src/main/groovy'],
     ['src/java', 'src/main/java'],
