@@ -87,7 +87,7 @@ class BootStrap {
                 "${c.com.recomdata.transmart.data.export.rScriptDirectory}")
 
         /* RModules.pluginScriptDirectory */
-        val = c.RModules.pluginScriptDirectory
+        /*val = c.RModules.pluginScriptDirectory
         if (val) {
             logger.warn("RModules.pluginScriptDirectory " +
                     "should not be explicitly set, value '$val' ignored")
@@ -115,8 +115,8 @@ class BootStrap {
         if (!rScriptsDir.isDirectory()) {
             throw new RuntimeException('Could not determine proper for ' +
                     'RModules.pluginScriptDirectory')
-        }
-        c.RModules.pluginScriptDirectory = rScriptsDir.canonicalPath + '/'
+        } */
+        c.RModules.pluginScriptDirectory = ""//rScriptsDir.canonicalPath + '/'
 
         logger.info("RModules.pluginScriptDirectory = " +
                 "${c.RModules.pluginScriptDirectory}")
