@@ -1,4 +1,4 @@
-<%@ page import="org.codehaus.groovy.grails.validation.routines.UrlValidator" %>
+<%@ page import="org.grails.validation.routines.UrlValidator;" %>
 <br/>
 <h2><g:message code="show.tags.header" default="Tags"/>:</h2>
 <g:if test="${tags.isEmpty()}">
@@ -7,7 +7,7 @@
     </table>
 </g:if>
 <g:else>
-    <g:set var="urlValidator" value="${new UrlValidator(['http', 'https', 'ftp'] as String[])}"/>
+    <g:set var="urlValidator" value="${new org.grails.validation.routines.UrlValidator(['http', 'https', 'ftp'] as String[])}"/>
     <table class="detail">
         <g:each in="${tags}" var="tag">
             <tr class="prop">
