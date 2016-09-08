@@ -30,7 +30,7 @@ dirmap = [
     ['src/java', 'src/main/java'],
     ['test/unit', 'src/test/groovy'],
     ['test/integration', 'src/integration-test/groovy'],
-    ['web-app', 'src/main/resources/'],
+    ['web-app', 'src/main/resources/public'],
     ['*GrailsPlugin.groovy', 'src/main/groovy']
 ]
 
@@ -45,13 +45,19 @@ import subprocess, glob
 def diff(grails2, grails3):
     print("comparing", grails2, "and", grails3)
 
-    for s, t in dirmap:
-        grails2_root = path.join(grails2, s)
-        grails3_root = path.join(grails3, t)
+    for source, target in dirmap:
+        grails2_root = path.join(grails2, source)
+        grails3_root = path.join(grails3, target)
 
-        if '*' in s:
+        if '*' in source:
             # find the new location of *GrailsPlugin.groovy
-            grails2_root = glob.glob(grails2_root)[0]
+            try:
+            	grails2_root = glob.glob(grails2_root)[0]
+            except IndexError:
+            	print('IndexError for source: {!r}, grails2_root: {!r}, glob: {}'.format(
+            					source, grails2_root, glob.glob(grails2_root)))
+            	raise
+            	
             find_output = subprocess.check_output(['find', grails3_root, '-name', path.basename(grails2_root)]).split(b'\n')
             if len(find_output) == 0:
                 print("Ported equivalent of {} not found".format(grails2_root))
