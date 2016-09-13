@@ -1,4 +1,33 @@
 ---
+hibernate:
+    cache:
+        queries: false
+        use_second_level_cache: true
+        use_query_cache: false
+        region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+
+dataSource:
+    pooled: true
+    jmxExport: true
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+
+environments:
+    development:
+        dataSource:
+            dbCreate: null
+            url: jdbc:hsqldb:mem:devDB;
+    test:
+        dataSource:
+            dbCreate: null
+            url: jdbc:hsqldb:mem:testDB;
+    production:
+        dataSource:
+            dbCreate: update
+            url: jdbc:hsqldb:file:prodDb;shutdown=true
+---
+---
 grails:
     profile: web-plugin
     codegen:
