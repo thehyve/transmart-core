@@ -160,9 +160,7 @@ class VcfTestData  {
                     reference: reference,
                     allele1: allele1,
                     allele2: allele2,
-                    assay: assay,
-                    jDetail: detail,
-                    subjectIndex: subjectIndex
+                    assay: assay
             )
     }
 
