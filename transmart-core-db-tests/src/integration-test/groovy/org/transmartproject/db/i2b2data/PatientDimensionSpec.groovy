@@ -35,16 +35,17 @@ class PatientDimensionSpec extends Specification {
 
     SampleHighDimTestData testData
 
-    void setup() {
+    void setupData() {
         testData = new SampleHighDimTestData()
+        testData.saveAll()
     }
 
     void "test scalar public properties"() {
-        testData.saveAll()
-        
+        given:
+        setupData()
+
         /* Test properties defined in Patient */
         def patient = PatientDimension.get(testData.patients[0].id)
-        println "patients: $testData.patients"
 
         expect:
         patient allOf(
@@ -56,7 +57,8 @@ class PatientDimensionSpec extends Specification {
     }
 
     void "test assays property"() {
-        testData.saveAll()
+        given:
+        setupData()
 
         def patient1 = testData.patients[1]
         patient1.assays = testData.assays
