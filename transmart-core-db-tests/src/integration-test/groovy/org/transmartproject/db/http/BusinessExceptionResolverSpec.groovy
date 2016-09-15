@@ -17,12 +17,25 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.dataquery.highdim.mirna
+package org.transmartproject.db.http
 
-import grails.test.mixin.TestMixin
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
+import grails.test.mixin.integration.Integration
+import org.springframework.context.ApplicationContext
+import org.springframework.web.servlet.HandlerExceptionResolver
+import spock.lang.Specification
 
-@TestMixin(RuleBasedIntegrationTestMixin)
-class MirnaSeqEndToEndRetrievalTests extends MirnaSharedEndToEndRetrievalTests {
-    String typeName = 'mirnaseq'
+import static org.hamcrest.Matchers.*
+
+@Integration
+class BusinessExceptionResolverSpec extends Specification {
+
+    def grailsApplication
+
+    void testExceptionResolverWasReplaced() {
+        ApplicationContext ctx = grailsApplication.mainContext
+        def beans = ctx.getBeansOfType(HandlerExceptionResolver)
+
+        expect: beans hasEntry(equalTo('businessExceptionResolver'),
+                any(BusinessExceptionResolver))
+    }
 }
