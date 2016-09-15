@@ -19,42 +19,34 @@
 
 package org.transmartproject.db.dataquery.unit
 
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
-import grails.test.mixin.TestFor
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.clinical.ClinicalDataResourceService
 import org.transmartproject.db.dataquery.clinical.InnerClinicalTabularResultFactory
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@TestFor(ClinicalDataResourceService)
-@Slf4j
 class TerminalConceptVariableCreationSpec extends Specification {
 
     public static final String SAMPLE_CONCEPT_CODE = 'my concept code'
     public static final String SAMPLE_CONCEPT_PATH = '\\foo\\bar\\'
 
-    void setup() {
-        defineBeans {
-            clinicalVariableFactory(ClinicalVariableFactory)
-            innerResultFactory(InnerClinicalTabularResultFactory)
-        }
-    }
+    ClinicalDataResourceService service = new ClinicalDataResourceService(
+            clinicalVariableFactory: new ClinicalVariableFactory(),
+            innerResultFactory: new InnerClinicalTabularResultFactory())
 
     void testCreateTerminalConceptVariableWithConceptCode() {
         def res = service.createClinicalVariable(
                 concept_code: SAMPLE_CONCEPT_CODE,
                 ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
 
-        expect: res allOf(
-                isA(TerminalConceptVariable),
-                hasProperty('conceptCode', is(SAMPLE_CONCEPT_CODE)),
-                hasProperty('conceptPath', is(nullValue())))
+        expect:
+        res instanceof TerminalConceptVariable
+        res.conceptCode == SAMPLE_CONCEPT_CODE
+        res.conceptPath == null
     }
 
     void testCreateTerminalConceptVariableWithConceptPath() {
@@ -62,10 +54,10 @@ class TerminalConceptVariableCreationSpec extends Specification {
                 concept_path: SAMPLE_CONCEPT_PATH,
                 ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
 
-        expect: res allOf(
-                isA(TerminalConceptVariable),
-                hasProperty('conceptCode', is(nullValue())),
-                hasProperty('conceptPath', is(SAMPLE_CONCEPT_PATH)))
+        expect:
+        res instanceof TerminalConceptVariable
+        res.conceptCode == null
+        res.conceptPath == SAMPLE_CONCEPT_PATH
     }
 
     void testSpecifyBothConceptPathAndCode() {

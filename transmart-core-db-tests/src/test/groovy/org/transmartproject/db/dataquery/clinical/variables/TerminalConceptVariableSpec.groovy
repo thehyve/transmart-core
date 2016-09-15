@@ -19,17 +19,10 @@
 
 package org.transmartproject.db.dataquery.clinical.variables
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
 import spock.lang.Specification
-
 
 import static org.hamcrest.Matchers.*
 
-@Integration
-@Rollback
-@Slf4j
 class TerminalConceptVariableSpec extends Specification {
 
     void testEquals() {
@@ -43,15 +36,15 @@ class TerminalConceptVariableSpec extends Specification {
         def conceptPathAndCode2 = new TerminalConceptVariable(conceptPath: '\\foo\\bar\\', conceptCode: 'foobar')
 
         expect:
-            empty is(equalTo(empty2))
-            onlyConceptPath is(equalTo(onlyConceptPath2))
-            onlyConceptCode is(equalTo(onlyConceptCode2))
-            conceptPathAndCode2 is(equalTo(conceptPathAndCode2))
+        empty is(equalTo(empty2))
+        onlyConceptPath is(equalTo(onlyConceptPath2))
+        onlyConceptCode is(equalTo(onlyConceptCode2))
+        conceptPathAndCode2 is(equalTo(conceptPathAndCode2))
 
-            // maybe it would make more sense to return true if tje concept path
-            // OR the concept key are equal
-            onlyConceptPath is(not(equalTo(conceptPathAndCode)))
-            onlyConceptCode is(not(equalTo(conceptPathAndCode)))
+        // maybe it would make more sense to return true if tje concept path
+        // OR the concept key are equal
+        onlyConceptPath is(not(equalTo(conceptPathAndCode)))
+        onlyConceptCode is(not(equalTo(conceptPathAndCode)))
     }
 
 }

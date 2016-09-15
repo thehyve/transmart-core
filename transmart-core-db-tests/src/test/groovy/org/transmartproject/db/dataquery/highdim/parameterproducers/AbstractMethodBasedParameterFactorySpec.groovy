@@ -19,18 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.parameterproducers
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import spock.lang.Specification
 
-import org.transmartproject.core.dataquery.highdim.projections.Projection
-
-import static org.hamcrest.Matchers.*
-
-@Integration
-@Rollback
-@Slf4j
 class AbstractMethodBasedParameterFactorySpec extends Specification {
 
     private DataRetrievalParameterFactory testee
@@ -40,13 +31,13 @@ class AbstractMethodBasedParameterFactorySpec extends Specification {
 
         @ProducerFor('made_up_projection_1')
         Projection createMadeUpProjection1(Map<String, Object> params) {
-            ({ [ '1', params ] } as Projection)
+            ({ ['1', params] } as Projection)
         }
 
         @ProducerFor('made_up_projection_2')
         Projection createMadeUpProjection2(
                 Map<String, Object> params, Object createProducer) {
-            ({ [ '2', params, createProducer ] } as Projection)
+            ({ ['2', params, createProducer] } as Projection)
         }
     }
 
@@ -55,36 +46,39 @@ class AbstractMethodBasedParameterFactorySpec extends Specification {
     }
 
     void testSupportedNames() {
-        expect: testee.supportedNames containsInAnyOrder(
-                equalTo('made_up_projection_1'),
-                equalTo('made_up_projection_2'),
-        )
+        expect:
+        testee.supportedNames.size() == 2
+        'made_up_projection_1' in testee.supportedNames
+        'made_up_projection_2' in testee.supportedNames
     }
 
     void testSupports() {
         expect:
-            testee.supports('made_up_projection_1') is(true)
-            testee.supports('foobar') is(false)
+        testee.supports('made_up_projection_1')
+        !testee.supports('foobar')
     }
 
     void testCreateFromParams() {
         LinkedHashMap<String, Integer> paramsMap = [a: 1]
         def bogusProjection = testee.createFromParameters('made_up_projection_1', paramsMap, {})
+
         expect:
-            bogusProjection isA(Projection)
-            bogusProjection.doWithResult('bogus') is(equalTo([ '1', paramsMap ]))
+        bogusProjection instanceof Projection
+        bogusProjection.doWithResult('bogus') == ['1', paramsMap]
     }
 
     void testCreateFromParamsTwoArgProducer() {
         LinkedHashMap<String, Integer> paramsMap = [a: 1]
         Closure<Void> objectCreate = { -> }
         def bogusProjection = testee.createFromParameters('made_up_projection_2', paramsMap, objectCreate)
+
         expect:
-            bogusProjection isA(Projection)
-            bogusProjection.doWithResult('bogus') is(equalTo([ '2', paramsMap, objectCreate ]))
+        bogusProjection instanceof Projection
+        bogusProjection.doWithResult('bogus') == ['2', paramsMap, objectCreate]
     }
 
     void testCreateFromParamsUnsupported() {
-        expect: testee.createFromParameters('foobar', [:], {}) is(nullValue())
+        expect:
+        testee.createFromParameters('foobar', [:], {}) == null
     }
 }

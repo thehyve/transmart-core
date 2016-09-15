@@ -19,20 +19,11 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
-import org.gmock.WithGMock
 import org.hibernate.ScrollableResults
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@WithGMock
-@Integration
-@Rollback
-@Slf4j
 class DefaultHighDimensionTabularResultSpec extends Specification {
 
     void testEquals() {
@@ -43,24 +34,25 @@ class DefaultHighDimensionTabularResultSpec extends Specification {
         a.close()
         b.close()
 
-        expect: a is(not(equalTo(b)))
+        expect:
+        a is(not(equalTo(b)))
     }
 
     void testEmptyResultSet() {
-        ScrollableResults mockedResults = mock(ScrollableResults)
+        ScrollableResults mockedResults = Mock(ScrollableResults)
         def testee = new DefaultHighDimensionTabularResult(
-                results:      mockedResults,
+                results: mockedResults,
                 closeSession: false)
 
-        mockedResults.next().returns(false)
-        mockedResults.get().returns(null)
+        mockedResults.next() >> false
+        mockedResults.get() >> null
 
-        play {
-            shouldFail NoSuchElementException, {
-                testee.iterator().next()
-            }
-        }
+        when:
+        testee.iterator().next()
+        then:
+        thrown(NoSuchElementException)
 
+        cleanup:
         testee.close()
     }
 

@@ -19,10 +19,8 @@
 
 package org.transmartproject.db.querytool
 
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import grails.test.mixin.TestFor
+import groovy.util.logging.Slf4j
 import org.junit.Rule
 import org.junit.rules.ExpectedException
 import org.transmartproject.core.concept.ConceptKey
@@ -34,6 +32,7 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.support.DatabasePortabilityService
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
@@ -63,12 +62,12 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         def conceptsResourceServiceStub = [
                 getByKey: { String key ->
                     def res = new I2b2(
-                            factTableColumn    : 'concept_cd',
-                            dimensionTableName : 'concept_dimension',
-                            columnName         : 'concept_path',
-                            columnDataType     : 'T',
-                            operator           : 'LIKE',
-                            dimensionCode      : new ConceptKey(key).conceptFullName.toString(),
+                            factTableColumn: 'concept_cd',
+                            dimensionTableName: 'concept_dimension',
+                            columnName: 'concept_path',
+                            columnDataType: 'T',
+                            operator: 'LIKE',
+                            dimensionCode: new ConceptKey(key).conceptFullName.toString(),
                     )
                     res.databasePortabilityService = databasePortabilityStub
                     res
@@ -85,7 +84,7 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         def definition = new QueryDefinition([
                 new Panel(
                         invert: false,
-                        items:  [
+                        items: [
                                 new Item(
                                         conceptKey: conceptKey
                                 )
@@ -94,21 +93,22 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         ])
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
-        expect: sql allOf(
+        expect:
+        sql allOf(
                 startsWith('INSERT INTO qt_patient_set_collection'),
                 containsString('SELECT patient_num FROM ' +
                         'observation_fact'),
                 containsString('concept_cd IN (SELECT concept_cd FROM ' +
                         'concept_dimension WHERE concept_path LIKE ' +
                         '\'\\\\full\\\\name\\\\%\')')
-                );
+        );
     }
 
     void testMultiplePanelsAndItems() {
         def definition = new QueryDefinition([
                 new Panel(
                         invert: false,
-                        items:  [
+                        items: [
                                 new Item(
                                         conceptKey: '\\\\code\\full\\name1\\'
                                 ),
@@ -127,7 +127,8 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         ])
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
-        expect: sql allOf(
+        expect:
+        sql allOf(
                 startsWith('INSERT INTO qt_patient_set_collection'),
                 containsString('OR (concept_cd IN (SELECT concept_cd FROM ' +
                         'concept_dimension WHERE concept_path LIKE ' +
@@ -143,7 +144,7 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         def definition = new QueryDefinition([
                 new Panel(
                         invert: true,
-                        items:  [
+                        items: [
                                 new Item(
                                         conceptKey: '\\\\code\\full\\name\\'
                                 )
@@ -152,7 +153,8 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         ])
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
-        expect: sql containsString('SELECT patient_num FROM ' +
+        expect:
+        sql containsString('SELECT patient_num FROM ' +
                 'patient_dimension EXCEPT (SELECT patient_num FROM ' +
                 'observation_fact WHERE (concept_cd IN (SELECT concept_cd ' +
                 'FROM concept_dimension WHERE concept_path ' +
@@ -164,14 +166,14 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         def definition = new QueryDefinition([
                 new Panel(
                         invert: true,
-                        items:  [
+                        items: [
                                 new Item(
                                         conceptKey: '\\\\code\\b\\'
                                 )
                         ]
                 ),
                 new Panel(
-                        items:  [
+                        items: [
                                 new Item(
                                         conceptKey: '\\\\code\\a\\'
                                 )
@@ -180,7 +182,8 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         ])
 
         def sql = service.buildPatientSetQuery(resultInstance, definition)
-        expect: sql containsString('EXCEPT (SELECT patient_num ' +
+        expect:
+        sql containsString('EXCEPT (SELECT patient_num ' +
                 'FROM observation_fact WHERE (concept_cd IN (SELECT ' +
                 'concept_cd FROM concept_dimension WHERE concept_path ' +
                 'LIKE \'\\\\b\\\\%\')) AND concept_cd != \'SECURITY\')')
@@ -189,7 +192,7 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
     void testNumberSimpleConstraint() {
         def definition = new QueryDefinition([
                 new Panel(
-                        items:  [
+                        items: [
                                 new Item(
                                         conceptKey: '\\\\code\\full\\name\\',
                                         constraint: new ConstraintByValue(
@@ -204,7 +207,8 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
 
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
-        expect: sql containsString("AND ((valtype_cd = 'N' " +
+        expect:
+        sql containsString("AND ((valtype_cd = 'N' " +
                 "AND nval_num < 5.6 AND tval_char IN ('E', 'LE')) OR (" +
                 "valtype_cd = 'N' AND nval_num <= 5.6 AND tval_char = 'L'))")
     }
@@ -212,7 +216,7 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
     void testNumberBetweenConstraint() {
         def definition = new QueryDefinition([
                 new Panel(
-                        items:  [
+                        items: [
                                 new Item(
                                         conceptKey: '\\\\code\\full\\name\\',
                                         constraint: new ConstraintByValue(
@@ -227,14 +231,15 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
 
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
-        expect: sql containsString("AND ((valtype_cd = 'N' AND " +
+        expect:
+        sql containsString("AND ((valtype_cd = 'N' AND " +
                 "nval_num BETWEEN 5.6 AND 5.8 AND tval_char = 'E')))")
     }
 
     void testFlagConstraint() {
         def definition = new QueryDefinition([
                 new Panel(
-                        items:  [
+                        items: [
                                 new Item(
                                         conceptKey: '\\\\code\\full\\name\\',
                                         constraint: new ConstraintByValue(
@@ -249,9 +254,9 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
 
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
-        expect: sql containsString("AND (valueflag_cd = 'N')")
+        expect:
+        sql containsString("AND (valueflag_cd = 'N')")
     }
-
 
     // The rest are error tests
 

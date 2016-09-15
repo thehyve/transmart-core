@@ -19,18 +19,11 @@
 
 package org.transmartproject.db.dataquery.highdim.parameterproducers
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@Integration
-@Rollback
-@Slf4j
 class MapBasedParameterFactorySpec extends Specification {
 
     private DataRetrievalParameterFactory testee
@@ -39,29 +32,29 @@ class MapBasedParameterFactorySpec extends Specification {
         testee = new MapBasedParameterFactory(
                 'test_projection': { Map params ->
                     { it ->
-                        [ it, params ]
+                        [it, params]
                     } as Projection
                 },
                 'test_projection_2': { Map params, createProjection ->
                     { it ->
-                        [ it, params, createProjection ]
+                        [it, params, createProjection]
                     } as Projection
                 },
         )
     }
 
     void testSupportedNames() {
-        expect: testee.supportedNames contains(
-                equalTo('test_projection'),
-                equalTo('test_projection_2'),
-        )
+        expect:
+        testee.supportedNames.size() == 2
+        'test_projection' in testee.supportedNames
+        'test_projection_2' in testee.supportedNames
     }
 
     void testSupports() {
         expect:
-            testee.supports('test_projection') is(true)
-            testee.supports('test_projection_2') is(true)
-            testee.supports('foobar') is(false)
+        testee.supports('test_projection')
+        testee.supports('test_projection_2')
+        !testee.supports('foobar')
     }
 
     void testCreateFromParams() {
@@ -70,8 +63,8 @@ class MapBasedParameterFactorySpec extends Specification {
                 'test_projection', paramsMap, { -> })
 
         expect:
-            bogusProjection isA(Projection)
-            bogusProjection.doWithResult('bogus') is(equalTo([ 'bogus', paramsMap ]))
+        bogusProjection isA(Projection)
+        bogusProjection.doWithResult('bogus') == ['bogus', paramsMap]
     }
 
     void testCreateFromParamsTwoArgClosure() {
@@ -82,9 +75,8 @@ class MapBasedParameterFactorySpec extends Specification {
                 'test_projection_2', paramsMap, createProjection)
 
         expect:
-            bogusProjection isA(Projection)
-            bogusProjection.doWithResult('bogus')
-                is(equalTo([ 'bogus', paramsMap, createProjection ]))
+        bogusProjection instanceof Projection
+        bogusProjection.doWithResult('bogus') == ['bogus', paramsMap, createProjection]
     }
 
 }

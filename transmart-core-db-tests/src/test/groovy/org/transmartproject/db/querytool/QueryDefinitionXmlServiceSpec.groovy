@@ -19,10 +19,8 @@
 
 package org.transmartproject.db.querytool
 
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import grails.test.mixin.TestFor
+import groovy.util.logging.Slf4j
 import org.junit.Rule
 import org.junit.rules.ExpectedException
 import org.transmartproject.core.exceptions.InvalidRequestException
@@ -32,6 +30,7 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
+import spock.lang.Specification
 
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
@@ -50,7 +49,7 @@ class QueryDefinitionXmlServiceSpec extends Specification {
 
     private Document xmlStringToDocument(String xmlString) {
         DocumentBuilder builder =
-            DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                DocumentBuilderFactory.newInstance().newDocumentBuilder()
         builder.parse(new InputSource(new StringReader(xmlString)))
     }
 
@@ -67,7 +66,8 @@ class QueryDefinitionXmlServiceSpec extends Specification {
 
         def definition = service.fromXml(new StringReader(xml))
 
-        expect: definition allOf(
+        expect:
+        definition allOf(
                 hasProperty('name', startsWith("i2b2's Query at Tue")),
                 hasProperty('panels', contains(allOf(
                         hasProperty('invert', is(false)),
@@ -98,14 +98,10 @@ class QueryDefinitionXmlServiceSpec extends Specification {
 
         def definition = service.fromXml(new StringReader(xml))
         expect:
-            definition.panels[0].invert is(true)
-            definition.panels[0].items contains(
-                hasProperty('constraint', allOf(
-                        hasProperty('valueType', equalTo(NUMBER)),
-                        hasProperty('operator', equalTo(LOWER_THAN)),
-                        hasProperty('constraint', equalTo('10'))
-                ))
-            )
+        definition.panels[0].invert
+        definition.panels[0].items[0].constraint.valueType == NUMBER
+        definition.panels[0].items[0].constraint.operator == LOWER_THAN
+        definition.panels[0].items[0].constraint.constraint == '10'
     }
 
     void testMultiplePanelsAndItemsFromXml() {
@@ -133,13 +129,10 @@ class QueryDefinitionXmlServiceSpec extends Specification {
 </ns3:query_definition>'''
 
         def definition = service.fromXml(new StringReader(xml))
-        expect: definition.panels allOf(
-                hasSize(2),
-                contains(
-                        hasProperty('items', hasSize(2)),
-                        hasProperty('items', hasSize(1))
-                )
-        )
+        expect:
+        definition.panels.size() == 2
+        definition.panels[0].items.size() == 2
+        definition.panels[1].items.size() == 1
     }
 
     void testBadXml() {
@@ -191,7 +184,8 @@ class QueryDefinitionXmlServiceSpec extends Specification {
         )
 
         def result = xmlStringToDocument(service.toXml(definition))
-        expect: result allOf(
+        expect:
+        result allOf(
                 hasXPath('/query_definition/query_name', equalTo(queryName)),
                 hasXPath('//panel/invert', equalTo('1')),
                 hasXPath('/query_definition/panel/item/item_key', equalTo(conceptKey))
@@ -214,7 +208,8 @@ class QueryDefinitionXmlServiceSpec extends Specification {
                 )
         ])
         def result = xmlStringToDocument(service.toXml(definition))
-        expect: result allOf(
+        expect:
+        result allOf(
                 hasXPath('/query_definition/query_name', startsWith('tranSMART\'s Query')),
                 hasXPath('//panel/invert', not(equalTo('1'))),
                 hasXPath('//panel/item/constrain_by_value/value_operator', equalTo('LE')),
@@ -239,7 +234,8 @@ class QueryDefinitionXmlServiceSpec extends Specification {
                 )
         ])
         def result = xmlStringToDocument(service.toXml(definition))
-        expect: result allOf(
+        expect:
+        result allOf(
                 hasXPath('count(//panel)', equalTo('2')),
                 hasXPath('count(//panel[1]/item)', equalTo('1')),
                 hasXPath('count(//panel[2]/item)', equalTo('2')),

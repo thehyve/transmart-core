@@ -19,13 +19,9 @@
 
 package org.transmartproject.db.ontology.http
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import grails.test.mixin.TestFor
 import org.transmartproject.db.http.BusinessExceptionResolver
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
@@ -33,9 +29,6 @@ import static org.hamcrest.Matchers.*
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
 @TestFor(BusinessExceptionController)
-@Integration
-@Rollback
-@Slf4j
 class BusinessExceptionControllerSpec extends Specification {
 
     void basicTest() {
@@ -47,10 +40,8 @@ class BusinessExceptionControllerSpec extends Specification {
         controller.index()
 
         expect:
-            response.status is(equalTo(403))
-            response.text allOf(
-                containsString('foo'),
-                containsString('RuntimeException')
-            )
+        response.status == 403
+        response.text.contains('foo')
+        response.text.contains('RuntimeException')
     }
 }

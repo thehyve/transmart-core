@@ -1,46 +1,34 @@
 package org.transmartproject.db.util
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
-import org.apache.log4j.Appender
-import org.apache.log4j.Level
-import org.apache.log4j.LogManager
-import org.apache.log4j.spi.LoggingEvent
-import org.gmock.WithGMock
 import org.hibernate.ScrollableResults
-import org.junit.Ignore
+import org.slf4j.Logger
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@WithGMock
-@Integration
-@Rollback
-@Slf4j
 class SimpleScrollableResultsWrappingIteratorSpec extends Specification {
 
-    @Ignore //TODO Fix logging
-    void testLogIfNotClosedProperly() {
-        def logger = LogManager.getLogger(ScrollableResultsIterator)
-        def logEvents = []
-        logger.addAppender([doAppend: { LoggingEvent event -> logEvents << event }] as Appender)
+    def "log error if not closed properly"() {
+        ScrollableResultsIterator testee = new ScrollableResultsWrappingIterable<String>(Mock(ScrollableResults))
+                .iterator()
+        testee.logger = Mock(Logger)
 
-        new ScrollableResultsWrappingIterable<String>(mock(ScrollableResults)).iterator().finalize()
+        when:
+        testee.finalize()
 
-        expect: logEvents contains(
-                hasProperty('level', equalTo(Level.ERROR))
-        )
+        then:
+        1 * testee.logger.error('Failed to call close before the object was scheduled to be garbage collected')
     }
 
-    void testIteratorIsCalledTwice() {
-        def testee = new ScrollableResultsWrappingIterable<String>(mock(ScrollableResults))
+    def "should fail on getting iterator twice"() {
+        def testee = new ScrollableResultsWrappingIterable<String>(Mock(ScrollableResults))
+
+        when:
+        testee.iterator()
         testee.iterator()
 
-        shouldFail(IllegalStateException, { ->
-            testee.iterator()
-        })
+        then:
+        thrown(IllegalStateException)
     }
 
 }
