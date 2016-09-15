@@ -30,7 +30,7 @@ class DataAssociationController {
 
         // list of required javascripts
         def scripts = [
-                servletContext.contextPath + pluginContextPath + '/js/FormValidator.js',
+                servletContext.contextPath + pluginContextPath + '/assets/javascripts/FormValidator.js',
                 servletContext.contextPath + pluginContextPath + '/js/HighDimensionalData.js',
                 servletContext.contextPath + pluginContextPath + '/js/RmodulesView.js',
                 servletContext.contextPath + pluginContextPath + '/js/dataAssociation.js',
