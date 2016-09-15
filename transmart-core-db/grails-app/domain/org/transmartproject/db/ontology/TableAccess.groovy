@@ -61,7 +61,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         /* hibernate needs an id, see
          * http://docs.jboss.org/hibernate/orm/3.3/reference/en/html/mapping.html#mapping-declaration-id
          */
-        id          column: 'table_code', generator: 'assigned'
+        id          name: 'tableCode', generator: 'assigned'
 
         fullName             column:   'C_FULLNAME'
         level                column:   'C_HLEVEL'
