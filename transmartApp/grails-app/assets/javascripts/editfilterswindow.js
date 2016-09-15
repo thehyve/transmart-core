@@ -323,11 +323,11 @@ Ext.app.EditFiltersWindow = Ext.extend(Ext.Window, {
 		if (record.category == "PATHWAY") {
 			html += '<a href="#" class="filter-item filter-item-split" onclick="' +
 				"var win=Ext.getCmp('" + this.id + "'); win.splitFilter({id:" + record.id + ",keyword:'" + escapedKeyword + "'});" +
-				'"><img alt="split" src="../images/split.png" /></a>';
+				'"><img alt="split" src="../../../src/main/resources/public/images/split.png" /></a>';
 		}
 		html += '<a href="#" class="filter-item filter-item-remove" onclick="' +
 			"var win=Ext.getCmp('" + this.id + "'); win.removeFilter({id:" + record.id + ",keyword:'" + escapedKeyword + "'});" +
-			'"><img alt="remove" src="../images/remove.png" /></a></nobr>';
+			'"><img alt="remove" src="../../../src/main/resources/public/images/remove.png" /></a></nobr>';
 		return html;
 	},
 
