@@ -55,6 +55,7 @@ dependencies {
     compile "commons-net:commons-net:3.5"
     compile "org.mongodb:mongo-java-driver:3.3.0"
     compile "org.apache.httpcomponents:httpmime:4.5.2"
+    compile "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
 
     compile project(':transmart-java')
     compile project(':search-domain')
@@ -65,7 +66,7 @@ dependencies {
     profile "org.grails.profiles:web-plugin"
     provided "org.grails:grails-plugin-services"
     provided "org.grails:grails-plugin-domain-class"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
+
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
