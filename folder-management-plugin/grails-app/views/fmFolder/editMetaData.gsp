@@ -8,45 +8,45 @@
         <title>${grailsApplication.config.com.recomdata.appTitle}</title>
         
         <!-- jQuery CSS for cupertino theme -->
-        <link rel="stylesheet" href="${resource(dir:'css/jquery/ui', file:'jquery-ui-1.9.1.custom.css')}">
-        <link rel="stylesheet" href="${resource(dir:'css/jquery/skin', file:'ui.dynatree.css')}">
+        <asset:stylesheet href='jquery/ui/jquery-ui-1.9.1.custom.css'/>
+        <asset:stylesheet href="jquery/skin/ui.dynatree.css"/>
         
         <!-- Our CSS -->
-        <link rel="stylesheet" href="${resource(dir:'css', file:'jquery.loadmask.css')}">
-        <link rel="stylesheet" href="${resource(dir:'css', file:'main.css')}">
-        <link rel="stylesheet" href="${resource(dir:'css', file:'rwg.css')}">
-        <link rel="stylesheet" href="${resource(dir:'css', file:'folderManagement.css', plugin:'folder-management')}">
-        <link rel="stylesheet" href="${resource(dir:'css', file:'colorbox.css')}">
-        <link rel="stylesheet" href="${resource(dir:'css', file:'jquery/simpleModal.css')}">
-        <link rel="stylesheet" href="${resource(dir:'css', file:'jquery/multiselect/ui.multiselect.css')}">
-        <link rel="stylesheet" href="${resource(dir:'css', file:'jquery/multiselect/common.css')}">
-        <link rel="stylesheet" href="${resource(dir:'css', file:'jquery/jqueryDatatable.css')}">
+        <asset:stylesheet href='jquery.loadmask.css'/>
+        <asset:stylesheet href='main.css'/>
+        <asset:stylesheet href='rwg.css'/>
+        <asset:stylesheet href='folderManagement.css'/>
+        <asset:stylesheet href='colorbox.css'/>
+        <asset:stylesheet href='jquery/simpleModal.css'/>
+        <asset:stylesheet href='jquery/multiselect/ui.multiselect.css'/>
+        <asset:stylesheet href='jquery/multiselect/common.css'/>
+        <asset:stylesheet href='jquery/jqueryDatatable.css'/>
                                 
         <!-- jQuery JS libraries -->
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.min.js')}"></script>   
+        <asset:javascript src="jQuery.min.js"/>
         <script>jQuery.noConflict();</script> 
         
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery-ui-1.9.1.custom.min.js')}"></script>
+        <asset:javascript src='jQuery/jquery-ui-1.9.1.custom.min.js'/>
         
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.cookie.js')}"></script>   
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.dynatree.min.js')}"></script>
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.paging.min.js')}"></script>
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.loadmask.min.js')}"></script>   
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.ajaxmanager.js')}"></script>  
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.numeric.js')}"></script>
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.colorbox-min.js')}"></script>  
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.simplemodal.min.js')}"></script>  
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.dataTables.js')}"></script>
-        <script type="text/javascript" src="${resource(dir:'js', file:'facetedSearch/facetedSearchBrowse.js')}"></script>
-        <script type="text/javascript" src="${resource(dir:'js', file:'jQuery/ui.multiselect.js')}"></script>  
+        <asset:javascript src='jQuery/jquery.cookie.js'/>
+        <asset:javascript src='jQuery/jquery.dynatree.min.js'/>
+        <asset:javascript src='jQuery/jquery.paging.min.js'/>
+        <asset:javascript src='jQuery/jquery.loadmask.min.js'/>
+        <asset:javascript src='jQuery/jquery.ajaxmanager.js'/>
+        <asset:javascript src='jQuery/jquery.numeric.js'/>
+        <asset:javascript src='jQuery/jquery.colorbox-min.js'/>
+        <asset:javascript src='jQuery/jquery.simplemodal.min.js'/>
+        <asset:javascript src='jQuery/jquery.dataTables.js'/>
+        <asset:javascript src='facetedSearch/facetedSearchBrowse.js'/>
+        <asset:javascript src='jQuery/ui.multiselect.js'/>
           
                 
         <!--Datatable styling and scripts-->
-        <script type="text/javascript" src="${resource(dir:'js/', file:'jquery.dataTables.min.js')}"></script>
-        <script type="text/javascript" src="${resource(dir:'js', file:'ColVis.min.js')}"></script> 
+        <asset:javascript src='jquery.dataTables.min.js'/>
+        <asset:javascript src='ColVis.min.js'/>
                 
         <!--  SVG Export -->
-        <%--<script type="text/javascript" src="${resource(dir:'js', file:'svgExport/rgbcolor.js')}"></script>  --%>
+        <%--<asset:javascript src='svgExport/rgbcolor.js'/>  --%>
           
     
         <g:javascript library="prototype" /> 
@@ -55,13 +55,13 @@
         </script>
         
         <!-- Our JS -->        
-        <script type="text/javascript" src="${resource(dir:'js', file:'rwg.js')}"></script>
-        <script type="text/javascript" src="${resource(dir:'js', file:'maintabpanel.js')}"></script>
-        <script type="text/javascript" src="${resource(dir:'js', file:'datasetExplorer.js')}"></script>
+        <asset:javascript src='rwg.js'/>
+        <asset:javascript src='maintabpanel.js'/>
+        <asset:javascript src='datasetExplorer.js'/>
         
         <!-- Protovis Visualization library and IE plugin (for lack of SVG support in IE8 -->
-        <%-- <script type="text/javascript" src="${resource(dir:'js/protovis', file:'protovis-r3.2.js')}"></script>
-        <script type="text/javascript" src="${resource(dir:'js/protovis', file:'protovis-msie.min.js')}"></script> --%>
+        <%-- <asset:javascript src='protovis-r3.2.js'/>
+        <asset:javascript src='protovis-msie.min.js'/> --%>
 </head>
 <body>
 <div style="width:800px">
