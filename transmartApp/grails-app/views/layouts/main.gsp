@@ -2,15 +2,21 @@
 <head>
     <title>Transmart Login</title>
 
-    <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="shortcut icon" />
-    <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="icon" />
-    <link href="${resource(dir: 'css', file: 'main.css')}" rel="stylesheet" />
+    <asset:link href='searchtool.ico' rel="shortcut icon" />
+    <asset:link href='searchtool.ico' rel="icon" />
 
-    <g:javascript library="jquery" />
-    <r:require module="extjs" />
-    <r:layoutResources/>
 
-    <script type="text/javascript" charset="utf-8">
+    %{--<g:javascript library="jquery" />--}%
+    <asset:javascript src="jquery-2.2.0.min.js"/>
+    <asset:stylesheet href="extjs.css"/>
+    <asset:javascript src="ext/ext-base.js"/>
+    <asset:javascript src="ext/ext-all-debug.js"/>
+    <asset:javascript src="ext-ux/miframe.js"/>
+    %{--<asset:javascript src="extjs.js"/>--}%
+    %{--<r:require module="extjs" />--}%
+    %{--<r:layoutResources/>--}%
+    <asset:stylesheet href='main.css'/>
+    <asset:script type="text/javascript" charset="utf-8">
 
         Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
         Ext.Ajax.timeout = 180000;
@@ -18,15 +24,16 @@
 
         var $j = window.$j = jQuery.noConflict();
 
-    </script>
+    </asset:script>
 
     <g:layoutHead/>
-    <r:layoutResources/>
+    %{--<r:layoutResources/>--}%
 </head>
 
 <body>
 
 <g:layoutBody/>
-<r:layoutResources/>
+%{--<asset:deferredScripts/>--}%
+%{--<r:layoutResources/>--}%
 </body>
 </html>

@@ -56,7 +56,7 @@
     <g:set var="projectName" value="${grailsApplication.config?.com?.recomdata?.projectName}"/>
     <g:set var="providerName" value="${grailsApplication.config?.com?.recomdata?.providerName}"/>
     <g:if test="${projectName}">
-        <img src="${resource(dir: 'images', file: 'project_logo.png')}" alt="${projectName}" style="height:35px;vertical-align:middle;margin-bottom: 12px;" />
+        <asset:image src="project_logo.png" alt="${projectName}" style="height:35px;vertical-align:middle;margin-bottom: 12px;" />
     </g:if>
     <g:if test="${projectName && providerName}">
         <span style="font-size:20px;display: inline-block;line-height: 35px; height: 35px;">&nbsp;+&nbsp;</span>
@@ -64,7 +64,7 @@
     <g:if test="${providerName}">
         <a id="providerpowered" target="_blank" href="${grailsApplication.config?.com?.recomdata?.providerURL}"
            style="text-decoration: none;">
-            <img src="${resource(dir: 'images', file: 'provider_logo.png')}" alt="${providerName}" style="height:35px;vertical-align:middle;margin-bottom: 12px;" />
+            <asset:image src="provider_logo.png" alt="${providerName}" style="height:35px;vertical-align:middle;margin-bottom: 12px;" />
         </a>
     </g:if>
 </div>
