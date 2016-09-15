@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.clinical
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -31,6 +33,7 @@ import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.is
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -44,19 +47,21 @@ class PatientsResourceServiceSpec extends Specification {
 
     def patients
 
-    void before() {
+    void setupData() {
         patients = I2b2Data.createTestPatients(2, -100, TRIAL_NAME)
         save patients
         sessionFactory.currentSession.flush()
     }
 
     void testLoadPatientById() {
+        setupData()
         def result = patientsResourceService.getPatientById(-101L)
 
         expect: result is(patients[0])
     }
 
     void testLoadNonExistentPatient() {
+        setupData()
         shouldFail NoSuchResourceException, {
             patientsResourceService.getPatientById(-999999L)
         }

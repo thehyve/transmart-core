@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.mirna
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -40,6 +42,7 @@ import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -61,7 +64,7 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
 
     abstract String getTypeName()
 
-    void setup() {
+    void setupData() {
         testData = new MirnaTestData(typeName)
         testData.saveAll()
         mirnaResource = highDimensionResourceService.getSubResourceForType typeName
@@ -78,7 +81,8 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
     }
 
 
-    void basicTest() {
+    void testBasic() {
+        setupData()
         def dataConstraints = [
                 mirnaResource.createDataConstraint(
                         'mirnas', names: ['MIR323B', 'MIR3161'])
@@ -118,6 +122,7 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
     }
 
     void testLogIntensityProjection() {
+        setupData()
         def logIntensityProjection = mirnaResource.createProjection(
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
@@ -132,6 +137,7 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
     }
 
     void testDefaultRealProjection() {
+        setupData()
         def defaultRealProjection = mirnaResource.createProjection(
                 [:], Projection.DEFAULT_REAL_PROJECTION)
         result = mirnaResource.retrieveData([ trialNameConstraint ], [], defaultRealProjection)
@@ -144,6 +150,7 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
     }
 
     void testSearchBySearchKeywordIds() {
+        setupData()
         def dataConstraints = [
                 mirnaResource.createDataConstraint(
                         DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
@@ -159,6 +166,7 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
     }
 
     void testBadMirnaConstraints() {
+        setupData()
         shouldFail InvalidArgumentsException, {
             mirnaResource.createDataConstraint 'mirnas', names: 'foobar'
         }
@@ -168,6 +176,7 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
     }
 
     void testDataProjection() {
+        setupData()
         shouldFail InvalidArgumentsException, {
             mirnaResource.createProjection 'default_real_projection', arg: 'value'
         }
@@ -185,6 +194,7 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
     }
 
     void testMissingAssaysNotAllowedFails() {
+        setupData()
         testWithMissingDataAssay(-50000L)
         result.allowMissingAssays = false
         shouldFail UnexpectedResultException, {
@@ -193,6 +203,7 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
     }
 
     void testMissingAssaysAllowedSucceeds() {
+        setupData()
         testWithMissingDataAssay(-50000L)
         expect: Lists.newArrayList(result.rows) everyItem(
                 hasProperty('data', allOf(

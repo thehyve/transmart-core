@@ -19,13 +19,14 @@
 
 package org.transmartproject.db.dataquery.highdim.rbm
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
 
 import com.google.common.collect.Lists
-import org.junit.After
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -36,6 +37,7 @@ import org.transmartproject.db.dataquery.highdim.HighDimTestData
 
 import static org.hamcrest.Matchers.*
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -56,6 +58,7 @@ class RbmDataRetrievalSpec extends Specification {
     double DELTA = 0.0001
 
     void testRetrievalByTrialNameAssayConstraint() {
+        setupData()
         when: result = rbmResource.retrieveData([trialNameConstraint], [], projection)
 
         then: result allOf(
@@ -103,6 +106,7 @@ class RbmDataRetrievalSpec extends Specification {
     }
 
     void testLogIntensityProjection() {
+        setupData()
         def logIntensityProjection = rbmResource.createProjection(
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
@@ -117,6 +121,7 @@ class RbmDataRetrievalSpec extends Specification {
     }
 
     void testDefaultRealProjection() {
+        setupData()
         result = rbmResource.retrieveData([trialNameConstraint], [],
             rbmResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
 
@@ -130,6 +135,7 @@ class RbmDataRetrievalSpec extends Specification {
     }
 
     void testNoUnit() {
+        setupData()
         testData.data.each { it.unit = null}
         HighDimTestData.save testData.data
 
@@ -144,6 +150,7 @@ class RbmDataRetrievalSpec extends Specification {
     }
 
     void testRetrievalByUniProtNamesDataConstraint() {
+        setupData()
         def proteinDataConstraint = rbmResource.createDataConstraint(
                 [names: ['Adiponectin']],
                 DataConstraint.PROTEINS_CONSTRAINT
@@ -166,6 +173,7 @@ class RbmDataRetrievalSpec extends Specification {
     }
 
     void testRetrievalByUniProtIdsDataConstraint() {
+        setupData()
         def proteinDataConstraint = rbmResource.createDataConstraint(
                 [ids: ['Q15848']],
                 DataConstraint.PROTEINS_CONSTRAINT
@@ -191,6 +199,7 @@ class RbmDataRetrievalSpec extends Specification {
     }
 
     void testRetrievalByGeneNamesDataConstraint() {
+        setupData()
         def geneDataConstraint = rbmResource.createDataConstraint(
                 [names: ['SLC14A2']],
                 DataConstraint.GENES_CONSTRAINT
@@ -209,6 +218,7 @@ class RbmDataRetrievalSpec extends Specification {
     }
 
     void testRetrievalByGeneSkIdsDataConstraint() {
+        setupData()
         def skId = testData.searchKeywords.find({ it.keyword == 'SLC14A2' }).id
         def geneDataConstraint = rbmResource.createDataConstraint(
                 [keyword_ids: [skId]],
@@ -229,6 +239,7 @@ class RbmDataRetrievalSpec extends Specification {
     }
 
     void testRetrieDataRowThatMapsToMultipleProteins() {
+        setupData()
 
         def proteinDataConstraint = rbmResource.createDataConstraint(
                 [ids: ['Q15847', 'Q15850']],
@@ -254,6 +265,7 @@ class RbmDataRetrievalSpec extends Specification {
     }
 
     void testConstraintAvailability() {
+        setupData()
         expect:
             rbmResource.supportedAssayConstraints containsInAnyOrder(
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
@@ -276,7 +288,7 @@ class RbmDataRetrievalSpec extends Specification {
                 Projection.ALL_DATA_PROJECTION)
     }
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
         rbmResource = highDimensionResourceService.getSubResourceForType 'rbm'
 

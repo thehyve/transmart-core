@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.clinical
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -34,6 +36,7 @@ import org.transmartproject.db.ontology.StudyImpl
 
 import static org.hamcrest.Matchers.*
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -41,11 +44,12 @@ class PatientQuerySpec extends Specification {
 
     TestData testData = TestData.createDefault()
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
     }
 
     void testStudyPatientsRetrieval() {
+        setupData()
         List<PatientDimension> resultList = new PatientQuery([
                 new StudyPatientsConstraint(
                         new StudyImpl(id: I2b2Data.DEFAULT_TRIAL_NAME)
@@ -60,6 +64,7 @@ class PatientQuerySpec extends Specification {
 
 
     void testPatientSetsRetrieval() {
+        setupData()
         QueryResult queryResult = testData.clinicalData.queryResult
 
         List<PatientDimension> resultList = new PatientQuery([

@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.acgh
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -37,6 +39,7 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 /**
  * Created by glopes on 11/23/13.
  */
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -48,15 +51,17 @@ class AcghDataTypeResourceSpec extends Specification {
 
     AcghTestData testData = new AcghTestData()
 
-    void setup() {
+    void setupData() {
         acghResource = highDimensionResourceService.getSubResourceForType 'acgh'
     }
 
     void testAcghModuleGivesBackResourceSubtype() {
-        expect: acghResource isA(AcghDataTypeResource)
+        setupData()
+        expect: acghResource instanceof AcghDataTypeResource
     }
 
     void testChromosomalSegmentsBasic() {
+        setupData()
         AcghDataTypeResource resource = acghResource
 
         testData.saveAll()
@@ -76,6 +81,7 @@ class AcghDataTypeResourceSpec extends Specification {
     }
 
     void testChromosomalSegmentsNoAssays() {
+        setupData()
         testData.saveAll()
 
         def assayConstraints = [
@@ -92,6 +98,7 @@ class AcghDataTypeResourceSpec extends Specification {
     }
 
     void testChromosomalSegmentsEmptyPlatform() {
+        setupData()
         def trialName = 'bogus trial'
         testData.saveAll()
         def testAssays =  HighDimTestData.createTestAssays(
@@ -115,6 +122,7 @@ class AcghDataTypeResourceSpec extends Specification {
     }
 
     void testAcghPlatformIsRecognized() {
+        setupData()
         def constraint = highDimensionResourceService.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: AcghTestData.TRIAL_NAME)

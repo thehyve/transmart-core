@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.i2b2data
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.dataquery.Patient
@@ -28,6 +30,7 @@ import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -35,11 +38,12 @@ class PatientDimensionSpec extends Specification {
 
     SampleHighDimTestData testData = new SampleHighDimTestData()
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
     }
 
     void "test scalar public properties"() {
+        setupData()
         /* Test properties defined in Patient */
         def patient = PatientDimension.get(testData.patients[0].id)
         println "patients: $testData.patients"
@@ -54,6 +58,7 @@ class PatientDimensionSpec extends Specification {
     }
 
     void "test assays property"() {
+        setupData()
         testData.patients[1].assays = testData.assays
         testData.patients[1].assays = testData.assays.reverse()
         testData.patients[1].save() // added this. how could the test pass before? - GK

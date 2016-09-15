@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.querytool
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -41,6 +43,7 @@ import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NU
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -85,7 +88,7 @@ class QueriesResourceServiceSpec extends Specification {
         expect: p.save() isA(Patient)
     }
 
-    void setup() {
+    void setupData() {
         /* 1. Define concepts */
         def concepts = [ /* level, concept_path, concept_cd */
                 [0, "\\a\\",      'A'],
@@ -127,7 +130,8 @@ class QueriesResourceServiceSpec extends Specification {
         sessionFactory.currentSession.flush()
     }
 
-    void basicTest() {
+    void testBasic() {
+        setupData()
         def definition = new QueryDefinition([
                 new Panel(
                         invert: false,
@@ -165,6 +169,7 @@ class QueriesResourceServiceSpec extends Specification {
     }
 
     void testPanelInversion() {
+        setupData()
         def definition = new QueryDefinition([
                 new Panel(
                         items:  [
@@ -188,6 +193,7 @@ class QueriesResourceServiceSpec extends Specification {
     }
 
     void testRegularNumberValueConstraint() {
+        setupData()
         def definition = new QueryDefinition([
                 new Panel(
                         items:  [
@@ -216,6 +222,7 @@ class QueriesResourceServiceSpec extends Specification {
     }
 
     void testMultiplePanelsIntersectAtPatientLevel() {
+        setupData()
         def definition = new QueryDefinition([
                 new Panel(
                         items:  [
@@ -238,6 +245,7 @@ class QueriesResourceServiceSpec extends Specification {
     }
 
     void testBetweenValueConstraint() {
+        setupData()
         def definition = new QueryDefinition([
                 new Panel(
                         items:  [
@@ -258,6 +266,7 @@ class QueriesResourceServiceSpec extends Specification {
     }
 
     void testFlagConstraint() {
+        setupData()
         def definition = new QueryDefinition([
                 new Panel(
                         items:  [
@@ -278,6 +287,7 @@ class QueriesResourceServiceSpec extends Specification {
     }
 
     void testUnknownItemKeyResultsInInvalidRequestException() {
+        setupData()
         def definition = new QueryDefinition([
                 new Panel(
                         items:  [
@@ -293,7 +303,8 @@ class QueriesResourceServiceSpec extends Specification {
         expect: InvalidRequestException
     }
 
-    void runQueryAndFetchDefinitionAfterwards() {
+    void testRunQueryAndFetchDefinitionAfterwards() {
+        setupData()
         def inputDefinition = new QueryDefinition([
                 new Panel(
                         items:  [
@@ -322,6 +333,7 @@ class QueriesResourceServiceSpec extends Specification {
     }
 
     void testFailingQuery() {
+        setupData()
         def inputDefinition = new QueryDefinition([])
 
         def orig = queriesResourceService.patientSetQueryBuilderService
@@ -345,6 +357,7 @@ class QueriesResourceServiceSpec extends Specification {
 
 
     void testFailingQueryBuilding() {
+        setupData()
         def inputDefinition = new QueryDefinition([])
 
         def orig = queriesResourceService.patientSetQueryBuilderService
@@ -367,6 +380,7 @@ class QueriesResourceServiceSpec extends Specification {
     }
 
     void testGetQueryResultFromIdBasic() {
+        setupData()
         def queryMaster = QueryResultData.createQueryResult([
                 PatientDimension.load(100) // see setUp()
         ])
@@ -384,12 +398,14 @@ class QueriesResourceServiceSpec extends Specification {
     }
 
     void testQueryResultResultNonExistent() {
+        setupData()
         shouldFail NoSuchResourceException, {
             queriesResourceService.getQueryResultFromId(-99112 /* bogus id */)
         }
     }
 
     void testOverloadWithUsername() {
+        setupData()
         def username = 'bogus_username'
 
         def definition = new QueryDefinition([

@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.clinical
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -40,6 +42,7 @@ import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.TestDataHelper.save
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -61,7 +64,7 @@ class ComposedVariablesCreationSpec extends Specification {
         conceptData.i2b2List.find { it.name == 'sex'}
     }
 
-    void setup() {
+    void setupData() {
         conceptData = ConceptTestData.createDefault()
         i2b2Data    = I2b2Data.createDefault()
         facts       = ClinicalTestData.createDiagonalCategoricalFacts(
@@ -76,7 +79,8 @@ class ComposedVariablesCreationSpec extends Specification {
 
     /* categorical */
 
-    void categoricalVariableBasicTest() {
+    void testCategoricalVariableBasic() {
+        setupData()
         CategoricalVariable var
         var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.CATEGORICAL_VARIABLE,
@@ -96,6 +100,7 @@ class ComposedVariablesCreationSpec extends Specification {
     }
 
     void testCategoricalVariableViaConceptCode() {
+        setupData()
         CategoricalVariable var
         var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.CATEGORICAL_VARIABLE,
@@ -105,6 +110,7 @@ class ComposedVariablesCreationSpec extends Specification {
     }
 
     void testCategoricalNoChildren() {
+        setupData()
         def throwable = shouldFail InvalidArgumentsException, {
             clinicalDataResourceService.createClinicalVariable(
                     ClinicalVariable.CATEGORICAL_VARIABLE,
@@ -115,6 +121,7 @@ class ComposedVariablesCreationSpec extends Specification {
     }
 
     void testCategoricalGrandChildren() {
+        setupData()
         def throwable = shouldFail InvalidArgumentsException, {
             clinicalDataResourceService.createClinicalVariable(
                     ClinicalVariable.CATEGORICAL_VARIABLE,
@@ -125,6 +132,7 @@ class ComposedVariablesCreationSpec extends Specification {
     }
 
     void testCategoricalNonExistentConceptPath() {
+        setupData()
         def throwable = shouldFail InvalidArgumentsException, {
             clinicalDataResourceService.createClinicalVariable(
                     ClinicalVariable.CATEGORICAL_VARIABLE,
@@ -136,6 +144,7 @@ class ComposedVariablesCreationSpec extends Specification {
     }
 
     void testCategoricalNonExistentConceptCode() {
+        setupData()
         def throwable = shouldFail InvalidArgumentsException, {
             clinicalDataResourceService.createClinicalVariable(
                     ClinicalVariable.CATEGORICAL_VARIABLE,
@@ -147,6 +156,7 @@ class ComposedVariablesCreationSpec extends Specification {
     }
 
     void testCategoricalRetrieveData() {
+        setupData()
         CategoricalVariable var
         var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.CATEGORICAL_VARIABLE,
@@ -175,7 +185,8 @@ class ComposedVariablesCreationSpec extends Specification {
     }
 
     /* Normalized Leaf */
-    void normalizedLeafVariableBasicTest() {
+    void testNormalizedLeafVariableBasic() {
+        setupData()
         NormalizedLeafsVariable var
         var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,
@@ -207,7 +218,8 @@ class ComposedVariablesCreationSpec extends Specification {
                         )))
     }
 
-    void normalizedLeafVariableConceptCodeBasicTest() {
+    void testNormalizedLeafVariableConceptCodeBasic() {
+        setupData()
         NormalizedLeafsVariable var
         var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,
@@ -221,7 +233,8 @@ class ComposedVariablesCreationSpec extends Specification {
                         isA(TerminalConceptVariable)))
     }
 
-    void normalizedLeafVariableOnParentOfNumericVariable() {
+    void testNormalizedLeafVariableOnParentOfNumericVariable() {
+        setupData()
         NormalizedLeafsVariable var
         var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,

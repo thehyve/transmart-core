@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.chromoregion
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -30,6 +32,7 @@ import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 
 import static org.hamcrest.Matchers.*
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -37,16 +40,15 @@ class DeChromosomalRegionSpec extends Specification {
 
     AcghTestData testData = new AcghTestData()
 
-    void setup() {
-        expect:
-            testData.regionPlatform.save() isA(Platform)
-            testData.regions*.save() contains(
-                isA(Region), isA(Region)
-            )
+    void setupData() {
+        assert testData.regionPlatform.save() instanceof Platform
+        testData.regions*.save()
+        //testData.regions.each { assert it instanceof Region}
     }
 
 
     void testBasicDataFetch() {
+        setupData()
         Region r = DeChromosomalRegion.get(testData.regions[0].id)
 
         expect: r allOf(
@@ -60,6 +62,7 @@ class DeChromosomalRegionSpec extends Specification {
     }
 
     void testGetPlatform() {
+        setupData()
         Region r = DeChromosomalRegion.get(testData.regions[0].id)
 
         expect:

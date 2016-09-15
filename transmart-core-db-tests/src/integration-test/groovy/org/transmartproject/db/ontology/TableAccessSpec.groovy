@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.ontology
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -31,12 +33,13 @@ import static org.junit.Assert.fail
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
 class TableAccessSpec extends Specification {
 
-    void setup() {
+    void setupData() {
         addI2b2(level: 1, fullName: '\\foo\\xpto\\', name: 'xpto')
         addI2b2(level: 1, fullName: '\\foo\\bar\\', name: 'var',
                         cVisualattributes: 'FH')
@@ -55,6 +58,7 @@ class TableAccessSpec extends Specification {
     }
 
     void testBogusTable() {
+        setupData()
         def bogusEntry = TableAccess.findByName('fooh');
         assert bogusEntry != null
 
@@ -71,6 +75,7 @@ class TableAccessSpec extends Specification {
     }
 
     void testCategoryNotAlsoInReferredTable() {
+        setupData()
         def notInI2b2 = TableAccess.findByName('notini2b2')
 
         assert notInI2b2 != null
@@ -89,6 +94,7 @@ class TableAccessSpec extends Specification {
     }
 
     void testGetChildren() {
+        setupData()
         def cats = TableAccess.getCategories()
         def catFoo = cats.find { it.name == 'foo' }
 
@@ -120,7 +126,7 @@ class TableAccessSpec extends Specification {
     }
 
     void testGetAllDescendants() {
-
+        setupData()
         TableAccess ta = TableAccess.findByName('foo')
 
         expect:

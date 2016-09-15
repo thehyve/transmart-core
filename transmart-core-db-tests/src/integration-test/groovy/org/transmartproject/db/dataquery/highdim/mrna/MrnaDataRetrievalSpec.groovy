@@ -22,13 +22,12 @@ package org.transmartproject.db.dataquery.highdim.mrna
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import com.google.common.collect.Lists
 import groovy.sql.Sql
 import org.hibernate.Session
-import org.junit.After
-import org.junit.Ignore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.transmartproject.core.dataquery.TabularResult
@@ -75,7 +74,7 @@ class MrnaDataRetrievalSpec extends Specification {
 
     CorrelationTypesRegistry correlationTypesRegistry
 
-    MrnaTestData testData = new MrnaTestData()
+    MrnaTestData testData
 
     DefaultTrialNameCriteriaConstraint trialNameConstraint =
             new DefaultTrialNameCriteriaConstraint(trialName: MrnaTestData.TRIAL_NAME)
@@ -83,10 +82,11 @@ class MrnaDataRetrievalSpec extends Specification {
     SimpleRealProjection rawIntensityProjection =
             new SimpleRealProjection(property: 'rawIntensity')
 
-    void setup() {
+    void setupData() {
+        testData = new MrnaTestData()
         testData.saveAll()
 
-        expect: mrnaModule is(notNullValue())
+        assert mrnaModule != null
 
         resource = new HighDimensionDataTypeResourceImpl(mrnaModule)
     }
@@ -98,6 +98,7 @@ class MrnaDataRetrievalSpec extends Specification {
     }
 
     void basicTest() {
+        setupData()
         trialNameConstraint = new DefaultTrialNameCriteriaConstraint(trialName: MrnaTestData.TRIAL_NAME)
         List assayConstraints = [trialNameConstraint]
         List dataConstraints = []
@@ -179,6 +180,7 @@ class MrnaDataRetrievalSpec extends Specification {
     }
 
     void testWithGeneConstraint() {
+        setupData()
         List assayConstraints = [trialNameConstraint]
         List dataConstraints = [
                 createGenesDataConstraint([
@@ -199,6 +201,7 @@ class MrnaDataRetrievalSpec extends Specification {
     }
 
     void testWithDisjunctionAssayConstraint() {
+        setupData()
         List assayConstraints = [
                 new DisjunctionAssayCriteriaConstraint(constraints: [
                         new AssayIdListCriteriaConstraint(ids: [testData.assays[0].id]),
@@ -213,6 +216,7 @@ class MrnaDataRetrievalSpec extends Specification {
     }
 
     void testWithDisjunctionDataConstraint() {
+        setupData()
         List assayConstraints = [trialNameConstraint]
         /* in this particular case, you could just use one constraint
          * and include two ids in the list */
@@ -239,6 +243,7 @@ class MrnaDataRetrievalSpec extends Specification {
     }
 
     private TabularResult testWithMissingDataAssay(Long baseAssayId) {
+        setupData()
         def extraAssays = createTestAssays([ testData.patients[0] ], baseAssayId,
                 testData.platform, MrnaTestData.TRIAL_NAME)
         HighDimTestData.save extraAssays
@@ -250,6 +255,7 @@ class MrnaDataRetrievalSpec extends Specification {
     }
 
     void testWithMissingAssayLowestIdNumber() {
+        setupData()
         testWithMissingDataAssay(-50000L)
 
         expect:
@@ -269,6 +275,7 @@ class MrnaDataRetrievalSpec extends Specification {
     }
 
     void testWithMissingAssayHighestIdNumber() {
+        setupData()
         testWithMissingDataAssay(5000000L)
 
         expect:
@@ -288,6 +295,7 @@ class MrnaDataRetrievalSpec extends Specification {
     }
 
     void testWithMissingAssayAllowMissingAssays() {
+        setupData()
         testWithMissingDataAssay(-50000L)
         expect: Lists.newArrayList(dataQueryResult.rows) everyItem(
                 hasProperty('data', allOf(
@@ -304,6 +312,7 @@ class MrnaDataRetrievalSpec extends Specification {
     @Ignore // this somehow breaks 3 tests in MrnaGeneDataConstraintTests
             // saying the column correl.correl_type does not exist (!)
     void testWithDuplicateProbes() {
+        setupData()
         /* this tests support for a schema variation where probeset_id is not
          * a primary key for the annotation table and actually the same probe
          * can be repeated but with different genes associated */

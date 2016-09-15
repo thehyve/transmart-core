@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -33,6 +35,7 @@ import org.transmartproject.db.querytool.QueryResultData
 
 import static org.hamcrest.Matchers.*
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -43,7 +46,7 @@ class DefaultPatientSetConstraintSpec extends Specification {
 
     AssayTestData testData = new AssayTestData()
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
 
         QtQueryMaster master = QueryResultData.createQueryResult([
@@ -56,7 +59,8 @@ class DefaultPatientSetConstraintSpec extends Specification {
                 queryResults.iterator().next()
     }
 
-    void basicTest() {
+    void testBasic() {
+        setupData()
         List<Assay> assays = new AssayQuery([
                 new DefaultPatientSetCriteriaConstraint(
                         queryResult: firstPatientResult
@@ -78,6 +82,7 @@ class DefaultPatientSetConstraintSpec extends Specification {
     }
 
     void testPatientSetConstraintSupportsDisjunctions() {
+        setupData()
         List<Assay> assays = new AssayQuery([
                 new DisjunctionAssayCriteriaConstraint(constraints: [
                         new DefaultTrialNameCriteriaConstraint(trialName: 'bad name'),

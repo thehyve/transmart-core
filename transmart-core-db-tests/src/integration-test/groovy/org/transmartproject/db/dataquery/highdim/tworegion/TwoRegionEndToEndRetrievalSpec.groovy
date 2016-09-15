@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.tworegion
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -39,6 +41,7 @@ import static org.hamcrest.Matchers.*
 /**
  * Created by j.hudecek on 17-3-14.
  */
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -54,7 +57,7 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
 
     AssayConstraint trialNameConstraint
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
 
         resource = highDimensionResourceService.getSubResourceForType 'two_region'
@@ -69,7 +72,8 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
         dataQueryResult?.close()
     }
 
-    void basicTestWithConstraints() {
+    void testWithConstraints() {
+        setupData()
         List dataConstraints = [resource.createDataConstraint(
                 [chromosome: "1", start: 6, end: 12], DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT
         )]
@@ -102,6 +106,7 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
     }
 
     void testMultiple() {
+        setupData()
         def dataConstraints = [resource.createDataConstraint(
                 [chromosome: "3", start: 6, end: 12], DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT
         )]
@@ -158,6 +163,7 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
     }
 
     void testAssayMappingIsCorrect() {
+        setupData()
         def projection = resource.createProjection [:], Projection.ALL_DATA_PROJECTION
 
         dataQueryResult = resource.retrieveData(

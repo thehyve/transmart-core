@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.ontology
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -33,6 +35,7 @@ import static org.junit.Assert.fail
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -40,7 +43,7 @@ class DefaultConceptsResourceSpec extends Specification {
 
     ConceptsResource conceptsResourceService = new DefaultConceptsResource()
 
-    void setup() {
+    void setupData() {
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
                 tableCode: 'i2b2 main', tableName: 'i2b2')
         addTableAccess(level: 1, fullName: '\\foo\\level1', name: 'level1',
@@ -59,6 +62,7 @@ class DefaultConceptsResourceSpec extends Specification {
     }
 
     void testGetAllCategories() {
+        setupData()
         expect: conceptsResourceService.allCategories allOf(
                 hasItem(hasProperty('name', equalTo('foo'))),
                 hasItem(hasProperty('name', equalTo('level1'))),
@@ -68,12 +72,14 @@ class DefaultConceptsResourceSpec extends Specification {
     }
 
     void testGetByKeySimple() {
+        setupData()
         def concept = conceptsResourceService.getByKey('\\\\i2b2 main' +
                 '\\foo\\bar')
         expect: concept hasProperty('name', equalTo('bar'))
     }
 
     void testGetByKeyBogusTableCode() {
+        setupData()
         def keys = [
                 "\\\\does not exist\\foo\\bar\\",
                 "\\\\bogus code\\foo\\bar\\"
@@ -95,6 +101,7 @@ class DefaultConceptsResourceSpec extends Specification {
     }
 
     void testNoSuchFullName() {
+        setupData()
         try {
             conceptsResourceService.getByKey('\\\\i2b2 main\\does not exist\\')
             fail "There should've been an exception"

@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.ontology
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -33,6 +35,7 @@ import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Concept
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -44,11 +47,12 @@ class StudiesResourceServiceSpec extends Specification {
 
     ConceptsResource conceptsResourceService
 
-    void setup() {
+    void setupData() {
         studyTestData.saveAll()
     }
 
     void testGetStudySet() {
+        setupData()
         def result = studiesResourceService.studySet
 
         expect: result allOf(
@@ -69,6 +73,7 @@ class StudiesResourceServiceSpec extends Specification {
     }
 
     void testGetStudyById() {
+        setupData()
         // shouldn't get confused with \foo\study2\study1
         def result = studiesResourceService.getStudyById('study_id_1')
 
@@ -84,6 +89,7 @@ class StudiesResourceServiceSpec extends Specification {
     }
 
     void testGetStudyByIdDifferentCase() {
+        setupData()
         def result = studiesResourceService.getStudyById('stuDY_Id_1')
 
         expect: result allOf(
@@ -98,12 +104,14 @@ class StudiesResourceServiceSpec extends Specification {
     }
 
     void testGetStudyByNameNonExistent() {
+        setupData()
         shouldFail NoSuchResourceException, {
             studiesResourceService.getStudyById('bad study id')
         }
     }
 
     void testGetStudyByOntologyTerm() {
+        setupData()
         def concept = conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\study1\\')
 
         def result = studiesResourceService.getStudyByOntologyTerm(concept)
@@ -120,6 +128,7 @@ class StudiesResourceServiceSpec extends Specification {
     }
 
     void testGetStudyByOntologyTermOptimization() {
+        setupData()
         /* Terms marked with the"Study" visual attribute can be assumed to
          * refer to studies, a fact for which we optimize */
         I2b2 concept = createI2b2Concept(code: -9999, level: 1,
@@ -146,6 +155,7 @@ class StudiesResourceServiceSpec extends Specification {
     }
 
     void testGetStudyByOntologyTermBadTerm() {
+        setupData()
         def concept = conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\study1\\bar\\')
 
         shouldFail NoSuchResourceException, {

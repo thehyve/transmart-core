@@ -118,7 +118,7 @@ class HighDimensionAllDataSpec extends Specification {
         ]
     ].collect {it.toArray()}}
 
-    void setup() {
+    void setupData() {
         type = highDimensionResourceService.getSubResourceForType(typename)
         assert type != null
         assert testData != null
@@ -126,10 +126,12 @@ class HighDimensionAllDataSpec extends Specification {
     }
 
     void testDescription() {
+        setupData()
         expect: type.dataTypeDescription instanceOf(String)
     }
 
     void testAllDataProjection() {
+        setupData()
         AllDataProjection genericProjection = type.createProjection(Projection.ALL_DATA_PROJECTION)
 
         def result = type.retrieveData([], [], genericProjection)
