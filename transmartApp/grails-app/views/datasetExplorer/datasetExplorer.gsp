@@ -9,8 +9,8 @@
 
     <title>Dataset Explorer</title>
 
-    <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="shortcut icon" />
-    <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="icon" />
+    <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
+    <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
 
     <%-- We do not have a central template, so this only works in the database explorer for now --%>
     <g:if test="${['true', true]*.equals(grailsApplication.config.com.recomdata.debug.jsCallbacks).any()}">
@@ -18,20 +18,16 @@
     </g:if>
 
     <!-- Include jQuery, Ext and app-specific scripts: -->
-    <g:javascript library="jquery" />
-    <r:require module="analyseTab" />
-    <r:layoutResources/>
-    <tmpl:/RWG/urls/>
-    <link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folder-management')}">
-    <script type="text/javascript" src="${resource(dir:'js', file:'folderManagementDE.js', plugin: 'folder-management')}"></script>
-
-    <script type="text/javascript">
+    %{--<g:javascript library="jquery" />--}%
+    <asset:javascript src="jquery-2.2.0.min.js"/>
+    <asset:javascript src="extjs.js"/>
+    <script type="text/javascript" >
 
         var pageInfo = {
             basePath: "${request.getContextPath()}"
         }
 
-        GLOBAL = {
+        var GLOBAL = {
             Version: '1.0',
             Domain: '${i2b2Domain}',
             ProjectID: '${i2b2ProjectID}',
@@ -60,7 +56,7 @@
             HeatmapType: 'Compare',
             IsAdmin: ${admin},
             Tokens: "${tokens}",
-            InitialSecurity: ${initialaccess},
+            InitialSecurity: "${initialaccess.replaceAll('\n', '')}",
             restoreSubsetId: '${params.sId}',
             resulttype: 'applet',
             searchType: "${grailsApplication.config.com.recomdata.search.genepathway}",
@@ -112,13 +108,21 @@
         var dseClosedNodes = "${dseClosedNodes}";
         var helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 
-        Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
+        Ext.BLANK_IMAGE_URL = "assets/images/default/s.gif";
         Ext.Ajax.timeout = 1800000;
         Ext.Updater.defaults.timeout = 1800000;
 
         var $j = window.$j = jQuery.noConflict();
 
     </script>
+    <tmpl:/RWG/urls/>
+    <asset:stylesheet href="analysetab.css" />
+    <asset:javascript src="analysetab.js" />
+
+    <asset:stylesheet href="folderManagement.css"/>
+    <asset:javascript src="folderManagementDE.js"/>
+    %{--<asset:deferredScripts/>--}%
+
 </head>
 
 <body>
@@ -171,9 +175,9 @@
 <span id="visualizerSpan1"></span>
 
 <!-- This implements the Help functionality -->
-<script type="text/javascript" src="${resource(dir: 'js', file: 'help/D2H_ctxt.js')}"></script>
+<asset:javascript src="help/D2H_ctxt.js"/>
 
-<r:layoutResources/>
+%{--<r:layoutResources/>--}%
 
 </body>
 </html>

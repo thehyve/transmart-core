@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <head>
     <meta name='layout' content='main'/>
     <title>${grailsApplication.config.com.recomdata.appTitle}</title>

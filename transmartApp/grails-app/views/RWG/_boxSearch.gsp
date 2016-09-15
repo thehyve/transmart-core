@@ -14,7 +14,7 @@
             <a href="#" onclick="clearSearch(); return false;">Clear</a>
         </div>
         <div id="filterbutton" class="greybutton filterbrowser">
-            <img src="${resource(dir: 'images', file: 'filter.png')}"/> Filter
+            <asset:image src="filter.png"/> Filter
         </div>
     </div>
 
