@@ -40,7 +40,7 @@ class DefaultConceptsResourceSpec extends Specification {
 
     ConceptsResource conceptsResourceService = new DefaultConceptsResource()
 
-    void setUp() {
+    void setup() {
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
                 tableCode: 'i2b2 main', tableName: 'i2b2')
         addTableAccess(level: 1, fullName: '\\foo\\level1', name: 'level1',

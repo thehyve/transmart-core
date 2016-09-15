@@ -83,7 +83,7 @@ class MrnaDataRetrievalSpec extends Specification {
     SimpleRealProjection rawIntensityProjection =
             new SimpleRealProjection(property: 'rawIntensity')
 
-    void setUp() {
+    void setup() {
         testData.saveAll()
 
         expect: mrnaModule is(notNullValue())
@@ -91,8 +91,7 @@ class MrnaDataRetrievalSpec extends Specification {
         resource = new HighDimensionDataTypeResourceImpl(mrnaModule)
     }
 
-    @After
-    void after() {
+    void cleanup() {
         if (dataQueryResult) {
             dataQueryResult.close()
         }
@@ -103,17 +102,19 @@ class MrnaDataRetrievalSpec extends Specification {
         List assayConstraints = [trialNameConstraint]
         List dataConstraints = []
 
+        when:
         dataQueryResult =
             resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
 
-        expect: dataQueryResult allOf(
+        then: dataQueryResult allOf(
                 hasProperty('columnsDimensionLabel', equalTo('Sample codes')),
                 hasProperty('rowsDimensionLabel',    equalTo('Probes')),
         )
 
+        when:
         def resultList = Lists.newArrayList dataQueryResult
 
-        expect: resultList allOf(
+        then: resultList allOf(
                 hasSize(3),
                 everyItem(isA(ProbeRow)),
                 everyItem(
@@ -149,21 +150,23 @@ class MrnaDataRetrievalSpec extends Specification {
                 )
         )
 
+        when:
         ProbeRow firstProbe = resultList.first()
         List<AssayColumn> lac = dataQueryResult.indicesList
 
-        expect: firstProbe.assayIndexMap.entrySet() hasSize(2)
+        then:
+            firstProbe.assayIndexMap.entrySet() hasSize(2)
 
-        // first probe is 1553510_s_at (gene BOGUSVNN3), as asserted before
-        // intensities are 0.5 and 0.6
-        expect: firstProbe[0] allOf(
-                closeTo(firstProbe[lac.find { it.id == -402L /*ascending order*/ }], DELTA),
-                closeTo(0.6f, DELTA)
-        )
-        expect: firstProbe[1] allOf(
-                closeTo(firstProbe[lac.find { it.id == -401L }], DELTA),
-                closeTo(0.5f, DELTA)
-        )
+            // first probe is 1553510_s_at (gene BOGUSVNN3), as asserted before
+            // intensities are 0.5 and 0.6
+            firstProbe[0] allOf(
+                    closeTo(firstProbe[lac.find { it.id == -402L /*ascending order*/ }], DELTA),
+                    closeTo(0.6f, DELTA)
+            )
+            firstProbe[1] allOf(
+                    closeTo(firstProbe[lac.find { it.id == -401L }], DELTA),
+                    closeTo(0.5f, DELTA)
+            )
     }
 
     private CriteriaDataConstraint createGenesDataConstraint(List skIds) {
@@ -249,10 +252,11 @@ class MrnaDataRetrievalSpec extends Specification {
     void testWithMissingAssayLowestIdNumber() {
         testWithMissingDataAssay(-50000L)
 
-        expect: dataQueryResult.indicesList[0]
+        expect:
+        dataQueryResult.indicesList[0]
                 hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(-50001L))
 
-        expect: Lists.newArrayList(dataQueryResult.rows) everyItem(
+        Lists.newArrayList(dataQueryResult.rows) everyItem(
                 hasProperty('data', allOf(
                         hasSize(3), // for the three assays
                         contains(
@@ -267,10 +271,11 @@ class MrnaDataRetrievalSpec extends Specification {
     void testWithMissingAssayHighestIdNumber() {
         testWithMissingDataAssay(5000000L)
 
-        expect: dataQueryResult.indicesList[2]
+        expect:
+        dataQueryResult.indicesList[2]
                 hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(4999999L))
 
-        expect: Lists.newArrayList(dataQueryResult.rows) everyItem(
+        Lists.newArrayList(dataQueryResult.rows) everyItem(
                 hasProperty('data', allOf(
                         hasSize(3), // for the three assays
                         contains(

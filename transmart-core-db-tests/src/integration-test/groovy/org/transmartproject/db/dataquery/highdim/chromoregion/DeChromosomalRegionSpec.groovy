@@ -37,11 +37,12 @@ class DeChromosomalRegionSpec extends Specification {
 
     AcghTestData testData = new AcghTestData()
 
-    void setUp() {
-        expect: testData.regionPlatform.save() isA(Platform)
-        expect: testData.regions*.save() contains(
+    void setup() {
+        expect:
+            testData.regionPlatform.save() isA(Platform)
+            testData.regions*.save() contains(
                 isA(Region), isA(Region)
-        )
+            )
     }
 
 
@@ -61,12 +62,13 @@ class DeChromosomalRegionSpec extends Specification {
     void testGetPlatform() {
         Region r = DeChromosomalRegion.get(testData.regions[0].id)
 
-        expect: r is(notNullValue())
+        expect:
+            r is(notNullValue())
 
-        expect: r.platform allOf(
+            r.platform allOf(
                 is(notNullValue()),
                 hasProperty('id', equalTo(testData.regionPlatform.id))
-        )
+            )
     }
 
 }

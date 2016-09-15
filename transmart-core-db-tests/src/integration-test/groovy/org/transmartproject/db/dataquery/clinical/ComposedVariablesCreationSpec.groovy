@@ -156,10 +156,11 @@ class ComposedVariablesCreationSpec extends Specification {
                 i2b2Data.patients as Set, [var])
 
         // the indices list contains the flattened variables, not the original
-        expect: result.indicesList contains(
+        expect:
+        result.indicesList contains(
                 var.innerClinicalVariables.collect { is it } /* male, then female */)
 
-        expect: Lists.newArrayList(result) contains(
+        Lists.newArrayList(result) contains(
                 facts.groupBy { it.patient }.
                         sort { it.key. /* patient */ id }.
                         collect { Patient patient, List<ObservationFact> facts ->

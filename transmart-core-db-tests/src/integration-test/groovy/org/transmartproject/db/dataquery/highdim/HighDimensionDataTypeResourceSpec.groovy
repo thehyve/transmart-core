@@ -51,7 +51,7 @@ class HighDimensionDataTypeResourceSpec extends Specification {
 
     I2b2 i2b2Node
 
-    void setUp() {
+    void setup() {
         StudyTestData studyTestData = new StudyTestData()
         studyTestData.saveAll()
         i2b2Node = studyTestData.i2b2List[0]

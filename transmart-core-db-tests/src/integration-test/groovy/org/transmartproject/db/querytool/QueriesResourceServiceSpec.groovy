@@ -17,140 +17,388 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.ontology
+package org.transmartproject.db.querytool
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
 
+import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
-import org.transmartproject.core.ontology.StudiesResource
-import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.querytool.*
+import org.transmartproject.db.i2b2data.ConceptDimension
+import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.user.User
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
-import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Concept
+import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
+import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.FLAG
+import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
+import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
+import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
 @Integration
 @Rollback
 @Slf4j
-class StudiesResourceServiceSpec extends Specification {
+class QueriesResourceServiceSpec extends Specification {
 
-    StudyTestData studyTestData = new StudyTestData()
+    QueriesResource queriesResourceService
+    def sessionFactory
 
-    StudiesResource studiesResourceService
+    private void addObservationFact(Map extra,
+                                    String conceptCd,
+                                    BigDecimal patientNum) {
+        def commonProperties = [
+                encounterNum: 1,
+                providerId:   1,
+                startDate:    new Date(),
+                modifierCd:   '@',
+                instanceNum:  1,
+        ]
 
-    ConceptsResource conceptsResourceService
+        ObservationFact fact = new ObservationFact([
+                *:commonProperties,
+                *:extra,
+                conceptCode:  conceptCd,
+                patient: PatientDimension.load(patientNum),
+        ])
+        def ret = fact.save()
+        expect: ret is(notNullValue())
+    }
+
+    private void addConceptDimension(String conceptCd, String conceptPath) {
+        ConceptDimension conceptDimension = new ConceptDimension(
+                conceptCode:   conceptCd,
+                conceptPath: conceptPath
+        )
+        def ret = conceptDimension.save()
+        expect: ret is(notNullValue())
+    }
+
+    private void addPatient(Long id) {
+        Patient p = new PatientDimension()
+        p.id = id
+        expect: p.save() isA(Patient)
+    }
 
     void setup() {
-        studyTestData.saveAll()
-    }
-
-    void testGetStudySet() {
-        def result = studiesResourceService.studySet
-
-        expect: result allOf(
-                everyItem(isA(Study)),
-                containsInAnyOrder(
-                        allOf(
-                                hasProperty('id', is('STUDY_ID_1')),
-                                hasProperty('ontologyTerm',
-                                    hasProperty('fullName', is('\\foo\\study1\\')))),
-                        allOf(
-                                hasProperty('id', is('STUDY_ID_2')),
-                                hasProperty('ontologyTerm',
-                                    hasProperty('fullName', is('\\foo\\study2\\')))),
-                        allOf(
-                                hasProperty('id', is('STUDY_ID_3')),
-                                hasProperty('ontologyTerm',
-                                        hasProperty('fullName', is('\\foo\\study3\\'))))))
-    }
-
-    void testGetStudyById() {
-        // shouldn't get confused with \foo\study2\study1
-        def result = studiesResourceService.getStudyById('study_id_1')
-
-        expect: result allOf(
-                hasProperty('id', is('STUDY_ID_1')),
-                hasProperty('ontologyTerm',
-                    allOf(
-                        hasProperty('name', is('study1')),
-                        hasProperty('fullName', is('\\foo\\study1\\'))
-                    )
-                )
-        )
-    }
-
-    void testGetStudyByIdDifferentCase() {
-        def result = studiesResourceService.getStudyById('stuDY_Id_1')
-
-        expect: result allOf(
-                hasProperty('id', is('STUDY_ID_1')),
-                hasProperty('ontologyTerm',
-                        allOf(
-                                hasProperty('name', is('study1')),
-                                hasProperty('fullName', is('\\foo\\study1\\'))
-                        )
-                )
-        )
-    }
-
-    void testGetStudyByNameNonExistent() {
-        shouldFail NoSuchResourceException, {
-            studiesResourceService.getStudyById('bad study id')
+        /* 1. Define concepts */
+        def concepts = [ /* level, concept_path, concept_cd */
+                [0, "\\a\\",      'A'],
+                [1, "\\a\\b\\", 'A:B'],
+                [1, "\\a\\c\\", 'A:C'],
+        ]
+        addTableAccess(level: 0, fullName: '\\a\\', name: 'foo',
+                tableCode: 'i2b2tc', tableName: 'i2b2')
+        concepts.each {
+            addI2b2(level              : it[0],
+                    fullName           : it[1],
+                    name               : it[2],
+                    factTableColumn    : 'concept_cd',
+                    dimensionTableName : 'concept_dimension',
+                    columnName         : 'concept_path',
+                    columnDataType     : 'T',
+                    operator           : 'LIKE',
+                    dimensionCode      : it[1])
+            addConceptDimension(it[2], it[1])
         }
+
+        /* 2. Create patients */
+        (100..106).each {
+            addPatient it
+        }
+
+        /* 3. Create facts */
+        addObservationFact('A:B', 100, valueType: 'N', numberValue: 50, textValue: 'E')
+        addObservationFact('A:C', 100, valueType: 'T', textValue: 'FOO')
+        addObservationFact('A:B', 101, valueType: 'N', numberValue: 75, textValue: 'E')
+        addObservationFact('A:B', 102, valueType: 'N', numberValue: 99, textValue: 'E')
+        addObservationFact('A:B', 103, valueType: 'N', numberValue: 40, textValue: 'GE')
+        addObservationFact('A:B', 104, valueFlag: 'L')
+        addObservationFact('A:B', 105, valueType: 'N', textValue: 'BAR')
+        addObservationFact('A:C', 105, valueType: 'N', numberValue: 40, textValue: 'L')
+        addObservationFact('A:C', 106, valueType: 'N', textValue: 'XPTO')
+
+        /* 4. Flush session so these objects are available from SQL */
+        sessionFactory.currentSession.flush()
     }
 
-    void testGetStudyByOntologyTerm() {
-        def concept = conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\study1\\')
-
-        def result = studiesResourceService.getStudyByOntologyTerm(concept)
-
-        expect: result allOf(
-                hasProperty('id', is('STUDY_ID_1')),
-                hasProperty('ontologyTerm',
-                        allOf(
-                                hasProperty('name', is('study1')),
-                                hasProperty('fullName', is('\\foo\\study1\\'))
-                        )
+    void basicTest() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        invert: false,
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\'
+                                )
+                        ]
                 )
+        ])
+
+        def result = queriesResourceService.runQuery(definition)
+        expect: result allOf(
+                hasProperty("id", notNullValue()),
+                hasProperty("setSize", equalTo(7L /* 100-106 */)),
+                hasProperty("status", equalTo(QueryStatus.FINISHED)),
+                hasProperty("errorMessage", nullValue()),
         )
     }
 
-    void testGetStudyByOntologyTermOptimization() {
-        /* Terms marked with the"Study" visual attribute can be assumed to
-         * refer to studies, a fact for which we optimize */
-        I2b2 concept = createI2b2Concept(code: -9999, level: 1,
-                fullName: '\\foo\\Study Visual Attribute\\',
-                name: 'Study Visual Attribute',
-                cComment: 'trial:ST_VIS_ATTR',
-                cVisualattributes: 'FAS')
-
-        expect: concept.save() is(notNullValue())
+    private void assertPatientSet(QueryResult result, List patientNums) {
+        expect: result hasProperty("setSize", equalTo(
+                Long.valueOf(patientNums.size())))
 
         when:
-        def result = studiesResourceService.getStudyByOntologyTerm(concept)
+        def patientSet = QtPatientSetCollection.where {
+            eq('resultInstance.id', result.id)
+        }.list()
+        def memberMatchers = patientNums.collect {
+            hasProperty('patient',
+                    hasProperty('id', equalTo(Long.valueOf(it))))
+        }
+        then:
+        patientSet containsInAnyOrder(*memberMatchers)
+    }
+
+    void testPanelInversion() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\'
+                                )
+                        ]
+                ),
+                new Panel(
+                        invert: true,
+                        items: [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\b\\'
+                                )
+                        ]
+                )
+        ])
+
+        def result = queriesResourceService.runQuery(definition)
+        assertPatientSet(result, [106])
+    }
+
+    void testRegularNumberValueConstraint() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\',
+                                        constraint: new ConstraintByValue(
+                                                valueType: NUMBER,
+                                                operator: GREATER_OR_EQUAL_TO,
+                                                constraint: '99'
+                                        )
+                                ),
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\',
+                                        constraint: new ConstraintByValue(
+                                                valueType: NUMBER,
+                                                operator: LOWER_OR_EQUAL_TO,
+                                                constraint: '40'
+                                        )
+                                )
+                        ]
+                )
+        ])
+
+        def result = queriesResourceService.runQuery(definition)
+        assertPatientSet(result, [102, 105])
+    }
+
+    void testMultiplePanelsIntersectAtPatientLevel() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\b\\',
+                                ),
+                        ]
+                ),
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\c\\',
+                                ),
+                        ]
+                )
+        ])
+
+        def result = queriesResourceService.runQuery(definition)
+        assertPatientSet(result, [100, 105])
+    }
+
+    void testBetweenValueConstraint() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\',
+                                        constraint: new ConstraintByValue(
+                                                valueType: NUMBER,
+                                                operator: BETWEEN,
+                                                constraint: '30 and 75'
+                                        )
+                                ),
+                        ]
+                )
+        ])
+
+        def result = queriesResourceService.runQuery(definition)
+        assertPatientSet(result, [100, 101])
+    }
+
+    void testFlagConstraint() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\',
+                                        constraint: new ConstraintByValue(
+                                                valueType: FLAG,
+                                                operator: EQUAL_TO,
+                                                constraint: 'L'
+                                        )
+                                ),
+                        ]
+                )
+        ])
+
+        def result = queriesResourceService.runQuery(definition)
+        assertPatientSet(result, [104])
+    }
+
+    void testUnknownItemKeyResultsInInvalidRequestException() {
+        def definition = new QueryDefinition([
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\bad table code\\a\\',
+                                ),
+                        ]
+                )
+        ])
+
+        queriesResourceService.runQuery(definition)
+
+        expect: InvalidRequestException
+    }
+
+    void runQueryAndFetchDefinitionAfterwards() {
+        def inputDefinition = new QueryDefinition([
+                new Panel(
+                        items:  [
+                                new Item(
+                                        conceptKey: '\\\\i2b2tc\\a\\',
+                                        constraint: new ConstraintByValue(
+                                                valueType: NUMBER,
+                                                operator: EQUAL_TO,
+                                                constraint: '30.5'
+                                        )
+                                ),
+                        ]
+                )
+        ])
+        when:
+            def result = queriesResourceService.runQuery(inputDefinition)
+        then:
+            result hasProperty('id', is(notNullValue()))
+
+        when:
+            def outputDefinition = queriesResourceService
+                .getQueryDefinitionForResult(result)
 
         then:
-        result allOf(
-                hasProperty('id', is('ST_VIS_ATTR')),
-                hasProperty('ontologyTerm',
-                        allOf(
-                                hasProperty('name', is('Study Visual Attribute')),
-                                hasProperty('fullName', is('\\foo\\Study Visual Attribute\\'))
-                        )
-                )
+            outputDefinition is(equalTo(inputDefinition))
+    }
+
+    void testFailingQuery() {
+        def inputDefinition = new QueryDefinition([])
+
+        def orig = queriesResourceService.patientSetQueryBuilderService
+        queriesResourceService.patientSetQueryBuilderService = [
+                buildPatientSetQuery: {
+                    QtQueryResultInstance resultInstance,
+                    QueryDefinition definition,
+                    User user = null ->
+                    'fake query'
+                }
+        ] as PatientSetQueryBuilderService
+
+        try {
+            QueryResult result = queriesResourceService.runQuery(inputDefinition)
+
+            expect: result hasProperty('status', equalTo(QueryStatus.ERROR))
+        } finally {
+            queriesResourceService.patientSetQueryBuilderService = orig
+        }
+    }
+
+
+    void testFailingQueryBuilding() {
+        def inputDefinition = new QueryDefinition([])
+
+        def orig = queriesResourceService.patientSetQueryBuilderService
+        queriesResourceService.patientSetQueryBuilderService = [
+                buildPatientSetQuery: {
+                    QtQueryResultInstance resultInstance,
+                    QueryDefinition definition,
+                    User user = null ->
+                        throw new RuntimeException('foo bar')
+                }
+        ] as PatientSetQueryBuilderService
+
+        try {
+        QueryResult result = queriesResourceService.runQuery(inputDefinition)
+
+        expect: result hasProperty('status', equalTo(QueryStatus.ERROR))
+        } finally {
+            queriesResourceService.patientSetQueryBuilderService = orig
+        }
+    }
+
+    void testGetQueryResultFromIdBasic() {
+        def queryMaster = QueryResultData.createQueryResult([
+                PatientDimension.load(100) // see setUp()
+        ])
+        queryMaster.save(failOnError: true)
+        QueryResult savedResultInstance =
+                QueryResultData.getQueryResultFromMaster(queryMaster)
+
+        def result = queriesResourceService.getQueryResultFromId(
+                savedResultInstance.id)
+
+        expect: result allOf(
+                hasProperty('id', is(savedResultInstance.id)),
+                hasProperty('setSize', is(1L) /* only patient #100 */),
         )
     }
 
-    void testGetStudyByOntologyTermBadTerm() {
-        def concept = conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\study1\\bar\\')
-
+    void testQueryResultResultNonExistent() {
         shouldFail NoSuchResourceException, {
-            studiesResourceService.getStudyByOntologyTerm(concept)
+            queriesResourceService.getQueryResultFromId(-99112 /* bogus id */)
         }
+    }
+
+    void testOverloadWithUsername() {
+        def username = 'bogus_username'
+
+        def definition = new QueryDefinition([
+                new Panel(items: [
+                        new Item(conceptKey: '\\\\i2b2tc\\a\\'),])])
+
+        def result = queriesResourceService.runQuery(definition, username)
+
+        expect: result hasProperty('username', is(username))
     }
 
 }

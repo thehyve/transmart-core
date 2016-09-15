@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.clinical
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -34,6 +36,7 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.AcrossTrialsTestData.MODIFIER_AGE_AT_DIAGNOSIS
 
 @WithGMock
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -47,24 +50,29 @@ class AcrossTrialsDataRetrievalSpec extends Specification {
 
     def sessionFactory
 
-    void setUp() {
+    void setup() {
         testData.saveAll()
 
         sessionFactory.currentSession.flush()
     }
 
     void terminalNumericVariableTest() {
+        when:
         def var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.TERMINAL_CONCEPT_VARIABLE,
                 concept_path: AGE_AT_DIAGNOSIS_PATH)
 
-        expect: var isA(AcrossTrialsTerminalVariable)
+        then:
+        var isA(AcrossTrialsTerminalVariable)
 
+        when:
         def result = clinicalDataResourceService.retrieveData(
                 testData.patients as Set, [var])
 
-        expect: result.indicesList contains(var)
+        then:
+        result.indicesList contains(var)
 
+        when:
         def innerMatchers = testData.facts.findAll {
             it.modifierCd == MODIFIER_AGE_AT_DIAGNOSIS
         }.groupBy {
@@ -76,9 +84,10 @@ class AcrossTrialsDataRetrievalSpec extends Specification {
             contains(is(facts[0].numberValue))
         }
 
-        expect: innerMatchers is(not(empty())) /* sanity check */
+        then:
+        innerMatchers is(not(empty())) /* sanity check */
 
-        expect: Lists.newArrayList(result) contains(innerMatchers)
+        Lists.newArrayList(result) contains(innerMatchers)
     }
 
     /* TODO

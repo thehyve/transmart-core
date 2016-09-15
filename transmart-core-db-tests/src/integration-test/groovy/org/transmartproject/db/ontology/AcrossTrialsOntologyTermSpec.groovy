@@ -45,7 +45,7 @@ class AcrossTrialsOntologyTermSpec extends Specification {
 
     def sessionFactory
 
-    void setUp() {
+    void setup() {
         testData = AcrossTrialsTestData.createDefault()
         testData.saveAll()
         sessionFactory.currentSession.flush()
@@ -63,19 +63,24 @@ class AcrossTrialsOntologyTermSpec extends Specification {
         def result = topNode.allDescendants
 
         /* has stuff from all levels */
-        expect: result hasItem(hasProperty('level', is(1)))
-        expect: result hasItem(hasProperty('level', is(2)))
-        expect: result hasItem(hasProperty('level', is(3)))
+        expect:
+        result hasItem(hasProperty('level', is(1)))
+        result hasItem(hasProperty('level', is(2)))
+        result hasItem(hasProperty('level', is(3)))
     }
 
     void testOntologyTermProperties() {
+        when:
         def modifier = ModifierDimensionView.get('\\Demographics\\Sex\\Female\\')
-        expect: modifier is(notNullValue())
+        then:
+        modifier is(notNullValue())
 
+        when:
         OntologyTerm term =
                 new AcrossTrialsOntologyTerm(modifierDimension: modifier)
 
-        expect: term FastMatchers.propsWith(
+        then:
+        term FastMatchers.propsWith(
                 level: 3,
                 key: FEMALE_NODE,
                 fullName: new ConceptKey(FEMALE_NODE).conceptFullName.toString(),

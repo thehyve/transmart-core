@@ -61,7 +61,7 @@ class ProteinEndToEndRetrievalSpec extends Specification {
            adiponectinPeptide,
            adipogenesisFactorPeptide
 
-    void setUp() {
+    void setup() {
         testData.saveAll()
 
         proteinResource = highDimensionResourceService.
@@ -79,30 +79,31 @@ class ProteinEndToEndRetrievalSpec extends Specification {
         adipogenesisFactorPeptide = testData.annotations[-3].peptide
     }
 
-    @After
-    void tearDown() {
+    void cleanup() {
         result?.close()
     }
 
     void basicTest() {
         result = proteinResource.retrieveData([trialConstraint], [], projection)
 
+        when:
         Iterable<AssayColumn> assays = result.indicesList
-        expect: assays contains(
+        then:
+            assays contains(
                 hasSameInterfaceProperties(Assay, testData.assays[1]),
                 hasSameInterfaceProperties(Assay, testData.assays[0]),)
-
-        expect: assays hasItem(
+            assays hasItem(
                 hasProperty('label', is(testData.assays[-1].sampleCode)))
-
-        expect: result allOf(
+            result allOf(
                 hasProperty('columnsDimensionLabel', is('Sample codes')),
                 hasProperty('rowsDimensionLabel',    is('Proteins')),
-        )
+            )
 
+        when:
         List rows = Lists.newArrayList result.rows
 
-        expect: rows allOf(
+        then:
+            rows allOf(
                 contains(
                         allOf(
                                 hasProperty('label', is(ureaTransporterPeptide)),

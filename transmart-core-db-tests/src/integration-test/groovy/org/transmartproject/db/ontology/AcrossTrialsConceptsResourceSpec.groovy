@@ -50,7 +50,7 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
 
     def sessionFactory
 
-    void setUp() {
+    void setup() {
         innerMock = mock(ConceptsResource)
         testee = new AcrossTrialsConceptsResourceDecorator(inner: innerMock)
 

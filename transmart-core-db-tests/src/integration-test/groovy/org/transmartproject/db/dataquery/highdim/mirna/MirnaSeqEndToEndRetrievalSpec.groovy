@@ -19,12 +19,6 @@
 
 package org.transmartproject.db.dataquery.highdim.mirna
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
-
-class MirnaSeqEndToEndRetrievalTests extends MirnaSharedEndToEndRetrievalTests {
+class MirnaSeqEndToEndRetrievalSpec extends MirnaSharedEndToEndRetrievalSpec {
     String typeName = 'mirnaseq'
 }

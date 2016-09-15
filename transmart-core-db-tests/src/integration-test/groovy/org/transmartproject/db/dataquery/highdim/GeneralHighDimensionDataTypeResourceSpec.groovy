@@ -35,7 +35,7 @@ class GeneralHighDimensionDataTypeResourceSpec extends Specification {
 
     AssayConstraint trialNameConstraint
 
-    void setUp() {
+    void setup() {
         testData.saveAll()
 
         mrnaResource = highDimensionResourceService.getSubResourceForType 'mrna'
@@ -46,8 +46,7 @@ class GeneralHighDimensionDataTypeResourceSpec extends Specification {
                 name: MrnaTestData.TRIAL_NAME)
     }
 
-    @After
-    void after() {
+    void cleanup() {
         dataQueryResult?.close()
     }
 
