@@ -26,7 +26,7 @@
 
 div.topall {
 	padding-top:4px;
-	background: #fafafa url(../images/skin/shadow30.jpg);
+	background: #fafafa url(skin/shadow30.jpg);
 font-family:verdana,arial,helvetica,sans-serif;
 font-size:12px;
 font-size-adjust:none;
@@ -64,69 +64,69 @@ a.toplink1{
 	color:#00c !important;
 	vertical-align:bottom;
 	font-weight: bold;
-	background: #fafafa url(../images/skin/shadow30.jpg);
+	background: #fafafa url(skin/shadow30.jpg);
 	text-decoration:none;
 }
 a.toplink1:hover{
 	text-decoration:underline;
 	}
 .nextbutton{
-    background-image:url(../images/next.png ) !important;
+    background-image:url(next.png) !important;
 }
 
 .clearbutton{
     padding-left: 20px !important;
-    background-image:url(../images/small_cross.png ) !important;
+    background-image:url(small_cross.png) !important;
     background-position: 6px 50%;
 }
 .runbutton{
-	background-image:url(../images/runprog.png ) !important;
+	background-image:url(runprog.png) !important;
 	}
 .exportbutton{
-	background-image:url(../images/fileexport.png ) !important;
+	background-image:url(fileexport.png) !important;
 	}	
 .comparebutton{
-	background-image:url(../images/compare.png ) !important;
+	background-image:url(compare.png) !important;
 	}
 .summarybutton{
-	background-image:url(../images/summary.png ) !important;
+	background-image:url(summary.png) !important;
 	}
 .hleaficon
 	{
-	background-image:url(../images/dna_icon.png ) !important;
+	background-image:url(dna_icon.png) !important;
 	}
 .valueicon{
-	background-image:url(../images/numeric.gif ) !important;
+	background-image:url(numeric.gif) !important;
 }
 .alphaicon{
-	background-image:url(../images/alpha.gif ) !important;
+	background-image:url(images/alpha.gif) !important;
 }
 .foldernumericicon{
-	background-image:url(../images/folder_numeric.png ) !important;
+	background-image:url(folder_numeric.png) !important;
 	}	
-.modifierfoldericon{background-image:url(../images/modifierfolder.png) !important;}
-.modifiericon{background-image:url(../images/ONT_MODIFIER_leaf.gif) !important;}
-.printbutton{background-image:url(../images/printer.png ) !important;}
+.modifierfoldericon{background-image:url(modifierfolder.png) !important;}
+.modifiericon{background-image:url(ONT_MODIFIER_leaf.gif) !important;}
+.printbutton{background-image:url(printer.png) !important;}
 .savebutton{
-	background-image:url(../images/disk.png ) !important;
+	background-image:url(../../../src/main/resources/public/images/disk.png) !important;
 	}
 
 .progress-spinner {
-    background: url(../images/spinner.gif) 0px 0px / 16px 16px no-repeat transparent;
+    background: url(../../../src/main/resources/public/images/spinner.gif) 0px 0px / 16px 16px no-repeat transparent;
     display:inline-block;
     height: 16px;
     width: 16px;
 }
 
 .progress-error {
-    background: url(../images/remove.png) 0px 0px / 16px 16px no-repeat transparent;
+    background: url(../../../src/main/resources/public/images/remove.png) 0px 0px / 16px 16px no-repeat transparent;
     display:inline-block;
     height: 16px;
     width: 16px;
 }
 
 .progress-completed {
-    background: url(../images/green_check2.png) 0px 0px / 16px 16px no-repeat transparent;
+    background: url(../../../src/main/resources/public/images/green_check2.png) 0px 0px / 16px 16px no-repeat transparent;
     display:inline-block;
     height: 16px;
     width: 16px;
@@ -147,7 +147,7 @@ height:0;
 position:absolute;
 top:30px;
 width:100%;
- background: #fafafa url(../images/skin/shadow30.jpg);
+ background: #fafafa url(../../../src/main/resources/public/images/skin/shadow30.jpg);
 }
 
 
@@ -183,7 +183,7 @@ a.button span {
 
  .ext-ie .x-form-text {position:static !important;}
 
-.x-tree-node-leaf .x-tree-node-icon{background-image:url(../images/nonaccessible.gif);}
+.x-tree-node-leaf .x-tree-node-icon{background-image:url(../../../src/main/resources/public/images/nonaccessible.gif);}
 
 div.analysis {
 	font-family: arial;
@@ -243,12 +243,12 @@ div.smalltitle {
 
 
 .contextHelpBtn {
-	background-image:url(../images/help/helpicon_gray.jpg ) !important;
+	background-image:url(../../../src/main/resources/public/images/help/helpicon_gray.jpg) !important;
 	color:#ff0000;	
 }
 	
 .x-tool-sampleExplorerHelpButton {
-	background-image:url(../images/help/helpicon_gray.jpg ) !important;
+	background-image:url(../../../src/main/resources/public/images/help/helpicon_gray.jpg) !important;
 	color:#ff0000;	
 }
 
@@ -398,7 +398,7 @@ table.tablesorterAnalysisResults thead tr th, table.tablesorter tfoot tr th {
 	white-space: nowrap;	
 }
 table.tablesorterAnalysisResults thead tr .header {
-	background-image: url('../images/bg.gif');
+	background-image: url('../../../src/main/resources/public/images/bg.gif');
 	background-repeat: no-repeat;
 	background-position: center right;
 	cursor: pointer;
@@ -415,10 +415,10 @@ table.tablesorterAnalysisResults tbody tr.odd td {
 	background-color:#F0F0F6;
 }
 table.tablesorterAnalysisResults thead tr .headerSortUp {
-	background-image: url(../images/asc.gif);
+	background-image: url(../../../src/main/resources/public/images/asc.gif);
 }
 table.tablesorterAnalysisResults thead tr .headerSortDown {
-	background-image: url(../images/desc.gif);
+	background-image: url(../../../src/main/resources/public/images/desc.gif);
 }
 table.tablesorterAnalysisResults thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
 background-color: #8dbdd8;
@@ -491,7 +491,7 @@ content: counter(pages);
 }
 
 .x-tool-help {
-	background-image: url("../images/help/tool-sprites-rdc.gif");
+	background-image: url("../../../src/main/resources/public/images/help/tool-sprites-rdc.gif");
     background-position: 0 -300px;
 }
 
@@ -535,7 +535,7 @@ ul.x-tab-strip-top {
 }
 
 li.x-tab-strip-active {
-	background-image: url('../images/uiTabsArrow.png');
+	background-image: url('uiTabsArrow.png');
 	background-repeat: no-repeat;
 	background-position: 50% 10px;
 	height: 22px;

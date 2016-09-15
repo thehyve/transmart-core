@@ -156,10 +156,10 @@ body {
 }
 
 .search-img {
-    background-image: url(../images/search_button_up.png) !important;
+    background-image: url(../../../src/main/resources/public/images/search_button_up.png) !important;
 }
 .parent-filter {
-	background-image: url(../images/down_arrow.PNG) !important;
+	background-image: url(../../../src/main/resources/public/images/down_arrow.PNG) !important;
     background-repeat:no-repeat;
     background-position:right top;
     font-size:1.125em;
@@ -197,11 +197,11 @@ body {
 
 /* These two classes are to toggle the arrows back and forth for the slider pane */
 .toggle-icon-left {
-	background-image: url("../images/small_arrow_left.png") !important;  
+	background-image: url("../../../src/main/resources/public/images/small_arrow_left.png") !important;
 }
 
 .toggle-icon-right {
-	background-image: url(../images/small_arrow_right.png) !important;	
+	background-image: url(../../../src/main/resources/public/images/small_arrow_right.png) !important;
 }
 
 #filter-div {
@@ -298,7 +298,7 @@ ul.dynatree-container li span.dynatree-active a {
 ul.dynatree-container li span.dynatree-expanded a{
 	background-color:#DFEFFD !important;
 	color:#000;
-	background-image: url(../images/up_arrow_small.png) !important;
+	background-image: url(../../../src/main/resources/public/images/up_arrow_small.png) !important;
     background-position: 268px 10px;
     background-repeat: no-repeat;
 	}
@@ -334,7 +334,7 @@ span.dynatree-active a {
 	
 span.dynatree-folder a{
 	color:#000;
-	background-image: url(../images/right_arrow_big.PNG) !important;
+	background-image: url(../../../src/main/resources/public/images/right_arrow_big.PNG) !important;
     background-position: 268px 10px;
     background-repeat: no-repeat;
     font-weight: normal !important;
@@ -467,7 +467,7 @@ ul.dynatree-container li ul li{
 	 color: #228822;
 	 padding-left: 50px;
 	 font-size: 6pt;
-	 background-image: url('../images/filetypes/txtsmall.png');
+	 background-image: url('../../../src/main/resources/public/images/filetypes/txtsmall.png');
 	 background-repeat: no-repeat;
 	 background-position: 38px 50%;
 }
@@ -849,7 +849,7 @@ border-top: 1px solid #CCC;
 .analysis-tabs { background: transparent; border: none; }
 .analysis-tabs .ui-widget-header { background: transparent; border: none; border-bottom: 1px solid #c0c0c0; border-radius: 0px; -moz-border-radius: 0px; -webkit-border-radius: 0px; }
 .analysis-tabs ul .ui-state-default { background: transparent; border: none; }
-.analysis-tabs ul .ui-state-active { background: transparent url(../images/uiTabsArrow.png) no-repeat bottom center; border: none; }
+.analysis-tabs ul .ui-state-active { background: transparent url(../../../src/main/resources/public/images/uiTabsArrow.png) no-repeat bottom center; border: none; }
 .analysis-tabs ul .ui-state-default a { color: #c0c0c0; }
 .analysis-tabs ul .ui-state-active a { color: #786; }
 /* End tab CSS */
@@ -1023,23 +1023,23 @@ select.multiselect {
 
 .foldericon.addcart {
     border: none;
-    background: transparent url('../images/exportfile.png')  no-repeat;
+    background: transparent url('../../../src/main/resources/public/images/exportfile.png')  no-repeat;
 }
 .foldericon.deletefile {
     border: none;
-    background: transparent url('../images/bin_closed.png') no-repeat 0px 50%;
+    background: transparent url('../../../src/main/resources/public/images/bin_closed.png') no-repeat 0px 50%;
 }
 .foldericon.addall {
     border: none;
-    background: transparent url('../images/exportfolder.png') no-repeat;
+    background: transparent url('../../../src/main/resources/public/images/exportfolder.png') no-repeat;
 }
 .foldericon.view {
     border: none;
-    background: transparent url('../images/information8.png');
+    background: transparent url('../../../src/main/resources/public/images/information8.png');
 }
 .foldericon.viewfile {
     border: none;
-    background: transparent url('../images/information8.png');
+    background: transparent url('../../../src/main/resources/public/images/information8.png');
 }
 
 /* Accordion/other UI overrides */
@@ -1136,41 +1136,41 @@ select.multiselect {
     cursor: pointer;
     background-repeat: no-repeat;
     background-position: 2px 50%;
-    background-image: url('../images/filetypes/page_white.png');
+    background-image: url('../../../src/main/resources/public/images/filetypes/page_white.png');
 }
 
 
-.foldericon.program { background-image: url('../images/foldertypes/program.png'); }
-.foldericon.study   { background-image: url('../images/foldertypes/study.png'); }
-.foldericon.studywsubject   { background-image: url('../images/foldertypes/studywsubject.png'); }
-.foldericon.folder  { background-image: url('../images/foldertypes/folder.png'); }
-.foldericon.assay   { background-image: url('../images/foldertypes/assay.png'); }
-.foldericon.analysis { background-image: url('../images/foldertypes/analysis.png'); }
+.foldericon.program { background-image: url('../../../src/main/resources/public/images/foldertypes/program.png'); }
+.foldericon.study   { background-image: url('../../../src/main/resources/public/images/foldertypes/study.png'); }
+.foldericon.studywsubject   { background-image: url('../../../src/main/resources/public/images/foldertypes/studywsubject.png'); }
+.foldericon.folder  { background-image: url('../../../src/main/resources/public/images/foldertypes/folder.png'); }
+.foldericon.assay   { background-image: url('../../../src/main/resources/public/images/foldertypes/assay.png'); }
+.foldericon.analysis { background-image: url('../../../src/main/resources/public/images/foldertypes/analysis.png'); }
 
 
 .deletespanall {
     border: none;
-    background: transparent url('../images/bin_closed.png') 0 50%;
+    background: transparent url('../../../src/main/resources/public/images/bin_closed.png') 0 50%;
 }
 
 .exportspanall {
     border: none;
-    background: transparent url('../images/exportfolder.png') 0 0;
+    background: transparent url('../../../src/main/resources/public/images/exportfolder.png') 0 0;
 }
 
 .fileicon {
 	padding: 3px 24px 0px 0px;
-	background-image: url('../images/filetypes/page_white.png');
+	background-image: url('../../../src/main/resources/public/images/filetypes/page_white.png');
 	background-repeat: no-repeat;	
 }
 
-.fileicon.csv, .fileicon.xls, .fileicon.xlsx { background-image: url('../images/filetypes/page_white_excel.png'); }
-.fileicon.doc, .fileicon.docx { background-image: url('../images/filetypes/page_white_word.png'); }
-.fileicon.txt, .fileicon.log, .fileicon.rtf { background-image: url('../images/filetypes/page_white_text.png'); }
-.fileicon.pdf { background-image: url('../images/filetypes/page_white_acrobat.png'); }
-.fileicon.zip { background-image: url('../images/filetypes/page_white_zip.png'); }
-.fileicon.xml, .fileicon.html, .fileicon.htm { background-image: url('../images/filetypes/page_white_code.png'); }
-.fileicon.png, .fileicon.jpg, .fileicon.bmp, .fileicon.gif { background-image: url('../images/filetypes/page_white_picture.png'); }
+.fileicon.csv, .fileicon.xls, .fileicon.xlsx { background-image: url('../../../src/main/resources/public/images/filetypes/page_white_excel.png'); }
+.fileicon.doc, .fileicon.docx { background-image: url('../../../src/main/resources/public/images/filetypes/page_white_word.png'); }
+.fileicon.txt, .fileicon.log, .fileicon.rtf { background-image: url('../../../src/main/resources/public/images/filetypes/page_white_text.png'); }
+.fileicon.pdf { background-image: url('../../../src/main/resources/public/images/filetypes/page_white_acrobat.png'); }
+.fileicon.zip { background-image: url('../../../src/main/resources/public/images/filetypes/page_white_zip.png'); }
+.fileicon.xml, .fileicon.html, .fileicon.htm { background-image: url('../../../src/main/resources/public/images/filetypes/page_white_code.png'); }
+.fileicon.png, .fileicon.jpg, .fileicon.bmp, .fileicon.gif { background-image: url('../../../src/main/resources/public/images/filetypes/page_white_picture.png'); }
 
 /* Special class for forcing no jQuery icon */
 .suppressicon {
