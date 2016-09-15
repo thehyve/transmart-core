@@ -1,6 +1,8 @@
 package org.transmartproject.db.ontology
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -11,6 +13,7 @@ import org.transmartproject.core.ontology.OntologyTermTag
 
 import static org.hamcrest.Matchers.*
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -21,11 +24,12 @@ class OntologyTermTagsResourceServiceSpec extends Specification {
 
     StudyTestData studyTestData = new StudyTestData()
 
-    void setup() {
+    void setupData() {
         studyTestData.saveAll()
     }
 
     void testGetTagsShallow() {
+        setupData()
         String key = '\\\\i2b2 main\\foo\\study1\\'
         def studyConcept = conceptsResourceService.getByKey(key)
         Map<OntologyTerm, List<OntologyTermTag>> tags = ontologyTermTagsResourceService
@@ -46,6 +50,7 @@ class OntologyTermTagsResourceServiceSpec extends Specification {
     }
 
     void testGetDiffTermsTagsShallow() {
+        setupData()
         String key1 = '\\\\i2b2 main\\foo\\study1\\'
         String key2 = '\\\\i2b2 main\\foo\\study2\\'
         def study1Concept = conceptsResourceService.getByKey(key1)
@@ -82,6 +87,7 @@ class OntologyTermTagsResourceServiceSpec extends Specification {
     }
 
     void testGetTagsDeep() {
+        setupData()
         String key = '\\\\i2b2 main\\foo\\study1\\'
         def studyConcept = conceptsResourceService.getByKey(key)
         Map<OntologyTerm, List<OntologyTermTag>> tags = ontologyTermTagsResourceService

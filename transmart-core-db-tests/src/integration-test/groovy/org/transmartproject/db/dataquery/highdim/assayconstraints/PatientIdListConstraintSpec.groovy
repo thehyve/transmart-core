@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -31,6 +33,7 @@ import org.transmartproject.db.dataquery.highdim.AssayTestData
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -38,11 +41,12 @@ class PatientIdListConstraintSpec extends Specification {
 
     AssayTestData testData = new AssayTestData()
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
     }
 
     void basicTest() {
+        setupData()
         final def targetId = "SUBJ_ID_2"
 
         def wantedPatients = testData.patients.findAll { it.inTrialId == targetId }
@@ -63,6 +67,7 @@ class PatientIdListConstraintSpec extends Specification {
     }
 
     void testNonExistant() {
+        setupData()
         def result = new AssayQuery([
                 new PatientIdListCriteriaConstraint(
                         patientIdList: ["NONEXISTANT_PATIENT_567395367"]
@@ -73,6 +78,7 @@ class PatientIdListConstraintSpec extends Specification {
     }
 
     void testEmpty() {
+        setupData()
         def result = new AssayQuery([
                 new PatientIdListCriteriaConstraint(
                         patientIdList: []

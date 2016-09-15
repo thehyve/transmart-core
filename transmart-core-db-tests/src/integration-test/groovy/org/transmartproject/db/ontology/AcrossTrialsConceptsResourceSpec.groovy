@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.ontology
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -34,6 +36,7 @@ import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.propsWith
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.CONTAINER
 
+@TestMixin(ControllerUnitTestMixin)
 @WithGMock
 @Integration
 @Rollback
@@ -50,7 +53,7 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
 
     def sessionFactory
 
-    void setup() {
+    void setupData() {
         innerMock = mock(ConceptsResource)
         testee = new AcrossTrialsConceptsResourceDecorator(inner: innerMock)
 
@@ -61,6 +64,7 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
     }
 
     void testTopTermIsReturned() {
+        setupData()
         innerMock.allCategories.returns([])
 
         play {
@@ -81,6 +85,7 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
     }
 
     void testGetByKey() {
+        setupData()
         OntologyTerm ageAtDiagnosis = testee.getByKey(AGE_AT_DIAGNOSIS_KEY)
 
         expect: ageAtDiagnosis
@@ -88,12 +93,14 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
     }
 
     void testGetByKeyInexistentValidAcrossTrialsNode() {
+        setupData()
         shouldFail NoSuchResourceException, {
             testee.getByKey('\\\\xtrials\\Across Trials\\i do not exist\\')
         }
     }
 
     void testGetByKeyInvalidAcrossTrialsNode() {
+        setupData()
         // the first element is not "Across Trials"
         shouldFail NoSuchResourceException, {
             testee.getByKey('\\\\xtrials\\FOO BAR\\a\\')
@@ -101,6 +108,7 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
     }
 
     void testGetByKeyDelegatesToInner() {
+        setupData()
         def key = '\\\\foobar\\Foo bar\\'
         def term = mock(OntologyTerm)
         innerMock.getByKey(key).returns(term)

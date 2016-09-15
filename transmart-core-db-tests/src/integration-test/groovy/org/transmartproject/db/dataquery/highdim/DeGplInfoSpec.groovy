@@ -19,6 +19,8 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import grails.test.mixin.TestMixin
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -28,6 +30,7 @@ import org.transmartproject.core.dataquery.highdim.GenomeBuildNumber
 
 import static org.hamcrest.Matchers.*
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -36,7 +39,7 @@ class DeGplInfoSpec extends Specification {
     SampleHighDimTestData testData = new SampleHighDimTestData()
 
     void testScalarProperties() {
-        expect: testData.platform.save() is(notNullValue())
+        assert testData.platform.save() != null
 
         when:
         def platform = DeGplInfo.get(testData.platform.id)

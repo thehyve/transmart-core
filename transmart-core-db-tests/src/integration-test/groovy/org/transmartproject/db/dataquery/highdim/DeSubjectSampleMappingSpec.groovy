@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -32,6 +34,7 @@ import org.transmartproject.core.dataquery.highdim.Platform
 
 import static org.hamcrest.Matchers.*
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -41,7 +44,7 @@ class DeSubjectSampleMappingSpec extends Specification {
 
     SampleHighDimTestData testData = new SampleHighDimTestData()
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
         sessionFactory.currentSession.flush()
     }
@@ -51,6 +54,7 @@ class DeSubjectSampleMappingSpec extends Specification {
     }
 
     void testSimpleFetchScalarProperties() {
+        setupData()
         def assay = DeSubjectSampleMapping.get(assays[0].id)
 
         expect: assay allOf(
@@ -63,6 +67,7 @@ class DeSubjectSampleMappingSpec extends Specification {
     }
 
     void testOnDemandProperties() {
+        setupData()
         // test the timepoint, sample and tissue properties
         def assay = DeSubjectSampleMapping.get(assays[0].id)
 
@@ -79,6 +84,7 @@ class DeSubjectSampleMappingSpec extends Specification {
     }
 
     void testReferences() {
+        setupData()
         def assay = DeSubjectSampleMapping.get(assays[0].id)
 
         expect: assay allOf(

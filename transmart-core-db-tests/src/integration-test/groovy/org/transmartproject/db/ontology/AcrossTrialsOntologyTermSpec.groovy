@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.ontology
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -31,6 +33,7 @@ import org.transmartproject.core.ontology.OntologyTerm
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -45,13 +48,14 @@ class AcrossTrialsOntologyTermSpec extends Specification {
 
     def sessionFactory
 
-    void setup() {
+    void setupData() {
         testData = AcrossTrialsTestData.createDefault()
         testData.saveAll()
         sessionFactory.currentSession.flush()
     }
 
     void testGetTopNodeChildren() {
+        setupData()
         def result = topNode.children
 
         expect: result contains(
@@ -60,6 +64,7 @@ class AcrossTrialsOntologyTermSpec extends Specification {
     }
 
     void testGetTopNodeAllDescendants() {
+        setupData()
         def result = topNode.allDescendants
 
         /* has stuff from all levels */
@@ -70,6 +75,7 @@ class AcrossTrialsOntologyTermSpec extends Specification {
     }
 
     void testOntologyTermProperties() {
+        setupData()
         when:
         def modifier = ModifierDimensionView.get('\\Demographics\\Sex\\Female\\')
         then:

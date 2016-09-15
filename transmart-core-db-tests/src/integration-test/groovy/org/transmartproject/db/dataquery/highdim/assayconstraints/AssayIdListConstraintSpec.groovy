@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -31,6 +33,7 @@ import org.transmartproject.db.dataquery.highdim.AssayTestData
 import static org.hamcrest.Matchers.containsInAnyOrder
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -38,11 +41,12 @@ class AssayIdListConstraintSpec extends Specification {
 
     AssayTestData testData = new AssayTestData()
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
     }
 
-    void basicTest() {
+    void testBasic() {
+        setupData()
         def wantedAssays = testData.assays.findAll {
             it.id == -201 || it.id == -301
         }

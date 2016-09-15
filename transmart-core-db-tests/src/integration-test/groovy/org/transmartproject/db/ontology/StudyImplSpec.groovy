@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.ontology
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -30,6 +32,7 @@ import org.transmartproject.core.ontology.Study
 import static org.hamcrest.Matchers.containsInAnyOrder
 import static org.hamcrest.Matchers.is
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -39,17 +42,19 @@ class StudyImplSpec extends Specification {
 
     StudiesResource studiesResourceService
 
-    void before() {
+    void setupData() {
         studyTestData.saveAll()
     }
 
     void testStudyGetAllPatients() {
+        setupData()
         Study study = studiesResourceService.getStudyById('study_id_1')
 
         expect: study.patients containsInAnyOrder(studyTestData.i2b2Data.patients.collect { is it })
     }
 
     void testStudyGetName() {
+        setupData()
         Study study = studiesResourceService.getStudyById('study_id_1')
 
         expect: study.id is('STUDY_ID_1' /* term name in uppercase */)

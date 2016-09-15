@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.protein
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -38,6 +40,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -61,7 +64,7 @@ class ProteinEndToEndRetrievalSpec extends Specification {
            adiponectinPeptide,
            adipogenesisFactorPeptide
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
 
         proteinResource = highDimensionResourceService.
@@ -84,6 +87,7 @@ class ProteinEndToEndRetrievalSpec extends Specification {
     }
 
     void basicTest() {
+        setupData()
         result = proteinResource.retrieveData([trialConstraint], [], projection)
 
         when:
@@ -115,6 +119,7 @@ class ProteinEndToEndRetrievalSpec extends Specification {
     }
 
     void testSearchByProtein() {
+        setupData()
         def dataConstraint = proteinResource.createDataConstraint(
                 DataConstraint.PROTEINS_CONSTRAINT,
                 names: [ 'Urea transporter 2' ])
@@ -139,6 +144,7 @@ class ProteinEndToEndRetrievalSpec extends Specification {
     }
 
     void testLogIntensityProjection() {
+        setupData()
         def logIntensityProjection = proteinResource.createProjection(
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
@@ -154,6 +160,7 @@ class ProteinEndToEndRetrievalSpec extends Specification {
     }
 
     void testDefaultRealProjection() {
+        setupData()
         def defaultRealProjection = proteinResource.createProjection(
                 [:], Projection.DEFAULT_REAL_PROJECTION)
 
@@ -168,6 +175,7 @@ class ProteinEndToEndRetrievalSpec extends Specification {
     }
 
     void testSearchByProteinExternalIds() {
+        setupData()
         def dataConstraint = proteinResource.createDataConstraint(
                 DataConstraint.PROTEINS_CONSTRAINT,
                 ids: testData.proteins.findAll {
@@ -183,6 +191,7 @@ class ProteinEndToEndRetrievalSpec extends Specification {
     }
 
     void testSearchByGenes() {
+        setupData()
         def dataConstraint = proteinResource.createDataConstraint(
                 DataConstraint.GENES_CONSTRAINT,
                 names: [ 'AURKA' ])
@@ -196,6 +205,7 @@ class ProteinEndToEndRetrievalSpec extends Specification {
     }
 
     void testSearchByPathways() {
+        setupData()
         def dataConstraint = proteinResource.createDataConstraint(
                 DataConstraint.PATHWAYS_CONSTRAINT,
                 names: [ 'FOOPATHWAY' ])

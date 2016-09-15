@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -33,6 +35,7 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 /**
  * Created by glopes on 11/23/13.
  */
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -40,11 +43,12 @@ class AssayQuerySpec extends Specification {
 
     AssayTestData testData = new AssayTestData()
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
     }
 
     void testPrepareCriteriaWithConstraints() {
+        setupData()
         List results = new AssayQuery([new DefaultTrialNameCriteriaConstraint(trialName: 'SAMPLE_TRIAL_2')]).list()
 
         expect: results containsInAnyOrder(
@@ -54,6 +58,7 @@ class AssayQuerySpec extends Specification {
     }
 
     void testRetrieveAssays() {
+        setupData()
         List results = new AssayQuery([new DefaultTrialNameCriteriaConstraint(trialName: 'SAMPLE_TRIAL_2')]).list()
 
         expect: results allOf(

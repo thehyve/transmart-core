@@ -1,11 +1,12 @@
 package org.transmartproject.db.dataquery.highdim
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
 
-import org.junit.After
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -19,6 +20,7 @@ import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -35,11 +37,11 @@ class GeneralHighDimensionDataTypeResourceSpec extends Specification {
 
     AssayConstraint trialNameConstraint
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
 
         mrnaResource = highDimensionResourceService.getSubResourceForType 'mrna'
-        expect: mrnaResource is(notNullValue())
+        assert mrnaResource != null
 
         trialNameConstraint = mrnaResource.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
@@ -51,6 +53,7 @@ class GeneralHighDimensionDataTypeResourceSpec extends Specification {
     }
 
     void testEmptyAssayConstraintList() {
+        setupData()
         // this is permitted -- all the assays for the respective marker type
         // are returned
 
@@ -67,6 +70,7 @@ class GeneralHighDimensionDataTypeResourceSpec extends Specification {
     }
 
     void testUnsatisfiedAssayConstraints() {
+        setupData()
         // if no assay constraint is found, should throw
         List dataConstraints = []
         List assayConstraints = [
@@ -84,6 +88,7 @@ class GeneralHighDimensionDataTypeResourceSpec extends Specification {
     }
 
     void testUnsatisfiedDataConstraints() {
+        setupData()
         // if assays are found, but no data is, should not throw
         List dataConstraints = [mrnaResource.createDataConstraint(
                 DataConstraint.GENES_CONSTRAINT,

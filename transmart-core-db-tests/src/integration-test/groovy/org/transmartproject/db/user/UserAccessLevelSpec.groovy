@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.user
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -42,6 +44,7 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
 import static org.transmartproject.db.user.AccessLevelTestData.*
 
+@TestMixin(ControllerUnitTestMixin)
 @WithGMock
 @Integration
 @Rollback
@@ -56,12 +59,13 @@ class UserAccessLevelSpec extends Specification {
 
     AccessLevelTestData accessLevelTestData = AccessLevelTestData.createDefault()
 
-    void setup() {
+    void setupData() {
         accessLevelTestData.saveAll()
         sessionFactory.currentSession.flush()
     }
 
     void testAdminAlwaysHasAccess() {
+        setupData()
         def adminUser = accessLevelTestData.users[0]
 
         expect:
@@ -71,6 +75,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testEveryoneHasAccessToPublicStudy() {
+        setupData()
         // study1 is public
         accessLevelTestData.users.each { u ->
             println "Testing for user $u"
@@ -80,6 +85,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testPermissionViaGroup() {
+        setupData()
         // second user is in group test_-201, which has access to study 2
         def secondUser = accessLevelTestData.users[1]
 
@@ -87,6 +93,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testDirectPermissionAssignment() {
+        setupData()
         // third user has direct access to study 2
         def thirdUser = accessLevelTestData.users[2]
 
@@ -94,6 +101,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testAccessDeniedToUserWithoutPermission() {
+        setupData()
         // fourth user has no access to study 2
         def fourthUser = accessLevelTestData.users[3]
 
@@ -101,6 +109,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testAccessDeniedWhenOnlyViewPermission() {
+        setupData()
         // fifth user has only VIEW permissions on study 2
         def fifthUser = accessLevelTestData.users[4]
 
@@ -108,6 +117,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testAccessGrantedWhenExportAndViewPermissionsExist() {
+        setupData()
         // sixth user has both VIEW and EXPORT permissions on study2
         // the fact there's a VIEW permission shouldn't hide that
         // there is an EXPORT permission
@@ -118,6 +128,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testEveryoneHasAccessViaEveryoneGroup() {
+        setupData()
         // EVERYONE_GROUP has access to study 3
 
         accessLevelTestData.users.each { u ->
@@ -128,6 +139,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testWithUnsupportedProtectedResource() {
+        setupData()
         def adminUser = accessLevelTestData.users[0]
 
         // should fail even though the user is an admin and usually bypasses
@@ -140,6 +152,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testViewPermissionAndExportOperation() {
+        setupData()
         // fifth user has only VIEW permissions on study 2
         def fifthUser = accessLevelTestData.users[4]
 
@@ -147,6 +160,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testViewPermissionAndShowInTableOperation() {
+        setupData()
         // fifth user has only VIEW permissions on study 2
         def fifthUser = accessLevelTestData.users[4]
 
@@ -155,6 +169,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testViewPermissionAndShowInSummaryStatisticsOperation() {
+        setupData()
         // fifth user has only VIEW permissions on study 2
         def fifthUser = accessLevelTestData.users[4]
 
@@ -162,6 +177,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testStudyWithoutI2b2Secure() {
+        setupData()
         // such a study should be treated as public
         // fourth user has no access to study 2
         def fourthUser = accessLevelTestData.users[3]
@@ -173,6 +189,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testStudyWithEmptyToken() {
+        setupData()
         // this should never happen. So we throw
 
         def fourthUser = accessLevelTestData.users[3]
@@ -186,6 +203,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testGetAccessibleStudiesAdmin() {
+        setupData()
         def adminUser = accessLevelTestData.users[0]
 
         def studies = adminUser.accessibleStudies
@@ -196,6 +214,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testGetAccessibleStudiesPublicViaEveryoneGroup() {
+        setupData()
         def fourthUser = accessLevelTestData.users[3]
 
         def studies = fourthUser.accessibleStudies
@@ -203,6 +222,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testGetAccessibleStudiesPublicViaPublicSecureAccessToken() {
+        setupData()
         def fourthUser = accessLevelTestData.users[3]
 
         def studies = fourthUser.accessibleStudies
@@ -210,6 +230,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testGetAccessibleStudiesDeniedAccess() {
+        setupData()
         // fourth user has no access to study 2
         def fourthUser = accessLevelTestData.users[3]
 
@@ -219,6 +240,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testGetAccessibleStudiesAccessViaNoI2b2Secure() {
+        setupData()
         // fourth user has no access to study 2
         def fourthUser = accessLevelTestData.users[3]
 
@@ -231,6 +253,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testGetAccessibleStudiesEmptySOTShouldThrow() {
+        setupData()
         def fourthUser = accessLevelTestData.users[3]
 
         def i2b2Secure =
@@ -243,6 +266,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testQueryDefinitionUserHasAccessToOnePanelButNotAnother() {
+        setupData()
         // it's enough to have access to one panel
         // fourth user has no access to study 2, but study 1 is public
         def fourthUser = accessLevelTestData.users[3]
@@ -260,6 +284,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testQueryDefinitionUserHasNoAccessToAnyPanel() {
+        setupData()
         // it's enough to have access to one panel
         // fourth user has no access to study 2, but study 1 is public
         def fourthUser = accessLevelTestData.users[3]
@@ -275,6 +300,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testQueryDefinitionNonTopNode() {
+        setupData()
         // test for bug where checking access only worked on the study top node
         // study 1 is public
         def thirdUser = accessLevelTestData.users[2]
@@ -290,6 +316,8 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testDoNotAllowInvertedPanel() {
+        setupData()
+
         def secondUser = accessLevelTestData.users[1]
 
         QueryDefinition definition = new QueryDefinition([
@@ -302,6 +330,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testAllowInvertedPanelIfThereIsAnotherWithAccess() {
+        setupData()
         def secondUser = accessLevelTestData.users[1]
 
         QueryDefinition definition = new QueryDefinition([
@@ -317,6 +346,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testQueryDefinitionAlwaysAllowAdministrator() {
+        setupData()
         // first user is an admin
         def firstUser = accessLevelTestData.users[0]
 
@@ -331,6 +361,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testQueryDefinitionNonStudyNodeIsDenied() {
+        setupData()
         def secondUser = accessLevelTestData.users[1]
 
         /* non study nodes are typically parents to study nodes (e.g. 'Public
@@ -346,6 +377,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testQueryResultMismatch() {
+        setupData()
         def secondUser = accessLevelTestData.users[1]
         def thirdUser = accessLevelTestData.users[2]
 
@@ -359,6 +391,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testQueryResultMatching() {
+        setupData()
         def secondUser = accessLevelTestData.users[1]
 
         QueryResult res = mock(QueryResult)
@@ -371,6 +404,7 @@ class UserAccessLevelSpec extends Specification {
     }
 
     void testQueryResultNonReadOperation() {
+        setupData()
         def secondUser = accessLevelTestData.users[1]
 
         QueryResult res = mock(QueryResult)

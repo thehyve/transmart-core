@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.querytool
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -33,6 +35,7 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.BETWEEN
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -45,13 +48,14 @@ class QueriesResourceAcrossTrialsSpec extends Specification {
     QueriesResource queriesResourceService
     def sessionFactory
 
-    void setup() {
+    void setupData() {
         testData = AcrossTrialsTestData.createDefault()
         testData.saveAll()
         sessionFactory.currentSession.flush()
     }
 
     void testUserAdmin() {
+        setupData()
         def user = users[0].username // first user is admin
         def definition = definitionForItem(
                 new Item(conceptKey: AGE_AT_DIAGNOSIS_NODE))
@@ -63,6 +67,7 @@ class QueriesResourceAcrossTrialsSpec extends Specification {
     }
 
     void testUserAdminWithConstraint() {
+        setupData()
         def user = users[0].username // first user is admin
         def definition = definitionForItem(
                 new Item(conceptKey: AGE_AT_DIAGNOSIS_NODE,
@@ -85,6 +90,7 @@ class QueriesResourceAcrossTrialsSpec extends Specification {
     }
 
     void testUserWithNoAccessToStudy2() {
+        setupData()
         // 4th user has no access to study 2
         def user = users[3].username
         def definition = definitionForItem(
@@ -103,6 +109,7 @@ class QueriesResourceAcrossTrialsSpec extends Specification {
     }
 
     void testAcrossTrialsQueryNeedsUser() {
+        setupData()
         def definition = definitionForItem(
                 new Item(conceptKey: AGE_AT_DIAGNOSIS_NODE,))
 

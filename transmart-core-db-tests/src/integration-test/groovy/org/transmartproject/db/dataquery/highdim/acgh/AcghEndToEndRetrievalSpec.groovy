@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.acgh
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -46,6 +48,7 @@ import static org.transmartproject.db.dataquery.highdim.acgh.AcghModule.ACGH_VAL
 import static org.transmartproject.db.dataquery.highdim.acgh.AcghTestData.TRIAL_NAME
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -63,7 +66,7 @@ class AcghEndToEndRetrievalSpec extends Specification {
 
     AcghTestData testData = new AcghTestData()
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
         sessionFactory.currentSession.flush()
 
@@ -77,7 +80,8 @@ class AcghEndToEndRetrievalSpec extends Specification {
         dataQueryResult?.close()
     }
 
-    void basicTest() {
+    void testBasic() {
+        setupData()
         def assayConstraints = [
                 acghResource.createAssayConstraint(
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
@@ -150,6 +154,7 @@ class AcghEndToEndRetrievalSpec extends Specification {
     }
 
     void testSegments_meetOne() {
+        setupData()
         def assayConstraints = [
                 acghResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
@@ -174,6 +179,7 @@ class AcghEndToEndRetrievalSpec extends Specification {
     }
 
     void testSegments_meetBoth() {
+        setupData()
         def assayConstraints = [
                 acghResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
@@ -231,6 +237,7 @@ class AcghEndToEndRetrievalSpec extends Specification {
     }
 
     void testSegments_meetNone() {
+        setupData()
         def assayConstraints = [
                 acghResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
@@ -258,6 +265,7 @@ class AcghEndToEndRetrievalSpec extends Specification {
     }
 
     void testResultRowsAreCoreApiRegionRows() {
+        setupData()
         def assayConstraints = [
                 acghResource.createAssayConstraint(
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME) ]
@@ -270,6 +278,7 @@ class AcghEndToEndRetrievalSpec extends Specification {
     }
 
     void testWithGeneConstraint() {
+        setupData()
         def assayConstraints = [
                 acghResource.createAssayConstraint(
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),

@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.ontology
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -39,12 +41,13 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
 class I2b2Spec extends Specification {
 
-    void setup() {
+    void setupData() {
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
                 tableCode: 'i2b2 table code', tableName: 'i2b2')
         addI2b2(level: 0, fullName: '\\foo\\', name: 'foo',
@@ -61,6 +64,7 @@ class I2b2Spec extends Specification {
     }
 
     void testGetVisualAttributes() {
+        setupData()
         def terms = I2b2.withCriteria { eq 'level', 1 }
 
         //currently testing against postgres database,
@@ -79,6 +83,7 @@ class I2b2Spec extends Specification {
     }
 
     void testGetTableCode() {
+        setupData()
         I2b2 bar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\') }
 
         expect: bar.conceptKey is(equalTo(
@@ -86,6 +91,7 @@ class I2b2Spec extends Specification {
     }
 
     void testGetChildren() {
+        setupData()
         when:
         I2b2 xpto = I2b2.find { eq('fullName', '\\foo\\xpto\\') }
         xpto.setTableCode('i2b2 table code OOOO')
@@ -106,6 +112,7 @@ class I2b2Spec extends Specification {
     }
 
     void testGetAllDescendants() {
+        setupData()
         when:
         I2b2 xpto = I2b2.find { eq('fullName', '\\foo\\xpto\\') }
         then: xpto is(notNullValue())
@@ -124,6 +131,7 @@ class I2b2Spec extends Specification {
     }
 
     void testGetStudy() {
+        setupData()
         I2b2 bar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\') }
         I2b2 foo = I2b2.find { eq('fullName', '\\foo\\') }
 
@@ -135,12 +143,13 @@ class I2b2Spec extends Specification {
     }
 
     void testGetStudyNull() {
+        setupData()
         I2b2 jar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\jar\\') }
         expect: jar.study is(nullValue())
     }
 
     void testGetPatients() {
-
+        setupData()
         ConceptTestData.addTableAccess(level: 0, fullName: '\\test\\', name: 'test',
                 tableCode: 'i2b2 main', tableName: 'i2b2')
 
@@ -180,6 +189,7 @@ class I2b2Spec extends Specification {
     }
 
     void testSynonymIsTransient() {
+        setupData()
         GrailsDomainClass domainClass =
                 Holders.grailsApplication.getDomainClass('org.transmartproject.db.ontology.I2b2')
         GrailsDomainClassProperty synonymProperty =
@@ -189,6 +199,7 @@ class I2b2Spec extends Specification {
     }
 
     void testSynonym() {
+        setupData()
         when:
         I2b2 jar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\jar\\') }
         then:

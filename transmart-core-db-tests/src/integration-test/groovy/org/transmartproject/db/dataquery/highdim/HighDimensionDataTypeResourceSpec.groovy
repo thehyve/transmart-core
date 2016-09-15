@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -37,6 +39,7 @@ import javax.annotation.Resource
 
 import static org.hamcrest.Matchers.*
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -51,7 +54,7 @@ class HighDimensionDataTypeResourceSpec extends Specification {
 
     I2b2 i2b2Node
 
-    void setup() {
+    void setupData() {
         StudyTestData studyTestData = new StudyTestData()
         studyTestData.saveAll()
         i2b2Node = studyTestData.i2b2List[0]
@@ -59,12 +62,13 @@ class HighDimensionDataTypeResourceSpec extends Specification {
         MrnaTestData testData = new MrnaTestData(conceptCode: i2b2Node.code, patients: studyTestData.i2b2Data.patients)
         testData.saveAll()
 
-        expect: mrnaModule is(notNullValue())
+        assert mrnaModule != null
 
         resource = new HighDimensionDataTypeResourceImpl(mrnaModule)
     }
 
-    void basicTest() {
+    void testBasic() {
+        setupData()
         def definition = new QueryDefinition([
                 new Panel(
                         items: [

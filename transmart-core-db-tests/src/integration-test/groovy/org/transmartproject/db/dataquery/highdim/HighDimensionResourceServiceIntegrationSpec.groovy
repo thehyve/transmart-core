@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -42,6 +44,7 @@ import static org.transmartproject.db.querytool.QueryResultData.createQueryResul
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -60,7 +63,7 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
                 AssayConstraint.PATIENT_SET_CONSTRAINT)
     }
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
 
         def bogusDataTypeResource = [
@@ -78,6 +81,7 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
     }
 
     void testGetSubResourcesAssayMultiMap() {
+        setupData()
         Map<HighDimensionDataTypeResource, Long> res = highDimensionResourceService.
                 getSubResourcesAssayMultiMap([ allPatientsPatientSetConstraint ])
 
@@ -101,6 +105,7 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
     }
 
     void testUnmappedPlatform() {
+        setupData()
         def p = new DeGplInfo(
                 markerType: 'bogus marker type',
         )
@@ -125,6 +130,7 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
     }
 
     void testAssaysWithMissingPlatform() {
+        setupData()
         List<DeSubjectSampleMapping> assays =
                 HighDimTestData.createTestAssays(testData.patientsFoobar, -7000, null,
                         HighDimensionResourceServiceTestData.TRIAL_NAME)
@@ -143,6 +149,7 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
     }
 
     void testWithMultipleConstraints() {
+        setupData()
         def trialNameConstraint = highDimensionResourceService.createAssayConstraint(
                 name: HighDimensionResourceServiceTestData.MRNA_TRIAL_NAME,
                 AssayConstraint.TRIAL_NAME_CONSTRAINT)
@@ -164,6 +171,7 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
     }
 
     void testBogusConstraint() {
+        setupData()
         shouldFail InvalidArgumentsException, {
                 highDimensionResourceService.createAssayConstraint([:],
                         'bogus constraint name')
@@ -171,6 +179,7 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
     }
 
     void testInvalidParametersConstraint() {
+        setupData()
         shouldFail InvalidArgumentsException, {
             highDimensionResourceService.createAssayConstraint(
                     foobar: [],
@@ -179,6 +188,7 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
     }
 
     void testEqualityOfReturnedHighDimensionDataTypeResources() {
+        setupData()
         def instance1 = highDimensionResourceService.getSubResourceForType('mrna')
         def instance2 = highDimensionResourceService.getSubResourceForType('mrna')
 
@@ -186,6 +196,7 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
     }
 
     void testUnEqualityOfReturnedHighDimensionDataTypeResources() {
+        setupData()
         def instance1 = highDimensionResourceService.getSubResourceForType('mrna')
         def instance2 = highDimensionResourceService.getSubResourceForType('vcf')
 

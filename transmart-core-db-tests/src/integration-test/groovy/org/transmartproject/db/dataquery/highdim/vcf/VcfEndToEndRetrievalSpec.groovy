@@ -19,7 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.vcf
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import groovy.util.logging.Slf4j
 import spock.lang.Specification
@@ -40,6 +42,7 @@ import static org.hamcrest.Matchers.*
 /**
  * Created by j.hudecek on 17-3-14.
  */
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 @Slf4j
@@ -57,11 +60,11 @@ class VcfEndToEndRetrievalSpec extends Specification {
 
     def sessionFactory
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
 
         vcfResource = highDimensionResourceService.getSubResourceForType 'vcf'
-        expect: vcfResource is(notNullValue())
+        assert vcfResource != null
 
         trialNameConstraint = vcfResource.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
@@ -74,7 +77,8 @@ class VcfEndToEndRetrievalSpec extends Specification {
         dataQueryResult?.close()
     }
 
-    void basicTestWithConstraints() {
+    void testWithConstraints() {
+        setupData()
         List dataConstraints = [vcfResource.createDataConstraint(
                 DataConstraint.DISJUNCTION_CONSTRAINT,
                 subconstraints: [
@@ -116,6 +120,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
     }
 
     void testAssayFilter() {
+        setupData()
         List dataConstraints = [vcfResource.createDataConstraint(
                 DataConstraint.DISJUNCTION_CONSTRAINT,
                 subconstraints: [
@@ -138,6 +143,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
     }
     
     void testVcfDataRowRetrieval() {
+        setupData()
         List dataConstraints = []
         def projection = vcfResource.createProjection [:], 'cohort'
 
@@ -223,6 +229,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
     }
 
     void testCohortProjection() {
+        setupData()
         List dataConstraints = []
         def projection = vcfResource.createProjection [:], 'cohort'
 
@@ -261,6 +268,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
     }
 
     void testVariantProjection() {
+        setupData()
         List dataConstraints = []
         def projection = vcfResource.createProjection [:], 'variant'
 
@@ -287,6 +295,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
     }
 
     void testNonUniquePosChrEntries() {
+        setupData()
         // Add other DeVariantSubjectDetailCoreDb with same chr, pos as existing
         def detail = testData.createDetail(3, 'A', 'G', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268')
         detail.rsId = 'dummyId'
@@ -329,6 +338,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
     }
 
     void testVcfPlatformIsRecognized() {
+        setupData()
         def constraint = highDimensionResourceService.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: VcfTestData.TRIAL_NAME)
@@ -352,6 +362,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
     }
     
     void testOriginalSubjectData() {
+        setupData()
         List dataConstraints = []
         def projection = vcfResource.createProjection [:], 'cohort'
         dataQueryResult = vcfResource.retrieveData(
@@ -379,6 +390,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
     }
 
     void testWithGeneConstraint() {
+        setupData()
         def assayConstraints = [
                 trialNameConstraint,
         ]
