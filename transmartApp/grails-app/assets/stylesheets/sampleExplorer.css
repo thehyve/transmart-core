@@ -2,39 +2,39 @@
 
 
 .nextbutton{
-    background-image:url(../images/next.png ) !important;
+    background-image:url(../../../src/main/resources/public/images/next.png) !important;
 }
 
 .clearbutton{
     padding-left: 20px !important;
-    background-image:url(../images/clear.png ) !important;
+    background-image:url(../../../src/main/resources/public/images/clear.png) !important;
     background-position: 6px 50%;
 }
 .runbutton{
-	background-image:url(../images/runprog.png ) !important;
+	background-image:url(../../../src/main/resources/public/images/runprog.png) !important;
 	}
 .exportbutton{
-	background-image:url(../images/fileexport.png ) !important;
+	background-image:url(../../../src/main/resources/public/images/fileexport.png) !important;
 	}	
 .comparebutton{
-	background-image:url(../images/compare.png ) !important;
+	background-image:url(../../../src/main/resources/public/images/compare.png) !important;
 	}
 .summarybutton{
-	background-image:url(../images/summary.png ) !important;
+	background-image:url(../../../src/main/resources/public/images/summary.png) !important;
 	}
 
 .valueicon{
-	background-image:url(../images/numeric.gif ) !important;
+	background-image:url(../../../src/main/resources/public/images/numeric.gif) !important;
 }
 .alphaicon{
-	background-image:url(../images/alpha.gif ) !important;
+	background-image:url(../../../src/main/resources/public/images/alpha.gif) !important;
 }
 .printbutton{
-	background-image:url(../images/printer.png ) !important;
+	background-image:url(../../../src/main/resources/public/images/printer.png) !important;
 	}
 	
 .savebutton{
-	background-image:url(../images/disk.png ) !important;
+	background-image:url(../../../src/main/resources/public/images/disk.png) !important;
 	}	
 	
 
