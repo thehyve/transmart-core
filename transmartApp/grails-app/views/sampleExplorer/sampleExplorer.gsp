@@ -12,14 +12,18 @@
     <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="icon" />
 
     <g:javascript library="jquery" />
-    <r:require module="sampleTab" />
-    <r:layoutResources/>
 
-    <r:script type="text/javascript" charset="utf-8">
+    <asset:stylesheet href="sampletab.css" />
+    <asset:javascript src="jquery-2.2.0.min.js"/>
+    <asset:javascript src="sampleTab.js" />
+    %{--<r:require module="sampleTab" />--}%
+    %{--<r:layoutResources/>--}%
+
+    <asset:script type="text/javascript" charset="utf-8">
 
         var $j = window.$j = jQuery.noConflict();
 
-    </r:script>
+    </asset:script>
 
 </head>
 
@@ -47,7 +51,7 @@
         SearchJSON: {},
         resultDataSet: {},
         resultGridPanel: '',
-        columnMap: ${columnData},
+        columnMap: "${columnData.toString().replaceAll('\n','')}",
         CurrentTimepoints: [],
         CurrentSamples: [],
         CurrentPlatforms: [],
