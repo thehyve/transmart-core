@@ -19,35 +19,27 @@
 
 package org.transmartproject.db
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
 import spock.lang.Specification
-
 
 import static org.hamcrest.Matchers.*
 
-@Integration
-@Rollback
-@Slf4j
 class TransmartCoreGrailsPluginSpec extends Specification {
 
-    void testStringAsLikeLiteral() {
-        expect: ''.respondsTo('asLikeLiteral')
-                hasSize(greaterThanOrEqualTo(1))
+    def "test escaping string for sql like statement"() {
+        given:
+        String.metaClass.asLikeLiteral = { replaceAll(/[\\%_]/, '\\\\$0') }
 
-        def data = [
-                ''            : '',
-                'foo'         : 'foo',
-                '\\'          : '\\\\',
-                '%'           : '\\%',
-                '_'           : '\\_',
-                '\\%'         : '\\\\\\%',
-                'f%\\_oo\\\\' : 'f\\%\\\\\\_oo\\\\\\\\',
-        ]
+        expect:
+        a.asLikeLiteral() == b
 
-        data.each { String input, String expected ->
-            expect: input.asLikeLiteral() is(equalTo(expected))
-        }
+        where:
+        a             | b
+        ''            | ''
+        'foo'         | 'foo'
+        '\\'          | '\\\\'
+        '%'           | '\\%'
+        '_'           | '\\_'
+        '\\%'         | '\\\\\\%'
+        'f%\\_oo\\\\' | 'f\\%\\\\\\_oo\\\\\\\\'
     }
 }

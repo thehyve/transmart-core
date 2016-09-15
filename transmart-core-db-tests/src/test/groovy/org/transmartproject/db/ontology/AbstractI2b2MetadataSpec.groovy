@@ -19,43 +19,32 @@
 
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
 import spock.lang.Specification
-
 
 import static org.hamcrest.Matchers.*
 
 /**
  * See the API for {@link grails.test.mixin.support.GrailsUnitTestMixin} for usage instructions
  */
-@Integration
-@Rollback
-@Slf4j
 class AbstractI2b2MetadataSpec extends Specification {
 
     private AbstractI2b2Metadata testee;
 
-    void before() {
+    void setup() {
         this.testee = [getTooltip: { -> }] as AbstractI2b2Metadata
     }
 
     void testGetMetadata() {
         testee.setMetadataxml(METADATA_XML)
 
-        expect: testee.metadata allOf(
-                hasEntry('okToUseValues', false),
+        expect:
+        !testee.metadata.okToUseValues
+        testee.metadata.unitValues.normalUnits == 'mg/dl'
+        testee.metadata.unitValues.equalUnits == 'mg/dl'
 
-                hasEntry(equalTo('unitValues'), allOf(
-                        hasEntry('normalUnits', 'mg/dl'),
-                        hasEntry('equalUnits', 'mg/dl'))),
-
-                hasEntry(equalTo('seriesMeta'), allOf(
-                        hasEntry('value', '1'),
-                        hasEntry('unit', 'days'),
-                        hasEntry('label', 'Day 1'))),
-            )
+        testee.metadata.seriesMeta.value == '1'
+        testee.metadata.seriesMeta.unit == 'days'
+        testee.metadata.seriesMeta.label == 'Day 1'
     }
 
     private static final String METADATA_XML = '''<?xml version="1.0"?>

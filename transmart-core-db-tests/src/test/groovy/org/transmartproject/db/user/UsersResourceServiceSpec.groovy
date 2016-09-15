@@ -19,19 +19,13 @@
 
 package org.transmartproject.db.user
 
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import org.transmartproject.core.exceptions.NoSuchResourceException
-
-import static org.hamcrest.Matchers.equalTo
-import static org.hamcrest.Matchers.is
+import spock.lang.Specification
 
 @TestFor(UsersResourceService)
 @Mock(User)
-@Slf4j
 class UsersResourceServiceSpec extends Specification {
 
     void basicTest() {
@@ -40,8 +34,8 @@ class UsersResourceServiceSpec extends Specification {
         user.id = -1
         user.save(failOnError: true)
 
-        expect: service.getUserFromUsername(username)
-                is(equalTo(user))
+        expect:
+        service.getUserFromUsername(username) == user
     }
 
     void testFetchUnknownUser() {

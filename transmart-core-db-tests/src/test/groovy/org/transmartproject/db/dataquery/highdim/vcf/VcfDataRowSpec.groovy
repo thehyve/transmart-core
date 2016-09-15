@@ -19,18 +19,8 @@
 
 package org.transmartproject.db.dataquery.highdim.vcf
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
 import spock.lang.Specification
 
-
-import static org.hamcrest.Matchers.*
-import static org.junit.Assert.assertNull
-
-@Integration
-@Rollback
-@Slf4j
 class VcfDataRowSpec extends Specification {
 
     public static final double ERROR = 0.001 as Double
@@ -56,16 +46,14 @@ class VcfDataRowSpec extends Specification {
                 data: []
         )
 
-        expect: dataRow.infoFields allOf(
-                hasEntry(equalTo('DP'), equalTo('88')),
-                hasEntry(equalTo('AF1'), equalTo('1')),
-                hasEntry(equalTo('QD'), equalTo('2')),
-                hasEntry(equalTo('DP4'), equalTo('0,0,80,0')),
-                hasEntry(equalTo('MQ'), equalTo('60')),
-                hasEntry(equalTo('FQ'), equalTo('-268')),
-
-                hasEntry(equalTo("NOVAL"), equalTo(true))
-        )
+        expect:
+        dataRow.infoFields['DP'] == '88'
+        dataRow.infoFields['AF1'] == '1'
+        dataRow.infoFields['QD'] == '2'
+        dataRow.infoFields['DP4'] == '0,0,80,0'
+        dataRow.infoFields['MQ'] == '60'
+        dataRow.infoFields['FQ'] == '-268'
+        dataRow.infoFields['NOVAL']
     }
 
     void testNoQualityOfDepthInInfoField() {
@@ -89,7 +77,8 @@ class VcfDataRowSpec extends Specification {
                 data: []
         )
 
-        expect: dataRow.qualityOfDepth closeTo(0.8 as Double, ERROR)
+        expect:
+        dataRow.qualityOfDepth - 0.8d < ERROR
     }
 
     void testQualityOfDepthInInfoField() {
@@ -113,7 +102,8 @@ class VcfDataRowSpec extends Specification {
                 data: []
         )
 
-        expect: dataRow.qualityOfDepth closeTo(0.2 as Double, ERROR)
+        expect:
+        dataRow.qualityOfDepth - 0.2d < ERROR
     }
 
     void testQualityOfDepthDotInInfoField() {
@@ -122,7 +112,8 @@ class VcfDataRowSpec extends Specification {
                 info: "QD=.;AB=1,201;"
         )
 
-        expect: 'QD=.' dataRow.qualityOfDepth, closeTo(0.9 as Double, ERROR)
+        expect: 'QD=.'
+        dataRow.qualityOfDepth - 0.9d < ERROR
     }
 
     void testQualityOfDepthInfoFieldIsNull() {
@@ -131,7 +122,8 @@ class VcfDataRowSpec extends Specification {
                 info: null
         )
 
-        expect: 'info is null' dataRow.qualityOfDepth, closeTo(0.95 as Double, ERROR)
+        expect: 'info is null'
+        dataRow.qualityOfDepth - 0.95d < ERROR
     }
 
     void testQualityOfDepthAllNulls() {
@@ -140,7 +132,8 @@ class VcfDataRowSpec extends Specification {
                 info: null
         )
 
-        assertNull 'info and quality is null', dataRow.qualityOfDepth
+        expect: 'info and quality is null'
+        dataRow.qualityOfDepth == null
     }
 
 }

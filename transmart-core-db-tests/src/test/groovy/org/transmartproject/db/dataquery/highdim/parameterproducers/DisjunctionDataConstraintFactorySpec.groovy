@@ -19,138 +19,120 @@
 
 package org.transmartproject.db.dataquery.highdim.parameterproducers
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
-import org.gmock.WithGMock
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.NoopDataConstraint
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@WithGMock
-@Integration
-@Rollback
-@Slf4j
 class DisjunctionDataConstraintFactorySpec extends Specification {
 
     StandardDataConstraintFactory testee = new StandardDataConstraintFactory()
 
     void testWithTwoSubConstraints() {
-        String         nameOfSubconstraint1  = 'subcontraint_1',
-                       nameOfSubconstraint2  = 'subcontraint_2';
-        Map            paramsOfSubconstraint = [ param1: 'param1 value' ]
-        DataConstraint fakeConstraint1 = mock(DataConstraint),
-                       fakeConstraint2 = mock(DataConstraint)
+        String nameOfSubconstraint1 = 'subcontraint_1',
+               nameOfSubconstraint2 = 'subcontraint_2';
+        Map paramsOfSubconstraint = [param1: 'param1 value']
+        DataConstraint fakeConstraint1 = Mock(DataConstraint),
+                       fakeConstraint2 = Mock(DataConstraint)
 
-        Closure createConstraint = mock(Closure)
+        Closure createConstraint = Mock(Closure)
 
-        createConstraint.call(paramsOfSubconstraint, nameOfSubconstraint1).
-                returns(fakeConstraint1)
-        createConstraint.call(paramsOfSubconstraint, nameOfSubconstraint2).
-                returns(fakeConstraint2)
+        createConstraint.call(paramsOfSubconstraint, nameOfSubconstraint1) >> fakeConstraint1
+        createConstraint.call(paramsOfSubconstraint, nameOfSubconstraint2) >> fakeConstraint2
 
-        play {
-            def result = testee.createDisjunctionConstraint(subconstraints: [
-                    (nameOfSubconstraint1): paramsOfSubconstraint,
-                    (nameOfSubconstraint2): paramsOfSubconstraint
-            ], createConstraint)
+        when:
+        def result = testee.createDisjunctionConstraint(subconstraints: [
+                (nameOfSubconstraint1): paramsOfSubconstraint,
+                (nameOfSubconstraint2): paramsOfSubconstraint
+        ], createConstraint)
 
-            expect: result allOf(
-                    isA(DisjunctionDataConstraint),
-                    hasProperty('constraints', contains(
-                            is(sameInstance(fakeConstraint1)),
-                            is(sameInstance(fakeConstraint2)),
-                    ))
-            )
-        }
+        then:
+        result instanceof DisjunctionDataConstraint
+        result.constraints.size() == 2
+        fakeConstraint1 in result.constraints
+        fakeConstraint2 in result.constraints
     }
 
     void testWithOneSubConstraint() {
-        String         nameOfSubconstraint  = 'subcontraint_1'
-        Map            paramsOfSubconstraint = [ param1: 'param1 value' ]
-        DataConstraint fakeConstraint = mock(DataConstraint)
+        String nameOfSubconstraint = 'subcontraint_1'
+        Map paramsOfSubconstraint = [param1: 'param1 value']
+        DataConstraint fakeConstraint = Mock(DataConstraint)
 
-        Closure createConstraint = mock(Closure)
+        Closure createConstraint = Mock(Closure)
 
-        createConstraint.call(paramsOfSubconstraint, nameOfSubconstraint).
-                returns(fakeConstraint)
+        createConstraint.call(paramsOfSubconstraint, nameOfSubconstraint) >> fakeConstraint
 
-        play {
-            def result = testee.createDisjunctionConstraint(subconstraints: [
-                    (nameOfSubconstraint): paramsOfSubconstraint
-            ], createConstraint)
+        when:
+        def result = testee.createDisjunctionConstraint(subconstraints: [
+                (nameOfSubconstraint): paramsOfSubconstraint
+        ], createConstraint)
 
-            expect: result is(sameInstance(fakeConstraint))
-        }
+        then:
+        result == fakeConstraint
     }
 
     void testWithZeroSubConstraints() {
+        when:
         def result = testee.createDisjunctionConstraint(subconstraints: [:],
                 { -> })
 
-        expect: result is(instanceOf(NoopDataConstraint))
+        then:
+        result instanceof NoopDataConstraint
     }
 
     void testWithTwoSubConstraintsOfTheSameType() {
-        String nameOfSubConstraints  = 'subcontraint_1'
-        List   paramsOfSubConstraints = [
-                [ param1: 'param1 value 1' ],
-                [ param1: 'param1 value 2' ],
+        String nameOfSubConstraints = 'subcontraint_1'
+        List paramsOfSubConstraints = [
+                [param1: 'param1 value 1'],
+                [param1: 'param1 value 2'],
         ]
-        DataConstraint fakeConstraint1 = mock(DataConstraint),
-                       fakeConstraint2 = mock(DataConstraint)
+        DataConstraint fakeConstraint1 = Mock(DataConstraint),
+                       fakeConstraint2 = Mock(DataConstraint)
 
-        Closure createConstraint = mock(Closure)
+        Closure createConstraint = Mock(Closure)
 
-        createConstraint.call(paramsOfSubConstraints[0], nameOfSubConstraints).
-                returns(fakeConstraint1)
-        createConstraint.call(paramsOfSubConstraints[1], nameOfSubConstraints).
-                returns(fakeConstraint2)
+        createConstraint.call(paramsOfSubConstraints[0], nameOfSubConstraints) >> fakeConstraint1
+        createConstraint.call(paramsOfSubConstraints[1], nameOfSubConstraints) >> fakeConstraint2
 
-        play {
-            def result = testee.createDisjunctionConstraint(subconstraints: [
-                    (nameOfSubConstraints): paramsOfSubConstraints
-            ], createConstraint)
+        when:
+        def result = testee.createDisjunctionConstraint(subconstraints: [
+                (nameOfSubConstraints): paramsOfSubConstraints
+        ], createConstraint)
 
-            expect: result allOf(
-                    isA(DisjunctionDataConstraint),
-                    hasProperty('constraints', contains(
-                            sameInstance(fakeConstraint1),
-                            sameInstance(fakeConstraint2),
-                    ))
-            )
-        }
+        then:
+        result instanceof DisjunctionDataConstraint
+        fakeConstraint1 in result.constraints
+        fakeConstraint2 in result.constraints
     }
 
     void testWithBadSubConstraintDefinition() {
-        def message = shouldFail InvalidArgumentsException, {
-            testee.createDisjunctionConstraint(subconstraints: 'bad value',
-                    { -> })
-        }
-
-        expect: message containsString('to be of type interface java.util.Map')
+        when:
+        testee.createDisjunctionConstraint(subconstraints: 'bad value',
+                { -> })
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message.contains('to be of type interface java.util.Map')
     }
 
     void testFailureBuildingSubConstraint() {
-        String  nameOfSubconstraint  = 'subcontraint_1'
-        Map     paramsOfSubconstraint = [ param1: 'param1 value' ]
-        Closure createConstraint = mock(Closure)
-
-        createConstraint.call(is(paramsOfSubconstraint), is(nameOfSubconstraint)).
-                raises(InvalidArgumentsException, 'foobar')
-
-        play {
-            def message = shouldFail InvalidArgumentsException, {
-                testee.createDisjunctionConstraint(
-                        subconstraints: [(nameOfSubconstraint): paramsOfSubconstraint],
-                        createConstraint)
-            }
-            expect: message is('foobar')
+        String nameOfSubconstraint = 'subcontraint_1'
+        Map paramsOfSubconstraint = [param1: 'param1 value']
+        Closure createConstraint = { a, b ->
+            assert a == paramsOfSubconstraint
+            assert b == nameOfSubconstraint
+            throw new InvalidArgumentsException('foobar')
         }
+
+        when:
+        testee.createDisjunctionConstraint(
+                subconstraints: [(nameOfSubconstraint): paramsOfSubconstraint],
+                createConstraint)
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message == 'foobar'
     }
+
 }

@@ -19,61 +19,56 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.highdim.acgh.CopyNumberState
 import org.transmartproject.core.dataquery.highdim.projections.AllDataProjection
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.acgh.AcghValuesProjection
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqValuesProjection
+import spock.lang.Specification
 
-import static org.hamcrest.Matchers.equalTo
-
-
-@Integration
-@Rollback
-@Slf4j
 class MultiValueProjectionSpec extends Specification {
 
     void testAllDataProjectionProperties() {
-        Map<String, Class> dataProps = [foo:String, bar:Double]
-        Map<String, Class> rowProps = [rowA:Double, rowB:String]
+        Map<String, Class> dataProps = [foo: String, bar: Double]
+        Map<String, Class> rowProps = [rowA: Double, rowB: String]
 
         AllDataProjectionFactory factory = new AllDataProjectionFactory(dataProps, rowProps)
         AllDataProjection projection = factory.createFromParameters(Projection.ALL_DATA_PROJECTION, [:], null)
 
-        expect: projection.dataProperties.entrySet() equalTo(dataProps.entrySet())
+        expect:
+        projection.dataProperties.entrySet() == dataProps.entrySet()
     }
 
     void testAcghProjectionProperties() {
         //the actual code is smarter than this, so any new property will requite test to be adjusted
         Map<String, Class> dataProps = [
-                probabilityOfNormal: Double,
+                probabilityOfNormal       : Double,
                 probabilityOfAmplification: Double,
-                copyNumberState: CopyNumberState,
-                segmentCopyNumberValue: Double,
-                probabilityOfGain: Double,
-                chipCopyNumberValue: Double,
-                probabilityOfLoss: Double]
+                copyNumberState           : CopyNumberState,
+                segmentCopyNumberValue    : Double,
+                probabilityOfGain         : Double,
+                chipCopyNumberValue       : Double,
+                probabilityOfLoss         : Double]
 
         AcghValuesProjection projection = new AcghValuesProjection()
-        expect: projection.dataProperties.entrySet() equalTo(dataProps.entrySet())
+
+        expect:
+        projection.dataProperties.entrySet() == dataProps.entrySet()
     }
 
     void testRnaSeqProjectionProperties() {
         //the actual code is smarter than this, so any new property will requite test to be adjusted
         Map<String, Class> dataProps = [
-                readcount:Integer,
-                normalizedReadcount:Double,
-                logNormalizedReadcount:Double,
-                zscore:Double]
+                readcount             : Integer,
+                normalizedReadcount   : Double,
+                logNormalizedReadcount: Double,
+                zscore                : Double]
 
         RnaSeqValuesProjection projection = new RnaSeqValuesProjection()
-        expect: projection.dataProperties.entrySet() equalTo(dataProps.entrySet())
+
+        expect:
+        projection.dataProperties.entrySet() == dataProps.entrySet()
     }
 
 }

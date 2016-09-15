@@ -1,13 +1,14 @@
 package org.transmartproject.db.util
 
 import groovy.transform.CompileStatic
-import groovy.util.logging.Log4j
 import org.hibernate.ScrollableResults
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @CompileStatic
-@Log4j
 class ScrollableResultsIterator<T> implements Iterator<T>, Closeable {
 
+    private Logger logger = LoggerFactory.getLogger(getClass())
     private ScrollableResults scrollableResults
     private Boolean hasNext = null
     private boolean closed
@@ -50,8 +51,7 @@ class ScrollableResultsIterator<T> implements Iterator<T>, Closeable {
     protected void finalize() throws Throwable {
         super.finalize()
         if (!closed) {
-            log.error('Failed to call close before the object was scheduled to ' +
-                    'be garbage collected')
+            logger.error('Failed to call close before the object was scheduled to be garbage collected')
             close()
         }
     }

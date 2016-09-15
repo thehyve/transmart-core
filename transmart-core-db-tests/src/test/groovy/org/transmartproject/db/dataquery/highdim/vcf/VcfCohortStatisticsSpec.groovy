@@ -19,194 +19,196 @@
 
 package org.transmartproject.db.dataquery.highdim.vcf
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.highdim.vcf.GenomicVariantType
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@Integration
-@Rollback
-@Slf4j
 class VcfCohortStatisticsSpec extends Specification {
+
+
+    public static final double ERROR = 0.001d
 
     void testEmptyDataRow() {
         VcfDataRow dataRow = new VcfDataRow(
-            // Chromosome to define the position
-            chromosome: 1,
-            position: 500,
-            rsId: "rs0001",
-            
-            // Reference and alternatives for this position
-            referenceAllele: "G",
-            alternatives: "A,T,CT",
-            
-            // Study level properties are irrelevant for the cohort statistics
-            quality: 1.0,
-            filter: "",
-            info:  "",
-            format: "",
-            variants: "",
-        
-            data: []
+                // Chromosome to define the position
+                chromosome: 1,
+                position: 500,
+                rsId: "rs0001",
+
+                // Reference and alternatives for this position
+                referenceAllele: "G",
+                alternatives: "A,T,CT",
+
+                // Study level properties are irrelevant for the cohort statistics
+                quality: 1.0,
+                filter: "",
+                info: "",
+                format: "",
+                variants: "",
+
+                data: []
         )
-        
+
         VcfCohortStatistics cohortStatistics = new VcfCohortStatistics(dataRow)
-        
-        expect: 
-            cohortStatistics.totalAlleleCount equalTo(0)
-            cohortStatistics.alleles.size() equalTo(0)
-            cohortStatistics.alleleCount.size() equalTo(0)
-            cohortStatistics.alleleFrequency.size() equalTo(0)
-            cohortStatistics.genomicVariantTypes hasSize(0)
-            
-            cohortStatistics.majorAllele equalTo(".")
-            cohortStatistics.minorAllele equalTo(".")
-            cohortStatistics.minorAlleleFrequency closeTo(0.0 as Double, 0.001 as Double)
-            cohortStatistics.referenceAllele equalTo("G")
-            cohortStatistics.alternativeAlleles empty()
+
+        expect:
+        cohortStatistics.totalAlleleCount == 0
+        cohortStatistics.alleles.empty
+        cohortStatistics.alleleCount.empty
+        cohortStatistics.alleleFrequency.empty
+        cohortStatistics.genomicVariantTypes.empty
+
+        cohortStatistics.majorAllele == "."
+        cohortStatistics.minorAllele == "."
+        cohortStatistics.minorAlleleFrequency - 0.0d < ERROR
+        cohortStatistics.referenceAllele == "G"
+        cohortStatistics.alternativeAlleles.empty
     }
 
     void testComputation() {
         VcfDataRow dataRow = new VcfDataRow(
-            // Chromosome to define the position
-            chromosome: 1,
-            position: 500,
-            rsId: "rs0001",
-            
-            // Reference and alternatives for this position
-            referenceAllele: "G",
-            alternatives: "A,TG,CG",
-            
-            // Study level properties are irrelevant for the cohort statistics
-            quality: 1.0,
-            filter: "",
-            info:  "",
-            format: "",
-            variants: "",
-        
-            data: [
-                [ allele1: 0, allele2: 0 ],
-                [ allele1: 0, allele2: 0 ],
-                [ allele1: 1, allele2: 0 ],
-                [ allele1: 1, allele2: 1 ],
-                [ allele1: 2, allele2: 1 ],
-                [ allele1: 0, allele2: 2 ],
-            ]
+                // Chromosome to define the position
+                chromosome: 1,
+                position: 500,
+                rsId: "rs0001",
+
+                // Reference and alternatives for this position
+                referenceAllele: "G",
+                alternatives: "A,TG,CG",
+
+                // Study level properties are irrelevant for the cohort statistics
+                quality: 1.0,
+                filter: "",
+                info: "",
+                format: "",
+                variants: "",
+
+                data: [
+                        [allele1: 0, allele2: 0],
+                        [allele1: 0, allele2: 0],
+                        [allele1: 1, allele2: 0],
+                        [allele1: 1, allele2: 1],
+                        [allele1: 2, allele2: 1],
+                        [allele1: 0, allele2: 2],
+                ]
         )
-            
+
         VcfCohortStatistics cohortStatistics = new VcfCohortStatistics(dataRow)
-        
+
         expect:
-            cohortStatistics.totalAlleleCount equalTo(12)
-            cohortStatistics.alleles.size() equalTo(3)  // As 'CG' is not present anymore
-            cohortStatistics.alleleCount.size() equalTo(3)
-            cohortStatistics.alleleFrequency.size() equalTo(3)
-            cohortStatistics.genomicVariantTypes hasSize(3)
-        
-            cohortStatistics.majorAllele equalTo("G")
-            cohortStatistics.minorAllele equalTo("A")
-            cohortStatistics.minorAlleleFrequency closeTo(( 4 / 12 ) as Double, 0.001 as Double)
+        cohortStatistics.totalAlleleCount == 12
+        cohortStatistics.alleles.size() == 3  // As 'CG' is not present anymore
+        cohortStatistics.alleleCount.size() == 3
+        cohortStatistics.alleleFrequency.size() == 3
+        cohortStatistics.genomicVariantTypes.size() == 3
 
-            cohortStatistics.genomicVariantTypes hasSize(3)
-            cohortStatistics.genomicVariantTypes hasItem( equalTo( GenomicVariantType.INS ) )
-            cohortStatistics.genomicVariantTypes hasItem( equalTo( GenomicVariantType.SNP ) )
+        cohortStatistics.majorAllele == "G"
+        cohortStatistics.minorAllele == "A"
+        cohortStatistics.minorAlleleFrequency - (4 / 12d) < ERROR
 
-            cohortStatistics.referenceAllele equalTo("G")
-            cohortStatistics.alternativeAlleles containsInAnyOrder("A", "TG")
+        cohortStatistics.genomicVariantTypes.size() == 3
+        GenomicVariantType.INS in cohortStatistics.genomicVariantTypes
+        cohortStatistics.genomicVariantTypes
+
+        cohortStatistics.referenceAllele == "G"
+        "A" in cohortStatistics.alternativeAlleles
+        "TG" in cohortStatistics.alternativeAlleles
     }
 
     void testReferenceSwap() {
         VcfDataRow dataRow = new VcfDataRow(
-            // Chromosome to define the position
-            chromosome: 1,
-            position: 500,
-            rsId: "rs0001",
-            
-            // Reference and alternatives for this position
-            referenceAllele: "G",
-            alternatives: "AT,T,CG",
-            
-            // Study level properties are irrelevant for the cohort statistics
-            quality: 1.0,
-            filter: "",
-            info:  "",
-            format: "",
-            variants: "",
-        
-            data: [
-                [ allele1: 0, allele2: 0 ],
-                [ allele1: 1, allele2: 0 ],
-                [ allele1: 1, allele2: 1 ],
-                [ allele1: 2, allele2: 1 ],
-                [ allele1: 3, allele2: 2 ],
-            ]
+                // Chromosome to define the position
+                chromosome: 1,
+                position: 500,
+                rsId: "rs0001",
+
+                // Reference and alternatives for this position
+                referenceAllele: "G",
+                alternatives: "AT,T,CG",
+
+                // Study level properties are irrelevant for the cohort statistics
+                quality: 1.0,
+                filter: "",
+                info: "",
+                format: "",
+                variants: "",
+
+                data: [
+                        [allele1: 0, allele2: 0],
+                        [allele1: 1, allele2: 0],
+                        [allele1: 1, allele2: 1],
+                        [allele1: 2, allele2: 1],
+                        [allele1: 3, allele2: 2],
+                ]
         )
-            
+
         VcfCohortStatistics cohortStatistics = new VcfCohortStatistics(dataRow)
 
         expect:
-            // We expect that the AT will be the reference in this cohort
-            cohortStatistics.majorAllele equalTo("AT")
-            cohortStatistics.minorAllele equalTo("G")
-            cohortStatistics.minorAlleleFrequency closeTo(0.3 as Double, 0.001 as Double)
+        // We expect that the AT will be the reference in this cohort
+        cohortStatistics.majorAllele == "AT"
+        cohortStatistics.minorAllele == "G"
+        cohortStatistics.minorAlleleFrequency - 0.3d < ERROR
 
-            // We also expect that the genomic variants types are computed with the new major allele (AT) in mind
-            cohortStatistics.genomicVariantTypes hasSize(4)
-            cohortStatistics.genomicVariantTypes hasItem( equalTo( GenomicVariantType.DEL ) )
-            cohortStatistics.genomicVariantTypes hasItem( equalTo( GenomicVariantType.DIV ) )
+        // We also expect that the genomic variants types are computed with the new major allele (AT) in mind
+        cohortStatistics.genomicVariantTypes.size() == 4
+        GenomicVariantType.DEL in cohortStatistics.genomicVariantTypes
+        GenomicVariantType.DIV in cohortStatistics.genomicVariantTypes
 
-            cohortStatistics.referenceAllele equalTo("G")
-            cohortStatistics.alternativeAlleles containsInAnyOrder("AT", "T", "CG")
+        cohortStatistics.referenceAllele == "G"
+        cohortStatistics.alternativeAlleles.size() == 3
+        "AT" in cohortStatistics.alternativeAlleles
+        "T" in cohortStatistics.alternativeAlleles
+        "CG" in cohortStatistics.alternativeAlleles
     }
 
     void testCountingWithAllelesNotPresent() {
         VcfDataRow dataRow = new VcfDataRow(
-            // Chromosome to define the position
-            chromosome: 1,
-            position: 500,
-            rsId: "rs0001",
-            
-            // Reference and alternatives for this position
-            referenceAllele: "G",
-            alternatives: "AT,T,CG",
-            
-            // Study level properties are irrelevant for the cohort statistics
-            quality: 1.0,
-            filter: "",
-            info:  "",
-            format: "",
-            variants: "",
-        
-            data: [
-                [ allele1: 0, allele2: 0 ],
-                [ allele1: 1 ],
-                [ allele1: ".", allele2: 1 ],
-                [ allele1: 2, allele2: "." ],
-                [ allele1: null ],
-                [ allele1: null, allele2: 1 ],
-                [ allele1: 1, allele2: null ],
-            ]
+                // Chromosome to define the position
+                chromosome: 1,
+                position: 500,
+                rsId: "rs0001",
+
+                // Reference and alternatives for this position
+                referenceAllele: "G",
+                alternatives: "AT,T,CG",
+
+                // Study level properties are irrelevant for the cohort statistics
+                quality: 1.0,
+                filter: "",
+                info: "",
+                format: "",
+                variants: "",
+
+                data: [
+                        [allele1: 0, allele2: 0],
+                        [allele1: 1],
+                        [allele1: ".", allele2: 1],
+                        [allele1: 2, allele2: "."],
+                        [allele1: null],
+                        [allele1: null, allele2: 1],
+                        [allele1: 1, allele2: null],
+                ]
         )
-            
+
         VcfCohortStatistics cohortStatistics = new VcfCohortStatistics(dataRow)
 
         expect:
-            // We expect that the A will be the reference in this cohort
-            cohortStatistics.majorAllele equalTo("AT")
-            cohortStatistics.minorAllele equalTo("G")
-            cohortStatistics.minorAlleleFrequency closeTo( (2 / 7) as Double, 0.001 as Double)
+        // We expect that the A will be the reference in this cohort
+        cohortStatistics.majorAllele == "AT"
+        cohortStatistics.minorAllele == "G"
+        cohortStatistics.minorAlleleFrequency - (2 / 7d) < ERROR
 
-            // We also expect that the genomic variants types are computed with the new major allele (AT) in mind
-            cohortStatistics.alleleCount[ cohortStatistics.alleles.indexOf( "G" ) ] equalTo(2)
-            cohortStatistics.alleleCount[ cohortStatistics.alleles.indexOf( "AT" ) ] equalTo(4)
-            cohortStatistics.alleleCount[ cohortStatistics.alleles.indexOf( "T" ) ] equalTo(1)
+        // We also expect that the genomic variants types are computed with the new major allele (AT) in mind
+        cohortStatistics.alleleCount[cohortStatistics.alleles.indexOf("G")] == 2
+        cohortStatistics.alleleCount[cohortStatistics.alleles.indexOf("AT")] == 4
+        cohortStatistics.alleleCount[cohortStatistics.alleles.indexOf("T")] == 1
 
-            cohortStatistics.referenceAllele equalTo("G")
-            cohortStatistics.alternativeAlleles containsInAnyOrder("AT", "T")
+        cohortStatistics.referenceAllele == "G"
+        cohortStatistics.alternativeAlleles.size() == 2
+        "AT" in cohortStatistics.alternativeAlleles
+        "T" in cohortStatistics.alternativeAlleles
     }
-    
+
 }

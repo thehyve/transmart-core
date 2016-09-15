@@ -19,19 +19,12 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import com.google.common.collect.Lists
 import org.transmartproject.core.dataquery.TabularResult
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@Integration
-@Rollback
-@Slf4j
 class RepeatedEntriesCollectingTabularResultSpec extends Specification {
 
     def tabularResult
@@ -72,13 +65,14 @@ class RepeatedEntriesCollectingTabularResultSpec extends Specification {
                 tabularResult: tabularResult,
                 collectBy: { it.label },
                 resultItem: { collection ->
-                    [ getLabel: collection*.label.join('|') ] as AbstractDataRow
+                    [getLabel: collection*.label.join('|')] as AbstractDataRow
                 }
         )
 
         def resultList = Lists.newArrayList result
 
-        expect: resultList contains(
+        expect:
+        resultList contains(
                 hasProperty('label', equalTo('A|A')),
                 hasProperty('label', equalTo('B|B')),
                 hasProperty('label', equalTo('A')),

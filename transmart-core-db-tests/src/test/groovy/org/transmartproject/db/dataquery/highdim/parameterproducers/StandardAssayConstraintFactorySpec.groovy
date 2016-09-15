@@ -19,10 +19,8 @@
 
 package org.transmartproject.db.dataquery.highdim.parameterproducers
 
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import grails.test.mixin.Mock
+import groovy.util.logging.Slf4j
 import org.gmock.WithGMock
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -34,10 +32,11 @@ import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.highdim.assayconstraints.*
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryResultInstance
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@Mock([ I2b2, QtQueryResultInstance ])
+@Mock([I2b2, QtQueryResultInstance])
 @WithGMock
 @Slf4j
 class StandardAssayConstraintFactorySpec extends Specification {
@@ -63,7 +62,8 @@ class StandardAssayConstraintFactorySpec extends Specification {
         play {
             def result = testee.createOntologyTermConstraint concept_key: conceptKey
 
-            expect: result allOf(
+            expect:
+            result allOf(
                     isA(DefaultOntologyTermCriteriaConstraint),
                     hasProperty('term', allOf(
                             isA(I2b2),
@@ -88,7 +88,7 @@ class StandardAssayConstraintFactorySpec extends Specification {
                 //too many arguments
                 testee.createOntologyTermConstraint([
                         concept_key: conceptKey,
-                        another: 1,
+                        another    : 1,
                 ])
             }, containsString('exactly one parameter')
 
@@ -111,7 +111,8 @@ class StandardAssayConstraintFactorySpec extends Specification {
                     'result_instance_id': queryResultId
             ])
 
-            expect: result allOf(
+            expect:
+            result allOf(
                     isA(DefaultPatientSetCriteriaConstraint),
                     hasProperty('queryResult', is(sameInstance(queryResult)))
             )
@@ -129,7 +130,8 @@ class StandardAssayConstraintFactorySpec extends Specification {
             def result = testee.createPatientSetConstraint(
                     result_instance_id: queryResultId)
 
-                    expect: result allOf(
+            expect:
+            result allOf(
                     isA(DefaultPatientSetCriteriaConstraint),
                     hasProperty('queryResult', is(sameInstance(queryResult)))
             )
@@ -164,7 +166,8 @@ class StandardAssayConstraintFactorySpec extends Specification {
         def trialName = 'foobar'
         def result = testee.createTrialNameConstraint name: trialName
 
-        expect: result allOf(
+        expect:
+        result allOf(
                 isA(DefaultTrialNameCriteriaConstraint),
                 hasProperty('trialName', equalTo(trialName))
         )
@@ -193,7 +196,8 @@ class StandardAssayConstraintFactorySpec extends Specification {
 
     void testCreateAssayIdListConstraint() {
         AssayConstraint constraint = testee.createAssayIdListConstraint(ids: [0, '001'])
-        expect: constraint allOf(
+        expect:
+        constraint allOf(
                 isA(AssayIdListCriteriaConstraint),
                 hasProperty('ids', contains(
                         is(0L), is(1L)))
@@ -208,7 +212,8 @@ class StandardAssayConstraintFactorySpec extends Specification {
 
     void testCreatePatientIdListConstraint() {
         AssayConstraint constraint = testee.createPatientIdListConstraint(ids: [0, '001', "FXQ1"])
-        expect: constraint allOf(
+        expect:
+        constraint allOf(
                 isA(PatientIdListCriteriaConstraint),
                 hasProperty('patientIdList', contains(
                         is("0"), is("001"), is("FXQ1")))
@@ -227,7 +232,7 @@ class StandardAssayConstraintFactorySpec extends Specification {
         AssayConstraint constraint = testee.createDisjunctionConstraint(
                 { values, key -> testee.createFromParameters(key, values, null) },
                 subconstraints: [
-                        (AssayConstraint.TRIAL_NAME_CONSTRAINT): [
+                        (AssayConstraint.TRIAL_NAME_CONSTRAINT)   : [
                                 name: trialName
                         ],
                         (AssayConstraint.ASSAY_ID_LIST_CONSTRAINT): [
@@ -235,7 +240,8 @@ class StandardAssayConstraintFactorySpec extends Specification {
                         ]
                 ])
 
-        expect: constraint allOf(
+        expect:
+        constraint allOf(
                 isA(DisjunctionAssayCriteriaConstraint),
                 hasProperty('constraints', containsInAnyOrder(
                         allOf(
@@ -258,7 +264,8 @@ class StandardAssayConstraintFactorySpec extends Specification {
                                 [name: trialNames[0]],
                                 [name: trialNames[1]]]])
 
-        expect: constraint allOf(
+        expect:
+        constraint allOf(
                 isA(DisjunctionAssayCriteriaConstraint),
                 hasProperty('constraints', containsInAnyOrder(
                         trialNames.collect {
@@ -279,19 +286,20 @@ class StandardAssayConstraintFactorySpec extends Specification {
                 subconstraints: [
                         (AssayConstraint.DISJUNCTION_CONSTRAINT): [
                                 [
-                                    subconstraints: [
-                                            (AssayConstraint.TRIAL_NAME_CONSTRAINT):  [
-                                                    [name: trialNames[0]],
-                                                    [name: trialNames[1]]]]
+                                        subconstraints: [
+                                                (AssayConstraint.TRIAL_NAME_CONSTRAINT): [
+                                                        [name: trialNames[0]],
+                                                        [name: trialNames[1]]]]
                                 ],
                                 [
-                                    subconstraints: [
-                                            (AssayConstraint.TRIAL_NAME_CONSTRAINT):  [
-                                                    [name: trialNames[2]],
-                                                    [name: trialNames[3]]]]]]])
+                                        subconstraints: [
+                                                (AssayConstraint.TRIAL_NAME_CONSTRAINT): [
+                                                        [name: trialNames[2]],
+                                                        [name: trialNames[3]]]]]]])
 
 
-        expect: constraint allOf(
+        expect:
+        constraint allOf(
                 isA(DisjunctionAssayCriteriaConstraint),
                 hasProperty('constraints', allOf(
                         everyItem(isA(DisjunctionAssayCriteriaConstraint)),
@@ -308,10 +316,11 @@ class StandardAssayConstraintFactorySpec extends Specification {
         AssayConstraint constraint = testee.createDisjunctionConstraint(
                 { map, key -> testee.createFromParameters(key, map, null) },
                 subconstraints: [
-                        (AssayConstraint.TRIAL_NAME_CONSTRAINT):  [
+                        (AssayConstraint.TRIAL_NAME_CONSTRAINT): [
                                 name: trialName]])
 
-        expect: constraint allOf(
+        expect:
+        constraint allOf(
                 isA(DefaultTrialNameCriteriaConstraint),
                 hasProperty('trialName', equalTo(trialName)))
     }
