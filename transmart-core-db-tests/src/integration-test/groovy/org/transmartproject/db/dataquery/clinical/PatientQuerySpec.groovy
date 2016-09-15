@@ -41,7 +41,7 @@ class PatientQuerySpec extends Specification {
 
     TestData testData = TestData.createDefault()
 
-    void setUp() {
+    void setup() {
         testData.saveAll()
     }
 

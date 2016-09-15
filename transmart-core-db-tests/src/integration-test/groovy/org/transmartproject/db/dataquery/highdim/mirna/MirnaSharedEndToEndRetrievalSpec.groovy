@@ -25,7 +25,6 @@ import groovy.util.logging.Slf4j
 import spock.lang.Specification
 
 import com.google.common.collect.Lists
-import org.junit.After
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -41,7 +40,10 @@ import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
 
-abstract class MirnaSharedEndToEndRetrievalTests {
+@Integration
+@Rollback
+@Slf4j
+abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
 
     private static final double DELTA = 0.0001
 
@@ -59,7 +61,7 @@ abstract class MirnaSharedEndToEndRetrievalTests {
 
     abstract String getTypeName()
 
-    void setUp() {
+    void setup() {
         testData = new MirnaTestData(typeName)
         testData.saveAll()
         mirnaResource = highDimensionResourceService.getSubResourceForType typeName
@@ -71,8 +73,7 @@ abstract class MirnaSharedEndToEndRetrievalTests {
         projection = mirnaResource.createProjection [:], Projection.ZSCORE_PROJECTION
     }
 
-    @After
-    void tearDown() {
+    void cleanup() {
         result?.close()
     }
 
@@ -83,22 +84,25 @@ abstract class MirnaSharedEndToEndRetrievalTests {
                         'mirnas', names: ['MIR323B', 'MIR3161'])
         ]
 
+        when:
         result = mirnaResource.retrieveData(
                 [ trialNameConstraint ], dataConstraints, projection)
 
-        expect: result.indicesList contains(
+        then:
+        result.indicesList contains(
                 hasProperty('label', equalTo('SAMPLE_FOR_-302')),
                 hasProperty('label', equalTo('SAMPLE_FOR_-301')),
         )
-
-        expect: result allOf(
+        result allOf(
                 hasProperty('rowsDimensionLabel', equalTo('Probes')),
                 hasProperty('columnsDimensionLabel', equalTo('Sample codes')),
         )
 
+        when:
         List rows = Lists.newArrayList result.rows
 
-        expect: rows contains(
+        then:
+        rows contains(
                 allOf(
                         hasProperty('label', equalTo('-503')),
                         hasProperty('bioMarker', equalTo(DeQpcrMirnaAnnotation.get(-503).mirnaId)),
@@ -122,10 +126,9 @@ abstract class MirnaSharedEndToEndRetrievalTests {
 
         def resultList = Lists.newArrayList(result)
 
-        assertThat(
-                resultList.collect { it.data }.flatten(),
+        expect:
+            resultList.collect { it.data }.flatten()
                 containsInAnyOrder(testData.mirnaData.collect { closeTo(it.logIntensity as Double, DELTA) })
-        )
     }
 
     void testDefaultRealProjection() {

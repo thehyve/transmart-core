@@ -48,7 +48,7 @@ class AcghDataTypeResourceSpec extends Specification {
 
     AcghTestData testData = new AcghTestData()
 
-    void setUp() {
+    void setup() {
         acghResource = highDimensionResourceService.getSubResourceForType 'acgh'
     }
 
@@ -121,15 +121,17 @@ class AcghDataTypeResourceSpec extends Specification {
 
         testData.saveAll()
 
+        when:
         def map = highDimensionResourceService.
                 getSubResourcesAssayMultiMap([constraint])
 
-        expect: map hasKey(
+        then: map hasKey(
                 hasProperty('dataTypeName', equalTo('acgh')))
 
+        when:
         def entry = map.entrySet().find { it.key.dataTypeName == 'acgh' }
 
-        expect: entry.value allOf(
+        then: entry.value allOf(
                 hasSize(greaterThan(0)),
                 everyItem(
                         hasProperty('platform',

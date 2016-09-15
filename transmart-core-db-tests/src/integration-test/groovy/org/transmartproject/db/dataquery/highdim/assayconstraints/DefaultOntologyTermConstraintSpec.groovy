@@ -40,7 +40,7 @@ class DefaultOntologyTermConstraintSpec extends Specification {
 
     AssayTestData testData = new AssayTestData()
 
-    void setUp() {
+    void setup() {
         testData.saveAll()
     }
 

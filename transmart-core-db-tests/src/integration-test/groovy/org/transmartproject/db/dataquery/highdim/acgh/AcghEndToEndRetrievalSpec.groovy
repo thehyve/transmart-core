@@ -63,7 +63,7 @@ class AcghEndToEndRetrievalSpec extends Specification {
 
     AcghTestData testData = new AcghTestData()
 
-    void setUp() {
+    void setup() {
         testData.saveAll()
         sessionFactory.currentSession.flush()
 
@@ -73,8 +73,7 @@ class AcghEndToEndRetrievalSpec extends Specification {
         projection = acghResource.createProjection([:], ACGH_VALUES_PROJECTION)
     }
 
-    @After
-    void tearDown() {
+    void cleanup() {
         dataQueryResult?.close()
     }
 
@@ -88,9 +87,11 @@ class AcghEndToEndRetrievalSpec extends Specification {
         ]
         def dataConstraints = []
 
+        when:
         dataQueryResult = acghResource.retrieveData assayConstraints, dataConstraints, projection
 
-        expect: dataQueryResult allOf(
+        then:
+        dataQueryResult allOf(
                 is(notNullValue()),
                 hasProperty('indicesList', contains(
                         /* they're ordered by assay id */
@@ -101,14 +102,16 @@ class AcghEndToEndRetrievalSpec extends Specification {
                 hasProperty('columnsDimensionLabel', equalTo('Sample codes')),
         )
 
+        when:
         List<AssayColumn> assayColumns = dataQueryResult.indicesList
 
         Iterator<RegionRow> rows = dataQueryResult.rows
         def regionRows = Lists.newArrayList(rows)
 
-        expect: regionRows hasSize(2)
+        then:
+        regionRows hasSize(2)
         /* results are ordered (asc) by region id */
-        expect: regionRows[0] allOf(
+        regionRows[0] allOf(
                 hasSameInterfaceProperties(Region, testData.regions[1], ['platform']),
                 hasProperty('label', equalTo(testData.regions[1].name)),
                 hasProperty('bioMarker', equalTo(testData.regions[1].geneSymbol)),
@@ -122,7 +125,7 @@ class AcghEndToEndRetrievalSpec extends Specification {
                 )),
         )
 
-        expect: regionRows[1] allOf(
+        regionRows[1] allOf(
                 hasSameInterfaceProperties(Region, testData.regions[0], ['platform']),
                 hasProperty('label', equalTo(testData.regions[0].name)),
                 hasProperty('bioMarker', equalTo(testData.regions[0].geneSymbol)),
@@ -136,13 +139,13 @@ class AcghEndToEndRetrievalSpec extends Specification {
                 )),
         )
 
-        expect: regionRows[1][assayColumns[1]]
+        regionRows[1][assayColumns[1]]
                 hasSameInterfaceProperties(AcghValues, testData.acghData[0])
-        expect: regionRows[1][assayColumns[0]]
+        regionRows[1][assayColumns[0]]
                 hasSameInterfaceProperties(AcghValues, testData.acghData[1])
-        expect: regionRows[0][assayColumns[1]]
+        regionRows[0][assayColumns[1]]
                 hasSameInterfaceProperties(AcghValues, testData.acghData[2])
-        expect: regionRows[0][assayColumns[0]]
+        regionRows[0][assayColumns[0]]
                 hasSameInterfaceProperties(AcghValues, testData.acghData[3])
     }
 
@@ -164,8 +167,9 @@ class AcghEndToEndRetrievalSpec extends Specification {
 
         def regionRows = Lists.newArrayList(dataQueryResult.rows)
 
-        expect: regionRows hasSize(1)
-        expect: regionRows[0] hasSameInterfaceProperties(
+        expect:
+        regionRows hasSize(1)
+        regionRows[0] hasSameInterfaceProperties(
                 Region, testData.regions[0], [ 'platform' ])
     }
 
@@ -217,8 +221,9 @@ class AcghEndToEndRetrievalSpec extends Specification {
 
         def regionRows = Lists.newArrayList(dataQueryResult.rows)
 
-        expect: regionRows hasSize(2)
-        expect: regionRows contains(
+        expect:
+        regionRows hasSize(2)
+        regionRows contains(
                 hasSameInterfaceProperties(
                         Region, testData.regions[1], [ 'platform' ]),
                 hasSameInterfaceProperties(
@@ -247,8 +252,9 @@ class AcghEndToEndRetrievalSpec extends Specification {
 
         dataQueryResult = acghResource.retrieveData assayConstraints, dataConstraints, projection
 
-        expect: dataQueryResult hasProperty('indicesList', is(not(empty())))
-        expect: Lists.newArrayList(dataQueryResult.rows) is(empty())
+        expect:
+        dataQueryResult hasProperty('indicesList', is(not(empty())))
+        Lists.newArrayList(dataQueryResult.rows) is(empty())
     }
 
     void testResultRowsAreCoreApiRegionRows() {
@@ -258,7 +264,8 @@ class AcghEndToEndRetrievalSpec extends Specification {
 
         dataQueryResult = acghResource.retrieveData assayConstraints, [], projection
 
-        expect: Lists.newArrayList(dataQueryResult) everyItem(
+        expect:
+        Lists.newArrayList(dataQueryResult) everyItem(
                 isA(org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow))
     }
 
@@ -283,7 +290,8 @@ class AcghEndToEndRetrievalSpec extends Specification {
 
         def resultList = Lists.newArrayList dataQueryResult
 
-        expect: resultList allOf(
+        expect:
+        resultList allOf(
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
                 contains(hasProperty('bioMarker', equalTo('AURKA')))

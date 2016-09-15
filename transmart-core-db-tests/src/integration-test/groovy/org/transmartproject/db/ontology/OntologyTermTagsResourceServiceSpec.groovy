@@ -21,7 +21,7 @@ class OntologyTermTagsResourceServiceSpec extends Specification {
 
     StudyTestData studyTestData = new StudyTestData()
 
-    void setUp() {
+    void setup() {
         studyTestData.saveAll()
     }
 

@@ -54,7 +54,7 @@ class MrnaEndToEndRetrievalSpec extends Specification {
 
     AssayConstraint trialNameConstraint
 
-    void setUp() {
+    void setup() {
         testData.saveAll()
 
         mrnaResource = highDimensionResourceService.getSubResourceForType 'mrna'
@@ -65,8 +65,7 @@ class MrnaEndToEndRetrievalSpec extends Specification {
                 name: MrnaTestData.TRIAL_NAME)
     }
 
-    @After
-    void after() {
+    void cleanup() {
         dataQueryResult?.close()
     }
 
@@ -165,14 +164,15 @@ class MrnaEndToEndRetrievalSpec extends Specification {
 
     // not really retrieval
     void testConstraintAvailability() {
-        expect: mrnaResource.supportedAssayConstraints containsInAnyOrder(
+        expect:
+        mrnaResource.supportedAssayConstraints containsInAnyOrder(
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
                 AssayConstraint.PATIENT_SET_CONSTRAINT,
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 AssayConstraint.ASSAY_ID_LIST_CONSTRAINT,
                 AssayConstraint.PATIENT_ID_LIST_CONSTRAINT,
                 AssayConstraint.DISJUNCTION_CONSTRAINT)
-        expect: mrnaResource.supportedDataConstraints hasItems(
+        mrnaResource.supportedDataConstraints hasItems(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
                 DataConstraint.DISJUNCTION_CONSTRAINT,
                 DataConstraint.GENES_CONSTRAINT,
@@ -181,7 +181,7 @@ class MrnaEndToEndRetrievalSpec extends Specification {
                 DataConstraint.PROTEINS_CONSTRAINT,
                 /* also others that may be added by registering new associations */
         )
-        expect: mrnaResource.supportedProjections containsInAnyOrder(
+        mrnaResource.supportedProjections containsInAnyOrder(
                 Projection.DEFAULT_REAL_PROJECTION,
                 Projection.LOG_INTENSITY_PROJECTION,
                 Projection.ZSCORE_PROJECTION,

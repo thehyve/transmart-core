@@ -57,7 +57,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
 
     def sessionFactory
 
-    void setUp() {
+    void setup() {
         testData.saveAll()
 
         vcfResource = highDimensionResourceService.getSubResourceForType 'vcf'
@@ -70,8 +70,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
         Holders.applicationContext.sessionFactory.currentSession.flush()
     }
 
-    @After
-    void after() {
+    void cleanup() {
         dataQueryResult?.close()
     }
 
@@ -89,30 +88,31 @@ class VcfEndToEndRetrievalSpec extends Specification {
 
         def resultList = Lists.newArrayList(dataQueryResult)
 
-        expect: resultList hasSize(2)
+        expect:
+            resultList hasSize(2)
 
-        expect: resultList everyItem(
+            resultList everyItem(
                 Matchers.hasEqualValueProperties('position', 'quality')
-        )
-        expect: resultList hasItem(
+            )
+            resultList hasItem(
                 allOf(
                         hasProperty('position', equalTo(1L)),
                         hasProperty('referenceAllele', equalTo('C')),
                         hasProperty('alternatives', equalTo('A'))
                 )
-        )
-        expect: resultList hasItem(
+            )
+            resultList hasItem(
                 allOf(
                         hasProperty('position', equalTo(2L)),
                         hasProperty('referenceAllele', equalTo('GCCCCC')),
                         hasProperty('alternatives', equalTo('GCCCC'))
                 )
-        )
-        expect: resultList not(hasItem(
+            )
+            resultList not(hasItem(
                 allOf(
                         hasProperty('position', equalTo(3L)),
                 )
-        ))
+            ))
     }
 
     void testAssayFilter() {
@@ -128,12 +128,13 @@ class VcfEndToEndRetrievalSpec extends Specification {
                 [], dataConstraints, projection)
 
         // Make sure that only the VCF assays are returned
-        expect: dataQueryResult.indicesList hasSize(3)
+        expect:
+            dataQueryResult.indicesList hasSize(3)
 
-        expect: dataQueryResult.indicesList everyItem(
+            dataQueryResult.indicesList everyItem(
                 hasProperty('platform',
                         hasProperty('markerType', equalTo('VCF'))
-        ))
+            ))
     }
     
     void testVcfDataRowRetrieval() {
@@ -165,7 +166,8 @@ class VcfEndToEndRetrievalSpec extends Specification {
         //{assayId=-1403, allele2=2, allele1=1, format=, variant=null, reference=true, variantType=SNV,
         // info=DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268, pos=1, ref=C, rsId=., alt=A, subjectId=SAMPLE_FOR_-803,
         // quality=1, variantFormat=R/R, filter=., chr=1}
-        expect: resultList hasItem(
+        expect:
+            resultList hasItem(
                 allOf(
                         hasProperty('datasetId', equalTo("BOGUSDTST")),
                         hasProperty('chromosome', equalTo("1")),
@@ -196,8 +198,8 @@ class VcfEndToEndRetrievalSpec extends Specification {
 
                         hasProperty('geneName', equalTo("AURKA"))
                 )
-        )
-        expect: resultList hasItem(
+            )
+            resultList hasItem(
                 allOf(
                     hasProperty('position', equalTo(2L)),
 
@@ -207,8 +209,8 @@ class VcfEndToEndRetrievalSpec extends Specification {
 
                     hasProperty('geneName', equalTo("AURKA"))
                 )
-        )
-        expect: resultList hasItem(
+            )
+            resultList hasItem(
                 allOf(
                         hasProperty('position', equalTo(3L)),
                         hasProperty('referenceAllele', equalTo("A")),
@@ -217,7 +219,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
 
                         hasProperty('geneName', equalTo(null))
                 )
-        )
+            )
     }
 
     void testCohortProjection() {
@@ -314,15 +316,16 @@ class VcfEndToEndRetrievalSpec extends Specification {
                 [], dataConstraints, projection)
 
         def resultList = dataQueryResult.rows.toList()
-        assertThat(resultList, hasSize(2))
-        assertThat(resultList, hasItem(allOf(
+        expect:
+            resultList hasSize(2)
+            resultList hasItem(allOf(
                 hasProperty('referenceAllele', equalTo('A')),
                 hasProperty('alternatives', equalTo('C,T'))
-        )))
-        assertThat(resultList, hasItem(allOf(
+            ))
+            resultList hasItem(allOf(
                 hasProperty('referenceAllele', equalTo('A')),
                 hasProperty('alternatives', equalTo('G'))
-        )))
+            ))
     }
 
     void testVcfPlatformIsRecognized() {
@@ -330,15 +333,17 @@ class VcfEndToEndRetrievalSpec extends Specification {
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: VcfTestData.TRIAL_NAME)
 
+        when:
         def map = highDimensionResourceService.
                 getSubResourcesAssayMultiMap([constraint])
 
-        expect: map hasKey(
+        then: map hasKey(
                 hasProperty('dataTypeName', equalTo('vcf')))
 
+        when:
         def entry = map.entrySet().find { it.key.dataTypeName == 'vcf' }
 
-        expect: entry.value allOf(
+        then: entry.value allOf(
                 hasSize(greaterThan(0)),
                 everyItem(
                         hasProperty('platform',

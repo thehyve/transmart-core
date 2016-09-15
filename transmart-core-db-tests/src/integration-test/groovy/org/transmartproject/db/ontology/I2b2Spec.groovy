@@ -44,7 +44,7 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 @Slf4j
 class I2b2Spec extends Specification {
 
-    void setUp() {
+    void setup() {
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
                 tableCode: 'i2b2 table code', tableName: 'i2b2')
         addI2b2(level: 0, fullName: '\\foo\\', name: 'foo',
@@ -65,10 +65,11 @@ class I2b2Spec extends Specification {
 
         //currently testing against postgres database,
         // which has already a matching row there
-        expect: terms hasSize(greaterThanOrEqualTo(2))
-        //expect: terms hasSize(2)
+        expect:
+        terms hasSize(greaterThanOrEqualTo(2))
+        // terms hasSize(2)
 
-        expect: terms hasItem(allOf(
+        terms hasItem(allOf(
                 hasProperty('name', equalTo('var')),
                 hasProperty('visualAttributes', containsInAnyOrder(
                         OntologyTerm.VisualAttributes.FOLDER,
@@ -80,41 +81,46 @@ class I2b2Spec extends Specification {
     void testGetTableCode() {
         I2b2 bar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\') }
 
-        assertThat(bar.conceptKey, is(equalTo(
-                new ConceptKey('i2b2 table code', '\\foo\\xpto\\bar\\'))))
+        expect: bar.conceptKey is(equalTo(
+                new ConceptKey('i2b2 table code', '\\foo\\xpto\\bar\\')))
     }
 
     void testGetChildren() {
+        when:
         I2b2 xpto = I2b2.find { eq('fullName', '\\foo\\xpto\\') }
         xpto.setTableCode('i2b2 table code OOOO')
+        then:
+        xpto is(notNullValue())
 
-        expect: xpto is(notNullValue())
-
+        when:
         def children = xpto.children
-        assertThat(children, allOf(
+        then:
+        children allOf(
                 hasSize(1),
                 contains(allOf(
                         hasProperty('fullName', equalTo('\\foo\\xpto\\bar\\')),
                         //table code is copied from parent:
                         hasProperty('conceptKey', equalTo(new ConceptKey
                         ('\\\\i2b2 table code OOOO\\foo\\xpto\\bar\\')))
-                ))))
+                )))
     }
 
     void testGetAllDescendants() {
-
+        when:
         I2b2 xpto = I2b2.find { eq('fullName', '\\foo\\xpto\\') }
-        expect: xpto is(notNullValue())
+        then: xpto is(notNullValue())
 
+        when:
         def children = xpto.allDescendants
-        assertThat(children,  allOf (
+        then:
+        children allOf (
                 hasSize(3),
                 contains(
                         hasProperty('name', equalTo('bar')),
                         hasProperty('name', equalTo('binks')),
                         hasProperty('name', equalTo('jar')),
                 )
-        ))
+        )
     }
 
     void testGetStudy() {
@@ -147,21 +153,27 @@ class I2b2Spec extends Specification {
         HighDimTestData.save observations
         HighDimTestData.save ConceptTestData.createConceptDimensions(concepts)
 
+        when:
         def result = concepts[0].getPatients()
-        expect: result containsInAnyOrder(
+        then:
+        result containsInAnyOrder(
                 patients[0],
                 patients[1],
                 patients[2]
         )
 
+        when:
         def result2 = concepts[1].getPatients()
-        expect: result2 containsInAnyOrder(
+        then:
+        result2 containsInAnyOrder(
                 patients[2],
                 patients[3]
         )
 
+        when:
         def result3 = concepts[2].getPatients()
-        expect: result3 containsInAnyOrder(
+        then:
+        result3 containsInAnyOrder(
             //empty
         )
 
@@ -177,11 +189,15 @@ class I2b2Spec extends Specification {
     }
 
     void testSynonym() {
+        when:
         I2b2 jar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\jar\\') }
-        expect: jar hasProperty('synonym', is(false))
+        then:
+        jar hasProperty('synonym', is(false))
 
+        when:
         jar.cSynonymCd = 'Y'
-        expect: jar hasProperty('synonym', is(true))
+        then:
+        jar hasProperty('synonym', is(true))
     }
 
     def createObservations(List<I2b2> concepts, List<Patient> patients) {
