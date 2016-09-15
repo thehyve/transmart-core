@@ -15,13 +15,13 @@ class TransmartJavaGrailsPlugin extends Plugin {
     // TODO Fill in these fields
     def author = "David Newton"
     def authorEmail = "davinewton@deloitte.com"
-    def title = "tranSMART Biomart Domain Objects"
+    def title = "tranSMART Java Backend"
     def description = '''\\
-Domain objects for the tranSMART Biomart schema
+Java backend for tranSMART
 '''
 
     // URL to the plugin's documentation
-    def documentation = ""
+    def documentation = "http://grails.org/plugin/transmart-java"
 
     def doWithWebDescriptor = { xml ->
         // TODO Implement additions to web.xml (optional), this event occurs before 
