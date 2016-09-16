@@ -281,17 +281,17 @@ table.menuDetail th.menuVisited {
 	padding-left: 24px;
 	background-repeat: no-repeat;
 	background-position: 50% 50%;
-	background-image: url('../../../src/main/resources/public/images/ajax-loader-flat.gif');
+	background-image: url('../images/ajax-loader-flat.gif');
 }
 
-.greybutton.addprogram { background-image: url('../../../src/main/resources/public/images/addprogram.png'); }
-.greybutton.addstudy { background-image: url('../../../src/main/resources/public/images/addstudy.png'); }
-.greybutton.addassay { background-image: url('../../../src/main/resources/public/images/addassay.png'); }
-.greybutton.addfolder { background-image: url('../../../src/main/resources/public/images/addfolder.png'); }
-.greybutton.addanalysis { background-image: url('../../../src/main/resources/public/images/addanalysis.png'); }
-.greybutton.close { background-image: url('../../../src/main/resources/public/images/small_cross.png'); }
-.greybutton.deletefolder { background-image: url('../../../src/main/resources/public/images/bin_closed.png'); }
-.greybutton.uploadfiles { background-image: url('../../../src/main/resources/public/images/text.png'); }
+.greybutton.addprogram { background-image: url('../images/addprogram.png'); }
+.greybutton.addstudy { background-image: url('../images/addstudy.png'); }
+.greybutton.addassay { background-image: url('../images/addassay.png'); }
+.greybutton.addfolder { background-image: url('../images/addfolder.png'); }
+.greybutton.addanalysis { background-image: url('../images/addanalysis.png'); }
+.greybutton.close { background-image: url('../images/small_cross.png'); }
+.greybutton.deletefolder { background-image: url('../images/bin_closed.png'); }
+.greybutton.uploadfiles { background-image: url('../images/text.png'); }
 
 .greybutton.disabled {
 	cursor: default;
@@ -346,7 +346,7 @@ table.menuDetail th.menuVisited {
 .filtertitle {
 	padding: 4px 0px 4px 24px;
 	background-color: #FFFFFF;
-	background-image: url('../../../src/main/resources/public/images/down_arrow_small2.png');
+	background-image: url('../images/down_arrow_small2.png');
 	background-repeat: no-repeat;
 	background-position: 8px 50%;
 	cursor: pointer;
@@ -439,7 +439,7 @@ table.menuDetail th.menuVisited {
 }
 
 .ui-autocomplete-loading { 
-	background: white url(../../../src/main/resources/public/images/loader-small.gif) right center no-repeat;
+	background: white url(../images/loader-small.gif) right center no-repeat;
 }
 
 #noAnalyzeResults {
@@ -562,14 +562,14 @@ textarea#description, textarea#longDescription, input#description, input#longDes
 	cursor: pointer;
 }
 
-.x-tree-node-icon.studyicon { background-image: url('../../../src/main/resources/public/images/foldertypes/study.png') !important; }
+.x-tree-node-icon.studyicon { background-image: url('../images/foldertypes/study.png') !important; }
 
-.x-tree-node-icon.programicon { background-image: url('../../../src/main/resources/public/images/foldertypes/program.png') !important; }
+.x-tree-node-icon.programicon { background-image: url('../images/foldertypes/program.png') !important; }
 
 .x-tree-node { font: 11px Verdana, Arial, sans-serif}
 
 .ajaxloading {
-	background-image: url('../../../src/main/resources/public/images/loader-large.gif') !important;
+	background-image: url('../images/loader-large.gif') !important;
 	background-repeat: no-repeat !important;
 	background-position: 50% 50% !important;
 	min-height: 128px;
