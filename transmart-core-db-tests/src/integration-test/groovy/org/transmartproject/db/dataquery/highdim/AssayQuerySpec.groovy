@@ -41,9 +41,10 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 @Slf4j
 class AssayQuerySpec extends Specification {
 
-    AssayTestData testData = new AssayTestData()
+    AssayTestData testData
 
     void setupData() {
+        testData = new AssayTestData()
         testData.saveAll()
     }
 
