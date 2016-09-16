@@ -20,9 +20,6 @@
 package org.transmartproject.db.querytool
 
 import grails.test.mixin.TestFor
-import groovy.util.logging.Slf4j
-import org.junit.Rule
-import org.junit.rules.ExpectedException
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.ontology.ConceptsResource
@@ -41,13 +38,9 @@ import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NU
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.POSTGRESQL
 
 @TestFor(PatientSetQueryBuilderService)
-@Slf4j
 class PatientSetQueryBuilderServiceSpec extends Specification {
 
     QtQueryResultInstance resultInstance
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     void setup() {
         // doWithDynamicMethods is not run for unit tests...
@@ -154,7 +147,7 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
         expect:
-        sql containsString('SELECT patient_num FROM ' +
+        sql.contains('SELECT patient_num FROM ' +
                 'patient_dimension EXCEPT (SELECT patient_num FROM ' +
                 'observation_fact WHERE (concept_cd IN (SELECT concept_cd ' +
                 'FROM concept_dimension WHERE concept_path ' +
@@ -183,7 +176,7 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
 
         def sql = service.buildPatientSetQuery(resultInstance, definition)
         expect:
-        sql containsString('EXCEPT (SELECT patient_num ' +
+        sql.contains('EXCEPT (SELECT patient_num ' +
                 'FROM observation_fact WHERE (concept_cd IN (SELECT ' +
                 'concept_cd FROM concept_dimension WHERE concept_path ' +
                 'LIKE \'\\\\b\\\\%\')) AND concept_cd != \'SECURITY\')')
@@ -208,7 +201,7 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
         expect:
-        sql containsString("AND ((valtype_cd = 'N' " +
+        sql.contains("AND ((valtype_cd = 'N' " +
                 "AND nval_num < 5.6 AND tval_char IN ('E', 'LE')) OR (" +
                 "valtype_cd = 'N' AND nval_num <= 5.6 AND tval_char = 'L'))")
     }
@@ -232,7 +225,7 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
         expect:
-        sql containsString("AND ((valtype_cd = 'N' AND " +
+        sql.contains("AND ((valtype_cd = 'N' AND " +
                 "nval_num BETWEEN 5.6 AND 5.8 AND tval_char = 'E')))")
     }
 
@@ -255,62 +248,58 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         def sql = service.buildPatientSetQuery(resultInstance, definition)
 
         expect:
-        sql containsString("AND (valueflag_cd = 'N')")
+        sql.contains("AND (valueflag_cd = 'N')")
     }
 
     // The rest are error tests
 
     void testNoPanel() {
-        expectedException.expect(isA(InvalidRequestException))
-        expectedException.expectMessage(equalTo('No panels were specified'))
-
         def definition = new QueryDefinition([])
 
+        when:
         service.buildPatientSetQuery(resultInstance, definition)
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message == 'No panels were specified'
     }
 
     void testEmptyPanel() {
-        expectedException.expect(isA(InvalidRequestException))
-        expectedException.expectMessage(equalTo('Found panel with no items'))
-
         def definition = new QueryDefinition([
                 new Panel(items: [])
         ])
 
+        when:
         service.buildPatientSetQuery(resultInstance, definition)
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message == 'Found panel with no items'
     }
 
     void testNullItem() {
-        expectedException.expect(isA(InvalidRequestException))
-        expectedException.expectMessage(equalTo('Found panel with null value ' +
-                'in its item list'))
-
         def definition = new QueryDefinition([
                 new Panel(items: [null])
         ])
-
+        when:
         service.buildPatientSetQuery(resultInstance, definition)
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message == 'Found panel with null value in its item list'
     }
 
     void testNullConceptKey() {
-        expectedException.expect(isA(InvalidRequestException))
-        expectedException.expectMessage(
-                equalTo('Found item with null conceptKey'))
-
         def definition = new QueryDefinition([
                 new Panel(items: [
                         new Item(conceptKey: null)
                 ])
         ])
-
+        when:
         service.buildPatientSetQuery(resultInstance, definition)
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message == 'Found item with null conceptKey'
     }
 
     void testConstraintWithoutOperator() {
-        expectedException.expect(isA(InvalidRequestException))
-        expectedException.expectMessage(equalTo('Found item constraint with ' +
-                'null operator'))
-
         def definition = new QueryDefinition([
                 new Panel(items: [
                         new Item(
@@ -322,15 +311,14 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
                         )
                 ])
         ])
-
+        when:
         service.buildPatientSetQuery(resultInstance, definition)
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message == 'Found item constraint with null operator'
     }
 
     void testConstraintWithoutValueType() {
-        expectedException.expect(isA(InvalidRequestException))
-        expectedException.expectMessage(equalTo('Found item constraint with ' +
-                'null value type'))
-
         def definition = new QueryDefinition([
                 new Panel(items: [
                         new Item(
@@ -342,15 +330,14 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
                         )
                 ])
         ])
-
+        when:
         service.buildPatientSetQuery(resultInstance, definition)
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message == 'Found item constraint with null value type'
     }
 
     void testConstraintWithoutConstraintValue() {
-        expectedException.expect(isA(InvalidRequestException))
-        expectedException.expectMessage(equalTo('Found item constraint with ' +
-                'null constraint value'))
-
         def definition = new QueryDefinition([
                 new Panel(items: [
                         new Item(
@@ -362,15 +349,14 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
                         )
                 ])
         ])
-
+        when:
         service.buildPatientSetQuery(resultInstance, definition)
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message == 'Found item constraint with null constraint value'
     }
 
     void testBogusConstraintFlagValue() {
-        expectedException.expect(isA(InvalidRequestException))
-        expectedException.expectMessage(containsString('A flag value ' +
-                "constraint's operand must be either 'L', 'H' or 'N'"))
-
         def definition = new QueryDefinition([
                 new Panel(items: [
                         new Item(
@@ -383,15 +369,14 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
                         )
                 ])
         ])
-
+        when:
         service.buildPatientSetQuery(resultInstance, definition)
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message.contains("A flag value constraint's operand must be either 'L', 'H' or 'N'")
     }
 
     void testBogusConstraintNumberValue() {
-        expectedException.expect(isA(InvalidRequestException))
-        expectedException.expectMessage(containsString('an invalid number ' +
-                'constraint value'))
-
         def definition = new QueryDefinition([
                 new Panel(items: [
                         new Item(
@@ -404,15 +389,14 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
                         )
                 ])
         ])
-
+        when:
         service.buildPatientSetQuery(resultInstance, definition)
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message.contains('an invalid number constraint value')
     }
 
     void testBogusBetweenConstraintNumberValue() {
-        expectedException.expect(isA(InvalidRequestException))
-        expectedException.expectMessage(containsString('an invalid number ' +
-                'constraint value'))
-
         def definition = new QueryDefinition([
                 new Panel(items: [
                         new Item(
@@ -425,15 +409,14 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
                         )
                 ])
         ])
-
+        when:
         service.buildPatientSetQuery(resultInstance, definition)
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message.contains('an invalid number constraint value')
     }
 
     void testInvalidOperatorForFlagValueContraint() {
-        expectedException.expect(isA(InvalidRequestException))
-        expectedException.expectMessage(equalTo('Found item flag constraint ' +
-                'with an operator different from EQUAL_TO'))
-
         def definition = new QueryDefinition([
                 new Panel(items: [
                         new Item(
@@ -446,8 +429,11 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
                         )
                 ])
         ])
-
+        when:
         service.buildPatientSetQuery(resultInstance, definition)
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message.contains('Found item flag constraint with an operator different from EQUAL_TO')
     }
 
 }

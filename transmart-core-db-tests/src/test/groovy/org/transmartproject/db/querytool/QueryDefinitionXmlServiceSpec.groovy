@@ -20,9 +20,6 @@
 package org.transmartproject.db.querytool
 
 import grails.test.mixin.TestFor
-import groovy.util.logging.Slf4j
-import org.junit.Rule
-import org.junit.rules.ExpectedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
@@ -41,11 +38,7 @@ import static org.transmartproject.core.querytool.ConstraintByValue.Operator.LOW
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
 
 @TestFor(QueryDefinitionXmlService)
-@Slf4j
 class QueryDefinitionXmlServiceSpec extends Specification {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private Document xmlStringToDocument(String xmlString) {
         DocumentBuilder builder =
@@ -136,18 +129,14 @@ class QueryDefinitionXmlServiceSpec extends Specification {
     }
 
     void testBadXml() {
-        expectedException.expect(InvalidRequestException)
-        expectedException.expectMessage(containsString("Malformed XML " +
-                "document"))
-
+        when:
         service.fromXml(new StringReader('<foo></bar>'))
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message.contains("Malformed XML document")
     }
 
     void testBadConstraint() {
-        expectedException.expect(InvalidRequestException)
-        expectedException.expectMessage(containsString(
-                "Invalid XML query definition constraint"))
-
         def xml = '''<ns3:query_definition xmlns:ns3="http://www.i2b2
 .org/xsd/cell/crc/psm/querydefinition/1.1/">
   <query_name>i2b2's Query at Tue Mar 26 2013 10:00:35 GMT+0100</query_name>
@@ -162,8 +151,11 @@ class QueryDefinitionXmlServiceSpec extends Specification {
     </item>
   </panel>
 </ns3:query_definition>'''
-
+        when:
         service.fromXml(new StringReader(xml))
+        then:
+        def e = thrown(InvalidRequestException)
+        e.message.contains("Invalid XML query definition constraint")
     }
 
     void basicTestToXml() {
