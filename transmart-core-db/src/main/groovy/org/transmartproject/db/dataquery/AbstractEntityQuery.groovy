@@ -27,9 +27,7 @@ abstract class AbstractEntityQuery<T> implements Iterable<T> {
     abstract DetachedCriteria<T> forEntities()
 
     DetachedCriteria<Long> forIds() {
-        forEntities().where {
-            projections { id() }
-        }
+        forEntities().id()
     }
 
     List<T> list() {

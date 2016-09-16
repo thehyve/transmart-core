@@ -37,12 +37,9 @@ class AcghDataTypeResource extends HighDimensionDataTypeResourceImpl {
             List<AssayConstraint> assayConstraints) {
 
         def assayQuery = new AssayQuery(assayConstraints)
-        def assayPlatformsQuery = assayQuery.forEntities().where {
-            projections {
-                distinct 'platform.id'
-                id()
-            }
-        }
+        def assayPlatformsQuery = assayQuery.forEntities()
+                .distinct('platform.id')
+                .id()
 
         def platformIds = assayPlatformsQuery.list().collect { it[0] } as Set
 
