@@ -1,4 +1,7 @@
 package org.transmartproject.db
+
+import grails.plugins.Plugin
+
 /*
  * Copyright © 2013-2014 The Hyve B.V.
  *
@@ -25,11 +28,10 @@ import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFact
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.http.BusinessExceptionResolver
 import org.transmartproject.db.ontology.AcrossTrialsConceptsResourceDecorator
-import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.DefaultConceptsResource
 import org.transmartproject.db.support.DatabasePortabilityService
 
-class TransmartCoreGrailsPlugin {
+class TransmartCoreGrailsPlugin extends Plugin {
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "3.1.10 > *"
     // resources that are excluded from plugin packaging
@@ -64,11 +66,7 @@ A runtime dependency for tranSMART that implements the Core API
     // Online location of the plugin's browseable source code.
     def scm = [ url: "https://fisheye.ctmmtrait.nl/browse/transmart_core_db" ]
 
-    def doWithWebDescriptor = { xml ->
-        // TODO Implement additions to web.xml (optional), this event occurs before
-    }
-
-    def doWithSpring = {
+    Closure doWithSpring() {{->
         xmlns context:"http://www.springframework.org/schema/context"
 
         def config = application.config
@@ -112,28 +110,30 @@ A runtime dependency for tranSMART that implements the Core API
         if (!config.org.transmartproject.i2b2.group_id) {
             config.org.transmartproject.i2b2.group_id = 'Demo'
         }
-    }
+    }}
 
-    def doWithDynamicMethods = { ctx ->
+    void doWithDynamicMethods() {
         String.metaClass.asLikeLiteral = { replaceAll(/[\\%_]/, '\\\\$0') }
+
+        assert('f%\\_oo\\\\'.asLikeLiteral() == 'f\\%\\\\\\_oo\\\\\\\\')
 
         /* Force this bean to be initialized, as it has some dynamic methods
          * to register during its init() method */
-        ctx.getBean DatabasePortabilityService
+        applicationContext.getBean DatabasePortabilityService
     }
 
-    def onChange = { event ->
+    void onChange(Map<String, Object> event) {
         // TODO Implement code that is executed when any artefact that this plugin is
         // watching is modified and reloaded. The event contains: event.source,
         // event.application, event.manager, event.ctx, and event.plugin.
     }
 
-    def onConfigChange = { event ->
+    void onConfigChange(Map<String, Object> event) {
         // TODO Implement code that is executed when the project configuration changes.
         // The event is the same as for 'onChange'.
     }
 
-    def onShutdown = { event ->
+    void onShutdown(Map<String, Object> event) {
         // TODO Implement code that is executed when the application shuts down (optional)
     }
 }
