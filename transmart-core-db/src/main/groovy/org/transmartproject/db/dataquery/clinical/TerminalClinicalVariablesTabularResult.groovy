@@ -117,11 +117,12 @@ class TerminalClinicalVariablesTabularResult extends
 
         /* don't take Object[] otherwise would be vararg func and
          * further unwrapping needed */
-        list.each { Object[] rawRow ->
+        list.each { rawRowUntyped ->
             /* array with 5 elements */
-            if (!rawRow) {
+            if (!rawRowUntyped) {
                 return
             }
+            Object[] rawRow = (Object[])rawRowUntyped
 
             /* find out the position of this concept in the final result */
             Integer index = codeToIndex[rawRow[CODE_COLUMN_INDEX] as String]

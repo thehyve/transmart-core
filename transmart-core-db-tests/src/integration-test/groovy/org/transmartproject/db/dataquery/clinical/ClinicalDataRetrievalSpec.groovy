@@ -19,14 +19,11 @@
 
 package org.transmartproject.db.dataquery.clinical
 
+import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
 import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
-import com.google.common.collect.Lists
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
@@ -41,6 +38,7 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
+import spock.lang.Specification
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
@@ -51,7 +49,6 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 @TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
 class ClinicalDataRetrievalSpec extends Specification {
 
     TestData testData
@@ -69,9 +66,9 @@ class ClinicalDataRetrievalSpec extends Specification {
     TestData createTestData() {
 
         def tableAccess = ConceptTestData.createTableAccess(
-                level:     0,
-                fullName:  '\\foo\\',
-                name:      'foo',
+                level: 0,
+                fullName: '\\foo\\',
+                name: 'foo',
                 tableCode: 'i2b2 main',
                 tableName: 'i2b2')
 
@@ -84,7 +81,7 @@ class ClinicalDataRetrievalSpec extends Specification {
 
         def conceptDims = ConceptTestData.createConceptDimensions(i2b2List)
 
-        List<Patient> patients =  I2b2Data.createTestPatients(3, -100, 'SAMP_TRIAL')
+        List<Patient> patients = I2b2Data.createTestPatients(3, -100, 'SAMP_TRIAL')
 
         def facts = ClinicalTestData.createFacts(conceptDims, patients)
 
@@ -116,43 +113,38 @@ class ClinicalDataRetrievalSpec extends Specification {
     void testColumnsLabel() {
         setupData()
         results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                [ new TerminalConceptVariable(conceptCode: 'c2') ])
+                [new TerminalConceptVariable(conceptCode: 'c2')])
 
         /* label for the columns (concepts) is the concept path */
-        expect: results hasProperty('indicesList',
-                contains(allOf(
-                        hasProperty('label', equalTo(
-                                getConceptCodeFor('c2')
-                        ))
-                )))
+        expect:
+        results.indicesList[0].label == getConceptCodeFor('c2')
     }
 
     void testColumnIsClinicalVariable() {
         setupData()
         results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                [ new TerminalConceptVariable(conceptCode: 'c2') ])
+                [new TerminalConceptVariable(conceptCode: 'c2')])
 
-        expect: results hasProperty('indicesList',
-                contains(allOf(
-                        isA(TerminalConceptVariable),
-                        hasProperty('conceptCode', is('c2')),
-                        hasProperty('conceptPath', is(
-                                getConceptCodeFor('c2'))))))
+        expect:
+        results.indicesList.size() == 1
+        results.indicesList[0] instanceof TerminalConceptVariable
+        results.indicesList[0].conceptCode == 'c2'
+        results.indicesList[0].conceptPath == getConceptCodeFor('c2')
     }
 
     void testRowsLabel() {
         setupData()
         results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                [ new TerminalConceptVariable(conceptCode: 'c2') ])
-
+                [new TerminalConceptVariable(conceptCode: 'c2')])
+        def expected = testData.i2b2Data.patients.sort {
+            it.id
+        }.collect {
+            it.inTrialId
+        }
         /* Label for the rows is the patients' inTrialId.
          * Patients are sorted by id */
-        expect: results contains(
-                testData.i2b2Data.patients.sort {
-                    it.id
-                }.collect {
-                    hasProperty('label', is(it.inTrialId))
-                })
+        expect:
+        results*.label == expected
     }
 
     void testMultipleQueryResultsVariant() {
@@ -163,24 +155,24 @@ class ClinicalDataRetrievalSpec extends Specification {
                     result.save()
                     getQueryResultFromMaster(result)
                 },
-                [ new TerminalConceptVariable(conceptCode: 'c2') ])
+                [new TerminalConceptVariable(conceptCode: 'c2')])
+        def expected = testData.i2b2Data.patients[0..1].
+                sort { it.id }.
+                collect { it.id }
 
-        expect: results contains(
-                testData.i2b2Data.patients[0..1].
-                        sort { it.id }.
-                        collect {
-                            hasProperty('patient', hasProperty('id', is(it.id)))
-                        })
+        expect:
+        results.collect { it.patient.id } == expected
     }
 
     void testPatientCanBeFoundInRow() {
         setupData()
         results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                [ new TerminalConceptVariable(conceptCode: 'c2') ])
+                [new TerminalConceptVariable(conceptCode: 'c2')])
 
         List<PatientRow> rows = Lists.newArrayList results
 
-        expect: rows allOf(
+        expect:
+        rows allOf(
                 everyItem(isA(PatientRow)),
                 contains(
                         testData.i2b2Data.patients.sort {
@@ -195,11 +187,12 @@ class ClinicalDataRetrievalSpec extends Specification {
     void testDataStringDataPoints() {
         setupData()
         results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                [ new TerminalConceptVariable(conceptCode: 'c2') ])
+                [new TerminalConceptVariable(conceptCode: 'c2')])
 
         List<PatientRow> rows = Lists.newArrayList results
 
-        expect: rows contains(
+        expect:
+        rows contains(
                 testData.clinicalData.facts.sort {
                     it.patientId
                 }.findAll {
@@ -214,12 +207,13 @@ class ClinicalDataRetrievalSpec extends Specification {
         /* test for when no data whatsoever is returned */
 
         results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                [ new TerminalConceptVariable(conceptCode: 'c4') ])
+                [new TerminalConceptVariable(conceptCode: 'c4')])
 
         List<PatientRow> rows = Lists.newArrayList results
 
-        expect: rows contains(
-                [ contains(nullValue()) ] * 3
+        expect:
+        rows contains(
+                [contains(nullValue())] * 3
         )
     }
 
@@ -227,11 +221,12 @@ class ClinicalDataRetrievalSpec extends Specification {
         setupData()
         /* test when a row has data for some but not all variables */
         results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                [ new TerminalConceptVariable(conceptCode: 'c3') ])
+                [new TerminalConceptVariable(conceptCode: 'c3')])
 
         List<PatientRow> rows = Lists.newArrayList results
 
-        expect: rows contains(
+        expect:
+        rows contains(
                 /* see test data */
                 contains(isA(Number) /* -45.42 */),
                 contains(equalTo('')),
@@ -241,10 +236,11 @@ class ClinicalDataRetrievalSpec extends Specification {
     void testNumericDataIsInNumericForm() {
         setupData()
         results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                [ new TerminalConceptVariable(conceptCode: 'c3') ])
+                [new TerminalConceptVariable(conceptCode: 'c3')])
         List<PatientRow> rows = Lists.newArrayList results
 
-        expect: rows hasItem(allOf(
+        expect:
+        rows hasItem(allOf(
                 /* see test data */
                 hasProperty('patient',
                         hasSameInterfaceProperties(Patient,
@@ -256,64 +252,54 @@ class ClinicalDataRetrievalSpec extends Specification {
 
     void testWithConceptSpecifiedByPath() {
         setupData()
-        /* test when a row has data for some but not all variables */
-        results = clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                [ new TerminalConceptVariable(conceptPath: '\\foo\\concept 2\\') ])
+        def expected = testData.clinicalData.facts.sort {
+            it.patientId
+        }.findAll {
+            it.conceptCode == 'c2'
+        }.collect {
+            it.textValue
+        }
 
-        expect: results contains(
-                testData.clinicalData.facts.sort {
-                    it.patientId
-                }.findAll {
-                    it.conceptCode == 'c2'
-                }.collect {
-                    contains it.textValue
-                })
+        when: 'test when a row has data for some but not all variables'
+        def resultList = Lists.newArrayList(clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+                [new TerminalConceptVariable(conceptPath: '\\foo\\concept 2\\')]))
+        then:
+        resultList.collect { it.collect() }.flatten() == expected
     }
 
     void testColumnsAndDataAreInTheSpecifiedOrder() {
         setupData()
-        def conceptVariables =  [
+        def conceptVariables = [
                 new TerminalConceptVariable(conceptCode: 'd1'),
-                new TerminalConceptVariable(conceptCode: 'c2') ]
-        results = clinicalDataResourceService.retrieveData(
-                testData.clinicalData.queryResult, conceptVariables)
+                new TerminalConceptVariable(conceptCode: 'c2')]
+        def expectedOrder = ['d1', 'c2']
 
-        def expectedOrder = [ 'd1', 'c2' ]
-
-        def createMatcher = { ->
-            contains(
-                    testData.clinicalData.facts.sort { ObservationFact fact1,
-                                          ObservationFact fact2 ->
-                        fact1.patientId <=> fact2.patientId ?:
-                                expectedOrder.indexOf(fact1.conceptCode) <=>
-                                        expectedOrder.indexOf(fact2.conceptCode)
-                    }.findAll {
-                        it.conceptCode == 'c2' || it.conceptCode == 'd1'
-                    }.groupBy {
-                        it.patientId
-                    }.collect { patientId, List<ObservationFact> facts ->
-                        contains(facts*.textValue.collect { is it })
-                    })
+        def expected = testData.clinicalData.facts.sort { ObservationFact fact1,
+                                                          ObservationFact fact2 ->
+            fact1.patientId <=> fact2.patientId ?:
+                    expectedOrder.indexOf(fact1.conceptCode) <=>
+                            expectedOrder.indexOf(fact2.conceptCode)
+        }.findAll {
+            it.conceptCode == 'c2' || it.conceptCode == 'd1'
+        }.groupBy {
+            it.patientId
+        }.collect { patientId, List<ObservationFact> facts ->
+            facts*.textValue
         }
 
         when:
-        def resultList = Lists.newArrayList(results)
+        def resultList = Lists.newArrayList(clinicalDataResourceService.retrieveData(
+                testData.clinicalData.queryResult, conceptVariables))
         then:
-        resultList createMatcher()
+        resultList.collect { it.collect() } == expected
 
-        when:
-        results.close()
-
-        /* now with variables reversed */
+        when: 'with variables reversed'
         conceptVariables = conceptVariables.reverse()
-
-        results = clinicalDataResourceService.retrieveData(
-                testData.clinicalData.queryResult, conceptVariables)
-
-        expectedOrder = expectedOrder.reverse()
+        def resultListReversed = Lists.newArrayList(clinicalDataResourceService.retrieveData(
+                testData.clinicalData.queryResult, conceptVariables))
 
         then:
-        Lists.newArrayList(results) createMatcher()
+        resultListReversed.collect { it.collect() } == expected.collect { it.reverse() }
     }
 
 
@@ -326,57 +312,64 @@ class ClinicalDataRetrievalSpec extends Specification {
                 'foobar').save(failOnError: true)
         sessionFactory.currentSession.flush()
 
-        def exception = shouldFail UnexpectedResultException, {
-            results = clinicalDataResourceService.retrieveData(
-                    testData.clinicalData.queryResult,
-                    [ new TerminalConceptVariable(conceptCode: 'c2') ])
-            def res = Lists.newArrayList results /* consume the data */
-            println res
-        }
-
-        expect: exception hasProperty('message',
-                containsString('Got more than one fact'))
+        when:
+        results = clinicalDataResourceService.retrieveData(
+                testData.clinicalData.queryResult,
+                [new TerminalConceptVariable(conceptCode: 'c2')])
+        Lists.newArrayList results /* consume the data */
+        then:
+        def e = thrown(UnexpectedResultException)
+        e.message.contains('Got more than one fact')
     }
 
 
     void testInexistentConcept() {
         setupData()
 
-        expect: shouldFail(InvalidArgumentsException {
-            clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                    [ new TerminalConceptVariable(conceptCode: 'non_existent') ])
-        }) hasProperty('message', allOf(
-                containsString('Concept code'),
-                containsString('did not yield any results')))
+        when:
+        clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+                [new TerminalConceptVariable(conceptCode: 'non_existent')])
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message.contains('Concept code')
+        e.message.contains('did not yield any results')
     }
 
     void testRepeatedConceptCode() {
         setupData()
-        expect: shouldFail(InvalidArgumentsException {
-            clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                    [ new TerminalConceptVariable(conceptCode: 'c2'),
-                            new TerminalConceptVariable(conceptCode: 'c4'),
-                            new TerminalConceptVariable(conceptCode: 'c2') ])
-        }) hasProperty('message', containsString('same concept code'))
+        when:
+        clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+                [new TerminalConceptVariable(conceptCode: 'c2'),
+                 new TerminalConceptVariable(conceptCode: 'c4'),
+                 new TerminalConceptVariable(conceptCode: 'c2')])
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message.contains('same concept code')
     }
 
     void testRepeatedConceptPath() {
         setupData()
-        expect: shouldFail(InvalidArgumentsException {
-            clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                    [ new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2')),
-                            new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2'))])
-        }) hasProperty('message', containsString('same concept path'))
+
+        when:
+        clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+                [new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2')),
+                 new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2'))])
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message.contains('same concept path')
     }
 
 
     void testMixedRepetition() {
         setupData()
-        expect: shouldFail(InvalidArgumentsException {
-            clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
-                    [ new TerminalConceptVariable(conceptCode: 'c2'),
-                            new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2'))])
-        }) hasProperty('message', containsString('Repeated variables in the query'))
+
+        when:
+        clinicalDataResourceService.retrieveData(testData.clinicalData.queryResult,
+                [new TerminalConceptVariable(conceptCode: 'c2'),
+                 new TerminalConceptVariable(conceptPath: getConceptCodeFor('c2'))])
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message.contains('Repeated variables in the query')
     }
 
     void testRetrieveDataWithPatientsDirectly() {
@@ -390,25 +383,26 @@ class ClinicalDataRetrievalSpec extends Specification {
         results = clinicalDataResourceService.retrieveData(patients, [
                 new TerminalConceptVariable(conceptCode: conceptCode)])
         List<PatientRow> rows = Lists.newArrayList(results)
-
-        expect: rows contains(
-                testData.clinicalData.facts.sort {
-                    it.patientId
-                }.findAll {
-                    it.conceptCode == conceptCode &&
-                            it.patient.id in patientIds
-                }.collect {
-                    contains it.textValue
-                }
-        )
+        def expected = testData.clinicalData.facts.sort {
+            it.patientId
+        }.findAll {
+            it.conceptCode == conceptCode &&
+                    it.patient.id in patientIds
+        }.collect {
+            it.textValue
+        }
+        expect:
+        rows.collect { it.collect() }.flatten() == expected
     }
 
     void testRetrieveDataWithoutVariables() {
         setupData()
-        shouldFail InvalidArgumentsException, {
-            clinicalDataResourceService.retrieveData(
-                    testData.i2b2Data.patients as Set, [])
-        }
+
+        when:
+        clinicalDataResourceService.retrieveData(
+                testData.i2b2Data.patients as Set, [])
+        then:
+        thrown(InvalidArgumentsException)
     }
 
     void testRetrieveDataWithoutPatientsVariantQueryResult() {
@@ -416,14 +410,15 @@ class ClinicalDataRetrievalSpec extends Specification {
         results = clinicalDataResourceService.retrieveData(emptyQueryResult, [
                 new TerminalConceptVariable(conceptCode: 'c2')])
 
-        expect: results is(iterableWithSize(0))
+        expect:
+        results.size() == 0
     }
 
     void testRetrieveDataNullQueryResultVariantQueryResult() {
         setupData()
         shouldFail AssertionError, {
             clinicalDataResourceService.retrieveData((QueryResult) null, [
-                new TerminalConceptVariable(conceptCode: 'c2')])
+                    new TerminalConceptVariable(conceptCode: 'c2')])
         }
     }
 
@@ -432,7 +427,8 @@ class ClinicalDataRetrievalSpec extends Specification {
         results = clinicalDataResourceService.retrieveData([] as Set, [
                 new TerminalConceptVariable(conceptCode: 'c2')])
 
-        expect: results is(iterableWithSize(0))
+        expect:
+        results.size() == 0
     }
 
     void testRetrieveDataWithoutPatientsVariantSet() {
@@ -440,7 +436,8 @@ class ClinicalDataRetrievalSpec extends Specification {
         results = clinicalDataResourceService.retrieveData([] as Set, [
                 new TerminalConceptVariable(conceptCode: 'c2')])
 
-        expect: results is(iterableWithSize(0))
+        expect:
+        results.size() == 0
     }
 
     QueryResult getEmptyQueryResult() {
