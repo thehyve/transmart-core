@@ -1,7 +1,7 @@
 package com.recomdata.transmart;
 
 import groovy.lang.Singleton;
-import org.codehaus.groovy.grails.commons.GrailsApplication;
+import grails.core.GrailsApplication;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

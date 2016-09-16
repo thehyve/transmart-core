@@ -7,7 +7,7 @@ import jobs.steps.helpers.NumericColumnConfigurator
 import jobs.steps.helpers.SimpleAddColumnConfigurator
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
-import org.codehaus.groovy.grails.commons.GrailsApplication
+import grails.core.GrailsApplication
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource

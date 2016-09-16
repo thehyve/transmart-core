@@ -20,7 +20,7 @@
 
 import com.recomdata.genesignature.FileSchemaException
 import com.recomdata.search.query.Query
-import org.hibernate.Hibernate
+import org.hibernate.type.LongType
 import org.springframework.web.multipart.MultipartFile
 import org.transmart.biomart.BioAssayDataAnnotation
 import org.transmart.biomart.BioData
@@ -883,10 +883,10 @@ public class GeneSignatureService {
 
         //def trans = session.beginTransaction();
         def hqlQuery = session.createSQLQuery(nativeSQL.toString())
-        hqlQuery.addScalar("id", Hibernate.LONG)
-        hqlQuery.addScalar("Gene_Ct", Hibernate.LONG)
-        hqlQuery.addScalar("Up_Ct", Hibernate.LONG)
-        hqlQuery.addScalar("Down_Ct", Hibernate.LONG)
+        hqlQuery.addScalar("id", LongType.INSTANCE)
+        hqlQuery.addScalar("Gene_Ct", LongType.INSTANCE)
+        hqlQuery.addScalar("Up_Ct", LongType.INSTANCE)
+        hqlQuery.addScalar("Down_Ct", LongType.INSTANCE)
         def results = hqlQuery.list()
         // stuff results into a lookup map
         results.each { countMap.put(it.getAt(0), it); }
