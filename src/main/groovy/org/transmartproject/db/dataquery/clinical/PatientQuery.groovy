@@ -32,8 +32,8 @@ class PatientQuery extends AbstractEntityQuery<Patient> {
     PatientQuery(List<PatientConstraint> constraints) {
         this.criteria =
             PatientDimension.where {
-                constraints.each { PatientConstraint assayConstraint ->
-                    assayConstraint.addToCriteria(it)
+                constraints.each { PatientConstraint constraint ->
+                    constraint.addToCriteria(it)
                 }
             }
     }

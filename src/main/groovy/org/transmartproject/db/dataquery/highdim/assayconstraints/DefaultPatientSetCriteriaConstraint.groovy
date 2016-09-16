@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
+import grails.gorm.DetachedCriteria
 import groovy.transform.Canonical
 import org.grails.datastore.mapping.query.api.Criteria
 import org.transmartproject.core.querytool.QueryResult
@@ -31,15 +32,10 @@ class DefaultPatientSetCriteriaConstraint implements AssayCriteriaConstraint {
 
     @Override
     void addToCriteria(Criteria criteria) {
-        criteria.in('patient.id',
-            QtPatientSetCollection.where {
-                projections {
-                    property 'patient.id'
-                }
-
-                eq 'resultInstance', this.queryResult
-            }
-        )
+        def subCriteria = new DetachedCriteria(QtPatientSetCollection)
+                .property('patient.id')
+                .eq('resultInstance', this.queryResult)
+        criteria.in('patient.id', subCriteria)
     }
 
 }
