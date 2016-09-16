@@ -65,7 +65,7 @@ class GormWorkarounds {
         else {
             detachedCriteria = org.hibernate.criterion.DetachedCriteria.forClass(targetClass)
         }
-        def hq = new HibernateQuery(detachedCriteria)
+        def hq = new HibernateQuery(detachedCriteria, persistentEntity)
         //To escape NPE we have to set this private field
         //This fix is the main reason to have this method @{see HibernateCriteriaBuilder.getHibernateDetachedCriteria}
         hq.entity = persistentEntity
