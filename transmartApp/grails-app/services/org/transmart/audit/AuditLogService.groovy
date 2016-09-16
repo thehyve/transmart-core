@@ -21,11 +21,11 @@ package org.transmart.audit
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import grails.core.GrailsApplication
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import javax.servlet.http.HttpServletRequest
 import org.apache.log4j.Level
-import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.provider.OAuth2Authentication
