@@ -19,9 +19,6 @@
 
 package org.transmartproject.db.dataquery.highdim.parameterproducers
 
-import grails.test.mixin.Mock
-import groovy.util.logging.Slf4j
-import org.gmock.WithGMock
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -36,67 +33,61 @@ import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@Mock([I2b2, QtQueryResultInstance])
-@WithGMock
-@Slf4j
 class StandardAssayConstraintFactorySpec extends Specification {
 
     private StandardAssayConstraintFactory testee
 
     void setup() {
         testee = new StandardAssayConstraintFactory()
-        testee.conceptsResource = mock(ConceptsResource)
-        testee.queriesResource = mock(QueriesResource)
+        testee.conceptsResource = Mock(ConceptsResource)
+        testee.queriesResource = Mock(QueriesResource)
     }
 
     void testCreateOntologyTermConstraint() {
         String conceptKey = '\\\\foo\\bar\\'
 
-        testee.conceptsResource.getByKey(conceptKey).returns({
+        testee.conceptsResource.getByKey(conceptKey) >> {
             // for some reason new I2b2(fullName: ...) does not work
             def r = new I2b2()
             r.fullName = new ConceptKey(conceptKey).conceptFullName
             r
-        }())
+        }()
 
-        play {
-            def result = testee.createOntologyTermConstraint concept_key: conceptKey
+        def result = testee.createOntologyTermConstraint concept_key: conceptKey
 
-            expect:
-            result allOf(
-                    isA(DefaultOntologyTermCriteriaConstraint),
-                    hasProperty('term', allOf(
-                            isA(I2b2),
-                            hasProperty('fullName', equalTo('\\bar\\'))
-                    ))
-            )
-        }
+        expect:
+        result instanceof DefaultOntologyTermCriteriaConstraint
+        result.term instanceof I2b2
+        result.term.fullName == '\\bar\\'
     }
 
     void testCreateOntologyTermBadArguments() {
         String conceptKey = '\\\\a\\b\\'
 
-        testee.conceptsResource.getByKey(conceptKey).raises(NoSuchResourceException)
-
-        play {
-            assertThat shouldFail(InvalidArgumentsException) {
-                //few arguments
-                testee.createOntologyTermConstraint [:]
-            }, containsString('exactly one parameter')
-
-            assertThat shouldFail(InvalidArgumentsException) {
-                //too many arguments
-                testee.createOntologyTermConstraint([
-                        concept_key: conceptKey,
-                        another    : 1,
-                ])
-            }, containsString('exactly one parameter')
-
-            shouldFail(InvalidArgumentsException) {
-                //ConceptsResource is raising NoSuchResourceException
-                testee.createOntologyTermConstraint concept_key: conceptKey
-            }
+        testee.conceptsResource.getByKey(_) >> { ck ->
+            assert ck[0] == conceptKey
+            throw new NoSuchResourceException()
         }
+
+        when:
+        testee.createOntologyTermConstraint [:]
+        then:
+        def e1 = thrown(InvalidArgumentsException)
+        e1.message.contains('exactly one parameter')
+
+        when:
+        testee.createOntologyTermConstraint([
+                concept_key: conceptKey,
+                another    : 1,
+        ])
+        then:
+        def e2 = thrown(InvalidArgumentsException)
+        e2.message.contains('exactly one parameter')
+
+        when:
+        testee.createOntologyTermConstraint concept_key: conceptKey
+        then:
+        thrown(InvalidArgumentsException)
     }
 
     void testCreatePatientSetConstraint() {
@@ -104,19 +95,16 @@ class StandardAssayConstraintFactorySpec extends Specification {
         QueryResult queryResult = new QtQueryResultInstance()
 
         testee.queriesResource.
-                getQueryResultFromId(-11L).returns(queryResult)
+                getQueryResultFromId(-11L) >> queryResult
 
-        play {
-            def result = testee.createPatientSetConstraint([
-                    'result_instance_id': queryResultId
-            ])
+        when:
+        def result = testee.createPatientSetConstraint([
+                'result_instance_id': queryResultId
+        ])
 
-            expect:
-            result allOf(
-                    isA(DefaultPatientSetCriteriaConstraint),
-                    hasProperty('queryResult', is(sameInstance(queryResult)))
-            )
-        }
+        then:
+        result instanceof DefaultPatientSetCriteriaConstraint
+        result.queryResult.is(queryResult)
     }
 
     void testCreatePatientSetConstraintStringVariant() {
@@ -124,42 +112,41 @@ class StandardAssayConstraintFactorySpec extends Specification {
         QueryResult queryResult = new QtQueryResultInstance()
 
         testee.queriesResource.
-                getQueryResultFromId(-11L).returns(queryResult)
+                getQueryResultFromId(-11L) >> queryResult
 
-        play {
-            def result = testee.createPatientSetConstraint(
-                    result_instance_id: queryResultId)
+        def result = testee.createPatientSetConstraint(
+                result_instance_id: queryResultId)
 
-            expect:
-            result allOf(
-                    isA(DefaultPatientSetCriteriaConstraint),
-                    hasProperty('queryResult', is(sameInstance(queryResult)))
-            )
-        }
+        expect:
+        result instanceof DefaultPatientSetCriteriaConstraint
+        result.queryResult.is(queryResult)
     }
 
     void testCreatePatientSetConstraintBadArguments() {
         Long queryResultId = -12L
 
-        testee.queriesResource.getQueryResultFromId(queryResultId).
-                raises(NoSuchResourceException)
-
-        play {
-            assertThat shouldFail(InvalidArgumentsException) {
-                //bad argument name
-                testee.createPatientSetConstraint(foobar: -14L)
-            }, containsString('is not in map')
-
-            assertThat shouldFail(InvalidArgumentsException) {
-                //bad argument value
-                testee.createPatientSetConstraint(result_instance_id: 'mooor')
-            }, containsString('Invalid value for')
-
-            shouldFail(InvalidArgumentsException) {
-                //ConceptsResource is raising NoSuchResourceException
-                testee.createPatientSetConstraint result_instance_id: queryResultId
-            }
+        testee.queriesResource.getQueryResultFromId(_) >> { qri ->
+            assert qri[0] == queryResultId
+            throw new NoSuchResourceException()
         }
+
+        when: 'bad argument name'
+        testee.createPatientSetConstraint(foobar: -14L)
+        then:
+        def e1 = thrown(InvalidArgumentsException)
+        e1.message.contains('is not in map')
+
+        when: 'bad argument value'
+        testee.createPatientSetConstraint(result_instance_id: 'mooor')
+        then:
+        def e2 = thrown(InvalidArgumentsException)
+        e2.message.contains('Invalid value for')
+
+        when: 'ConceptsResource is raising NoSuchResourceException'
+        testee.createPatientSetConstraint result_instance_id: queryResultId
+        then:
+        def e3 = thrown(InvalidArgumentsException)
+        e3.cause instanceof NoSuchResourceException
     }
 
     void testCreateTrialNameConstraint() {
@@ -174,24 +161,23 @@ class StandardAssayConstraintFactorySpec extends Specification {
     }
 
     void testCreateTrialNameConstraintBadArgument() {
+        when:
+        testee.createTrialNameConstraint [:]
+        then:
+        def e1 = thrown(InvalidArgumentsException)
+        e1.message.contains('Missing required parameter "name"')
 
-        play {
-            assertThat shouldFail(InvalidArgumentsException) {
-                //few arguments
-                testee.createTrialNameConstraint [:]
-            }, containsString('Missing required parameter "name"')
+        when:
+        testee.createTrialNameConstraint bad_name: 'foobar'
+        then:
+        def e2 = thrown(InvalidArgumentsException)
+        e2.message.contains('got the following parameters instead: [bad_name]')
 
-            assertThat shouldFail(InvalidArgumentsException) {
-                //bad argument name
-                testee.createTrialNameConstraint bad_name: 'foobar'
-            }, containsString('got the following parameters instead: [bad_name]')
-
-            assertThat shouldFail(InvalidArgumentsException) {
-                //bad type
-                testee.createTrialNameConstraint name: [1]
-            }, containsString('to be of type')
-
-        }
+        when:
+        testee.createTrialNameConstraint name: [1]
+        then:
+        def e3 = thrown(InvalidArgumentsException)
+        e3.message.contains('to be of type')
     }
 
     void testCreateAssayIdListConstraint() {
@@ -205,9 +191,11 @@ class StandardAssayConstraintFactorySpec extends Specification {
     }
 
     void testCreateAssayIsListConstraintEmptyList() {
-        assertThat shouldFail(InvalidArgumentsException) {
-            testee.createAssayIdListConstraint(ids: [])
-        }, containsString('empty list')
+        when:
+        testee.createAssayIdListConstraint(ids: [])
+        then:
+        def e1 = thrown(InvalidArgumentsException)
+        e1.message.contains('empty list')
     }
 
     void testCreatePatientIdListConstraint() {
@@ -221,9 +209,11 @@ class StandardAssayConstraintFactorySpec extends Specification {
     }
 
     void testCreatePatientIsListConstraintEmptyList() {
-        assertThat shouldFail(InvalidArgumentsException) {
-            testee.createPatientIdListConstraint(ids: [])
-        }, containsString('empty list')
+        when:
+        testee.createPatientIdListConstraint(ids: [])
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message.contains('empty list')
     }
 
     void testCreateDisjunctionConstraintTwoDifferentTypes() {

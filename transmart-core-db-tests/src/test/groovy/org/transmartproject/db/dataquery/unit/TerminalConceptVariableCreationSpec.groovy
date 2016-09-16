@@ -61,34 +61,38 @@ class TerminalConceptVariableCreationSpec extends Specification {
     }
 
     void testSpecifyBothConceptPathAndCode() {
-        shouldFail InvalidArgumentsException, {
-            service.createClinicalVariable(
-                    concept_path: SAMPLE_CONCEPT_PATH,
-                    concept_code: SAMPLE_CONCEPT_CODE,
-                    ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
-        }
+        when:
+        service.createClinicalVariable(
+                concept_path: SAMPLE_CONCEPT_PATH,
+                concept_code: SAMPLE_CONCEPT_CODE,
+                ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
+        then:
+        thrown(InvalidArgumentsException)
     }
 
     void testSpecifyExtraneousParameter() {
-        shouldFail InvalidArgumentsException, {
-            service.createClinicalVariable(
-                    concept_path: SAMPLE_CONCEPT_PATH,
-                    foobar: 'barfoo',
-                    ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
-        }
+        when:
+        service.createClinicalVariable(
+                concept_path: SAMPLE_CONCEPT_PATH,
+                foobar: 'barfoo',
+                ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
+        then:
+        thrown(InvalidArgumentsException)
     }
 
     void testSpecifyNoParameters() {
-        shouldFail InvalidArgumentsException, {
-            service.createClinicalVariable([:],
-                    ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
-        }
+        when:
+        service.createClinicalVariable([:],
+                ClinicalVariable.TERMINAL_CONCEPT_VARIABLE)
+        then:
+        thrown(InvalidArgumentsException)
     }
 
     void testSpecifyUnrecognizedClinicalVariableType() {
-        shouldFail InvalidArgumentsException, {
-            service.createClinicalVariable([:],
-                    'bad type of clinical variable')
-        }
+        when:
+        service.createClinicalVariable([:],
+                'bad type of clinical variable')
+        then:
+        thrown(InvalidArgumentsException)
     }
 }
