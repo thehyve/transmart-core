@@ -67,7 +67,7 @@ a.button {
 	border-bottom-left-radius: 8px;
 	line-height: 12pt;
 	cursor: pointer;
-	background-image: url('../../../src/main/resources/public/images/clearsmall.png');
+	background-image: url('../images/clearsmall.png');
 	background-repeat: no-repeat;
 	display: inline-block;
 }
@@ -156,7 +156,7 @@ tr.borderbottom td {
 }
 
 .ajaxloading {
-    background-image: url('../../../src/main/resources/public/images/loader-large.gif') !important;
+    background-image: url('../images/loader-large.gif') !important;
     background-repeat: no-repeat !important;
     background-position: 50% 50% !important;
 }

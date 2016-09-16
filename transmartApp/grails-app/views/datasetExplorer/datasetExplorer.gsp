@@ -9,7 +9,7 @@
 
     <title>Dataset Explorer</title>
 
-    <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
+    <asset:link rel="shortcut icon" href='searchtool.ico' type="image/x-ico" />
     <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
 
     <%-- We do not have a central template, so this only works in the database explorer for now --%>

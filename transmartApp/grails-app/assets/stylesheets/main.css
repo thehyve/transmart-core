@@ -28,7 +28,7 @@ html * {
     border-bottom-left-radius: 8px;
     line-height: 16pt;
     cursor: pointer;
-    background-image: url('../../../src/main/resources/public/images/clearsmall.png');
+    background-image: url('../images/clearsmall.png');
     background-repeat: no-repeat;
 }
 
@@ -119,7 +119,7 @@ input:focus, select:focus, textarea:focus {
 /* NAVIGATION MENU */
 
 .nav {
-    background: #fff url(../../../src/main/resources/public/images/skin/shadow.jpg) bottom repeat-x;
+    background: #fff url(images/skin/shadow.jpg) bottom repeat-x;
     border: 1px solid #ccc;
     border-style: solid none solid none;
     margin-top: 5px;
@@ -137,19 +137,19 @@ input:focus, select:focus, textarea:focus {
 }
 
 .menuButton a.home {
-    background: url(../../../src/main/resources/public/images/skin/house.png) center left no-repeat;
+    background: url(../images/skin/house.png) center left no-repeat;
     color: #333;
     padding-left: 25px;
 }
 
 .menuButton a.list {
-    background: url(../../../src/main/resources/public/images/skin/database_table.png) center left no-repeat;
+    background: url(../images/skin/database_table.png) center left no-repeat;
     color: #333;
     padding-left: 25px;
 }
 
 .menuButton a.create {
-    background: url(../../../src/main/resources/public/images/skin/database_add.png) center left no-repeat;
+    background: url(../images/skin/database_add.png) center left no-repeat;
     color: #333;
     padding-left: 25px;
 }
@@ -157,7 +157,7 @@ input:focus, select:focus, textarea:focus {
 /* MESSAGES AND ERRORS */
 
 .message {
-    background: #f3f8fc url(../../../src/main/resources/public/images/skin/information.png) 8px 50% no-repeat;
+    background: #f3f8fc url(../images/skin/information.png) 8px 50% no-repeat;
     border: 1px solid #b2d1ff;
     color: #006dba;
     margin: 10px 0 5px 0;
@@ -165,7 +165,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .warning {
-    background: #fff3f3 url(../../../src/main/resources/public/images/skin/exclamation.png) 8px 50% no-repeat;
+    background: #fff3f3 url(../images/skin/exclamation.png) 8px 50% no-repeat;
     border: 1px solid red;
     color: #cc0000;
     margin: 10px 0 5px 0;
@@ -186,7 +186,7 @@ div.errors ul {
 }
 
 div.errors li {
-	background: url(../../../src/main/resources/public/images/skin/exclamation.png) 8px 0% no-repeat;
+	background: url(../images/skin/exclamation.png) 8px 0% no-repeat;
     line-height: 16px;
     padding-left: 30px;
 }
@@ -220,7 +220,7 @@ td, th {
 }
 
 th {
-	background: #fff url(../../../src/main/resources/public/images/skin/shadow.jpg) bottom repeat-x;
+	background: #fff url(../images/skin/shadow.jpg) bottom repeat-x;
     color: #666;
     font-size: 12px;
     font-weight: bold;
@@ -243,11 +243,11 @@ th.asc a, th.desc a {
 }
 
 th.asc a {
-    background-image: url(../../../src/main/resources/public/images/skin/sorted_asc.gif);
+    background-image: url(../images/skin/sorted_asc.gif);
 }
 
 th.desc a {
-    background-image: url(../../../src/main/resources/public/images/skin/sorted_desc.gif);
+    background-image: url(../images/skin/sorted_desc.gif);
 }
 
 .odd {
@@ -312,7 +312,7 @@ th.desc a {
 /* PAGINATION */
 
 .paginateButtons {
-    background: #fff url(../../../src/main/resources/public/images/skin/shadow.jpg) bottom repeat-x;
+    background: #fff url(../images/skin/shadow.jpg) bottom repeat-x;
     border: 1px solid #ccc;
     border-top: 0;
     color: #666;
@@ -358,7 +358,7 @@ th.desc a {
 /* ACTION BUTTONS */
 
 .buttons {
-    background: #fff url(../../../src/main/resources/public/images/skin/shadow.jpg) bottom repeat-x;
+    background: #fff url(../images/skin/shadow.jpg) bottom repeat-x;
     border: 1px solid #ccc;
     color: #666;
     font-size: 10px;
@@ -388,38 +388,38 @@ th.desc a {
 }
 
 .buttons input.delete {
-    background: transparent url(../../../src/main/resources/public/images/skin/database_delete.png) 5px 50% no-repeat;
+    background: transparent url(../images/skin/database_delete.png) 5px 50% no-repeat;
     padding-left: 28px;
 }
 
 .buttons input.edit {
-    background: transparent url(../../../src/main/resources/public/images/skin/database_edit.png) 5px 50% no-repeat;
+    background: transparent url(../images/skin/database_edit.png) 5px 50% no-repeat;
     padding-left: 28px;
 }
 
 .buttons input.save {
-    background: transparent url(../../../src/main/resources/public/images/skin/database_save.png) 5px 50% no-repeat;
+    background: transparent url(../images/skin/database_save.png) 5px 50% no-repeat;
     padding-left: 28px;
 }
 
 .buttons input.cancel {
-    background: transparent url(../../../src/main/resources/public/images/skin/database_cancel.png) 5px 50% no-repeat;
+    background: transparent url(../images/skin/database_cancel.png) 5px 50% no-repeat;
     padding-left: 28px;
 }
 
 .buttons input.next {
-    background: transparent url(../../../src/main/resources/public/images/skin/next_arrow.PNG) 5px 50% no-repeat;
+    background: transparent url(../images/skin/next_arrow.PNG) 5px 50% no-repeat;
     padding-left: 28px;
 }
 
 .buttons input.previous {
-    background: transparent url(../../../src/main/resources/public/images/skin/prev_arrow.PNG) 5px 50% no-repeat;
+    background: transparent url(../images/skin/prev_arrow.PNG) 5px 50% no-repeat;
     padding-left: 28px;
 }
 
 input.search {
 	margin-top:0px;
-    background: #fff url(../../../src/main/resources/public/images/skin/shadow.jpg) bottom repeat-x;
+    background: #fff url(../images/skin/shadow.jpg) bottom repeat-x;
     padding-left: 3px;
     padding-right:28px;
     border: 1px solid #ccc;
@@ -630,7 +630,7 @@ table.detail td.value {
 
 div.topall {
 	padding-top:4px;
-	background: #fafafa url(../../../src/main/resources/public/images/skin/shadow30.jpg);
+	background: #fafafa url(../images/skin/shadow30.jpg);
 }
 
 #topbar {
@@ -660,7 +660,7 @@ a.toplink1{
 	color:#00c !important;
 	vertical-align:bottom;
 	font-weight: bold;
-	background: #fafafa url(../../../src/main/resources/public/images/skin/shadow30.jpg);
+	background: #fafafa url(../images/skin/shadow30.jpg);
 }
 
 .gbhblank{
@@ -670,7 +670,7 @@ a.toplink1{
 	position:absolute;
 	top:30px;
 	width:100%;
-	background: #fafafa url(../../../src/main/resources/public/images/skin/shadow30.jpg);
+	background: #fafafa url(../images/skin/shadow30.jpg);
 }
 
 .bluet{
@@ -768,50 +768,50 @@ table.jubsummary td {
 }
 
 .tabs {
-    background-image:url(../../../src/main/resources/public/images/tabs.gif) !important;
+    background-image:url(../images/tabs.gif) !important;
     color:#ff0000;
 }
 
 .clinicalTrialgovTab {
-    background-image:url(../../../src/main/resources/public/images/clinicaltrials.png) !important;
+    background-image:url(../images/clinicaltrials.png) !important;
     color:#ff0000;
 }
 .pictorTab {
-    background-image:url(../../../src/main/resources/public/images/pictor.png) !important;
+    background-image:url(../images/pictor.png) !important;
     color:#ff0000;
 }
 
 .resnetTab {
-    background-image:url(../../../src/main/resources/public/images/pathway.png) !important;
+    background-image:url(../images/pathway.png) !important;
     color:#ff0000;
 }
 
 .genegoTab {
-    background-image:url(../../../src/main/resources/public/images/genego.png) !important;
+    background-image:url(../images/genego.png) !important;
     color:#ff0000;
 }
 
 .expTab {
-    background-image:url(../../../src/main/resources/public/images/ebi.png) !important;
+    background-image:url(../images/ebi.png) !important;
     color:#ff0000;
 }
 .profTab {
-    background-image:url(../../../src/main/resources/public/images/dana-farber.png) !important;
+    background-image:url(../images/dana-farber.png) !important;
     color:#ff0000;
 }
 
 .docTab {
-    background-image:url(../../../src/main/resources/public/images/folder_doc.png) !important;
+    background-image:url(../images/folder_doc.png) !important;
     color:#ff0000;
 }
 
 .jubTab {
-    background-image:url(../../../src/main/resources/public/images/jubilant.png) !important;
+    background-image:url(../images/jubilant.png) !important;
     color:#ff0000;
 }
 
 .add-filter {
-    background-image:url(../../../src/main/resources/public/images/filter.gif) !important;
+    background-image:url(../images/filter.gif) !important;
     color:#ff0000;
 }
 
@@ -820,15 +820,15 @@ select.jubselect {
 }
 
 .folderopen {
-	background-image:url(../../../src/main/resources/public/images/folder-plus.gif);
+	background-image:url(../images/folder-plus.gif);
 }
 
 .folderclose {
-	background-image:url(../../../src/main/resources/public/images/folder-minus.gif);
+	background-image:url(../images/folder-minus.gif);
 }
 
 .feedbackbutton {
-	background-image:url(../../../src/main/resources/public/images/feedback.png) !important;
+	background-image:url(../images/feedback.png) !important;
 }
 
 /* ExtJS customizations */
@@ -866,7 +866,7 @@ select.jubselect {
 }
 
 .dashboardBtn {
-    background-image:url(../../../src/main/resources/public/images/information.png) !important;
+    background-image:url(../images/information.png) !important;
     color:#ff0000;
 }
 
@@ -875,44 +875,44 @@ select.jubselect {
 }
 
 .filtersBtn {
-    background-image:url(../../../src/main/resources/public/images/filter.gif) !important;
+    background-image:url(../images/filter.gif) !important;
     color:#ff0000;
 }
 .teaBtn {
-    background-image:url(../../../src/main/resources/public/images/analysis.png) !important;
+    background-image:url(../images/analysis.png) !important;
     color:#ff0000;
 }
 .studyBtn {
-    background-image:url(../../../src/main/resources/public/images/study_tree.png) !important;
+    background-image:url(../images/study_tree.png) !important;
     color:#ff0000;
 }
 .summaryBtn {
-    background-image:url(../../../src/main/resources/public/images/grid.png) !important;
+    background-image:url(../images/grid.png) !important;
     color:#ff0000;
 }
 
 .heatmapBtn {
-    background-image:url(../../../src/main/resources/public/images/pert_chart.png) !important;
+    background-image:url(../images/pert_chart.png) !important;
     color:#ff0000;
 }
 
 .exportSummaryBtn {
-    background-image:url(../../../src/main/resources/public/images/excel.png) !important;
+    background-image:url(../images/excel.png) !important;
     color:#ff0000;
 }
 
 .exportResNetBtn {
-    background-image:url(../../../src/main/resources/public/images/download.png) !important;
+    background-image:url(../images/download.png) !important;
     color:#ff0000;
 }
 
 .contextHelpBtn {
-	background-image:url(../../../src/main/resources/public/images/help/helpicon_gray.jpg) !important;
+	background-image:url(../images/help/helpicon_gray.jpg) !important;
 	color:#ff0000;	
 }
 
 .feedbackBtn {
-    background-image:url(../../../src/main/resources/public/images/feedback.png) !important;
+    background-image:url(../images/feedback.png) !important;
     color:#ff0000;
 }
 
@@ -997,8 +997,8 @@ select.jubselect {
 .filter-item-remove {font-size:8px;color:#a00000;}
 .filter-item-remove img {vertical-align:sub;padding-left:2px;}
 .filter-divider span {background-repeat:repeat-x;display:block;text-align:center;vertical-align:middle;padding: 5px 0px 5px 0px;}
-.filter-divider-or span {background:url(../../../src/main/resources/public/images/graybar.gif);background-position:center left;}
-.filter-divider-and span {background:url(../../../src/main/resources/public/images/graybar.gif);background-position:center left;}
+.filter-divider-or span {background:url(../images/graybar.gif);background-position:center left;}
+.filter-divider-and span {background:url(../images/graybar.gif);background-position:center left;}
 .filter-divider p {background:#ffffff;padding: 0px 5px 0px 5px;display:inline;}
 .filter-divider-or p {color:#505050;}
 .filter-divider-and p {color:#505050;}
@@ -1018,7 +1018,7 @@ select.jubselect {
 
 
 .x-form-field-wrap .x-form-add-trigger {
-	background-image:url(../../../src/main/resources/public/images/trigger-add.gif);
+	background-image:url(../images/trigger-add.gif);
 	cursor:pointer;
 }
 

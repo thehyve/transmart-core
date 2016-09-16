@@ -1,17 +1,20 @@
 <html>
 <head>
     <title>Gene Signature</title>
-    <link rel="shortcut icon" href="${resource(dir: 'images', file: 'searchtool.ico')}">
-    <link rel="icon" href="${resource(dir: 'images', file: 'searchtool.ico')}">
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'main.css')}"/>
-    <link rel="stylesheet" href="${resource(dir: 'js', file: 'ext/resources/css/ext-all.css')}"/>
-    <link rel="stylesheet" href="${resource(dir: 'js', file: 'ext/resources/css/xtheme-gray.css')}"/>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'genesignature.css')}"/>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'ext/adapter/ext/ext-base.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'ext/ext-all.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'maintabpanel.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'toggle.js')}"></script>
-    <script type="text/javascript" charset="utf-8">
+    <asset:link rel="shortcut icon" href='searchtool.ico' type="image/x-ico" />
+    <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
+    <asset:stylesheet href="main.css" />
+    <asset:stylesheet href="ext/resources/css/ext-all.css" />
+    <asset:stylesheet href="ext/resources/css/xtheme-gray.css" />
+    <asset:stylesheet href="genesignature.css" />
+
+    <asset:javascript src="ext/adapter/ext/ext-base.js" />
+    <asset:javascript src="ext/ext-all.js" />
+    <asset:javascript src="maintabpanel.js" />
+    <asset:javascript src="toggle.js" />
+    <asset:javascript src="analysetab.js" />
+
+    <asset:script type="text/javascript" charset="utf-8">
         Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
 
         // set ajax to 90*1000 milliseconds
@@ -19,7 +22,7 @@
 
         // qtip on
         Ext.QuickTips.init();
-    </script>
+    </asset:script>
 </head>
 
 <body>

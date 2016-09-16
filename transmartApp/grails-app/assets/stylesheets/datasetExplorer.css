@@ -108,25 +108,25 @@ a.toplink1:hover{
 .modifiericon{background-image:url(ONT_MODIFIER_leaf.gif) !important;}
 .printbutton{background-image:url(printer.png) !important;}
 .savebutton{
-	background-image:url(../../../src/main/resources/public/images/disk.png) !important;
+	background-image:url(../images/disk.png) !important;
 	}
 
 .progress-spinner {
-    background: url(../../../src/main/resources/public/images/spinner.gif) 0px 0px / 16px 16px no-repeat transparent;
+    background: url(../images/spinner.gif) 0px 0px / 16px 16px no-repeat transparent;
     display:inline-block;
     height: 16px;
     width: 16px;
 }
 
 .progress-error {
-    background: url(../../../src/main/resources/public/images/remove.png) 0px 0px / 16px 16px no-repeat transparent;
+    background: url(../images/remove.png) 0px 0px / 16px 16px no-repeat transparent;
     display:inline-block;
     height: 16px;
     width: 16px;
 }
 
 .progress-completed {
-    background: url(../../../src/main/resources/public/images/green_check2.png) 0px 0px / 16px 16px no-repeat transparent;
+    background: url(../images/green_check2.png) 0px 0px / 16px 16px no-repeat transparent;
     display:inline-block;
     height: 16px;
     width: 16px;
@@ -147,7 +147,7 @@ height:0;
 position:absolute;
 top:30px;
 width:100%;
- background: #fafafa url(../../../src/main/resources/public/images/skin/shadow30.jpg);
+ background: #fafafa url(../images/skin/shadow30.jpg);
 }
 
 
@@ -183,7 +183,7 @@ a.button span {
 
  .ext-ie .x-form-text {position:static !important;}
 
-.x-tree-node-leaf .x-tree-node-icon{background-image:url(../../../src/main/resources/public/images/nonaccessible.gif);}
+.x-tree-node-leaf .x-tree-node-icon{background-image:url(../images/nonaccessible.gif);}
 
 div.analysis {
 	font-family: arial;
@@ -243,12 +243,12 @@ div.smalltitle {
 
 
 .contextHelpBtn {
-	background-image:url(../../../src/main/resources/public/images/help/helpicon_gray.jpg) !important;
+	background-image:url(../images/help/helpicon_gray.jpg) !important;
 	color:#ff0000;	
 }
 	
 .x-tool-sampleExplorerHelpButton {
-	background-image:url(../../../src/main/resources/public/images/help/helpicon_gray.jpg) !important;
+	background-image:url(../images/help/helpicon_gray.jpg) !important;
 	color:#ff0000;	
 }
 
@@ -398,7 +398,7 @@ table.tablesorterAnalysisResults thead tr th, table.tablesorter tfoot tr th {
 	white-space: nowrap;	
 }
 table.tablesorterAnalysisResults thead tr .header {
-	background-image: url('../../../src/main/resources/public/images/bg.gif');
+	background-image: url('../images/bg.gif');
 	background-repeat: no-repeat;
 	background-position: center right;
 	cursor: pointer;
@@ -415,10 +415,10 @@ table.tablesorterAnalysisResults tbody tr.odd td {
 	background-color:#F0F0F6;
 }
 table.tablesorterAnalysisResults thead tr .headerSortUp {
-	background-image: url(../../../src/main/resources/public/images/asc.gif);
+	background-image: url(../images/asc.gif);
 }
 table.tablesorterAnalysisResults thead tr .headerSortDown {
-	background-image: url(../../../src/main/resources/public/images/desc.gif);
+	background-image: url(../images/desc.gif);
 }
 table.tablesorterAnalysisResults thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
 background-color: #8dbdd8;
@@ -491,7 +491,7 @@ content: counter(pages);
 }
 
 .x-tool-help {
-	background-image: url("../../../src/main/resources/public/images/help/tool-sprites-rdc.gif");
+	background-image: url("../images/help/tool-sprites-rdc.gif");
     background-position: 0 -300px;
 }
 
