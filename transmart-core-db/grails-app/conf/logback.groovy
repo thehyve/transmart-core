@@ -10,6 +10,9 @@ appender('STDOUT', ConsoleAppender) {
 
 root(ERROR, ['STDOUT'])
 
+logger('org.codehaus.groovy.grails.commons.spring', WARN)
+logger('org.codehaus.groovy.grails.domain.GrailsDomainClassCleaner', WARN)
+
 def targetDir = BuildSettings.TARGET_DIR
 if (Environment.isDevelopmentMode() && targetDir) {
     appender("FULL_STACKTRACE", FileAppender) {
