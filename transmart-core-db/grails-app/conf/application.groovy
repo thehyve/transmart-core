@@ -11,16 +11,6 @@ grails.plugin.reveng.includeTables = ['modifier_dimension', 'modifier_metadata']
 grails.plugin.reveng.packageName = 'org.transmartproject.db.i2b2data'
 //*/
 
-log4j = {
-
-    warn 'org.codehaus.groovy.grails.commons.spring'
-    warn 'org.codehaus.groovy.grails.domain.GrailsDomainClassCleaner'
-
-    root {
-        info('stdout')
-    }
-}
-
 grails.converters.default.pretty.print=true
 
 grails.views.default.codec="none" // none, html, base64
