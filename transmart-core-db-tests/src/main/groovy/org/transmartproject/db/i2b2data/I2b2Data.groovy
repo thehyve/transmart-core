@@ -36,8 +36,9 @@ class I2b2Data {
 
     static List<PatientDimension> createTestPatients(int n, long baseId, String trialName = 'SAMP_TRIAL') {
         (1..n).collect { int i ->
-            def p = new PatientDimension(sourcesystemCd: "$trialName:SUBJ_ID_$i")
+            def p = new PatientDimension()
             p.id = baseId - i
+            p.sourcesystemCd = "$trialName:SUBJ_ID_$i"
             p
         }
     }
