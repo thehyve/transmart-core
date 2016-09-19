@@ -1,0 +1,4 @@
+trial_name	site_id	subject_id	sample_cd	platform	sample_type	tissue_type	time_point	cat_cd	src_cd
+CLUC		CACO2	CNV.CACO2	CNV_ANNOT	cgh	Colon	t1	"Test+Cnv+SAMPLETYPE+data"	STD
+CLUC		COLO205	CNV.COLO205	CNV_ANNOT	cgh	Colon	t1	"Test+Cnv+SAMPLETYPE+data"	STD
+CLUC		DLD1	CNV.DLD1	CNV_ANNOT	cgh	Colon	t1	"Test+Cnv+SAMPLETYPE+data"	STD

@@ -1,0 +1,5 @@
+Filename	Column Number	Original Data Value	New Data Values
+E-GEOD-8581.sdrf-rewrite.txt	5	caucasian	Caucasian
+E-GEOD-8581.sdrf-rewrite.txt	5	caucasuian	null
+E-GEOD-8581.sdrf-rewrite.txt	5	not specified	Afro American
+E-GEOD-8581.sdrf-rewrite.txt	15	foo bar empty new data is allowed

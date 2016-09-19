@@ -1,0 +1,3 @@
+START_DATE	PATIENT_ID	TEXT
+2015-04-14T11:10:55.748+02:00	patient 1	text patient 1 incremental run
+2015-04-14T11:11:10.083+02:00	patient 2	text patient 2 incremental run

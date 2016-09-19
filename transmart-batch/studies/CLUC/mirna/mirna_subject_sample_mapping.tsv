@@ -1,0 +1,3 @@
+"trial_name"	"site_id"	"subject_id"	"sample_cd"	"platform"	"tissue_type"	"attr1"	"attr2"	"cat_cd"	"src_cd"
+"CLUC"		"PC346c"	"PC346c"	"Cell-line_mirna"	"Prostate"			"Molecular profiling+High-throughput molecular profiling+Expression (miRNA)+Agilent miRNA microarray+Gene level+Normalised ratios"	"STD"
+"CLUC"		"VCaP"	"VCaP"	"Cell-line_mirna"	"Prostate"			"Molecular profiling+High-throughput molecular profiling+Expression (miRNA)+Agilent miRNA microarray+Gene level+Normalised ratios"	"STD"

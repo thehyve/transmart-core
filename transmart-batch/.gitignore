@@ -1,0 +1,12 @@
+/build
+/.gradle
+/.idea
+/.settings
+/.classpath
+/.project
+/bin
+/*.iml
+/batchdb.properties
+/batchdb-*.properties
+*.sw[mnop]
+/logback.groovy

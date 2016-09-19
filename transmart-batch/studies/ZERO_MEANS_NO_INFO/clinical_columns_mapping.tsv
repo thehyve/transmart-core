@@ -1,0 +1,4 @@
+Filename	Category Code	Column Number	Data Label	Data Label Source	Control Vocab Cd
+clinical_data.tsv	Subjects	1	SUBJ_ID
+clinical_data.tsv	Subjects	2	Organism
+clinical_data.tsv	Subjects	3	Sex

@@ -1,0 +1,8 @@
+INCREMENTAL=y
+COLUMN_MAP_FILE=column_map.tsv
+PATIENT_IDE_SOURCE="Test data patient source"
+VISIT_IDE_SOURCE="Test data visit source"
+PROVIDER_PATH=/test data
+SOURCE_SYSTEM=TEST_DATA
+DOWNLOAD_DATE=2015-04-14T11:11:42.664+02:00
+PROJECT_ID=test_project
