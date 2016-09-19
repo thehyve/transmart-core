@@ -22,7 +22,7 @@
     <asset:stylesheet href="genesignature.css"/>
     <asset:stylesheet href="jquery-plugin.css"/>
 
-    <asset:script type="text/javascript" charset="utf-8">
+    <script type="text/javascript" charset="utf-8">
         Ext.BLANK_IMAGE_URL = "assets/images/default/s.gif";
         Ext.Ajax.timeout = 180000;
         Ext.onReady(function () {
@@ -31,7 +31,7 @@
 
         var $j = window.$j = jQuery.noConflict();
 
-    </asset:script>
+    </script>
 </head>
 
 <body>

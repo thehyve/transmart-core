@@ -26,7 +26,7 @@
                     <a href="#"
                        onclick="javascript:showDetailDialog('${createLink(controller:'trial',action:'expDetail',id:trialresult.key.id)}', '${trialresult.key.trialNumber}: ${trialresult.key.title}', 600);">
                         <span style="display:block; float:left;">
-                            <img alt="" src="${resource(dir: 'images', file: 'folder_doc.png')}"/>
+                            <asset:image alt="" src="folder_doc.png"/>
                         </span>
                         <span class="result-trial-name">${trialresult.key.trialNumber}</span>
                     </a>: ${trialresult.key.title}
@@ -34,8 +34,8 @@
                         <g:set var="ts" value="${Calendar.instance.time.time}"/>
                         <a id="toggleDetail_${experimentresult.key.id}" href="#"
                            onclick="javascript:toggleDetailDiv('${trialresult.key.trialNumber}', '${createLink(controller:'RWG',action:'getTrialAnalysis',params:[id:trialresult.key.id,trialNumber:trialresult.key.trialNumber,unqKey:ts])}');">
-                            <img alt="expand/collapse" id="imgExpand_${trialresult.key.trialNumber}"
-                                 src="${resource(dir: 'images', file: 'down_arrow_small2.png')}"
+                            <asset:image alt="expand/collapse" id="imgExpand_${trialresult.key.trialNumber}"
+                                 src="$down_arrow_small2.png"
                                  style="display: inline;"/>
                             Analyses
                         </a>

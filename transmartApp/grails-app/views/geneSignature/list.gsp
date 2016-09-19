@@ -18,7 +18,7 @@
 
 <asset:javascript src="extjs.js"/>
 
-<asset:script type="text/javascript">
+<script type="text/javascript">
 
     function handleActionItem(actionItem, id) {
         var action = actionItem.value;
@@ -75,11 +75,11 @@
         window.location.href=url;
     }
 
-</asset:script>
+</script>
 <asset:javascript src="help/D2H_ctxt.js"/>
-<asset:script type="text/javascript">
+<script type="text/javascript">
     helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
-</asset:script>
+</script>
 </head>
 <body>
 <div class="body">

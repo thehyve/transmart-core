@@ -7,12 +7,11 @@
 
 <title>${grailsApplication.config.com.recomdata.appTitle}</title>
 
-<link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="shortcut icon" />
-<link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="icon" />
+<asset:link rel="shortcut icon" href='searchtool.ico' type="image/x-ico" />
+<asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
 
-<g:javascript library="jquery" />
-<r:require module="browseTab" />
-<r:layoutResources/>
+<asset:javascript src="jquery-2.2.0.min.js"/>
+
 <tmpl:/RWG/urls/>
 
 <script type="text/javascript" charset="utf-8">
@@ -417,6 +416,9 @@
     });
 </script>
 
+%{--<r:require module="browseTab" />--}%
+<asset:javascript src="browseTab.js" />
+<asset:stylesheet href="browseTab.css" />
 </head>
 
 <body>
@@ -543,6 +545,6 @@
 <span id="ruler" style="visibility: hidden; white-space: nowrap;"></span>
 
 <div id="testTextHeightDiv"></div>
-<r:layoutResources/><%-- XXX: Use template --%>
+%{--<r:layoutResources/><%-- XXX: Use template --%>--}%
 </body>
 </html>
