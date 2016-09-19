@@ -1,0 +1,50 @@
+apply plugin: "eclipse"
+apply plugin: "idea"
+
+group "core"
+version "17.1"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://repo.transmartfoundation.org/content/repositories/public/' }
+    maven { url 'https://repo.thehyve.nl/content/repositories/public/' }
+}
+
+project.ext {
+    environment = [PATH: '/bin/:/usr/bin/:/usr/local/bin/']
+}
+
+task createVars(type:Exec) {
+    commandLine 'make', '-C', 'env', '../vars'
+}
+createVars.onlyIf { !file('vars').exists() }
+
+def make(String target) {
+    exec {
+        commandLine 'bash', '-c', 'source ./vars && make ' + target
+    }
+    println target
+}
+
+task setupPostgres << {
+    make('postgres')
+}
+
+task setupOracle << {
+    make('oracle')
+}
+
+task setupSolr << {
+    make('-C solr solr_home')
+}
+
+task startSolr << {
+    make('-C solr start_solr')
+}
+
+task stopSolr << {
+    make('-C solr stop_solr')
+}
+
+defaultTasks 'createVars'
