@@ -1,0 +1,4 @@
+/ojdbc*.jar
+/postgresql-*.jar
+/xdb.jar
+/netty-*.jar

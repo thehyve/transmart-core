@@ -1,0 +1,68 @@
+array (
+  'id' => 'pca',
+  'name' => 'PCA',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'CLINICAL.TXT' => 'FALSE',
+    'SNP.TXT' => 'snpData',
+    'MRNA_DETAILED.TXT' => 'TRUE',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||GENES||' => 'divIndependentVariablePathway',
+    '||AGGREGATE||' => 'divIndependentVariableprobesAggregation',
+    '||GPL1||' => 'divIndependentVariablegplsValue',
+    '||GPL2||' => 'divIndependentVariablegplsValue2',
+    '||SAMPLE1||' => 'divIndependentVariablesamples',
+    '||SAMPLE2||' => 'divIndependentVariablesamples2',
+    '||TIMEPOINTS1||' => 'divIndependentVariabletimepoints',
+    '||TIMEPOINTS2||' => 'divIndependentVariabletimepoints2',
+    '||TISSUES1||' => 'divIndependentVariabletissues',
+    '||TISSUES2||' => 'divIndependentVariabletissues2',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/parseDirectory.R\')',
+      4 => 'source(\'||PLUGINSCRIPTDIRECTORY||PCA/BuildPCAData.R\')',
+      5 => 'parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')',
+      6 => 'PCAData.build(
+        input.gexFile    = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\',
+        sample.subset1   = \'||SAMPLE1||\',
+        time.subset1     = \'||TIMEPOINTS1||\',
+        tissues.subset1  = \'||TISSUES1||\',
+        platform.subset1 = \'||GPL1||\',
+        sample.subset2   = \'||SAMPLE2||\',
+        time.subset2     = \'||TIMEPOINTS2||\',
+        tissues.subset2  = \'||TISSUES2||\',
+        platform.subset2 = \'||GPL2||\',
+        genes            = \'||GENES||\',
+        genes.aggregate  = \'||AGGREGATE||\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||PCA/LoadPCA.R\')',
+      1 => 'PCA.loader(input.filename=\'outputfile\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/PCA/pcaOut',
+  ),
+  'view' => 'PCA',
+)

@@ -1,0 +1,170 @@
+#!/bin/bash -e
+
+set -x
+
+source vars
+
+function apt_install {
+  sudo apt-get install -qq -y "$@"
+}
+
+function minimal_ts_etl_checkout {
+  test -d env/tranSMART-ETL || svn checkout --depth immediates \
+    https://github.com/transmart/tranSMART-ETL/trunk env/tranSMART-ETL
+  svn up --set-depth infinity env/tranSMART-ETL/{Postgres,Kettle-GPL}
+}
+
+function postgres_target_deps {
+  apt_install php5-cli php5-json
+  minimal_ts_etl_checkout
+
+  sudo make -C env /var/lib/postgresql/tablespaces
+}
+
+function test_main_pg {
+  postgres_target_deps
+  apt_install rsync #solr needs it
+
+  make -j4 postgres
+
+  test_clinical_load
+  test_clinical_load_tsbatch
+  test_solr
+}
+
+function customize_vars_oracle {
+  local readonly port=$1
+  echo "export ORACLE=1" >> vars
+  echo "export ORAHOST=$ORACLE_MACHINE" >> vars
+  echo "export ORAPORT=$port" >> vars
+  echo "export ORASID=ORCL" >> vars
+  echo "export ORAUSER=system" >> vars
+  echo "export ORAPASSWORD=manager" >> vars
+  echo "export ORACLE_MANAGE_TABLESPACES=1" >> vars
+# The pool process seems flaky at this point. Most builds fail
+#  echo "export USE_POOL_PROCESS=1" >> vars
+  echo "export export _JAVA_OPTIONS='-Djava.security.egd=file:///dev/urandom'" >> vars
+}
+
+function test_main_ora {
+  local port
+  if [[ -z "$ORACLE_SECRET" ]]; then
+    echo "Skipping because \$ORACLE_SECRET is not set"
+    return 0
+  fi
+
+  apt_install nmap
+
+  source ~/ts-travis/oracle_database.sh
+  port=$(get_oracle_db)
+  customize_vars_oracle "$port"
+  source vars
+
+  make -C data/oracle start_pool &
+  make oracle
+}
+
+function test_clinical_load {
+  make -C env data-integration
+  make -C samples/postgres load_clinical_GSE8581
+  make -C samples/postgres showdblog
+}
+
+function test_clinical_load_tsbatch {
+  USE_TRANSMART_BATCH=1 make -C samples/postgres load_clinical_GSE27831
+}
+
+function test_solr {
+  local solr_pid
+
+  make -C solr solr_home
+  make -C solr start > /tmp/solr_log 2>&1 &
+  if ! timeout 30s bash -c 'while ! lsof -iTCP:8983 -sTCP:LISTEN; do sleep 1; done'; then
+    echo "Solr didn't start within 30 seconds!" >&2
+    cat /tmp/solr_log
+    exit 1
+  fi
+  make -C solr browse_full_import
+
+  solr_pid=%1
+  kill -HUP $solr_pid
+  if ! timeout 15s bash -c "while test -d /proc/$solr_pid; do sleep 1; done"; then
+    echo "Solr didn't exit within 15 seconds!" >&2
+    cat /tmp/solr_log
+    exit 1
+  fi
+}
+
+function test_load_dump_load_pg {
+  postgres_target_deps
+
+  make -j4 postgres
+
+  # ddl
+  make -C ddl/postgres clean_all
+  make -C ddl/postgres dump
+  make -C ddl/postgres files_all
+
+  # data
+  make -C data/common clean_dumps
+  make -C data/postgres dump
+
+  make postgres_drop
+
+  make -j4 postgres
+
+  # ideally, there should be no diff, but...
+  git diff --shortstat ddl/postgres/ data/common/
+}
+
+function test_R {
+  apt_install libcairo-dev clang gfortran g++ libreadline-dev
+
+  export CC=clang
+  export CXX=clang++
+  export R_FLAGS=-O0
+  export TRANSMART_USER=$USER
+
+  make -C R -j3 root/bin/R
+  make -C R install_packages
+
+  sudo -E make -C R install_rserve_upstart
+
+  sudo initctl start rserve
+
+  if ! sudo initctl status rserve | grep 'start/running'; then
+    echo "Rserve not running!" >&2
+    exit 1
+  fi
+}
+
+function test_configuration_syntax {
+  make -C config install
+
+  groovy -e 'new ConfigSlurper().parse(new File('\
+'System.getProperty("user.home"),'\
+'".grails/transmartConfig/Config.groovy").toURL())'
+}
+
+case $1 in
+  main_pg)
+    test_main_pg
+    ;;
+  main_oracle)
+    test_main_ora
+    ;;
+  load_dump_load_pg)
+    test_load_dump_load_pg
+    ;;
+  configuration_syntax)
+    test_configuration_syntax
+    ;;
+  R)
+    test_R
+    ;;
+  *)
+    echo "Unknown test suite: $1" >&2
+    ;;
+esac
+
+# vim: set ts=2 sw=2 et:

@@ -1,0 +1,88 @@
+array (
+  'id' => 'survivalAnalysis',
+  'name' => 'Survival Analysis',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'CLINICAL.TXT' => 'TRUE',
+    'SNP.TXT' => 'snpData',
+    'MRNA_DETAILED.TXT' => 'mrnaData',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||SNPTYPEDEP||' => 'divDependentVariableSNPType',
+    '||BINNING||' => 'binning',
+    '||GPLDEP||' => 'divDependentVariablegpls',
+    '||GENESDEPNAME||' => 'divDependentPathwayName',
+    '||NUMBERBINS||' => 'numberOfBins',
+    '||BINNINGTYPE||' => 'binDistribution',
+    '||PLATFORMDEP||' => 'divDependentVariableplatforms',
+    '||TISSUEDEP||' => 'divDependentVariabletissues',
+    '||CATEGORY||' => 'categoryVariable',
+    '||GENESDEP||' => 'divDependentVariablePathway',
+    '||AGGREGATEDEP||' => 'divDependentVariableprobesAggregation',
+    '||TIMEPOINTSDEP||' => 'divDependentVariabletimepoints',
+    '||BINNINGRANGESTRING||' => 'binRanges',
+    '||BINNINGVARIABLETYPE||' => 'variableType',
+    '||RBMPANELDEP||' => 'divDependentVariablerbmPanels',
+    '||TIME||' => 'timeVariable',
+    '||SAMPLEDEP||' => 'divDependentVariablesamples',
+    '||TYPEDEP||' => 'divDependentVariableType',
+    '||EVENTYES||' => 'censoringVariable',
+    '||BINNINGMANUAL||' => 'manualBinning',
+    '||GPLCAT||' => 'divDependentVariablegpls',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/BinData.R\')',
+      4 => 'source(\'||PLUGINSCRIPTDIRECTORY||Survival/BuildSurvivalData.R\')',
+      5 => 'SurvivalData.build(
+        input.dataFile           = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
+        concept.time             = \'||TIME||\',
+        concept.category         = \'||CATEGORY||\',
+        concept.eventYes         = \'||EVENTYES||\',
+        binning.enabled          = \'||BINNING||\',
+        binning.bins             = \'||NUMBERBINS||\',
+        binning.type             = \'||BINNINGTYPE||\',
+        binning.manual           = \'||BINNINGMANUAL||\',
+        binning.binrangestring   = \'||BINNINGRANGESTRING||\',
+        binning.variabletype     = \'||BINNINGVARIABLETYPE||\',
+        input.gexFile            = \'||TEMPFOLDERDIRECTORY||mRNA/Processed_Data/mRNA.trans\',
+        input.snpFile            = \'||TEMPFOLDERDIRECTORY||SNP/snp.trans\',
+        concept.category.type    = \'||TYPEDEP||\',
+        genes.category           = \'||GENESDEP||\',
+        genes.category.aggregate = \'||AGGREGATEDEP||\',
+        sample.category          = \'||SAMPLEDEP||\',
+        time.category            = \'||TIMEPOINTSDEP||\',
+        snptype.category         = \'||SNPTYPEDEP||\',
+        gpl.category             = \'||GPLCAT||\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Survival/CoxRegressionLoader.r\')',
+      1 => 'CoxRegression.loader(input.filename=\'outputfile\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Survival/SurvivalCurveLoader.r\')',
+      3 => 'SurvivalCurve.loader(input.filename=\'outputfile\',concept.time=\'||TIME||\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/survivalAnalysis/survivalAnalysisOutput',
+  ),
+  'view' => 'SurvivalAnalysis',
+)

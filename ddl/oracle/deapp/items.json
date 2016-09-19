@@ -1,0 +1,3523 @@
+{
+  "dependencies" : [ {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DEAPP_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DEXCM_PARENT_CD_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_XTRIAL_CHILD_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GPL_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMO_REGION_ID_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROM_REGION_GPL_ID_FKEY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CONCEPT_VISIT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_ENCOUNTER_LEVEL"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_ENCOUNTER_TYPE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_INFO"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_SOURCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_SOURCE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GPL_INFO"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUPER_PATHWAYS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUPER_PATHWAYS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_MET_SUB_PW_MET_MET_ID_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_MET_SUB_PW_MET_SUB_PW_ID_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_MET_SUB_PW_SUP_PW_ID_FKEY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX3"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX4"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX5"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION_BKP"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION_IDX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION_IDX2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION_INDEX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_OBS_ENROLL_DAYS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_OBS_ENROLL_DAYS_IDX2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_OBS_ENROLL_DAYS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_PARENT_CD_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "DE_PARENT_CD_TRG"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_PARENT_CD_SEQ"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_XTRIAL_PARENT_NAMES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE_IDX4"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE_INDEX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_IDX3"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_NAME_IDX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_ANNOTATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANN_JN_ANN_ID_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANN_JN_DATA_ID_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RNASEQ_ANNOTATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SAMPLE_SNP_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SAVED_COMPARISON"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_SJ_MET_DATA_MET_ANN_ID_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_METABOLOMICS_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_CALLS_BY_GSM"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_COPY_NUMBER"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PATIENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PROBE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_INFO"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_DATASET_LOC"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_DATASET_LOC_BK"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_GENE_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_INFO"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE_SORTED_DEF"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE_SORTED_DEF_BK"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_SUBJECT_SORTED_DEF"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_SUBJECT_SORTED_DEF_BK"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA_PATIENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA_REGION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_METABOLOMICS_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA_NEW"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_LOGS"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_MED"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MIRNA_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_MCIDX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_MCIDX2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_MCIDX3"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_MCIDX4"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA_PATIENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA_REGION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING_BK"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SMPL_MPNG_IDX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SMPL_MPNG_IDX2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SMPL_MPNG_IDX3"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET_BK"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET_GSK"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJ_ACGH_REGION_ID_FKEY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJ_RNASEQ_REGION_ID_FKEY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT"
+    },
+      "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_TWO_REGION_EVENT_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT_SEQ"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_TWO_REGION_EVENT_GENE_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT_GENE_SEQ"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT_GENE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT_GENE"
+    },
+      "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT"
+      } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_JUNCTION"
+    },
+      "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_JUNCTION_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_TWO_REGION_JUNCTION"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_JUNCTION_SEQ"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_JUNCTION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_JUNCTION_EVENT"
+    },
+      "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_RGN_JUNCTION_EVENT_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_TWO_RGN_JUNCTION_EVENT_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_RGN_JUNCTION_EVENT_SEQ"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_JUNCTION_EVENT"
+    } ]
+ }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GPL_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUB_DETAIL_IDX2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUB_DT_IDX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUMMARY_DETAIL_GENE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VAR_POPULAT_DEFAULT_IDX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_XTRIAL_CHILD_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_XTRIAL_PARENT_NAMES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_XTRIAL_PARENT_NAMES"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "DUMP_TABLE_TO_CSV"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "ENTREZ_IDX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_GENE_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_PROTEIN_ANNOTATION_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_BY_PROBE_PROBE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PROBE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_BY_PROBE_SNP_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PROBE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_DATASET_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PATIENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_GENE_MAP_SNP_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_GENE_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_LOC_DATASET_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_DATASET_LOC"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_PROBE_SNP_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL2004_5"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL2004_5_MAP"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL3718_20"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL3718_20_MAP"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "GPL_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "HAPLOVIEW_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_RNA_DATA_1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_RNA_DATA_2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_SAMPLE_SNP_DATA_SAMPLE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SAMPLE_SNP_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_SAMPLE_SNP_DATA_SNP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SAMPLE_SNP_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_SUBJ_SMPL_TRIAL_CCODE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_PATHWAY_GENE_PATHWAY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_SNP_CALLS_BY_GSM_PG"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_CALLS_BY_GSM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_SNP_COPY_NUMBER_PS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_COPY_NUMBER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "KEGG"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "KEGG_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "KEGG_DEF"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLITE_SUB_PTH_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLITE_SUP_PTH_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLOMICS_ANNOT_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "FUNCTION",
+      "owner" : "DEAPP",
+      "name" : "NUMBER_PARSER"
+    },
+    "parents" : [ {
+      "type" : "TYPE",
+      "owner" : "DEAPP",
+      "name" : "NUMBER_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TYPE",
+      "owner" : "DEAPP",
+      "name" : "NUMBER_TABLE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_ANNOTATION_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_COMPARISON_QRY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "DEAPP",
+      "name" : "TEXT_PARSER"
+    }, {
+      "type" : "TYPE",
+      "owner" : "DEAPP",
+      "name" : "VARCHAR_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_DBL_COMP_QRY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "DEAPP",
+      "name" : "TEXT_PARSER"
+    }, {
+      "type" : "TYPE",
+      "owner" : "DEAPP",
+      "name" : "VARCHAR_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "PROTEOMICS_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_ANNOTATION_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "RBM_ANNOTATION_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "RBM_COMPARISON_QRY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "DEAPP",
+      "name" : "TEXT_PARSER"
+    }, {
+      "type" : "TYPE",
+      "owner" : "DEAPP",
+      "name" : "VARCHAR_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "RBM_DBL_COMP_QRY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    }, {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "DEAPP",
+      "name" : "TEXT_PARSER"
+    }, {
+      "type" : "TYPE",
+      "owner" : "DEAPP",
+      "name" : "VARCHAR_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "RBM_ID_TRIGGER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_ANNOTATION"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "RBM_ANNOTATION_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "RICERCA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DE_MRNA_ANNOTATION_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_MRNA_PARTITION_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "SNP_NAME_IDX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_GENE_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "SYS_C0029766"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "FUNCTION",
+      "owner" : "DEAPP",
+      "name" : "TEXT_PARSER"
+    },
+    "parents" : [ {
+      "type" : "TYPE",
+      "owner" : "DEAPP",
+      "name" : "VARCHAR_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_CHROMOSOMAL_REGION_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMO_REGION_ID_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_GENE_INFO_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_INFO"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_GENE_SOURCE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_SOURCE"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_MRNA_ANNOTATION_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DE_MRNA_ANNOTATION_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_PATHWAY_GENE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_PATHWAY_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_RC_SNP_INFO_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SNP_INFO_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_INFO"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SNP_PROBE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SNP_PROBE_SORTED_DEF_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE_SORTED_DEF"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SUBJECT_SNP_DATASET_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SUBJECT_SORTED_DEF_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_SUBJECT_SORTED_DEF"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SUBJ_RBM_DATA_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_METADATA_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_PD_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_DETAIL_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_IDX_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_SUMM_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VP_INFO_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_SNP_DATA_BY_PATIENT_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PATIENT"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_SNP_DATA_BY_PROBE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PROBE"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_SNP_DATA_DATASET_LOC_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_DATASET_LOC"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_SNP_SUBJECT_SORTED_DEF_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_SUBJECT_SORTED_DEF"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "TT"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "U_SNP_CHROM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TYPE",
+      "owner" : "DEAPP",
+      "name" : "VARCHAR_TABLE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_DETAIL_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_IDX_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_SUMMARY_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VAR_MET_DATASET_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "VAR_POPULAT_INFO_DATASET_NAME"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO"
+    } ]
+  } ],
+  "fileAssignments" : [ {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DEAPP_ANNOTATION"
+    },
+    "file" : "deapp/deapp_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DEXCM_PARENT_CD_FK"
+    },
+    "file" : "deapp/de_xtrial_child_map.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    },
+    "file" : "deapp/de_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMO_REGION_ID_SEQ"
+    },
+    "file" : "deapp/de_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROM_REGION_GPL_ID_FKEY"
+    },
+    "file" : "deapp/de_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CONCEPT_VISIT"
+    },
+    "file" : "deapp/de_concept_visit.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_ENCOUNTER_LEVEL"
+    },
+    "file" : "deapp/de_encounter_level.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_ENCOUNTER_TYPE"
+    },
+    "file" : "deapp/de_encounter_type.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_INFO"
+    },
+    "file" : "deapp/de_gene_info.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GENE_SOURCE"
+    },
+    "file" : "deapp/de_gene_source.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GPL_INFO"
+    },
+    "file" : "deapp/de_gpl_info.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_ANNOTATION"
+    },
+    "file" : "deapp/de_metabolite_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+    },
+    "file" : "deapp/de_metabolite_sub_pathways.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
+    },
+    "file" : "deapp/de_metabolite_sub_pway_metab.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUPER_PATHWAYS"
+    },
+    "file" : "deapp/de_metabolite_super_pathways.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_MET_SUB_PW_MET_MET_ID_FK"
+    },
+    "file" : "deapp/de_metabolite_sub_pway_metab.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_MET_SUB_PW_MET_SUB_PW_ID_FK"
+    },
+    "file" : "deapp/de_metabolite_sub_pway_metab.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_MET_SUB_PW_SUP_PW_ID_FKEY"
+    },
+    "file" : "deapp/de_metabolite_sub_pathways.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX1"
+    },
+    "file" : "deapp/de_subject_microarray_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX2"
+    },
+    "file" : "deapp/de_subject_microarray_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX3"
+    },
+    "file" : "deapp/de_subject_microarray_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX4"
+    },
+    "file" : "deapp/de_subject_microarray_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MICROARRAY_DATA_IDX5"
+    },
+    "file" : "deapp/de_subject_microarray_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION"
+    },
+    "file" : "deapp/de_mrna_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION_BKP"
+    },
+    "file" : "deapp/de_mrna_annotation_bkp.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION_IDX1"
+    },
+    "file" : "deapp/de_mrna_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION_IDX2"
+    },
+    "file" : "deapp/de_mrna_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION_INDEX1"
+    },
+    "file" : "deapp/de_mrna_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_OBS_ENROLL_DAYS"
+    },
+    "file" : "deapp/de_obs_enroll_days.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_OBS_ENROLL_DAYS_IDX2"
+    },
+    "file" : "deapp/de_obs_enroll_days.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_PARENT_CD_SEQ"
+    },
+    "file" : "deapp/de_xtrial_parent_names.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "DE_PARENT_CD_TRG"
+    },
+    "file" : "deapp/de_xtrial_parent_names.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY"
+    },
+    "file" : "deapp/de_pathway.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE"
+    },
+    "file" : "deapp/de_pathway_gene.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE_IDX4"
+    },
+    "file" : "deapp/de_pathway_gene.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE_INDEX1"
+    },
+    "file" : "deapp/de_pathway_gene.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_IDX3"
+    },
+    "file" : "deapp/de_pathway.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_NAME_IDX"
+    },
+    "file" : "deapp/de_pathway.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    },
+    "file" : "deapp/de_protein_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    },
+    "file" : "deapp/de_qpcr_mirna_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_ANNOTATION"
+    },
+    "file" : "deapp/de_rbm_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
+    },
+    "file" : "deapp/de_rbm_data_annotation_join.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANN_JN_ANN_ID_FK"
+    },
+    "file" : "deapp/de_rbm_data_annotation_join.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANN_JN_DATA_ID_FK"
+    },
+    "file" : "deapp/de_rbm_data_annotation_join.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
+    },
+    "file" : "deapp/de_rc_snp_info.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO_SEQ"
+    },
+    "file" : "deapp/de_rc_snp_info.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RNASEQ_ANNOTATION"
+    },
+    "file" : "deapp/de_rnaseq_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SAMPLE_SNP_DATA"
+    },
+    "file" : "deapp/de_sample_snp_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SAVED_COMPARISON"
+    },
+    "file" : "deapp/de_saved_comparison.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_SJ_MET_DATA_MET_ANN_ID_FK"
+    },
+    "file" : "deapp/de_subject_metabolomics_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_CALLS_BY_GSM"
+    },
+    "file" : "deapp/de_snp_calls_by_gsm.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_COPY_NUMBER"
+    },
+    "file" : "deapp/de_snp_copy_number.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PATIENT"
+    },
+    "file" : "deapp/de_snp_data_by_patient.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PROBE"
+    },
+    "file" : "deapp/de_snp_data_by_probe.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_DATASET_LOC"
+    },
+    "file" : "deapp/de_snp_data_dataset_loc.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_DATASET_LOC_BK"
+    },
+    "file" : "deapp/de_snp_data_dataset_loc_bk.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_GENE_MAP"
+    },
+    "file" : "deapp/de_snp_gene_map.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_INFO"
+    },
+    "file" : "deapp/de_snp_info.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE"
+    },
+    "file" : "deapp/de_snp_probe.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE_SORTED_DEF"
+    },
+    "file" : "deapp/de_snp_probe_sorted_def.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE_SORTED_DEF_BK"
+    },
+    "file" : "deapp/de_snp_probe_sorted_def_bk.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_SUBJECT_SORTED_DEF"
+    },
+    "file" : "deapp/de_snp_subject_sorted_def.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_SUBJECT_SORTED_DEF_BK"
+    },
+    "file" : "deapp/de_snp_subject_sorted_def_bk.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    },
+    "file" : "deapp/de_subject_acgh_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA_PATIENT"
+    },
+    "file" : "deapp/de_subject_acgh_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA_REGION"
+    },
+    "file" : "deapp/de_subject_acgh_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_METABOLOMICS_DATA"
+    },
+    "file" : "deapp/de_subject_metabolomics_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    },
+    "file" : "deapp/de_subject_microarray_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA_NEW"
+    },
+    "file" : "deapp/de_subject_microarray_data_new.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_LOGS"
+    },
+    "file" : "deapp/de_subject_microarray_logs.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_MED"
+    },
+    "file" : "deapp/de_subject_microarray_med.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MIRNA_DATA"
+    },
+    "file" : "deapp/de_subject_mirna_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    },
+    "file" : "deapp/de_subject_protein_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
+    },
+    "file" : "deapp/de_subject_proteomics_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    },
+    "file" : "deapp/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA_SEQ"
+    },
+    "file" : "deapp/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_MCIDX1"
+    },
+    "file" : "deapp/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_MCIDX2"
+    },
+    "file" : "deapp/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_MCIDX3"
+    },
+    "file" : "deapp/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_MCIDX4"
+    },
+    "file" : "deapp/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
+    },
+    "file" : "deapp/de_subject_rnaseq_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA_PATIENT"
+    },
+    "file" : "deapp/de_subject_rnaseq_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA_REGION"
+    },
+    "file" : "deapp/de_subject_rnaseq_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    },
+    "file" : "deapp/de_subject_rna_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    },
+    "file" : "deapp/de_subject_sample_mapping.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING_BK"
+    },
+    "file" : "deapp/de_subject_sample_mapping_bk.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SMPL_MPNG_IDX1"
+    },
+    "file" : "deapp/de_subject_sample_mapping.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SMPL_MPNG_IDX2"
+    },
+    "file" : "deapp/de_subject_sample_mapping.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SMPL_MPNG_IDX3"
+    },
+    "file" : "deapp/de_subject_sample_mapping.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET"
+    },
+    "file" : "deapp/de_subject_snp_dataset.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET_BK"
+    },
+    "file" : "deapp/de_subject_snp_dataset_bk.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET_GSK"
+    },
+    "file" : "deapp/de_subject_snp_dataset_gsk.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJ_ACGH_REGION_ID_FKEY"
+    },
+    "file" : "deapp/de_subject_acgh_data.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJ_RNASEQ_REGION_ID_FKEY"
+    },
+    "file" : "deapp/de_subject_rnaseq_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT"
+    },
+    "file" : "deapp/de_two_region_event.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT_SEQ"
+    },
+    "file" : "deapp/de_two_region_event.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_TWO_REGION_EVENT_ID"
+    },
+    "file" : "deapp/de_two_region_event.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT_GENE"
+    },
+    "file" : "deapp/de_two_region_event_gene.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_EVENT_GENE_SEQ"
+    },
+    "file" : "deapp/de_two_region_event_gene.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_TWO_REGION_EVENT_GENE_ID"
+    },
+    "file" : "deapp/de_two_region_event_gene.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_JUNCTION"
+    },
+    "file" : "deapp/de_two_region_junction.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_JUNCTION_SEQ"
+    },
+    "file" : "deapp/de_two_region_junction.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_TWO_REGION_JUNCTION"
+    },
+    "file" : "deapp/de_two_region_junction.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_REGION_JUNCTION_EVENT"
+    },
+    "file" : "deapp/de_two_region_junction_event.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_TWO_RGN_JUNCTION_EVENT_SEQ"
+    },
+    "file" : "deapp/de_two_region_junction.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_TWO_RGN_JUNCTION_EVENT_ID"
+    },
+    "file" : "deapp/de_two_region_junction.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    },
+    "file" : "deapp/de_variant_dataset.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA"
+    },
+    "file" : "deapp/de_variant_metadata.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA_SEQ"
+    },
+    "file" : "deapp/de_variant_metadata.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    },
+    "file" : "deapp/de_variant_population_data.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA_SEQ"
+    },
+    "file" : "deapp/de_variant_population_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO"
+    },
+    "file" : "deapp/de_variant_population_info.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO_SEQ"
+    },
+    "file" : "deapp/de_variant_population_info.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL_SEQ"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX"
+    },
+    "file" : "deapp/de_variant_subject_idx.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX_SEQ"
+    },
+    "file" : "deapp/de_variant_subject_idx.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    },
+    "file" : "deapp/de_variant_subject_summary.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY_SEQ"
+    },
+    "file" : "deapp/de_variant_subject_summary.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUB_DETAIL_IDX2"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUB_DT_IDX1"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUMMARY_DETAIL_GENE"
+    },
+    "file" : "deapp/views/de_variant_summary_detail_gene.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_VAR_POPULAT_DEFAULT_IDX"
+    },
+    "file" : "deapp/de_variant_population_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_XTRIAL_CHILD_MAP"
+    },
+    "file" : "deapp/de_xtrial_child_map.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_XTRIAL_PARENT_NAMES"
+    },
+    "file" : "deapp/de_xtrial_parent_names.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "DUMP_TABLE_TO_CSV"
+    },
+    "file" : "deapp/procedures/dump_table_to_csv.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "ENTREZ_IDX1"
+    },
+    "file" : "deapp/de_snp_gene_map.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_PROTEIN_ANNOTATION_ID"
+    },
+    "file" : "deapp/de_subject_protein_data.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_BY_PROBE_PROBE_ID"
+    },
+    "file" : "deapp/de_snp_data_by_probe.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_BY_PROBE_SNP_ID"
+    },
+    "file" : "deapp/de_snp_data_by_probe.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_DATASET_ID"
+    },
+    "file" : "deapp/de_snp_data_by_patient.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_GENE_MAP_SNP_ID"
+    },
+    "file" : "deapp/de_snp_gene_map.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_LOC_DATASET_ID"
+    },
+    "file" : "deapp/de_snp_data_dataset_loc.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "FK_SNP_PROBE_SNP_ID"
+    },
+    "file" : "deapp/de_snp_probe.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL2004_5"
+    },
+    "file" : "deapp/gpl2004_5.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL2004_5_MAP"
+    },
+    "file" : "deapp/gpl2004_5_map.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL3718_20"
+    },
+    "file" : "deapp/gpl3718_20.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL3718_20_MAP"
+    },
+    "file" : "deapp/gpl3718_20_map.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "GPL_ID"
+    },
+    "file" : "deapp/de_variant_dataset.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "HAPLOVIEW_DATA"
+    },
+    "file" : "deapp/haploview_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_RNA_DATA_1"
+    },
+    "file" : "deapp/de_subject_rna_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_RNA_DATA_2"
+    },
+    "file" : "deapp/de_subject_rna_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_SAMPLE_SNP_DATA_SAMPLE"
+    },
+    "file" : "deapp/de_sample_snp_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_SAMPLE_SNP_DATA_SNP"
+    },
+    "file" : "deapp/de_sample_snp_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DE_SUBJ_SMPL_TRIAL_CCODE"
+    },
+    "file" : "deapp/de_subject_sample_mapping.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_PATHWAY_GENE_PATHWAY"
+    },
+    "file" : "deapp/de_pathway_gene.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_SNP_CALLS_BY_GSM_PG"
+    },
+    "file" : "deapp/de_snp_calls_by_gsm.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_SNP_COPY_NUMBER_PS"
+    },
+    "file" : "deapp/de_snp_copy_number.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "KEGG"
+    },
+    "file" : "deapp/kegg.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "KEGG_DATA"
+    },
+    "file" : "deapp/kegg_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "KEGG_DEF"
+    },
+    "file" : "deapp/kegg_def.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLITE_SUB_PTH_ID"
+    },
+    "file" : "deapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLITE_SUP_PTH_ID"
+    },
+    "file" : "deapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLOMICS_ANNOT_ID"
+    },
+    "file" : "deapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "FUNCTION",
+      "owner" : "DEAPP",
+      "name" : "NUMBER_PARSER"
+    },
+    "file" : "deapp/functions/number_parser.sql"
+  }, {
+    "item" : {
+      "type" : "TYPE",
+      "owner" : "DEAPP",
+      "name" : "NUMBER_TABLE"
+    },
+    "file" : "deapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_ANNOTATION_ID"
+    },
+    "file" : "deapp/de_protein_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_COMPARISON_QRY"
+    },
+    "file" : "deapp/procedures/protein_comparison_qry.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_DBL_COMP_QRY"
+    },
+    "file" : "deapp/procedures/protein_dbl_comp_qry.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "PROTEOMICS_ID"
+    },
+    "file" : "deapp/de_protein_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "RBM_ANNOTATION_ID"
+    },
+    "file" : "deapp/de_rbm_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "RBM_COMPARISON_QRY"
+    },
+    "file" : "deapp/procedures/rbm_comparison_qry.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "RBM_DBL_COMP_QRY"
+    },
+    "file" : "deapp/procedures/rbm_dbl_comp_qry.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "RBM_ID_TRIGGER"
+    },
+    "file" : "deapp/de_rbm_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "RICERCA"
+    },
+    "file" : "deapp/ricerca.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    },
+    "file" : "deapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    },
+    "file" : "deapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DE_MRNA_ANNOTATION_ID"
+    },
+    "file" : "deapp/de_mrna_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_MRNA_PARTITION_ID"
+    },
+    "file" : "deapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "SNP_NAME_IDX1"
+    },
+    "file" : "deapp/de_snp_gene_map.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "SYS_C0029766"
+    },
+    "file" : "deapp/de_gene_info.sql"
+  }, {
+    "item" : {
+      "type" : "FUNCTION",
+      "owner" : "DEAPP",
+      "name" : "TEXT_PARSER"
+    },
+    "file" : "deapp/functions/text_parser.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_CHROMOSOMAL_REGION_ID"
+    },
+    "file" : "deapp/de_chromosomal_region.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_GENE_INFO_ID"
+    },
+    "file" : "deapp/de_gene_info.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_GENE_SOURCE_ID"
+    },
+    "file" : "deapp/de_gene_source.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_MRNA_ANNOTATION_ID"
+    },
+    "file" : "deapp/de_mrna_annotation.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_PATHWAY_GENE_ID"
+    },
+    "file" : "deapp/de_pathway_gene.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_PATHWAY_ID"
+    },
+    "file" : "deapp/de_pathway.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_RC_SNP_INFO_ID"
+    },
+    "file" : "deapp/de_rc_snp_info.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SNP_INFO_ID"
+    },
+    "file" : "deapp/de_snp_info.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SNP_PROBE_ID"
+    },
+    "file" : "deapp/de_snp_probe.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SNP_PROBE_SORTED_DEF_ID"
+    },
+    "file" : "deapp/de_snp_probe_sorted_def.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SUBJECT_SNP_DATASET_ID"
+    },
+    "file" : "deapp/de_subject_snp_dataset.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SUBJECT_SORTED_DEF_ID"
+    },
+    "file" : "deapp/de_snp_subject_sorted_def.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_SUBJ_RBM_DATA_ID"
+    },
+    "file" : "deapp/de_subject_rbm_data.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_METADATA_ID"
+    },
+    "file" : "deapp/de_variant_metadata.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_PD_ID"
+    },
+    "file" : "deapp/de_variant_population_data.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_DETAIL_ID"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_IDX_ID"
+    },
+    "file" : "deapp/de_variant_subject_idx.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VARIANT_SUBJ_SUMM_ID"
+    },
+    "file" : "deapp/de_variant_subject_summary.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_DE_VP_INFO_ID"
+    },
+    "file" : "deapp/de_variant_population_info.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_SNP_DATA_BY_PATIENT_ID"
+    },
+    "file" : "deapp/de_snp_data_by_patient.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_SNP_DATA_BY_PROBE_ID"
+    },
+    "file" : "deapp/de_snp_data_by_probe.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_SNP_DATA_DATASET_LOC_ID"
+    },
+    "file" : "deapp/de_snp_data_dataset_loc.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_SNP_SUBJECT_SORTED_DEF_ID"
+    },
+    "file" : "deapp/de_snp_subject_sorted_def.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "TT"
+    },
+    "file" : "deapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "U_SNP_CHROM"
+    },
+    "file" : "deapp/de_snp_info.sql"
+  }, {
+    "item" : {
+      "type" : "TYPE",
+      "owner" : "DEAPP",
+      "name" : "VARCHAR_TABLE"
+    },
+    "file" : "deapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_DETAIL_FK"
+    },
+    "file" : "deapp/de_variant_subject_detail.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_IDX_FK"
+    },
+    "file" : "deapp/de_variant_subject_idx.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VARIANT_SUBJECT_SUMMARY_FK"
+    },
+    "file" : "deapp/de_variant_subject_summary.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "DEAPP",
+      "name" : "VAR_MET_DATASET_ID"
+    },
+    "file" : "deapp/de_variant_metadata.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "VAR_POPULAT_INFO_DATASET_NAME"
+    },
+    "file" : "deapp/de_variant_population_info.sql"
+  } ]
+}
