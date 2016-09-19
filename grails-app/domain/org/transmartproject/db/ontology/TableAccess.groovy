@@ -28,6 +28,7 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.concept.ConceptKey
+import org.transmartproject.db.util.StringUtils
 
 @EqualsAndHashCode(includes = [ 'tableCode' ])
 class TableAccess extends AbstractQuerySpecifyingType implements
@@ -199,7 +200,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                     "$fullName)")
 
         /* Finally select the relevant stuff */
-        def fullNameSearch = fullName.asLikeLiteral() + '%'
+        def fullNameSearch = StringUtils.asLikeLiteral(fullName) + '%'
 
         c = domainClass.createCriteria()
         c.list {

@@ -33,6 +33,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.BindingUtils
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.I2b2
+import org.transmartproject.db.util.StringUtils
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.FOLDER
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
@@ -146,7 +147,7 @@ class ClinicalVariableFactory {
         def resolvedConceptPath = resolveConceptPath(conceptCode, conceptPath)
 
         List<? extends OntologyTerm> terms = I2b2.withCriteria {
-            'like' 'fullName', resolvedConceptPath.asLikeLiteral() + '%'
+            'like' 'fullName', StringUtils.asLikeLiteral(resolvedConceptPath) + '%'
             order 'fullName', 'asc'
         }
 
@@ -264,7 +265,7 @@ class ClinicalVariableFactory {
         def resolvedConceptPath = resolveConceptPath(conceptCode, conceptPath)
 
         def result = ConceptDimension.withCriteria {
-            like 'conceptPath', resolvedConceptPath.asLikeLiteral() + '%'
+            like 'conceptPath', StringUtils.asLikeLiteral(resolvedConceptPath) + '%'
 
             order 'conceptPath', 'asc'
         }
