@@ -73,6 +73,15 @@ solr_home: $(EXAMPLE_FILES) $(DRIVER) $(FOUND_CORE_TARGETS) $(ROOT_FILES)
 start: solr_home
 	java -jar start.jar
 
+java := $(shell { which java; } 2>/dev/null )
+pwd := $(shell { pwd; } 2>/dev/null )
+start_solr: solr_home
+	test -x "$(java)" || { echo "Java not found."; exit 1; }
+	start-stop-daemon --background --make-pidfile --pidfile /tmp/solr.pid --start -d $(pwd) -a $(java) -- -jar start.jar
+
+stop_solr: solr_home
+	start-stop-daemon --pidfile /tmp/solr.pid --stop
+
 $(FULL_IMPORT_TARGETS):
 	curl -f "http://localhost:8983/solr/$(patsubst %_full_import,%,$@)/dataimport?command=full-import"
 
