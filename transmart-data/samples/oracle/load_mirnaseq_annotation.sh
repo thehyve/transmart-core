@@ -1,0 +1,1 @@
+../common/load_mirnaseq_annotation.sh

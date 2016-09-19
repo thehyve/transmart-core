@@ -1,0 +1,4 @@
+/kettle-home/kettle.properties
+load_clinical
+/postgresql-*.jar
+*.log

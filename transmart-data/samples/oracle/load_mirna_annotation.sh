@@ -1,0 +1,1 @@
+../common/load_mirna_annotation.sh

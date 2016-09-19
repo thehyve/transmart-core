@@ -1,0 +1,17 @@
+/pdi-ce-4.4.0-stable.tar.gz
+/tranSMART-ETL
+/data-integration
+/groovy
+/groovy-*
+/transmart-loader.tar.xz
+/transmart-loader
+/transmart-loader-from-file-server
+/transmart-loader-latest-bamboo-snapshot
+/batchdb-psql.properties
+/batchdb-oracle.properties
+/transmart-batch-capsule.jar
+/mvn
+/apache-maven-*
+/php5
+/php
+/php-5.*

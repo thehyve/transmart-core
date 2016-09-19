@@ -1,0 +1,73 @@
+array (
+  'id' => 'waterfall',
+  'name' => 'Waterfall',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'MRNA.TXT' => 'mrnaData',
+    'CLINICAL.TXT' => 'TRUE',
+    'SNP.TXT' => 'snpData',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||CONCEPT||' => 'dataNode',
+    '||GENES||' => 'divDataNodePathway',
+    '||CONCEPTTYPE||' => 'divDataNodeType',
+    '||AGGREGATE||' => 'divDataNodeprobesAggregation',
+    '||TIMEPOINTS||' => 'divDataNodetimepoints',
+    '||LOWRANGEVALUE||' => 'lowRangeValue',
+    '||SNPTYPE||' => 'divDataNodeSNPType',
+    '||LOWRANGEOPERATOR||' => 'lowRangeOperator',
+    '||TISSUES||' => 'divDataNodetissues',
+    '||HIGHRANGEVALUE||' => 'highRangeValue',
+    '||HIGHRANGEOPERATOR||' => 'highRangeOperator',
+    '||SAMPLE||' => 'divDataNodesamples',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Waterfall/BuildWaterfallData.R\')',
+      4 => 'WaterfallData.build(
+        input.dataFile    = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
+        concept           = \'||CONCEPT||\',
+        input.gexFile     = \'||TEMPFOLDERDIRECTORY||mRNA/Processed_Data/mRNA.trans\',
+        input.snpFile     = \'||TEMPFOLDERDIRECTORY||SNP/snp.trans\',
+        concept.type      = \'||CONCEPTTYPE||\',
+        genes             = \'||GENES||\',
+        genes.aggregate   = \'||AGGREGATE||\',
+        sample            = \'||SAMPLE||\',
+        time              = \'||TIMEPOINTS||\',
+        snptype           = \'||SNPTYPE||\',
+        lowRangeOperator  = \'||LOWRANGEOPERATOR||\',
+        lowRangeValue     = \'||LOWRANGEVALUE||\',
+        highRangeOperator = \'||HIGHRANGEOPERATOR||\',
+        highRangeValue    = \'||HIGHRANGEVALUE||\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Waterfall/WaterfallPlotLoader.R\')',
+      1 => 'WaterfallPlot.loader(
+        input.filename = \'outputfile\',
+        concept        = \'||CONCEPT||\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/waterfall/waterfallOut',
+  ),
+  'view' => 'Waterfall',
+)

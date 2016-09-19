@@ -1,0 +1,65 @@
+--- solrconfig.xml	2013-10-14 16:39:13.547117233 +0200
++++ solrconfig-patched.xml	2013-10-14 16:40:47.493743467 +0200
+@@ -72,17 +72,14 @@
+        The examples below can be used to load some solr-contribs along 
+        with their external dependencies.
+     -->
+-  <lib dir="../../../contrib/extraction/lib" regex=".*\.jar" />
+-  <lib dir="../../../dist/" regex="solr-cell-\d.*\.jar" />
++  <lib dir="../../contrib/extraction/lib" regex=".*\.jar" />
++  <lib dir="../../dist/" regex="solr-cell-\d.*\.jar" />
+ 
+-  <lib dir="../../../contrib/clustering/lib/" regex=".*\.jar" />
+-  <lib dir="../../../dist/" regex="solr-clustering-\d.*\.jar" />
++  <lib dir="../../contrib/velocity/lib" regex=".*\.jar" />
++  <lib dir="../../dist/" regex="solr-velocity-\d.*\.jar" />
+ 
+-  <lib dir="../../../contrib/langid/lib/" regex=".*\.jar" />
+-  <lib dir="../../../dist/" regex="solr-langid-\d.*\.jar" />
+-
+-  <lib dir="../../../contrib/velocity/lib" regex=".*\.jar" />
+-  <lib dir="../../../dist/" regex="solr-velocity-\d.*\.jar" />
++  <lib dir="../../contrib/dataimporthandler/lib" regex=".*\.jar" />
++  <lib dir="../../dist/" regex="solr-dataimporthandler-\d.*\.jar" />
+ 
+   <!-- an exact 'path' can be used instead of a 'dir' to specify a 
+        specific jar file.  This will cause a serious error to be logged 
+@@ -817,7 +814,6 @@
+      <lst name="defaults">
+        <str name="echoParams">explicit</str>
+        <int name="rows">10</int>
+-       <str name="df">text</str>
+      </lst>
+     <!-- In addition to defaults, "appends" params can be specified
+          to identify values which should be appended to the list of
+@@ -1398,7 +1394,7 @@
+        http://carrot2.github.io/solr-integration-strategies/
+     -->
+   <searchComponent name="clustering"
+-                   enable="${solr.clustering.enabled:true}"
++                   enable="${solr.clustering.enabled:false}"
+                    class="solr.clustering.ClusteringComponent" >
+     <!-- Declare a named clustering engine. Only one engine can be named 
+          "default" (and it becomes the default one for the search component). 
+@@ -1457,7 +1453,7 @@
+     -->
+   <requestHandler name="/clustering"
+                   startup="lazy"
+-                  enable="${solr.clustering.enabled:true}"
++                  enable="${solr.clustering.enabled:false}"
+                   class="solr.SearchHandler">
+     <lst name="defaults">
+       <bool name="clustering">true</bool>
+@@ -1536,6 +1532,12 @@
+     </arr>
+   </requestHandler>
+ 
++  <requestHandler name="/dataimport" class="org.apache.solr.handler.dataimport.DataImportHandler">
++    <lst name="defaults">
++      <str name="config">data-config.xml</str>
++    </lst>
++  </requestHandler>
++
+   <!-- Highlighting Component
+ 
+        http://wiki.apache.org/solr/HighlightingParameters

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="tranSMART" version="1.0">
+  <fields>
+    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="folder" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="name" type="text_general" indexed="true" stored="true" multiValued="false"/>
+
+    <!-- SOLR Cel fields -->
+    <field name="title" type="text_general" indexed="true" stored="true" multiValued="true"/>
+    <field name="subject" type="text_general" indexed="true" stored="true"/>
+    <field name="description" type="text_general" indexed="true" stored="true"/>
+    <field name="comments" type="text_general" indexed="true" stored="true"/>
+    <field name="author" type="text_general" indexed="true" stored="true"/>
+    <field name="keywords" type="text_general" indexed="true" stored="true"/>
+    <field name="category" type="text_general" indexed="true" stored="true"/>
+    <field name="resourcename" type="text_general" indexed="true" stored="true"/>
+    <field name="url" type="text_general" indexed="true" stored="true"/>
+    <field name="content_type" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="last_modified" type="date" indexed="true" stored="true"/>
+    <field name="links" type="string" indexed="true" stored="true" multiValued="true"/>
+
+    <!-- tranSMART fields -->
+    <field name="ACCESSION" type="string" indexed="true" stored="true" required="false"/>
+    <field name="ANALYSIS_ID" type="string" indexed="true" stored="true" required="false"/>
+    <field name="ANALYSIS_PLATFORM_NAME" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="ANALYSIS_MEASUREMENT_TYPE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="ANALYSIS_TECHNOLOGY" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="ANALYSIS_VENDOR" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="ASSAY_PLATFORM_NAME" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="ASSAY_MEASUREMENT_TYPE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="ASSAY_TECHNOLOGY" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="ASSAY_VENDOR" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="ASSAY_TYPE_OF_BM_STUDIED" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="COMPOUND" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="COUNTRY" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="DISEASE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="GENE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="MIRNA" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="OBSERVATION" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="PATHWAY" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="PLATFORM_NAME" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="PROGRAM_INSTITUTION" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="PROGRAM_TARGET" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="SPECIES" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="STUDY_BIOMARKER_TYPE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="STUDY_ID" type="string" indexed="true" stored="true" required="false"/>
+    <field name="STUDY_ACCESS_TYPE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="STUDY_DESIGN" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="STUDY_INSTITUTION" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="STUDY_OBJECTIVE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="STUDY_PHASE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="SUBTYPE" type="string" indexed="true" stored="true" required="false"/>
+    <field name="TECHNOLOGY" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="THERAPEUTIC_DOMAIN" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="TYPE" type="string" indexed="true" stored="true" required="false"/>
+    <field name="VENDOR" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="FILE_TYPE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="content" type="text_general" indexed="false" stored="true" multiValued="true"/>
+    <field name="text" type="text_general" indexed="true" stored="true" multiValued="true"/>
+    <field name="text_rev" type="text_general_rev" indexed="true" stored="true" multiValued="true"/>
+    <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
+    <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
+
+    <!-- i2b2 fields -->
+    <field name="Pathology" type="string" indexed="true" stored="true" required="false"/>
+    <field name="Tissue" type="string" indexed="true" stored="true" required="false"/>
+    <field name="DataSet" type="string" indexed="true" stored="true" required="false"/>
+    <field name="DataType" type="string" indexed="true" stored="true" required="false"/>
+    <field name="BioBank" type="string" indexed="true" stored="true" required="false"/>
+    <field name="Source_Organism" type="string" indexed="true" stored="true" required="false"/>
+    <field name="Subject_Treatment" type="string" indexed="true" stored="true" required="false"/>
+    <field name="Sample_Treatment" type="string" indexed="true" stored="true" required="false"/>
+
+    <dynamicField name="*" type="ignored" multiValued="true"/>
+  </fields>
+
+  <uniqueKey>id</uniqueKey>
+
+  <defaultSearchField>text</defaultSearchField>
+
+  <!-- Text fields from SolrCell to search by default in our catch-all field -->
+  <copyField source="name" dest="text"/>
+  <copyField source="title" dest="text"/>
+  <copyField source="description" dest="text"/>
+  <copyField source="content" dest="text"/>
+
+  <types>
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
+    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="date" class="solr.TrieDateField" precisionStep="0" positionIncrementGap="0"/>
+
+    <!-- A general text field that has reasonable, generic
+         cross-language defaults: it tokenizes with StandardTokenizer,
+	 removes stop words from case-insensitive "stopwords.txt"
+	 (empty by default), and down cases.  At query time only, it
+	 also applies synonyms. -->
+    <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <!-- Just like text_general except it reverses the characters of
+	 each token, to enable more efficient leading wildcard queries. -->
+    <fieldType name="text_general_rev" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.ReversedWildcardFilterFactory" withOriginal="true" maxPosAsterisk="3" maxPosQuestion="2" maxFractionAsterisk="0.33"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <!-- since fields of this type are by default not stored or indexed,
+         any data added to them will be ignored outright.  -->
+    <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField"/>
+  </types>
+</schema>
