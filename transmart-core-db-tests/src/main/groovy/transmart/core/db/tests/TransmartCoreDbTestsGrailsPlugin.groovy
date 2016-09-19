@@ -1,6 +1,6 @@
 package transmart.core.db.tests
 
-import org.transmartproject.db.test.H2Views
+import grails.plugins.*
 
 /*
  * Copyright © 2013-2014 The Hyve B.V.
@@ -21,6 +21,8 @@ import org.transmartproject.db.test.H2Views
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import org.transmartproject.db.test.H2Views
+
 class TransmartCoreDbTestsGrailsPlugin extends Plugin {
     def version = "16.2-SNAPSHOT"
     def grailsVersion = "3.1.10 > *"
@@ -36,11 +38,11 @@ class TransmartCoreDbTestsGrailsPlugin extends Plugin {
 
     def documentation = "http://transmartproject.org"
 
-    def scm = [url: "https://fisheye.ctmmtrait.nl/browse/transmart_core_db"]
+    def scm = [ url: "https://fisheye.ctmmtrait.nl/browse/transmart_core_db" ]
 
     def developers = [
-            [name: "Ruslan Forostianov", email: "ruslan@thehyve.nl"],
-            [name: "Peter Kok", email: "peter@thehyve.nl"]
+            [ name: "Ruslan Forostianov", email: "ruslan@thehyve.nl" ],
+            [ name: "Peter Kok", email: "peter@thehyve.nl" ]
     ]
 
     def doWithSpring = {
