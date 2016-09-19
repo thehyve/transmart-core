@@ -19,14 +19,14 @@
 
 package org.transmartproject.db.dataquery.highdim.rnaseq
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
 import spock.lang.Specification
 
 import com.google.common.collect.Lists
 import org.hibernate.SessionFactory
-import org.junit.After
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -46,9 +46,9 @@ import static org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqModule.RNAS
 import static org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqTestData.TRIAL_NAME
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
 class RnaSeqEndToEndRetrievalSpec extends Specification {
 
     private static final double DELTA = 0.0001
@@ -67,7 +67,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
 
     AssayConstraint trialNameConstraint
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
         sessionFactory.currentSession.flush()
 
@@ -85,6 +85,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
     }
 
     void basicTest() {
+        setupData()
         def assayConstraints = [
                 rnaseqResource.createAssayConstraint(
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),
@@ -161,6 +162,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
     }
 
     void testLogIntensityProjection() {
+        setupData()
         def logIntensityProjection = rnaseqResource.createProjection(
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
@@ -177,6 +179,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
 
 
     void testDefaultRealProjection() {
+        setupData()
 
         def realProjection = rnaseqResource.createProjection(
                 [:], Projection.DEFAULT_REAL_PROJECTION)
@@ -209,6 +212,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
     }
 
     void testSegments_meetOne() {
+        setupData()
         def assayConstraints = [
                 rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
@@ -233,6 +237,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
     }
 
     void testSegments_meetBoth() {
+        setupData()
         def assayConstraints = [
                 rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
@@ -290,6 +295,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
     }
 
     void testSegments_meetNone() {
+        setupData()
         def assayConstraints = [
                 rnaseqResource.createAssayConstraint(
                         AssayConstraint.PATIENT_SET_CONSTRAINT,
@@ -318,6 +324,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
 
 
     void testWithGeneConstraint() {
+        setupData()
         def assayConstraints = [
                 rnaseqResource.createAssayConstraint(
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME),

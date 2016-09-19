@@ -19,13 +19,13 @@
 
 package org.transmartproject.db.dataquery.highdim.rnaseqcog
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
 import spock.lang.Specification
 
 import com.google.common.collect.Lists
-import org.junit.After
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -41,9 +41,9 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
 class RnaSeqCogEndToEndRetrievalSpec extends Specification {
 
     private static final double DELTA = 0.0001
@@ -59,7 +59,7 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
 
     AssayConstraint trialNameConstraint
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
 
         rnaSeqCogResource = highDimensionResourceService.
@@ -77,7 +77,8 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
         result?.close()
     }
 
-    void basicTest() {
+    void testBasic() {
+        setupData()
         when:
         result = rnaSeqCogResource.retrieveData([ trialNameConstraint ],
                 [], projection)
@@ -101,6 +102,7 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
     }
 
     void testDataRowsProperties() {
+        setupData()
         result = rnaSeqCogResource.retrieveData([ trialNameConstraint ],
                 [], projection)
 
@@ -114,6 +116,7 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
     }
 
     void testLogIntensityProjection() {
+        setupData()
         def logIntensityProjection = rnaSeqCogResource.createProjection(
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
@@ -129,6 +132,7 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
     }
 
     void testDefaultRealProjection() {
+        setupData()
         result = rnaSeqCogResource.retrieveData([ trialNameConstraint ], [],
                 rnaSeqCogResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
 
@@ -139,6 +143,7 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
     }
 
     void testGeneConstraint() {
+        setupData()
         DataConstraint geneConstraint = rnaSeqCogResource.createDataConstraint(
                 DataConstraint.GENES_CONSTRAINT,
                 names: [ 'BOGUSVNN3' ])
@@ -152,6 +157,7 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
     }
 
     void testMissingAssaysAllowedSucceeds() {
+        setupData()
         testWithMissingDataAssay(-50000L)
         expect: Lists.newArrayList(result.rows) everyItem(
                 hasProperty('data', allOf(

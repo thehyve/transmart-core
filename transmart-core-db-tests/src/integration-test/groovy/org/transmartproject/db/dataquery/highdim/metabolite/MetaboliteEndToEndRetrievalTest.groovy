@@ -21,10 +21,10 @@ package org.transmartproject.db.dataquery.highdim.metabolite
 
 import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
+import grails.transaction.Rollback
 import org.hamcrest.Matcher
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -33,14 +33,15 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
-@TestMixin(RuleBasedIntegrationTestMixin)
-class MetaboliteEndToEndRetrievalTest {
+@TestMixin(ControllerUnitTestMixin)
+@Integration
+@Rollback
+class MetaboliteEndToEndRetrievalSpec {
 
     /* scale of the zscore column is 5, so this is the max rounding error */
     private static Double DELTA = 0.000005
@@ -60,19 +61,17 @@ class MetaboliteEndToEndRetrievalTest {
 
     MetaboliteTestData testData = new MetaboliteTestData()
 
-    @Before
-    void setup() {
+    void setupData() {
         testData.saveAll()
         metaboliteResource = highDimensionResourceService.getSubResourceForType('metabolite')
     }
 
-    @After
-    void tearDown() {
+    void cleanup() {
         result?.close()
     }
 
-    @Test
-    void fetchAllDataTest() {
+    void testFetchAllData() {
+        setupData()
         result = metaboliteResource.retrieveData([trialConstraint], [], projection)
 
         List rows = Lists.newArrayList result.rows
@@ -89,8 +88,8 @@ class MetaboliteEndToEndRetrievalTest {
         )
     }
 
-    @Test
     void testLogIntensityProjection() {
+        setupData()
         def logIntensityProjection = metaboliteResource.createProjection(
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
@@ -114,8 +113,8 @@ class MetaboliteEndToEndRetrievalTest {
                 collect { closeTo(it.zscore as Double, DELTA) }
     }
 
-    @Test
-    void searchWithHmdbId() {
+    void testSearchWithHmdbId() {
+        setupData()
         def hmdbid = 'HMDB30537'
         def dataConstraint = metaboliteResource.createDataConstraint(
                 'metabolites',
@@ -131,8 +130,8 @@ class MetaboliteEndToEndRetrievalTest {
                         testData.annotations.findAll { it.hmdbId == hmdbid }))))
     }
 
-    @Test
     void testSearchWithSubPathway() {
+        setupData()
         def subpathway = 'Pentose Metabolism' // testData.subPathways[3].name
         def dataConstraint = metaboliteResource.createDataConstraint(
                 'metabolite_subpathways',
@@ -156,8 +155,8 @@ class MetaboliteEndToEndRetrievalTest {
                 contains(matchersForDataPoints([annotation]))))
     }
 
-    @Test
     void testSearchWithSubPathwayViaSearchKeywordId() {
+        setupData()
         def subPathwayName = 'No superpathway subpathway'
         def searchKeyword = testData.searchKeywordsForSubPathways.find {
             it.keyword == subPathwayName
@@ -185,8 +184,8 @@ class MetaboliteEndToEndRetrievalTest {
                 contains(matchersForDataPoints([annotation]))))
     }
 
-    @Test
     void testSearchWithSuperPathway() {
+        setupData()
         def superPathway = 'Phosphoric Acid'
         /* goes to subpathways 3 */
         def dataConstraint = metaboliteResource.createDataConstraint(
@@ -218,8 +217,8 @@ class MetaboliteEndToEndRetrievalTest {
                 contains(matchersForDataPoints([annotation]))))
     }
 
-    @Test
     void testFindsAssays() {
+        setupData()
         def assayConstraint = highDimensionResourceService.
                 createAssayConstraint(AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: MetaboliteTestData.TRIAL_NAME)
@@ -237,8 +236,8 @@ class MetaboliteEndToEndRetrievalTest {
         )
     }
 
-    @Test
     void testNaNInZscore() {
+        setupData()
         // with the current impl of the loading job in transmart-batch,
         // zscore can be NaN if the std dev is 0
         def dataPoint = testData.data[0]

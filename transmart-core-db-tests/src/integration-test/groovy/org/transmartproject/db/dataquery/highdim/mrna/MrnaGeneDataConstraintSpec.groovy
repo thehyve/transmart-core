@@ -19,9 +19,10 @@
 
 package org.transmartproject.db.dataquery.highdim.mrna
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
 import spock.lang.Specification
 
 import grails.orm.HibernateCriteriaBuilder
@@ -35,16 +36,16 @@ import static junit.framework.TestCase.fail
 import static org.hamcrest.Matchers.*
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
 class MrnaGeneDataConstraintSpec extends Specification {
 
     MrnaModule mrnaModule
 
     MrnaTestData testData = new MrnaTestData()
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
     }
 
@@ -59,6 +60,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
     }
 
     void basicTestGene() {
+        setupData()
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
         def testee = mrnaModule.createDataConstraint([keyword_ids: testData.searchKeywords.
@@ -85,6 +87,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
     }
 
     void testWithMultipleGenes() {
+        setupData()
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
         /* keywords ids for genes BOGUSCPO, BOGUSRQCD1 */
@@ -124,6 +127,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
     }
 
     void basicTestGeneSignature() {
+        setupData()
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
         /* should map to BOGUSVNN3 directly and to BOGUSRQCD1 via bio_assay_data_annotation
@@ -148,6 +152,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
     }
 
     void testMixedConstraint() {
+        setupData()
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
         when:
@@ -181,6 +186,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
     }
 
     void testProteinConstraintByExternalId() {
+        setupData()
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
         /* there's a correlation between the
@@ -201,6 +207,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
     }
 
     void testProteinConstraintByName() {
+        setupData()
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
         def testee = mrnaModule.createDataConstraint([names: ['BOGUSCBPO_HUMAN']],
@@ -219,6 +226,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
     }
 
     void testGeneSignatureConstraintByName() {
+        setupData()
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
         def testee = mrnaModule.createDataConstraint([names: ['bogus_gene_sig_-602']],
@@ -237,6 +245,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
     }
 
     void testEmptyConstraint() {
+        setupData()
         try {
             mrnaModule.createDataConstraint([keyword_ids: []],
                     DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
