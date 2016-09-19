@@ -20,7 +20,7 @@
 package org.transmartproject.db.clinical
 
 import com.google.common.collect.Maps
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -37,7 +37,7 @@ import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFact
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.PatientDimension
 
-@Log4j
+@Slf4j
 class ClinicalDataResourceService implements ClinicalDataResource {
 
     static transactional = false
