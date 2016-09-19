@@ -1,9 +1,14 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <r:require module="main_mod"/>
+    %{--<r:require module="main_mod"/>--}%
+    <asset:link rel="shortcut icon" href='searchtool.ico' type="image/x-ico" />
+    <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
+
+    <asset:javascript src="jquery-2.2.0.min.js"/>
+    <asset:stylesheet href="main_mod.css" />
     <title>Change My Password</title>
-    <r:layoutResources/>
+    %{--<r:layoutResources/>--}%
 </head>
 
 <body>
@@ -54,7 +59,7 @@
             </span>
         </div>
     </g:form>
-    <r:layoutResources/>
+    %{--<r:layoutResources/>--}%
 </div>
 </body>
 </html>
