@@ -25,6 +25,7 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.db.user.User
+import org.transmartproject.db.util.StringUtils
 
 abstract class AbstractAcrossTrialsOntologyTerm
         implements OntologyTerm, MetadataSelectQuerySpecification {
@@ -88,7 +89,7 @@ abstract class AbstractAcrossTrialsOntologyTerm
 
         ModifierDimensionView.withCriteria {
             if (pathPrefix) {
-                like 'path', pathPrefix.asLikeLiteral() + '%'
+                like 'path', StringUtils.asLikeLiteral(pathPrefix) + '%'
             }
             if (!allDescendants) {
                 eq 'level',
