@@ -17,20 +17,19 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db
+package org.transmartproject.db.util
 
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-class TransmartCoreGrailsPluginSpec extends Specification {
+class StringUtilsSpec extends Specification {
 
     def "test escaping string for sql like statement"() {
         given:
-        String.metaClass.asLikeLiteral = { replaceAll(/[\\%_]/, '\\\\$0') }
 
         expect:
-        a.asLikeLiteral() == b
+        StringUtils.asLikeLiteral(a) == b
 
         where:
         a             | b

@@ -29,6 +29,7 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.ontology.MetadataSelectQuerySpecification
 import org.transmartproject.db.user.User
+import org.transmartproject.db.util.StringUtils
 
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
@@ -288,7 +289,7 @@ class PatientSetQueryBuilderService {
                         if (v[-1] != '\\') {
                             v += '\\'
                         }
-                        v = v.asLikeLiteral() + '%'
+                        v = StringUtils.asLikeLiteral(v) + '%'
                     }
                 }
             }

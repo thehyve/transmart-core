@@ -3,6 +3,7 @@ package org.transmartproject.db.ontology
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
+import org.transmartproject.db.util.StringUtils
 
 class OntologyTermTagsResourceService implements OntologyTermTagsResource {
 
@@ -16,7 +17,7 @@ class OntologyTermTagsResourceService implements OntologyTermTagsResource {
             or {
                 ontologyTerms.each { OntologyTerm term ->
                     if (includeDescendantsTags) {
-                        like 'ontologyTermFullName', (term.fullName.asLikeLiteral() + '%')
+                        like 'ontologyTermFullName', (StringUtils.asLikeLiteral(term.fullName) + '%')
                     } else {
                         eq 'ontologyTermFullName', term.fullName
                     }

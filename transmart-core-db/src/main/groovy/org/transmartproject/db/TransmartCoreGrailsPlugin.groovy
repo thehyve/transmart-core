@@ -113,10 +113,6 @@ A runtime dependency for tranSMART that implements the Core API
     }}
 
     void doWithDynamicMethods() {
-        String.metaClass.asLikeLiteral = { replaceAll(/[\\%_]/, '\\\\$0') }
-
-        assert('f%\\_oo\\\\'.asLikeLiteral() == 'f\\%\\\\\\_oo\\\\\\\\')
-
         /* Force this bean to be initialized, as it has some dynamic methods
          * to register during its init() method */
         applicationContext.getBean DatabasePortabilityService
