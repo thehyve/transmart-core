@@ -22,7 +22,7 @@ package org.transmart.logging
 import com.google.common.base.Charsets
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.apache.log4j.AppenderSkeleton
 import org.apache.log4j.spi.LoggingEvent
 import org.apache.log4j.helpers.LogLog
@@ -62,7 +62,7 @@ import static java.lang.ProcessBuilder.Redirect.*
  * the child process cannot be restarted.
  */
 @CompileStatic
-@Log4j
+@Slf4j
 class ChildProcessAppender extends AppenderSkeleton {
 
     List<String> command

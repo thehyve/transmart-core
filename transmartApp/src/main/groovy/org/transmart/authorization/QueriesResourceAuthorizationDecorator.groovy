@@ -2,7 +2,7 @@ package org.transmart.authorization
 
 import com.google.common.collect.Sets
 import grails.util.Holders
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.context.request.RequestContextHolder
 import org.transmartproject.core.exceptions.AccessDeniedException
@@ -18,7 +18,7 @@ import javax.annotation.Resource
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 
-@Log4j
+@Slf4j
 class QueriesResourceAuthorizationDecorator
         implements QueriesResource, AuthorizationDecorator<QueriesResource> {
 

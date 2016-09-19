@@ -1,7 +1,7 @@
 package org.transmart.marshallers
 
 import grails.converters.JSON
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.FactoryBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.BeanDefinitionHolder
@@ -12,7 +12,7 @@ import org.springframework.core.type.classreading.MetadataReader
 import org.springframework.core.type.classreading.MetadataReaderFactory
 import org.springframework.core.type.filter.TypeFilter
 
-@Log4j
+@Slf4j
 public class MarshallerRegistrarService implements FactoryBean {
 
     private final static PACKAGE = "org.transmart.marshallers"

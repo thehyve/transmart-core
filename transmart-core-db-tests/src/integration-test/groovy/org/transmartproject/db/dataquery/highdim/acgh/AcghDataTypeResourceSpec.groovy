@@ -23,26 +23,23 @@ import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
 import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
+import spock.lang.Specification
 
-import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
+
 /**
  * Created by glopes on 11/23/13.
  */
 @TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
 class AcghDataTypeResourceSpec extends Specification {
 
     HighDimensionResource highDimensionResourceService
@@ -57,7 +54,9 @@ class AcghDataTypeResourceSpec extends Specification {
 
     void testAcghModuleGivesBackResourceSubtype() {
         setupData()
-        expect: acghResource instanceof AcghDataTypeResource
+
+        expect:
+        acghResource instanceof AcghDataTypeResource
     }
 
     void testChromosomalSegmentsBasic() {
@@ -75,9 +74,10 @@ class AcghDataTypeResourceSpec extends Specification {
         List<ChromosomalSegment> result =
                 resource.retrieveChromosomalSegments assayConstraints
 
-        expect: result containsInAnyOrder(
-                new ChromosomalSegment(chromosome: '2', start: 66L, end: 99L),
-                new ChromosomalSegment(chromosome: '1', start: 33L, end: 9999L))
+        expect:
+        result.size() == 2
+        new ChromosomalSegment(chromosome: '2', start: 66L, end: 99L) in result
+        new ChromosomalSegment(chromosome: '1', start: 33L, end: 9999L) in result
     }
 
     void testChromosomalSegmentsNoAssays() {
@@ -90,18 +90,18 @@ class AcghDataTypeResourceSpec extends Specification {
                         name: 'trial name that does not exist'),
         ]
 
-        def exception = shouldFail EmptySetException, {
-            acghResource.retrieveChromosomalSegments assayConstraints
-        }
-        expect: exception hasProperty('message',
-                containsString('No assays satisfy'))
+        when:
+        acghResource.retrieveChromosomalSegments assayConstraints
+        then:
+        def e = thrown(EmptySetException)
+        e.message.contains('No assays satisfy')
     }
 
     void testChromosomalSegmentsEmptyPlatform() {
         setupData()
         def trialName = 'bogus trial'
         testData.saveAll()
-        def testAssays =  HighDimTestData.createTestAssays(
+        def testAssays = HighDimTestData.createTestAssays(
                 testData.patients,
                 -60000L,
                 testData.bogusTypePlatform,
@@ -114,11 +114,11 @@ class AcghDataTypeResourceSpec extends Specification {
                         name: trialName),
         ]
 
-        def exception = shouldFail EmptySetException, {
-            acghResource.retrieveChromosomalSegments assayConstraints
-        }
-        expect: exception hasProperty('message',
-                containsString('No regions found for'))
+        when:
+        acghResource.retrieveChromosomalSegments assayConstraints
+        then:
+        def e = thrown(EmptySetException)
+        e.message.contains('No regions found for')
     }
 
     void testAcghPlatformIsRecognized() {
@@ -133,18 +133,15 @@ class AcghDataTypeResourceSpec extends Specification {
         def map = highDimensionResourceService.
                 getSubResourcesAssayMultiMap([constraint])
 
-        then: map hasKey(
-                hasProperty('dataTypeName', equalTo('acgh')))
+        then:
+        map.keySet().find { it.dataTypeName == 'acgh' }
 
         when:
         def entry = map.entrySet().find { it.key.dataTypeName == 'acgh' }
 
-        then: entry.value allOf(
-                hasSize(greaterThan(0)),
-                everyItem(
-                        hasProperty('platform',
-                                hasProperty('markerType',
-                                        equalTo(AcghTestData.ACGH_PLATFORM_MARKER_TYPE)))))
+        then:
+        !entry.value.empty
+        entry.value.every { it.platform.markerType == AcghTestData.ACGH_PLATFORM_MARKER_TYPE }
     }
 
 }

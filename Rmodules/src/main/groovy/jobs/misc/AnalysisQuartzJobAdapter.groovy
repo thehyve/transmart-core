@@ -2,7 +2,7 @@ package jobs.misc
 
 import grails.persistence.support.PersistenceContextInterceptor
 import grails.util.Holders
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import jobs.AbstractAnalysisJob
 import org.quartz.Job
 import org.quartz.JobDataMap
@@ -11,7 +11,7 @@ import org.quartz.JobExecutionException
 import org.springframework.context.ApplicationContext
 import org.springframework.core.NamedThreadLocal
 
-@Log4j
+@Slf4j
 class AnalysisQuartzJobAdapter implements Job {
 
     public static final String PARAM_JOB_CLASS = 'jobClass'

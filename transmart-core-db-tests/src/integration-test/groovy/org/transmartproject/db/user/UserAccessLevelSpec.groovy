@@ -23,10 +23,6 @@ import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
 import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
-import org.gmock.WithGMock
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.UnexpectedResultException
@@ -38,17 +34,15 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.db.ontology.I2b2Secure
+import spock.lang.Specification
 
-import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
 import static org.transmartproject.db.user.AccessLevelTestData.*
 
 @TestMixin(ControllerUnitTestMixin)
-@WithGMock
 @Integration
 @Rollback
-@Slf4j
 class UserAccessLevelSpec extends Specification {
 
     @Autowired
@@ -69,19 +63,16 @@ class UserAccessLevelSpec extends Specification {
         def adminUser = accessLevelTestData.users[0]
 
         expect:
-            adminUser.canPerform(API_READ, getStudy(STUDY1)) is(true)
-            adminUser.canPerform(API_READ, getStudy(STUDY2)) is(true)
-            adminUser.canPerform(API_READ, getStudy(STUDY3)) is(true)
+        adminUser.canPerform(API_READ, getStudy(STUDY1))
+        adminUser.canPerform(API_READ, getStudy(STUDY2))
+        adminUser.canPerform(API_READ, getStudy(STUDY3))
     }
 
     void testEveryoneHasAccessToPublicStudy() {
         setupData()
         // study1 is public
-        accessLevelTestData.users.each { u ->
-            println "Testing for user $u"
-            expect: u.canPerform(API_READ, getStudy(STUDY1)) is(true)
-            println "Passed"
-        }
+        expect:
+        accessLevelTestData.users.every { it.canPerform(API_READ, getStudy(STUDY1)) }
     }
 
     void testPermissionViaGroup() {
@@ -89,7 +80,8 @@ class UserAccessLevelSpec extends Specification {
         // second user is in group test_-201, which has access to study 2
         def secondUser = accessLevelTestData.users[1]
 
-        expect: secondUser.canPerform(API_READ, getStudy(STUDY2)) is(true)
+        expect:
+        secondUser.canPerform(API_READ, getStudy(STUDY2))
     }
 
     void testDirectPermissionAssignment() {
@@ -97,7 +89,8 @@ class UserAccessLevelSpec extends Specification {
         // third user has direct access to study 2
         def thirdUser = accessLevelTestData.users[2]
 
-        expect: thirdUser.canPerform(API_READ, getStudy(STUDY2)) is(true)
+        expect:
+        thirdUser.canPerform(API_READ, getStudy(STUDY2))
     }
 
     void testAccessDeniedToUserWithoutPermission() {
@@ -105,7 +98,8 @@ class UserAccessLevelSpec extends Specification {
         // fourth user has no access to study 2
         def fourthUser = accessLevelTestData.users[3]
 
-        expect: fourthUser.canPerform(API_READ, getStudy(STUDY2)) is(false)
+        expect:
+        !fourthUser.canPerform(API_READ, getStudy(STUDY2))
     }
 
     void testAccessDeniedWhenOnlyViewPermission() {
@@ -113,7 +107,8 @@ class UserAccessLevelSpec extends Specification {
         // fifth user has only VIEW permissions on study 2
         def fifthUser = accessLevelTestData.users[4]
 
-        expect: fifthUser.canPerform(API_READ, getStudy(STUDY2)) is(false)
+        expect:
+        !fifthUser.canPerform(API_READ, getStudy(STUDY2))
     }
 
     void testAccessGrantedWhenExportAndViewPermissionsExist() {
@@ -124,18 +119,16 @@ class UserAccessLevelSpec extends Specification {
 
         def sixthUser = accessLevelTestData.users[5]
 
-        expect: sixthUser.canPerform(API_READ, getStudy(STUDY2)) is(true)
+        expect:
+        sixthUser.canPerform(API_READ, getStudy(STUDY2))
     }
 
     void testEveryoneHasAccessViaEveryoneGroup() {
         setupData()
         // EVERYONE_GROUP has access to study 3
 
-        accessLevelTestData.users.each { u ->
-            println "Testing for user $u"
-            expect: u.canPerform(API_READ, getStudy(STUDY3)) is(true)
-            println "Passed"
-        }
+        expect:
+        accessLevelTestData.users.every { it.canPerform(API_READ, getStudy(STUDY3)) }
     }
 
     void testWithUnsupportedProtectedResource() {
@@ -146,9 +139,10 @@ class UserAccessLevelSpec extends Specification {
         // all checks. The reason is we don't want to throw exceptions
         // only when a non-admin is used when by mistake where's checking
         // access for an unsupported ProtectedResource
-        shouldFail UnsupportedOperationException, {
-            adminUser.canPerform(API_READ, mock(ProtectedResource))
-        }
+        when:
+        adminUser.canPerform(API_READ, Mock(ProtectedResource))
+        then:
+        thrown(UnsupportedOperationException)
     }
 
     void testViewPermissionAndExportOperation() {
@@ -156,7 +150,8 @@ class UserAccessLevelSpec extends Specification {
         // fifth user has only VIEW permissions on study 2
         def fifthUser = accessLevelTestData.users[4]
 
-        expect: fifthUser.canPerform(EXPORT, getStudy(STUDY2)) is(false)
+        expect:
+        !fifthUser.canPerform(EXPORT, getStudy(STUDY2))
     }
 
     void testViewPermissionAndShowInTableOperation() {
@@ -164,8 +159,9 @@ class UserAccessLevelSpec extends Specification {
         // fifth user has only VIEW permissions on study 2
         def fifthUser = accessLevelTestData.users[4]
 
-        expect: fifthUser.canPerform(SHOW_IN_TABLE, getStudy(STUDY2))
-                   is(false)
+        expect:
+        fifthUser.canPerform(SHOW_IN_TABLE, getStudy(STUDY2))
+        is(false)
     }
 
     void testViewPermissionAndShowInSummaryStatisticsOperation() {
@@ -173,7 +169,8 @@ class UserAccessLevelSpec extends Specification {
         // fifth user has only VIEW permissions on study 2
         def fifthUser = accessLevelTestData.users[4]
 
-        expect: fifthUser.canPerform(SHOW_SUMMARY_STATISTICS, getStudy(STUDY2)) is(true)
+        expect:
+        fifthUser.canPerform(SHOW_SUMMARY_STATISTICS, getStudy(STUDY2))
     }
 
     void testStudyWithoutI2b2Secure() {
@@ -185,7 +182,8 @@ class UserAccessLevelSpec extends Specification {
         I2b2Secure.findByFullName(getStudy(STUDY2).ontologyTerm.fullName).
                 delete(flush: true)
 
-        expect: fourthUser.canPerform(API_READ, getStudy(STUDY2)) is(true)
+        expect:
+        fourthUser.canPerform(API_READ, getStudy(STUDY2))
     }
 
     void testStudyWithEmptyToken() {
@@ -197,9 +195,10 @@ class UserAccessLevelSpec extends Specification {
         def i2b2Secure = I2b2Secure.findByFullName(getStudy(STUDY2).ontologyTerm.fullName)
         i2b2Secure.secureObjectToken = null
 
-        shouldFail UnexpectedResultException, {
-            fourthUser.canPerform(API_READ, getStudy(STUDY2))
-        }
+        when:
+        fourthUser.canPerform(API_READ, getStudy(STUDY2))
+        then:
+        thrown(UnexpectedResultException)
     }
 
     void testGetAccessibleStudiesAdmin() {
@@ -207,7 +206,8 @@ class UserAccessLevelSpec extends Specification {
         def adminUser = accessLevelTestData.users[0]
 
         def studies = adminUser.accessibleStudies
-        expect: studies hasItems(
+        expect:
+        studies hasItems(
                 hasProperty('id', equalTo(STUDY1)),
                 hasProperty('id', equalTo(STUDY2)),
                 hasProperty('id', equalTo(STUDY3)))
@@ -218,7 +218,8 @@ class UserAccessLevelSpec extends Specification {
         def fourthUser = accessLevelTestData.users[3]
 
         def studies = fourthUser.accessibleStudies
-        expect: studies hasItem(hasProperty('id', equalTo(STUDY3)))
+        expect:
+        studies hasItem(hasProperty('id', equalTo(STUDY3)))
     }
 
     void testGetAccessibleStudiesPublicViaPublicSecureAccessToken() {
@@ -226,7 +227,8 @@ class UserAccessLevelSpec extends Specification {
         def fourthUser = accessLevelTestData.users[3]
 
         def studies = fourthUser.accessibleStudies
-        expect: studies hasItem(hasProperty('id', equalTo(STUDY1)))
+        expect:
+        studies hasItem(hasProperty('id', equalTo(STUDY1)))
     }
 
     void testGetAccessibleStudiesDeniedAccess() {
@@ -235,7 +237,8 @@ class UserAccessLevelSpec extends Specification {
         def fourthUser = accessLevelTestData.users[3]
 
         def studies = fourthUser.accessibleStudies
-        expect: studies not(hasItem(
+        expect:
+        studies not(hasItem(
                 hasProperty('id', equalTo(STUDY2))))
     }
 
@@ -248,7 +251,8 @@ class UserAccessLevelSpec extends Specification {
                 delete(flush: true)
 
         def studies = fourthUser.accessibleStudies
-        expect: studies hasItem(
+        expect:
+        studies hasItem(
                 hasProperty('id', equalTo(STUDY2)))
     }
 
@@ -260,9 +264,10 @@ class UserAccessLevelSpec extends Specification {
                 I2b2Secure.findByFullName getStudy(STUDY2).ontologyTerm.fullName
         i2b2Secure.secureObjectToken = null
 
-        shouldFail UnexpectedResultException, {
-            fourthUser.accessibleStudies
-        }
+        when:
+        fourthUser.accessibleStudies
+        then:
+        thrown(UnexpectedResultException)
     }
 
     void testQueryDefinitionUserHasAccessToOnePanelButNotAnother() {
@@ -280,7 +285,8 @@ class UserAccessLevelSpec extends Specification {
                 )]),
         ])
 
-        expect: fourthUser.canPerform(BUILD_COHORT, definition) is(true)
+        expect:
+        fourthUser.canPerform(BUILD_COHORT, definition)
     }
 
     void testQueryDefinitionUserHasNoAccessToAnyPanel() {
@@ -294,9 +300,10 @@ class UserAccessLevelSpec extends Specification {
                         new Item(
                                 conceptKey: getStudy(STUDY2).ontologyTerm.key
                         )]),
-                ])
+        ])
 
-        expect: fourthUser.canPerform(BUILD_COHORT, definition) is(false)
+        expect:
+        !fourthUser.canPerform(BUILD_COHORT, definition)
     }
 
     void testQueryDefinitionNonTopNode() {
@@ -312,7 +319,8 @@ class UserAccessLevelSpec extends Specification {
                         )]),
         ])
 
-        expect: thirdUser.canPerform(BUILD_COHORT, definition) is(true)
+        expect:
+        thirdUser.canPerform(BUILD_COHORT, definition)
     }
 
     void testDoNotAllowInvertedPanel() {
@@ -326,7 +334,8 @@ class UserAccessLevelSpec extends Specification {
                 )]),
         ])
 
-        expect: secondUser.canPerform(BUILD_COHORT, definition) is(false)
+        expect:
+        secondUser.canPerform(BUILD_COHORT, definition)
     }
 
     void testAllowInvertedPanelIfThereIsAnotherWithAccess() {
@@ -342,7 +351,8 @@ class UserAccessLevelSpec extends Specification {
                 )]),
         ])
 
-        expect: secondUser.canPerform(BUILD_COHORT, definition) is(true)
+        expect:
+        secondUser.canPerform(BUILD_COHORT, definition)
     }
 
     void testQueryDefinitionAlwaysAllowAdministrator() {
@@ -357,7 +367,8 @@ class UserAccessLevelSpec extends Specification {
                 )]),
         ])
 
-        expect: firstUser.canPerform(BUILD_COHORT, definition) is(true)
+        expect:
+        firstUser.canPerform(BUILD_COHORT, definition)
     }
 
     void testQueryDefinitionNonStudyNodeIsDenied() {
@@ -373,7 +384,8 @@ class UserAccessLevelSpec extends Specification {
                 )]),
         ])
 
-        expect: secondUser.canPerform(BUILD_COHORT, definition) is(false)
+        expect:
+        !secondUser.canPerform(BUILD_COHORT, definition)
     }
 
     void testQueryResultMismatch() {
@@ -381,40 +393,37 @@ class UserAccessLevelSpec extends Specification {
         def secondUser = accessLevelTestData.users[1]
         def thirdUser = accessLevelTestData.users[2]
 
-        QueryResult res = mock(QueryResult)
-        res.getClass().returns QueryResult
-        res.username.returns(secondUser.username).atLeastOnce()
+        QueryResult res = Mock(QueryResult)
+        res.getClass() >> QueryResult
+        res.username >> secondUser.username.atLeastOnce()
 
-        play {
-            expect: thirdUser.canPerform(READ, res) is(false)
-        }
+        expect:
+        !thirdUser.canPerform(READ, res)
     }
 
     void testQueryResultMatching() {
         setupData()
         def secondUser = accessLevelTestData.users[1]
 
-        QueryResult res = mock(QueryResult)
-        res.getClass().returns QueryResult
-        res.username.returns secondUser.username
+        QueryResult res = Mock(QueryResult)
+        res.getClass() >> QueryResult
+        res.username >> secondUser.username
 
-        play {
-            expect: secondUser.canPerform(READ, res) is(true)
-        }
+        expect:
+        secondUser.canPerform(READ, res)
     }
 
     void testQueryResultNonReadOperation() {
         setupData()
         def secondUser = accessLevelTestData.users[1]
 
-        QueryResult res = mock(QueryResult)
-        res.getClass().returns QueryResult
+        QueryResult res = Mock(QueryResult)
+        res.getClass() >> QueryResult
 
-        play {
-            shouldFail UnsupportedOperationException, {
-                secondUser.canPerform(API_READ, res)
-            }
-        }
+        when:
+        secondUser.canPerform(API_READ, res)
+        then:
+        thrown(UnsupportedOperationException)
     }
 
     private Study getStudy(String id) {

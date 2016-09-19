@@ -20,7 +20,7 @@
 package org.transmartproject.db.test
 
 import groovy.sql.Sql
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 
@@ -35,7 +35,7 @@ import static org.transmartproject.db.test.H2Views.ObjectStatus.*
  * the script's classloader nor the context classloader know anything about
  * the test classpath.
  */
-@Log4j
+@Slf4j
 class H2Views {
 
     @Autowired

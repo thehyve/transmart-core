@@ -1,6 +1,6 @@
 package org.transmartproject.export
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
@@ -12,7 +12,7 @@ import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
 import javax.annotation.PostConstruct
 import javax.annotation.Resource
 
-@Log4j
+@Slf4j
 class AcghBedExporter extends AbstractChromosomalRegionBedExporter {
 
     @Autowired

@@ -3,13 +3,13 @@ package jobs.steps
 import com.recomdata.transmart.util.RUtil
 import grails.util.Holders
 import groovy.text.SimpleTemplateEngine
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import jobs.UserParameters
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 import org.rosuda.REngine.Rserve.RserveException
 
-@Log4j
+@Slf4j
 class RCommandsStep implements Step {
 
     final String statusName = 'Running analysis'

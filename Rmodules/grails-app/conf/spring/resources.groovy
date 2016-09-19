@@ -1,4 +1,4 @@
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.codehaus.groovy.runtime.ConvertedMap
 import org.codehaus.groovy.runtime.InvokerHelper
 import org.gmock.GMockController
@@ -13,7 +13,7 @@ import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.core.users.User
 
-@Log4j
+@Slf4j
 class GMockFactoryBean implements FactoryBean {
 
     final boolean singleton = true
@@ -69,7 +69,7 @@ class GroovyInterceptableProxyFactoryBean implements FactoryBean {
     }()
 }
 
-@Log4j
+@Slf4j
 class CurrentUserBeanMockFactory implements FactoryBean<User> {
     final Class<?> objectType = User
 

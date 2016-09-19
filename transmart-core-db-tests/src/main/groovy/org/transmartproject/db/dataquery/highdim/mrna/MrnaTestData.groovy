@@ -137,8 +137,9 @@ class MrnaTestData {
     }
 
     void updateDoubleScaledValues() {
+        //FIXME Do we still need this?
         //making sure BigDecimals use the scale specified in the db (otherwise toString() will yield different results)
-        Holders.applicationContext.sessionFactory.currentSession.flush()
-        microarrayData.each { it.refresh() }
+        //Holders.applicationContext.sessionFactory.currentSession.flush()
+        //microarrayData.each { it.refresh() }
     }
 }

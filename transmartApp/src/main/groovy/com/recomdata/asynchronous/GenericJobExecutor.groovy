@@ -4,7 +4,7 @@ import com.recomdata.transmart.data.export.exception.DataNotFoundException
 import com.recomdata.transmart.data.export.util.FTPUtil
 import com.recomdata.transmart.data.export.util.ZipUtil
 import grails.util.Holders
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.StringUtils
 import grails.persistence.support.PersistenceContextInterceptor
@@ -25,7 +25,7 @@ import java.lang.reflect.UndeclaredThrowableException
  * @author MMcDuffie
  *
  */
-@Log4j
+@Slf4j
 class GenericJobExecutor implements Job {
 
     def ctx = Holders.grailsApplication.mainContext

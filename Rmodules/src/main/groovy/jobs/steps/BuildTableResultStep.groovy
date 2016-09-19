@@ -1,10 +1,10 @@
 package jobs.steps
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import jobs.steps.helpers.ColumnConfigurator
 import jobs.table.Table
 
-@Log4j
+@Slf4j
 class BuildTableResultStep implements Step {
 
     final String statusName = 'Collecting Data'

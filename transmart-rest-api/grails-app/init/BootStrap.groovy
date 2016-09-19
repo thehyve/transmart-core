@@ -24,9 +24,9 @@
  */
 
 import grails.util.Environment
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 
-@Log4j
+@Slf4j
 class BootStrap {
 
     final static String TEST_PHASE_CONFIGURER_CLASS_NAME =

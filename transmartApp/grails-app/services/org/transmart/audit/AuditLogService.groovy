@@ -23,7 +23,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import grails.core.GrailsApplication
 import groovy.transform.CompileStatic
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import javax.servlet.http.HttpServletRequest
 import org.apache.log4j.Level
 import org.springframework.security.core.Authentication
@@ -36,7 +36,7 @@ import org.transmartproject.core.users.User
  * Configuration of output done in (out-of-tree) Config.groovy.
  */
 @CompileStatic
-@Log4j
+@Slf4j
 class AuditLogService {
 
     GrailsApplication grailsApplication

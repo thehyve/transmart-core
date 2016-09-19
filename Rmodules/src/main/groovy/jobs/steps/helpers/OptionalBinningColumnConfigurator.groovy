@@ -1,6 +1,6 @@
 package jobs.steps.helpers
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import jobs.table.Column
 import jobs.table.columns.ConstantValueColumn
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,7 +21,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
  *
  * Does not support multiple numeric variables.
  */
-@Log4j
+@Slf4j
 @Component
 @Scope('prototype')
 @Qualifier('general')

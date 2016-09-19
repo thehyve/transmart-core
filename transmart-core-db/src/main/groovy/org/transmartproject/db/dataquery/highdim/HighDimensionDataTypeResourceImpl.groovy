@@ -20,10 +20,9 @@
 package org.transmartproject.db.dataquery.highdim
 
 import grails.orm.HibernateCriteriaBuilder
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.hibernate.ScrollMode
 import org.hibernate.StatelessSession
-import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
@@ -41,7 +40,7 @@ import org.transmartproject.db.ontology.I2b2
 
 import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
-@Log4j
+@Slf4j
 class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource {
 
     protected HighDimensionDataTypeModule module
@@ -73,8 +72,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
 
     @Override
     TabularResult retrieveData(List<AssayConstraint> assayConstraints,
-                                 List<DataConstraint> dataConstraints,
-                                 Projection projection) {
+                               List<DataConstraint> dataConstraints,
+                               Projection projection) {
 
         // Each module should only return assays that match 
         // the markertypes specified, in addition to the 
@@ -91,7 +90,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         }
 
         HibernateCriteriaBuilder criteriaBuilder =
-            module.prepareDataQuery(projection, openSession())
+                module.prepareDataQuery(projection, openSession())
 
         //We have to specify projection explicitly because of the grails bug
         //https://jira.grails.org/browse/GRAILS-12107
@@ -150,7 +149,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
 
     @Override
     Projection createProjection(String name)
-            throws UnsupportedByDataTypeException{
+            throws UnsupportedByDataTypeException {
         createProjection([:], name)
     }
 
@@ -170,7 +169,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
                 where p.markerType in (:markerTypes)
                     and ssm.patient = ps.patient
                     and ps.resultInstance.id = :resultInstanceId)
-        ''', [markerTypes : module.platformMarkerTypes, resultInstanceId: queryResult.id]
+        ''', [markerTypes: module.platformMarkerTypes, resultInstanceId: queryResult.id]
     }
 
 

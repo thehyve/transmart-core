@@ -1,8 +1,8 @@
 package org.transmartproject.db.util
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 
-@Log4j
+@Slf4j
 abstract class AbstractOneTimeCallIterable<T> implements Iterable<T> {
 
     private boolean iteratorIsCalled

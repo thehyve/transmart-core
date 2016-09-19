@@ -1,6 +1,6 @@
 package org.transmartproject.export
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
@@ -12,7 +12,7 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 
 import javax.annotation.PostConstruct
 
-@Log4j
+@Slf4j
 class TabSeparatedExporter implements HighDimExporter {
     final static String SEPARATOR = "\t"
 
