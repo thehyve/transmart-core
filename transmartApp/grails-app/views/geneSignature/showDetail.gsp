@@ -14,7 +14,7 @@
     <asset:javascript src="toggle.js" />
     <asset:javascript src="analysetab.js" />
 
-    <asset:script type="text/javascript" charset="utf-8">
+    <script type="text/javascript" charset="utf-8">
         Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
 
         // set ajax to 90*1000 milliseconds
@@ -22,7 +22,7 @@
 
         // qtip on
         Ext.QuickTips.init();
-    </asset:script>
+    </script>
 </head>
 
 <body>

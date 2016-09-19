@@ -1,4 +1,4 @@
-<g:javascript>
+<script>
 
 jQuery(document).ready(function() {	
 	
@@ -36,7 +36,7 @@ jQuery(document).ready(function() {
     }
     //For all tags - when clicked, call the remove tag function (remove them from the DOM and underlying select list)
 jQuery('.tag').live('click', function(e) { removeTag(jQuery(this).parent().attr('name'), jQuery(this).attr('name')); });
-</g:javascript>
+</script>
 <%-- Tag box (visual display of tags) --%>
 <div id="${fieldName}-tags" class="tagBox">
     <g:each in="${values}" var="value">
