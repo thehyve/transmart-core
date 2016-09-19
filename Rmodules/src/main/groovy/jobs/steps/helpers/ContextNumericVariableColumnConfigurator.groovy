@@ -1,6 +1,6 @@
 package jobs.steps.helpers
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import jobs.table.Column
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
@@ -29,7 +29,7 @@ import javax.annotation.PostConstruct
  */
 @Component
 @Scope('prototype')
-@Log4j
+@Slf4j
 class ContextNumericVariableColumnConfigurator extends ColumnConfigurator {
 
     /* properties to be set externally:

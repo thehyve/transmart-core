@@ -1,12 +1,12 @@
 package org.transmartproject.export
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 
-@Log4j
+@Slf4j
 abstract class AbstractChromosomalRegionBedExporter implements HighDimExporter {
 
     final static String COLUMN_SEPARATOR = '\t'

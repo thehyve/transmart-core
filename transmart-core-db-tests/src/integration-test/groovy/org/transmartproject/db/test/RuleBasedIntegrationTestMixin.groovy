@@ -23,7 +23,7 @@ import grails.test.mixin.TestMixinTargetAware
 import grails.test.mixin.integration.IntegrationTestMixin
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.grails.test.support.GrailsTestInterceptor
 import org.grails.test.support.GrailsTestMode
 import org.junit.After
@@ -95,7 +95,7 @@ class RuleBasedIntegrationTestMixin implements TestMixinTargetAware {
                 false)
     }
 
-    @Log4j
+    @Slf4j
     static class GrailsInterceptorRule extends ExternalResource {
         GrailsTestInterceptor interceptor
         Object target

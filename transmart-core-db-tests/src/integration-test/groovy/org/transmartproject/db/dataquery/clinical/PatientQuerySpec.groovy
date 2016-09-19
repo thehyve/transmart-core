@@ -23,9 +23,6 @@ import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
 import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.TestData
 import org.transmartproject.db.dataquery.clinical.patientconstraints.PatientSetsConstraint
@@ -33,13 +30,13 @@ import org.transmartproject.db.dataquery.clinical.patientconstraints.StudyPatien
 import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.ontology.StudyImpl
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
 @TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
 class PatientQuerySpec extends Specification {
 
     TestData testData = TestData.createDefault()
@@ -56,7 +53,8 @@ class PatientQuerySpec extends Specification {
                 )
         ]).list()
 
-        expect: resultList allOf(
+        expect:
+        resultList allOf(
                 hasSize(testData.i2b2Data.patients.size()),
                 everyItem(isA(PatientDimension))
         )
@@ -69,11 +67,12 @@ class PatientQuerySpec extends Specification {
 
         List<PatientDimension> resultList = new PatientQuery([
                 new PatientSetsConstraint(
-                        [ queryResult ]
+                        [queryResult]
                 )
         ]).list()
 
-        expect: resultList allOf(
+        expect:
+        resultList allOf(
                 hasSize(queryResult.patients.size()),
                 everyItem(isA(PatientDimension))
         )

@@ -1,6 +1,6 @@
 package org.transmart.authorization
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.aop.TargetSource
 import org.springframework.aop.framework.AopInfrastructureBean
 import org.springframework.aop.framework.ProxyFactory
@@ -32,7 +32,7 @@ import org.transmartproject.core.users.User
  * quartz bean, and then to whatever other beans happen to be registered with
  * {@link CurrentUserBeanProxyFactory#registerBeanToTry(java.lang.String)}.
  */
-@Log4j
+@Slf4j
 class CurrentUserBeanProxyFactory implements FactoryBean<User>, BeanFactoryAware {
 
     // Don't change this bean name. Rmodules depends on this bean name

@@ -1,7 +1,7 @@
 package org.transmartproject.export
 
 import grails.util.Metadata
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
@@ -11,7 +11,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 import javax.annotation.PostConstruct
 
-@Log4j
+@Slf4j
 class VCFExporter implements HighDimExporter {
     /**
      * List of info fields that can be exported without any change.

@@ -4,13 +4,13 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.db.dataquery.highdim.tworegion.DeTwoRegionJunction
 import org.transmartproject.db.dataquery.highdim.tworegion.DeTwoRegionJunctionEvent
 import org.transmartproject.db.dataquery.highdim.tworegion.JunctionRow
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.transmartproject.core.dataquery.TabularResult;
 import org.transmartproject.core.dataquery.highdim.projections.Projection;
 
-@Log4j
+@Slf4j
 public class TwoRegionExporter implements HighDimExporter {
     @Autowired
     private HighDimExporterRegistry highDimExporterRegistry;

@@ -26,7 +26,7 @@
 package org.transmartproject.rest.marshallers
 
 import grails.converters.JSON
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.FactoryBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.BeanDefinition
@@ -48,7 +48,7 @@ import static org.springframework.beans.factory.support.BeanDefinitionReaderUtil
  * Also register the {@link IteratorMarshaller} so that
  * {@link grails.converters.JSON} knows how to handle them.
  */
-@Log4j
+@Slf4j
 public class MarshallersRegistrar implements FactoryBean {
 
     @Autowired

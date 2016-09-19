@@ -1,6 +1,6 @@
 package org.transmartproject.export
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
@@ -9,7 +9,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 
 import javax.annotation.PostConstruct
 
-@Log4j
+@Slf4j
 class ProteomicsBedExporter extends AbstractChromosomalRegionBedExporter {
 
     static final BigDecimal HIGH_ZSCORE_THRESHOLD = new BigDecimal(1.5)

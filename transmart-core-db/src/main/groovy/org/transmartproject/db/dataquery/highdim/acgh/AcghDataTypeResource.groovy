@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.acgh
 
 import groovy.transform.InheritConstructors
+import groovy.util.logging.Slf4j
 import org.hibernate.Query
 import org.transmartproject.core.dataquery.highdim.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -31,6 +32,7 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceIm
  * Created by glopes on 11/22/13.
  */
 @InheritConstructors
+@Slf4j
 class AcghDataTypeResource extends HighDimensionDataTypeResourceImpl {
 
     List<ChromosomalSegment> retrieveChromosomalSegments(

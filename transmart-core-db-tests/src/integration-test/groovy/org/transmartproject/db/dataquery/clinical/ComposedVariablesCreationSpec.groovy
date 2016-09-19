@@ -19,14 +19,11 @@
 
 package org.transmartproject.db.dataquery.clinical
 
+import com.google.common.collect.Lists
 import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
 import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
-import com.google.common.collect.Lists
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -37,15 +34,14 @@ import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
+import spock.lang.Specification
 
-import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.TestDataHelper.save
 
 @TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
 class ComposedVariablesCreationSpec extends Specification {
 
     def clinicalDataResourceService
@@ -55,19 +51,21 @@ class ComposedVariablesCreationSpec extends Specification {
     List<ObservationFact> facts
 
     I2b2 getMaleI2b2() {
-        conceptData.i2b2List.find { it.name == 'male'}
+        conceptData.i2b2List.find { it.name == 'male' }
     }
+
     I2b2 getFemaleI2b2() {
-        conceptData.i2b2List.find { it.name == 'female'}
+        conceptData.i2b2List.find { it.name == 'female' }
     }
+
     I2b2 getSexI2b2() {
-        conceptData.i2b2List.find { it.name == 'sex'}
+        conceptData.i2b2List.find { it.name == 'sex' }
     }
 
     void setupData() {
         conceptData = ConceptTestData.createDefault()
-        i2b2Data    = I2b2Data.createDefault()
-        facts       = ClinicalTestData.createDiagonalCategoricalFacts(
+        i2b2Data = I2b2Data.createDefault()
+        facts = ClinicalTestData.createDiagonalCategoricalFacts(
                 3,
                 [maleI2b2, femaleI2b2],
                 i2b2Data.patients)
@@ -81,116 +79,110 @@ class ComposedVariablesCreationSpec extends Specification {
 
     void testCategoricalVariableBasic() {
         setupData()
-        CategoricalVariable var
-        var = clinicalDataResourceService.createClinicalVariable(
+        CategoricalVariable var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.CATEGORICAL_VARIABLE,
                 concept_path: '\\foo\\study2\\sex\\',)
 
-        expect: var.innerClinicalVariables allOf(
-                everyItem(isA(TerminalConceptVariable),),
-                containsInAnyOrder(
-                        anyOf(
-                                hasProperty('conceptPath', is(maleI2b2.fullName)),
-                                hasProperty('conceptCode', is(maleI2b2.code)),
-                        ),
-                        anyOf(
-                                hasProperty('conceptPath', is(femaleI2b2.fullName)),
-                                hasProperty('conceptCode', is(femaleI2b2.code)),
-                        )))
+        expect:
+        var.innerClinicalVariables.size() == 2
+        var.innerClinicalVariables.every { it instanceof TerminalConceptVariable }
+        var.innerClinicalVariables.find { it.conceptPath == maleI2b2.fullName || it.conceptCode == maleI2b2.code }
+        var.innerClinicalVariables.find { it.conceptPath == femaleI2b2.fullName || it.conceptCode == femaleI2b2.code }
     }
 
     void testCategoricalVariableViaConceptCode() {
         setupData()
-        CategoricalVariable var
-        var = clinicalDataResourceService.createClinicalVariable(
+        CategoricalVariable var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.CATEGORICAL_VARIABLE,
                 concept_code: conceptData.i2b2List.find { it.name == 'sex' }.code)
 
-        expect: var.innerClinicalVariables hasSize(2)
+        expect:
+        var.innerClinicalVariables.size() == 2
     }
 
     void testCategoricalNoChildren() {
         setupData()
-        def throwable = shouldFail InvalidArgumentsException, {
-            clinicalDataResourceService.createClinicalVariable(
-                    ClinicalVariable.CATEGORICAL_VARIABLE,
-                    concept_path: maleI2b2.fullName)
-        }
 
-        expect: throwable.message containsString('no children were found')
+        when:
+        clinicalDataResourceService.createClinicalVariable(
+                ClinicalVariable.CATEGORICAL_VARIABLE,
+                concept_path: maleI2b2.fullName)
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message.contains('no children were found')
     }
 
     void testCategoricalGrandChildren() {
         setupData()
-        def throwable = shouldFail InvalidArgumentsException, {
-            clinicalDataResourceService.createClinicalVariable(
-                    ClinicalVariable.CATEGORICAL_VARIABLE,
-                    concept_path: '\\foo\\study2\\')
-        }
 
-        expect: throwable.message containsString('has grandchildren')
+        when:
+        clinicalDataResourceService.createClinicalVariable(
+                ClinicalVariable.CATEGORICAL_VARIABLE,
+                concept_path: '\\foo\\study2\\')
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message.contains('has grandchildren')
     }
 
     void testCategoricalNonExistentConceptPath() {
         setupData()
-        def throwable = shouldFail InvalidArgumentsException, {
-            clinicalDataResourceService.createClinicalVariable(
-                    ClinicalVariable.CATEGORICAL_VARIABLE,
-                    concept_path: '\\foo\\non_existent_concept_path\\')
-        }
 
-        expect: throwable.message
-                containsString('Could not find concept with path')
+        when:
+        clinicalDataResourceService.createClinicalVariable(
+                ClinicalVariable.CATEGORICAL_VARIABLE,
+                concept_path: '\\foo\\non_existent_concept_path\\')
+
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message.contains('Could not find concept with path')
     }
 
     void testCategoricalNonExistentConceptCode() {
         setupData()
-        def throwable = shouldFail InvalidArgumentsException, {
-            clinicalDataResourceService.createClinicalVariable(
-                    ClinicalVariable.CATEGORICAL_VARIABLE,
-                    concept_code: '-3453' /* bogus */)
-        }
 
-        expect: throwable.message
-                containsString('Could not find path of concept with code')
+        when:
+        clinicalDataResourceService.createClinicalVariable(
+                ClinicalVariable.CATEGORICAL_VARIABLE,
+                concept_code: '-3453' /* bogus */)
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message.contains('Could not find path of concept with code')
     }
 
     void testCategoricalRetrieveData() {
         setupData()
-        CategoricalVariable var
-        var = clinicalDataResourceService.createClinicalVariable(
+
+        CategoricalVariable var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.CATEGORICAL_VARIABLE,
                 concept_path: '\\foo\\study2\\sex\\',)
 
+        def expected = facts.groupBy { it.patient }.
+                sort { it.key. /* patient */ id }.
+                collect { Patient patient, List<ObservationFact> facts ->
+                    [
+                            patient,
+                            var.innerClinicalVariables.collect { clinicalVar ->
+                                facts.find { it.conceptCode == clinicalVar.conceptCode }?.textValue
+                            }
+                    ]
+                }
+
+        when:
         def result = clinicalDataResourceService.retrieveData(
                 i2b2Data.patients as Set, [var])
 
-        // the indices list contains the flattened variables, not the original
-        expect:
-        result.indicesList contains(
-                var.innerClinicalVariables.collect { is it } /* male, then female */)
+        def list = Lists.newArrayList(result)
 
-        Lists.newArrayList(result) contains(
-                facts.groupBy { it.patient }.
-                        sort { it.key. /* patient */ id }.
-                        collect { Patient patient, List<ObservationFact> facts ->
-                            allOf(
-                                    hasProperty('patient', equalTo(patient)),
-                                    contains(var.innerClinicalVariables.collect { clinicalVar ->
-                                        is(facts.find { it.conceptCode == clinicalVar.conceptCode }?.textValue)
-                                    })
-                            )
-                        }
-        )
+        // the indices list contains the flattened variables, not the original
+        then:
+        result.indicesList == var.innerClinicalVariables
+        list.collect { [it.patient, it.collect()] } == expected
     }
 
     /* Normalized Leaf */
+
     void testNormalizedLeafVariableBasic() {
         setupData()
-        NormalizedLeafsVariable var
-        var = clinicalDataResourceService.createClinicalVariable(
-                ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,
-                concept_path: '\\foo\\study2\\',)
 
         def study1I2b2 = conceptData.i2b2List.find {
             it.fullName == '\\foo\\study2\\study1\\'
@@ -199,49 +191,47 @@ class ComposedVariablesCreationSpec extends Specification {
             it.name == 'with%some$characters_'
         }
 
-        println var.innerClinicalVariables
-        expect: var.innerClinicalVariables allOf(
-                containsInAnyOrder(
-                        allOf(
-                                isA(CategoricalVariable),
-                                hasProperty('label', is(sexI2b2.fullName))
-                        ),
-                        anyOf(
-                                isA(TerminalConceptVariable),
-                                hasProperty('conceptPath', is(withSomeCharsI2b2.fullName)),
-                                hasProperty('conceptCode', is(withSomeCharsI2b2.code)),
-                        ),
-                        anyOf(
-                                isA(TerminalConceptVariable),
-                                hasProperty('conceptPath', is(study1I2b2.fullName)),
-                                hasProperty('conceptCode', is(study1I2b2.code)),
-                        )))
+        when:
+        NormalizedLeafsVariable var = clinicalDataResourceService.createClinicalVariable(
+                ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,
+                concept_path: '\\foo\\study2\\',)
+
+        then:
+        var.innerClinicalVariables.size() == 3
+        var.innerClinicalVariables.find { it instanceof CategoricalVariable && it.label == sexI2b2.fullName }
+        var.innerClinicalVariables.find {
+            it instanceof TerminalConceptVariable &&
+                    (it.conceptPath == withSomeCharsI2b2.fullName || it.conceptCode == withSomeCharsI2b2.code)
+        }
+        var.innerClinicalVariables.find {
+            it instanceof TerminalConceptVariable &&
+                    (it.conceptPath == study1I2b2.fullName || it.conceptCode == study1I2b2.code)
+        }
     }
 
     void testNormalizedLeafVariableConceptCodeBasic() {
         setupData()
-        NormalizedLeafsVariable var
-        var = clinicalDataResourceService.createClinicalVariable(
-                ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,
-                concept_code: conceptData.i2b2List.find { it.name == 'study2'}.code)
 
-        println var.innerClinicalVariables
-        expect: var.innerClinicalVariables allOf(
-                containsInAnyOrder(
-                        isA(CategoricalVariable),
-                        isA(TerminalConceptVariable),
-                        isA(TerminalConceptVariable)))
+        when:
+        NormalizedLeafsVariable var = clinicalDataResourceService.createClinicalVariable(
+                ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,
+                concept_code: conceptData.i2b2List.find { it.name == 'study2' }.code)
+
+        then:
+        var.innerClinicalVariables.count { it instanceof CategoricalVariable } == 1
+        var.innerClinicalVariables.count { it instanceof TerminalConceptVariable } == 2
     }
 
     void testNormalizedLeafVariableOnParentOfNumericVariable() {
         setupData()
-        NormalizedLeafsVariable var
-        var = clinicalDataResourceService.createClinicalVariable(
+
+        when:
+        NormalizedLeafsVariable var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.NORMALIZED_LEAFS_VARIABLE,
                 concept_code: conceptData.i2b2List.find { it.fullName == '\\foo\\study1\\' }.code)
 
-        expect: var.innerClinicalVariables contains(allOf(
-                isA(TerminalConceptVariable),
-                hasProperty('conceptPath', is('\\foo\\study1\\bar\\'))))
+        then:
+        var.innerClinicalVariables[0] instanceof TerminalConceptVariable
+        var.innerClinicalVariables[0].conceptPath == '\\foo\\study1\\bar\\'
     }
 }

@@ -2,7 +2,7 @@ package org.transmartproject.rest.misc
 
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.SpringSecurityUtils
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.context.annotation.ScopedProxyMode
@@ -18,7 +18,7 @@ import org.transmartproject.core.users.UsersResource
  */
 @Component
 @Scope(value = 'request', proxyMode = ScopedProxyMode.TARGET_CLASS)
-@Log4j
+@Slf4j
 class CurrentUser implements User {
 
     @Autowired

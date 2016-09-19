@@ -1,11 +1,11 @@
 package jobs.misc
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.ObjectFactory
 import org.springframework.beans.factory.config.Scope
 import org.springframework.stereotype.Component
 
-@Log4j
+@Slf4j
 @Component
 class JobSpringScope implements Scope {
 

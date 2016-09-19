@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.accesscontrol
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -47,7 +47,7 @@ import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.
  * this should be refactored into a different solution (e.g. each check
  * implemented in a different Spring bean).
  */
-@Log4j
+@Slf4j
 @Component
 class AccessControlChecks {
 
