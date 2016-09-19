@@ -19,13 +19,13 @@
 
 package org.transmartproject.db.dataquery.highdim.mrna
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
 import spock.lang.Specification
 
 import com.google.common.collect.Lists
-import org.junit.After
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -38,9 +38,9 @@ import static org.hamcrest.Matchers.*
  * Created by glopes on 11/18/13.
  *
  */
+@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
 class MrnaEndToEndRetrievalSpec extends Specification {
 
     private static final double DELTA = 0.0001
@@ -54,11 +54,11 @@ class MrnaEndToEndRetrievalSpec extends Specification {
 
     AssayConstraint trialNameConstraint
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
 
         mrnaResource = highDimensionResourceService.getSubResourceForType 'mrna'
-        expect: mrnaResource is(notNullValue())
+        assert mrnaResource != null
 
         trialNameConstraint = mrnaResource.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
@@ -70,6 +70,7 @@ class MrnaEndToEndRetrievalSpec extends Specification {
     }
 
     void basicTest() {
+        setupData()
         List dataConstraints = []
         def projection = mrnaResource.createProjection [:], Projection.ZSCORE_PROJECTION
 
@@ -107,6 +108,7 @@ class MrnaEndToEndRetrievalSpec extends Specification {
     }
 
     void testWithGeneConstraint() {
+        setupData()
         List dataConstraints = [
                 mrnaResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
                         find({ it.keyword == 'BOGUSRQCD1' }).id]],
@@ -128,6 +130,7 @@ class MrnaEndToEndRetrievalSpec extends Specification {
     }
 
     void testLogIntensityProjection() {
+        setupData()
         def logIntensityProjection = mrnaResource.createProjection(
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
@@ -143,6 +146,7 @@ class MrnaEndToEndRetrievalSpec extends Specification {
     }
 
     void testWithDefaultRealProjection() {
+        setupData()
         List dataConstraints = [
                 mrnaResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
                         find({ it.keyword == 'BOGUSCPO' }).id]],
@@ -164,6 +168,7 @@ class MrnaEndToEndRetrievalSpec extends Specification {
 
     // not really retrieval
     void testConstraintAvailability() {
+        setupData()
         expect:
         mrnaResource.supportedAssayConstraints containsInAnyOrder(
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,

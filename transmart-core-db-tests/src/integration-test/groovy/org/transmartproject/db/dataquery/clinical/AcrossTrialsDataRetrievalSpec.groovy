@@ -39,7 +39,6 @@ import static org.transmartproject.db.ontology.AcrossTrialsTestData.MODIFIER_AGE
 @TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
 class AcrossTrialsDataRetrievalSpec extends Specification {
     public static final String AGE_AT_DIAGNOSIS_PATH =
             '\\Across Trials\\Demographics\\Age at Diagnosis\\'
@@ -50,13 +49,14 @@ class AcrossTrialsDataRetrievalSpec extends Specification {
 
     def sessionFactory
 
-    void setup() {
+    void setupData() {
         testData.saveAll()
 
         sessionFactory.currentSession.flush()
     }
 
     void terminalNumericVariableTest() {
+        setupData()
         when:
         def var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.TERMINAL_CONCEPT_VARIABLE,
