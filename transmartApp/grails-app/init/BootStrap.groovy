@@ -2,6 +2,9 @@ import grails.plugin.springsecurity.SecurityFilterPosition
 import grails.plugin.springsecurity.SpringSecurityUtils
 import org.grails.core.exceptions.GrailsConfigurationException
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationContext
+import org.springframework.core.io.ResourceLoader
 
 class BootStrap {
 
@@ -85,38 +88,9 @@ class BootStrap {
 
         logger.info("com.recomdata.transmart.data.export.rScriptDirectory = " +
                 "${c.com.recomdata.transmart.data.export.rScriptDirectory}")
-
-        /* RModules.pluginScriptDirectory */
-        /*val = c.RModules.pluginScriptDirectory
-        if (val) {
-            logger.warn("RModules.pluginScriptDirectory " +
-                    "should not be explicitly set, value '$val' ignored")
-        }
-        String rdcModulesDir = grails.util.Holders.pluginManager.getPluginPath('rdc-rmodules')
-        if (!rdcModulesDir) {
-            // it actually varies...
-            rdcModulesDir = grails.util.Holders.pluginManager.getPluginPath('rdcRmodules')
-        }
-        if (!rdcModulesDir) {
-            String version = grailsApplication.mainContext.pluginManager.allPlugins.find {
-                it.name == 'rdc-rmodules' || it.name == 'rdcRmodules'
-            }.version
-            rdcModulesDir = new File("$basePath/plugins", "rdc-rmodules-${version}")?.path
-        }
-        if (!rdcModulesDir) {
-            throw new RuntimeException('Could not determine directory for ' +
-                    'rdc-rmodules plugin')
-        }
-
-        File rScriptsDir = new File(rdcModulesDir, 'Rscripts')
-        if (!rScriptsDir || !rScriptsDir.isDirectory()) {
-            rScriptsDir = new File(rdcModulesDir, 'src/main/resources/Rscripts')
-        }
-        if (!rScriptsDir.isDirectory()) {
-            throw new RuntimeException('Could not determine proper for ' +
-                    'RModules.pluginScriptDirectory')
-        } */
-        c.RModules.pluginScriptDirectory = ""//rScriptsDir.canonicalPath + '/'
+        def ctx = grailsApplication.getMainContext()
+        def f = ctx.getResource('classpath:Rscripts').getFile()
+        c.RModules.pluginScriptDirectory = f.absolutePath
 
         logger.info("RModules.pluginScriptDirectory = " +
                 "${c.RModules.pluginScriptDirectory}")
