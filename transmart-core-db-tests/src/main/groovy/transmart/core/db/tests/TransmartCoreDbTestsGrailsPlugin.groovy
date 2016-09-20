@@ -45,7 +45,10 @@ class TransmartCoreDbTestsGrailsPlugin extends Plugin {
             [ name: "Peter Kok", email: "peter@thehyve.nl" ]
     ]
 
-    def doWithSpring = {
-        h2Views(H2Views)
+    @Override
+    Closure doWithSpring() {
+        return { ->
+            h2Views(H2Views)
+        }
     }
 }
