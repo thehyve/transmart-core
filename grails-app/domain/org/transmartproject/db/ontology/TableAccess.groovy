@@ -20,87 +20,87 @@
 package org.transmartproject.db.ontology
 
 //import grails.orm.HibernateCriteriaBuilder
-import grails.gorm.CriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
 import groovy.transform.EqualsAndHashCode
+import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.db.util.StringUtils
 
-@EqualsAndHashCode(includes = [ 'tableCode' ])
+@EqualsAndHashCode(includes = ['tableCode'])
 class TableAccess extends AbstractQuerySpecifyingType implements
         OntologyTerm, Serializable {
 
-    Integer      level
-    String       fullName
-    String       name
-    String       code
+    Integer level
+    String fullName
+    String name
+    String code
 
-    String       tableName
+    String tableName
 
-    String       tableCode
-    Character    cProtectedAccess
-    Character    cSynonymCd = 'N'
-    String       cVisualattributes = ''
+    String tableCode
+    Character cProtectedAccess
+    Character cSynonymCd = 'N'
+    String cVisualattributes = ''
 
-    BigDecimal   cTotalnum
-    String       cMetadataxml
-    String       cComment
-    String       tooltip
-    Date         cEntryDate
-    Date         cChangeDate
-    Character    cStatusCd
-    String       valuetypeCd
+    BigDecimal cTotalnum
+    String cMetadataxml
+    String cComment
+    String tooltip
+    Date cEntryDate
+    Date cChangeDate
+    Character cStatusCd
+    String valuetypeCd
 
-	static mapping = {
-        table   name: 'table_access', schema: 'I2B2METADATA'
-		version false
+    static mapping = {
+        table name: 'table_access', schema: 'I2B2METADATA'
+        version false
 
         /* hibernate needs an id, see
          * http://docs.jboss.org/hibernate/orm/3.3/reference/en/html/mapping.html#mapping-declaration-id
          */
-        id          name: 'tableCode', generator: 'assigned'
+        id name: 'tableCode', generator: 'assigned'
 
-        fullName             column:   'C_FULLNAME'
-        level                column:   'C_HLEVEL'
-        name                 column:   'C_NAME'
-        code                 column:   'C_BASECODE'
-        tooltip              column:   'C_TOOLTIP'
-        tableName            column:   'C_TABLE_NAME'
-        tableCode            column:   'C_TABLE_CD'
+        fullName column: 'C_FULLNAME'
+        level column: 'C_HLEVEL'
+        name column: 'C_NAME'
+        code column: 'C_BASECODE'
+        tooltip column: 'C_TOOLTIP'
+        tableName column: 'C_TABLE_NAME'
+        tableCode column: 'C_TABLE_CD'
 
-        factTableColumn      column:   'C_FACTTABLECOLUMN'
-        dimensionTableName   column:   'C_DIMTABLENAME'
-        columnName           column:   'C_COLUMNNAME'
-        columnDataType       column:   'C_COLUMNDATATYPE'
-        operator             column:   'C_OPERATOR'
-        dimensionCode        column:   'C_DIMCODE'
-	}
+        factTableColumn column: 'C_FACTTABLECOLUMN'
+        dimensionTableName column: 'C_DIMTABLENAME'
+        columnName column: 'C_COLUMNNAME'
+        columnDataType column: 'C_COLUMNDATATYPE'
+        operator column: 'C_OPERATOR'
+        dimensionCode column: 'C_DIMCODE'
+    }
 
-	static constraints = {
-        tableCode           maxSize:    50
-        tableName           maxSize:    50
-        cProtectedAccess    nullable:   true
-        fullName            maxSize:    700
-        name                maxSize:    2000
-        cSynonymCd          nullable:   true
-        cVisualattributes   maxSize:    3
-        cTotalnum           nullable:   true
-        code                nullable:   true,   maxSize:   50
-        cMetadataxml        nullable:   true
-        cComment            nullable:   true
-        tooltip             nullable:   true,   maxSize:   900
-        cEntryDate          nullable:   true
-        cChangeDate         nullable:   true
-        cStatusCd           nullable:   true
-        valuetypeCd         nullable:   true,   maxSize:   50
+    static constraints = {
+        tableCode maxSize: 50
+        tableName maxSize: 50
+        cProtectedAccess nullable: true
+        fullName maxSize: 700
+        name maxSize: 2000
+        cSynonymCd nullable: true
+        cVisualattributes maxSize: 3
+        cTotalnum nullable: true
+        code nullable: true, maxSize: 50
+        cMetadataxml nullable: true
+        cComment nullable: true
+        tooltip nullable: true, maxSize: 900
+        cEntryDate nullable: true
+        cChangeDate nullable: true
+        cStatusCd nullable: true
+        valuetypeCd nullable: true, maxSize: 50
 
         AbstractQuerySpecifyingType.constraints.delegate = delegate
         AbstractQuerySpecifyingType.constraints()
-	}
+    }
 
     static List<OntologyTerm> getCategories(showHidden = false,
                                             showSynonyms = false) {
@@ -114,8 +114,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         }
     }
 
-    Class getOntologyTermDomainClassReferred()
-    {
+    Class getOntologyTermDomainClassReferred() {
         def domainClass = Holders.getGrailsApplication().domainClasses.find
                 {
                     AbstractI2b2Metadata.class.isAssignableFrom(it.clazz) &&
@@ -165,7 +164,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                                               boolean showSynonyms = false) {
 
         //HibernateCriteriaBuilder c
-        CriteriaBuilder c
+        HibernateCriteriaBuilder c
         /* extract table code from concept key and resolve it to a table name */
         c = TableAccess.createCriteria()
         String tableName = c.get {
@@ -238,7 +237,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
 
     @Override
     String toString() {
-        getClass().canonicalName + "[${attached?'attached':'not attached'}" +
+        getClass().canonicalName + "[${attached ? 'attached' : 'not attached'}" +
                 "] [ fullName=$fullName ]"
     }
 }
