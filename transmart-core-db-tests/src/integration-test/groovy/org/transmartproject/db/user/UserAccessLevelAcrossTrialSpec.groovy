@@ -21,9 +21,6 @@ package org.transmartproject.db.user
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.gmock.WithGMock
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,6 +33,7 @@ import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.AcrossTrialsTestData
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.ontology.ModifierDimensionView
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.is
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
@@ -45,10 +43,11 @@ import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
  * Use separate class because across trials data clashes with standard
  * AccessLevelTestData.
  */
+
 @WithGMock
 @Integration
 @Rollback
-@Slf4j
+
 class UserAccessLevelAcrossTrialSpec extends Specification {
 
     @Autowired
@@ -84,7 +83,8 @@ class UserAccessLevelAcrossTrialSpec extends Specification {
                 )]),
         ])
 
-        expect: secondUser.canPerform(BUILD_COHORT, definition) is(true)
+        expect:
+        secondUser.canPerform(BUILD_COHORT, definition) is(true)
     }
 
 

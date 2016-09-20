@@ -1,22 +1,17 @@
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class OntologyTermTagsResourceServiceSpec extends Specification {
 
     OntologyTermTagsResourceService ontologyTermTagsResourceService
@@ -35,17 +30,18 @@ class OntologyTermTagsResourceServiceSpec extends Specification {
         Map<OntologyTerm, List<OntologyTermTag>> tags = ontologyTermTagsResourceService
                 .getTags([studyConcept] as Set, false)
         //note that reverse order here tests sorting by tag.position
-        expect: tags hasEntry(
+        expect:
+        tags hasEntry(
                 hasProperty('key', equalTo(key)),
                 contains(
-                    allOf(
-                        hasProperty('name', equalTo('1 name 2')),
-                        hasProperty('description', equalTo('1 description 2')),
-                    ),
-                    allOf(
-                        hasProperty('name', equalTo('1 name 1')),
-                        hasProperty('description', equalTo('1 description 1')),
-                    ),
+                        allOf(
+                                hasProperty('name', equalTo('1 name 2')),
+                                hasProperty('description', equalTo('1 description 2')),
+                        ),
+                        allOf(
+                                hasProperty('name', equalTo('1 name 1')),
+                                hasProperty('description', equalTo('1 description 1')),
+                        ),
                 ))
     }
 
@@ -58,7 +54,8 @@ class OntologyTermTagsResourceServiceSpec extends Specification {
         Map<OntologyTerm, List<OntologyTermTag>> tags = ontologyTermTagsResourceService
                 .getTags([study1Concept, study2Concept] as Set, false)
         //note that reverse order here tests sorting by tag.position
-        expect: tags allOf(
+        expect:
+        tags allOf(
                 hasEntry(
                         hasProperty('key', equalTo(key1)),
                         contains(
@@ -93,31 +90,32 @@ class OntologyTermTagsResourceServiceSpec extends Specification {
         Map<OntologyTerm, List<OntologyTermTag>> tags = ontologyTermTagsResourceService
                 .getTags([studyConcept] as Set, true)
         //note that reverse order here tests sorting by tag.position
-        expect: tags allOf(
+        expect:
+        tags allOf(
                 hasEntry(
-                    hasProperty('key', equalTo(key)),
-                    contains(
-                            allOf(
-                                    hasProperty('name', equalTo('1 name 2')),
-                                    hasProperty('description', equalTo('1 description 2')),
-                            ),
-                            allOf(
-                                    hasProperty('name', equalTo('1 name 1')),
-                                    hasProperty('description', equalTo('1 description 1')),
-                            ),
-                    )),
+                        hasProperty('key', equalTo(key)),
+                        contains(
+                                allOf(
+                                        hasProperty('name', equalTo('1 name 2')),
+                                        hasProperty('description', equalTo('1 description 2')),
+                                ),
+                                allOf(
+                                        hasProperty('name', equalTo('1 name 1')),
+                                        hasProperty('description', equalTo('1 description 1')),
+                                ),
+                        )),
                 hasEntry(
-                    hasProperty('key', equalTo("${key}bar\\".toString())),
-                    contains(
-                            allOf(
-                                    hasProperty('name', equalTo('2 name 2')),
-                                    hasProperty('description', equalTo('2 description 2')),
-                            ),
-                            allOf(
-                                    hasProperty('name', equalTo('2 name 1')),
-                                    hasProperty('description', equalTo('2 description 1')),
-                            ),
-                    )),
+                        hasProperty('key', equalTo("${key}bar\\".toString())),
+                        contains(
+                                allOf(
+                                        hasProperty('name', equalTo('2 name 2')),
+                                        hasProperty('description', equalTo('2 description 2')),
+                                ),
+                                allOf(
+                                        hasProperty('name', equalTo('2 name 1')),
+                                        hasProperty('description', equalTo('2 description 1')),
+                                ),
+                        )),
         )
     }
 

@@ -20,9 +20,7 @@
 package org.transmartproject.db.dataquery.clinical
 
 import com.google.common.collect.Lists
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
@@ -39,7 +37,6 @@ import spock.lang.Specification
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.TestDataHelper.save
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 class ComposedVariablesCreationSpec extends Specification {

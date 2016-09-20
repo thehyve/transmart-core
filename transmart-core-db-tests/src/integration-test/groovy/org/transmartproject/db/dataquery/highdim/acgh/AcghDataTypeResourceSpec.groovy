@@ -19,9 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.acgh
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -37,7 +35,7 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 /**
  * Created by glopes on 11/23/13.
  */
-@TestMixin(ControllerUnitTestMixin)
+
 @Integration
 @Rollback
 class AcghDataTypeResourceSpec extends Specification {

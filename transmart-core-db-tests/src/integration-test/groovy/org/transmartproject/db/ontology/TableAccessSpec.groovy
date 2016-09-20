@@ -19,42 +19,37 @@
 
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.ontology.OntologyTerm
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.junit.Assert.fail
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class TableAccessSpec extends Specification {
 
     void setupData() {
         addI2b2(level: 1, fullName: '\\foo\\xpto\\', name: 'xpto')
         addI2b2(level: 1, fullName: '\\foo\\bar\\', name: 'var',
-                        cVisualattributes: 'FH')
+                cVisualattributes: 'FH')
         addI2b2(level: 1, fullName: '\\foo\\baz\\', name: 'baz',
                 cSynonymCd: 'Y')
         addI2b2(level: 2, fullName: '\\foo\\xpto\\barn\\', name: 'barn', cVisualattributes: 'FH')
         addI2b2(level: 2, fullName: '\\foo\\xpto\\bart\\', name: 'bart')
         addI2b2(level: 0, fullName: '\\foo\\', name: 'foo')
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
-                        tableCode: 'i2b2 main', tableName: 'i2b2')
+                tableCode: 'i2b2 main', tableName: 'i2b2')
         addTableAccess(level: 0, fullName: '\\fooh\\', name: 'fooh',
-                        tableCode: 'bogus table', tableName: 'bogus')
+                tableCode: 'bogus table', tableName: 'bogus')
         addTableAccess(level: 0, fullName: '\\notini2b2\\',
-                        name: 'notini2b2', tableCode: 'i2b2 2nd code',
-                        tableName: 'i2b2')
+                name: 'notini2b2', tableCode: 'i2b2 2nd code',
+                tableName: 'i2b2')
     }
 
     void testBogusTable() {
@@ -66,7 +61,8 @@ class TableAccessSpec extends Specification {
             bogusEntry.children
             fail('Expected exception here')
         } catch (e) {
-            expect: e allOf(
+            expect:
+            e allOf(
                     isA(RuntimeException),
                     hasProperty('message', containsString('table bogus is ' +
                             'not mapped'))
@@ -84,7 +80,8 @@ class TableAccessSpec extends Specification {
             notInI2b2.children
             fail('Expected exception here')
         } catch (e) {
-            expect: e allOf(
+            expect:
+            e allOf(
                     isA(RuntimeException),
                     hasProperty('message', containsString('could not find it ' +
                             'in class org.transmartproject.db.ontology.' +
@@ -99,30 +96,30 @@ class TableAccessSpec extends Specification {
         def catFoo = cats.find { it.name == 'foo' }
 
         expect:
-            catFoo is(notNullValue(OntologyTerm))
-            catFoo.children allOf(
+        catFoo is(notNullValue(OntologyTerm))
+        catFoo.children allOf(
                 hasSize(1),
                 contains(hasProperty('name', equalTo('xpto')))
-            )
+        )
 
-            /* show hidden as well */
-            catFoo.getChildren(true) allOf(
-                    hasSize(2),
-                    contains(
-                            hasProperty('name', equalTo('var')),
-                            hasProperty('name', equalTo('xpto'))
-                    )
-            )
+        /* show hidden as well */
+        catFoo.getChildren(true) allOf(
+                hasSize(2),
+                contains(
+                        hasProperty('name', equalTo('var')),
+                        hasProperty('name', equalTo('xpto'))
+                )
+        )
 
-            /* show also synonyms */
-            catFoo.getChildren(true, true) allOf(
+        /* show also synonyms */
+        catFoo.getChildren(true, true) allOf(
                 hasSize(3),
                 contains( /* ordered by name */
                         hasProperty('name', equalTo('baz')),
                         hasProperty('name', equalTo('var')),
                         hasProperty('name', equalTo('xpto')),
                 )
-            )
+        )
     }
 
     void testGetAllDescendants() {
@@ -130,14 +127,14 @@ class TableAccessSpec extends Specification {
         TableAccess ta = TableAccess.findByName('foo')
 
         expect:
-            ta.allDescendants allOf(
+        ta.allDescendants allOf(
                 hasSize(2),
                 contains(
                         hasProperty('name', equalTo('bart')),
                         hasProperty('name', equalTo('xpto')),
                 )
-            )
-            ta.getAllDescendants(true, true) allOf(
+        )
+        ta.getAllDescendants(true, true) allOf(
                 hasSize(5),
                 contains(
                         hasProperty('name', equalTo('barn')),
@@ -146,7 +143,7 @@ class TableAccessSpec extends Specification {
                         hasProperty('name', equalTo('var')),
                         hasProperty('name', equalTo('xpto')),
                 )
-            )
+        )
     }
 
 }

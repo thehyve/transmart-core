@@ -19,23 +19,18 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class DefaultTrialNameConstraintSpec extends Specification {
 
     AssayTestData testData = new AssayTestData()
@@ -50,7 +45,8 @@ class DefaultTrialNameConstraintSpec extends Specification {
                 new DefaultTrialNameCriteriaConstraint(trialName: 'SAMPLE_TRIAL_2')
         ]).list()
 
-        expect: assays allOf(
+        expect:
+        assays allOf(
                 everyItem(
                         hasProperty('trialName', equalTo('SAMPLE_TRIAL_2'))
                 ),

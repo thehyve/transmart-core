@@ -19,24 +19,19 @@
 
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.thehyve.commons.test.FastMatchers
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.ontology.OntologyTerm
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class AcrossTrialsOntologyTermSpec extends Specification {
 
     private static final String DEMOGRAPHICS_NODE =
@@ -58,7 +53,8 @@ class AcrossTrialsOntologyTermSpec extends Specification {
         setupData()
         def result = topNode.children
 
-        expect: result contains(
+        expect:
+        result contains(
                 hasProperty('key', equalTo(DEMOGRAPHICS_NODE))
         )
     }

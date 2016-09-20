@@ -19,23 +19,18 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class PlatformConstraintSpec extends Specification {
 
     AssayTestData testData = new AssayTestData()
@@ -47,10 +42,11 @@ class PlatformConstraintSpec extends Specification {
     void testBasic() {
         setupData()
         List<Assay> assays = new AssayQuery([
-                new PlatformCriteriaConstraint(gplIds: [ 'BOGUSANNOTH' ])
+                new PlatformCriteriaConstraint(gplIds: ['BOGUSANNOTH'])
         ]).list()
 
-        expect: assays allOf(
+        expect:
+        assays allOf(
                 everyItem(
                         hasProperty('trialName', equalTo('SAMPLE_TRIAL_1'))
                 ),
@@ -65,8 +61,9 @@ class PlatformConstraintSpec extends Specification {
 
     void testIgnoreOnEmptyIdCollection() {
         setupData()
-        List<Assay> assays =new AssayQuery([new PlatformCriteriaConstraint(gplIds: [])]).list()
+        List<Assay> assays = new AssayQuery([new PlatformCriteriaConstraint(gplIds: [])]).list()
 
-        expect: assays hasSize(12)
+        expect:
+        assays hasSize(12)
     }
 }

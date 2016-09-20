@@ -176,12 +176,7 @@ class AccessLevelTestData {
     }()
 
     List<User> users = {
-        List<User> users = createUsers(6, -300L)
-        users[0].addToRoles(roles.find { it.authority == 'ROLE_ADMIN' })
-
-        users[1].addToGroups(groups.find { it.category == 'group_-201' })
-
-        users
+        createUsers(6, -300L)
     }()
 
     /* 1 first user is admin
@@ -241,6 +236,8 @@ class AccessLevelTestData {
         save roles
         save groups
         save users
+        users[0].addToRoles(roles.find { it.authority == 'ROLE_ADMIN' })
+        users[1].addToGroups(groups.find { it.category == 'group_-201' })
         save securedObjectAccesses
     }
 

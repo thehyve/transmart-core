@@ -149,17 +149,21 @@ class ConceptTestData {
     }
 
     static TableAccess createTableAccess(Map properties) {
-        def base = [
-                level                :   0,
-                factTableColumn      :   '',
-                dimensionTableName   :   '',
-                columnName           :   '',
-                columnDataType       :   '',
-                operator             :   '',
-                dimensionCode        :   '',
-        ]
+        def tableAccess = new TableAccess()
+        //defaults.
+        // To escape data binding conversions (e.g. convertEmptyStringsToNull) we use direct assignment to the fields.
+        tableAccess.with {
+            level                =   0
+            factTableColumn      =   ''
+            dimensionTableName   =   ''
+            columnName           =   ''
+            columnDataType       =   ''
+            operator             =   ''
+            dimensionCode        =   ''
+        }
 
-        new TableAccess([*:base, *:properties])
+        tableAccess.properties = properties
+        tableAccess
     }
 
     static addTableAccess(Map properties) {

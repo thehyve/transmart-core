@@ -19,24 +19,19 @@
 
 package org.transmartproject.db.dataquery.clinical
 
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import com.google.common.collect.Lists
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.gmock.WithGMock
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.db.dataquery.clinical.variables.AcrossTrialsTerminalVariable
 import org.transmartproject.db.ontology.AcrossTrialsTestData
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.AcrossTrialsTestData.MODIFIER_AGE_AT_DIAGNOSIS
 
 @WithGMock
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 class AcrossTrialsDataRetrievalSpec extends Specification {
@@ -80,7 +75,8 @@ class AcrossTrialsDataRetrievalSpec extends Specification {
         }.sort {
             it.key /* patient id */
         }.collect { patientId, facts ->
-            expect: facts hasSize(1) /* sanity check */
+            expect:
+            facts hasSize(1) /* sanity check */
             contains(is(facts[0].numberValue))
         }
 

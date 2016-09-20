@@ -23,7 +23,6 @@ import grails.test.mixin.TestMixinTargetAware
 import grails.test.mixin.integration.IntegrationTestMixin
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
-import groovy.util.logging.Slf4j
 import org.grails.test.support.GrailsTestInterceptor
 import org.grails.test.support.GrailsTestMode
 import org.junit.After
@@ -53,9 +52,8 @@ import org.junit.rules.TestRule
  * Use it like this:
  *
  * <pre>
- *     @TestMixin(RuleBasedIntegrationTestMixin)
- *     class FooBarTests { ... }
- * </pre>
+ * @TestMixin ( R u l e B a s e d I n t e g r a t i o n T e s t M i x i n )
+ * class FooBarTests { ... }* </pre>
  */
 class RuleBasedIntegrationTestMixin implements TestMixinTargetAware {
 
@@ -67,12 +65,12 @@ class RuleBasedIntegrationTestMixin implements TestMixinTargetAware {
         this.target = target
         try {
             final applicationContext = IntegrationTestPhaseConfigurer.currentApplicationContext
-            if(applicationContext && target) {
-                interceptor = new GrailsTestInterceptor(target, new GrailsTestMode( autowire: true,
+            if (applicationContext && target) {
+                interceptor = new GrailsTestInterceptor(target, new GrailsTestMode(autowire: true,
                         wrapInRequestEnvironment: true,
                         wrapInTransaction: target.hasProperty('transactional') ? target['transactional'] : true),
                         applicationContext,
-                        ['Spec', 'Specification','Test', 'Tests'] as String[] )
+                        ['Spec', 'Specification', 'Test', 'Tests'] as String[])
             }
         } catch (IllegalStateException ise) {
             // ignore, thrown when application context hasn't been bootstrapped
@@ -83,7 +81,7 @@ class RuleBasedIntegrationTestMixin implements TestMixinTargetAware {
     TestRule getGrailsInterceptorRule() {
         // has to be a method otherwise TestMixinTransformation won't weave this in
         new GrailsInterceptorRule(interceptor: interceptor,
-                                  target: target)
+                target: target)
     }
 
     void autowireByType() {
@@ -95,7 +93,7 @@ class RuleBasedIntegrationTestMixin implements TestMixinTargetAware {
                 false)
     }
 
-    @Slf4j
+
     static class GrailsInterceptorRule extends ExternalResource {
         GrailsTestInterceptor interceptor
         Object target

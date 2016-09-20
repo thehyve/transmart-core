@@ -19,28 +19,23 @@
 
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.gmock.WithGMock
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
+import spock.lang.Specification
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.propsWith
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.CONTAINER
 
-@TestMixin(ControllerUnitTestMixin)
 @WithGMock
 @Integration
 @Rollback
-@Slf4j
+
 class AcrossTrialsConceptsResourceSpec extends Specification {
 
     public static final String AGE_AT_DIAGNOSIS_KEY =
@@ -69,7 +64,8 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
 
         play {
             def result = testee.allCategories
-            expect: result contains(
+            expect:
+            result contains(
                     propsWith(
                             level: 0,
                             key: '\\\\xtrials\\Across Trials\\',
@@ -88,8 +84,9 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
         setupData()
         OntologyTerm ageAtDiagnosis = testee.getByKey(AGE_AT_DIAGNOSIS_KEY)
 
-        expect: ageAtDiagnosis
-                hasProperty('key', equalTo(AGE_AT_DIAGNOSIS_KEY))
+        expect:
+        ageAtDiagnosis
+        hasProperty('key', equalTo(AGE_AT_DIAGNOSIS_KEY))
     }
 
     void testGetByKeyInexistentValidAcrossTrialsNode() {
@@ -114,7 +111,8 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
         innerMock.getByKey(key).returns(term)
 
         play {
-            expect: testee.getByKey(key) is(sameInstance(term))
+            expect:
+            testee.getByKey(key) is(sameInstance(term))
         }
     }
 }

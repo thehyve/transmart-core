@@ -19,13 +19,8 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
@@ -34,15 +29,15 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.ontology.StudyTestData
+import spock.lang.Specification
 
 import javax.annotation.Resource
 
 import static org.hamcrest.Matchers.*
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class HighDimensionDataTypeResourceSpec extends Specification {
 
     @Resource
@@ -82,7 +77,8 @@ class HighDimensionDataTypeResourceSpec extends Specification {
         def result = queriesResourceService.runQuery(definition)
         def ontologyTerms = resource.getAllOntologyTermsForDataTypeBy(result)
 
-        expect: ontologyTerms allOf(
+        expect:
+        ontologyTerms allOf(
                 hasSize(1),
                 contains(
                         hasProperty('key', equalTo(i2b2Node.key.toString()))

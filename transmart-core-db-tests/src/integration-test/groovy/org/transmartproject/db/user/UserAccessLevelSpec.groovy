@@ -19,9 +19,7 @@
 
 package org.transmartproject.db.user
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,7 +38,6 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
 import static org.transmartproject.db.user.AccessLevelTestData.*
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 class UserAccessLevelSpec extends Specification {

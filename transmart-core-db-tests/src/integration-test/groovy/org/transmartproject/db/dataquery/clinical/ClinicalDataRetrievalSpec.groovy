@@ -20,9 +20,7 @@
 package org.transmartproject.db.dataquery.clinical
 
 import com.google.common.collect.Lists
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -46,7 +44,6 @@ import static org.transmartproject.db.querytool.QueryResultData.createQueryResul
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 class ClinicalDataRetrievalSpec extends Specification {

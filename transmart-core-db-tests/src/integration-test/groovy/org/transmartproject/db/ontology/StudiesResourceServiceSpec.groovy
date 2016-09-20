@@ -19,26 +19,21 @@
 
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
+import spock.lang.Specification
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Concept
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class StudiesResourceServiceSpec extends Specification {
 
     StudyTestData studyTestData = new StudyTestData()
@@ -55,17 +50,18 @@ class StudiesResourceServiceSpec extends Specification {
         setupData()
         def result = studiesResourceService.studySet
 
-        expect: result allOf(
+        expect:
+        result allOf(
                 everyItem(isA(Study)),
                 containsInAnyOrder(
                         allOf(
                                 hasProperty('id', is('STUDY_ID_1')),
                                 hasProperty('ontologyTerm',
-                                    hasProperty('fullName', is('\\foo\\study1\\')))),
+                                        hasProperty('fullName', is('\\foo\\study1\\')))),
                         allOf(
                                 hasProperty('id', is('STUDY_ID_2')),
                                 hasProperty('ontologyTerm',
-                                    hasProperty('fullName', is('\\foo\\study2\\')))),
+                                        hasProperty('fullName', is('\\foo\\study2\\')))),
                         allOf(
                                 hasProperty('id', is('STUDY_ID_3')),
                                 hasProperty('ontologyTerm',
@@ -77,13 +73,14 @@ class StudiesResourceServiceSpec extends Specification {
         // shouldn't get confused with \foo\study2\study1
         def result = studiesResourceService.getStudyById('study_id_1')
 
-        expect: result allOf(
+        expect:
+        result allOf(
                 hasProperty('id', is('STUDY_ID_1')),
                 hasProperty('ontologyTerm',
-                    allOf(
-                        hasProperty('name', is('study1')),
-                        hasProperty('fullName', is('\\foo\\study1\\'))
-                    )
+                        allOf(
+                                hasProperty('name', is('study1')),
+                                hasProperty('fullName', is('\\foo\\study1\\'))
+                        )
                 )
         )
     }
@@ -92,7 +89,8 @@ class StudiesResourceServiceSpec extends Specification {
         setupData()
         def result = studiesResourceService.getStudyById('stuDY_Id_1')
 
-        expect: result allOf(
+        expect:
+        result allOf(
                 hasProperty('id', is('STUDY_ID_1')),
                 hasProperty('ontologyTerm',
                         allOf(
@@ -116,7 +114,8 @@ class StudiesResourceServiceSpec extends Specification {
 
         def result = studiesResourceService.getStudyByOntologyTerm(concept)
 
-        expect: result allOf(
+        expect:
+        result allOf(
                 hasProperty('id', is('STUDY_ID_1')),
                 hasProperty('ontologyTerm',
                         allOf(
@@ -137,7 +136,8 @@ class StudiesResourceServiceSpec extends Specification {
                 cComment: 'trial:ST_VIS_ATTR',
                 cVisualattributes: 'FAS')
 
-        expect: concept.save() is(notNullValue())
+        expect:
+        concept.save() is(notNullValue())
 
         when:
         def result = studiesResourceService.getStudyByOntologyTerm(concept)

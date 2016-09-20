@@ -19,26 +19,21 @@
 
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.junit.Assert.fail
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class DefaultConceptsResourceSpec extends Specification {
 
     ConceptsResource conceptsResourceService = new DefaultConceptsResource()
@@ -49,7 +44,7 @@ class DefaultConceptsResourceSpec extends Specification {
         addTableAccess(level: 1, fullName: '\\foo\\level1', name: 'level1',
                 tableCode: 'i2b2 level1', tableName: 'i2b2')
         addTableAccess(level: 0, fullName: '\\hidden\\', name: 'hidden',
-               tableCode: 'i2b2 2nd', tableName: 'i2b2',
+                tableCode: 'i2b2 2nd', tableName: 'i2b2',
                 cVisualattributes: 'FH')
         addTableAccess(level: 0, fullName: '\\synonym\\', name: 'synonym',
                 tableCode: 'i2b2 3rd', tableName: 'i2b2',
@@ -63,7 +58,8 @@ class DefaultConceptsResourceSpec extends Specification {
 
     void testGetAllCategories() {
         setupData()
-        expect: conceptsResourceService.allCategories allOf(
+        expect:
+        conceptsResourceService.allCategories allOf(
                 hasItem(hasProperty('name', equalTo('foo'))),
                 hasItem(hasProperty('name', equalTo('level1'))),
                 hasItem(hasProperty('name', equalTo('hidden'))),
@@ -75,7 +71,8 @@ class DefaultConceptsResourceSpec extends Specification {
         setupData()
         def concept = conceptsResourceService.getByKey('\\\\i2b2 main' +
                 '\\foo\\bar')
-        expect: concept hasProperty('name', equalTo('bar'))
+        expect:
+        concept hasProperty('name', equalTo('bar'))
     }
 
     void testGetByKeyBogusTableCode() {
@@ -89,12 +86,13 @@ class DefaultConceptsResourceSpec extends Specification {
                 conceptsResourceService.getByKey(it)
                 fail "There should've been an exception"
             } catch (e) {
-                expect: e allOf(
+                expect:
+                e allOf(
                         isA(NoSuchResourceException),
                         hasProperty('message', allOf(
                                 containsString('Unknown or unmapped table code'),
                                 containsString(new ConceptKey(it).tableCode)
-                )))
+                        )))
             }
         }
 
@@ -106,7 +104,8 @@ class DefaultConceptsResourceSpec extends Specification {
             conceptsResourceService.getByKey('\\\\i2b2 main\\does not exist\\')
             fail "There should've been an exception"
         } catch (e) {
-            expect: e allOf(
+            expect:
+            e allOf(
                     isA(NoSuchResourceException),
                     hasProperty('message', allOf(
                             containsString('No non-synonym concept with ' +

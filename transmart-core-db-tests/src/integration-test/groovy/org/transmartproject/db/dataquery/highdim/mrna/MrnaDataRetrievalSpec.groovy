@@ -19,13 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.mrna
 
+import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Ignore
-import spock.lang.Specification
-
-import com.google.common.collect.Lists
 import groovy.sql.Sql
 import org.hibernate.Session
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,6 +42,8 @@ import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataC
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
+import spock.lang.Ignore
+import spock.lang.Specification
 
 import javax.sql.DataSource
 
@@ -55,7 +53,7 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 @Integration
 @Rollback
-@Slf4j
+
 class MrnaDataRetrievalSpec extends Specification {
 
     private static final double DELTA = 0.0001
@@ -105,17 +103,19 @@ class MrnaDataRetrievalSpec extends Specification {
 
         when:
         dataQueryResult =
-            resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
+                resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
 
-        then: dataQueryResult allOf(
+        then:
+        dataQueryResult allOf(
                 hasProperty('columnsDimensionLabel', equalTo('Sample codes')),
-                hasProperty('rowsDimensionLabel',    equalTo('Probes')),
+                hasProperty('rowsDimensionLabel', equalTo('Probes')),
         )
 
         when:
         def resultList = Lists.newArrayList dataQueryResult
 
-        then: resultList allOf(
+        then:
+        resultList allOf(
                 hasSize(3),
                 everyItem(isA(ProbeRow)),
                 everyItem(
@@ -143,8 +143,8 @@ class MrnaDataRetrievalSpec extends Specification {
                 ),
                 contains(
                         allOf(
-                            hasProperty('bioMarker', equalTo('BOGUSVNN3')),
-                            hasProperty('label', equalTo('1553513_at')),
+                                hasProperty('bioMarker', equalTo('BOGUSVNN3')),
+                                hasProperty('label', equalTo('1553513_at')),
                         ),
                         hasProperty('bioMarker', equalTo('BOGUSRQCD1')),
                         hasProperty('bioMarker', equalTo('BOGUSCPO')),
@@ -156,23 +156,23 @@ class MrnaDataRetrievalSpec extends Specification {
         List<AssayColumn> lac = dataQueryResult.indicesList
 
         then:
-            firstProbe.assayIndexMap.entrySet() hasSize(2)
+        firstProbe.assayIndexMap.entrySet() hasSize(2)
 
-            // first probe is 1553510_s_at (gene BOGUSVNN3), as asserted before
-            // intensities are 0.5 and 0.6
-            firstProbe[0] allOf(
-                    closeTo(firstProbe[lac.find { it.id == -402L /*ascending order*/ }], DELTA),
-                    closeTo(0.6f, DELTA)
-            )
-            firstProbe[1] allOf(
-                    closeTo(firstProbe[lac.find { it.id == -401L }], DELTA),
-                    closeTo(0.5f, DELTA)
-            )
+        // first probe is 1553510_s_at (gene BOGUSVNN3), as asserted before
+        // intensities are 0.5 and 0.6
+        firstProbe[0] allOf(
+                closeTo(firstProbe[lac.find { it.id == -402L /*ascending order*/ }], DELTA),
+                closeTo(0.6f, DELTA)
+        )
+        firstProbe[1] allOf(
+                closeTo(firstProbe[lac.find { it.id == -401L }], DELTA),
+                closeTo(0.5f, DELTA)
+        )
     }
 
     private CriteriaDataConstraint createGenesDataConstraint(List skIds) {
         SearchKeywordDataConstraint.createForSearchKeywordIds(
-                entityAlias:        'p',
+                entityAlias: 'p',
                 propertyToRestrict: 'geneId',
                 correlationTypes:
                         correlationTypesRegistry.getCorrelationTypesForTargetType('GENE'),
@@ -189,11 +189,12 @@ class MrnaDataRetrievalSpec extends Specification {
                 ])
         ]
         dataQueryResult =
-            resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
+                resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
 
         def resultList = Lists.newArrayList dataQueryResult
 
-        expect: resultList allOf(
+        expect:
+        resultList allOf(
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
                 contains(hasProperty('bioMarker', equalTo('BOGUSRQCD1')))
@@ -210,7 +211,8 @@ class MrnaDataRetrievalSpec extends Specification {
         dataQueryResult =
                 resource.retrieveData assayConstraints, [], rawIntensityProjection
 
-        expect: dataQueryResult.indicesList contains(
+        expect:
+        dataQueryResult.indicesList contains(
                 hasProperty('id', is(testData.assays[1].id)),
                 hasProperty('id', is(testData.assays[0].id)))
     }
@@ -232,11 +234,12 @@ class MrnaDataRetrievalSpec extends Specification {
         ]
 
         dataQueryResult =
-            resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
+                resource.retrieveData assayConstraints, dataConstraints, rawIntensityProjection
 
         def resultList = Lists.newArrayList dataQueryResult
 
-        expect: resultList containsInAnyOrder(
+        expect:
+        resultList containsInAnyOrder(
                 hasProperty('bioMarker', equalTo('BOGUSRQCD1')),
                 hasProperty('bioMarker', equalTo('BOGUSVNN3')),
         )
@@ -244,14 +247,14 @@ class MrnaDataRetrievalSpec extends Specification {
 
     private TabularResult testWithMissingDataAssay(Long baseAssayId) {
         setupData()
-        def extraAssays = createTestAssays([ testData.patients[0] ], baseAssayId,
+        def extraAssays = createTestAssays([testData.patients[0]], baseAssayId,
                 testData.platform, MrnaTestData.TRIAL_NAME)
         HighDimTestData.save extraAssays
 
         List assayConstraints = [trialNameConstraint]
 
         dataQueryResult =
-            resource.retrieveData assayConstraints, [], rawIntensityProjection
+                resource.retrieveData assayConstraints, [], rawIntensityProjection
     }
 
     void testWithMissingAssayLowestIdNumber() {
@@ -260,7 +263,7 @@ class MrnaDataRetrievalSpec extends Specification {
 
         expect:
         dataQueryResult.indicesList[0]
-                hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(-50001L))
+        hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(-50001L))
 
         Lists.newArrayList(dataQueryResult.rows) everyItem(
                 hasProperty('data', allOf(
@@ -280,7 +283,7 @@ class MrnaDataRetrievalSpec extends Specification {
 
         expect:
         dataQueryResult.indicesList[2]
-                hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(4999999L))
+        hasSameInterfaceProperties(Assay, DeSubjectSampleMapping.get(4999999L))
 
         Lists.newArrayList(dataQueryResult.rows) everyItem(
                 hasProperty('data', allOf(
@@ -297,7 +300,8 @@ class MrnaDataRetrievalSpec extends Specification {
     void testWithMissingAssayAllowMissingAssays() {
         setupData()
         testWithMissingDataAssay(-50000L)
-        expect: Lists.newArrayList(dataQueryResult.rows) everyItem(
+        expect:
+        Lists.newArrayList(dataQueryResult.rows) everyItem(
                 hasProperty('data', allOf(
                         hasSize(3), // for the three assays
                         contains(
@@ -309,8 +313,9 @@ class MrnaDataRetrievalSpec extends Specification {
         )
     }
 
-    @Ignore // this somehow breaks 3 tests in MrnaGeneDataConstraintTests
-            // saying the column correl.correl_type does not exist (!)
+    @Ignore
+    // this somehow breaks 3 tests in MrnaGeneDataConstraintTests
+    // saying the column correl.correl_type does not exist (!)
     void testWithDuplicateProbes() {
         setupData()
         /* this tests support for a schema variation where probeset_id is not
@@ -349,7 +354,8 @@ class MrnaDataRetrievalSpec extends Specification {
 
 
             ArrayList results = Lists.newArrayList(dataQueryResult)
-            expect: results allOf(
+            expect:
+            results allOf(
                     hasSize(3),
                     hasItem(allOf(
                             hasProperty('geneSymbol',

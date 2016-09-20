@@ -1,12 +1,7 @@
 package org.transmartproject.db.dataquery.highdim
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -15,15 +10,16 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
+import spock.lang.Specification
 
 import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
+import static spock.util.matcher.HamcrestSupport.that
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class GeneralHighDimensionDataTypeResourceSpec extends Specification {
 
     HighDimensionResource highDimensionResourceService
@@ -63,10 +59,12 @@ class GeneralHighDimensionDataTypeResourceSpec extends Specification {
         dataQueryResult = mrnaResource.retrieveData(
                 [], dataConstraints, projection)
 
-        expect: dataQueryResult.indicesList contains(
-                testData.assays.sort { it.id }.collect {
-                    hasSameInterfaceProperties(Assay, it)
-                })
+        expect:
+        that(dataQueryResult.indicesList,
+                contains(
+                        testData.assays.sort { it.id }.collect {
+                            hasSameInterfaceProperties(Assay, it)
+                        }))
     }
 
     void testUnsatisfiedAssayConstraints() {
@@ -97,9 +95,10 @@ class GeneralHighDimensionDataTypeResourceSpec extends Specification {
                 mrnaResource.createProjection [:], Projection.ZSCORE_PROJECTION
 
         dataQueryResult = mrnaResource.retrieveData(
-                    [trialNameConstraint], dataConstraints, projection)
+                [trialNameConstraint], dataConstraints, projection)
 
-        expect: dataQueryResult allOf(
+        expect:
+        dataQueryResult allOf(
                 hasProperty('indicesList', hasSize(testData.assays.size())),
                 iterableWithSize(0))
     }
