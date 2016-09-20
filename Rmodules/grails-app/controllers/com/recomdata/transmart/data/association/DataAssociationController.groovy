@@ -27,17 +27,16 @@ class DataAssociationController {
      * Load required scripts for running analysis
      */
     def loadScripts = {
-
         // list of required javascripts
         def scripts = [
-                servletContext.contextPath + pluginContextPath + '/assets/javascripts/FormValidator.js',
-                servletContext.contextPath + pluginContextPath + '/js/HighDimensionalData.js',
-                servletContext.contextPath + pluginContextPath + '/js/RmodulesView.js',
-                servletContext.contextPath + pluginContextPath + '/js/dataAssociation.js',
-                servletContext.contextPath + pluginContextPath + '/js/PDFGenerator.js',
-                servletContext.contextPath + pluginContextPath + '/js/ext/tsmart-overrides.js',
-                servletContext.contextPath + pluginContextPath + '/js/ext/tsmart-generic.js',
-                servletContext.contextPath + pluginContextPath + '/js/plugin/IC50.js']
+                servletContext.contextPath + pluginContextPath + '/assets/FormValidator.js',
+                servletContext.contextPath + pluginContextPath + '/assets/HighDimensionalData.js',
+                servletContext.contextPath + pluginContextPath + '/assets/RmodulesView.js',
+                servletContext.contextPath + pluginContextPath + '/assets/dataAssociation.js',
+                servletContext.contextPath + pluginContextPath + '/assets/PDFGenerator.js',
+                servletContext.contextPath + pluginContextPath + '/assets/ext/tsmart-overrides.js',
+                servletContext.contextPath + pluginContextPath + '/assets/ext/tsmart-generic.js',
+                servletContext.contextPath + pluginContextPath + '/assets/plugin/IC50.js']
 
         // list of required css
         def styles = [
