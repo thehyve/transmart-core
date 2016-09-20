@@ -34,7 +34,6 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 @Integration
 @Rollback
-
 class AssayQuerySpec extends Specification {
 
     AssayTestData testData

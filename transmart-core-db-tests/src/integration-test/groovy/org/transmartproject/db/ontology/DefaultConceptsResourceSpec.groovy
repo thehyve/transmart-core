@@ -33,7 +33,6 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
 @Integration
 @Rollback
-
 class DefaultConceptsResourceSpec extends Specification {
 
     ConceptsResource conceptsResourceService = new DefaultConceptsResource()

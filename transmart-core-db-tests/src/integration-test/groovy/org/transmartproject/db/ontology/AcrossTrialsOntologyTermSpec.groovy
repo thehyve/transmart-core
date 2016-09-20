@@ -31,7 +31,6 @@ import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.L
 
 @Integration
 @Rollback
-
 class AcrossTrialsOntologyTermSpec extends Specification {
 
     private static final String DEMOGRAPHICS_NODE =

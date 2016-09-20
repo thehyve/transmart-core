@@ -35,7 +35,6 @@ import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.C
 @WithGMock
 @Integration
 @Rollback
-
 class AcrossTrialsConceptsResourceSpec extends Specification {
 
     public static final String AGE_AT_DIAGNOSIS_KEY =

@@ -53,7 +53,6 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 @Integration
 @Rollback
-
 class MrnaDataRetrievalSpec extends Specification {
 
     private static final double DELTA = 0.0001

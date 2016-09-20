@@ -19,7 +19,6 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-
 class GeneralHighDimensionDataTypeResourceSpec extends Specification {
 
     HighDimensionResource highDimensionResourceService

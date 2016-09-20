@@ -30,7 +30,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class DeChromosomalRegionSpec extends Specification {
 
     AcghTestData testData = new AcghTestData()

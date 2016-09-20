@@ -47,7 +47,6 @@ import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
 @WithGMock
 @Integration
 @Rollback
-
 class UserAccessLevelAcrossTrialSpec extends Specification {
 
     @Autowired

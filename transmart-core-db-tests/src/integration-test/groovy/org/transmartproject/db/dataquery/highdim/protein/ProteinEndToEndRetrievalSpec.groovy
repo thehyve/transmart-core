@@ -37,7 +37,6 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 @Integration
 @Rollback
-
 class ProteinEndToEndRetrievalSpec extends Specification {
 
     HighDimensionResource highDimensionResourceService

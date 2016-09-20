@@ -33,7 +33,6 @@ import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Concept
 
 @Integration
 @Rollback
-
 class StudiesResourceServiceSpec extends Specification {
 
     StudyTestData studyTestData = new StudyTestData()

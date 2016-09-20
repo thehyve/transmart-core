@@ -37,7 +37,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class HighDimensionDataTypeResourceSpec extends Specification {
 
     @Resource

@@ -33,7 +33,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class DefaultPatientSetConstraintSpec extends Specification {
 
     /* patient set with only the first patient (AssayTestData.patients[0]) */

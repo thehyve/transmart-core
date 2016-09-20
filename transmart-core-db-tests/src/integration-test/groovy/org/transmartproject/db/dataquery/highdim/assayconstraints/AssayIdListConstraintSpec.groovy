@@ -31,7 +31,6 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 @Integration
 @Rollback
-
 class AssayIdListConstraintSpec extends Specification {
 
     AssayTestData testData = new AssayTestData()

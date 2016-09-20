@@ -30,7 +30,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class PlatformConstraintSpec extends Specification {
 
     AssayTestData testData = new AssayTestData()
