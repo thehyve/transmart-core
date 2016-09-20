@@ -157,8 +157,7 @@ class UserAccessLevelSpec extends Specification {
         def fifthUser = accessLevelTestData.users[4]
 
         expect:
-        fifthUser.canPerform(SHOW_IN_TABLE, getStudy(STUDY2))
-        is(false)
+        !fifthUser.canPerform(SHOW_IN_TABLE, getStudy(STUDY2))
     }
 
     void testViewPermissionAndShowInSummaryStatisticsOperation() {
@@ -332,7 +331,7 @@ class UserAccessLevelSpec extends Specification {
         ])
 
         expect:
-        secondUser.canPerform(BUILD_COHORT, definition)
+        !secondUser.canPerform(BUILD_COHORT, definition)
     }
 
     void testAllowInvertedPanelIfThereIsAnotherWithAccess() {
@@ -392,10 +391,16 @@ class UserAccessLevelSpec extends Specification {
 
         QueryResult res = Mock(QueryResult)
         res.getClass() >> QueryResult
-        res.username >> secondUser.username.atLeastOnce()
+        res.username >> secondUser.username
+
+        when:
+        def can = thirdUser.canPerform(READ, res)
+
+        then:
+        (1.._) * res.username
 
         expect:
-        !thirdUser.canPerform(READ, res)
+        !can
     }
 
     void testQueryResultMatching() {
