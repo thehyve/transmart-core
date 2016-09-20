@@ -24,7 +24,6 @@ import au.com.bytecode.opencsv.CSVWriter
 import org.transmart.searchapp.SecureObject;
 import org.transmart.searchapp.AuthUserSecureAccess;
 import org.transmart.searchapp.AuthUser;
-import org.apache.commons.io.FileUtils;
 
 class GwasWebService {
 

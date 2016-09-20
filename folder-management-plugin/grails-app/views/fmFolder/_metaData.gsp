@@ -4,9 +4,9 @@
     def metaDataService = grailsApplication.classLoader.loadClass('annotation.MetaDataService').newInstance()
 %>
 
-<link rel="stylesheet" href="${resource(dir:'css', file:'uploadData.css')}">
+<asset:stylesheet href="uploadData.css"/>
 <script type="text/javascript">$j = jQuery.noConflict();</script>
-<script type="text/javascript" src="${resource(dir:'js', file:'uploadData.js')}"></script>
+<asset:javascript src="${resource(dir:'js', file:'uploadData.js')}"></script>
 
 
 <div>

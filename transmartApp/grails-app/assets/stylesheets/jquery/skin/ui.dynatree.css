@@ -23,7 +23,7 @@ ul.dynatree-container ul
 ul.dynatree-container li
 {
     list-style: none outside none;
-    -moz-background-clip:border-box;
+    -moz-background-clip:border;
 	-moz-background-origin: padding;
     background: transparent url("vline.gif") repeat-y scroll 0 0;
     margin: 0;

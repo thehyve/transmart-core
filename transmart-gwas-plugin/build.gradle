@@ -63,10 +63,12 @@ dependencies {
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 
     compile project(':transmart-core-api')
-    compile project(':transmart-core')
+    compile project(':transmart-core-db')
     compile project(':biomart-domain')
-    compile project(':folder-management')
+    compile project(':folder-management-plugin')
 }
+
+
 grailsPublish {
     // TODO: Provide values here
     user = 'user'

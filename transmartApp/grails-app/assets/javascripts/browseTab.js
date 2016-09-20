@@ -7,5 +7,4 @@
 //= require ColVis.min.js
 //= require ColReorderWithResize.js
 //= require rwg.js
-//= require rwgsearch.js
 //= require maintabpanel.js
