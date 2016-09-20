@@ -40,7 +40,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class VcfEndToEndRetrievalSpec extends Specification {
 
     HighDimensionResource highDimensionResourceService

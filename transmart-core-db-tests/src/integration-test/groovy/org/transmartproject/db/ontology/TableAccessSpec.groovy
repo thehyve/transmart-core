@@ -31,7 +31,6 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
 @Integration
 @Rollback
-
 class TableAccessSpec extends Specification {
 
     void setupData() {

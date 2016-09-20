@@ -35,7 +35,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class RbmDataRetrievalSpec extends Specification {
 
     RbmTestData testData = new RbmTestData()

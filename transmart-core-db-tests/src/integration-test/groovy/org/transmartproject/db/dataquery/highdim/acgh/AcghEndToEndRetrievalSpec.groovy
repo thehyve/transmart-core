@@ -45,7 +45,6 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 @Integration
 @Rollback
-
 class AcghEndToEndRetrievalSpec extends Specification {
 
     HighDimensionResource highDimensionResourceService

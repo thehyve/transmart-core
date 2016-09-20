@@ -29,7 +29,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder
 
 @Integration
 @Rollback
-
 class StudyImplSpec extends Specification {
 
     StudyTestData studyTestData = new StudyTestData()

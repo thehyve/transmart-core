@@ -31,7 +31,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class DefaultOntologyTermConstraintSpec extends Specification {
 
     ConceptsResource conceptsResourceService

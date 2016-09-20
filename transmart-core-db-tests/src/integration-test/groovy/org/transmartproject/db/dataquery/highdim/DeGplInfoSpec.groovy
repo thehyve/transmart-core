@@ -28,7 +28,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class DeGplInfoSpec extends Specification {
 
     SampleHighDimTestData testData = new SampleHighDimTestData()

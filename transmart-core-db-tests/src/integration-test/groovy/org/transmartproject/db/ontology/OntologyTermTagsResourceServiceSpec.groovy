@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class OntologyTermTagsResourceServiceSpec extends Specification {
 
     OntologyTermTagsResourceService ontologyTermTagsResourceService

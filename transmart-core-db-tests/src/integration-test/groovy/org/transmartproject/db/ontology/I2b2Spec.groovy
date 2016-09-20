@@ -39,7 +39,6 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
 @Integration
 @Rollback
-
 class I2b2Spec extends Specification {
 
     void setupData() {

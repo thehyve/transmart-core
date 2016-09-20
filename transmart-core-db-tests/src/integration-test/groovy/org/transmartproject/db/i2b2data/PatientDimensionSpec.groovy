@@ -29,7 +29,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class PatientDimensionSpec extends Specification {
 
     SampleHighDimTestData testData = new SampleHighDimTestData()

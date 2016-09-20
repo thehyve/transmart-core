@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class AccessLogServiceSpec extends Specification {
 
     def accessLogService

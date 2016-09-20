@@ -30,7 +30,6 @@ import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-
 class DefaultTrialNameConstraintSpec extends Specification {
 
     AssayTestData testData = new AssayTestData()

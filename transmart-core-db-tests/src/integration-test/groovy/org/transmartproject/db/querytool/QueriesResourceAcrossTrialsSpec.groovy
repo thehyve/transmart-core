@@ -33,7 +33,6 @@ import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NU
 
 @Integration
 @Rollback
-
 class QueriesResourceAcrossTrialsSpec extends Specification {
     private static final String AGE_AT_DIAGNOSIS_NODE =
             '\\\\xtrials\\Across Trials\\Demographics\\Age at Diagnosis\\'
