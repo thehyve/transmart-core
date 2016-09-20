@@ -8,23 +8,24 @@
 
     <title>Sample Explorer :: ${grailsApplication.config.com.recomdata.appTitle}</title>
 
-    <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="shortcut icon" />
-    <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="icon" />
+    <asset:link rel="shortcut icon" href='searchtool.ico' type="image/x-ico" />
+    <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
 
     %{--<g:javascript library="jquery" />--}%
 
-    <asset:stylesheet href="sampletab.css" />
+
     <asset:javascript src="jquery-2.2.0.min.js"/>
-    <asset:javascript src="sampleTab.js" />
+
     %{--<r:require module="sampleTab" />--}%
     %{--<r:layoutResources/>--}%
 
-    <asset:script type="text/javascript" charset="utf-8">
+    <script type="text/javascript" charset="utf-8">
 
         var $j = window.$j = jQuery.noConflict();
 
-    </asset:script>
-
+    </script>
+    <asset:stylesheet href="sampletab.css" />
+    <asset:javascript src="sampleTab.js" />
 </head>
 
 <body>
