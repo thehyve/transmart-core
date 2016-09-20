@@ -419,6 +419,8 @@
 %{--<r:require module="browseTab" />--}%
 <asset:javascript src="browseTab.js" />
 <asset:stylesheet href="browseTab.css" />
+<asset:stylesheet href="rwg.css" />
+<asset:javascript src="rwgsearch.js" />
 </head>
 
 <body>

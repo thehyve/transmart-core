@@ -61,7 +61,6 @@ dependencies {
     compile "org.grails.plugins:cache"
     compile "org.grails.plugins:scaffolding"
     compile "org.grails.plugins:hibernate4:5.0.10"
-    compile "org.hibernate:hibernate-ehcache"
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
@@ -122,11 +121,11 @@ dependencies {
     compile group: 'org.fusesource.jansi', name: 'jansi', version: '1.8'
     // https://mvnrepository.com/artifact/jline/jline
     compile group: 'jline', name: 'jline', version: '2.12.1'
-    compile group: 'org.hibernate', name: 'hibernate-core', version: '4.3.5.Final'
 
     compile files('lib/GenePattern.jar')
     compile 'org.jfree:jfreesvg:3.1'
     compile project(':transmart-core-api')
+    compile project (':transmart-gwas-plugin')
 }
 
 grails {
@@ -140,6 +139,7 @@ grails {
 
         compile project(':transmart-legacy-db')
         compile project(':folder-management-plugin')
+        compile project(':transmart-gwas-plugin')
     }
 }
 

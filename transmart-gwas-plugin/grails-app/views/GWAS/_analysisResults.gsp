@@ -25,19 +25,18 @@
 							<%-- If this is sorted, give link to asc/desc (opposite current order) --%>
 							<g:if test="${col.sortField.equals(sortField)}">
 								<g:if test="${order.equals('desc')}">
-									<th "class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadAnalysisResultsGrid(${analysisId}, {sortField: '${col.sortField}', order: 'asc'})">
-										${col.sTitle} <img src="${resource([file:'desc.gif', dir:'images'])}"/>
+									<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadAnalysisResultsGrid(${analysisId}, {sortField: '${col.sortField}', order: 'asc'})">
+										${col.sTitle} <asset:image src="desc.gif"/>
 									</th>
 								</g:if>
 								<g:else>
-									<th "class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadAnalysisResultsGrid(${analysisId}, {sortField: '${col.sortField}', order: 'desc'})">
-										${col.sTitle} <img src="${resource([file:'asc.gif', dir:'images'])}"/>
+									<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadAnalysisResultsGrid(${analysisId}, {sortField: '${col.sortField}', order: 'desc'})">
+										${col.sTitle} <asset:image src="asc.gif"/>
 									</th>
-								</g:else>
 							</g:if>
 							<%-- Otherwise just provide asc link --%>
 							<g:else>
-								<th "class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadAnalysisResultsGrid(${analysisId}, {sortField: '${col.sortField}', order: 'asc'})">
+								<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadAnalysisResultsGrid(${analysisId}, {sortField: '${col.sortField}', order: 'asc'})">
 									${col.sTitle}
 								</th>
 							</g:else>
@@ -58,7 +57,7 @@
 						<g:unless test="${colNum == 0}"> <%-- Skip analysis name --%>
 							<g:if test="${colNum == 1}">
 								<td class=""><a href="${link}" target="_blank"><span class="filter-item filter-item-gene">${data}</span></a>
-								<img alt="" src="${resource(dir:'images',file:'linkext7.gif')}" />
+								<asset:image alt="" src="linkext7.gif" />
 							</g:if>
 							<g:else>
 								<td class="">${data}</td>
