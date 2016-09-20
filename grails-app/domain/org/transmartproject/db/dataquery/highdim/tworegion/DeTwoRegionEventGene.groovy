@@ -6,7 +6,7 @@ import org.transmartproject.core.dataquery.highdim.tworegion.EventGene
 /**
  * Created by j.hudecek on 7-1-2015.
  */
-@EqualsAndHashCode()
+@EqualsAndHashCode(includes = "id")
 class DeTwoRegionEventGene implements Serializable, EventGene {
 
     String geneId
