@@ -37,6 +37,7 @@ import spock.lang.Specification
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
@@ -80,22 +81,22 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
                 [], projection)
 
         then:
-        result allOf(
+        that(result, allOf(
                 hasProperty('columnsDimensionLabel', is('Sample codes')),
                 hasProperty('rowsDimensionLabel', is('Transcripts')),
                 hasProperty('indicesList', contains(
                         testData.assays.reverse().collect { Assay it ->
                             hasSameInterfaceProperties(Assay, it)
-                        }.collect { is it })))
+                        }.collect { is it }))))
 
         when:
         def rows = Lists.newArrayList result
 
         then:
-        rows contains(
+        that(rows, contains(
                 contains(testData.data[-5..-6]*.zscore.collect { Double it -> closeTo it, DELTA }),
                 contains(testData.data[-3..-4]*.zscore.collect { Double it -> closeTo it, DELTA }),
-                contains(testData.data[-1..-2]*.zscore.collect { Double it -> closeTo it, DELTA }))
+                contains(testData.data[-1..-2]*.zscore.collect { Double it -> closeTo it, DELTA })))
     }
 
     void testDataRowsProperties() {
@@ -104,13 +105,13 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
                 [], projection)
 
         expect:
-        Lists.newArrayList(result) contains(
+        that(Lists.newArrayList(result), contains(
                 testData.annotations.collect { DeRnaseqAnnotation annotation ->
                     allOf(
                             hasProperty('label', is(annotation.id)),
                             hasProperty('bioMarker', is(annotation.geneSymbol)))
                 }
-        )
+        ))
     }
 
     void testLogIntensityProjection() {
@@ -124,10 +125,10 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList(result)
 
         expect:
-        resultList containsInAnyOrder(
+        that(resultList, containsInAnyOrder(
                 testData.annotations.collect {
                     getDataMatcherForAnnotation(it, 'logIntensity')
-                })
+                }))
     }
 
     void testDefaultRealProjection() {
@@ -136,10 +137,10 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
                 rnaSeqCogResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
 
         expect:
-        Lists.newArrayList(result) hasItem(allOf(
+        that(Lists.newArrayList(result), hasItem(allOf(
                 hasProperty('label', is(testData.data[-1].annotation.id)) /* VNN3 */,
                 contains(testData.data[-1..-2]*.rawIntensity.collect { Double it -> closeTo it, DELTA })
-        ))
+        )))
     }
 
     void testGeneConstraint() {
@@ -153,15 +154,15 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
                 rnaSeqCogResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
 
         expect:
-        Lists.newArrayList(result) contains(
-                hasProperty('bioMarker', is('BOGUSVNN3')))
+        that(Lists.newArrayList(result), contains(
+                hasProperty('bioMarker', is('BOGUSVNN3'))))
     }
 
     void testMissingAssaysAllowedSucceeds() {
         setupData()
         testWithMissingDataAssay(-50000L)
         expect:
-        Lists.newArrayList(result.rows) everyItem(
+        that(Lists.newArrayList(result.rows), everyItem(
                 hasProperty('data', allOf(
                         hasSize(2), // for the three assays
                         contains(
@@ -169,7 +170,7 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
                                 is(notNullValue()),
                         )
                 ))
-        )
+        ))
     }
 
     private TabularResult testWithMissingDataAssay(Long baseAssayId) {

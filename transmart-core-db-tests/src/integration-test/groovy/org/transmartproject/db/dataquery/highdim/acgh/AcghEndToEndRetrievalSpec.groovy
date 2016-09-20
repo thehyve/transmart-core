@@ -42,6 +42,7 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.acgh.AcghModule.ACGH_VALUES_PROJECTION
 import static org.transmartproject.db.dataquery.highdim.acgh.AcghTestData.TRIAL_NAME
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
@@ -88,16 +89,13 @@ class AcghEndToEndRetrievalSpec extends Specification {
         dataQueryResult = acghResource.retrieveData assayConstraints, dataConstraints, projection
 
         then:
-        dataQueryResult allOf(
-                is(notNullValue()),
-                hasProperty('indicesList', contains(
-                        /* they're ordered by assay id */
-                        hasSameInterfaceProperties(Assay, testData.assays[1], ['platform']),
-                        hasSameInterfaceProperties(Assay, testData.assays[0], ['platform']),
-                )),
-                hasProperty('rowsDimensionLabel', equalTo('Regions')),
-                hasProperty('columnsDimensionLabel', equalTo('Sample codes')),
-        )
+        dataQueryResult.rowsDimensionLabel == 'Regions'
+        dataQueryResult.columnsDimensionLabel == 'Sample codes'
+        that(dataQueryResult.indicesList, contains(
+                /* they're ordered by assay id */
+                hasSameInterfaceProperties(Assay, testData.assays[1], ['platform']),
+                hasSameInterfaceProperties(Assay, testData.assays[0], ['platform']),
+        ))
 
         when:
         List<AssayColumn> assayColumns = dataQueryResult.indicesList
@@ -250,11 +248,12 @@ class AcghEndToEndRetrievalSpec extends Specification {
                 )
         ]
 
+        when:
         dataQueryResult = acghResource.retrieveData assayConstraints, dataConstraints, projection
 
-        expect:
-        dataQueryResult hasProperty('indicesList', is(not(empty())))
-        Lists.newArrayList(dataQueryResult.rows) is(empty())
+        then:
+        !dataQueryResult.indicesList.empty
+        !dataQueryResult.rows.hasNext()
     }
 
     void testResultRowsAreCoreApiRegionRows() {
@@ -263,11 +262,11 @@ class AcghEndToEndRetrievalSpec extends Specification {
                 acghResource.createAssayConstraint(
                         AssayConstraint.TRIAL_NAME_CONSTRAINT, name: TRIAL_NAME)]
 
+        when:
         dataQueryResult = acghResource.retrieveData assayConstraints, [], projection
 
-        expect:
-        Lists.newArrayList(dataQueryResult) everyItem(
-                isA(org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow))
+        then:
+        dataQueryResult.every { it instanceof RegionRow }
     }
 
     void testWithGeneConstraint() {
@@ -290,14 +289,12 @@ class AcghEndToEndRetrievalSpec extends Specification {
         dataQueryResult = acghResource.retrieveData(
                 assayConstraints, dataConstraints, projection)
 
-        def resultList = Lists.newArrayList dataQueryResult
+        List resultList = Lists.newArrayList dataQueryResult
 
         expect:
-        resultList allOf(
-                hasSize(1),
-                everyItem(hasProperty('data', hasSize(2))),
-                contains(hasProperty('bioMarker', equalTo('AURKA')))
-        )
+        resultList.size() == 1
+        resultList.every { it.data.size() == 2 }
+        resultList.find { it.bioMarker == 'AURKA' }
     }
 
 }

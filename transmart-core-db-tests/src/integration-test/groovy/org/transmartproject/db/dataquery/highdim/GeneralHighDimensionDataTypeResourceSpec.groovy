@@ -93,13 +93,13 @@ class GeneralHighDimensionDataTypeResourceSpec extends Specification {
         def projection =
                 mrnaResource.createProjection [:], Projection.ZSCORE_PROJECTION
 
+        when:
         dataQueryResult = mrnaResource.retrieveData(
                 [trialNameConstraint], dataConstraints, projection)
 
-        expect:
-        dataQueryResult allOf(
-                hasProperty('indicesList', hasSize(testData.assays.size())),
-                iterableWithSize(0))
+        then:
+        dataQueryResult.indicesList.size() == testData.assays.size()
+        that(dataQueryResult, iterableWithSize(0))
     }
 
 }

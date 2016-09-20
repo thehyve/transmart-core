@@ -42,6 +42,7 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqModule.RNASEQ_VALUES_PROJECTION
 import static org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqTestData.TRIAL_NAME
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
@@ -91,11 +92,13 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         ]
         def dataConstraints = []
 
-        when:
         dataQueryResult = rnaseqResource.retrieveData assayConstraints, dataConstraints, projection
+        List<AssayColumn> assayColumns = dataQueryResult.indicesList
+        Iterator<RegionRow> rows = dataQueryResult.rows
+        def regionRows = Lists.newArrayList(rows)
 
-        then:
-        dataQueryResult allOf(
+        expect:
+        that(dataQueryResult, allOf(
                 is(notNullValue()),
                 hasProperty('indicesList', contains(
                         /* they're ordered by assay id */
@@ -104,18 +107,10 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
                 )),
                 hasProperty('rowsDimensionLabel', equalTo('Regions')),
                 hasProperty('columnsDimensionLabel', equalTo('Sample codes')),
-        )
-
-        when:
-        List<AssayColumn> assayColumns = dataQueryResult.indicesList
-
-        Iterator<RegionRow> rows = dataQueryResult.rows
-        def regionRows = Lists.newArrayList(rows)
-
-        then:
-        regionRows hasSize(2)
+        ))
+        regionRows.size() == 2
         /* results are ordered (asc) by region id */
-        regionRows[0] allOf(
+        that(regionRows[0], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[1], ['platform']),
                 hasProperty('label', equalTo(testData.regions[1].name)),
                 hasProperty('bioMarker', equalTo(testData.regions[1].geneSymbol)),
@@ -127,8 +122,8 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
                         hasProperty('markerType', equalTo(testData.regionPlatform.markerType)),
                         hasProperty('genomeReleaseId', equalTo(testData.regionPlatform.genomeReleaseId)),
                 )),
-        )
-        regionRows[1] allOf(
+        ))
+        that(regionRows[1], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[0], ['platform']),
                 hasProperty('label', equalTo(testData.regions[0].name)),
                 hasProperty('bioMarker', equalTo(testData.regions[0].geneSymbol)),
@@ -140,21 +135,21 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
                         hasProperty('markerType', equalTo(testData.regionPlatform.markerType)),
                         hasProperty('genomeReleaseId', equalTo(testData.regionPlatform.genomeReleaseId)),
                 )),
-        )
+        ))
 
-        regionRows[1][assayColumns[1]]
-        hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[0])
-        regionRows[1][assayColumns[0]]
-        hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[1])
-        regionRows[0][assayColumns[1]]
-        hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[2])
-        regionRows[0][assayColumns[0]]
-        hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[3])
+        that(regionRows[1][assayColumns[1]],
+                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[0]))
+        that(regionRows[1][assayColumns[0]],
+                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[1]))
+        that(regionRows[0][assayColumns[1]],
+                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[2]))
+        that(regionRows[0][assayColumns[0]],
+                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[3]))
 
-        regionRows[1]*.normalizedReadcount
-        contains(testData.rnaseqData[-3..-4]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA })
-        regionRows[0]*.normalizedReadcount
-        contains(testData.rnaseqData[-1..-2]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA })
+        that(regionRows[1]*.normalizedReadcount,
+                contains(testData.rnaseqData[-3..-4]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA }))
+        that(regionRows[0]*.normalizedReadcount,
+                contains(testData.rnaseqData[-1..-2]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA }))
     }
 
     void testLogIntensityProjection() {
@@ -168,10 +163,10 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList(dataQueryResult)
 
         expect:
-        resultList containsInAnyOrder(
+        that(resultList, containsInAnyOrder(
                 testData.regions.collect {
                     getDataMatcherForRegion(it, 'logNormalizedReadcount')
-                })
+                }))
     }
 
 
@@ -187,13 +182,14 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList(dataQueryResult)
 
         expect:
-        resultList containsInAnyOrder(
+        that(resultList, containsInAnyOrder(
                 testData.regions.collect {
                     getDataMatcherForRegion(it, 'normalizedReadcount')
-                })
+                }))
     }
 
     void testZscoreProjection() {
+        setupData()
 
         def zscoreProjection = rnaseqResource.createProjection(
                 [:], Projection.ZSCORE_PROJECTION)
@@ -204,10 +200,10 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList(dataQueryResult)
 
         expect:
-        resultList containsInAnyOrder(
+        that(resultList, containsInAnyOrder(
                 testData.regions.collect {
                     getDataMatcherForRegion(it, 'zscore')
-                })
+                }))
     }
 
     void testSegments_meetOne() {
@@ -230,9 +226,9 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         def regionRows = Lists.newArrayList(dataQueryResult.rows)
 
         expect:
-        regionRows hasSize(1)
-        regionRows[0] hasSameInterfaceProperties(
-                Region, testData.regions[0], ['platform'])
+        regionRows.size() == 1
+        that(regionRows[0], hasSameInterfaceProperties(
+                Region, testData.regions[0], ['platform']))
     }
 
     void testSegments_meetBoth() {
@@ -285,12 +281,12 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         def regionRows = Lists.newArrayList(dataQueryResult.rows)
 
         expect:
-        regionRows hasSize(2)
-        regionRows contains(
+        regionRows.size() == 2
+        that(regionRows, contains(
                 hasSameInterfaceProperties(
                         Region, testData.regions[1], ['platform']),
                 hasSameInterfaceProperties(
-                        Region, testData.regions[0], ['platform']))
+                        Region, testData.regions[0], ['platform'])))
     }
 
     void testSegments_meetNone() {
@@ -317,8 +313,8 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         dataQueryResult = rnaseqResource.retrieveData assayConstraints, dataConstraints, projection
 
         expect:
-        dataQueryResult hasProperty('indicesList', is(not(empty())))
-        Lists.newArrayList(dataQueryResult.rows) is(empty())
+        !dataQueryResult.indicesList.empty
+        Lists.newArrayList(dataQueryResult.rows).empty
     }
 
 
@@ -345,11 +341,11 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList dataQueryResult
 
         expect:
-        resultList allOf(
+        that(resultList, allOf(
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
                 contains(hasProperty('bioMarker', equalTo('AURKA')))
-        )
+        ))
     }
 
 

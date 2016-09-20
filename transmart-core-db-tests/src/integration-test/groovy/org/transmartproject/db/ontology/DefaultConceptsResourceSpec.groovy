@@ -30,6 +30,7 @@ import static org.hamcrest.Matchers.*
 import static org.junit.Assert.fail
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
@@ -58,12 +59,12 @@ class DefaultConceptsResourceSpec extends Specification {
     void testGetAllCategories() {
         setupData()
         expect:
-        conceptsResourceService.allCategories allOf(
+        that(conceptsResourceService.allCategories, allOf(
                 hasItem(hasProperty('name', equalTo('foo'))),
                 hasItem(hasProperty('name', equalTo('level1'))),
                 hasItem(hasProperty('name', equalTo('hidden'))),
                 hasItem(hasProperty('name', equalTo('synonym'))),
-        )
+        ))
     }
 
     void testGetByKeySimple() {

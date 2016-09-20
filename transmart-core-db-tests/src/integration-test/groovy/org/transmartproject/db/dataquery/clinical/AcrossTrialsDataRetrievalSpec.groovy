@@ -30,6 +30,7 @@ import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.AcrossTrialsTestData.MODIFIER_AGE_AT_DIAGNOSIS
+import static spock.util.matcher.HamcrestSupport.that
 
 @WithGMock
 @Integration
@@ -52,22 +53,14 @@ class AcrossTrialsDataRetrievalSpec extends Specification {
 
     void terminalNumericVariableTest() {
         setupData()
-        when:
+
         def var = clinicalDataResourceService.createClinicalVariable(
                 ClinicalVariable.TERMINAL_CONCEPT_VARIABLE,
                 concept_path: AGE_AT_DIAGNOSIS_PATH)
 
-        then:
-        var isA(AcrossTrialsTerminalVariable)
-
-        when:
         def result = clinicalDataResourceService.retrieveData(
                 testData.patients as Set, [var])
 
-        then:
-        result.indicesList contains(var)
-
-        when:
         def innerMatchers = testData.facts.findAll {
             it.modifierCd == MODIFIER_AGE_AT_DIAGNOSIS
         }.groupBy {
@@ -75,15 +68,13 @@ class AcrossTrialsDataRetrievalSpec extends Specification {
         }.sort {
             it.key /* patient id */
         }.collect { patientId, facts ->
-            expect:
-            facts hasSize(1) /* sanity check */
             contains(is(facts[0].numberValue))
         }
 
-        then:
-        innerMatchers is(not(empty())) /* sanity check */
-
-        Lists.newArrayList(result) contains(innerMatchers)
+        expect:
+        var instanceof AcrossTrialsTerminalVariable
+        var in result.indicesList
+        that(Lists.newArrayList(result), contains(innerMatchers))
     }
 
     /* TODO

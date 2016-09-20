@@ -32,7 +32,7 @@ import org.transmartproject.db.test.Matchers
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
-import static org.hamcrest.Matchers.*
+import static spock.util.matcher.HamcrestSupport.that
 
 /**
  * Created by j.hudecek on 17-3-14.
@@ -128,12 +128,12 @@ class VcfEndToEndRetrievalSpec extends Specification {
 
         // Make sure that only the VCF assays are returned
         expect:
-        dataQueryResult.indicesList hasSize(3)
+        dataQueryResult.indicesList.size() == 3
 
-        dataQueryResult.indicesList everyItem(
+        that(dataQueryResult.indicesList, everyItem(
                 hasProperty('platform',
                         hasProperty('markerType', equalTo('VCF'))
-                ))
+                )))
     }
 
     void testVcfDataRowRetrieval() {
@@ -280,14 +280,14 @@ class VcfEndToEndRetrievalSpec extends Specification {
         def assayOrder = [indices[]]
 
         expect:
-        resultList hasItem(allOf(
+        that(resultList, hasItem(allOf(
                 hasProperty('referenceAllele', equalTo('C')),
                 hasProperty('alternatives', equalTo('A')),
 
                 // Please note: the order of the assays is opposite from the order of creation
                 // as the assayId is decreased while creating the assays
                 contains("A/A", "C/A", "A/C")
-        ))
+        )))
     }
 
     void testNonUniquePosChrEntries() {
@@ -351,12 +351,12 @@ class VcfEndToEndRetrievalSpec extends Specification {
         def entry = map.entrySet().find { it.key.dataTypeName == 'vcf' }
 
         then:
-        entry.value allOf(
+        that(entry.value, allOf(
                 hasSize(greaterThan(0)),
                 everyItem(
                         hasProperty('platform',
                                 hasProperty('markerType',
-                                        equalTo('VCF')))))
+                                        equalTo('VCF'))))))
     }
 
     void testOriginalSubjectData() {

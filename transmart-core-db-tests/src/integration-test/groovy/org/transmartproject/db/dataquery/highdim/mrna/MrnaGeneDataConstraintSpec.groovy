@@ -29,9 +29,9 @@ import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionData
 import org.transmartproject.db.i2b2data.PatientDimension
 import spock.lang.Specification
 
-import static junit.framework.TestCase.fail
 import static org.hamcrest.Matchers.*
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
@@ -69,7 +69,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
         List res = builder.instance.list()
 
         expect:
-        res allOf(
+        that(res, allOf(
                 hasSize(2),
                 everyItem(
                         hasProperty('probe',
@@ -80,7 +80,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
                         hasProperty('patient', equalTo(testData.patients[0])),
                         hasProperty('patient', equalTo(testData.patients[1]))
                 )
-        )
+        ))
     }
 
     void testWithMultipleGenes() {
@@ -94,13 +94,12 @@ class MrnaGeneDataConstraintSpec extends Specification {
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
         )
 
-
         testee.doWithCriteriaBuilder(builder)
 
         List res = builder.instance.list()
 
         expect:
-        res allOf(
+        that(res, allOf(
                 hasSize(4),
                 hasItem(
                         hasProperty('probe',
@@ -112,7 +111,7 @@ class MrnaGeneDataConstraintSpec extends Specification {
                                 hasProperty('geneSymbol', equalTo('BOGUSRQCD1'))
                         )
                 ),
-        )
+        ))
     }
 
     private static Matcher matcherFor(PatientDimension patient, String gene) {
@@ -139,22 +138,20 @@ class MrnaGeneDataConstraintSpec extends Specification {
 
         List res = builder.instance.list()
 
-        expect:
-        res
-        /* 2 patients * 2 probes (one for each gene) */
-        containsInAnyOrder(
-                matcherFor(testData.patients[0], 'BOGUSRQCD1'),
-                matcherFor(testData.patients[1], 'BOGUSRQCD1'),
-                matcherFor(testData.patients[0], 'BOGUSVNN3'),
-                matcherFor(testData.patients[1], 'BOGUSVNN3'),
-        )
+        expect: '2 patients * 2 probes (one for each gene)'
+        that(res,
+                containsInAnyOrder(
+                        matcherFor(testData.patients[0], 'BOGUSRQCD1'),
+                        matcherFor(testData.patients[1], 'BOGUSRQCD1'),
+                        matcherFor(testData.patients[0], 'BOGUSVNN3'),
+                        matcherFor(testData.patients[1], 'BOGUSVNN3'),
+                ))
     }
 
     void testMixedConstraint() {
         setupData()
         HibernateCriteriaBuilder builder = createCriteriaBuilder()
 
-        when:
         /* should map to BOGUSVNN3 directly and to BOGUSRQCD1 via bio_assay_data_annotation
          * See comment before MrnaTestData.searchKeywords */
         def testee = mrnaModule.createDataConstraint([keyword_ids: testData.searchKeywords.
@@ -165,25 +162,20 @@ class MrnaGeneDataConstraintSpec extends Specification {
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
         )
 
-        then:
-        testee is(instanceOf(DisjunctionDataConstraint))
-
-        when:
         testee.doWithCriteriaBuilder(builder)
-
         List res = builder.instance.list()
 
-        then:
-        res
-        /* 2 patients * 3 probes (one for each gene) */
-        containsInAnyOrder(
-                matcherFor(testData.patients[0], 'BOGUSRQCD1'),
-                matcherFor(testData.patients[1], 'BOGUSRQCD1'),
-                matcherFor(testData.patients[0], 'BOGUSVNN3'),
-                matcherFor(testData.patients[1], 'BOGUSVNN3'),
-                matcherFor(testData.patients[0], 'BOGUSCPO'),
-                matcherFor(testData.patients[1], 'BOGUSCPO'),
-        )
+        expect: '2 patients * 3 probes (one for each gene)'
+        testee instanceof DisjunctionDataConstraint
+        that(res,
+                containsInAnyOrder(
+                        matcherFor(testData.patients[0], 'BOGUSRQCD1'),
+                        matcherFor(testData.patients[1], 'BOGUSRQCD1'),
+                        matcherFor(testData.patients[0], 'BOGUSVNN3'),
+                        matcherFor(testData.patients[1], 'BOGUSVNN3'),
+                        matcherFor(testData.patients[0], 'BOGUSCPO'),
+                        matcherFor(testData.patients[1], 'BOGUSCPO'),
+                ))
     }
 
     void testProteinConstraintByExternalId() {
@@ -203,9 +195,9 @@ class MrnaGeneDataConstraintSpec extends Specification {
         List res = builder.instance.list()
 
         expect:
-        res everyItem(
+        that(res, everyItem(
                 hasProperty('probe',
-                        hasProperty('geneSymbol', equalTo('BOGUSCPO'))))
+                        hasProperty('geneSymbol', equalTo('BOGUSCPO')))))
     }
 
     void testProteinConstraintByName() {
@@ -221,11 +213,11 @@ class MrnaGeneDataConstraintSpec extends Specification {
         List res = builder.instance.list()
 
         expect:
-        res allOf(
+        that(res, allOf(
                 hasSize(2), /* 1 probe * 2 patients */
                 everyItem(
                         hasProperty('probe',
-                                hasProperty('geneSymbol', equalTo('BOGUSCPO')))))
+                                hasProperty('geneSymbol', equalTo('BOGUSCPO'))))))
     }
 
     void testGeneSignatureConstraintByName() {
@@ -239,28 +231,23 @@ class MrnaGeneDataConstraintSpec extends Specification {
         testee.doWithCriteriaBuilder(builder)
 
         expect:
-        builder.instance.list() allOf(
+        that(builder.instance.list(), allOf(
                 hasSize(4), /* 2 probes * 2 patients */
                 everyItem(
                         hasProperty('probe',
                                 hasProperty('geneSymbol', anyOf(
                                         equalTo('BOGUSVNN3'),
-                                        equalTo('BOGUSRQCD1'))))))
+                                        equalTo('BOGUSRQCD1')))))))
     }
 
     void testEmptyConstraint() {
         setupData()
-        try {
-            mrnaModule.createDataConstraint([keyword_ids: []],
-                    DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
-            )
-            fail 'Expected exception'
-        } catch (e) {
-            expect:
-            e isA(InvalidArgumentsException)
-            expect:
-            e hasProperty('message',
-                    containsString('parameter \'keyword_ids\' is an empty list'))
-        }
+
+        when:
+        mrnaModule.createDataConstraint([keyword_ids: []],
+                DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT)
+        then:
+        def e = thrown(InvalidArgumentsException)
+        e.message.contains('parameter \'keyword_ids\' is an empty list')
     }
 }

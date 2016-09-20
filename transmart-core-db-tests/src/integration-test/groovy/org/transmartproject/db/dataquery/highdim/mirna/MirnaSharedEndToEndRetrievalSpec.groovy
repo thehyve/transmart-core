@@ -34,13 +34,12 @@ import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.search.SearchKeywordCoreDb
 import spock.lang.Specification
 
-import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-
 abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
 
     private static final double DELTA = 0.0001
@@ -83,25 +82,15 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
                         'mirnas', names: ['MIR323B', 'MIR3161'])
         ]
 
-        when:
         result = mirnaResource.retrieveData(
                 [trialNameConstraint], dataConstraints, projection)
-
-        then:
-        result.indicesList contains(
-                hasProperty('label', equalTo('SAMPLE_FOR_-302')),
-                hasProperty('label', equalTo('SAMPLE_FOR_-301')),
-        )
-        result allOf(
-                hasProperty('rowsDimensionLabel', equalTo('Probes')),
-                hasProperty('columnsDimensionLabel', equalTo('Sample codes')),
-        )
-
-        when:
         List rows = Lists.newArrayList result.rows
 
-        then:
-        rows contains(
+        expect:
+        result.indicesList*.label == ['SAMPLE_FOR_-302', 'SAMPLE_FOR_-301']
+        result.rowsDimensionLabel == 'Probes'
+        result.columnsDimensionLabel == 'Sample codes'
+        that(rows, contains(
                 allOf(
                         hasProperty('label', equalTo('-503')),
                         hasProperty('bioMarker', equalTo(DeQpcrMirnaAnnotation.get(-503).mirnaId)),
@@ -113,7 +102,7 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
                         hasProperty('bioMarker', equalTo(DeQpcrMirnaAnnotation.get(-501).mirnaId)),
                         contains(
                                 closeTo(testData.mirnaData[1].zscore as Double, DELTA),
-                                closeTo(testData.mirnaData[0].zscore as Double, DELTA))))
+                                closeTo(testData.mirnaData[0].zscore as Double, DELTA)))))
     }
 
     void testLogIntensityProjection() {
@@ -127,8 +116,8 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList(result)
 
         expect:
-        resultList.collect { it.data }.flatten()
-        containsInAnyOrder(testData.mirnaData.collect { closeTo(it.logIntensity as Double, DELTA) })
+        that(resultList.collect { it.data }.flatten(),
+                containsInAnyOrder(testData.mirnaData.collect { closeTo(it.logIntensity as Double, DELTA) }))
     }
 
     void testDefaultRealProjection() {
@@ -138,11 +127,11 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
         result = mirnaResource.retrieveData([trialNameConstraint], [], defaultRealProjection)
 
         expect:
-        result hasItem(allOf(
+        that(result, hasItem(allOf(
                 hasProperty('label', equalTo('-503')),
                 contains(
                         closeTo(testData.mirnaData[5].rawIntensity as Double, DELTA),
-                        closeTo(testData.mirnaData[4].rawIntensity as Double, DELTA))))
+                        closeTo(testData.mirnaData[4].rawIntensity as Double, DELTA)))))
     }
 
     void testSearchBySearchKeywordIds() {
@@ -156,27 +145,33 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
 
         result = mirnaResource.retrieveData(
                 [trialNameConstraint], dataConstraints, projection)
+        def rows = Lists.newArrayList(result.rows)
 
         expect:
-        Lists.newArrayList(result.rows) contains(
-                hasProperty('label', equalTo('-501')))
+        rows*.label == ['-501']
     }
 
     void testBadMirnaConstraints() {
         setupData()
-        shouldFail InvalidArgumentsException, {
-            mirnaResource.createDataConstraint 'mirnas', names: 'foobar'
-        }
-        shouldFail InvalidArgumentsException, {
-            mirnaResource.createDataConstraint 'mirnas', namezzz: ['dfsdf']
-        }
+
+        when:
+        mirnaResource.createDataConstraint 'mirnas', names: 'foobar'
+        then:
+        thrown(InvalidArgumentsException)
+
+        when:
+        mirnaResource.createDataConstraint 'mirnas', namezzz: ['dfsdf']
+        then:
+        thrown(InvalidArgumentsException)
     }
 
     void testDataProjection() {
         setupData()
-        shouldFail InvalidArgumentsException, {
-            mirnaResource.createProjection 'default_real_projection', arg: 'value'
-        }
+
+        when:
+        mirnaResource.createProjection 'default_real_projection', arg: 'value'
+        then:
+        thrown(InvalidArgumentsException)
     }
 
     private TabularResult testWithMissingDataAssay(Long baseAssayId) {
@@ -194,16 +189,18 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
         setupData()
         testWithMissingDataAssay(-50000L)
         result.allowMissingAssays = false
-        shouldFail UnexpectedResultException, {
-            result.rows.next()
-        }
+
+        when:
+        result.rows.next()
+        then:
+        thrown(UnexpectedResultException)
     }
 
     void testMissingAssaysAllowedSucceeds() {
         setupData()
         testWithMissingDataAssay(-50000L)
         expect:
-        Lists.newArrayList(result.rows) everyItem(
+        that(Lists.newArrayList(result.rows), everyItem(
                 hasProperty('data', allOf(
                         hasSize(3), // for the three assays
                         contains(
@@ -212,6 +209,6 @@ abstract class MirnaSharedEndToEndRetrievalSpec extends Specification {
                                 is(notNullValue()),
                         )
                 ))
-        )
+        ))
     }
 }
