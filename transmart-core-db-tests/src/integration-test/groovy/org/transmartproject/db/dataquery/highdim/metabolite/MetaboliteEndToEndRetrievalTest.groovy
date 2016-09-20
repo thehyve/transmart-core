@@ -20,9 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.metabolite
 
 import com.google.common.collect.Lists
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import org.hamcrest.Matcher
 import org.transmartproject.core.dataquery.TabularResult
@@ -38,7 +36,6 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 class MetaboliteEndToEndRetrievalSpec {
@@ -50,11 +47,13 @@ class MetaboliteEndToEndRetrievalSpec {
 
     HighDimensionDataTypeResource metaboliteResource
 
-    @Lazy AssayConstraint trialConstraint = metaboliteResource.createAssayConstraint(
+    @Lazy
+    AssayConstraint trialConstraint = metaboliteResource.createAssayConstraint(
             AssayConstraint.TRIAL_NAME_CONSTRAINT,
             name: MetaboliteTestData.TRIAL_NAME)
 
-    @Lazy Projection projection = metaboliteResource.createProjection([:],
+    @Lazy
+    Projection projection = metaboliteResource.createProjection([:],
             org.transmartproject.core.dataquery.highdim.projections.Projection.ZSCORE_PROJECTION)
 
     TabularResult<AssayColumn, MetaboliteDataRow> result
@@ -78,13 +77,13 @@ class MetaboliteEndToEndRetrievalSpec {
 
         assertThat rows, contains(
                 testData.annotations.sort { it.id }.
-                collect { annotation ->
-                    allOf(
-                            isA(MetaboliteDataRow),
-                            hasProperty('label', is(annotation.biochemicalName)),
-                            hasProperty('bioMarker', is(annotation.hmdbId)),
-                            contains(matchersForDataPoints([annotation])))
-                }
+                        collect { annotation ->
+                            allOf(
+                                    isA(MetaboliteDataRow),
+                                    hasProperty('label', is(annotation.biochemicalName)),
+                                    hasProperty('bioMarker', is(annotation.hmdbId)),
+                                    contains(matchersForDataPoints([annotation])))
+                        }
         )
     }
 
@@ -94,7 +93,7 @@ class MetaboliteEndToEndRetrievalSpec {
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
         result = metaboliteResource.retrieveData(
-                [ trialConstraint ], [], logIntensityProjection)
+                [trialConstraint], [], logIntensityProjection)
 
         def resultList = Lists.newArrayList(result)
 
@@ -121,7 +120,7 @@ class MetaboliteEndToEndRetrievalSpec {
                 names: [hmdbid])
 
         result = metaboliteResource.retrieveData(
-                [ trialConstraint ], [ dataConstraint ], projection)
+                [trialConstraint], [dataConstraint], projection)
 
         assertThat Lists.newArrayList(result), contains(allOf(
                 isA(MetaboliteDataRow),
@@ -135,10 +134,10 @@ class MetaboliteEndToEndRetrievalSpec {
         def subpathway = 'Pentose Metabolism' // testData.subPathways[3].name
         def dataConstraint = metaboliteResource.createDataConstraint(
                 'metabolite_subpathways',
-                names: [ subpathway ])
+                names: [subpathway])
 
         result = metaboliteResource.retrieveData(
-                [ trialConstraint ], [ dataConstraint ], projection)
+                [trialConstraint], [dataConstraint], projection)
 
         Collection<DeMetaboliteAnnotation> annotations =
                 testData.subPathways.find { it.name == subpathway }.annotations
@@ -164,10 +163,10 @@ class MetaboliteEndToEndRetrievalSpec {
 
         def dataConstraint = metaboliteResource.createDataConstraint(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
-                keyword_ids: [ searchKeyword.id ])
+                keyword_ids: [searchKeyword.id])
 
         result = metaboliteResource.retrieveData(
-                [ trialConstraint ], [ dataConstraint ], projection)
+                [trialConstraint], [dataConstraint], projection)
 
         Collection<DeMetaboliteAnnotation> annotations =
                 testData.subPathways.find { it.name == subPathwayName }.annotations
@@ -190,10 +189,10 @@ class MetaboliteEndToEndRetrievalSpec {
         /* goes to subpathways 3 */
         def dataConstraint = metaboliteResource.createDataConstraint(
                 'metabolite_superpathways',
-                names: [ superPathway ])
+                names: [superPathway])
 
         result = metaboliteResource.retrieveData(
-                [ trialConstraint ], [ dataConstraint ], projection)
+                [trialConstraint], [dataConstraint], projection)
 
         Collection<DeMetaboliteSubPathway> subPathways =
                 testData.superPathways.find {
@@ -221,7 +220,7 @@ class MetaboliteEndToEndRetrievalSpec {
         setupData()
         def assayConstraint = highDimensionResourceService.
                 createAssayConstraint(AssayConstraint.TRIAL_NAME_CONSTRAINT,
-                name: MetaboliteTestData.TRIAL_NAME)
+                        name: MetaboliteTestData.TRIAL_NAME)
 
         def res = highDimensionResourceService.
                 getSubResourcesAssayMultiMap([assayConstraint])

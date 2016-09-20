@@ -19,26 +19,21 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QueryResultData
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class DefaultPatientSetConstraintSpec extends Specification {
 
     /* patient set with only the first patient (AssayTestData.patients[0]) */
@@ -67,7 +62,8 @@ class DefaultPatientSetConstraintSpec extends Specification {
                 )
         ]).list()
 
-        expect: assays allOf(
+        expect:
+        assays allOf(
                 everyItem(
                         hasProperty('patient', equalTo(testData.patients[0]))
                 ),
@@ -90,6 +86,7 @@ class DefaultPatientSetConstraintSpec extends Specification {
                                 queryResult: firstPatientResult
                         )])]).list()
 
-        expect: assays hasSize(4) /* see basic test */
+        expect:
+        assays hasSize(4) /* see basic test */
     }
 }

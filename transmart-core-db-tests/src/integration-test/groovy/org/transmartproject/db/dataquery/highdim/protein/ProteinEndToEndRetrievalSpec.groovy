@@ -19,15 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.protein
 
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import com.google.common.collect.Lists
-import org.junit.After
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -36,14 +30,14 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class ProteinEndToEndRetrievalSpec extends Specification {
 
     HighDimensionResource highDimensionResourceService
@@ -93,21 +87,21 @@ class ProteinEndToEndRetrievalSpec extends Specification {
         when:
         Iterable<AssayColumn> assays = result.indicesList
         then:
-            assays contains(
+        assays contains(
                 hasSameInterfaceProperties(Assay, testData.assays[1]),
                 hasSameInterfaceProperties(Assay, testData.assays[0]),)
-            assays hasItem(
+        assays hasItem(
                 hasProperty('label', is(testData.assays[-1].sampleCode)))
-            result allOf(
+        result allOf(
                 hasProperty('columnsDimensionLabel', is('Sample codes')),
-                hasProperty('rowsDimensionLabel',    is('Proteins')),
-            )
+                hasProperty('rowsDimensionLabel', is('Proteins')),
+        )
 
         when:
         List rows = Lists.newArrayList result.rows
 
         then:
-            rows allOf(
+        rows allOf(
                 contains(
                         allOf(
                                 hasProperty('label', is(ureaTransporterPeptide)),
@@ -122,13 +116,14 @@ class ProteinEndToEndRetrievalSpec extends Specification {
         setupData()
         def dataConstraint = proteinResource.createDataConstraint(
                 DataConstraint.PROTEINS_CONSTRAINT,
-                names: [ 'Urea transporter 2' ])
+                names: ['Urea transporter 2'])
 
         result = proteinResource.retrieveData(
-                [ trialConstraint ], [ dataConstraint ], projection)
+                [trialConstraint], [dataConstraint], projection)
 
         /* the result is iterable */
-        expect: result contains(allOf(
+        expect:
+        result contains(allOf(
                 hasProperty('label', equalTo(ureaTransporterPeptide)),
                 contains( /* the rows are iterable */
                         closeTo(testData.data[5].zscore as Double, DELTA),
@@ -136,10 +131,10 @@ class ProteinEndToEndRetrievalSpec extends Specification {
     }
 
     def getDataMatcherForAnnotation(DeProteinAnnotation annotation,
-                                       String property) {
+                                    String property) {
         contains testData.data.
                 findAll { it.annotation == annotation }.
-                sort    { it.assay.id }. // data is sorted by assay id
+                sort { it.assay.id }. // data is sorted by assay id
                 collect { closeTo it."$property" as Double, DELTA }
     }
 
@@ -149,11 +144,12 @@ class ProteinEndToEndRetrievalSpec extends Specification {
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
         result = proteinResource.retrieveData(
-                [ trialConstraint ], [], logIntensityProjection)
+                [trialConstraint], [], logIntensityProjection)
 
         def resultList = Lists.newArrayList result
 
-        expect: resultList containsInAnyOrder(
+        expect:
+        resultList containsInAnyOrder(
                 testData.annotations.collect {
                     getDataMatcherForAnnotation it, 'logIntensity'
                 })
@@ -165,9 +161,10 @@ class ProteinEndToEndRetrievalSpec extends Specification {
                 [:], Projection.DEFAULT_REAL_PROJECTION)
 
         result = proteinResource.retrieveData(
-                [ trialConstraint ], [], defaultRealProjection)
+                [trialConstraint], [], defaultRealProjection)
 
-        expect: result hasItem(allOf(
+        expect:
+        result hasItem(allOf(
                 hasProperty('label', is(ureaTransporterPeptide)),
                 contains(
                         closeTo(testData.data[5].intensity as Double, DELTA),
@@ -183,9 +180,10 @@ class ProteinEndToEndRetrievalSpec extends Specification {
                 }*.externalId)
 
         result = proteinResource.retrieveData(
-                [ trialConstraint ], [ dataConstraint ], projection)
+                [trialConstraint], [dataConstraint], projection)
 
-        expect: result contains(
+        expect:
+        result contains(
                 hasProperty('label', is(ureaTransporterPeptide)),
                 hasProperty('label', is(adiponectinPeptide)))
     }
@@ -194,13 +192,14 @@ class ProteinEndToEndRetrievalSpec extends Specification {
         setupData()
         def dataConstraint = proteinResource.createDataConstraint(
                 DataConstraint.GENES_CONSTRAINT,
-                names: [ 'AURKA' ])
+                names: ['AURKA'])
         // in our test data, gene AURKA is correlated with Adiponectin
 
         result = proteinResource.retrieveData(
-                [ trialConstraint ], [ dataConstraint ], projection)
+                [trialConstraint], [dataConstraint], projection)
 
-        expect: result contains(
+        expect:
+        result contains(
                 hasProperty('label', is(adiponectinPeptide)))
     }
 
@@ -208,13 +207,14 @@ class ProteinEndToEndRetrievalSpec extends Specification {
         setupData()
         def dataConstraint = proteinResource.createDataConstraint(
                 DataConstraint.PATHWAYS_CONSTRAINT,
-                names: [ 'FOOPATHWAY' ])
+                names: ['FOOPATHWAY'])
         // in our test data, pathway FOOPATHWAY is correlated with Adiponectin
 
         result = proteinResource.retrieveData(
-                [ trialConstraint ], [ dataConstraint ], projection)
+                [trialConstraint], [dataConstraint], projection)
         //TODO It returns empty result. It would be nice to investigate db state at this point
-        expect: Lists.newArrayList(result) contains(
+        expect:
+        Lists.newArrayList(result) contains(
                 hasProperty('label', is(adiponectinPeptide)))
     }
 

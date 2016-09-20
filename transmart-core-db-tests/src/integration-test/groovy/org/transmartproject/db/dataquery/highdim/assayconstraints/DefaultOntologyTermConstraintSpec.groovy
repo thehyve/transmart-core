@@ -19,24 +19,19 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class DefaultOntologyTermConstraintSpec extends Specification {
 
     ConceptsResource conceptsResourceService
@@ -58,7 +53,8 @@ class DefaultOntologyTermConstraintSpec extends Specification {
         /* We should have gotten the assays in the -200 range.
          * Those in the other ranges are assigned to another concept
          */
-        expect: assays containsInAnyOrder(
+        expect:
+        assays containsInAnyOrder(
                 hasProperty('id', equalTo(-201L)),
                 hasProperty('id', equalTo(-202L)),
                 hasProperty('id', equalTo(-203L)),
@@ -74,7 +70,8 @@ class DefaultOntologyTermConstraintSpec extends Specification {
                                 term: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar')
                         )])]).list()
 
-        expect: assays hasSize(3) /* see basic test */
+        expect:
+        assays hasSize(3) /* see basic test */
     }
 
 }

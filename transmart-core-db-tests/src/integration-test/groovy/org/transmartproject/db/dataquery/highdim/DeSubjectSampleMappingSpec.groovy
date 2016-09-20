@@ -19,25 +19,19 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.assay.SampleType
 import org.transmartproject.core.dataquery.assay.Timepoint
 import org.transmartproject.core.dataquery.assay.TissueType
 import org.transmartproject.core.dataquery.highdim.Platform
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
 class DeSubjectSampleMappingSpec extends Specification {
 
     def sessionFactory
@@ -57,7 +51,8 @@ class DeSubjectSampleMappingSpec extends Specification {
         setupData()
         def assay = DeSubjectSampleMapping.get(assays[0].id)
 
-        expect: assay allOf(
+        expect:
+        assay allOf(
                 is(notNullValue()),
                 hasProperty('siteId', equalTo('site id #1')),
                 hasProperty('conceptCode', equalTo('concept code #1')),
@@ -71,7 +66,8 @@ class DeSubjectSampleMappingSpec extends Specification {
         // test the timepoint, sample and tissue properties
         def assay = DeSubjectSampleMapping.get(assays[0].id)
 
-        expect: assay allOf(
+        expect:
+        assay allOf(
                 is(notNullValue()),
                 hasProperty('timepoint', equalTo(new Timepoint('timepoint ' +
                         'code', 'timepoint name #1'))),
@@ -87,7 +83,8 @@ class DeSubjectSampleMappingSpec extends Specification {
         setupData()
         def assay = DeSubjectSampleMapping.get(assays[0].id)
 
-        expect: assay allOf(
+        expect:
+        assay allOf(
                 is(notNullValue()),
                 hasProperty('patient', notNullValue(Patient)),
                 hasProperty('platform', notNullValue(Platform)))

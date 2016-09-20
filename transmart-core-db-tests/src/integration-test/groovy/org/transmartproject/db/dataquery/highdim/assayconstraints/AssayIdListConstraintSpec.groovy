@@ -19,24 +19,19 @@
 
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.containsInAnyOrder
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class AssayIdListConstraintSpec extends Specification {
 
     AssayTestData testData = new AssayTestData()
@@ -57,7 +52,8 @@ class AssayIdListConstraintSpec extends Specification {
                 )
         ]).list()
 
-        expect: result containsInAnyOrder(
+        expect:
+        result containsInAnyOrder(
                 wantedAssays.collect {
                     hasSameInterfaceProperties(Assay, it)
                 })

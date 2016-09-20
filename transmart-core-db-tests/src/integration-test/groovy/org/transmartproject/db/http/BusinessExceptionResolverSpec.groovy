@@ -35,7 +35,8 @@ class BusinessExceptionResolverSpec extends Specification {
         ApplicationContext ctx = grailsApplication.mainContext
         def beans = ctx.getBeansOfType(HandlerExceptionResolver)
 
-        expect: beans hasEntry(equalTo('businessExceptionResolver'),
+        expect:
+        beans hasEntry(equalTo('businessExceptionResolver'),
                 any(BusinessExceptionResolver))
     }
 }

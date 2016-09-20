@@ -19,18 +19,15 @@
 
 package org.transmartproject.db.dataquery.highdim.mrna
 
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
-import grails.transaction.Rollback
-import spock.lang.Specification
-
 import com.google.common.collect.Lists
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
@@ -38,7 +35,7 @@ import static org.hamcrest.Matchers.*
  * Created by glopes on 11/18/13.
  *
  */
-@TestMixin(ControllerUnitTestMixin)
+
 @Integration
 @Rollback
 class MrnaEndToEndRetrievalSpec extends Specification {
@@ -75,12 +72,13 @@ class MrnaEndToEndRetrievalSpec extends Specification {
         def projection = mrnaResource.createProjection [:], Projection.ZSCORE_PROJECTION
 
         dataQueryResult = mrnaResource.retrieveData(
-                [ trialNameConstraint ], dataConstraints, projection)
+                [trialNameConstraint], dataConstraints, projection)
 
         def resultList = Lists.newArrayList dataQueryResult
 
         /* more extensive assertions in MrnaDataRetrievalTests */
-        expect: resultList allOf(
+        expect:
+        resultList allOf(
                 hasSize(3),
                 everyItem(
                         hasProperty('data',
@@ -111,18 +109,19 @@ class MrnaEndToEndRetrievalSpec extends Specification {
         setupData()
         List dataConstraints = [
                 mrnaResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
-                        find({ it.keyword == 'BOGUSRQCD1' }).id]],
+                                                                         find({ it.keyword == 'BOGUSRQCD1' }).id]],
                         DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
                 )
         ]
         def projection = mrnaResource.createProjection [:], Projection.ZSCORE_PROJECTION
 
         dataQueryResult = mrnaResource.retrieveData(
-                [ trialNameConstraint ], dataConstraints, projection)
+                [trialNameConstraint], dataConstraints, projection)
 
         def resultList = Lists.newArrayList dataQueryResult
 
-        expect: resultList allOf(
+        expect:
+        resultList allOf(
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
                 contains(hasProperty('bioMarker', equalTo('BOGUSRQCD1')))
@@ -135,7 +134,7 @@ class MrnaEndToEndRetrievalSpec extends Specification {
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
         dataQueryResult = mrnaResource.retrieveData(
-                [ trialNameConstraint ], [], logIntensityProjection)
+                [trialNameConstraint], [], logIntensityProjection)
 
         def resultList = Lists.newArrayList dataQueryResult
 
@@ -149,16 +148,17 @@ class MrnaEndToEndRetrievalSpec extends Specification {
         setupData()
         List dataConstraints = [
                 mrnaResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
-                        find({ it.keyword == 'BOGUSCPO' }).id]],
+                                                                         find({ it.keyword == 'BOGUSCPO' }).id]],
                         DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
                 )
         ]
         def projection = mrnaResource.createProjection [:], Projection.DEFAULT_REAL_PROJECTION
 
         dataQueryResult = mrnaResource.retrieveData(
-                [ trialNameConstraint ], dataConstraints, projection)
+                [trialNameConstraint], dataConstraints, projection)
 
-        expect: dataQueryResult contains(
+        expect:
+        dataQueryResult contains(
                 contains(
                         closeTo(testData.microarrayData[1].rawIntensity as Double, DELTA),
                         closeTo(testData.microarrayData[0].rawIntensity as Double, DELTA),

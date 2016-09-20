@@ -19,13 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.rnaseq
 
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
-import grails.transaction.Rollback
-import spock.lang.Specification
-
 import com.google.common.collect.Lists
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
@@ -40,13 +36,13 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.rnaseq.RnaSeqValues
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqModule.RNASEQ_VALUES_PROJECTION
 import static org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqTestData.TRIAL_NAME
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 class RnaSeqEndToEndRetrievalSpec extends Specification {
@@ -124,12 +120,12 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
                 hasProperty('label', equalTo(testData.regions[1].name)),
                 hasProperty('bioMarker', equalTo(testData.regions[1].geneSymbol)),
                 hasProperty('platform', allOf(
-                    hasProperty('id', equalTo(testData.regionPlatform.id)),
-                    hasProperty('title', equalTo(testData.regionPlatform.title)),
-                    hasProperty('organism', equalTo(testData.regionPlatform.organism)),
-                    hasProperty('annotationDate', equalTo(testData.regionPlatform.annotationDate)),
-                    hasProperty('markerType', equalTo(testData.regionPlatform.markerType)),
-                    hasProperty('genomeReleaseId', equalTo(testData.regionPlatform.genomeReleaseId)),
+                        hasProperty('id', equalTo(testData.regionPlatform.id)),
+                        hasProperty('title', equalTo(testData.regionPlatform.title)),
+                        hasProperty('organism', equalTo(testData.regionPlatform.organism)),
+                        hasProperty('annotationDate', equalTo(testData.regionPlatform.annotationDate)),
+                        hasProperty('markerType', equalTo(testData.regionPlatform.markerType)),
+                        hasProperty('genomeReleaseId', equalTo(testData.regionPlatform.genomeReleaseId)),
                 )),
         )
         regionRows[1] allOf(
@@ -147,18 +143,18 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         )
 
         regionRows[1][assayColumns[1]]
-                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[0])
+        hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[0])
         regionRows[1][assayColumns[0]]
-                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[1])
+        hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[1])
         regionRows[0][assayColumns[1]]
-                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[2])
+        hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[2])
         regionRows[0][assayColumns[0]]
-                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[3])
+        hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[3])
 
         regionRows[1]*.normalizedReadcount
-                  contains(testData.rnaseqData[-3..-4]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA })
+        contains(testData.rnaseqData[-3..-4]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA })
         regionRows[0]*.normalizedReadcount
-                  contains(testData.rnaseqData[-1..-2]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA })
+        contains(testData.rnaseqData[-1..-2]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA })
     }
 
     void testLogIntensityProjection() {
@@ -167,11 +163,12 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
         dataQueryResult = rnaseqResource.retrieveData(
-                [ trialNameConstraint ], [], logIntensityProjection)
+                [trialNameConstraint], [], logIntensityProjection)
 
         def resultList = Lists.newArrayList(dataQueryResult)
 
-        expect: resultList containsInAnyOrder(
+        expect:
+        resultList containsInAnyOrder(
                 testData.regions.collect {
                     getDataMatcherForRegion(it, 'logNormalizedReadcount')
                 })
@@ -185,11 +182,12 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
                 [:], Projection.DEFAULT_REAL_PROJECTION)
 
         dataQueryResult = rnaseqResource.retrieveData(
-                [ trialNameConstraint ], [], realProjection)
+                [trialNameConstraint], [], realProjection)
 
         def resultList = Lists.newArrayList(dataQueryResult)
 
-        expect: resultList containsInAnyOrder(
+        expect:
+        resultList containsInAnyOrder(
                 testData.regions.collect {
                     getDataMatcherForRegion(it, 'normalizedReadcount')
                 })
@@ -201,11 +199,12 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
                 [:], Projection.ZSCORE_PROJECTION)
 
         dataQueryResult = rnaseqResource.retrieveData(
-                [ trialNameConstraint ], [], zscoreProjection)
+                [trialNameConstraint], [], zscoreProjection)
 
         def resultList = Lists.newArrayList(dataQueryResult)
 
-        expect: resultList containsInAnyOrder(
+        expect:
+        resultList containsInAnyOrder(
                 testData.regions.collect {
                     getDataMatcherForRegion(it, 'zscore')
                 })
@@ -233,7 +232,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         expect:
         regionRows hasSize(1)
         regionRows[0] hasSameInterfaceProperties(
-                Region, testData.regions[0], [ 'platform' ])
+                Region, testData.regions[0], ['platform'])
     }
 
     void testSegments_meetBoth() {
@@ -250,33 +249,33 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
                         subconstraints: [
                                 (DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT): [
                                         /* test region wider then the segment */
-                                        [ chromosome: '1', start: 44, end: 8888 ],
+                                        [chromosome: '1', start: 44, end: 8888],
                                         /* segment aligned at the end of test region;
                                          *segment shorter than region */
-                                        [ chromosome: '2', start: 88, end: 99 ],
+                                        [chromosome: '2', start: 88, end: 99],
                                 ]
                         ]
                 )
         ]
 
         def anotherPlatform = new DeGplInfo(
-                title:          'Another Test Region Platform',
-                organism:       'Homo Sapiens',
+                title: 'Another Test Region Platform',
+                organism: 'Homo Sapiens',
                 annotationDate: Date.parse('yyyy-MM-dd', '2013-08-03'),
-                markerType:     'RNASEQ_RCNT',
-                genomeReleaseId:'hg19',
+                markerType: 'RNASEQ_RCNT',
+                genomeReleaseId: 'hg19',
         )
         anotherPlatform.id = 'test-another-platform'
         anotherPlatform.save failOnError: true, flush: true
 
         // this region should not appear in the result set
         def anotherRegion = new DeChromosomalRegion(
-                platform:       anotherPlatform,
-                chromosome:     '1',
-                start:          1,
-                end:            10,
+                platform: anotherPlatform,
+                chromosome: '1',
+                start: 1,
+                end: 10,
                 numberOfProbes: 42,
-                name:           'region 1:1-10'
+                name: 'region 1:1-10'
         )
         anotherRegion.id = -2010L
         anotherRegion.save failOnError: true, flush: true
@@ -289,9 +288,9 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         regionRows hasSize(2)
         regionRows contains(
                 hasSameInterfaceProperties(
-                        Region, testData.regions[1], [ 'platform' ]),
+                        Region, testData.regions[1], ['platform']),
                 hasSameInterfaceProperties(
-                        Region, testData.regions[0], [ 'platform' ]))
+                        Region, testData.regions[0], ['platform']))
     }
 
     void testSegments_meetNone() {
@@ -307,9 +306,9 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
                         DataConstraint.DISJUNCTION_CONSTRAINT,
                         subconstraints: [
                                 (DataConstraint.CHROMOSOME_SEGMENT_CONSTRAINT): [
-                                        [ chromosome: 'X' ],
-                                        [ chromosome: '1', start: 1,   end: 32 ],
-                                        [ chromosome: '2', start: 100, end: 1000 ],
+                                        [chromosome: 'X'],
+                                        [chromosome: '1', start: 1, end: 32],
+                                        [chromosome: '2', start: 100, end: 1000],
                                 ]
                         ]
                 )
@@ -334,7 +333,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
         ]
         def dataConstraints = [
                 rnaseqResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
-                        find({ it.keyword == 'AURKA' }).id]],
+                                                                           find({ it.keyword == 'AURKA' }).id]],
                         DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
                 )
         ]
@@ -345,7 +344,8 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
 
         def resultList = Lists.newArrayList dataQueryResult
 
-        expect: resultList allOf(
+        expect:
+        resultList allOf(
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
                 contains(hasProperty('bioMarker', equalTo('AURKA')))
@@ -357,7 +357,7 @@ class RnaSeqEndToEndRetrievalSpec extends Specification {
                                 String property) {
         contains testData.rnaseqData.
                 findAll { it.region == region }.
-                sort    { it.assay.id }. // data is sorted by assay id
+                sort { it.assay.id }. // data is sorted by assay id
                 collect { closeTo it."$property" as Double, DELTA }
     }
 }

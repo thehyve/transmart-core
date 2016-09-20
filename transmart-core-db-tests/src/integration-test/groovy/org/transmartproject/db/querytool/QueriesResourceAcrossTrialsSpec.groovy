@@ -19,26 +19,21 @@
 
 package org.transmartproject.db.querytool
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.querytool.*
 import org.transmartproject.core.users.User
 import org.transmartproject.db.ontology.AcrossTrialsTestData
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.BETWEEN
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class QueriesResourceAcrossTrialsSpec extends Specification {
     private static final String AGE_AT_DIAGNOSIS_NODE =
             '\\\\xtrials\\Across Trials\\Demographics\\Age at Diagnosis\\'
@@ -62,7 +57,8 @@ class QueriesResourceAcrossTrialsSpec extends Specification {
 
         def result = queriesResourceService.runQuery definition, user
         // has all patients
-        expect: result.patients containsInAnyOrder(
+        expect:
+        result.patients containsInAnyOrder(
                 testData.patients.collect { is it })
     }
 
@@ -83,10 +79,10 @@ class QueriesResourceAcrossTrialsSpec extends Specification {
             it.numberValue == 2101.0 || it.numberValue == 2201.0
         }*.patient
         expect:
-            patients hasSize(2)
+        patients hasSize(2)
 
-            result.patients
-                containsInAnyOrder(patients.collect { is it })
+        result.patients
+        containsInAnyOrder(patients.collect { is it })
     }
 
     void testUserWithNoAccessToStudy2() {
@@ -102,10 +98,10 @@ class QueriesResourceAcrossTrialsSpec extends Specification {
             Patient it -> it.trial == 'STUDY_ID_1'
         }
         expect:
-            patients hasSize(2)
+        patients hasSize(2)
 
-            result.patients
-                containsInAnyOrder(patients.collect { is it })
+        result.patients
+        containsInAnyOrder(patients.collect { is it })
     }
 
     void testAcrossTrialsQueryNeedsUser() {
@@ -115,7 +111,8 @@ class QueriesResourceAcrossTrialsSpec extends Specification {
 
         def result = queriesResourceService.runQuery(definition)
 
-        expect: result allOf(
+        expect:
+        result allOf(
                 hasProperty('status', equalTo(QueryStatus.ERROR)))
     }
 

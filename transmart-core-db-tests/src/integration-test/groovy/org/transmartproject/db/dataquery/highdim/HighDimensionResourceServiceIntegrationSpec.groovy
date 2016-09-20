@@ -19,22 +19,17 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster
+import spock.lang.Specification
 
 import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
@@ -43,17 +38,16 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
+import static spock.util.matcher.HamcrestSupport.that
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
 class HighDimensionResourceServiceIntegrationSpec extends Specification {
 
     private static final String TEST_DATA_TYPE = 'foobar'
 
     HighDimensionResourceServiceTestData testData =
-        new HighDimensionResourceServiceTestData()
+            new HighDimensionResourceServiceTestData()
 
     HighDimensionResourceService highDimensionResourceService
 
@@ -69,7 +63,8 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
         def bogusDataTypeResource = [
                 getDataTypeName: { -> TEST_DATA_TYPE },
                 matchesPlatform: { Platform p ->
-                    p.markerType == 'Foobar' },
+                    p.markerType == 'Foobar'
+                },
         ] as HighDimensionDataTypeResource
 
         highDimensionResourceService.
@@ -83,11 +78,11 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
     void testGetSubResourcesAssayMultiMap() {
         setupData()
         Map<HighDimensionDataTypeResource, Long> res = highDimensionResourceService.
-                getSubResourcesAssayMultiMap([ allPatientsPatientSetConstraint ])
+                getSubResourcesAssayMultiMap([allPatientsPatientSetConstraint])
 
         expect:
-            res.size() is(2)
-            res allOf(
+        res.size() == 2
+        res allOf(
                 hasEntry(
                         hasProperty('dataTypeName', is('mrna')),
                         containsInAnyOrder(
@@ -110,7 +105,7 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
                 markerType: 'bogus marker type',
         )
         p.id = 'bogus-platform'
-        save([ p ])
+        save([p])
 
         List<DeSubjectSampleMapping> assays =
                 HighDimTestData.createTestAssays(testData.patientsFoobar, -7000, p,
@@ -118,15 +113,17 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
         save(assays)
 
         Map<HighDimensionDataTypeResource, Long> res = highDimensionResourceService.
-                getSubResourcesAssayMultiMap([ allPatientsPatientSetConstraint ])
+                getSubResourcesAssayMultiMap([allPatientsPatientSetConstraint])
 
-        expect: res.values().inject([], { accum, cur -> accum + cur }) not(
-                anyOf(
-                        assays.collect { Assay it ->
-                            hasItem(
-                                    hasSameInterfaceProperties(Assay, it))
-                        }
-                ))
+        expect:
+        that(res.values().inject([], { accum, cur -> accum + cur }),
+                not(
+                        anyOf(
+                                assays.collect { Assay it ->
+                                    hasItem(
+                                            hasSameInterfaceProperties(Assay, it))
+                                }
+                        )))
     }
 
     void testAssaysWithMissingPlatform() {
@@ -137,15 +134,17 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
         save(assays)
 
         Map<HighDimensionDataTypeResource, Long> res = highDimensionResourceService.
-                getSubResourcesAssayMultiMap([ allPatientsPatientSetConstraint ])
+                getSubResourcesAssayMultiMap([allPatientsPatientSetConstraint])
 
-        expect: res.values().inject([], { accum, cur -> accum + cur }) not(
-                anyOf(
-                        assays.collect { Assay it ->
-                            hasItem(
-                                    hasSameInterfaceProperties(Assay, it))
-                        }
-                ))
+        expect:
+        that(res.values().inject([], { accum, cur -> accum + cur }),
+                not(
+                        anyOf(
+                                assays.collect { Assay it ->
+                                    hasItem(
+                                            hasSameInterfaceProperties(Assay, it))
+                                }
+                        )))
     }
 
     void testWithMultipleConstraints() {
@@ -157,24 +156,24 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
         Map<HighDimensionDataTypeResource, Long> res = highDimensionResourceService.
                 getSubResourcesAssayMultiMap([
                         allPatientsPatientSetConstraint,
-                        trialNameConstraint ])
+                        trialNameConstraint])
 
         expect:
-            res.size() is(1)
-            res hasEntry(
-                        hasProperty('dataTypeName', is('mrna')),
-                        containsInAnyOrder(
-                                testData.mrnaAssays.collect {
-                                    hasSameInterfaceProperties(Assay, it)
-                                }
-                        ))
+        res.size() == 1
+        res hasEntry(
+                hasProperty('dataTypeName', is('mrna')),
+                containsInAnyOrder(
+                        testData.mrnaAssays.collect {
+                            hasSameInterfaceProperties(Assay, it)
+                        }
+                ))
     }
 
     void testBogusConstraint() {
         setupData()
         shouldFail InvalidArgumentsException, {
-                highDimensionResourceService.createAssayConstraint([:],
-                        'bogus constraint name')
+            highDimensionResourceService.createAssayConstraint([:],
+                    'bogus constraint name')
         }
     }
 
@@ -192,7 +191,8 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
         def instance1 = highDimensionResourceService.getSubResourceForType('mrna')
         def instance2 = highDimensionResourceService.getSubResourceForType('mrna')
 
-        expect: instance1 is(equalTo(instance2))
+        expect:
+        instance1 is(equalTo(instance2))
     }
 
     void testUnEqualityOfReturnedHighDimensionDataTypeResources() {
@@ -200,7 +200,8 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
         def instance1 = highDimensionResourceService.getSubResourceForType('mrna')
         def instance2 = highDimensionResourceService.getSubResourceForType('vcf')
 
-        expect: instance1 is(not(equalTo(instance2)))
+        expect:
+        instance1 is(not(equalTo(instance2)))
     }
 }
 
@@ -236,7 +237,8 @@ class HighDimensionResourceServiceTestData {
             HighDimTestData.createTestAssays(patientsBoth, -5000, platformFoobar, TRIAL_NAME) +
                     HighDimTestData.createTestAssays(patientsFoobar, -6000, platformFoobar, TRIAL_NAME)
 
-    @Lazy QtQueryMaster allPatientsQueryMaster = createQueryResult(
+    @Lazy
+    QtQueryMaster allPatientsQueryMaster = createQueryResult(
             patientsBoth + patientsFoobar)
 
     QueryResult getAllPatientsQueryResult() {
@@ -244,10 +246,10 @@ class HighDimensionResourceServiceTestData {
     }
 
     void saveAll() {
-        save([ platformMrna, platformFoobar ])
-        save( patientsBoth + patientsFoobar )
-        save( mrnaAssays + foobarAssays )
-        save([ allPatientsQueryMaster ])
+        save([platformMrna, platformFoobar])
+        save(patientsBoth + patientsFoobar)
+        save(mrnaAssays + foobarAssays)
+        save([allPatientsQueryMaster])
     }
 
 }

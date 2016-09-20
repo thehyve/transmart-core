@@ -19,9 +19,7 @@
 
 package org.transmartproject.db.dataquery.clinical
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.TestData
@@ -34,7 +32,6 @@ import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 class PatientQuerySpec extends Specification {

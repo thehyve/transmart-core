@@ -19,14 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.tworegion
 
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import com.google.common.collect.Lists
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -35,16 +30,16 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.tworegion.Junction
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
 /**
  * Created by j.hudecek on 17-3-14.
  */
-@TestMixin(ControllerUnitTestMixin)
+
 @Integration
 @Rollback
-@Slf4j
 class TwoRegionEndToEndRetrievalSpec extends Specification {
 
     HighDimensionResource highDimensionResourceService
@@ -87,8 +82,8 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
 
         //resultList[0].data.find({it && it.junctions.size() == 1});
         expect:
-            resultList hasSize(1) //only one junctionsrow is returned
-            resultList[0].junction allOf(
+        resultList hasSize(1) //only one junctionsrow is returned
+        resultList[0].junction allOf(
                 hasProperty('downChromosome', equalTo("1")),
                 hasProperty('downPos', equalTo(2L)),
                 hasProperty('downEnd', equalTo(10L)),
@@ -102,7 +97,7 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
                                         ))
                         )
                 )
-            )
+        )
     }
 
     void testMultiple() {
@@ -119,8 +114,8 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList(dataQueryResult)
 
         expect:
-            resultList hasSize(4)
-            resultList hasItem(allOf(
+        resultList hasSize(4)
+        resultList hasItem(allOf(
                 isA(JunctionRow),
                 hasItem(allOf(
                         //junction included in 2 different events
@@ -155,7 +150,7 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
                         hasProperty('upEnd', equalTo(18L)),
                         hasProperty('isInFrame', equalTo(true))
                 ))))
-            resultList hasItem( // junctionRow
+        resultList hasItem( // junctionRow
                 hasItem(allOf( // junction
                         hasProperty('junctionEvents', hasSize(0)),
                         hasProperty('downChromosome', equalTo('Y'))
@@ -166,36 +161,15 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
         setupData()
         def projection = resource.createProjection [:], Projection.ALL_DATA_PROJECTION
 
-        dataQueryResult = resource.retrieveData(
-                [trialNameConstraint], [], projection)
+        when:
+        dataQueryResult = resource.retrieveData([trialNameConstraint], [], projection)
         List<DataRow<AssayColumn, Junction>> resultList = Lists.newArrayList(dataQueryResult)
 
-        expect:
-            dataQueryResult.indicesList hasSize(equalTo(testData.assays.size()))
-            resultList hasSize(equalTo(testData.junctions.size()))
-
-        resultList.each { DataRow<AssayColumn, Junction> row ->
-            when:
-            def foundIndex
-            def foundAssayColumn
-            dataQueryResult.indicesList.eachWithIndex { AssayColumn assayColumn, int index ->
-                if (row[assayColumn] == null) {
-                    return
-                }
-
-                foundAssayColumn = assayColumn
-                foundIndex = index
-            }
-
-            then:
-                foundAssayColumn is(notNullValue())
-                foundIndex is(notNullValue())
-
-            // FIXME assert row[foundIndex].is(row[foundAssayColumn])
-
-            DeTwoRegionJunction j = row[foundIndex]
-            // FIXME assert j.assay.id == foundAssayColumn.id
-        }
+        then:
+        dataQueryResult.indicesList.size() == testData.assays.size()
+        resultList.size() == testData.junctions.size()
+        resultList[0][0].is(resultList[0][dataQueryResult.indicesList[0]])
+        resultList[0][0].assay.id == dataQueryResult.indicesList[0].id
     }
 
 }

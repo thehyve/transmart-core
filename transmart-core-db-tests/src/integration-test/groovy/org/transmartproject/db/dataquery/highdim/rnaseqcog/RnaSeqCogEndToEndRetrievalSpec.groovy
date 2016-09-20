@@ -19,13 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.rnaseqcog
 
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
-import grails.transaction.Rollback
-import spock.lang.Specification
-
 import com.google.common.collect.Lists
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -36,12 +32,12 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.mirna.MirnaTestData
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestAssays
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 class RnaSeqCogEndToEndRetrievalSpec extends Specification {
@@ -80,12 +76,13 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
     void testBasic() {
         setupData()
         when:
-        result = rnaSeqCogResource.retrieveData([ trialNameConstraint ],
+        result = rnaSeqCogResource.retrieveData([trialNameConstraint],
                 [], projection)
 
-        then: result allOf(
+        then:
+        result allOf(
                 hasProperty('columnsDimensionLabel', is('Sample codes')),
-                hasProperty('rowsDimensionLabel',    is('Transcripts')),
+                hasProperty('rowsDimensionLabel', is('Transcripts')),
                 hasProperty('indicesList', contains(
                         testData.assays.reverse().collect { Assay it ->
                             hasSameInterfaceProperties(Assay, it)
@@ -103,13 +100,14 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
 
     void testDataRowsProperties() {
         setupData()
-        result = rnaSeqCogResource.retrieveData([ trialNameConstraint ],
+        result = rnaSeqCogResource.retrieveData([trialNameConstraint],
                 [], projection)
 
-        expect: Lists.newArrayList(result) contains(
+        expect:
+        Lists.newArrayList(result) contains(
                 testData.annotations.collect { DeRnaseqAnnotation annotation ->
                     allOf(
-                            hasProperty('label',     is(annotation.id)),
+                            hasProperty('label', is(annotation.id)),
                             hasProperty('bioMarker', is(annotation.geneSymbol)))
                 }
         )
@@ -121,11 +119,12 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
                 [:], Projection.LOG_INTENSITY_PROJECTION)
 
         result = rnaSeqCogResource.retrieveData(
-                [ trialNameConstraint ], [], logIntensityProjection)
+                [trialNameConstraint], [], logIntensityProjection)
 
         def resultList = Lists.newArrayList(result)
 
-        expect: resultList containsInAnyOrder(
+        expect:
+        resultList containsInAnyOrder(
                 testData.annotations.collect {
                     getDataMatcherForAnnotation(it, 'logIntensity')
                 })
@@ -133,10 +132,11 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
 
     void testDefaultRealProjection() {
         setupData()
-        result = rnaSeqCogResource.retrieveData([ trialNameConstraint ], [],
+        result = rnaSeqCogResource.retrieveData([trialNameConstraint], [],
                 rnaSeqCogResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
 
-        expect: Lists.newArrayList(result) hasItem(allOf(
+        expect:
+        Lists.newArrayList(result) hasItem(allOf(
                 hasProperty('label', is(testData.data[-1].annotation.id)) /* VNN3 */,
                 contains(testData.data[-1..-2]*.rawIntensity.collect { Double it -> closeTo it, DELTA })
         ))
@@ -146,20 +146,22 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
         setupData()
         DataConstraint geneConstraint = rnaSeqCogResource.createDataConstraint(
                 DataConstraint.GENES_CONSTRAINT,
-                names: [ 'BOGUSVNN3' ])
+                names: ['BOGUSVNN3'])
 
-        result = rnaSeqCogResource.retrieveData([ trialNameConstraint ],
-                [ geneConstraint ],
+        result = rnaSeqCogResource.retrieveData([trialNameConstraint],
+                [geneConstraint],
                 rnaSeqCogResource.createProjection([:], Projection.DEFAULT_REAL_PROJECTION))
 
-        expect: Lists.newArrayList(result) contains(
+        expect:
+        Lists.newArrayList(result) contains(
                 hasProperty('bioMarker', is('BOGUSVNN3')))
     }
 
     void testMissingAssaysAllowedSucceeds() {
         setupData()
         testWithMissingDataAssay(-50000L)
-        expect: Lists.newArrayList(result.rows) everyItem(
+        expect:
+        Lists.newArrayList(result.rows) everyItem(
                 hasProperty('data', allOf(
                         hasSize(2), // for the three assays
                         contains(
@@ -171,21 +173,21 @@ class RnaSeqCogEndToEndRetrievalSpec extends Specification {
     }
 
     private TabularResult testWithMissingDataAssay(Long baseAssayId) {
-        def extraAssays = createTestAssays([ testData.patients[0] ], baseAssayId,
+        def extraAssays = createTestAssays([testData.patients[0]], baseAssayId,
                 testData.platform, MirnaTestData.TRIAL_NAME)
         HighDimTestData.save extraAssays
 
         List assayConstraints = [trialNameConstraint]
 
         result =
-            rnaSeqCogResource.retrieveData assayConstraints, [], projection
+                rnaSeqCogResource.retrieveData assayConstraints, [], projection
     }
 
     def getDataMatcherForAnnotation(DeRnaseqAnnotation annotation,
                                     String property) {
         contains testData.data.
                 findAll { it.annotation == annotation }.
-                sort    { it.assay.id }. // data is sorted by assay id
+                sort { it.assay.id }. // data is sorted by assay id
                 collect { closeTo it."$property" as Double, DELTA }
     }
 

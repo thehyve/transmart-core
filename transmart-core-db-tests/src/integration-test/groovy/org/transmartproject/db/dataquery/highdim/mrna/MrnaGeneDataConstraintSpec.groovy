@@ -19,24 +19,20 @@
 
 package org.transmartproject.db.dataquery.highdim.mrna
 
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
-import grails.transaction.Rollback
-import spock.lang.Specification
-
 import grails.orm.HibernateCriteriaBuilder
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.hamcrest.Matcher
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.i2b2data.PatientDimension
+import spock.lang.Specification
 
 import static junit.framework.TestCase.fail
 import static org.hamcrest.Matchers.*
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
 class MrnaGeneDataConstraintSpec extends Specification {
@@ -72,7 +68,8 @@ class MrnaGeneDataConstraintSpec extends Specification {
 
         List res = builder.instance.list()
 
-        expect: res allOf(
+        expect:
+        res allOf(
                 hasSize(2),
                 everyItem(
                         hasProperty('probe',
@@ -102,7 +99,8 @@ class MrnaGeneDataConstraintSpec extends Specification {
 
         List res = builder.instance.list()
 
-        expect: res allOf(
+        expect:
+        res allOf(
                 hasSize(4),
                 hasItem(
                         hasProperty('probe',
@@ -141,14 +139,15 @@ class MrnaGeneDataConstraintSpec extends Specification {
 
         List res = builder.instance.list()
 
-        expect: res
-                /* 2 patients * 2 probes (one for each gene) */
-                containsInAnyOrder(
-                        matcherFor(testData.patients[0], 'BOGUSRQCD1'),
-                        matcherFor(testData.patients[1], 'BOGUSRQCD1'),
-                        matcherFor(testData.patients[0], 'BOGUSVNN3'),
-                        matcherFor(testData.patients[1], 'BOGUSVNN3'),
-                )
+        expect:
+        res
+        /* 2 patients * 2 probes (one for each gene) */
+        containsInAnyOrder(
+                matcherFor(testData.patients[0], 'BOGUSRQCD1'),
+                matcherFor(testData.patients[1], 'BOGUSRQCD1'),
+                matcherFor(testData.patients[0], 'BOGUSVNN3'),
+                matcherFor(testData.patients[1], 'BOGUSVNN3'),
+        )
     }
 
     void testMixedConstraint() {
@@ -166,23 +165,25 @@ class MrnaGeneDataConstraintSpec extends Specification {
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
         )
 
-        then: testee is(instanceOf(DisjunctionDataConstraint))
+        then:
+        testee is(instanceOf(DisjunctionDataConstraint))
 
         when:
         testee.doWithCriteriaBuilder(builder)
 
         List res = builder.instance.list()
 
-        then: res
-                /* 2 patients * 3 probes (one for each gene) */
-                containsInAnyOrder(
-                        matcherFor(testData.patients[0], 'BOGUSRQCD1'),
-                        matcherFor(testData.patients[1], 'BOGUSRQCD1'),
-                        matcherFor(testData.patients[0], 'BOGUSVNN3'),
-                        matcherFor(testData.patients[1], 'BOGUSVNN3'),
-                        matcherFor(testData.patients[0], 'BOGUSCPO'),
-                        matcherFor(testData.patients[1], 'BOGUSCPO'),
-                )
+        then:
+        res
+        /* 2 patients * 3 probes (one for each gene) */
+        containsInAnyOrder(
+                matcherFor(testData.patients[0], 'BOGUSRQCD1'),
+                matcherFor(testData.patients[1], 'BOGUSRQCD1'),
+                matcherFor(testData.patients[0], 'BOGUSVNN3'),
+                matcherFor(testData.patients[1], 'BOGUSVNN3'),
+                matcherFor(testData.patients[0], 'BOGUSCPO'),
+                matcherFor(testData.patients[1], 'BOGUSCPO'),
+        )
     }
 
     void testProteinConstraintByExternalId() {
@@ -201,7 +202,8 @@ class MrnaGeneDataConstraintSpec extends Specification {
 
         List res = builder.instance.list()
 
-        expect: res everyItem(
+        expect:
+        res everyItem(
                 hasProperty('probe',
                         hasProperty('geneSymbol', equalTo('BOGUSCPO'))))
     }
@@ -218,7 +220,8 @@ class MrnaGeneDataConstraintSpec extends Specification {
 
         List res = builder.instance.list()
 
-        expect: res allOf(
+        expect:
+        res allOf(
                 hasSize(2), /* 1 probe * 2 patients */
                 everyItem(
                         hasProperty('probe',
@@ -235,7 +238,8 @@ class MrnaGeneDataConstraintSpec extends Specification {
 
         testee.doWithCriteriaBuilder(builder)
 
-        expect: builder.instance.list() allOf(
+        expect:
+        builder.instance.list() allOf(
                 hasSize(4), /* 2 probes * 2 patients */
                 everyItem(
                         hasProperty('probe',
@@ -252,8 +256,10 @@ class MrnaGeneDataConstraintSpec extends Specification {
             )
             fail 'Expected exception'
         } catch (e) {
-            expect: e isA(InvalidArgumentsException)
-            expect: e hasProperty('message',
+            expect:
+            e isA(InvalidArgumentsException)
+            expect:
+            e hasProperty('message',
                     containsString('parameter \'keyword_ids\' is an empty list'))
         }
     }

@@ -19,21 +19,16 @@
 
 package org.transmartproject.db.dataquery.highdim
 
-import grails.test.mixin.TestMixin
-import grails.test.mixin.web.ControllerUnitTestMixin
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.highdim.GenomeBuildNumber
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class DeGplInfoSpec extends Specification {
 
     SampleHighDimTestData testData = new SampleHighDimTestData()

@@ -19,16 +19,9 @@
 
 package org.transmartproject.db.dataquery.highdim.vcf
 
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
-import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import com.google.common.collect.Lists
-import grails.util.Holders
-import org.junit.After
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -36,16 +29,18 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.test.Matchers
+import spock.lang.Specification
 
+import static org.hamcrest.Matchers.*
 import static org.hamcrest.Matchers.*
 
 /**
  * Created by j.hudecek on 17-3-14.
  */
-@TestMixin(ControllerUnitTestMixin)
+
 @Integration
 @Rollback
-@Slf4j
+
 class VcfEndToEndRetrievalSpec extends Specification {
 
     HighDimensionResource highDimensionResourceService
@@ -69,8 +64,8 @@ class VcfEndToEndRetrievalSpec extends Specification {
         trialNameConstraint = vcfResource.createAssayConstraint(
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 name: VcfTestData.TRIAL_NAME)
-
-        Holders.applicationContext.sessionFactory.currentSession.flush()
+        //FIXME Why?
+        //Holders.applicationContext.sessionFactory.currentSession.flush()
     }
 
     void cleanup() {
@@ -93,30 +88,30 @@ class VcfEndToEndRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList(dataQueryResult)
 
         expect:
-            resultList hasSize(2)
+        resultList hasSize(2)
 
-            resultList everyItem(
+        resultList everyItem(
                 Matchers.hasEqualValueProperties('position', 'quality')
-            )
-            resultList hasItem(
+        )
+        resultList hasItem(
                 allOf(
                         hasProperty('position', equalTo(1L)),
                         hasProperty('referenceAllele', equalTo('C')),
                         hasProperty('alternatives', equalTo('A'))
                 )
-            )
-            resultList hasItem(
+        )
+        resultList hasItem(
                 allOf(
                         hasProperty('position', equalTo(2L)),
                         hasProperty('referenceAllele', equalTo('GCCCCC')),
                         hasProperty('alternatives', equalTo('GCCCC'))
                 )
-            )
-            resultList not(hasItem(
+        )
+        resultList not(hasItem(
                 allOf(
                         hasProperty('position', equalTo(3L)),
                 )
-            ))
+        ))
     }
 
     void testAssayFilter() {
@@ -134,14 +129,14 @@ class VcfEndToEndRetrievalSpec extends Specification {
 
         // Make sure that only the VCF assays are returned
         expect:
-            dataQueryResult.indicesList hasSize(3)
+        dataQueryResult.indicesList hasSize(3)
 
-            dataQueryResult.indicesList everyItem(
+        dataQueryResult.indicesList everyItem(
                 hasProperty('platform',
                         hasProperty('markerType', equalTo('VCF'))
-            ))
+                ))
     }
-    
+
     void testVcfDataRowRetrieval() {
         setupData()
         List dataConstraints = []
@@ -173,7 +168,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
         // info=DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268, pos=1, ref=C, rsId=., alt=A, subjectId=SAMPLE_FOR_-803,
         // quality=1, variantFormat=R/R, filter=., chr=1}
         expect:
-            resultList hasItem(
+        resultList hasItem(
                 allOf(
                         hasProperty('datasetId', equalTo("BOGUSDTST")),
                         hasProperty('chromosome', equalTo("1")),
@@ -190,33 +185,33 @@ class VcfEndToEndRetrievalSpec extends Specification {
                         hasProperty('format', equalTo("GT")),
                         hasProperty('variants', equalTo("1/1\t2/2\t2/2")),
 
-                        hasProperty('qualityOfDepth', closeTo( 2.0 as Double, 0.01 as Double )),
-                        hasProperty('formatFields', hasItem( equalTo( "GT" ) ) ),
+                        hasProperty('qualityOfDepth', closeTo(2.0 as Double, 0.01 as Double)),
+                        hasProperty('formatFields', hasItem(equalTo("GT"))),
 
                         hasProperty('infoFields', allOf(
-                                hasEntry(equalTo('DP'),equalTo('88')),
-                                hasEntry(equalTo('AF1'),equalTo('1')),
-                                hasEntry(equalTo('QD'),equalTo('2')),
-                                hasEntry(equalTo('DP4'),equalTo('0,0,80,0')),
-                                hasEntry(equalTo('MQ'),equalTo('60')),
-                                hasEntry(equalTo('FQ'),equalTo('-268')),
+                                hasEntry(equalTo('DP'), equalTo('88')),
+                                hasEntry(equalTo('AF1'), equalTo('1')),
+                                hasEntry(equalTo('QD'), equalTo('2')),
+                                hasEntry(equalTo('DP4'), equalTo('0,0,80,0')),
+                                hasEntry(equalTo('MQ'), equalTo('60')),
+                                hasEntry(equalTo('FQ'), equalTo('-268')),
                         )),
 
                         hasProperty('geneName', equalTo("AURKA"))
                 )
-            )
-            resultList hasItem(
+        )
+        resultList hasItem(
                 allOf(
-                    hasProperty('position', equalTo(2L)),
+                        hasProperty('position', equalTo(2L)),
 
-                    hasProperty('referenceAllele', equalTo("GCCCCC")),
-                    hasProperty('alternatives', equalTo("GCCCC")),
-                    hasProperty('reference', equalTo(false)),
+                        hasProperty('referenceAllele', equalTo("GCCCCC")),
+                        hasProperty('alternatives', equalTo("GCCCC")),
+                        hasProperty('reference', equalTo(false)),
 
-                    hasProperty('geneName', equalTo("AURKA"))
+                        hasProperty('geneName', equalTo("AURKA"))
                 )
-            )
-            resultList hasItem(
+        )
+        resultList hasItem(
                 allOf(
                         hasProperty('position', equalTo(3L)),
                         hasProperty('referenceAllele', equalTo("A")),
@@ -225,7 +220,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
 
                         hasProperty('geneName', equalTo(null))
                 )
-            )
+        )
     }
 
     void testCohortProjection() {
@@ -237,31 +232,32 @@ class VcfEndToEndRetrievalSpec extends Specification {
                 [], dataConstraints, projection)
 
         def resultList = []
-        for (VcfDataRow row: dataQueryResult.rows) {
+        for (VcfDataRow row : dataQueryResult.rows) {
             resultList.add(row)
         }
 
         // Please note: the order of the assays is opposite from the order of creation
         // as the assayId is decreased while creating the assays
-        expect: resultList hasItem(
+        expect:
+        resultList hasItem(
                 contains(
                         allOf(
-                                hasEntry(equalTo('allele1'),equalTo(1)),
-                                hasEntry(equalTo('allele2'),equalTo(1)),
-                                hasEntry(equalTo('subjectId'),equalTo("SAMPLE_FOR_-803")),
-                                hasEntry(equalTo('subjectPosition'),equalTo(3L))
+                                hasEntry(equalTo('allele1'), equalTo(1)),
+                                hasEntry(equalTo('allele2'), equalTo(1)),
+                                hasEntry(equalTo('subjectId'), equalTo("SAMPLE_FOR_-803")),
+                                hasEntry(equalTo('subjectPosition'), equalTo(3L))
                         ),
                         allOf(
-                                hasEntry(equalTo('allele1'),equalTo(0)),
-                                hasEntry(equalTo('allele2'),equalTo(1)),
-                                hasEntry(equalTo('subjectId'),equalTo("SAMPLE_FOR_-802")),
-                                hasEntry(equalTo('subjectPosition'),equalTo(2L))
+                                hasEntry(equalTo('allele1'), equalTo(0)),
+                                hasEntry(equalTo('allele2'), equalTo(1)),
+                                hasEntry(equalTo('subjectId'), equalTo("SAMPLE_FOR_-802")),
+                                hasEntry(equalTo('subjectPosition'), equalTo(2L))
                         ),
                         allOf(
-                                hasEntry(equalTo('allele1'),equalTo(1)),
-                                hasEntry(equalTo('allele2'),equalTo(0)),
-                                hasEntry(equalTo('subjectId'),equalTo("SAMPLE_FOR_-801")),
-                                hasEntry(equalTo('subjectPosition'),equalTo(1L))
+                                hasEntry(equalTo('allele1'), equalTo(1)),
+                                hasEntry(equalTo('allele2'), equalTo(0)),
+                                hasEntry(equalTo('subjectId'), equalTo("SAMPLE_FOR_-801")),
+                                hasEntry(equalTo('subjectPosition'), equalTo(1L))
                         ),
                 )
         )
@@ -276,21 +272,22 @@ class VcfEndToEndRetrievalSpec extends Specification {
                 [], dataConstraints, projection)
 
         def resultList = []
-        for (VcfDataRow row: dataQueryResult.rows) {
+        for (VcfDataRow row : dataQueryResult.rows) {
             resultList.add(row)
         }
 
         def expected
         def indices = dataQueryResult.indicesList
-        def assayOrder = [ indices[ ]]
+        def assayOrder = [indices[]]
 
-        expect: resultList hasItem( allOf(
-                hasProperty('referenceAllele', equalTo( 'C' ) ),
-                hasProperty('alternatives', equalTo( 'A' ) ),
+        expect:
+        resultList hasItem(allOf(
+                hasProperty('referenceAllele', equalTo('C')),
+                hasProperty('alternatives', equalTo('A')),
 
                 // Please note: the order of the assays is opposite from the order of creation
                 // as the assayId is decreased while creating the assays
-                contains( "A/A", "C/A", "A/C" )
+                contains("A/A", "C/A", "A/C")
         ))
     }
 
@@ -326,15 +323,15 @@ class VcfEndToEndRetrievalSpec extends Specification {
 
         def resultList = dataQueryResult.rows.toList()
         expect:
-            resultList hasSize(2)
-            resultList hasItem(allOf(
+        resultList hasSize(2)
+        resultList hasItem(allOf(
                 hasProperty('referenceAllele', equalTo('A')),
                 hasProperty('alternatives', equalTo('C,T'))
-            ))
-            resultList hasItem(allOf(
+        ))
+        resultList hasItem(allOf(
                 hasProperty('referenceAllele', equalTo('A')),
                 hasProperty('alternatives', equalTo('G'))
-            ))
+        ))
     }
 
     void testVcfPlatformIsRecognized() {
@@ -347,20 +344,22 @@ class VcfEndToEndRetrievalSpec extends Specification {
         def map = highDimensionResourceService.
                 getSubResourcesAssayMultiMap([constraint])
 
-        then: map hasKey(
+        then:
+        map hasKey(
                 hasProperty('dataTypeName', equalTo('vcf')))
 
         when:
         def entry = map.entrySet().find { it.key.dataTypeName == 'vcf' }
 
-        then: entry.value allOf(
+        then:
+        entry.value allOf(
                 hasSize(greaterThan(0)),
                 everyItem(
                         hasProperty('platform',
                                 hasProperty('markerType',
                                         equalTo('VCF')))))
     }
-    
+
     void testOriginalSubjectData() {
         setupData()
         List dataConstraints = []
@@ -372,19 +371,20 @@ class VcfEndToEndRetrievalSpec extends Specification {
         // Please note: the order of the assays is opposite from the order of creation
         // as the assayId is decreased while creating the assays
         def expected = [
-            ["2/2", "2/2", "1/1"],
-            ["4/4", "3/3", "2/2"],
-            ["6/6", "4/4", "3/3"],
+                ["2/2", "2/2", "1/1"],
+                ["4/4", "3/3", "2/2"],
+                ["6/6", "4/4", "3/3"],
         ]
-        
+
         def assays = dataQueryResult.indicesList
         def rows = dataQueryResult.getRows()
-        
+
         expected.each { position ->
             def row = rows.next()
-            
+
             position.eachWithIndex { result, assayIndex ->
-                expect: row.getOriginalSubjectData(assays[assayIndex]) equalTo(result)
+                expect:
+                row.getOriginalSubjectData(assays[assayIndex]) equalTo(result)
             }
         }
     }
@@ -396,7 +396,7 @@ class VcfEndToEndRetrievalSpec extends Specification {
         ]
         def dataConstraints = [
                 vcfResource.createDataConstraint([keyword_ids: [testData.searchKeywords.
-                                                                         find({ it.keyword == 'AURKA' }).id]],
+                                                                        find({ it.keyword == 'AURKA' }).id]],
                         DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
                 )
         ]
@@ -407,7 +407,8 @@ class VcfEndToEndRetrievalSpec extends Specification {
 
         def resultList = Lists.newArrayList dataQueryResult
 
-        expect: resultList contains(
+        expect:
+        resultList contains(
                 allOf(
                         hasProperty('position', equalTo(1L)),
                         hasProperty('bioMarker', equalTo('AURKA'))

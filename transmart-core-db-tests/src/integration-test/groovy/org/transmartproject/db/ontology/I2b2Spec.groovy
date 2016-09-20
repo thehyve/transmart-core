@@ -19,13 +19,8 @@
 
 package org.transmartproject.db.ontology
 
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
-import groovy.util.logging.Slf4j
-import spock.lang.Specification
-
 import grails.util.Holders
 import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
@@ -36,15 +31,15 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.i2b2data.I2b2Data
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
-@TestMixin(ControllerUnitTestMixin)
 @Integration
 @Rollback
-@Slf4j
+
 class I2b2Spec extends Specification {
 
     void setupData() {
@@ -86,7 +81,8 @@ class I2b2Spec extends Specification {
         setupData()
         I2b2 bar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\') }
 
-        expect: bar.conceptKey is(equalTo(
+        expect:
+        bar.conceptKey is(equalTo(
                 new ConceptKey('i2b2 table code', '\\foo\\xpto\\bar\\')))
     }
 
@@ -107,7 +103,7 @@ class I2b2Spec extends Specification {
                         hasProperty('fullName', equalTo('\\foo\\xpto\\bar\\')),
                         //table code is copied from parent:
                         hasProperty('conceptKey', equalTo(new ConceptKey
-                        ('\\\\i2b2 table code OOOO\\foo\\xpto\\bar\\')))
+                                ('\\\\i2b2 table code OOOO\\foo\\xpto\\bar\\')))
                 )))
     }
 
@@ -115,12 +111,13 @@ class I2b2Spec extends Specification {
         setupData()
         when:
         I2b2 xpto = I2b2.find { eq('fullName', '\\foo\\xpto\\') }
-        then: xpto is(notNullValue())
+        then:
+        xpto is(notNullValue())
 
         when:
         def children = xpto.allDescendants
         then:
-        children allOf (
+        children allOf(
                 hasSize(3),
                 contains(
                         hasProperty('name', equalTo('bar')),
@@ -136,7 +133,8 @@ class I2b2Spec extends Specification {
         I2b2 foo = I2b2.find { eq('fullName', '\\foo\\') }
 
         Study study = bar.study
-        expect: study allOf(
+        expect:
+        study allOf(
                 hasProperty('id', is('STUDY_ID')),
                 hasProperty('ontologyTerm', is(foo)),
         )
@@ -145,7 +143,8 @@ class I2b2Spec extends Specification {
     void testGetStudyNull() {
         setupData()
         I2b2 jar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\jar\\') }
-        expect: jar.study is(nullValue())
+        expect:
+        jar.study is(nullValue())
     }
 
     void testGetPatients() {
@@ -183,7 +182,7 @@ class I2b2Spec extends Specification {
         def result3 = concepts[2].getPatients()
         then:
         result3 containsInAnyOrder(
-            //empty
+                //empty
         )
 
     }
@@ -195,7 +194,8 @@ class I2b2Spec extends Specification {
         GrailsDomainClassProperty synonymProperty =
                 domainClass.getPropertyByName('synonym')
 
-        expect: synonymProperty.isPersistent() is(false)
+        expect:
+        synonymProperty.isPersistent() is(false)
     }
 
     void testSynonym() {
