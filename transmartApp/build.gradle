@@ -188,3 +188,9 @@ task installTransmartPlugins << {
 
 }
 
+war {
+    webInf {
+        from '../Rmodules/src/main/resources/Rscripts'
+        into 'Rscripts'
+    } //Rscripts from Rmodules into WEB-INF dir.
+}
