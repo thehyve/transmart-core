@@ -1,0 +1,5 @@
+language: groovy
+
+script:
+    - cd transmart-core-db-tests
+    - ./gradlew check
