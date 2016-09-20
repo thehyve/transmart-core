@@ -34,6 +34,7 @@ import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
@@ -86,21 +87,19 @@ class ProteinEndToEndRetrievalSpec extends Specification {
         when:
         Iterable<AssayColumn> assays = result.indicesList
         then:
-        assays contains(
+        that(assays, contains(
                 hasSameInterfaceProperties(Assay, testData.assays[1]),
-                hasSameInterfaceProperties(Assay, testData.assays[0]),)
-        assays hasItem(
-                hasProperty('label', is(testData.assays[-1].sampleCode)))
-        result allOf(
-                hasProperty('columnsDimensionLabel', is('Sample codes')),
-                hasProperty('rowsDimensionLabel', is('Proteins')),
-        )
+                hasSameInterfaceProperties(Assay, testData.assays[0]),))
+        that(assays, hasItem(
+                hasProperty('label', is(testData.assays[-1].sampleCode))))
+        result.columnsDimensionLabel == 'Sample codes'
+        result.rowsDimensionLabel == 'Proteins'
 
         when:
         List rows = Lists.newArrayList result.rows
 
         then:
-        rows allOf(
+        that(rows, allOf(
                 contains(
                         allOf(
                                 hasProperty('label', is(ureaTransporterPeptide)),
@@ -108,7 +107,7 @@ class ProteinEndToEndRetrievalSpec extends Specification {
                                 hasProperty('peptide', is(testData.annotations[-1].peptide))
                         ),
                         hasProperty('label', is(adiponectinPeptide)),
-                        hasProperty('label', is(adipogenesisFactorPeptide))))
+                        hasProperty('label', is(adipogenesisFactorPeptide)))))
     }
 
     void testSearchByProtein() {
@@ -119,14 +118,15 @@ class ProteinEndToEndRetrievalSpec extends Specification {
 
         result = proteinResource.retrieveData(
                 [trialConstraint], [dataConstraint], projection)
+        def resultList = Lists.newArrayList result
 
         /* the result is iterable */
         expect:
-        result contains(allOf(
+        that(resultList, contains(allOf(
                 hasProperty('label', equalTo(ureaTransporterPeptide)),
                 contains( /* the rows are iterable */
                         closeTo(testData.data[5].zscore as Double, DELTA),
-                        closeTo(testData.data[4].zscore as Double, DELTA))))
+                        closeTo(testData.data[4].zscore as Double, DELTA)))))
     }
 
     def getDataMatcherForAnnotation(DeProteinAnnotation annotation,
@@ -148,10 +148,10 @@ class ProteinEndToEndRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList result
 
         expect:
-        resultList containsInAnyOrder(
+        that(resultList, containsInAnyOrder(
                 testData.annotations.collect {
                     getDataMatcherForAnnotation it, 'logIntensity'
-                })
+                }))
     }
 
     void testDefaultRealProjection() {
@@ -163,11 +163,11 @@ class ProteinEndToEndRetrievalSpec extends Specification {
                 [trialConstraint], [], defaultRealProjection)
 
         expect:
-        result hasItem(allOf(
+        that(result, hasItem(allOf(
                 hasProperty('label', is(ureaTransporterPeptide)),
                 contains(
                         closeTo(testData.data[5].intensity as Double, DELTA),
-                        closeTo(testData.data[4].intensity as Double, DELTA))))
+                        closeTo(testData.data[4].intensity as Double, DELTA)))))
     }
 
     void testSearchByProteinExternalIds() {
@@ -180,11 +180,12 @@ class ProteinEndToEndRetrievalSpec extends Specification {
 
         result = proteinResource.retrieveData(
                 [trialConstraint], [dataConstraint], projection)
+        def resultList = Lists.newArrayList result
 
         expect:
-        result contains(
+        that(resultList, contains(
                 hasProperty('label', is(ureaTransporterPeptide)),
-                hasProperty('label', is(adiponectinPeptide)))
+                hasProperty('label', is(adiponectinPeptide))))
     }
 
     void testSearchByGenes() {
@@ -196,10 +197,11 @@ class ProteinEndToEndRetrievalSpec extends Specification {
 
         result = proteinResource.retrieveData(
                 [trialConstraint], [dataConstraint], projection)
+        def list = Lists.newArrayList(result)
 
         expect:
-        result contains(
-                hasProperty('label', is(adiponectinPeptide)))
+        that(list, contains(
+                hasProperty('label', is(adiponectinPeptide))))
     }
 
     void testSearchByPathways() {
@@ -213,8 +215,8 @@ class ProteinEndToEndRetrievalSpec extends Specification {
                 [trialConstraint], [dataConstraint], projection)
         //TODO It returns empty result. It would be nice to investigate db state at this point
         expect:
-        Lists.newArrayList(result) contains(
-                hasProperty('label', is(adiponectinPeptide)))
+        that(Lists.newArrayList(result), contains(
+                hasProperty('label', is(adiponectinPeptide))))
     }
 
 }

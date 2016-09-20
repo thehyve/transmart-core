@@ -80,7 +80,7 @@ class CorrelatedBiomarkersDataConstraint implements CriteriaDataConstraint {
 
         CorrelatedBiomarkersCriterion(CorrelatedBiomarkersDataConstraint c) {
             super(
-                    "CAST ({alias}.{property} AS VARCHAR(200)) IN (\n" +
+                    "CAST ({property} AS VARCHAR(200)) IN (\n" +
                             '   SELECT bm.primary_external_id\n' +
                             '   FROM biomart.bio_marker bm\n' +
                             "       INNER JOIN $c.correlationTable correl\n" +
@@ -126,9 +126,7 @@ class CorrelatedBiomarkersDataConstraint implements CriteriaDataConstraint {
                         "for criteria ${relevantCriteria}.")
             }
 
-            String sqlAlias = criteriaQuery.getSQLAlias(relevantCriteria)
-            toString().replaceAll(/\{alias\}/, sqlAlias).
-                    replaceAll(/\{property\}/, propertyColumn)
+            toString().replaceAll(/\{property\}/, propertyColumn)
         }
     }
 }

@@ -25,9 +25,9 @@ import org.transmartproject.core.ontology.OntologyTerm
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
-import static org.junit.Assert.fail
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
@@ -56,17 +56,11 @@ class TableAccessSpec extends Specification {
         def bogusEntry = TableAccess.findByName('fooh');
         assert bogusEntry != null
 
-        try {
-            bogusEntry.children
-            fail('Expected exception here')
-        } catch (e) {
-            expect:
-            e allOf(
-                    isA(RuntimeException),
-                    hasProperty('message', containsString('table bogus is ' +
-                            'not mapped'))
-            )
-        }
+        when:
+        bogusEntry.children
+        then:
+        def e = thrown(RuntimeException)
+        e.message.contains('table bogus is not mapped')
     }
 
     void testCategoryNotAlsoInReferredTable() {
@@ -75,19 +69,15 @@ class TableAccessSpec extends Specification {
 
         assert notInI2b2 != null
 
-        try {
-            notInI2b2.children
-            fail('Expected exception here')
-        } catch (e) {
-            expect:
-            e allOf(
-                    isA(RuntimeException),
-                    hasProperty('message', containsString('could not find it ' +
-                            'in class org.transmartproject.db.ontology.' +
-                            'I2b2\'s table (fullname: \\notini2b2\\)'))
-            )
-        }
+        when:
+        notInI2b2.children
+        then:
+        def e = thrown(RuntimeException)
+        e.message.contains('could not find it ' +
+                'in class org.transmartproject.db.ontology.' +
+                'I2b2\'s table (fullname: \\notini2b2\\)')
     }
+
 
     void testGetChildren() {
         setupData()
@@ -95,30 +85,28 @@ class TableAccessSpec extends Specification {
         def catFoo = cats.find { it.name == 'foo' }
 
         expect:
-        catFoo is(notNullValue(OntologyTerm))
-        catFoo.children allOf(
-                hasSize(1),
-                contains(hasProperty('name', equalTo('xpto')))
-        )
+        catFoo instanceof OntologyTerm
+        catFoo.children.size() == 1
+        catFoo.children[0].name == 'xpto'
 
         /* show hidden as well */
-        catFoo.getChildren(true) allOf(
+        that(catFoo.getChildren(true), allOf(
                 hasSize(2),
                 contains(
                         hasProperty('name', equalTo('var')),
                         hasProperty('name', equalTo('xpto'))
                 )
-        )
+        ))
 
         /* show also synonyms */
-        catFoo.getChildren(true, true) allOf(
+        that(catFoo.getChildren(true, true), allOf(
                 hasSize(3),
                 contains( /* ordered by name */
                         hasProperty('name', equalTo('baz')),
                         hasProperty('name', equalTo('var')),
                         hasProperty('name', equalTo('xpto')),
                 )
-        )
+        ))
     }
 
     void testGetAllDescendants() {
@@ -126,14 +114,14 @@ class TableAccessSpec extends Specification {
         TableAccess ta = TableAccess.findByName('foo')
 
         expect:
-        ta.allDescendants allOf(
+        that(ta.allDescendants, allOf(
                 hasSize(2),
                 contains(
                         hasProperty('name', equalTo('bart')),
                         hasProperty('name', equalTo('xpto')),
                 )
-        )
-        ta.getAllDescendants(true, true) allOf(
+        ))
+        that(ta.getAllDescendants(true, true), allOf(
                 hasSize(5),
                 contains(
                         hasProperty('name', equalTo('barn')),
@@ -142,7 +130,7 @@ class TableAccessSpec extends Specification {
                         hasProperty('name', equalTo('var')),
                         hasProperty('name', equalTo('xpto')),
                 )
-        )
-    }
+        ))
 
+    }
 }

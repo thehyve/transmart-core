@@ -22,8 +22,8 @@ package org.transmartproject.db.ontology
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import grails.util.Holders
-import org.codehaus.groovy.grails.commons.GrailsDomainClass
 import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
+import org.grails.core.DefaultGrailsDomainClass
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
@@ -81,8 +81,7 @@ class I2b2Spec extends Specification {
         I2b2 bar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\') }
 
         expect:
-        bar.conceptKey is(equalTo(
-                new ConceptKey('i2b2 table code', '\\foo\\xpto\\bar\\')))
+        bar.conceptKey == new ConceptKey('i2b2 table code', '\\foo\\xpto\\bar\\')
     }
 
     void testGetChildren() {
@@ -143,7 +142,7 @@ class I2b2Spec extends Specification {
         setupData()
         I2b2 jar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\jar\\') }
         expect:
-        jar.study is(nullValue())
+        jar.study == null
     }
 
     void testGetPatients() {
@@ -188,13 +187,13 @@ class I2b2Spec extends Specification {
 
     void testSynonymIsTransient() {
         setupData()
-        GrailsDomainClass domainClass =
+        DefaultGrailsDomainClass domainClass =
                 Holders.grailsApplication.getDomainClass('org.transmartproject.db.ontology.I2b2')
         GrailsDomainClassProperty synonymProperty =
                 domainClass.getPropertyByName('synonym')
 
         expect:
-        synonymProperty.isPersistent() is(false)
+        !synonymProperty.isPersistent()
     }
 
     void testSynonym() {

@@ -26,8 +26,6 @@ import org.transmartproject.core.dataquery.highdim.chromoregion.Region
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 import spock.lang.Specification
 
-import static org.hamcrest.Matchers.*
-
 @Integration
 @Rollback
 class DeChromosomalRegionSpec extends Specification {
@@ -43,30 +41,26 @@ class DeChromosomalRegionSpec extends Specification {
 
     void testBasicDataFetch() {
         setupData()
+
+        when:
         Region r = DeChromosomalRegion.get(testData.regions[0].id)
 
-        expect:
-        r allOf(
-                is(notNullValue()),
-                hasProperty('chromosome', equalTo('1')),
-                hasProperty('start', equalTo(33L)),
-                hasProperty('end', equalTo(9999L)),
-                hasProperty('numberOfProbes', equalTo(42)),
-                hasProperty('name', equalTo('region 1:33-9999'))
-        )
+        then:
+        r.chromosome == '1'
+        r.start == 33L
+        r.end == 9999L
+        r.numberOfProbes == 42
+        r.name == 'region 1:33-9999'
     }
 
     void testGetPlatform() {
         setupData()
+
+        when:
         Region r = DeChromosomalRegion.get(testData.regions[0].id)
 
-        expect:
-        r is(notNullValue())
-
-        r.platform allOf(
-                is(notNullValue()),
-                hasProperty('id', equalTo(testData.regionPlatform.id))
-        )
+        then:
+        r.platform.id == testData.regionPlatform.id
     }
 
 }

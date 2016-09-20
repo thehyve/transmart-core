@@ -32,6 +32,7 @@ import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
@@ -53,20 +54,14 @@ class RbmDataRetrievalSpec extends Specification {
 
     void testRetrievalByTrialNameAssayConstraint() {
         setupData()
-        when:
         result = rbmResource.retrieveData([trialNameConstraint], [], projection)
-
-        then:
-        result allOf(
-                hasProperty('columnsDimensionLabel', equalTo('Sample codes')),
-                hasProperty('rowsDimensionLabel', equalTo('Antigenes')),
-        )
-
-        when:
         def resultList = Lists.newArrayList result
 
-        then:
-        resultList allOf(
+        expect:
+        result.columnsDimensionLabel == 'Sample codes'
+        result.rowsDimensionLabel == 'Antigenes'
+
+        that(resultList, allOf(
                 hasSize(3),
                 everyItem(
                         hasProperty('data',
@@ -100,7 +95,7 @@ class RbmDataRetrievalSpec extends Specification {
                                 ),
                         ))
                 )
-        )
+        ))
     }
 
     void testLogIntensityProjection() {
@@ -114,8 +109,8 @@ class RbmDataRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList(result)
 
         expect:
-        resultList.collect { it.data }.flatten()
-        containsInAnyOrder(testData.data.collect { closeTo(it.logIntensity as Double, DELTA) })
+        that(resultList.collect { it.data }.flatten(),
+                containsInAnyOrder(testData.data.collect { closeTo(it.logIntensity as Double, DELTA) }))
     }
 
     void testDefaultRealProjection() {
@@ -126,11 +121,11 @@ class RbmDataRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList result
 
         expect:
-        resultList hasItem(allOf(
+        that(resultList, hasItem(allOf(
                 hasProperty('label', is('Antigene1 (A)')),
                 contains(
                         closeTo(testData.data[1].value as Double, DELTA),
-                        closeTo(testData.data[0].value as Double, DELTA))))
+                        closeTo(testData.data[0].value as Double, DELTA)))))
     }
 
     void testNoUnit() {
@@ -144,9 +139,9 @@ class RbmDataRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList result
 
         expect:
-        resultList allOf(
+        that(resultList, allOf(
                 hasItem(hasProperty('label', is('Antigene1'))),
-                not(hasItem(hasProperty('label', is('Antigene1 (A)')))))
+                not(hasItem(hasProperty('label', is('Antigene1 (A)'))))))
     }
 
     void testRetrievalByUniProtNamesDataConstraint() {
@@ -161,7 +156,7 @@ class RbmDataRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList result
 
         expect:
-        resultList allOf(
+        that(resultList, allOf(
                 everyItem(
                         allOf(
                                 contains(
@@ -170,7 +165,7 @@ class RbmDataRetrievalSpec extends Specification {
                 contains(
                         allOf(
                                 hasProperty('bioMarker', equalTo('PVR_HUMAN1')),
-                                hasProperty('label', equalTo('Antigene1 (A)')))))
+                                hasProperty('label', equalTo('Antigene1 (A)'))))))
     }
 
     void testRetrievalByUniProtIdsDataConstraint() {
@@ -185,7 +180,7 @@ class RbmDataRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList result
 
         expect:
-        resultList allOf(
+        that(resultList, allOf(
                 hasSize(1),
                 everyItem(
                         hasProperty('data', allOf(
@@ -197,7 +192,7 @@ class RbmDataRetrievalSpec extends Specification {
                         )
                 ),
                 contains(hasProperty('label', equalTo('Antigene1 (A)')))
-        )
+        ))
     }
 
     void testRetrievalByGeneNamesDataConstraint() {
@@ -212,12 +207,12 @@ class RbmDataRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList result
 
         expect:
-        resultList contains(
+        that(resultList, contains(
                 allOf(
                         hasProperty('label', equalTo('Antigene2 (B)')),
                         contains(
                                 closeTo(testData.data[-3].zscore as Double, DELTA),
-                                closeTo(testData.data[-4].zscore as Double, DELTA))))
+                                closeTo(testData.data[-4].zscore as Double, DELTA)))))
     }
 
     void testRetrievalByGeneSkIdsDataConstraint() {
@@ -233,13 +228,13 @@ class RbmDataRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList result
 
         expect:
-        resultList allOf(
+        that(resultList, allOf(
                 everyItem(
                         hasProperty('data',
                                 contains(
                                         closeTo(testData.data[-3].zscore as Double, DELTA),
                                         closeTo(testData.data[-4].zscore as Double, DELTA)))),
-                contains(hasProperty('label', equalTo('Antigene2 (B)'))))
+                contains(hasProperty('label', equalTo('Antigene2 (B)')))))
     }
 
     void testRetrieDataRowThatMapsToMultipleProteins() {
@@ -255,7 +250,7 @@ class RbmDataRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList result
 
         expect:
-        resultList allOf(
+        that(resultList, allOf(
                 hasSize(1),
                 hasItem(
                         allOf(
@@ -266,31 +261,31 @@ class RbmDataRetrievalSpec extends Specification {
                                         closeTo(testData.data[-2].zscore as Double, DELTA))
                         )
                 )
-        )
+        ))
     }
 
     void testConstraintAvailability() {
         setupData()
         expect:
-        rbmResource.supportedAssayConstraints containsInAnyOrder(
+        that(rbmResource.supportedAssayConstraints, containsInAnyOrder(
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
                 AssayConstraint.PATIENT_SET_CONSTRAINT,
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 AssayConstraint.ASSAY_ID_LIST_CONSTRAINT,
                 AssayConstraint.PATIENT_ID_LIST_CONSTRAINT,
-                AssayConstraint.DISJUNCTION_CONSTRAINT)
-        rbmResource.supportedDataConstraints hasItems(
+                AssayConstraint.DISJUNCTION_CONSTRAINT))
+        that(rbmResource.supportedDataConstraints, hasItems(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
                 DataConstraint.DISJUNCTION_CONSTRAINT,
                 DataConstraint.GENES_CONSTRAINT,
                 DataConstraint.PROTEINS_CONSTRAINT,
                 /* also others that may be added by registering new associations */
-        )
-        rbmResource.supportedProjections containsInAnyOrder(
+        ))
+        that(rbmResource.supportedProjections, containsInAnyOrder(
                 Projection.DEFAULT_REAL_PROJECTION,
                 Projection.LOG_INTENSITY_PROJECTION,
                 Projection.ZSCORE_PROJECTION,
-                Projection.ALL_DATA_PROJECTION)
+                Projection.ALL_DATA_PROJECTION))
     }
 
     void setupData() {
