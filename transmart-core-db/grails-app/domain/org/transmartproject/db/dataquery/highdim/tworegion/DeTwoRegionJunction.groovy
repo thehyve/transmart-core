@@ -7,7 +7,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 /**
  * Created by j.hudecek on 4-12-2014.
  */
-@EqualsAndHashCode()
+@EqualsAndHashCode(includes = "id")
 class DeTwoRegionJunction implements Serializable, Junction {
 
     Long upEnd

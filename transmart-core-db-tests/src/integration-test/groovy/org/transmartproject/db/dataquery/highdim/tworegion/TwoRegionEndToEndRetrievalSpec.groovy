@@ -33,6 +33,7 @@ import org.transmartproject.core.dataquery.highdim.tworegion.Junction
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
+import static spock.util.matcher.HamcrestSupport.that
 
 /**
  * Created by j.hudecek on 17-3-14.
@@ -82,8 +83,8 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
 
         //resultList[0].data.find({it && it.junctions.size() == 1});
         expect:
-        resultList hasSize(1) //only one junctionsrow is returned
-        resultList[0].junction allOf(
+        resultList.size() == 1 //only one junctionsrow is returned
+        that(resultList[0].junction, allOf(
                 hasProperty('downChromosome', equalTo("1")),
                 hasProperty('downPos', equalTo(2L)),
                 hasProperty('downEnd', equalTo(10L)),
@@ -97,7 +98,7 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
                                         ))
                         )
                 )
-        )
+        ))
     }
 
     void testMultiple() {
@@ -114,8 +115,8 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList(dataQueryResult)
 
         expect:
-        resultList hasSize(4)
-        resultList hasItem(allOf(
+        resultList.size() == 4
+        that(resultList, hasItem(allOf(
                 isA(JunctionRow),
                 hasItem(allOf(
                         //junction included in 2 different events
@@ -149,12 +150,12 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
                         hasProperty('upPos', equalTo(12L)),
                         hasProperty('upEnd', equalTo(18L)),
                         hasProperty('isInFrame', equalTo(true))
-                ))))
-        resultList hasItem( // junctionRow
+                )))))
+        that(resultList, hasItem( // junctionRow
                 hasItem(allOf( // junction
                         hasProperty('junctionEvents', hasSize(0)),
                         hasProperty('downChromosome', equalTo('Y'))
-                )))
+                ))))
     }
 
     void testAssayMappingIsCorrect() {
@@ -168,8 +169,23 @@ class TwoRegionEndToEndRetrievalSpec extends Specification {
         then:
         dataQueryResult.indicesList.size() == testData.assays.size()
         resultList.size() == testData.junctions.size()
-        resultList[0][0].is(resultList[0][dataQueryResult.indicesList[0]])
-        resultList[0][0].assay.id == dataQueryResult.indicesList[0].id
+        resultList.every { DataRow<AssayColumn, Junction> row ->
+            def foundIndex
+            def foundAssayColumn
+            dataQueryResult.indicesList.eachWithIndex { AssayColumn assayColumn, int index ->
+                if (row[assayColumn] == null) {
+                    return
+                }
+
+                foundAssayColumn = assayColumn
+                foundIndex = index
+            }
+
+            foundAssayColumn != null &&
+                    foundIndex != null &&
+                    row[foundIndex].is(row[foundAssayColumn]) &&
+                    row[foundIndex].assay.id == foundAssayColumn.id
+        }
     }
 
 }

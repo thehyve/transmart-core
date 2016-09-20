@@ -6,7 +6,7 @@ import org.transmartproject.core.dataquery.highdim.tworegion.Event
 /**
  * Created by j.hudecek on 4-12-2014.
  */
-@EqualsAndHashCode()
+@EqualsAndHashCode(includes = "id")
 class DeTwoRegionEvent implements Serializable, Event {
 
     String cgaType

@@ -297,10 +297,11 @@ class QueriesResourceServiceSpec extends Specification {
                 )
         ])
 
+        when:
         queriesResourceService.runQuery(definition)
 
-        expect:
-        InvalidRequestException
+        then:
+        thrown(InvalidRequestException)
     }
 
     void testRunQueryAndFetchDefinitionAfterwards() {

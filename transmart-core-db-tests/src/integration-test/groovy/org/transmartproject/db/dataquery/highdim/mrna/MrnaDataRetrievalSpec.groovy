@@ -227,7 +227,6 @@ class MrnaDataRetrievalSpec extends Specification {
     }
 
     private TabularResult testWithMissingDataAssay(Long baseAssayId) {
-        setupData()
         def extraAssays = createTestAssays([testData.patients[0]], baseAssayId,
                 testData.platform, MrnaTestData.TRIAL_NAME)
         HighDimTestData.save extraAssays
