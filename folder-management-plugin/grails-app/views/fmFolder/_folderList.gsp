@@ -16,7 +16,7 @@
              <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">        
              <td>
              <g:link action="folderDetail" id="${subFolder.id}">
-             <img src="${resource(dir:'images/skin',file:'information.png')}" alt="Detail link" border="0" />
+             <asset:image src="skin/information.png" alt="Detail link" border="0" />
              </g:link>
              </td>
             <g:each in="${subFolderLayout}" status="j" var="layoutRow"> 

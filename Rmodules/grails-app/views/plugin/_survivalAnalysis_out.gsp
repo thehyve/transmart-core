@@ -22,8 +22,8 @@
 <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
 <meta http-equiv="description" content="this is my page">
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-<link rel="stylesheet" type="text/css"
-	href="${resource(dir:'css', file:'datasetExplorer.css')}">
+<asset:stylesheet type="text/css"
+	href="datasetExplorer.css"/>
 
 </head>
 
@@ -34,7 +34,7 @@
 		<span class='AnalysisHeader'>Survival Curve</span><br /><br />
 		
 		<g:each var="location" in="${imageLocation}">
-			<g:img file="${location}"></g:img>
+			<asset:image file="${location}"></asset:image>
 		</g:each>
 	
 		<br />

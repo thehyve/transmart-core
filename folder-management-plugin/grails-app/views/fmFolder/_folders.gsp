@@ -34,17 +34,17 @@
 
 								<a id="toggleDetail_${folder.id}" href="#"
 								   onclick="${toggleJsFunc}">
-									<img alt="expand/collapse"
+									<asset:image alt="expand/collapse"
 										 id="imgExpand_${folder.id}"
-										 src="${resource(dir: 'images', file: 'folderplus.png')}"/>
+										 src="folderplus.png"/>
 									<span class="foldericon ${folderIconType}"></span>
 								</a>
 							</g:if>
 							<g:else>
 								<a id="toggleDetail_${folder.id}" href="#">
-									<img alt="expand/collapse"
+									<asset:image alt="expand/collapse"
 										 id="imgExpand_${folder.id}"
-										 src="${resource(dir: 'images', file: 'folderleaf.png')}"/>
+										 src="folderleaf.png"/>
 									<span class="foldericon ${folderIconType}"></span>
 								</a>
 							</g:else>

@@ -6,8 +6,8 @@
 		<meta name="layout" content="admin" />
 		<title>Galaxy User List</title>
 		
-		<script type="text/javascript" src="${resource(dir:'js', file:'jQuery/jquery.dataTables.js')}"></script>
-       	<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'jquery.dataTables.css')}">
+		<asset:script src="jquery.dataTables.js"/>
+       	<asset:stylesheet href="jquery.dataTables.css"/>
 		
 		<script type="text/javascript" charset="utf-8">
 
