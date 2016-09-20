@@ -19,10 +19,10 @@
 
 package org.transmartproject.db.ontology
 
+import grails.core.GrailsDomainClassProperty
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import grails.util.Holders
-import org.codehaus.groovy.grails.commons.GrailsDomainClassProperty
 import org.grails.core.DefaultGrailsDomainClass
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.Patient

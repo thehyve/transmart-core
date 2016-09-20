@@ -6,7 +6,7 @@ import org.transmartproject.core.dataquery.highdim.tworegion.JunctionEvent
 /**
  * Created by j.hudecek on 4-12-2014.
  */
-@EqualsAndHashCode()
+@EqualsAndHashCode(includes = "id")
 class DeTwoRegionJunctionEvent implements Serializable, JunctionEvent {
 
     Integer readsSpan
