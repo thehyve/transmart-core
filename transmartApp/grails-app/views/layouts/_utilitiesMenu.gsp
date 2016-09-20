@@ -1,5 +1,5 @@
 <%-- Quick, self-contained replica of the Ext utilities menu, for use on pages without the Ext library (faceted search) --%>
-<g:javascript>
+<asset:script>
     function toggleMenu() {
         jQuery('#utilitiesMenu').fadeToggle();
     }
@@ -9,7 +9,7 @@
             jQuery('#utilitiesMenu').hide();
         });
     });
-</g:javascript>
+</asset:script>
 <style type="text/css">
 #utilitiesMenu {
     font: normal 11px tahoma, arial, sans-serif;
