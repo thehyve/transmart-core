@@ -6,16 +6,13 @@
 	<head>
 		<meta http-equiv="X-UA-Compatible" content="IE=8" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<link rel="shortcut icon" href="${resource(dir:'images',file:'searchtool.ico')}">
-		<link rel="icon" href="${resource(dir:'images',file:'searchtool.ico')}">
-		<link rel="stylesheet" href="${resource(dir:'js', file:'ext/resources/css/ext-all.css')}"></link>
-		<link rel="stylesheet" href="${resource(dir:'js', file:'ext/resources/css/xtheme-gray.css')}"></link>
-		<link rel="stylesheet" href="${resource(dir:'css', file:'main.css')}"></link>
-		<link rel="stylesheet" href="${resource(dir:'css',file:'/jquery/cupertino/jquery-ui-1.8.18.custom.css')}"></link>   
-        <link rel="stylesheet" href="${resource(dir:'css/jquery/skin', file:'ui.dynatree.css')}"></link>
-        <link rel="stylesheet" href="${resource(dir:'css', file:'rwg.css')}"></link>
-        <link rel="stylesheet" href="${resource(dir:'css', file:'uploadData.css')}"></link>
-
+        <asset:link rel="shortcut icon" href='searchtool.ico' type="image/x-ico" />
+        <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
+        <asset:stylesheet src="ext/resources/css/ext-all.css" />
+        <asset:stylesheet src="ext/resources/css/xtheme-gray.css" />
+        <asset:stylesheet href="rwg.css" />
+        <asset:stylesheet href="jquery/skin/ui.dynatree.css" />
+        <asset:stylesheet href="rwg.css" />
 	<!--[if IE 7]>
 		<style type="text/css">
 			 div#gfilterresult,div#ptfilterresult, div#jubfilterresult, div#dqfilterresult {
@@ -24,11 +21,12 @@
 		</style>
 	<![endif]-->
 		
-		<g:javascript library="prototype" />
-<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-1.8.3.min.js')}"></script>
-<script type="text/javascript" src="${resource(dir:'js/jQuery', file:'jquery-ui.min.js')}"></script>
+		%{--<g:javascript library="prototype" />--}%
+
+<asset:javascript src="jquery-2.2.0.min.js" />
+<asset:javascript src="jquery-ui.min.js" />
 <script type="text/javascript">$j = jQuery.noConflict();</script>
-<script type="text/javascript" src="${resource(dir:'js', file:'uploadData.js')}"></script>
+<asset:javascript src="uploadData.js"/>
 <script type="text/javascript" charset="utf-8">
 var studyBrowseWindowUrl = '${createLink([controller: 'experiment', action: 'browseExperimentsSingleSelect'])}';
 var studyDetailUrl = '${createLink([controller:'experimentAnalysis', action:'expDetail'])}';
@@ -55,12 +53,16 @@ var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:me
 <title>${grailsApplication.config.com.recomdata.dataUpload.appTitle}</title>
 <!-- ************************************** -->
 <!-- This implements the Help functionality -->
-<script type="text/javascript" src="${resource(dir:'js', file:'help/D2H_ctxt.js')}"></script>
+<asset:javascript src="help/D2H_ctxt.js" />
 <script language="javascript">
     helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 </script>
 <!-- ************************************** -->
-<r:layoutResources/>
+<asset:javascript src="browseTab.js"/>
+<asset:stylesheet href="browseTab.css"/>
+<asset:stylesheet href="uploadData.css" />
+
+%{--<r:layoutResources/>--}%
 </head>
 <body>
 <div id="header-div">
@@ -436,8 +438,8 @@ var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:me
 
 		<!-- Browse dialog -->
 		<div id="divBrowseStudies" title="Studies" style="display: none;">
-		   	<img src="${resource(file:'ajax-loader.gif', dir:'images')}"/>
+		   	<asset:image src="ajax-loader.gif"/>
 		</div>
-<r:layoutResources/>
+%{--<r:layoutResources/>--}%
 	</body>
 </html>
