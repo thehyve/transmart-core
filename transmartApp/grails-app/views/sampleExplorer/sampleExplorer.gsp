@@ -11,7 +11,7 @@
     <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="shortcut icon" />
     <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="icon" />
 
-    <g:javascript library="jquery" />
+    %{--<g:javascript library="jquery" />--}%
 
     <asset:stylesheet href="sampletab.css" />
     <asset:javascript src="jquery-2.2.0.min.js"/>
@@ -29,7 +29,7 @@
 
 <body>
 <script type="text/javascript">
-    Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
+    Ext.BLANK_IMAGE_URL = "asset/images/default/s.gif";
 
     //set ajax to 600*1000 milliseconds
     Ext.Ajax.timeout = 1800000;
@@ -98,12 +98,12 @@
 
 <!-- ************************************** -->
 <!-- This implements the Help functionality -->
-<script type="text/javascript" src="${resource(dir: 'js', file: 'help/D2H_ctxt.js')}"></script>
+<asset:javascript src="help/D2H_ctxt.js"/>
 <script language="javascript">
     helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 </script>
 <!-- ************************************** -->
 
-<r:layoutResources/>
+%{--<r:layoutResources/>--}%
 </body>
 </html>
