@@ -1,8 +1,8 @@
 <html>
 <head>
     <title>${grailsApplication.config.com.recomdata.appTitle}</title>
-    <link rel="stylesheet" href="${resource(dir:'css',file:'main.css')}" />
-    <script type="text/javascript" src="${resource(dir:'js', file:'maintabpanel.js')}"></script>
+    <asset:stylesheet href="main.css"/>
+    <asset:javascript src="maintabpanel.js"/>
     <script type="text/javascript">
         function refreshParent(newurl) {
             parent.window.close();
