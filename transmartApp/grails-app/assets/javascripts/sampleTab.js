@@ -1,9 +1,9 @@
 
-// require jquery.js
-//= require jquery-ui.js
+//= require jquery
+//= require jquery-ui.min.js
 //= require jquery-plugins.js
 //= require extjs.js
-//= require session_timeout.js
+//= require session_time.js
 
 //= require myJobs.js
 //= require sampleExplorer/sampleExplorerMenu.js
