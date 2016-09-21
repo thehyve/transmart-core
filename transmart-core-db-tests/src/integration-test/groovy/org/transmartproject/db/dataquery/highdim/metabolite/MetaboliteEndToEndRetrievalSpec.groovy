@@ -31,14 +31,16 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
+import spock.lang.Specification
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class MetaboliteEndToEndRetrievalSpec {
+class MetaboliteEndToEndRetrievalSpec extends Specification {
 
     /* scale of the zscore column is 5, so this is the max rounding error */
     private static Double DELTA = 0.000005
@@ -47,14 +49,9 @@ class MetaboliteEndToEndRetrievalSpec {
 
     HighDimensionDataTypeResource metaboliteResource
 
-    @Lazy
-    AssayConstraint trialConstraint = metaboliteResource.createAssayConstraint(
-            AssayConstraint.TRIAL_NAME_CONSTRAINT,
-            name: MetaboliteTestData.TRIAL_NAME)
+    AssayConstraint trialConstraint
 
-    @Lazy
-    Projection projection = metaboliteResource.createProjection([:],
-            org.transmartproject.core.dataquery.highdim.projections.Projection.ZSCORE_PROJECTION)
+    Projection projection
 
     TabularResult<AssayColumn, MetaboliteDataRow> result
 
@@ -63,6 +60,12 @@ class MetaboliteEndToEndRetrievalSpec {
     void setupData() {
         testData.saveAll()
         metaboliteResource = highDimensionResourceService.getSubResourceForType('metabolite')
+
+        trialConstraint = metaboliteResource.createAssayConstraint(
+                AssayConstraint.TRIAL_NAME_CONSTRAINT,
+                name: MetaboliteTestData.TRIAL_NAME)
+        projection = metaboliteResource.createProjection([:],
+                org.transmartproject.core.dataquery.highdim.projections.Projection.ZSCORE_PROJECTION)
     }
 
     void cleanup() {
@@ -75,7 +78,8 @@ class MetaboliteEndToEndRetrievalSpec {
 
         List rows = Lists.newArrayList result.rows
 
-        assertThat rows, contains(
+        expect:
+        that(rows, contains(
                 testData.annotations.sort { it.id }.
                         collect { annotation ->
                             allOf(
@@ -84,7 +88,7 @@ class MetaboliteEndToEndRetrievalSpec {
                                     hasProperty('bioMarker', is(annotation.hmdbId)),
                                     contains(matchersForDataPoints([annotation])))
                         }
-        )
+        ))
     }
 
     void testLogIntensityProjection() {
@@ -97,8 +101,8 @@ class MetaboliteEndToEndRetrievalSpec {
 
         def resultList = Lists.newArrayList(result)
 
-        assertThat(
-                resultList.collect { it.data }.flatten(),
+        expect:
+        that(resultList.collect { it.data }.flatten(),
                 containsInAnyOrder(testData.data.collect { closeTo(it.logIntensity as Double, DELTA) })
         )
     }
@@ -121,12 +125,14 @@ class MetaboliteEndToEndRetrievalSpec {
 
         result = metaboliteResource.retrieveData(
                 [trialConstraint], [dataConstraint], projection)
+        def list = Lists.newArrayList(result)
 
-        assertThat Lists.newArrayList(result), contains(allOf(
+        expect:
+        that(list, contains(allOf(
                 isA(MetaboliteDataRow),
                 hasProperty('bioMarker', is(hmdbid)),
                 contains(matchersForDataPoints(
-                        testData.annotations.findAll { it.hmdbId == hmdbid }))))
+                        testData.annotations.findAll { it.hmdbId == hmdbid })))))
     }
 
     void testSearchWithSubPathway() {
@@ -148,10 +154,11 @@ class MetaboliteEndToEndRetrievalSpec {
 
         def res = Lists.newArrayList(result)
 
-        assertThat res, contains(allOf(
+        expect:
+        that(res, contains(allOf(
                 isA(MetaboliteDataRow),
                 hasProperty('bioMarker', is(annotation.hmdbId)),
-                contains(matchersForDataPoints([annotation]))))
+                contains(matchersForDataPoints([annotation])))))
     }
 
     void testSearchWithSubPathwayViaSearchKeywordId() {
@@ -177,10 +184,11 @@ class MetaboliteEndToEndRetrievalSpec {
 
         def res = Lists.newArrayList(result)
 
-        assertThat res, contains(allOf(
+        expect:
+        that(res, contains(allOf(
                 isA(MetaboliteDataRow),
                 hasProperty('bioMarker', is(annotation.hmdbId)),
-                contains(matchersForDataPoints([annotation]))))
+                contains(matchersForDataPoints([annotation])))))
     }
 
     void testSearchWithSuperPathway() {
@@ -210,10 +218,11 @@ class MetaboliteEndToEndRetrievalSpec {
 
         def res = Lists.newArrayList(result)
 
-        assertThat res, contains(allOf(
+        expect:
+        that(res, contains(allOf(
                 isA(MetaboliteDataRow),
                 hasProperty('bioMarker', is(annotation.hmdbId)),
-                contains(matchersForDataPoints([annotation]))))
+                contains(matchersForDataPoints([annotation])))))
     }
 
     void testFindsAssays() {
@@ -225,14 +234,15 @@ class MetaboliteEndToEndRetrievalSpec {
         def res = highDimensionResourceService.
                 getSubResourcesAssayMultiMap([assayConstraint])
 
-        assertThat res, hasEntry(
+        expect:
+        that(res, hasEntry(
                 hasProperty('dataTypeName', is('metabolite')),
                 containsInAnyOrder(
                         testData.assays.collect {
                             hasSameInterfaceProperties(Assay, it)
                         }
                 )
-        )
+        ))
     }
 
     void testNaNInZscore() {
@@ -252,7 +262,8 @@ class MetaboliteEndToEndRetrievalSpec {
 
         def res = Lists.newArrayList(result)
 
-        assertThat res, hasItem(contains(Double.NaN))
+        expect:
+        that(res, hasItem(contains(Double.NaN)))
     }
 
 }

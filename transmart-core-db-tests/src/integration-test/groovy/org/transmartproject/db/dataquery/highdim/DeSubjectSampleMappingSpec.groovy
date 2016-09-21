@@ -29,45 +29,40 @@ import org.transmartproject.core.dataquery.highdim.Platform
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
 class DeSubjectSampleMappingSpec extends Specification {
 
-    def sessionFactory
-
-    SampleHighDimTestData testData = new SampleHighDimTestData()
+    SampleHighDimTestData testData
 
     void setupData() {
+        testData = new SampleHighDimTestData()
         testData.saveAll()
-        sessionFactory.currentSession.flush()
-    }
-
-    Object getProperty(String name) {
-        testData."$name"
     }
 
     void testSimpleFetchScalarProperties() {
         setupData()
-        def assay = DeSubjectSampleMapping.get(assays[0].id)
+        def assay = DeSubjectSampleMapping.get(testData.assays[0].id)
 
         expect:
-        assay allOf(
+        that(assay, allOf(
                 is(notNullValue()),
                 hasProperty('siteId', equalTo('site id #1')),
                 hasProperty('conceptCode', equalTo('concept code #1')),
-                hasProperty('trialName', equalTo(TRIAL_NAME)),
+                hasProperty('trialName', equalTo(SampleHighDimTestData.TRIAL_NAME)),
                 hasProperty('patientInTrialId', equalTo('SUBJ_ID_1'))
-        )
+        ))
     }
 
     void testOnDemandProperties() {
         setupData()
         // test the timepoint, sample and tissue properties
-        def assay = DeSubjectSampleMapping.get(assays[0].id)
+        def assay = DeSubjectSampleMapping.get(testData.assays[0].id)
 
         expect:
-        assay allOf(
+        that(assay, allOf(
                 is(notNullValue()),
                 hasProperty('timepoint', equalTo(new Timepoint('timepoint ' +
                         'code', 'timepoint name #1'))),
@@ -75,19 +70,19 @@ class DeSubjectSampleMappingSpec extends Specification {
                         'sample name #1'))),
                 hasProperty('tissueType', equalTo(new TissueType('tissue code',
                         'tissue name #1'))),
-        )
+        ))
 
     }
 
     void testReferences() {
         setupData()
-        def assay = DeSubjectSampleMapping.get(assays[0].id)
+        def assay = DeSubjectSampleMapping.get(testData.assays[0].id)
 
         expect:
-        assay allOf(
+        that(assay, allOf(
                 is(notNullValue()),
                 hasProperty('patient', notNullValue(Patient)),
-                hasProperty('platform', notNullValue(Platform)))
+                hasProperty('platform', notNullValue(Platform))))
 
     }
 }

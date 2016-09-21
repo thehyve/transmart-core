@@ -30,6 +30,7 @@ import spock.lang.Specification
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.BETWEEN
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.NUMBER
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
@@ -57,8 +58,8 @@ class QueriesResourceAcrossTrialsSpec extends Specification {
         def result = queriesResourceService.runQuery definition, user
         // has all patients
         expect:
-        result.patients containsInAnyOrder(
-                testData.patients.collect { is it })
+        that(result.patients, containsInAnyOrder(
+                testData.patients.collect { is it }))
     }
 
     void testUserAdminWithConstraint() {

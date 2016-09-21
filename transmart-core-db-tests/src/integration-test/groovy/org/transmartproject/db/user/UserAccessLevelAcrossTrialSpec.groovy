@@ -83,7 +83,7 @@ class UserAccessLevelAcrossTrialSpec extends Specification {
         ])
 
         expect:
-        secondUser.canPerform(BUILD_COHORT, definition) is(true)
+        secondUser.canPerform(BUILD_COHORT, definition)
     }
 
 

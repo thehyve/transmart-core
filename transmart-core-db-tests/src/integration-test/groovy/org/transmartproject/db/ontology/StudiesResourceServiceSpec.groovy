@@ -135,8 +135,7 @@ class StudiesResourceServiceSpec extends Specification {
                 cComment: 'trial:ST_VIS_ATTR',
                 cVisualattributes: 'FAS')
 
-        expect:
-        concept.save() is(notNullValue())
+        concept.save()
 
         when:
         def result = studiesResourceService.getStudyByOntologyTerm(concept)

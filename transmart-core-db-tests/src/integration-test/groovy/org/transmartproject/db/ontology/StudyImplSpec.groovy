@@ -25,8 +25,6 @@ import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import spock.lang.Specification
 
-import static org.hamcrest.Matchers.containsInAnyOrder
-
 @Integration
 @Rollback
 class StudyImplSpec extends Specification {
@@ -44,7 +42,7 @@ class StudyImplSpec extends Specification {
         Study study = studiesResourceService.getStudyById('study_id_1')
 
         expect:
-        study.patients containsInAnyOrder(studyTestData.i2b2Data.patients.collect { is it })
+        (study.patients - studyTestData.i2b2Data.patients).empty
     }
 
     void testStudyGetName() {
@@ -52,7 +50,7 @@ class StudyImplSpec extends Specification {
         Study study = studiesResourceService.getStudyById('study_id_1')
 
         expect:
-        study.id is('STUDY_ID_1' /* term name in uppercase */)
+        study.id == 'STUDY_ID_1'
     }
 
 }

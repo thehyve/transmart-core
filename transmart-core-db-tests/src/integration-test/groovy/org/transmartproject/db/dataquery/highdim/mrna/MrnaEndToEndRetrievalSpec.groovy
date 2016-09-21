@@ -30,6 +30,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
+import static spock.util.matcher.HamcrestSupport.that
 
 /**
  * Created by glopes on 11/18/13.
@@ -78,7 +79,7 @@ class MrnaEndToEndRetrievalSpec extends Specification {
 
         /* more extensive assertions in MrnaDataRetrievalTests */
         expect:
-        resultList allOf(
+        that(resultList, allOf(
                 hasSize(3),
                 everyItem(
                         hasProperty('data',
@@ -102,7 +103,7 @@ class MrnaEndToEndRetrievalSpec extends Specification {
                                 closeTo(testData.microarrayData[-6].zscore as Double, DELTA),
                         )),
                 )
-        )
+        ))
     }
 
     void testWithGeneConstraint() {
@@ -121,10 +122,10 @@ class MrnaEndToEndRetrievalSpec extends Specification {
         def resultList = Lists.newArrayList dataQueryResult
 
         expect:
-        resultList allOf(
+        that(resultList, allOf(
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
-                contains(hasProperty('bioMarker', equalTo('BOGUSRQCD1')))
+                contains(hasProperty('bioMarker', equalTo('BOGUSRQCD1'))))
         )
     }
 
@@ -138,10 +139,9 @@ class MrnaEndToEndRetrievalSpec extends Specification {
 
         def resultList = Lists.newArrayList dataQueryResult
 
-        assertThat(
-                resultList.collect { it.data }.flatten(),
-                containsInAnyOrder(testData.microarrayData.collect { closeTo(it.logIntensity as Double, DELTA) })
-        )
+        expect:
+        that(resultList.collect { it.data }.flatten(),
+                containsInAnyOrder(testData.microarrayData.collect { closeTo(it.logIntensity as Double, DELTA) }))
     }
 
     void testWithDefaultRealProjection() {
@@ -158,26 +158,26 @@ class MrnaEndToEndRetrievalSpec extends Specification {
                 [trialNameConstraint], dataConstraints, projection)
 
         expect:
-        dataQueryResult contains(
+        that(dataQueryResult, contains(
                 contains(
                         closeTo(testData.microarrayData[1].rawIntensity as Double, DELTA),
                         closeTo(testData.microarrayData[0].rawIntensity as Double, DELTA),
                 )
-        )
+        ))
     }
 
     // not really retrieval
     void testConstraintAvailability() {
         setupData()
         expect:
-        mrnaResource.supportedAssayConstraints containsInAnyOrder(
+        that(mrnaResource.supportedAssayConstraints, containsInAnyOrder(
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
                 AssayConstraint.PATIENT_SET_CONSTRAINT,
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 AssayConstraint.ASSAY_ID_LIST_CONSTRAINT,
                 AssayConstraint.PATIENT_ID_LIST_CONSTRAINT,
-                AssayConstraint.DISJUNCTION_CONSTRAINT)
-        mrnaResource.supportedDataConstraints hasItems(
+                AssayConstraint.DISJUNCTION_CONSTRAINT))
+        that(mrnaResource.supportedDataConstraints, hasItems(
                 DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT,
                 DataConstraint.DISJUNCTION_CONSTRAINT,
                 DataConstraint.GENES_CONSTRAINT,
@@ -185,12 +185,12 @@ class MrnaEndToEndRetrievalSpec extends Specification {
                 DataConstraint.PATHWAYS_CONSTRAINT,
                 DataConstraint.PROTEINS_CONSTRAINT,
                 /* also others that may be added by registering new associations */
-        )
-        mrnaResource.supportedProjections containsInAnyOrder(
+        ))
+        that(mrnaResource.supportedProjections, containsInAnyOrder(
                 Projection.DEFAULT_REAL_PROJECTION,
                 Projection.LOG_INTENSITY_PROJECTION,
                 Projection.ZSCORE_PROJECTION,
-                Projection.ALL_DATA_PROJECTION)
+                Projection.ALL_DATA_PROJECTION))
     }
 
 
