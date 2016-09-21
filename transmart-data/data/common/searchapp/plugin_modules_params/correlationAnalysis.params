@@ -1,0 +1,48 @@
+array (
+  'id' => 'correlationAnalysis',
+  'name' => 'correlationAnalysis',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'MRNA.TXT' => 'FALSE',
+    'CLINICAL.TXT' => 'TRUE',
+    'SNP.TXT' => 'snpData',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||CORRELATIONBY||' => 'correlationBy',
+    '||CORRELATIONTYPE||' => 'correlationType',
+    '||CURRENTVARIABLES||' => 'variablesConceptPaths',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Correlation/BuildCorrelationData.R\')',
+      4 => 'CorrelationData.build(input.dataFile = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',concept.variables=\'||CURRENTVARIABLES||\',correlation.by=\'||CORRELATIONBY||\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Correlation/CorrelationLoader.r\')',
+      1 => 'Correlation.loader(input.filename=\'outputfile.txt\',correlation.by=\'||CORRELATIONBY||\',correlation.method=\'||CORRELATIONTYPE||\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/correlationAnalysis/correlationAnalysisOutput',
+  ),
+  'view' => 'CorrelationAnalysis',
+)

@@ -71,13 +71,13 @@
                 max="${grailsApplication.config.com.recomdata.search.paginate.max}"/>
     </div>
 </div>
-<r:script>
+<asset:script>
     jQuery(function () {
         jQuery("#startdate").datepicker({ dateFormat: 'dd/mm/yy' });
     });
     jQuery(function () {
         jQuery("#enddate").datepicker({ dateFormat: 'dd/mm/yy' });
     });
-</r:script>
+</asset:script>
 </body>
 </html>

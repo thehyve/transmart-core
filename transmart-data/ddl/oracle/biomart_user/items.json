@@ -1,0 +1,5474 @@
+{
+  "dependencies" : [ {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "ADD_ONTOLOGY_NODE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2METADATA",
+      "name" : "ADD_ONTOLOGY_NODE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "AM_DATA_UID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_DATA_UID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "AM_TAG_ASSOCIATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ASSOCIATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "AM_TAG_DISPLAY_VW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_DISPLAY_VW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "AM_TAG_ITEM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ITEM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "AM_TAG_TEMPLATE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_TEMPLATE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "AM_TAG_TEMPLATE_ASSOCIATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_TEMPLATE_ASSOCIATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "AM_TAG_VALUE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "ANNOTATION_DEAPP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "ANNOTATION_DEAPP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "ARCHIVE_OBSERVATION_FACT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "ARCHIVE_OBSERVATION_FACT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "ASSAY_ANALYSIS_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "ASSAY_ANALYSIS_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "ASYNC_JOB"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "ASYNC_JOB"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "ASYNC_JOB_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "ASYNC_JOB_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIOBANK_SAMPLE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIOBANK_SAMPLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_AD_HOC_PROPERTY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_AD_HOC_PROPERTY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ANALYSIS_ATTRIBUTE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ANALYSIS_ATTRIBUTE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ANALYSIS_ATTRIBUTE_LINEAGE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ANALYSIS_ATTRIBUTE_LINEAGE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ANALYSIS_COHORT_XREF"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ANALYSIS_COHORT_XREF"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_ANALYSIS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_TEA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_DATA_TEA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_ANALYSIS_EQTL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_EQTL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_ANALYSIS_EXT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS_EXT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_COHORT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_COHORT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_DATASET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_DATA_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_DATA_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_MARKER_CORREL_MV"
+    },
+    "parents" : [ {
+      "type" : "MATERIALIZED_VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_CORREL_MV"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_DATA_STATS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_DATA_STATS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_DATA_STATS_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_DATA_STATS_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_FEATURE_GROUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_FEATURE_GROUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_PLATFORM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_PLATFORM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASSAY_SAMPLE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_SAMPLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASY_ANALYSIS_DATASET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASY_ANALYSIS_DATA_IDX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_DATA_IDX"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASY_ANALYSIS_EQTL_TOP50"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_EQTL_TOP50"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASY_ANALYSIS_GWAS_TOP50"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_GWAS_TOP50"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASY_ANALYSIS_PLTFM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_ANALYSIS_PLTFM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_ASY_DATA_STATS_ALL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASY_DATA_STATS_ALL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CELL_LINE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CELL_LINE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CGDCP_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CGDCP_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CLINC_TRIAL_ATTR"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CLINC_TRIAL_ATTR"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CLINC_TRIAL_PT_GROUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CLINC_TRIAL_PT_GROUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CLINC_TRIAL_TIME_PT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CLINC_TRIAL_TIME_PT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CLINICAL_TRIAL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CLINICAL_TRIAL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CLINICAL_TRIAL_DESIGN"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CLINICAL_TRIAL_DESIGN"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CLINICAL_TRIAL_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "BIO_CLINICAL_TRIAL_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_COHORT_EXP_XREF"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_COHORT_EXP_XREF"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_COMPOUND"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_COMPOUND"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CONCEPT_CODE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CONCEPT_CODE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "FUNCTION",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CONCEPT_CODE_UID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CONTENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CONTENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CONTENT_REFERENCE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CONTENT_REFERENCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CONTENT_REPOSITORY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CONTENT_REPOSITORY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CURATED_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CURATED_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CURATION_DATASET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CURATION_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_ATTRIBUTE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_ATTRIBUTE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_COMPOUND"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_COMPOUND"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_COMPOUND_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "BIO_DATA_COMPOUND_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_CORRELATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_CORRELATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_CORREL_DESCR"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_CORREL_DESCR"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_DISEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_DISEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_EXT_CODE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_EXT_CODE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_LITERATURE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_LITERATURE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_OBSERVATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_OBSERVATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_OMIC_MARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_OMIC_MARKER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_PLATFORM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_PLATFORM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_TAXONOMY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_TAXONOMY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_UID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_UID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DATA_UID_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "BIO_DATA_UID_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_DISEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DISEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_EXPERIMENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_EXPERIMENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_EXPERIMENT_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "BIO_EXPERIMENT_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_LIT_ALT_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_ALT_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_LIT_AMD_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_AMD_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_LIT_INH_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_INH_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_LIT_INT_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_INT_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_LIT_INT_MODEL_MV"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_INT_MODEL_MV"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_LIT_MODEL_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_MODEL_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_LIT_PE_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_PE_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_LIT_REF_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_REF_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_LIT_SUM_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_LIT_SUM_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_MARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_MARKER_EXP_ANALYSIS_MV"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER_EXP_ANALYSIS_MV"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_OBSERVATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_OBSERVATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_PATIENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_PATIENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_PATIENT_EVENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_PATIENT_EVENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_PATIENT_EVENT_ATTR"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_PATIENT_EVENT_ATTR"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_SAMPLE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_SAMPLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_SPECIES_ORGANISM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_SPECIES_ORGANISM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_STATS_EXP_MARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_STATS_EXP_MARKER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_SUBJECT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_SUBJECT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_TAXONOMY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_TAXONOMY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART_USER",
+      "name" : "BROWSE_ANALYSES_VIEW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ASSOCIATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_ANALYSIS"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_PLATFORM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_ASSOCIATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART_USER",
+      "name" : "BROWSE_ASSAYS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ASSOCIATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ITEM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_PLATFORM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART_USER",
+      "name" : "BROWSE_FOLDERS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ASSOCIATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART_USER",
+      "name" : "BROWSE_PROGRAMS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ASSOCIATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ITEM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CONCEPT_CODE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DISEASE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_OBSERVATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART_USER",
+      "name" : "BROWSE_STUDIES_VIEW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ASSOCIATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ITEM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_EXPERIMENT"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_ASSOCIATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CATEGORY_PATH_EXCLUDED_WORDS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CATEGORY_PATH_EXCLUDED_WORDS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CD"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CD"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CODE_LOOKUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CODE_LOOKUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TYPE",
+      "owner" : "BIOMART_USER",
+      "name" : "CONCEPT_CD_TAB"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CONCEPT_COUNTS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_COUNTS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CONCEPT_COUNTS_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_COUNTS_BK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CONCEPT_DIMENSION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CONCEPT_DIMENSION_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_DIMENSION_BK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CONCEPT_DIMENSION_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CONCEPT_DIMENSION_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CONCEPT_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CONCEPT_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "COUNTER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "COUNTER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CRC_DB_LOOKUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CRC_DB_LOOKUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CREATE_TEMP_CONCEPT_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_CONCEPT_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CREATE_TEMP_EID_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_EID_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CREATE_TEMP_PATIENT_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_PATIENT_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CREATE_TEMP_PID_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_PID_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CREATE_TEMP_PROVIDER_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_PROVIDER_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CREATE_TEMP_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CREATE_TEMP_VISIT_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "CREATE_TEMP_VISIT_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTA_RESULTS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTA_RESULTS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD2_CLIN_INHIB_EFFECT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD2_CLIN_INHIB_EFFECT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD2_DISEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD2_DISEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD2_INHIB_DETAILS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD2_INHIB_DETAILS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD2_STUDY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD2_STUDY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD2_TRIAL_DETAILS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD2_TRIAL_DETAILS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_ALLOWED_MEDS_TREATMENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_ALLOWED_MEDS_TREATMENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_ARM_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_ARM_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_BIOMARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_BIOMARKER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_BIOMARKER_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_BIOMARKER_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_CELL_INFO_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_CELL_INFO_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_CLINICAL_CHARS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_CLINICAL_CHARS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_DISEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_DISEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_DRUG_EFFECTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_DRUG_EFFECTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_DRUG_INHIB"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_DRUG_INHIB"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_DRUG_INHIBITOR_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_DRUG_INHIBITOR_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_EVENTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EVENTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_EXPERIMENTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EXPERIMENTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_EXPR_AFTER_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EXPR_AFTER_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_EXPR_BASELINE_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EXPR_BASELINE_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_EXPR_BIO_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EXPR_BIO_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_EXPR_SOURCE_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_EXPR_SOURCE_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_FULL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_FULL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_FULL_CLINICAL_ENDPTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_FULL_CLINICAL_ENDPTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_FULL_SEARCH_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_FULL_SEARCH_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_INCLUSION_CRITERIA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_INCLUSION_CRITERIA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_PRIMARY_ENDPTS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_PRIMARY_ENDPTS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_PRIMARY_ENDPTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_PRIMARY_ENDPTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_PRIOR_MED_USE_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_PRIOR_MED_USE_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_PULMONARY_PATH_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_PULMONARY_PATH_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_QUANT_PARAMS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_QUANT_PARAMS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_REFERENCE_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_REFERENCE_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_RUNIN_THERAPIES_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_RUNIN_THERAPIES_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_SECONDARY_ENDPTS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_SECONDARY_ENDPTS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_SEC_ENDPTS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_SEC_ENDPTS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_STATS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_STATS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_STUDY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "CTD_STUDY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_STUDY_DETAILS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_STUDY_DETAILS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_TD_DESIGN_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_DESIGN_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_TD_EXCL_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_EXCL_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_TD_INCLUSION_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_INCLUSION_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_TD_SMOKER_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_SMOKER_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_TD_SPONSOR_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_SPONSOR_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_TD_STATUS_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TD_STATUS_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CTD_TREATMENT_PHASES_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "CTD_TREATMENT_PHASES_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CUSTOM_META"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "CUSTOM_META"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CZ_FORM_LAYOUT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_FORM_LAYOUT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CZ_JOB_AUDIT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_JOB_AUDIT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CZ_JOB_ERROR"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_JOB_ERROR"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CZ_JOB_MASTER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_JOB_MASTER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CZ_JOB_MESSAGE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_JOB_MESSAGE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CZ_PERSON"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_PERSON"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CZ_TEST"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_TEST"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CZ_TEST_CATEGORY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_TEST_CATEGORY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CZ_TEST_RESULT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_TEST_RESULT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CZ_XTRIAL_CTRL_VOCAB"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_XTRIAL_CTRL_VOCAB"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "CZ_XTRIAL_EXCLUSION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "CZ_XTRIAL_EXCLUSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DATAMART_REPORT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "DATAMART_REPORT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DD"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "DD"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DEAPP_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DEAPP_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMOSOMAL_REGION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_CHROMO_REGION_ID_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_CHROMO_REGION_ID_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_CONCEPT_VISIT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_CONCEPT_VISIT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_ENCOUNTER_LEVEL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_ENCOUNTER_LEVEL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_ENCOUNTER_TYPE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_ENCOUNTER_TYPE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_GPL_INFO"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_GPL_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_GPL_INFO_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_GPL_INFO_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_METABOLITE_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PATHWAYS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUB_PWAY_METAB"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_METABOLITE_SUPER_PATHWAYS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_METABOLITE_SUPER_PATHWAYS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_MRNA_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_MRNA_ANNOTATION_BKP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_MRNA_ANNOTATION_BKP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_MRNA_ANNOTATION_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_MRNA_ANNOTATION_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_OBS_ENROLL_DAYS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_OBS_ENROLL_DAYS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_PARENT_CD_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_PARENT_CD_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_PATHWAY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_PATHWAY_GENE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PATHWAY_GENE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_PROTEIN_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_QPCR_MIRNA_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_RBM_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RBM_DATA_ANNOTATION_JOIN"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_RC_SNP_INFO"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_RC_SNP_INFO_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_RNASEQ_ANNOTATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RNASEQ_ANNOTATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SAMPLE_SNP_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SAMPLE_SNP_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SAVED_COMPARISON"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SAVED_COMPARISON"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_CALLS_BY_GSM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_CALLS_BY_GSM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_COPY_NUMBER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_COPY_NUMBER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_DATA_BY_PATIENT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PATIENT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_DATA_BY_PATIENT_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_SNP_DATA_BY_PATIENT_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_DATA_BY_PROBE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PROBE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_DATA_BY_PROBE_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_SNP_DATA_BY_PROBE_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_DATA_DATASET_LOC"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_DATASET_LOC"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_DATA_DATASET_LOC_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_DATASET_LOC_BK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_DATA_DS_LOC_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_SNP_DATA_DS_LOC_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_GENE_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_GENE_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_GENE_MAP_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_SNP_GENE_MAP_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_INFO"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_INFO_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_SNP_INFO_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_PROBE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_PROBE_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_SNP_PROBE_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_PROBE_SORTED_DEF"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE_SORTED_DEF"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_PROBE_SORTED_DEF_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_PROBE_SORTED_DEF_BK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_PROBE_SORT_DEF_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_SNP_PROBE_SORT_DEF_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_SUBJECT_SORTED_DEF"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_SUBJECT_SORTED_DEF"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SNP_SUBJECT_SORTED_DEF_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_SUBJECT_SORTED_DEF_BK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_ACGH_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_METABOLOMICS_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_METABOLOMICS_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA_NEW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_DATA_NEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_MICROARRAY_LOGS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_LOGS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_MICROARRAY_MED"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MICROARRAY_MED"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_MIRNA_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_MIRNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_MRNA_DATA_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_MRNA_DATA_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEIN_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_PROTEOMICS_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_RBM_DATA_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJECT_RBM_DATA_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_RBM_DATA_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RBM_DATA_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNASEQ_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_RNA_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SAMPLE_MAPPING_BK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_SNP_DATASET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_SNP_DATASET_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET_BK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJECT_SNP_DATASET_GSK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SUBJECT_SNP_DATASET_GSK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJ_PROTEIN_DATA_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJ_PROTEIN_DATA_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_SUBJ_SAMPLE_MAP_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "DE_SUBJ_SAMPLE_MAP_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_DATASET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_DATASET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_METADATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_METADATA_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_METADATA_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_POPULATION_DATA_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_DATA_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_POPULATION_INFO"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_POPULATION_INFO_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_POPULATION_INFO_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_DETAIL_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_SUBJECT_IDX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_SUBJECT_IDX_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_IDX_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "DE_VARIANT_SUBJECT_SUMMARY_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_XTRIAL_CHILD_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_XTRIAL_CHILD_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DE_XTRIAL_PARENT_NAMES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_XTRIAL_PARENT_NAMES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DIMLOADER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "DIMLOADER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DR$OF_CTX_BLOB$I"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "DR$OF_CTX_BLOB$I"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DR$OF_CTX_BLOB$K"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "DR$OF_CTX_BLOB$K"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DR$OF_CTX_BLOB$N"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "DR$OF_CTX_BLOB$N"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DR$OF_CTX_BLOB$R"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "DR$OF_CTX_BLOB$R"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DUMP_TABLE_TO_CSV"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "DEAPP",
+      "name" : "DUMP_TABLE_TO_CSV"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "DX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "DX"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "ENCOUNTER_MAPPING"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "ENCOUNTER_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "FACETED_SEARCH"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "FACETED_SEARCH"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "FM_DATA_UID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_DATA_UID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "FM_FILE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "FM_FOLDER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "FM_FOLDER_ASSOCIATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_ASSOCIATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "FM_FOLDER_FILE_ASSOCIATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_FILE_ASSOCIATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "GENEGO_GENE_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "GENEGO_GENE_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_INFO_TEST"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "GENE_INFO_TEST"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY_DATA"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_SYNONYM_TEST"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "GENE_SYNONYM_TEST"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "GLOBAL_TEMP_FACT_PARAM_TABLE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "GLOBAL_TEMP_FACT_PARAM_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "GLOBAL_TEMP_PARAM_TABLE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "GLOBAL_TEMP_PARAM_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "GPL2004_5"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL2004_5"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "GPL2004_5_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL2004_5_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "GPL3718_20"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL3718_20"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "GPL3718_20_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "GPL3718_20_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "GSE_ANALYSIS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "GSE_ANALYSIS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "GSE_PROBESET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "GSE_PROBESET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "HAPLOVIEW_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "HAPLOVIEW_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "HAPLOVIEW_DATA_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "HAPLOVIEW_DATA_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "HEAT_MAP_RESULTS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "HEAT_MAP_RESULTS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "HIBERNATE_SEQUENCE"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "HIBERNATE_SEQUENCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "HILOSEQUENCES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "HILOSEQUENCES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_BK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2_ID_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_ID_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2_SECURE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_SECURE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2_SECURE_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_SECURE_BK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2_SECURE_BK1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_SECURE_BK1"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2_TAGS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_TAGS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2_TAGS_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "I2B2_TAGS_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "I2B2_TRIAL_NODES"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "I2B2METADATA",
+      "name" : "I2B2_TRIAL_NODES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "BIOMART_USER",
+      "name" : "IDX_GOD_ORGANISM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "BIOMART_USER",
+      "name" : "IDX_GOD_SYMBOL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "INSERT_CONCEPT_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_CONCEPT_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "INSERT_EID_MAP_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_EID_MAP_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "INSERT_ENCOUNTERVISIT_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_ENCOUNTERVISIT_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "INSERT_PATIENT_MAP_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_PATIENT_MAP_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "INSERT_PID_MAP_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_PID_MAP_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "INSERT_PROVIDER_FROMTEMP"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "INSERT_PROVIDER_FROMTEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "JMS_MESSAGES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "JMS_MESSAGES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "JMS_ROLES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "JMS_ROLES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "JMS_SUBSCRIPTIONS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "JMS_SUBSCRIPTIONS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "JMS_TRANSACTIONS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "JMS_TRANSACTIONS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "JMS_USERS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "JMS_USERS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "KEGG"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "KEGG"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "LISTSIG_GENES"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "LISTSIG_GENES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "LZ_SRC_ANALYSIS_METADATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LZ_SRC_ANALYSIS_METADATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "LZ_SRC_STUDY_METADATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_LZ",
+      "name" : "LZ_SRC_STUDY_METADATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "MASTER_QUERY_GLOBAL_TEMP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "MASTER_QUERY_GLOBAL_TEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "MESH_ALL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MESH_ALL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "MESH_DESCRIPTOR"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MESH_DESCRIPTOR"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "MESH_TEMP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MESH_TEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "METABOLITE_SUB_PTH_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLITE_SUB_PTH_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "METABOLITE_SUP_PTH_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLITE_SUP_PTH_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "METABOLOMICS_ANNOT_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "METABOLOMICS_ANNOT_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "MIRNA_BIO_ASSAY_DATA_ANNOT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_DATA_ANNOT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "MIRNA_BIO_ASSAY_FEATURE_GROUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_ASSAY_FEATURE_GROUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "MIRNA_BIO_MARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "MIRNA_BIO_MARKER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "MLOG$_SEARCH_GENE_SIGNATUR"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "MLOG$_SEARCH_GENE_SIGNATUR"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "MODIFIER_DIMENSION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "MODIFIER_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "MODIFIER_METADATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "MODIFIER_METADATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "NEWS_UPDATES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "NEWS_UPDATES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "NODE_CURATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "NODE_CURATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "OBSERVATION_FACT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "OBSERVATION_FACT_BK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT_BK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "BIOMART_USER",
+      "name" : "OBSERVATION_FACT_PD"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "OBSERVATION_FACT_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "OBSERVATION_FACT_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "ONT_DB_LOOKUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "ONT_DB_LOOKUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "ONT_PROCESS_STATUS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "ONT_PROCESS_STATUS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "ONT_SQ_PS_PRID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "ONT_SQ_PS_PRID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TYPE",
+      "owner" : "BIOMART_USER",
+      "name" : "PATIENTS_TAB"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PATIENT_DIMENSION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "PATIENT_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PATIENT_DIMENSION_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "PATIENT_DIMENSION_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PATIENT_MAPPING"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "PATIENT_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PATIENT_TRIAL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "PATIENT_TRIAL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PLUGIN"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "PLUGIN"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PLUGIN_MODULE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "PLUGIN_MODULE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PLUGIN_MODULE_BACKUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "PLUGIN_MODULE_BACKUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PLUGIN_MODULE_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "PLUGIN_MODULE_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PLUGIN_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "PLUGIN_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PROBESET_DEAPP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "PROBESET_DEAPP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PROBESET_DEAPP_20120206"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "PROBESET_DEAPP_20120206"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PROJECT_INFO"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "PROJECT_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PROTEIN_ANNOTATION_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "PROTEIN_ANNOTATION_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PROTOCOL_ID_SEQ"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "PROTOCOL_ID_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "PROVIDER_DIMENSION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "PROVIDER_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_ANALYSIS_PLUGIN"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_ANALYSIS_PLUGIN"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_ANALYSIS_PLUGIN_RESULT_TYPE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_ANALYSIS_PLUGIN_RESULT_TYPE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_BREAKDOWN_PATH"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_BREAKDOWN_PATH"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_PATIENT_ENC_COLLECTION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_PATIENT_ENC_COLLECTION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_PATIENT_SET_COLLECTION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_PATIENT_SET_COLLECTION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_PDO_QUERY_MASTER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_PDO_QUERY_MASTER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_PRIVILEGE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_PRIVILEGE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_QUERY_INSTANCE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_INSTANCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_QUERY_MASTER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_MASTER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_QUERY_RESULT_INSTANCE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_RESULT_INSTANCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_QUERY_RESULT_TYPE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_RESULT_TYPE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_QUERY_STATUS_TYPE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_QUERY_STATUS_TYPE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_SQ_PQM_QMID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_PQM_QMID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_SQ_QI_QIID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_QI_QIID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_SQ_QM_QMID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_QM_QMID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_SQ_QPER_PECID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_QPER_PECID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_SQ_QPR_PCID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_QPR_PCID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_SQ_QRI_QRIID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_QRI_QRIID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_SQ_QR_QRID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_QR_QRID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_SQ_QS_QSID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_QS_QSID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_SQ_QXR_XRID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_SQ_QXR_XRID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QT_XML_RESULT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QT_XML_RESULT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERY1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "QUERY1"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERY_GLOBAL_TEMP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "QUERY_GLOBAL_TEMP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "RBM_ANNOTATION_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "RBM_ANNOTATION_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "REMOVE_TEMP_TABLE"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "REMOVE_TEMP_TABLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "REPORT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "REPORT_ITEM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "REPORT_ITEM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "RICERCA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "RICERCA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SAMPLE_CATEGORIES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_CATEGORIES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SAMPLE_CATEGORIES_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "SAMPLE_CATEGORIES_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SAMPLE_DIMENSION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SAMPLE_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SAVED_FACETED_SEARCH"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SAVED_FACETED_SEARCH"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SCHEMES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "SCHEMES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_APP_ACCESS_LOG"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_APP_ACCESS_LOG"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_AUTH_GROUP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_AUTH_GROUP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_AUTH_GROUP_MEMBER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_AUTH_GROUP_MEMBER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_AUTH_PRINCIPAL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_AUTH_PRINCIPAL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_AUTH_SEC_OBJECT_ACCESS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_AUTH_SEC_OBJECT_ACCESS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_AUTH_USER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_AUTH_USER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_AUTH_USER_SEC_ACCESS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_AUTH_USER_SEC_ACCESS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_AUTH_USER_SEC_ACCESS_V"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_AUTH_USER_SEC_ACCESS_V"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_BIO_MKR_CORREL_FAST_MV"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_BIO_MKR_CORREL_FAST_MV"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_BIO_MKR_CORREL_FST_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_BIO_MKR_CORREL_FST_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_BIO_MKR_CORREL_VIEW"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_BIO_MKR_CORREL_VIEW"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_CATEGORIES"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_CATEGORIES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_CUSTOM_FILTER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_CUSTOM_FILTER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_CUSTOM_FILTER_ITEM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_CUSTOM_FILTER_ITEM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_GENE_SIGNATURE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_GENE_SIGNATURE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_GENE_SIGNATURE_ITEM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_GENE_SIGNATURE_ITEM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_GENE_SIG_FILE_SCHEMA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_GENE_SIG_FILE_SCHEMA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_KEYWORD"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_KEYWORD"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_KEYWORD_TERM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_KEYWORD_TERM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_REQUEST_MAP"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_REQUEST_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_ROLE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_ROLE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_ROLE_AUTH_USER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_ROLE_AUTH_USER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_SECURE_OBJECT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_SECURE_OBJECT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_SECURE_OBJECT_PATH"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_SECURE_OBJECT_PATH"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_SECURE_OBJECT_RELEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "SEARCH_SECURE_OBJECT_RELEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_SEC_ACCESS_LEVEL"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_SEC_ACCESS_LEVEL"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_TAXONOMY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_TAXONOMY_LEVEL1"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL1"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_TAXONOMY_LEVEL2"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL2"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_TAXONOMY_LEVEL3"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL3"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_TAXONOMY_LEVEL4"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL4"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_TAXONOMY_LEVEL5"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LEVEL5"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_TAXONOMY_LINEAGE"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_LINEAGE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_RELS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_TAXONOMY_TERMS_CATS"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_TAXONOMY_TERMS_CATS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_USER_FEEDBACK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_USER_FEEDBACK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEARCH_USER_SETTINGS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEARCH_USER_SETTINGS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_AMAPP_DATA_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "AMAPP",
+      "name" : "SEQ_AMAPP_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_ASSAY_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_ASSAY_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_BIO_DATA_FACT_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "BIOMART",
+      "name" : "SEQ_BIO_DATA_FACT_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_BIO_DATA_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "BIOMART",
+      "name" : "SEQ_BIO_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_CLINICAL_TRIAL_DESIGN_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "BIOMART",
+      "name" : "SEQ_CLINICAL_TRIAL_DESIGN_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_CONCEPT_CODE"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SEQ_CONCEPT_CODE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_DATA_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_DE_MRNA_ANNOTATION_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DE_MRNA_ANNOTATION_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_ENCOUNTER_NUM"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SEQ_ENCOUNTER_NUM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_ETL_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "TM_LZ",
+      "name" : "SEQ_ETL_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_FM_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "FMAPP",
+      "name" : "SEQ_FM_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_I2B2_DATA_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SEQ_I2B2_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_MRNA_PARTITION_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_MRNA_PARTITION_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_PATIENT_NUM"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SEQ_PATIENT_NUM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_SAVED_FACETED_SEARCH_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_SAVED_FACETED_SEARCH_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_SEARCH_DATA_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "SEARCHAPP",
+      "name" : "SEQ_SEARCH_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SEQ_SUBJECT_REFERENCE"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SEQ_SUBJECT_REFERENCE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SET_TYPE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SET_TYPE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SET_UPLOAD_STATUS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SET_UPLOAD_STATUS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SOLR_KEYWORDS_LINEAGE"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "SEARCHAPP",
+      "name" : "SOLR_KEYWORDS_LINEAGE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SOURCE_MASTER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SOURCE_MASTER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SP_XTAB"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SP_XTAB"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SQ_I2B2_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SQ_I2B2_TAG_ID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SQ_I2B2_TAG_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SQ_UPLOADSTATUS_UPLOADID"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SQ_UPLOADSTATUS_UPLOADID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SQ_UP_ENCDIM_ENCOUNTERNUM"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SQ_UP_ENCDIM_ENCOUNTERNUM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SQ_UP_PATDIM_PATIENTNUM"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SQ_UP_PATDIM_PATIENTNUM"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "SUBSET"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "SEARCHAPP",
+      "name" : "SUBSET"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TABLE_ACCESS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "TABLE_ACCESS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TABLE_ACCESS_20111030"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "TABLE_ACCESS_20111030"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TESTS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TESTS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TIMERS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TIMERS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TJEA_JUNK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "TJEA_JUNK"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TMP_BIO_MARKER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_BIO_MARKER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TMP_NUM_DATA_TYPES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "TMP_NUM_DATA_TYPES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TMP_OMICSOFT_COMPOUND"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_OMICSOFT_COMPOUND"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TMP_OMICSOFT_DISEASE_M1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_OMICSOFT_DISEASE_M1"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TMP_PROJECT_CATEGORY"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_PROJECT_CATEGORY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TMP_PROJECT_COMPOUND"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_PROJECT_COMPOUND"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TMP_PROJECT_DISEASE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "TMP_PROJECT_DISEASE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TMP_SECURE_TOKEN"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "TMP_SECURE_TOKEN"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TMP_SUBJECT_INFO"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "TMP_SUBJECT_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TMP_TRIAL_DATA"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "TMP_TRIAL_DATA"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TMP_TRIAL_NODES"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "TM_CZ",
+      "name" : "TMP_TRIAL_NODES"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "TT"
+    },
+    "parents" : [ {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "TT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "UPDATE_OBSERVATION_FACT"
+    },
+    "parents" : [ {
+      "type" : "PROCEDURE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "UPDATE_OBSERVATION_FACT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "UPLOAD_STATUS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "UPLOAD_STATUS"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "VISIT_DIMENSION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "VISIT_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SYNONYM",
+      "owner" : "BIOMART_USER",
+      "name" : "VW_FACETED_SEARCH"
+    },
+    "parents" : [ {
+      "type" : "VIEW",
+      "owner" : "BIOMART",
+      "name" : "VW_FACETED_SEARCH"
+    } ]
+  } ],
+  "fileAssignments" : [ {
+    "item" : {
+      "type" : "FUNCTION",
+      "owner" : "BIOMART_USER",
+      "name" : "BIO_CONCEPT_CODE_UID"
+    },
+    "file" : "biomart_user/functions/bio_concept_code_uid.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART_USER",
+      "name" : "BROWSE_ANALYSES_VIEW"
+    },
+    "file" : "biomart_user/_cross.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART_USER",
+      "name" : "BROWSE_ASSAYS_VIEW"
+    },
+    "file" : "biomart_user/_cross.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART_USER",
+      "name" : "BROWSE_FOLDERS_VIEW"
+    },
+    "file" : "biomart_user/_cross.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART_USER",
+      "name" : "BROWSE_PROGRAMS_VIEW"
+    },
+    "file" : "biomart_user/_cross.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "BIOMART_USER",
+      "name" : "BROWSE_STUDIES_VIEW"
+    },
+    "file" : "biomart_user/_cross.sql"
+  }, {
+    "item" : {
+      "type" : "TYPE",
+      "owner" : "BIOMART_USER",
+      "name" : "CONCEPT_CD_TAB"
+    },
+    "file" : "biomart_user/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY"
+    },
+    "file" : "biomart_user/gene_ontology.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "GENE_ONTOLOGY_DATA"
+    },
+    "file" : "biomart_user/gene_ontology_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "BIOMART_USER",
+      "name" : "IDX_GOD_ORGANISM"
+    },
+    "file" : "biomart_user/gene_ontology_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "BIOMART_USER",
+      "name" : "IDX_GOD_SYMBOL"
+    },
+    "file" : "biomart_user/gene_ontology_data.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "BIOMART_USER",
+      "name" : "OBSERVATION_FACT_PD"
+    },
+    "file" : "biomart_user/_cross.sql"
+  }, {
+    "item" : {
+      "type" : "TYPE",
+      "owner" : "BIOMART_USER",
+      "name" : "PATIENTS_TAB"
+    },
+    "file" : "biomart_user/_misc.sql"
+  } ]
+}

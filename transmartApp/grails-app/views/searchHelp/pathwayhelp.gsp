@@ -1,15 +1,14 @@
 <html>
 <head>
     <title>${grailsApplication.config.com.recomdata.appTitle}</title>
-    <link rel="stylesheet"
-          href="${resource(dir: 'js', file: 'ext/resources/css/ext-all.css')}">
-    <link rel="stylesheet"
-          href="${resource(dir: 'js', file: 'ext/resources/css/xtheme-gray.css')}">
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'main.css')}"/>
-    <script type="text/javascript"
-            src="${resource(dir: 'js', file: 'toggle.js')}"></script>
+    <asset:stylesheet
+          href="ext/resources/css/ext-all.css"/>
+    <asset:stylesheet
+          href="ext/resources/css/xtheme-gray.css"/>
+    <asset:stylesheet href="main.css" />
+    <asset:javascript
+            src="toggle.js"/>
     <script type="text/javascript">
-
         function refreshParent(newurl) {
             parent.window.close();
             if (parent != null && parent.window.opener != null && !parent.window.opener.closed) {

@@ -3,19 +3,18 @@ package com.recomdata.grails.plugin.gwas
 import au.com.bytecode.opencsv.CSVWriter
 import com.recomdata.transmart.domain.searchapp.FormLayout
 import grails.converters.JSON
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONObject;
 import org.codehaus.groovy.grails.web.mapping.LinkGenerator
 import org.transmart.biomart.BioAssayAnalysis
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.*
-import org.codehaus.groovy.grails.plugins.PluginManagerHolder
+import grails.util.Holders
 
 import java.lang.reflect.UndeclaredThrowableException
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import org.apache.commons.io.FileUtils;
 
 import static java.util.UUID.randomUUID
 
@@ -29,7 +28,6 @@ class GwasSearchController {
     def springSecurityService
     def gwasSearchService
     def sendFileService
-    LinkGenerator grailsLinkGenerator
 
     /**
      * Renders a UI for selecting regions by gene/RSID or chromosome.

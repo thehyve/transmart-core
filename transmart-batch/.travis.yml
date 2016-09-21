@@ -1,0 +1,33 @@
+language: php # to have .travis installing the php version we indicate
+sudo: false
+
+env:
+    - DATABASE=postgres
+    - DATABASE=oracle
+php:
+    - 5.6
+cache:
+    directories:
+        - $HOME/.gradle
+        - $HOME/pg
+
+before_install:
+    - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
+
+before_script:
+    - source travis_test.sh
+    - run $DATABASE prepare
+
+script:
+    - run $DATABASE check
+    - run $DATABASE functional
+    - run $DATABASE capsule
+
+after_success:
+    - "test \"$DATABASE\" != 'postgres' || { ./.travis_upload; bash <(curl -s https://codecov.io/bash); }"
+
+after_failure:
+    - bash -c '[[ -z $KEY_PASSWORD ]] || { source ~/ts-travis/upload-report.sh; upload_report build/reports; }'
+
+after_script:
+    - killall ncat

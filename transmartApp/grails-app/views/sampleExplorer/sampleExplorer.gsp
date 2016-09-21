@@ -8,24 +8,29 @@
 
     <title>Sample Explorer :: ${grailsApplication.config.com.recomdata.appTitle}</title>
 
-    <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="shortcut icon" />
-    <link href="${resource(dir: 'images', file: 'searchtool.ico')}" rel="icon" />
+    <asset:link rel="shortcut icon" href='searchtool.ico' type="image/x-ico" />
+    <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
 
-    <g:javascript library="jquery" />
-    <r:require module="sampleTab" />
-    <r:layoutResources/>
+    %{--<g:javascript library="jquery" />--}%
 
-    <r:script type="text/javascript" charset="utf-8">
+
+    <asset:javascript src="jquery-2.2.0.min.js"/>
+
+    %{--<r:require module="sampleTab" />--}%
+    %{--<r:layoutResources/>--}%
+
+    <script type="text/javascript" charset="utf-8">
 
         var $j = window.$j = jQuery.noConflict();
 
-    </r:script>
-
+    </script>
+    <asset:stylesheet href="sampletab.css" />
+    <asset:javascript src="sampleTab.js" />
 </head>
 
 <body>
 <script type="text/javascript">
-    Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
+    Ext.BLANK_IMAGE_URL = "asset/images/default/s.gif";
 
     //set ajax to 600*1000 milliseconds
     Ext.Ajax.timeout = 1800000;
@@ -47,7 +52,7 @@
         SearchJSON: {},
         resultDataSet: {},
         resultGridPanel: '',
-        columnMap: ${columnData},
+        columnMap: "${columnData.toString().replaceAll('\n','')}",
         CurrentTimepoints: [],
         CurrentSamples: [],
         CurrentPlatforms: [],
@@ -94,12 +99,12 @@
 
 <!-- ************************************** -->
 <!-- This implements the Help functionality -->
-<script type="text/javascript" src="${resource(dir: 'js', file: 'help/D2H_ctxt.js')}"></script>
+<asset:javascript src="help/D2H_ctxt.js"/>
 <script language="javascript">
     helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 </script>
 <!-- ************************************** -->
 
-<r:layoutResources/>
+%{--<r:layoutResources/>--}%
 </body>
 </html>

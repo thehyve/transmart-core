@@ -1,0 +1,4 @@
+FILENAME	COLUMN_NUMBER	MANDATORY	VARIABLE	TYPE	UNIT
+main_incr_data.tsv	2	true	PAT:EID		
+main_incr_data.tsv	1	true	START_DATE		
+main_incr_data.tsv	3	true	CON:C1-TEXT	text	

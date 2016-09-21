@@ -16,7 +16,9 @@
 }
 </style>
 
-<script language="javascript" type="text/javascript">
+<asset:javascript src="extjs.js"/>
+
+<script type="text/javascript">
 
     function handleActionItem(actionItem, id) {
         var action = actionItem.value;
@@ -74,8 +76,8 @@
     }
 
 </script>
-    <script type="text/javascript" src="${resource(dir:'js', file:'help/D2H_ctxt.js')}"></script>
-<script language="javascript">
+<asset:javascript src="help/D2H_ctxt.js"/>
+<script type="text/javascript">
     helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 </script>
 </head>
@@ -89,7 +91,7 @@
 
         <p style="text-align: right;"><span class="button"><g:actionSubmit class="edit" action="createWizard" value="New Signature"/></span></p>
         <h1>Gene Signature List &nbsp;&nbsp;<a HREF="JavaScript:D2H_ShowHelp('1259','${grailsApplication.config.com.recomdata.adminHelpURL}','wndExternal',CTXT_DISPLAY_FULLHELP )">
-            <img src="${resource(dir:'images',file:'help/helpicon_white.jpg')}" alt="Help" border=0 width=18pt style="vertical-align:middle;margin-left:5pt;"/>
+            <asset:image src="help/helpicon_white.jpg" alt="Help" border="0" width="18pt" style="vertical-align:middle;margin-left:5pt;" ></asset:image>
         </a></h1>
 
         <!-- show my signatures -->

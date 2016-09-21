@@ -8,61 +8,49 @@
         <title>${grailsApplication.config.com.recomdata.searchtool.appTitle}</title>
         
         <!-- jQuery CSS for cupertino theme -->
-        <link rel="stylesheet" href="${resource(dir:'css',file:'/jquery/cupertino/jquery-ui-1.8.18.custom.css')}"></link>        
-        <link rel="stylesheet" href="${resource(dir:'css',file:'/jquery/skin/ui.dynatree.css')}"></link>        
+        <asset:stylesheet href="/jquery/skin/ui.dynatree.css')}"/>
         
         <!-- Our CSS -->
-        <link rel="stylesheet" href="${resource(dir:'css',file:'/jquery.loadmask.css')}"></link>
-        <link rel="stylesheet" href="${resource(dir:'css',file:'/main.css')}"></link>        
-        <link rel="stylesheet" href="${resource(dir:'css',file:'/colorbox.css')}"></link>
-        <link rel="stylesheet" href="${resource(dir:'css',file:'/jquery/simpleModal.css')}"></link>
-        <link rel="stylesheet" href="${resource(dir:'css',file:'/jquery/multiselect/ui.multiselect.css')}"></link>
-        <link rel="stylesheet" href="${resource(dir:'css',file:'/jquery/multiselect/common.css')}"></link>
-                                
+        <asset:stylesheet href="/jquery.loadmask.css')}"/>
+        <asset:stylesheet href="/jquery/simpleModal.css"/>
+        <asset:stylesheet href="/jquery/multiselect/ui.multiselect.css')}"/>
+
         <!-- jQuery JS libraries -->
-        <script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/jquery-1.8.3.min.js')}"></script>   
+        <asset:javascript src="jquery-2.2.0.min.js"/>
 	    <script>jQuery.noConflict();</script> 
         
-        <script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/jquery-ui.min.js')}"></script>
-        
-        <script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/jquery.cookie.js')}"></script>   
-        <script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/jquery.dynatree.min.js')}"></script>
-        <script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/jquery.paging.min.js')}"></script>
-		<script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/jquery.loadmask.min.js')}"></script>   
- 		<script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/jquery.ajaxmanager.js')}"></script>  
-  		<script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/jquery.numeric.js')}"></script>
-  		<script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/jquery.colorbox-min.js')}"></script>  
-  		<script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/jquery.simplemodal.min.js')}"></script>  
-  		<script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/jquery.dataTables.js')}"></script>
-  		<script type="text/javascript" src="${resource(dir:'js', file:'/facetedSearch/facetedSearchBrowse.js')}"></script>
-  		<script type="text/javascript" src="${resource(dir:'js', file:'/jQuery/ui.multiselect.js')}"></script>
-  		<script type="text/javascript" src="${resource(dir:'js', file:'/help/D2H_ctxt.js')}"></script>
+        <asset:javascript src="jquery-ui.min.js"/>
+        <asset:javascript src="/jquery/jquery.cookie.js"/>
+        <asset:javascript src="/jquery/jquery.dynatree.min.js"/>
+		<asset:javascript src="/jquery/jquery.paging.min.js"/>
+		<asset:javascript src="/jquery/jquery.loadmask.min.js"/>
+ 		<asset:javascript src="/jquery/jquery.ajaxmanager.js"/>
+  		<asset:javascript src="/jquery/jquery.numeric.js"/>
+  		%{--<asset:javascript src="/jquery/jquery.colorbox.js"/>--}%
+  		%{--<asset:javascript src="/jquery/jquery.simplemodal.js"/>--}%
+  		<asset:javascript src="/jquery/jquery.dataTables.js"/>
+  		<asset:javascript src="/facetedSearch/facetedSearchBrowse.js"/>
+  		<asset:javascript src="/jquery/ui.multiselect.js"/>
+  		<asset:javascript src="/help/D2H_ctxt.js"/>
   		
   		<g:ifPlugin name="folder-management">
             <g:render template="/folderManagementUrls" plugin="folderManagement"/>
-  			<script type="text/javascript" src="${resource(dir:'js', file:'folderManagement.js', plugin: 'folderManagement')}"></script>
-  			<link rel="stylesheet" href="${resource(dir:'css', file:'folderManagement.css', plugin: 'folderManagement')}"></link>        
+  			<asset:javascript src="folderManagement.js"/>
+  			<asset:stylesheet href="folderManagement.css"/>
   		</g:ifPlugin>
 
-
-            <script type="text/javascript" src="${resource(dir:'js', file:'gwas.js', plugin:'transmart-gwas')}"></script>
-            <link rel="stylesheet" href="${resource(dir:'css', file:'gwas.css', plugin: 'transmart-gwas')}"></link>
-  
-  		        
   		<!--  SVG Export -->
-  		<script type="text/javascript" src="${resource(dir:'js',file:'/svgExport/rgbcolor.js')}"></script>  
-  		  
-	
-        <g:javascript library="prototype" /> 
+  		%{--<asset:javascript type="svgExport/rgbcolor.js"/>--}%
+
+        %{--<g:javascript library="prototype" /> --}%
         
         <!-- Our JS -->        
        
-        <script type="text/javascript" src="${resource(dir:'js',file:'/maintabpanel.js')}"></script>
+        <asset:javascript src="/maintabpanel.js"/>
         
         <!-- Protovis Visualization library and IE plugin (for lack of SVG support in IE8) -->
-        <script type="text/javascript" src="${resource(dir:'js',file:'/protovis/protovis-r3.2.js')}"></script>
-        <script type="text/javascript" src="${resource(dir:'js',file:'/protovis/protovis-msie.min.js')}"></script> 
-
+        <asset:javascript src="datasetExplorer/protovis/protovis-r3.2.js"/>
+		<asset:javascript src="datasetExplorer/protovis/protovis-msie.min.js"/>
         <script type="text/javascript" charset="utf-8">
 	        var searchResultsURL = "${createLink([action:'loadSearchResults'])}";
 	        var facetResultsURL = "${createLink([action:'getFacetResults'])}";
@@ -91,9 +79,9 @@
 			var dataTypeBrowseWindow = "${createLink([controller:'GWAS',action:'browseDataTypesMultiSelect'])}";
         </script>
 
-    <g:ifPlugin name="transmart-gwas">
-            <g:render template="/GWAS/gwasURLs" plugin="transmart-gwas"/>
-        </g:ifPlugin>
+    	%{--<g:ifPlugin name="transmart-gwas">--}%
+            %{--<g:render template="/GWAS/gwasURLs" plugin="transmart-gwas"/>--}%
+        %{--</g:ifPlugin>--}%
 
         <script type="text/javascript" charset="utf-8">
 	        var mouse_inside_options_div = false;
@@ -155,8 +143,7 @@
 	        });	
             
         </script>
-        
-                
+
         <script type="text/javascript">		
 			jQuery(function ($) {
 				// Load dialog on click of Save link
@@ -164,7 +151,11 @@
 			});
 		</script>
 
-        <r:layoutResources /><%-- XXX: Use template --%>
+		<asset:javascript src="browseTab.js"/>
+		<asset:stylesheet href="browseTab.css"/>
+		<asset:javascript src="gwas.js"/>
+		<asset:stylesheet href="gwas.css"/>
+        %{--<r:layoutResources /><%-- XXX: Use template --%>--}%
     </head>
     <body>
         <div id="header-div">        
@@ -247,7 +238,7 @@
               
         <div id="search-div">         
             <select id="search-categories"></select>                          
-            <input id="search-ac"/></input>                                                          
+            <input id="search-ac"/>
         </div>
        
         <div id="title-search-div" class="ui-widget-header boxtitle">
@@ -257,13 +248,13 @@
 			 </div>
 			 <h2 style="float:right; padding-right:5px;" class="title">
 			 	<%-- Save/load disabled for now
-			 	
+
 			 	<span id='save-modal'>
 			 		<a href="#" class="basic">Save</a>
 				 </span>
 			 	<a href="#" onclick="loadSearch(); return false;">Load</a>--%>
 			 	<a href="#" onclick="clearSearch(); return false;">Clear</a>
-			 </h2> 
+			 </h2>
 		</div>
 
 		<!-- Save search modal content -->
@@ -272,9 +263,9 @@
 			Enter Name <input type="text" id="searchName" size="50"/><br/><br/>
 			Enter Description <textarea id="searchDescription" rows="5" cols="70" ></textarea><br/>
 			<br/>
-			<a href="#" onclick="saveSearch(); return false;">Save</a>&nbsp;   
-			<a href="#" onclick="jQuery.modal.close();return false;">Cancel</a>   
-			
+			<a href="#" onclick="saveSearch(); return false;">Save</a>&nbsp;
+			<a href="#" onclick="jQuery.modal.close();return false;">Cancel</a>
+
 		</div>
 			
 		<div id="active-search-div"></div>
@@ -304,9 +295,9 @@
 			
 		</div>
 		
-        <g:ifPlugin name="transmart-gwas">
-            <g:render template="/manhattan/plotOptions" plugin="transmartGwas"/>
-        </g:ifPlugin>
+        %{--<g:ifPlugin name="transmart-gwas">--}%
+            %{--<g:render template="/manhattan/plotOptions" plugin="transmartGwas"/>--}%
+        %{--</g:ifPlugin>--}%
 		<!-- This DIV for export Analysis details -->
 		<div id="divMailStatus"></div>
 		<div id="divTomailIds" style="width:300px; display: none;">
@@ -361,6 +352,6 @@
         <g:ifPlugin name="folder-management">
             <div id="exportOverlay" class="overlay" style="display: none;">&nbsp;</div>
         </g:ifPlugin>
-        <r:layoutResources /><%-- XXX: Use template --%>
+        %{--<r:layoutResources /><%-- XXX: Use template --%>--}%
     </body>
 </html>

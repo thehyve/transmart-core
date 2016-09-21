@@ -22,13 +22,13 @@
         	<g:set var="safeTitle">${trialresult.key.title.replace("'", "\\'")}</g:set>                         
             <a href="#" onclick="javascript:showDetailDialog('${createLink(controller:'trial',action:'expDetail',id:trialresult.key.id)}', '${trialresult.key.trialNumber}: ${safeTitle}', 600);">
                <span style="display:block; float:left;">
-                   <img alt="" src="${resource(dir:'images',file:'view_detailed.png')}" />
+                   <asset:image alt="" src="view_detailed.png" />
                </span>
                <span class="result-trial-name"> ${trialresult.key.trialNumber}</span></a>: ${trialresult.key.title}
                <span class="result-analysis-label">
                <g:set var="ts" value="${Calendar.instance.time.time}" />       
                <a id="toggleDetail_${experimentresult.key.id}" href="#" onclick="javascript:toggleDetailDiv('${trialresult.key.trialNumber}', '${createLink(controller:'GWAS',action:'getTrialAnalysis',params:[id:trialresult.key.id,trialNumber:trialresult.key.trialNumber,unqKey:ts])}');">
-                <img alt="expand/collapse" id="imgExpand_${trialresult.key.trialNumber}" src="${resource('/images/down_arrow_small2.png')}" style="display: inline;"/>                  
+                <asset:image alt="expand/collapse" id="imgExpand_${trialresult.key.trialNumber}" src="down_arrow_small2.png" style="display: inline;"/>
                       <%--${trialresult.value}
                       <g:if test="${trialresult.value > 1}">analyses found</g:if>
     				  <g:else>analysis found</g:else>--%>

@@ -19,15 +19,15 @@
 
                         <a href="#"
                            onclick="showDetailDialog('${createLink(controller:'trial', action:'showAnalysis', id:analysisId)}', '${analysis.name}');">
-                            <img alt="Analysis" src="${resource(dir: 'images', file: 'analysis.png')}"
+                            <asset:image alt="Analysis" src="analysis.png"
                                  style="vertical-align: top;margin-top: -2px;"/></a>
                     </g:form>
                 </td>
                 <td onclick="showVisualization('${analysisId}', false);" class="td-link">${analysis.name}</td>
                 <td onclick="showVisualization('${analysisId}', false);" style="text-align:right; vertical-align:middle"
                     class="td-link">
-                    <img alt="expand/collapse" id="imgExpand_${analysisId}"
-                         src="${resource(dir: 'images', file: 'down_arrow_small2.png')}"
+                    <asset:image alt="expand/collapse" id="imgExpand_${analysisId}"
+                         src="down_arrow_small2.png"
                          style="vertical-align: middle; padding-left:10px; padding-right:10px;"/>
                 </td>
             </tr>
@@ -71,7 +71,7 @@
                 <div class='vis-toolBar'>
                     <div id="btnqqplotExport_${analysisId}" class='vis-toolbar-item' onclick="">
                         <a href="" target="_blank" id="qqplot_export_${analysisId}">
-                            <img alt="" src="${resource(dir: 'images', file: 'internal-link.gif')}"/> Export as PNG
+                            <asset:image src="internal-link.gif"/> Export as PNG
                         </a>
                     </div>
 

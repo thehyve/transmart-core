@@ -1,8 +1,8 @@
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="${resource(dir: 'js/ext/resources/css', file: 'ext-all.css')}">
-    <link rel="stylesheet" type="text/css" href="${resource(dir: 'js/ext/resources/css', file: 'xtheme-gray.css')}">
-    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'datasetExplorer.css')}">
+    <asset:stylesheet href="ext/resources/css/ext-all.css"/>
+    <asset:stylesheet href="ext/resources/css/xtheme-gray.css"/>
+    <asset:stylesheet href="datasetExplorer.css"/>
 
 </head>
 
@@ -33,14 +33,14 @@
                     <g:elseif
                             test="${file.content.type == 'Dataset Explorer Node Link' && search == 1}">
                         <g:link controller="datasetExplorer" action="index"
-                                params="[path: file.content.location]">Dataset Explorer<img
-                                src="${resource(dir: 'images', file: 'internal-link.gif')}"/>
+                                params="[path: file.content.location]">Dataset Explorer<asset:image
+                                src="internal-link.gif"/>
                         </g:link>
                     </g:elseif>
                 </g:each>
             </g:if> <g:if test="${searchId != null}">
-                | <g:link controller="search" action="newSearch" id="${searchId}">Search analyzed Data <img
-                        src="${resource(dir: 'images', file: 'internal-link.gif')}"/>
+                | <g:link controller="search" action="newSearch" id="${searchId}">Search analyzed Data <asset:image
+                        src="internal-link.gif"/>
                 </g:link>
             </g:if></td>
         </tr>

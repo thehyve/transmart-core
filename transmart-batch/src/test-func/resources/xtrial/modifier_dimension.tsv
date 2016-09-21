@@ -1,0 +1,14 @@
+modifier_path	modifier_cd	name_char	modifier_blob	update_date	download_date	import_date	sourcesystem_cd	upload_id	modifier_level	modifier_node_type
+\Demographics\	DEMO	Demographics							0	F
+\Demographics\Race\	DEMO:RACE	Race							1	F
+\Demographics\Race\Caucasian\	DEMO:RACE:CAUC	Caucasian							2	L
+\Demographics\Race\Not Stated\	DEMO:RACE:NOTSTATED	Not Stated							2	L
+\Demographics\Race\African\	DEMO:RACE:AFRICAN	African							2	L
+\Demographics\Sex\	SNOMED:F-03D86	Sex							1	F
+\Demographics\Sex\Female\	SNOMED:F-03CE5	Female							2	L
+\Demographics\Sex\Male\	SNOMED:F-03CE6	Male							2	L
+\Findings\	TEST:FINDINGS	Findings							0	F
+\Findings\Laboratory Tests\	CLABORATORYTESTS	Laboratory Tests							1	F
+\Findings\Laboratory Tests\Forced Expiratory Volume (FEV1)\	SNOMED:F-0320A	Forced Expiratory Volume (FEV1)							2	L
+\Demographics\Age\	SNOMED:F-08101	Age							0	L
+\Principal Diagnosis\	1	Principal Diagnosis	""	2011-04-14 00:55:00		2011-04-14 00:55:00	DEMO		0	L

@@ -1,0 +1,2 @@
+Filename	Column Number	Original Data Value	New Data Values
+Cell-line_clinical.txt	7	adult	null

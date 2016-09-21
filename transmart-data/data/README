@@ -1,0 +1,5 @@
+This should contain only data essential to transmart and the stored procedures
+being able to run (or scripts that generate such data).
+
+It should NOT contain example studies. Those should be loaded through the ETL
+procedures.

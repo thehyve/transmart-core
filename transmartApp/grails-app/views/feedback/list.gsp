@@ -3,7 +3,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="layout" content="main"/>
     <title>Feedback List</title>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'feedback.css')}"/>
+    <asset:stylesheet href="feedback.css"/>
 </head>
 
 <body>

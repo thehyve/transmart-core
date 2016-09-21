@@ -1,0 +1,49 @@
+#!/usr/bin/env ruby
+
+require 'tempfile'
+require 'fileutils'
+
+Dir.chdir File.dirname(__FILE__)
+
+def error(message)
+  $stderr.puts message
+  exit 1
+end
+
+# {{{ validation
+file_name = ARGV.shift
+error 'No filename passed' unless file_name
+error 'Pass only the file name' if file_name != File.basename(file_name)
+
+subdir = ARGV.shift
+error "No such subdirectory: '#{subdir}'" if
+    subdir and not File.directory? subdir
+subdir ||= '.'
+
+file_match = file_name.match /\A(?<study>[^_]+)_(?<type>[^.]+)\.tar\.xz\z/
+error("Bad filename: '#{file_name}'. Make sure it's in the form " +
+    "<study>_<type>.tar.xz") unless file_match
+
+Dir.glob("**/#{file_name}").each do |file|
+  dir = File.dirname(File.dirname(file))
+  next if dir == subdir
+
+  dir = '(root dir)' if dir == '.'
+  error "File was already found in '#{dir}'. " +
+      "Resubmit it with the same dir or delete the current file first."
+end
+# }}}
+
+tempfile = Tempfile.new 'recv_study'
+IO.copy_stream $stdin, tempfile
+tempfile.close
+
+final_dir = File.join subdir, file_match['study']
+FileUtils.mkdir_p final_dir, :mode => 02775
+
+FileUtils.cp tempfile.path, File.join(final_dir, file_name)
+FileUtils.chmod 0664, tempfile.path
+
+puts "Finished successfully!"
+
+# vim: set ft=ruby et ts=2 sw=2:

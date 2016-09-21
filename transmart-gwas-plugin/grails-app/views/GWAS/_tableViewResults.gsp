@@ -1,6 +1,6 @@
 
 	<div class='vis-toolBar' >
-		<div id="btnResultsExport" class='vis-toolbar-item'><a href="${createLink([plugin: 'transmart-gwas', controller:'gwasSearch', action:'getTableResults', params:[export: true, type: type]])}"><img alt="" src="${resource(dir:'/images',file:'internal-link.gif')}" /> Export as CSV</a></div>
+		<div id="btnResultsExport" class='vis-toolbar-item'><a href="${createLink([plugin: 'transmart-gwas', controller:'gwasSearch', action:'getTableResults', params:[export: true, type: type]])}"><asset:image alt="" src="internal-link.gif" /> Export as CSV</a></div>
 	</div>
     <br/>
 	<g:if test="${wasRegionFiltered}">
@@ -30,19 +30,19 @@
 						<%-- If this is sorted, give link to asc/desc (opposite current order) --%>
 						<g:if test="${col.sortField.equals(sortField)}">
 							<g:if test="${order.equals('desc')}">
-								<th "class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadTableResultsGrid({sortField: '${col.sortField}', order: 'asc'})">
-									${col.sTitle} <img src="${resource([file:'desc.gif', dir:'images'])}"/>
+								<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadTableResultsGrid({sortField: '${col.sortField}', order: 'asc'})">
+									${col.sTitle} <asset:image src="desc.gif"/>
 								</th>
 							</g:if>
 							<g:else>
-								<th "class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadTableResultsGrid({sortField: '${col.sortField}', order: 'desc'})">
-									${col.sTitle} <img src="${resource([file:'asc.gif', dir:'images'])}"/>
+								<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadTableResultsGrid({sortField: '${col.sortField}', order: 'desc'})">
+									${col.sTitle} <asset:image src="asc.gif"/>
 								</th>
 							</g:else>
 						</g:if>
 						<%-- Otherwise just provide asc link --%>
 						<g:else>
-							<th "class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadTableResultsGrid({sortField: '${col.sortField}', order: 'asc'})">
+							<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadTableResultsGrid({sortField: '${col.sortField}', order: 'asc'})">
 								${col.sTitle}
 							</th>
 						</g:else>
