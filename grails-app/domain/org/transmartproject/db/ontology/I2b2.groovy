@@ -38,7 +38,7 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
     static String backingTable = 'I2B2'
 
-    static transients = AbstractI2b2Metadata.transients + ['studyId', 'study']
+    static transients = ['studyId', 'study', 'synonym', 'metadata', 'tableCode']
 
     static mapping = {
         table    name: 'I2B2', schema: 'I2B2METADATA'
