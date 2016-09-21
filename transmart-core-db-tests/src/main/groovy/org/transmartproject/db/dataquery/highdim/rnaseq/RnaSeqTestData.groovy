@@ -43,12 +43,13 @@ class RnaSeqTestData {
     private String conceptCode
 
     RnaSeqTestData(String conceptCode = 'concept code #1',
-                 SampleBioMarkerTestData bioMarkerTestData = null) {
+                   SampleBioMarkerTestData bioMarkerTestData = null) {
         this.conceptCode = conceptCode
         this.bioMarkerTestData = bioMarkerTestData ?: new SampleBioMarkerTestData()
     }
 
-    @Lazy List<SearchKeywordCoreDb> searchKeywords = {
+    @Lazy
+    List<SearchKeywordCoreDb> searchKeywords = {
         bioMarkerTestData.geneSearchKeywords +
                 bioMarkerTestData.proteinSearchKeywords +
                 bioMarkerTestData.geneSignatureSearchKeywords
@@ -109,23 +110,23 @@ class RnaSeqTestData {
     QtQueryMaster allPatientsQueryResult = createQueryResult(patients)
 
     List<DeSubjectSampleMapping> assays = createTestAssays(patients,
-                                                           -3010L,
-                                                           regionPlatform,
-                                                           TRIAL_NAME)
+            -3010L,
+            regionPlatform,
+            TRIAL_NAME)
 
     DeSubjectRnaseqData createRNASEQData(Region region,
                                          Assay assay,
                                          readcount = 0,
                                          normalizedreadcount = 0.0
-                                        ) {
+    ) {
         new DeSubjectRnaseqData(
-                region:                     region,
-                assay:                      assay,
-                patient:                    assay.patient,
-                readcount:                  readcount,
-                normalizedReadcount:        normalizedreadcount,
-                logNormalizedReadcount:     Math.log(normalizedreadcount)/Math.log(2.0),
-                zscore:                     ((Math.log(normalizedreadcount)/Math.log(2.0))-0.5)/1.5,
+                region: region,
+                assay: assay,
+                patient: assay.patient,
+                readcount: readcount,
+                normalizedReadcount: normalizedreadcount,
+                logNormalizedReadcount: Math.log(normalizedreadcount) / Math.log(2.0),
+                zscore: ((Math.log(normalizedreadcount) / Math.log(2.0)) - 0.5) / 1.5,
         )
     }
 
@@ -141,10 +142,10 @@ class RnaSeqTestData {
     void saveAll() {
         bioMarkerTestData.saveGeneData()
 
-        save([ regionPlatform, bogusTypePlatform ])
+        save([regionPlatform, bogusTypePlatform])
         save regions
         save patients
-        save([ allPatientsQueryResult ])
+        save([allPatientsQueryResult])
         save assays
         save rnaseqData
     }

@@ -38,7 +38,8 @@ class ClinicalTestData {
     List<Patient> patients
     List<ObservationFact> facts
 
-    @Lazy QtQueryMaster patientsQueryMaster = createQueryResult patients
+    @Lazy
+    QtQueryMaster patientsQueryMaster = createQueryResult patients
 
     QueryResult getQueryResult() {
         getQueryResultFromMaster patientsQueryMaster
@@ -121,14 +122,14 @@ class ClinicalTestData {
                                                  Long encounterId,
                                                  Object value) {
         def of = new ObservationFact(
-                encounterNum:   encounterId as BigDecimal,
-                providerId:     'fakeProviderId',
-                modifierCd:     'fakeModifierCd',
-                patient:        patient,
-                conceptCode:    conceptCode,
-                startDate:      new Date(),
+                encounterNum: encounterId as BigDecimal,
+                providerId: 'fakeProviderId',
+                modifierCd: 'fakeModifierCd',
+                patient: patient,
+                conceptCode: conceptCode,
+                startDate: new Date(),
                 sourcesystemCd: patient.trial,
-                instanceNum:    0)
+                instanceNum: 0)
 
         if (value instanceof Number) {
             of.valueType = ObservationFact.TYPE_NUMBER
@@ -142,7 +143,7 @@ class ClinicalTestData {
         of
     }
 
-    static List<ObservationFact> createFacts(List<ConceptDimension> concepts, List<Patient> patients)  {
+    static List<ObservationFact> createFacts(List<ConceptDimension> concepts, List<Patient> patients) {
         long encounterNum = -200
         def list1 = concepts[0..1].collect { ConceptDimension concept ->
             patients.collect { PatientDimension patient ->

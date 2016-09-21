@@ -378,12 +378,12 @@ class VcfEndToEndRetrievalSpec extends Specification {
         def assays = dataQueryResult.indicesList
         def rows = dataQueryResult.getRows()
 
-        expected.each { position ->
+        expect:
+        expected.every { position ->
             def row = rows.next()
 
             position.eachWithIndex { result, assayIndex ->
-                expect:
-                row.getOriginalSubjectData(assays[assayIndex]) equalTo(result)
+                row.getOriginalSubjectData(assays[assayIndex]) == result
             }
         }
     }

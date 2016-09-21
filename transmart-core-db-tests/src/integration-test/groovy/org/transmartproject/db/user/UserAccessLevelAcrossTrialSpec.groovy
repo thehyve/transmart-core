@@ -21,7 +21,6 @@ package org.transmartproject.db.user
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.gmock.WithGMock
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.ontology.OntologyTerm
@@ -35,7 +34,6 @@ import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.ontology.ModifierDimensionView
 import spock.lang.Specification
 
-import static org.hamcrest.Matchers.is
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
 
@@ -44,7 +42,6 @@ import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
  * AccessLevelTestData.
  */
 
-@WithGMock
 @Integration
 @Rollback
 class UserAccessLevelAcrossTrialSpec extends Specification {

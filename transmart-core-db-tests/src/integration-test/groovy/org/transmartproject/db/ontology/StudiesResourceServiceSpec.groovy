@@ -27,7 +27,6 @@ import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import spock.lang.Specification
 
-import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Concept
 
@@ -102,9 +101,11 @@ class StudiesResourceServiceSpec extends Specification {
 
     void testGetStudyByNameNonExistent() {
         setupData()
-        shouldFail NoSuchResourceException, {
-            studiesResourceService.getStudyById('bad study id')
-        }
+
+        when:
+        studiesResourceService.getStudyById('bad study id')
+        then:
+        thrown(NoSuchResourceException)
     }
 
     void testGetStudyByOntologyTerm() {
@@ -156,9 +157,10 @@ class StudiesResourceServiceSpec extends Specification {
         setupData()
         def concept = conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\study1\\bar\\')
 
-        shouldFail NoSuchResourceException, {
-            studiesResourceService.getStudyByOntologyTerm(concept)
-        }
+        when:
+        studiesResourceService.getStudyByOntologyTerm(concept)
+        then:
+        thrown(NoSuchResourceException)
     }
 
 }

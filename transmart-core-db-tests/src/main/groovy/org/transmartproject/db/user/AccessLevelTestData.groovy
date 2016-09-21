@@ -61,6 +61,7 @@ class AccessLevelTestData {
      * The alternative concept data still has hard requirements;
      * the study names should be a subset of STUDY_ID_{1,2,3}
      */
+
     static AccessLevelTestData createWithAlternativeConceptData(
             ConceptTestData conceptTestData) {
         def result = new AccessLevelTestData()
@@ -70,14 +71,16 @@ class AccessLevelTestData {
 
     ConceptTestData conceptTestData
 
-    @Lazy /* private */ List<String> studies = {
+    @Lazy
+    /* private */ List<String> studies = {
         conceptTestData.i2b2List*.cComment.collect {
             def split = it?.split(':') as List
             split ? split[1] : null
         }.findAll()
     }()
 
-    @Lazy List<I2b2Secure> i2b2Secures = {
+    @Lazy
+    List<I2b2Secure> i2b2Secures = {
         conceptTestData.i2b2List.collect { I2b2 i2b2 ->
             def i2b2sec = createI2b2Secure(
                     i2b2.metaClass.properties.findAll {
@@ -94,7 +97,8 @@ class AccessLevelTestData {
         }
     }()
 
-    @Lazy  List<SecuredObject> securedObjects = {
+    @Lazy
+    List<SecuredObject> securedObjects = {
         Set<String> tokens = i2b2Secures*.secureObjectToken as Set
         tokens -= 'EXP:PUBLIC'
 
@@ -111,9 +115,9 @@ class AccessLevelTestData {
     List<AccessLevel> accessLevels = {
         long id = -600L
         [
-                [name: 'OWN',    value: 255],
+                [name: 'OWN', value: 255],
                 [name: 'EXPORT', value: 8],
-                [name: 'VIEW',   value: 1],
+                [name: 'VIEW', value: 1],
         ].collect {
             def accessLevel = new AccessLevel(it)
             accessLevel.id = --id
@@ -124,11 +128,11 @@ class AccessLevelTestData {
     List<RoleCoreDb> roles = {
         long id = -100L
         [
-                [authority: 'ROLE_ADMIN',                  description: 'admin user'],
-                [authority: 'ROLE_STUDY_OWNER',            description: 'study owner'],
-                [authority: 'ROLE_SPECTATOR',              description: 'spectator user'],
+                [authority: 'ROLE_ADMIN', description: 'admin user'],
+                [authority: 'ROLE_STUDY_OWNER', description: 'study owner'],
+                [authority: 'ROLE_SPECTATOR', description: 'spectator user'],
                 [authority: 'ROLE_DATASET_EXPLORER_ADMIN', description: 'dataset Explorer admin users - can view all trials'],
-                [authority: 'ROLE_PUBLIC_USER',            description: 'public user'],
+                [authority: 'ROLE_PUBLIC_USER', description: 'public user'],
         ].collect {
             def role = new RoleCoreDb(it)
             role.id = --id
@@ -143,7 +147,7 @@ class AccessLevelTestData {
             def ret = new User(
                     username: username,
                     uniqueId: username,
-                    enable:   true)
+                    enable: true)
             ret.id = id
             ret
         }
@@ -156,7 +160,7 @@ class AccessLevelTestData {
             def ret = new Group(
                     category: name,
                     uniqueId: name,
-                    enabled:  true)
+                    enabled: true)
             ret.id = id
             ret
         }
@@ -188,37 +192,38 @@ class AccessLevelTestData {
      *   probably can't happen in transmart anyway).
      * 7 EVERYONE_GROUP has access to study 3
      */
-    @Lazy List<SecuredObjectAccess> securedObjectAccesses = {
+    @Lazy
+    List<SecuredObjectAccess> securedObjectAccesses = {
         List<SecuredObjectAccess> ret = []
         if (STUDY2 in studies) {
             ret += [
                     new SecuredObjectAccess( // 2
-                            principal:     groups.find { it.category == 'group_-201' },
+                            principal: groups.find { it.category == 'group_-201' },
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                            accessLevel:   accessLevels.find { it.name == 'EXPORT' }),
+                            accessLevel: accessLevels.find { it.name == 'EXPORT' }),
                     new SecuredObjectAccess( // 3
-                            principal:     users[2],
+                            principal: users[2],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                            accessLevel:   accessLevels.find { it.name == 'OWN' }),
+                            accessLevel: accessLevels.find { it.name == 'OWN' }),
                     new SecuredObjectAccess( // 5
-                            principal:     users[4],
+                            principal: users[4],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                            accessLevel:   accessLevels.find { it.name == 'VIEW' }),
+                            accessLevel: accessLevels.find { it.name == 'VIEW' }),
                     new SecuredObjectAccess( // 6 (1)
-                            principal:     users[5],
+                            principal: users[5],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                            accessLevel:   accessLevels.find { it.name == 'VIEW' }),
+                            accessLevel: accessLevels.find { it.name == 'VIEW' }),
                     new SecuredObjectAccess( // 6 (2)
-                            principal:     users[5],
+                            principal: users[5],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
-                            accessLevel:   accessLevels.find { it.name == 'EXPORT' }),
+                            accessLevel: accessLevels.find { it.name == 'EXPORT' }),
             ]
         }
         if (STUDY3 in studies) {
             ret += new SecuredObjectAccess( // 7
-                    principal:     groups.find { it.category == EVERYONE_GROUP_NAME },
+                    principal: groups.find { it.category == EVERYONE_GROUP_NAME },
                     securedObject: securedObjects.find { it.bioDataUniqueId == STUDY3_SECURE_TOKEN },
-                    accessLevel:   accessLevels.find { it.name == 'EXPORT' })
+                    accessLevel: accessLevels.find { it.name == 'EXPORT' })
         }
 
         long id = -700L

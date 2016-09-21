@@ -48,7 +48,8 @@ class AcghTestData {
         this.bioMarkerTestData = bioMarkerTestData ?: new SampleBioMarkerTestData()
     }
 
-    @Lazy List<SearchKeywordCoreDb> searchKeywords = {
+    @Lazy
+    List<SearchKeywordCoreDb> searchKeywords = {
         bioMarkerTestData.geneSearchKeywords +
                 bioMarkerTestData.proteinSearchKeywords +
                 bioMarkerTestData.geneSignatureSearchKeywords
@@ -109,24 +110,24 @@ class AcghTestData {
     QtQueryMaster allPatientsQueryResult = createQueryResult(patients)
 
     List<DeSubjectSampleMapping> assays = createTestAssays(patients,
-                                                           -3000L,
-                                                           regionPlatform,
-                                                           TRIAL_NAME,
-                                                           conceptCode)
+            -3000L,
+            regionPlatform,
+            TRIAL_NAME,
+            conceptCode)
 
     DeSubjectAcghData createACGHData(Region region,
                                      Assay assay,
                                      flag = 0) {
         new DeSubjectAcghData(
-                region:                     region,
-                assay:                      assay,
-                patient:                    assay.patient,
-                chipCopyNumberValue:        0.11d,
-                segmentCopyNumberValue:     0.12d,
-                flag:                       flag,
-                probabilityOfLoss:          0.11d + (flag == -1 ? 0.08d : 0),
-                probabilityOfNormal:        0.13d + (flag == 0 ? 0.08d : 0),
-                probabilityOfGain:          0.14d + (flag == 1 ? 0.08d : 0),
+                region: region,
+                assay: assay,
+                patient: assay.patient,
+                chipCopyNumberValue: 0.11d,
+                segmentCopyNumberValue: 0.12d,
+                flag: flag,
+                probabilityOfLoss: 0.11d + (flag == -1 ? 0.08d : 0),
+                probabilityOfNormal: 0.13d + (flag == 0 ? 0.08d : 0),
+                probabilityOfGain: 0.14d + (flag == 1 ? 0.08d : 0),
                 probabilityOfAmplification: 0.15d + (flag == 2 ? 0.08d : 0),
         )
     }
@@ -143,10 +144,10 @@ class AcghTestData {
     void saveAll() {
         bioMarkerTestData.saveGeneData()
 
-        save([ regionPlatform, bogusTypePlatform ])
+        save([regionPlatform, bogusTypePlatform])
         save regions
         save patients
-        save([ allPatientsQueryResult ])
+        save([allPatientsQueryResult])
         save assays
         save acghData
     }

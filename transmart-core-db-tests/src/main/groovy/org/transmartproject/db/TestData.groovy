@@ -40,15 +40,15 @@ class TestData {
         def conceptData = ConceptTestData.createDefault()
         def i2b2Data = I2b2Data.createDefault() // study 1
 
-        def study2Patients =  I2b2Data.createTestPatients 2, -200, 'STUDY_ID_2'
+        def study2Patients = I2b2Data.createTestPatients 2, -200, 'STUDY_ID_2'
         def i2b2DataStudy2 = new I2b2Data(
                 trialName: 'STUDY_ID_2',
                 patients: study2Patients,
                 patientTrials: I2b2Data.createPatientTrialLinks(study2Patients, 'STUDY_ID_2'))
         def extraFacts = ClinicalTestData.createDiagonalCategoricalFacts(
                 2,
-                [conceptData.i2b2List.find { it.name == 'male'}, // on study 2
-                 conceptData.i2b2List.find { it.name == 'female'}],
+                [conceptData.i2b2List.find { it.name == 'male' }, // on study 2
+                 conceptData.i2b2List.find { it.name == 'female' }],
                 study2Patients)
 
         def clinicalData = ClinicalTestData.createDefault(conceptData.i2b2List, i2b2Data.patients)
@@ -64,7 +64,7 @@ class TestData {
                 i2b2Data: i2b2Data,
                 secondI2b2Data: i2b2DataStudy2,
                 clinicalData: clinicalData,
-                mrnaData:  mrnaData,
+                mrnaData: mrnaData,
                 acghData: acghData,
                 bioMarkerTestData: bioMarkerTestData,
         )

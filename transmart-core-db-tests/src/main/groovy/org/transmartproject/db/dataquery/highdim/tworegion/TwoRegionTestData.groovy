@@ -25,7 +25,6 @@ import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.i2b2data.PatientDimension
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.is
 import static org.hamcrest.Matchers.notNullValue
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
@@ -178,7 +177,7 @@ class TwoRegionTestData {
     }
 
     void saveAll() {
-        assertThat platform.save(), is(notNullValue(DeGplInfo))
+        assert platform.save()
         save patients
         save assays
         save(events)

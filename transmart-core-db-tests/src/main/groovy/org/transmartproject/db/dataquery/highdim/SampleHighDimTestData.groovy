@@ -22,6 +22,7 @@ package org.transmartproject.db.dataquery.highdim
 import org.transmartproject.db.i2b2data.PatientDimension
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.*
+
 /**
  * Sample, generic high dimensional test data, not bound to any specific
  * data type.
@@ -48,7 +49,7 @@ class SampleHighDimTestData {
             patients, -3000L, platform, TRIAL_NAME)
 
     void saveAll() {
-        save([ platform ])
+        save([platform])
         save patients
         save assays
     }

@@ -38,24 +38,24 @@ class ProteinTestData {
         def res = new DeGplInfo(
                 title: 'Bogus protein platform',
                 organism: 'Homo Sapiens',
-                markerType: 'PROTEOMICS') 
+                markerType: 'PROTEOMICS')
         res.id = 'BOGUS_PROTEIN_PLATFORM'                  // ?? what should be here
         res
     }()
 
     List<PatientDimension> patients =
-        HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
+            HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
 
     List<DeSubjectSampleMapping> assays =
-        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
+            HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
     List<DeProteinAnnotation> annotations = {
         def createAnnotation = { id, proteinName, uniprotName, peptide ->
             def res = new DeProteinAnnotation(
-                    peptide:     peptide,
-                    uniprotId:   biomarkerTestData.proteinBioMarkers.find { it.name == proteinName }.externalId,
+                    peptide: peptide,
+                    uniprotId: biomarkerTestData.proteinBioMarkers.find { it.name == proteinName }.externalId,
                     uniprotName: uniprotName,
-                    platform:    platform
+                    platform: platform
             )
             res.id = id
             res
@@ -63,8 +63,8 @@ class ProteinTestData {
         [
                 // not the actual full sequences here...
                 createAnnotation(-501, 'Adipogenesis regulatory factor', 'PVR_HUMAN1', 'MASKGLQDLK'),
-                createAnnotation(-502, 'Adiponectin',                    'PVR_HUMAN2', 'MLLLGAVLLL'),
-                createAnnotation(-503, 'Urea transporter 2',             'PVR_HUMAN3', 'MSDPHSSPLL'),
+                createAnnotation(-502, 'Adiponectin', 'PVR_HUMAN2', 'MLLLGAVLLL'),
+                createAnnotation(-503, 'Urea transporter 2', 'PVR_HUMAN3', 'MSDPHSSPLL'),
         ]
     }()
 
@@ -75,7 +75,7 @@ class ProteinTestData {
                     annotation: annotation,
                     intensity: intensity,
                     logIntensity: Math.log(intensity),
-                    zscore:    (intensity - 0.35) / 0.1871
+                    zscore: (intensity - 0.35) / 0.1871
             )
         }
 

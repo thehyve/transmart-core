@@ -44,21 +44,21 @@ class HighDimTestData {
 
         patients.collect { PatientDimension p ->
             def s = new DeSubjectSampleMapping([
-                    patient: p,
+                    patient         : p,
                     patientInTrialId: p.sourcesystemCd.split(':')[1],
 
                     /* common */
-                    siteId: 'site id #1',
-                    conceptCode: conceptCode,
-                    trialName: trialName,
-                    timepointName: 'timepoint name #1',
-                    timepointCd: 'timepoint code',
-                    sampleTypeName: 'sample name #1',
-                    sampleTypeCd: 'sample code',
-                    tissueTypeName: 'tissue name #1',
-                    tissueTypeCd: 'tissue code',
-                    sampleCode: sampleCodePrefix + p.id,
-                    platform: platform,
+                    siteId          : 'site id #1',
+                    conceptCode     : conceptCode,
+                    trialName       : trialName,
+                    timepointName   : 'timepoint name #1',
+                    timepointCd     : 'timepoint code',
+                    sampleTypeName  : 'sample name #1',
+                    sampleTypeCd    : 'sample code',
+                    tissueTypeName  : 'tissue name #1',
+                    tissueTypeCd    : 'tissue code',
+                    sampleCode      : sampleCodePrefix + p.id,
+                    platform        : platform,
             ])
 
             s.id = --baseId
@@ -72,19 +72,20 @@ class HighDimTestData {
     }
 
     /* returns list with two elements: the biomarkers, and the search keywords */
+
     static List<BioMarkerCoreDb> createBioMarkers(long baseId,
                                                   List<Map<String, String>> attributes,
                                                   String type = 'GENE',
                                                   String organism = 'HOMO SAPIENS',
                                                   String sourceCode = 'Entrez') {
         (0..attributes.size() - 1).collect { int i ->
-            assertThat([ attributes[i].name,
-                    attributes[i].externalId ], everyItem(is(notNullValue())))
+            assertThat([attributes[i].name,
+                        attributes[i].externalId], everyItem(is(notNullValue())))
             def bm = new BioMarkerCoreDb(
                     type: type,
                     organism: organism,
                     sourceCode: sourceCode,
-                    *:attributes[i])
+                    *: attributes[i])
             bm.id = baseId - 1 - i
             bm
         }
@@ -105,7 +106,7 @@ class HighDimTestData {
     }
 
     static List<SearchKeywordCoreDb> createSearchKeywordsForGeneSignatures(
-           List<SearchGeneSignature> geneSignatures, long baseId) {
+            List<SearchGeneSignature> geneSignatures, long baseId) {
         geneSignatures.collect { sig ->
             def res = new SearchKeywordCoreDb(
                     keyword: sig.name,
@@ -143,7 +144,7 @@ class HighDimTestData {
             }
 
             BioDataCorrelDescr descr =
-                BioDataCorrelDescr.findByCorrelation(correlationType.name)
+                    BioDataCorrelDescr.findByCorrelation(correlationType.name)
             if (!descr) {
                 descr = new BioDataCorrelDescr(
                         correlation: correlationType.name,
@@ -153,8 +154,8 @@ class HighDimTestData {
             }
 
             def res = new BioDataCorrelationCoreDb(
-                    description:    descr,
-                    leftBioMarker:  left,
+                    description: descr,
+                    leftBioMarker: left,
                     rightBioMarker: right)
             res.id = id
             res

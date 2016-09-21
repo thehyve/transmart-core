@@ -16,12 +16,12 @@ buildscript {
 version "0.1"
 group "transmart.core.db.tests"
 
-apply plugin:"eclipse"
-apply plugin:"idea"
-apply plugin:"org.grails.grails-plugin"
-apply plugin:"org.grails.grails-plugin-publish"
-apply plugin:"org.grails.grails-gsp"
-apply plugin:"asset-pipeline"
+apply plugin: "eclipse"
+apply plugin: "idea"
+apply plugin: "org.grails.grails-plugin"
+apply plugin: "org.grails.grails-plugin-publish"
+apply plugin: "org.grails.grails-gsp"
+apply plugin: "asset-pipeline"
 
 ext {
     grailsVersion = project.grailsVersion
@@ -61,7 +61,6 @@ dependencies {
     testCompile "org.grails.plugins:hibernate4:5.0.10"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    testCompile 'org.gmock:gmock:0.8.3'
     compile project(':transmart-core-api')
     compile project(':transmart-core-db')
 }
@@ -75,9 +74,9 @@ grailsPublish {
     }
     title = "My Plugin"
     desc = "Full plugin description"
-    developers = [johndoe:"John Doe"]
+    developers = [johndoe: "John Doe"]
     portalUser = ""
-    portalPassword = ""    
+    portalPassword = ""
 }
 
 assets {

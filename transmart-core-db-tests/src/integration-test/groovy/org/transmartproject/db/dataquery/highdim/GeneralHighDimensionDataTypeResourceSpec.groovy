@@ -12,7 +12,6 @@ import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import spock.lang.Specification
 
-import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 import static spock.util.matcher.HamcrestSupport.that
@@ -78,10 +77,12 @@ class GeneralHighDimensionDataTypeResourceSpec extends Specification {
         def projection =
                 mrnaResource.createProjection [:], Projection.ZSCORE_PROJECTION
 
-        shouldFail EmptySetException, {
-            dataQueryResult = mrnaResource.retrieveData(
-                    assayConstraints, dataConstraints, projection)
-        }
+
+        when:
+        dataQueryResult = mrnaResource.retrieveData(
+                assayConstraints, dataConstraints, projection)
+        then:
+        thrown(EmptySetException)
     }
 
     void testUnsatisfiedDataConstraints() {

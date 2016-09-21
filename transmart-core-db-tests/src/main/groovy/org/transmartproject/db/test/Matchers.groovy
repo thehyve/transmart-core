@@ -40,7 +40,7 @@ class Matchers {
                     interfacePropertyNames.contains(prop.name) &&
                             !excludes.contains(prop.name)
                 }.collectEntries { prop ->
-                    [ prop.name, prop.getProperty(it) ]
+                    [prop.name, prop.getProperty(it)]
                 }
 
                 //TODO Implement better way
@@ -71,7 +71,7 @@ class Matchers {
 
                 !(diff1 || diff2)
             } else {
-                description.appendText  "$interf is not assignable from ${item.class}"
+                description.appendText "$interf is not assignable from ${item.class}"
                 false
             }
         }
@@ -99,21 +99,23 @@ class Matchers {
         return new BaseMatcher<Object>() {
             @Override
             public boolean matches(final Object item) {
-                for (int i=1;i<properties.length;i++)
+                for (int i = 1; i < properties.length; i++)
                     if (value[properties[i]] != value[properties[0]])
                         return false;
                 return true;
             }
+
             @Override
             public void describeTo(final Description description) {
                 description.appendText("Properties are not equal ");
-                for (int i=1;i<properties.length;i++)
-                    description.appendValue( properties[i]);
+                for (int i = 1; i < properties.length; i++)
+                    description.appendValue(properties[i]);
             }
+
             @Override
             public void describeMismatch(final Object item, final
-            Description description) {
-                for (int i=1;i<properties.length;i++)
+                    Description description) {
+                for (int i = 1; i < properties.length; i++)
                     if (value[properties[i]] != value[properties[0]])
                         description.appendValue(properties[i]).appendText("was").appendValue(value[properties[i]]);
             }

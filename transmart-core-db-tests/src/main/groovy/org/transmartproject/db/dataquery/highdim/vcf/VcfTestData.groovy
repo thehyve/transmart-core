@@ -26,15 +26,12 @@ import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.is
-import static org.hamcrest.Matchers.notNullValue
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 /**
  * Created by j.hudecek on 13-3-14.
  */
-class VcfTestData  {
+class VcfTestData {
 
     public static final String TRIAL_NAME = 'VCF_SAMP_TRIAL'
 
@@ -57,11 +54,11 @@ class VcfTestData  {
                 organism: 'Homo Sapiens',
                 markerType: 'VCF')
         platform.id = 'BOGUSGPLVCF'
-        dataset = new DeVariantDatasetCoreDb(genome:'human')
+        dataset = new DeVariantDatasetCoreDb(genome: 'human')
         dataset.id = 'BOGUSDTST'
         patients = HighDimTestData.createTestPatients(3, -800, TRIAL_NAME)
         assays = HighDimTestData.createTestAssays(patients, -1400, platform, TRIAL_NAME, conceptCode)
-        
+
         // Create VCF data
         detailsData = []
         detailsData += createDetail(1, 'C', 'A', 'DP=88;AF1=1;QD=2;DP4=0,0,80,0;MQ=60;FQ=-268')
@@ -89,7 +86,7 @@ class VcfTestData  {
                         assay, indexData[idx], detail.pos == 1L
             }
             if (detail.alt.contains(','))
-                summariesData.last().allele1=2
+                summariesData.last().allele1 = 2
 
             // Create VCF population data entry
             if (detail.pos == 1 || detail.pos == 2) {
@@ -111,7 +108,8 @@ class VcfTestData  {
         bioMarkerTestData = bioMarkerTestData ?: new SampleBioMarkerTestData()
     }
 
-    @Lazy List<SearchKeywordCoreDb> searchKeywords = {
+    @Lazy
+    List<SearchKeywordCoreDb> searchKeywords = {
         bioMarkerTestData.geneSearchKeywords
     }()
 
@@ -129,7 +127,7 @@ class VcfTestData  {
                     alt: alternative,
                     quality: position, //nonsensical value
                     filter: '.',
-                    info:  info,
+                    info: info,
                     format: 'GT',
                     dataset: dataset,
                     variant: "" + position + "/" + position + "\t" +
@@ -154,8 +152,8 @@ class VcfTestData  {
                     subjectId: subjectIndex.subjectId,
                     variant: ((allele1 == 0) ? detail.ref : detail.alt) + '/' +
                             ((allele2 == 0) ? detail.ref : detail.alt),
-                    variantFormat: ((allele1 == 0) ? 'R':'V') + '/' +
-                            ((allele2 == 0) ? 'R':'V'),
+                    variantFormat: ((allele1 == 0) ? 'R' : 'V') + '/' +
+                            ((allele2 == 0) ? 'R' : 'V'),
                     variantType: detail.ref.length() > 1 ? 'DIV' : 'SNV',
                     reference: reference,
                     allele1: allele1,
@@ -182,8 +180,8 @@ class VcfTestData  {
     void saveAll() {
         bioMarkerTestData.saveGeneData()
 
-        assertThat platform.save(), is(notNullValue(DeGplInfo))
-        assertThat otherPlatform.save(), is(notNullValue(DeGplInfo))
+        assert platform.save()
+        assert otherPlatform.save()
         save([dataset])
         save patients
         save assays
