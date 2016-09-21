@@ -198,15 +198,15 @@ class I2b2Spec extends Specification {
 
     void testSynonym() {
         setupData()
-        when:
-        I2b2 jar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\jar\\') }
-        then:
-        jar hasProperty('synonym', is(false))
+        I2b2 i2b2 = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\jar\\') }
+
+        expect:
+        !i2b2.synonym
 
         when:
-        jar.cSynonymCd = 'Y'
+        i2b2.cSynonymCd = 'Y'
         then:
-        jar hasProperty('synonym', is(true))
+        i2b2.synonym
     }
 
     def createObservations(List<I2b2> concepts, List<Patient> patients) {
