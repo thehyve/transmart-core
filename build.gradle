@@ -27,7 +27,15 @@ def make(String target) {
     println target
 }
 
+def sudo_make(String target) {
+    exec {
+        commandLine 'bash', '-c', 'source ./vars && sudo make ' + target
+    }
+    println target
+}
+
 task setupPostgres << {
+    sudo_make('-C env /var/lib/postgresql/tablespaces')
     make('postgres')
 }
 
