@@ -1,7 +1,8 @@
 package jobs.steps.helpers
 
 import com.google.common.collect.Lists
-import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import jobs.UserParameters
 import jobs.table.MissingValueAction
 import jobs.table.Table
@@ -24,7 +25,8 @@ import static jobs.steps.helpers.ConfiguratorTestsHelper.*
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-@TestMixin(JobsIntegrationTestMixin)
+@Integration
+@Rollback
 class OptionalBinningColumnConfiguratorTests {
 
     public static final String COLUMN_HEADER = 'TEST COLUMN HEADER'
@@ -47,27 +49,27 @@ class OptionalBinningColumnConfiguratorTests {
 
     void before() {
         initializeAsBean configuratorTestsHelper
-        
+
         [testee, params, jobName, table].each {
             assertThat it, is(notNullValue())
         }
         assertThat params.@map, is(notNullValue())
 
-        testee.header                = COLUMN_HEADER
-        testee.projection            = Projection.DEFAULT_REAL_PROJECTION
-        testee.keyForConceptPaths    = 'variable'
-        testee.keyForDataType        = 'divVariableType'
+        testee.header = COLUMN_HEADER
+        testee.projection = Projection.DEFAULT_REAL_PROJECTION
+        testee.keyForConceptPaths = 'variable'
+        testee.keyForDataType = 'divVariableType'
         testee.keyForSearchKeywordId = 'divVariablePathway'
 
         BinningColumnConfigurator binningColumnConfigurator = testee.binningConfigurator
 
-        binningColumnConfigurator.keyForDoBinning       = 'binning'
-        binningColumnConfigurator.keyForManualBinning   = 'manualBinning'
-        binningColumnConfigurator.keyForNumberOfBins    = 'numberOfBins'
+        binningColumnConfigurator.keyForDoBinning = 'binning'
+        binningColumnConfigurator.keyForManualBinning = 'manualBinning'
+        binningColumnConfigurator.keyForNumberOfBins = 'numberOfBins'
         binningColumnConfigurator.keyForBinDistribution = 'binDistribution'
-        binningColumnConfigurator.keyForBinRanges       = 'binRanges'
+        binningColumnConfigurator.keyForBinRanges = 'binRanges'
         // distinct from testee.keyForDataType!
-        binningColumnConfigurator.keyForVariableType    = 'variableType'
+        binningColumnConfigurator.keyForVariableType = 'variableType'
     }
 
     @After
@@ -91,7 +93,6 @@ class OptionalBinningColumnConfiguratorTests {
                 result_instance_id1: RESULT_INSTANCE_ID1,
                 result_instance_id2: RESULT_INSTANCE_ID2,
         ])
-
 
         /* interactions with tabular result */
         TabularResult<Double, AssayColumn> highDimResult = mock(TabularResult)
@@ -262,7 +263,7 @@ class OptionalBinningColumnConfiguratorTests {
             println res
             assertThat res, containsInAnyOrder(
                     (["20.0 ≤ $COLUMN_HEADER ≤ 20.0" as String] * 4 +
-                    ["20.0 < $COLUMN_HEADER ≤ 31.0" as String] * 2).collect { equalTo([it]) })
+                            ["20.0 < $COLUMN_HEADER ≤ 31.0" as String] * 2).collect { equalTo([it]) })
         }
     }
 
@@ -320,7 +321,7 @@ class OptionalBinningColumnConfiguratorTests {
                 numberOfBins       : '2',
 
                 binRanges          : ("bin1<>${BUNDLE_OF_CLINICAL_CONCEPT_PATH[0..1].join('<>')}|" +
-                                     "bin2<>${BUNDLE_OF_CLINICAL_CONCEPT_PATH[2]}") as String,
+                        "bin2<>${BUNDLE_OF_CLINICAL_CONCEPT_PATH[2]}") as String,
                 variableType       : 'Categorical',
 
                 result_instance_id1: RESULT_INSTANCE_ID1,
@@ -335,10 +336,10 @@ class OptionalBinningColumnConfiguratorTests {
         TabularResult<ClinicalVariableColumn, PatientRow> clinicalResult =
                 mock(TabularResult)
         clinicalResult.iterator().returns(createPatientRows(4, columns,
-                ['',                 '',                  valuesForColumns[2],
-                 '',                 valuesForColumns[1], '',
-                valuesForColumns[0], '',                  '',
-                '',                  valuesForColumns[1], '',],
+                ['', '', valuesForColumns[2],
+                 '', valuesForColumns[1], '',
+                 valuesForColumns[0], '', '',
+                 '', valuesForColumns[1], '',],
                 true /* relaxed */).iterator())
         clinicalResult.close().stub()
 
@@ -387,7 +388,7 @@ class OptionalBinningColumnConfiguratorTests {
                 mock(TabularResult)
         clinicalResult.iterator().returns(createPatientRows(
                 3, [clinicalVariable],
-                [ 0, 66, 50]).iterator())
+                [0, 66, 50]).iterator())
         // 66 is outside any bin, so a null will be returned by the binning column decorator
         clinicalDataResourceMock.retrieveData(mockQueryResults(), [clinicalVariable]).returns(clinicalResult)
 
@@ -611,7 +612,6 @@ class OptionalBinningColumnConfiguratorTests {
                 result_instance_id1: RESULT_INSTANCE_ID1,
                 result_instance_id2: RESULT_INSTANCE_ID2,
         ])
-
 
         /* clinical variables */
         List<ClinicalVariableColumn> clinicalVariables =

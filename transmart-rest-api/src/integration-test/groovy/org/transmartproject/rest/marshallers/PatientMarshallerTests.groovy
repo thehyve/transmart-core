@@ -27,7 +27,7 @@ package org.transmartproject.rest.marshallers
 
 import grails.converters.JSON
 import groovy.json.JsonSlurper
-import org.codehaus.groovy.grails.web.mime.MimeType
+import grails.web.mime.MimeType
 import org.junit.Test
 import org.springframework.beans.MutablePropertyValues
 import org.springframework.beans.factory.support.GenericBeanDefinition

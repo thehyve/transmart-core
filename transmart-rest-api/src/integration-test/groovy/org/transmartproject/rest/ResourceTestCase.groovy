@@ -26,7 +26,7 @@
 package org.transmartproject.rest
 
 import com.grailsrocks.functionaltest.APITestCase
-import org.codehaus.groovy.grails.web.json.JSONElement
+import org.grails.web.json.JSONElement
 import org.hamcrest.Matcher
 
 import static org.hamcrest.Matchers.*

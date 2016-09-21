@@ -36,7 +36,7 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
 import org.springframework.core.type.filter.AssignableTypeFilter
 
-import static org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterConfiguration.DEFAULT_PRIORITY
+import static org.grails.web.converters.configuration.DefaultConverterConfiguration.DEFAULT_PRIORITY
 import static org.springframework.beans.factory.support.BeanDefinitionReaderUtils.registerBeanDefinition
 
 /**

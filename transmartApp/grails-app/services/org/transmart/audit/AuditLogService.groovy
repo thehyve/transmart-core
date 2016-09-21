@@ -53,13 +53,13 @@ class AuditLogService {
 
     @Lazy
     volatile boolean enabled = {
-        log.effectiveLevel.toInt() <= Level.TRACE.toInt()
+        log.traceEnabled
     }()
 
     def report(Map<String, Object> params = [:], String event, HttpServletRequest request) {
         User user = (User) params.user
 
-        if (!enabled) return
+        if (!log.traceEnabled) return
 
         Map msg = [:]
 
@@ -83,6 +83,6 @@ class AuditLogService {
         msg.userAgent = request.getHeader 'user-agent'
         msg.timestamp = new Date()
 
-        log.trace(msg)
+        log.trace(msg.toMapString())
     }
 }
