@@ -27,7 +27,7 @@ package org.transmartproject.rest.marshallers
 
 import grails.converters.JSON
 import grails.rest.render.*
-import org.codehaus.groovy.grails.web.mime.MimeType
+import grails.web.mime.MimeType
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.validation.Errors

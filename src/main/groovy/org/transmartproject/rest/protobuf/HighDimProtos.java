@@ -8,10 +8,10 @@ public final class HighDimProtos {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface HighDimHeaderOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface HighDimHeaderOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:highdim.HighDimHeader)
+      com.google.protobuf.MessageOrBuilder {
 
-    // repeated .highdim.Assay assay = 1;
     /**
      * <code>repeated .highdim.Assay assay = 1;</code>
      */
@@ -36,7 +36,6 @@ public final class HighDimProtos {
     org.transmartproject.rest.protobuf.HighDimProtos.AssayOrBuilder getAssayOrBuilder(
         int index);
 
-    // repeated .highdim.ColumnSpec columnSpec = 2;
     /**
      * <code>repeated .highdim.ColumnSpec columnSpec = 2;</code>
      */
@@ -70,8 +69,9 @@ public final class HighDimProtos {
    * </pre>
    */
   public static final class HighDimHeader extends
-      com.google.protobuf.GeneratedMessage
-      implements HighDimHeaderOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:highdim.HighDimHeader)
+      HighDimHeaderOrBuilder {
     // Use HighDimHeader.newBuilder() to construct.
     private HighDimHeader(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -178,7 +178,6 @@ public final class HighDimProtos {
       return PARSER;
     }
 
-    // repeated .highdim.Assay assay = 1;
     public static final int ASSAY_FIELD_NUMBER = 1;
     private java.util.List<org.transmartproject.rest.protobuf.HighDimProtos.Assay> assay_;
     /**
@@ -214,7 +213,6 @@ public final class HighDimProtos {
       return assay_.get(index);
     }
 
-    // repeated .highdim.ColumnSpec columnSpec = 2;
     public static final int COLUMNSPEC_FIELD_NUMBER = 2;
     private java.util.List<org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec> columnSpec_;
     /**
@@ -257,7 +255,8 @@ public final class HighDimProtos {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       for (int i = 0; i < getAssayCount(); i++) {
         if (!getAssay(i).isInitialized()) {
@@ -388,8 +387,9 @@ public final class HighDimProtos {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.transmartproject.rest.protobuf.HighDimProtos.HighDimHeaderOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:highdim.HighDimHeader)
+        org.transmartproject.rest.protobuf.HighDimProtos.HighDimHeaderOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.transmartproject.rest.protobuf.HighDimProtos.internal_static_highdim_HighDimHeader_descriptor;
@@ -587,7 +587,6 @@ public final class HighDimProtos {
       }
       private int bitField0_;
 
-      // repeated .highdim.Assay assay = 1;
       private java.util.List<org.transmartproject.rest.protobuf.HighDimProtos.Assay> assay_ =
         java.util.Collections.emptyList();
       private void ensureAssayIsMutable() {
@@ -729,7 +728,8 @@ public final class HighDimProtos {
           java.lang.Iterable<? extends org.transmartproject.rest.protobuf.HighDimProtos.Assay> values) {
         if (assayBuilder_ == null) {
           ensureAssayIsMutable();
-          super.addAll(values, assay_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, assay_);
           onChanged();
         } else {
           assayBuilder_.addAllMessages(values);
@@ -827,7 +827,6 @@ public final class HighDimProtos {
         return assayBuilder_;
       }
 
-      // repeated .highdim.ColumnSpec columnSpec = 2;
       private java.util.List<org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec> columnSpec_ =
         java.util.Collections.emptyList();
       private void ensureColumnSpecIsMutable() {
@@ -969,7 +968,8 @@ public final class HighDimProtos {
           java.lang.Iterable<? extends org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec> values) {
         if (columnSpecBuilder_ == null) {
           ensureColumnSpecIsMutable();
-          super.addAll(values, columnSpec_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, columnSpec_);
           onChanged();
         } else {
           columnSpecBuilder_.addAllMessages(values);
@@ -1078,10 +1078,10 @@ public final class HighDimProtos {
     // @@protoc_insertion_point(class_scope:highdim.HighDimHeader)
   }
 
-  public interface ColumnSpecOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ColumnSpecOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:highdim.ColumnSpec)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string name = 1;
     /**
      * <code>required string name = 1;</code>
      */
@@ -1096,7 +1096,6 @@ public final class HighDimProtos {
     com.google.protobuf.ByteString
         getNameBytes();
 
-    // required .highdim.ColumnSpec.ColumnType type = 2;
     /**
      * <code>required .highdim.ColumnSpec.ColumnType type = 2;</code>
      */
@@ -1110,8 +1109,9 @@ public final class HighDimProtos {
    * Protobuf type {@code highdim.ColumnSpec}
    */
   public static final class ColumnSpec extends
-      com.google.protobuf.GeneratedMessage
-      implements ColumnSpecOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:highdim.ColumnSpec)
+      ColumnSpecOrBuilder {
     // Use ColumnSpec.newBuilder() to construct.
     private ColumnSpec(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -1158,8 +1158,9 @@ public final class HighDimProtos {
               break;
             }
             case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              name_ = input.readBytes();
+              name_ = bs;
               break;
             }
             case 16: {
@@ -1295,7 +1296,6 @@ public final class HighDimProtos {
     }
 
     private int bitField0_;
-    // required string name = 1;
     public static final int NAME_FIELD_NUMBER = 1;
     private java.lang.Object name_;
     /**
@@ -1338,7 +1338,6 @@ public final class HighDimProtos {
       }
     }
 
-    // required .highdim.ColumnSpec.ColumnType type = 2;
     public static final int TYPE_FIELD_NUMBER = 2;
     private org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec.ColumnType type_;
     /**
@@ -1361,7 +1360,8 @@ public final class HighDimProtos {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasName()) {
         memoizedIsInitialized = 0;
@@ -1483,8 +1483,9 @@ public final class HighDimProtos {
      * Protobuf type {@code highdim.ColumnSpec}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpecOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:highdim.ColumnSpec)
+        org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpecOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.transmartproject.rest.protobuf.HighDimProtos.internal_static_highdim_ColumnSpec_descriptor;
@@ -1616,7 +1617,6 @@ public final class HighDimProtos {
       }
       private int bitField0_;
 
-      // required string name = 1;
       private java.lang.Object name_ = "";
       /**
        * <code>required string name = 1;</code>
@@ -1630,9 +1630,12 @@ public final class HighDimProtos {
       public java.lang.String getName() {
         java.lang.Object ref = name_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          name_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1690,7 +1693,6 @@ public final class HighDimProtos {
         return this;
       }
 
-      // required .highdim.ColumnSpec.ColumnType type = 2;
       private org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec.ColumnType type_ = org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec.ColumnType.DOUBLE;
       /**
        * <code>required .highdim.ColumnSpec.ColumnType type = 2;</code>
@@ -1737,10 +1739,10 @@ public final class HighDimProtos {
     // @@protoc_insertion_point(class_scope:highdim.ColumnSpec)
   }
 
-  public interface AssayOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface AssayOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:highdim.Assay)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required int64 assayId = 1;
     /**
      * <code>required int64 assayId = 1;</code>
      */
@@ -1750,7 +1752,6 @@ public final class HighDimProtos {
      */
     long getAssayId();
 
-    // required string patientId = 2;
     /**
      * <code>required string patientId = 2;</code>
      */
@@ -1765,7 +1766,6 @@ public final class HighDimProtos {
     com.google.protobuf.ByteString
         getPatientIdBytes();
 
-    // optional string sampleTypeName = 3;
     /**
      * <code>optional string sampleTypeName = 3;</code>
      */
@@ -1780,7 +1780,6 @@ public final class HighDimProtos {
     com.google.protobuf.ByteString
         getSampleTypeNameBytes();
 
-    // optional string timepointName = 4;
     /**
      * <code>optional string timepointName = 4;</code>
      */
@@ -1795,7 +1794,6 @@ public final class HighDimProtos {
     com.google.protobuf.ByteString
         getTimepointNameBytes();
 
-    // optional string tissueTypeName = 5;
     /**
      * <code>optional string tissueTypeName = 5;</code>
      */
@@ -1810,7 +1808,6 @@ public final class HighDimProtos {
     com.google.protobuf.ByteString
         getTissueTypeNameBytes();
 
-    // optional string platform = 6;
     /**
      * <code>optional string platform = 6;</code>
      */
@@ -1825,7 +1822,6 @@ public final class HighDimProtos {
     com.google.protobuf.ByteString
         getPlatformBytes();
 
-    // optional string sampleCode = 7;
     /**
      * <code>optional string sampleCode = 7;</code>
      */
@@ -1844,8 +1840,9 @@ public final class HighDimProtos {
    * Protobuf type {@code highdim.Assay}
    */
   public static final class Assay extends
-      com.google.protobuf.GeneratedMessage
-      implements AssayOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:highdim.Assay)
+      AssayOrBuilder {
     // Use Assay.newBuilder() to construct.
     private Assay(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -1897,33 +1894,39 @@ public final class HighDimProtos {
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              patientId_ = input.readBytes();
+              patientId_ = bs;
               break;
             }
             case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000004;
-              sampleTypeName_ = input.readBytes();
+              sampleTypeName_ = bs;
               break;
             }
             case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
-              timepointName_ = input.readBytes();
+              timepointName_ = bs;
               break;
             }
             case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000010;
-              tissueTypeName_ = input.readBytes();
+              tissueTypeName_ = bs;
               break;
             }
             case 50: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000020;
-              platform_ = input.readBytes();
+              platform_ = bs;
               break;
             }
             case 58: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000040;
-              sampleCode_ = input.readBytes();
+              sampleCode_ = bs;
               break;
             }
           }
@@ -1966,7 +1969,6 @@ public final class HighDimProtos {
     }
 
     private int bitField0_;
-    // required int64 assayId = 1;
     public static final int ASSAYID_FIELD_NUMBER = 1;
     private long assayId_;
     /**
@@ -1982,7 +1984,6 @@ public final class HighDimProtos {
       return assayId_;
     }
 
-    // required string patientId = 2;
     public static final int PATIENTID_FIELD_NUMBER = 2;
     private java.lang.Object patientId_;
     /**
@@ -2025,7 +2026,6 @@ public final class HighDimProtos {
       }
     }
 
-    // optional string sampleTypeName = 3;
     public static final int SAMPLETYPENAME_FIELD_NUMBER = 3;
     private java.lang.Object sampleTypeName_;
     /**
@@ -2068,7 +2068,6 @@ public final class HighDimProtos {
       }
     }
 
-    // optional string timepointName = 4;
     public static final int TIMEPOINTNAME_FIELD_NUMBER = 4;
     private java.lang.Object timepointName_;
     /**
@@ -2111,7 +2110,6 @@ public final class HighDimProtos {
       }
     }
 
-    // optional string tissueTypeName = 5;
     public static final int TISSUETYPENAME_FIELD_NUMBER = 5;
     private java.lang.Object tissueTypeName_;
     /**
@@ -2154,7 +2152,6 @@ public final class HighDimProtos {
       }
     }
 
-    // optional string platform = 6;
     public static final int PLATFORM_FIELD_NUMBER = 6;
     private java.lang.Object platform_;
     /**
@@ -2197,7 +2194,6 @@ public final class HighDimProtos {
       }
     }
 
-    // optional string sampleCode = 7;
     public static final int SAMPLECODE_FIELD_NUMBER = 7;
     private java.lang.Object sampleCode_;
     /**
@@ -2252,7 +2248,8 @@ public final class HighDimProtos {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasAssayId()) {
         memoizedIsInitialized = 0;
@@ -2409,8 +2406,9 @@ public final class HighDimProtos {
      * Protobuf type {@code highdim.Assay}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.transmartproject.rest.protobuf.HighDimProtos.AssayOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:highdim.Assay)
+        org.transmartproject.rest.protobuf.HighDimProtos.AssayOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.transmartproject.rest.protobuf.HighDimProtos.internal_static_highdim_Assay_descriptor;
@@ -2597,7 +2595,6 @@ public final class HighDimProtos {
       }
       private int bitField0_;
 
-      // required int64 assayId = 1;
       private long assayId_ ;
       /**
        * <code>required int64 assayId = 1;</code>
@@ -2630,7 +2627,6 @@ public final class HighDimProtos {
         return this;
       }
 
-      // required string patientId = 2;
       private java.lang.Object patientId_ = "";
       /**
        * <code>required string patientId = 2;</code>
@@ -2644,9 +2640,12 @@ public final class HighDimProtos {
       public java.lang.String getPatientId() {
         java.lang.Object ref = patientId_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          patientId_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            patientId_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -2704,7 +2703,6 @@ public final class HighDimProtos {
         return this;
       }
 
-      // optional string sampleTypeName = 3;
       private java.lang.Object sampleTypeName_ = "";
       /**
        * <code>optional string sampleTypeName = 3;</code>
@@ -2718,9 +2716,12 @@ public final class HighDimProtos {
       public java.lang.String getSampleTypeName() {
         java.lang.Object ref = sampleTypeName_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          sampleTypeName_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            sampleTypeName_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -2778,7 +2779,6 @@ public final class HighDimProtos {
         return this;
       }
 
-      // optional string timepointName = 4;
       private java.lang.Object timepointName_ = "";
       /**
        * <code>optional string timepointName = 4;</code>
@@ -2792,9 +2792,12 @@ public final class HighDimProtos {
       public java.lang.String getTimepointName() {
         java.lang.Object ref = timepointName_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          timepointName_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            timepointName_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -2852,7 +2855,6 @@ public final class HighDimProtos {
         return this;
       }
 
-      // optional string tissueTypeName = 5;
       private java.lang.Object tissueTypeName_ = "";
       /**
        * <code>optional string tissueTypeName = 5;</code>
@@ -2866,9 +2868,12 @@ public final class HighDimProtos {
       public java.lang.String getTissueTypeName() {
         java.lang.Object ref = tissueTypeName_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          tissueTypeName_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            tissueTypeName_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -2926,7 +2931,6 @@ public final class HighDimProtos {
         return this;
       }
 
-      // optional string platform = 6;
       private java.lang.Object platform_ = "";
       /**
        * <code>optional string platform = 6;</code>
@@ -2940,9 +2944,12 @@ public final class HighDimProtos {
       public java.lang.String getPlatform() {
         java.lang.Object ref = platform_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          platform_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            platform_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -3000,7 +3007,6 @@ public final class HighDimProtos {
         return this;
       }
 
-      // optional string sampleCode = 7;
       private java.lang.Object sampleCode_ = "";
       /**
        * <code>optional string sampleCode = 7;</code>
@@ -3014,9 +3020,12 @@ public final class HighDimProtos {
       public java.lang.String getSampleCode() {
         java.lang.Object ref = sampleCode_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          sampleCode_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            sampleCode_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -3085,10 +3094,10 @@ public final class HighDimProtos {
     // @@protoc_insertion_point(class_scope:highdim.Assay)
   }
 
-  public interface RowOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface RowOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:highdim.Row)
+      com.google.protobuf.MessageOrBuilder {
 
-    // required string label = 1;
     /**
      * <code>required string label = 1;</code>
      */
@@ -3103,7 +3112,6 @@ public final class HighDimProtos {
     com.google.protobuf.ByteString
         getLabelBytes();
 
-    // optional string bioMarker = 2;
     /**
      * <code>optional string bioMarker = 2;</code>
      */
@@ -3118,7 +3126,6 @@ public final class HighDimProtos {
     com.google.protobuf.ByteString
         getBioMarkerBytes();
 
-    // repeated .highdim.ColumnValue value = 3;
     /**
      * <code>repeated .highdim.ColumnValue value = 3;</code>
      *
@@ -3181,8 +3188,9 @@ public final class HighDimProtos {
    * </pre>
    */
   public static final class Row extends
-      com.google.protobuf.GeneratedMessage
-      implements RowOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:highdim.Row)
+      RowOrBuilder {
     // Use Row.newBuilder() to construct.
     private Row(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -3229,13 +3237,15 @@ public final class HighDimProtos {
               break;
             }
             case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              label_ = input.readBytes();
+              label_ = bs;
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              bioMarker_ = input.readBytes();
+              bioMarker_ = bs;
               break;
             }
             case 26: {
@@ -3289,7 +3299,6 @@ public final class HighDimProtos {
     }
 
     private int bitField0_;
-    // required string label = 1;
     public static final int LABEL_FIELD_NUMBER = 1;
     private java.lang.Object label_;
     /**
@@ -3332,7 +3341,6 @@ public final class HighDimProtos {
       }
     }
 
-    // optional string bioMarker = 2;
     public static final int BIOMARKER_FIELD_NUMBER = 2;
     private java.lang.Object bioMarker_;
     /**
@@ -3375,7 +3383,6 @@ public final class HighDimProtos {
       }
     }
 
-    // repeated .highdim.ColumnValue value = 3;
     public static final int VALUE_FIELD_NUMBER = 3;
     private java.util.List<org.transmartproject.rest.protobuf.HighDimProtos.ColumnValue> value_;
     /**
@@ -3449,7 +3456,8 @@ public final class HighDimProtos {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       if (!hasLabel()) {
         memoizedIsInitialized = 0;
@@ -3578,8 +3586,9 @@ public final class HighDimProtos {
      * </pre>
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.transmartproject.rest.protobuf.HighDimProtos.RowOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:highdim.Row)
+        org.transmartproject.rest.protobuf.HighDimProtos.RowOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.transmartproject.rest.protobuf.HighDimProtos.internal_static_highdim_Row_descriptor;
@@ -3751,7 +3760,6 @@ public final class HighDimProtos {
       }
       private int bitField0_;
 
-      // required string label = 1;
       private java.lang.Object label_ = "";
       /**
        * <code>required string label = 1;</code>
@@ -3765,9 +3773,12 @@ public final class HighDimProtos {
       public java.lang.String getLabel() {
         java.lang.Object ref = label_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          label_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            label_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -3825,7 +3836,6 @@ public final class HighDimProtos {
         return this;
       }
 
-      // optional string bioMarker = 2;
       private java.lang.Object bioMarker_ = "";
       /**
        * <code>optional string bioMarker = 2;</code>
@@ -3839,9 +3849,12 @@ public final class HighDimProtos {
       public java.lang.String getBioMarker() {
         java.lang.Object ref = bioMarker_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          bioMarker_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            bioMarker_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -3899,7 +3912,6 @@ public final class HighDimProtos {
         return this;
       }
 
-      // repeated .highdim.ColumnValue value = 3;
       private java.util.List<org.transmartproject.rest.protobuf.HighDimProtos.ColumnValue> value_ =
         java.util.Collections.emptyList();
       private void ensureValueIsMutable() {
@@ -4101,7 +4113,8 @@ public final class HighDimProtos {
           java.lang.Iterable<? extends org.transmartproject.rest.protobuf.HighDimProtos.ColumnValue> values) {
         if (valueBuilder_ == null) {
           ensureValueIsMutable();
-          super.addAll(values, value_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, value_);
           onChanged();
         } else {
           valueBuilder_.addAllMessages(values);
@@ -4258,10 +4271,10 @@ public final class HighDimProtos {
     // @@protoc_insertion_point(class_scope:highdim.Row)
   }
 
-  public interface ColumnValueOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ColumnValueOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:highdim.ColumnValue)
+      com.google.protobuf.MessageOrBuilder {
 
-    // repeated double doubleValue = 1 [packed = true];
     /**
      * <code>repeated double doubleValue = 1 [packed = true];</code>
      *
@@ -4293,12 +4306,11 @@ public final class HighDimProtos {
      */
     double getDoubleValue(int index);
 
-    // repeated string stringValue = 2;
     /**
      * <code>repeated string stringValue = 2;</code>
      */
-    java.util.List<java.lang.String>
-    getStringValueList();
+    com.google.protobuf.ProtocolStringList
+        getStringValueList();
     /**
      * <code>repeated string stringValue = 2;</code>
      */
@@ -4317,8 +4329,9 @@ public final class HighDimProtos {
    * Protobuf type {@code highdim.ColumnValue}
    */
   public static final class ColumnValue extends
-      com.google.protobuf.GeneratedMessage
-      implements ColumnValueOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:highdim.ColumnValue)
+      ColumnValueOrBuilder {
     // Use ColumnValue.newBuilder() to construct.
     private ColumnValue(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -4386,11 +4399,12 @@ public final class HighDimProtos {
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
                 stringValue_ = new com.google.protobuf.LazyStringArrayList();
                 mutable_bitField0_ |= 0x00000002;
               }
-              stringValue_.add(input.readBytes());
+              stringValue_.add(bs);
               break;
             }
           }
@@ -4405,7 +4419,7 @@ public final class HighDimProtos {
           doubleValue_ = java.util.Collections.unmodifiableList(doubleValue_);
         }
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-          stringValue_ = new com.google.protobuf.UnmodifiableLazyStringList(stringValue_);
+          stringValue_ = stringValue_.getUnmodifiableView();
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -4438,7 +4452,6 @@ public final class HighDimProtos {
       return PARSER;
     }
 
-    // repeated double doubleValue = 1 [packed = true];
     public static final int DOUBLEVALUE_FIELD_NUMBER = 1;
     private java.util.List<java.lang.Double> doubleValue_;
     /**
@@ -4480,13 +4493,12 @@ public final class HighDimProtos {
     }
     private int doubleValueMemoizedSerializedSize = -1;
 
-    // repeated string stringValue = 2;
     public static final int STRINGVALUE_FIELD_NUMBER = 2;
     private com.google.protobuf.LazyStringList stringValue_;
     /**
      * <code>repeated string stringValue = 2;</code>
      */
-    public java.util.List<java.lang.String>
+    public com.google.protobuf.ProtocolStringList
         getStringValueList() {
       return stringValue_;
     }
@@ -4517,7 +4529,8 @@ public final class HighDimProtos {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -4647,8 +4660,9 @@ public final class HighDimProtos {
      * Protobuf type {@code highdim.ColumnValue}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.transmartproject.rest.protobuf.HighDimProtos.ColumnValueOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:highdim.ColumnValue)
+        org.transmartproject.rest.protobuf.HighDimProtos.ColumnValueOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.transmartproject.rest.protobuf.HighDimProtos.internal_static_highdim_ColumnValue_descriptor;
@@ -4718,8 +4732,7 @@ public final class HighDimProtos {
         }
         result.doubleValue_ = doubleValue_;
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          stringValue_ = new com.google.protobuf.UnmodifiableLazyStringList(
-              stringValue_);
+          stringValue_ = stringValue_.getUnmodifiableView();
           bitField0_ = (bitField0_ & ~0x00000002);
         }
         result.stringValue_ = stringValue_;
@@ -4785,7 +4798,6 @@ public final class HighDimProtos {
       }
       private int bitField0_;
 
-      // repeated double doubleValue = 1 [packed = true];
       private java.util.List<java.lang.Double> doubleValue_ = java.util.Collections.emptyList();
       private void ensureDoubleValueIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
@@ -4873,7 +4885,8 @@ public final class HighDimProtos {
       public Builder addAllDoubleValue(
           java.lang.Iterable<? extends java.lang.Double> values) {
         ensureDoubleValueIsMutable();
-        super.addAll(values, doubleValue_);
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, doubleValue_);
         onChanged();
         return this;
       }
@@ -4893,7 +4906,6 @@ public final class HighDimProtos {
         return this;
       }
 
-      // repeated string stringValue = 2;
       private com.google.protobuf.LazyStringList stringValue_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       private void ensureStringValueIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
@@ -4904,9 +4916,9 @@ public final class HighDimProtos {
       /**
        * <code>repeated string stringValue = 2;</code>
        */
-      public java.util.List<java.lang.String>
+      public com.google.protobuf.ProtocolStringList
           getStringValueList() {
-        return java.util.Collections.unmodifiableList(stringValue_);
+        return stringValue_.getUnmodifiableView();
       }
       /**
        * <code>repeated string stringValue = 2;</code>
@@ -4959,7 +4971,8 @@ public final class HighDimProtos {
       public Builder addAllStringValue(
           java.lang.Iterable<java.lang.String> values) {
         ensureStringValueIsMutable();
-        super.addAll(values, stringValue_);
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, stringValue_);
         onChanged();
         return this;
       }
@@ -4997,27 +5010,27 @@ public final class HighDimProtos {
     // @@protoc_insertion_point(class_scope:highdim.ColumnValue)
   }
 
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_highdim_HighDimHeader_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_highdim_HighDimHeader_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_highdim_ColumnSpec_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_highdim_ColumnSpec_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_highdim_Assay_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_highdim_Assay_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_highdim_Row_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_highdim_Row_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_highdim_ColumnValue_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -5048,47 +5061,47 @@ public final class HighDimProtos {
       "ject.rest.protobufB\rHighDimProtos"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_highdim_HighDimHeader_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_highdim_HighDimHeader_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_highdim_HighDimHeader_descriptor,
-              new java.lang.String[] { "Assay", "ColumnSpec", });
-          internal_static_highdim_ColumnSpec_descriptor =
-            getDescriptor().getMessageTypes().get(1);
-          internal_static_highdim_ColumnSpec_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_highdim_ColumnSpec_descriptor,
-              new java.lang.String[] { "Name", "Type", });
-          internal_static_highdim_Assay_descriptor =
-            getDescriptor().getMessageTypes().get(2);
-          internal_static_highdim_Assay_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_highdim_Assay_descriptor,
-              new java.lang.String[] { "AssayId", "PatientId", "SampleTypeName", "TimepointName", "TissueTypeName", "Platform", "SampleCode", });
-          internal_static_highdim_Row_descriptor =
-            getDescriptor().getMessageTypes().get(3);
-          internal_static_highdim_Row_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_highdim_Row_descriptor,
-              new java.lang.String[] { "Label", "BioMarker", "Value", });
-          internal_static_highdim_ColumnValue_descriptor =
-            getDescriptor().getMessageTypes().get(4);
-          internal_static_highdim_ColumnValue_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_highdim_ColumnValue_descriptor,
-              new java.lang.String[] { "DoubleValue", "StringValue", });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
+    internal_static_highdim_HighDimHeader_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_highdim_HighDimHeader_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_highdim_HighDimHeader_descriptor,
+        new java.lang.String[] { "Assay", "ColumnSpec", });
+    internal_static_highdim_ColumnSpec_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_highdim_ColumnSpec_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_highdim_ColumnSpec_descriptor,
+        new java.lang.String[] { "Name", "Type", });
+    internal_static_highdim_Assay_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_highdim_Assay_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_highdim_Assay_descriptor,
+        new java.lang.String[] { "AssayId", "PatientId", "SampleTypeName", "TimepointName", "TissueTypeName", "Platform", "SampleCode", });
+    internal_static_highdim_Row_descriptor =
+      getDescriptor().getMessageTypes().get(3);
+    internal_static_highdim_Row_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_highdim_Row_descriptor,
+        new java.lang.String[] { "Label", "BioMarker", "Value", });
+    internal_static_highdim_ColumnValue_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_highdim_ColumnValue_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_highdim_ColumnValue_descriptor,
+        new java.lang.String[] { "DoubleValue", "StringValue", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
