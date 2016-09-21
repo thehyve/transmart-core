@@ -1,25 +1,53 @@
 language: groovy
-sudo: false
 
 jdk:
-    - oraclejdk8
+  - oraclejdk8
+php:
+  - 5.6
+env:
+  - TERM=dumb; DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
+  - TERM=dumb; DIR=transmart-data; PREINSTALL="createVars setupPostgres"
+
+addons:
+  postgres: 9.4
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
-    - $HOME/.m2/
+    - $HOME/.gradle
+    - $HOME/.m2
+    - $HOME/pg
+
+before_install:
+  - gradle --version
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 3375DA21
+  - echo deb http://apt.thehyve.net/internal/ trusty main | sudo tee /etc/apt/sources.list.d/hyve_internal.list
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E5267A6C
+  - echo deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main  | sudo tee /etc/apt/sources.list.d/ondrej_php5.list
+  - sudo apt-get -qq update
+  - apt-cache search php
+  - sudo apt-get install -y tk-dev php5-cli php5-json
+  - php --version
+  - echo $DIR; cd $DIR
+  - PWD=`pwd`
+  - echo $PWD
+  - ([ "$PREINSTALL" == "" ] && echo "Skipping preinstall.") || (echo $PREINSTALL; sudo -i -- sh -c "cd $PWD; gradle $PREINSTALL")
+  - cd -
+
+install:
+  - echo $DIR; cd $DIR
+  - ([ "$INSTALL" == "" ] && echo "Skipping install.") || (echo $INSTALL; gradle $INSTALL)
+  - cd -
 
 before_script:
-  - cd transmart-core-db-tests
-  - ./gradlew --console=plain assemble
+  - echo $DIR; cd $DIR
+  - ([ "$PREPARE" == "" ] && echo "Skipping prepare.") || (echo $PREPARE; gradle $PREPARE)
   - cd -
 
 script:
-  - cd transmart-core-db-tests
-  - ./gradlew --console=plain --stacktrace check
+  - echo $DIR; cd $DIR
+  - ([ "$TEST" == "" ] && echo "Skipping test.") || (echo $TEST; gradle --stacktrace $TEST)
   - cd -
 
 notifications:
