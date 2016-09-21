@@ -37,25 +37,25 @@ class ConceptTestData {
 
         def i2b2List = []
         i2b2List << createI2b2Concept(code: -1, level: 0, fullName: '\\foo\\', name: 'foo', cVisualattributes: 'CA')
-        i2b2List << createI2b2Concept(code: 1, level: 1, fullName: '\\foo\\study1\\',         name: 'study1', cComment: 'trial:STUDY_ID_1', cVisualattributes: 'FA')
-        i2b2List << createI2b2Concept(code: 2, level: 2, fullName: '\\foo\\study1\\bar\\',    name: 'bar',    cComment: 'trial:STUDY_ID_1', cVisualattributes: 'LAH', metadataxml: numericXml)
-        i2b2List << createI2b2Concept(code: 3, level: 1, fullName: '\\foo\\study2\\',         name: 'study2', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'FA')
+        i2b2List << createI2b2Concept(code: 1, level: 1, fullName: '\\foo\\study1\\', name: 'study1', cComment: 'trial:STUDY_ID_1', cVisualattributes: 'FA')
+        i2b2List << createI2b2Concept(code: 2, level: 2, fullName: '\\foo\\study1\\bar\\', name: 'bar', cComment: 'trial:STUDY_ID_1', cVisualattributes: 'LAH', metadataxml: numericXml)
+        i2b2List << createI2b2Concept(code: 3, level: 1, fullName: '\\foo\\study2\\', name: 'study2', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'FA')
         i2b2List << createI2b2Concept(code: 4, level: 2, fullName: '\\foo\\study2\\study1\\', name: 'study1', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LAH', metadataxml: numericXml)
         // used only in AccessLevelTestData
-        i2b2List << createI2b2Concept(code: 5, level: 1, fullName: '\\foo\\study3\\',         name: 'study3', cComment: 'trial:STUDY_ID_3', cVisualattributes: 'FA')
+        i2b2List << createI2b2Concept(code: 5, level: 1, fullName: '\\foo\\study3\\', name: 'study3', cComment: 'trial:STUDY_ID_3', cVisualattributes: 'FA')
         // useful to test rest-api
         i2b2List << createI2b2Concept(code: 6, level: 2, fullName: '\\foo\\study2\\long path\\',
-                                      name: 'long path', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'FA')
+                name: 'long path', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'FA')
         i2b2List << createI2b2Concept(code: 7, level: 3, fullName: '\\foo\\study2\\long path\\with%some$characters_\\',
-                                      name: 'with%some$characters_', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA',
-                                      metadataxml: numericXml)
+                name: 'with%some$characters_', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA',
+                metadataxml: numericXml)
         //categorical node
-        i2b2List << createI2b2Concept(code: 8, level: 2, fullName: '\\foo\\study2\\sex\\',          name: 'sex',
-                                      cComment: 'trial:STUDY_ID_2', cVisualattributes: 'FA')
-        i2b2List << createI2b2Concept(code: 9, level: 3, fullName: '\\foo\\study2\\sex\\male\\',    name: 'male',
-                                      cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA')
+        i2b2List << createI2b2Concept(code: 8, level: 2, fullName: '\\foo\\study2\\sex\\', name: 'sex',
+                cComment: 'trial:STUDY_ID_2', cVisualattributes: 'FA')
+        i2b2List << createI2b2Concept(code: 9, level: 3, fullName: '\\foo\\study2\\sex\\male\\', name: 'male',
+                cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA')
         i2b2List << createI2b2Concept(code: 10, level: 3, fullName: '\\foo\\study2\\sex\\female\\', name: 'female',
-                                      cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA')
+                cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA')
 
         def conceptDimensions = createConceptDimensions(i2b2List)
 
@@ -78,11 +78,11 @@ class ConceptTestData {
      */
     static Map conceptDefaultValues = {
         [
-                factTableColumn: 'CONCEPT_CD',
+                factTableColumn   : 'CONCEPT_CD',
                 dimensionTableName: 'CONCEPT_DIMENSION',
-                columnName: 'CONCEPT_PATH',
-                operator: 'LIKE',
-                columnDataType: 'T',
+                columnName        : 'CONCEPT_PATH',
+                operator          : 'LIKE',
+                columnDataType    : 'T',
         ]
     }()
 
@@ -101,22 +101,22 @@ class ConceptTestData {
     }
 
     private static Map i2b2xBase = [
-            factTableColumn      :   '',
-            dimensionTableName   :   '',
-            columnName           :   '',
-            columnDataType       :   '',
-            operator             :   '',
-            dimensionCode        :   '',
-            mAppliedPath         :   '',
-            updateDate           :   new Date()
+            factTableColumn   : '',
+            dimensionTableName: '',
+            columnName        : '',
+            columnDataType    : '',
+            operator          : '',
+            dimensionCode     : '',
+            mAppliedPath      : '',
+            updateDate        : new Date()
     ]
 
     static I2b2 createI2b2(Map properties) {
-        new I2b2([*:i2b2xBase, *:properties])
+        new I2b2([*: i2b2xBase, *: properties])
     }
 
     static I2b2Secure createI2b2Secure(Map properties) {
-        new I2b2Secure([*:i2b2xBase, *:properties])
+        new I2b2Secure([*: i2b2xBase, *: properties])
     }
 
     /**
@@ -130,14 +130,14 @@ class ConceptTestData {
         assert properties.get('code')
 
         def extraProps = [
-                dimensionCode : properties.get('fullName') //needed for ontology queries
+                dimensionCode: properties.get('fullName') //needed for ontology queries
         ]
         //field values are set in layers:
         //1 - getConceptDefaultValues(): typical values for concepts
         //2 - extraProps: derived or unique per object
         //3 - properties: values given by the client (these will override all others)
         //4 - completes any remaining mandatory fields with a dummy value
-        def o = new I2b2([*:getConceptDefaultValues(), *:extraProps, *:properties])
+        def o = new I2b2([*: getConceptDefaultValues(), *: extraProps, *: properties])
         fillInNotNullFields(o)
         //we need to make sure the i2b2 instance is valid for the ontology queries
         checkValidForOntologyQueries(o)
@@ -153,13 +153,13 @@ class ConceptTestData {
         //defaults.
         // To escape data binding conversions (e.g. convertEmptyStringsToNull) we use direct assignment to the fields.
         tableAccess.with {
-            level                =   0
-            factTableColumn      =   ''
-            dimensionTableName   =   ''
-            columnName           =   ''
-            columnDataType       =   ''
-            operator             =   ''
-            dimensionCode        =   ''
+            level = 0
+            factTableColumn = ''
+            dimensionTableName = ''
+            columnName = ''
+            columnDataType = ''
+            operator = ''
+            dimensionCode = ''
         }
 
         tableAccess.properties = properties
@@ -180,14 +180,14 @@ class ConceptTestData {
             def name = "concept$i"
             def fullName = "$basePath\\$name\\"
             def props = [
-                name: name,
-                fullName: fullName,
-                code: "$codePrefix$i",
-                level: level,
-                dimensionCode: fullName
+                    name         : name,
+                    fullName     : fullName,
+                    code         : "$codePrefix$i",
+                    level        : level,
+                    dimensionCode: fullName
             ]
 
-            I2b2 o = new I2b2([*: getConceptDefaultValues(), *:props])
+            I2b2 o = new I2b2([*: getConceptDefaultValues(), *: props])
             fillInNotNullFields(o)
             o
         }
@@ -245,7 +245,7 @@ class ConceptTestData {
         i2b2List << createI2b2Concept(level: 1, fullName: "\\$root\\$study\\", name: study,
                 code: study, cVisualattributes: 'FA')
         I2b2 result = createI2b2Concept(level: 2, fullName: "\\$root\\$study\\$concept\\", name: concept,
-                code: code,  cVisualattributes: 'LA')
+                code: code, cVisualattributes: 'LA')
 
         i2b2List << result
 

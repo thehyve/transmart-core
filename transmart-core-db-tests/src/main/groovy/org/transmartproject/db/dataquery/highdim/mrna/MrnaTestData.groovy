@@ -19,7 +19,6 @@
 
 package org.transmartproject.db.dataquery.highdim.mrna
 
-import grails.util.Holders
 import org.transmartproject.db.biomarker.BioMarkerCoreDb
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
@@ -28,9 +27,6 @@ import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.is
-import static org.hamcrest.Matchers.notNullValue
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 class MrnaTestData {
@@ -61,13 +57,15 @@ class MrnaTestData {
         bioMarkerTestData.geneBioMarkers
     }
 
-    @Lazy List<SearchKeywordCoreDb> searchKeywords = {
+    @Lazy
+    List<SearchKeywordCoreDb> searchKeywords = {
         bioMarkerTestData.geneSearchKeywords +
                 bioMarkerTestData.proteinSearchKeywords +
                 bioMarkerTestData.geneSignatureSearchKeywords
     }()
 
-    @Lazy List<DeMrnaAnnotationCoreDb> annotations = {
+    @Lazy
+    List<DeMrnaAnnotationCoreDb> annotations = {
         def createAnnotation = { probesetId, probeId, BioMarkerCoreDb bioMarker ->
             def res = new DeMrnaAnnotationCoreDb(
                     gplId: platform.id,
@@ -87,12 +85,15 @@ class MrnaTestData {
     }()
 
     List<PatientDimension> patients =
-        HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
+            HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
 
-    @Lazy List<DeSubjectSampleMapping> assays = {
-        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME, conceptCode) }()
+    @Lazy
+    List<DeSubjectSampleMapping> assays = {
+        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME, conceptCode)
+    }()
 
-    @Lazy List<DeSubjectMicroarrayDataCoreDb> microarrayData = {
+    @Lazy
+    List<DeSubjectMicroarrayDataCoreDb> microarrayData = {
         def common = [
                 trialName: TRIAL_NAME,
                 //trialSource: "$TRIAL_NAME:STD" (not mapped)
@@ -129,7 +130,7 @@ class MrnaTestData {
             bioMarkerTestData.saveGeneData()
         }
 
-        assertThat platform.save(), is(notNullValue(DeGplInfo))
+        assert platform.save()
         save annotations
         save patients
         save assays

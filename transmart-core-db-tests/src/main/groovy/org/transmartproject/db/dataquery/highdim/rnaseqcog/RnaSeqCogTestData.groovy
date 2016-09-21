@@ -44,17 +44,17 @@ class RnaSeqCogTestData {
     }()
 
     List<PatientDimension> patients =
-        HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
+            HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
 
     List<DeSubjectSampleMapping> assays =
-        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
+            HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
     List<DeRnaseqAnnotation> annotations = {
         def createAnnotation = { id, BioMarkerCoreDb gene ->
             def res = new DeRnaseqAnnotation(
-                    geneSymbol:   gene.name,
-                    geneId:       gene.externalId,
-                    platform:     platform
+                    geneSymbol: gene.name,
+                    geneId: gene.externalId,
+                    platform: platform
             )
             res.id = id
             res
@@ -71,10 +71,10 @@ class RnaSeqCogTestData {
         def createDataEntry = { assay, annotation, intensity ->
             new DeSubjectRnaData(
                     assay: assay,
-                    annotation:   annotation,
+                    annotation: annotation,
                     rawIntensity: intensity,
                     logIntensity: Math.log(intensity),
-                    zscore:       (intensity - 0.35) / 0.1871
+                    zscore: (intensity - 0.35) / 0.1871
             )
         }
 

@@ -21,18 +21,15 @@ package org.transmartproject.db.ontology
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.gmock.WithGMock
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import spock.lang.Specification
 
-import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.propsWith
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.CONTAINER
 
-@WithGMock
 @Integration
 @Rollback
 class AcrossTrialsConceptsResourceSpec extends Specification {
@@ -48,7 +45,7 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
     def sessionFactory
 
     void setupData() {
-        innerMock = mock(ConceptsResource)
+        innerMock = Mock(ConceptsResource)
         testee = new AcrossTrialsConceptsResourceDecorator(inner: innerMock)
 
         testData = AcrossTrialsTestData.createDefault()
@@ -59,24 +56,23 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
 
     void testTopTermIsReturned() {
         setupData()
-        innerMock.allCategories.returns([])
+        innerMock.allCategories >> []
 
-        play {
-            def result = testee.allCategories
-            expect:
-            result contains(
-                    propsWith(
-                            level: 0,
-                            key: '\\\\xtrials\\Across Trials\\',
-                            fullName: '\\Across Trials\\',
-                            study: is(nullValue()),
-                            name: 'Across Trials',
-                            tooltip: 'Across Trials',
-                            visualAttributes: contains(CONTAINER),
-                            metadata: is(nullValue()),
-                    )
-            )
-        }
+        def result = testee.allCategories
+
+        expect:
+        result contains(
+                propsWith(
+                        level: 0,
+                        key: '\\\\xtrials\\Across Trials\\',
+                        fullName: '\\Across Trials\\',
+                        study: is(nullValue()),
+                        name: 'Across Trials',
+                        tooltip: 'Across Trials',
+                        visualAttributes: contains(CONTAINER),
+                        metadata: is(nullValue()),
+                )
+        )
     }
 
     void testGetByKey() {
@@ -90,28 +86,31 @@ class AcrossTrialsConceptsResourceSpec extends Specification {
 
     void testGetByKeyInexistentValidAcrossTrialsNode() {
         setupData()
-        shouldFail NoSuchResourceException, {
-            testee.getByKey('\\\\xtrials\\Across Trials\\i do not exist\\')
-        }
+
+        when:
+        testee.getByKey('\\\\xtrials\\Across Trials\\i do not exist\\')
+        then:
+        thrown(NoSuchResourceException)
     }
 
     void testGetByKeyInvalidAcrossTrialsNode() {
         setupData()
         // the first element is not "Across Trials"
-        shouldFail NoSuchResourceException, {
-            testee.getByKey('\\\\xtrials\\FOO BAR\\a\\')
-        }
+        when:
+        testee.getByKey('\\\\xtrials\\FOO BAR\\a\\')
+        then:
+        thrown(NoSuchResourceException)
     }
 
     void testGetByKeyDelegatesToInner() {
         setupData()
         def key = '\\\\foobar\\Foo bar\\'
-        def term = mock(OntologyTerm)
-        innerMock.getByKey(key).returns(term)
+        def term = Mock(OntologyTerm)
+        innerMock.getByKey(key) >> term
 
-        play {
-            expect:
-            testee.getByKey(key) is(sameInstance(term))
-        }
+        def result = testee.getByKey(key)
+
+        expect:
+        result is(sameInstance(term))
     }
 }

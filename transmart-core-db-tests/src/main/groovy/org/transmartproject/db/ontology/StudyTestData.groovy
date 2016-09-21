@@ -41,11 +41,11 @@ class StudyTestData {
     }()
 
     TableAccess tableAccess = {
-       conceptData.tableAccesses[0]
+        conceptData.tableAccesses[0]
     }()
 
     List<ConceptDimension> concepts = {
-       conceptData.conceptDimensions
+        conceptData.conceptDimensions
     }()
 
     void saveAll() {

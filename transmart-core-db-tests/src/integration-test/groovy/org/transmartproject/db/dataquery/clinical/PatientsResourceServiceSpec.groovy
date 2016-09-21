@@ -25,7 +25,6 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.db.i2b2data.I2b2Data
 import spock.lang.Specification
 
-import static groovy.util.GroovyAssert.shouldFail
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 @Integration
@@ -56,9 +55,11 @@ class PatientsResourceServiceSpec extends Specification {
 
     void testLoadNonExistentPatient() {
         setupData()
-        shouldFail NoSuchResourceException, {
-            patientsResourceService.getPatientById(-999999L)
-        }
+
+        when:
+        patientsResourceService.getPatientById(-999999L)
+        then:
+        thrown(NoSuchResourceException)
     }
 
 }

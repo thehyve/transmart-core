@@ -38,7 +38,6 @@ import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
 import spock.lang.Specification
 
-import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
@@ -413,10 +412,12 @@ class ClinicalDataRetrievalSpec extends Specification {
 
     void testRetrieveDataNullQueryResultVariantQueryResult() {
         setupData()
-        shouldFail AssertionError, {
-            clinicalDataResourceService.retrieveData((QueryResult) null, [
-                    new TerminalConceptVariable(conceptCode: 'c2')])
-        }
+
+        when:
+        clinicalDataResourceService.retrieveData((QueryResult) null, [
+                new TerminalConceptVariable(conceptCode: 'c2')])
+        then:
+        thrown(AssertionError)
     }
 
     void testRetrieveDataWithoutPatientsVariantQueryResultList() {

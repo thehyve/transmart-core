@@ -43,19 +43,19 @@ class MetaboliteTestData {
     }()
 
     List<PatientDimension> patients =
-        HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
+            HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
 
     List<DeSubjectSampleMapping> assays =
-        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
+            HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
     List<DeMetaboliteSuperPathway> superPathways = {
         def ret = [ /* keep in sync with SampleBioMarkerTestData */
-                new DeMetaboliteSuperPathway(
-                        name: 'Carboxylic Acid',
-                        gplId: platform),
-                new DeMetaboliteSuperPathway(
-                        name: 'Phosphoric Acid',
-                        gplId: platform),
+                    new DeMetaboliteSuperPathway(
+                            name: 'Carboxylic Acid',
+                            gplId: platform),
+                    new DeMetaboliteSuperPathway(
+                            name: 'Phosphoric Acid',
+                            gplId: platform),
         ]
         ret[0].id = -601
         ret[1].id = -602
@@ -75,10 +75,10 @@ class MetaboliteTestData {
         }
 
         [ /* keep in sync with SampleBioMarkerTestData */
-                createSubPathway('No superpathway subpathway', null),
-                createSubPathway('Cholesterol biosynthesis', superPathways[0]),
-                createSubPathway('Squalene synthesis', superPathways[0]),
-                createSubPathway('Pentose Metabolism', superPathways[1]),
+          createSubPathway('No superpathway subpathway', null),
+          createSubPathway('Cholesterol biosynthesis', superPathways[0]),
+          createSubPathway('Squalene synthesis', superPathways[0]),
+          createSubPathway('Pentose Metabolism', superPathways[1]),
         ]
     }()
 
@@ -117,8 +117,8 @@ class MetaboliteTestData {
                                  List<DeMetaboliteSubPathway> subpathways ->
             def res = new DeMetaboliteAnnotation(
                     biochemicalName: metaboliteName,
-                    hmdbId:          metabolite,
-                    platform:        platform
+                    hmdbId: metabolite,
+                    platform: platform
             )
             subpathways.each {
                 it.addToAnnotations(res)
@@ -127,9 +127,9 @@ class MetaboliteTestData {
             res
         }
         [ /* keep in sync with SampleBioMarkerTestData */
-                createAnnotation(-501, 'Cryptoxanthin epoxide', 'HMDB30538', []),
-                createAnnotation(-502, 'Cryptoxanthin 5,6:5\',8\'-diepoxide', 'HMDB30537', subPathways[0..1]),
-                createAnnotation(-503, 'Majoroside F4', 'HMDB30536', subPathways[1..3]),
+          createAnnotation(-501, 'Cryptoxanthin epoxide', 'HMDB30538', []),
+          createAnnotation(-502, 'Cryptoxanthin 5,6:5\',8\'-diepoxide', 'HMDB30537', subPathways[0..1]),
+          createAnnotation(-503, 'Majoroside F4', 'HMDB30536', subPathways[1..3]),
         ]
     }()
 
@@ -140,7 +140,7 @@ class MetaboliteTestData {
                     annotation: annotation,
                     rawIntensity: intensity,
                     logIntensity: Math.log(intensity),
-                    zscore:    (intensity - 0.35) / 0.1871
+                    zscore: (intensity - 0.35) / 0.1871
             )
         }
 

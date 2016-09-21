@@ -28,18 +28,18 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 class MirnaTestData {
-    
+
     String typeName
     public static final String TRIAL_NAME = 'MIRNA_SAMP_TRIAL'
 
     SampleBioMarkerTestData bioMarkerTestData = new SampleBioMarkerTestData()
 
-    DeGplInfo platform 
+    DeGplInfo platform
     List<PatientDimension> patients
     List<DeSubjectSampleMapping> assays
     List<DeQpcrMirnaAnnotation> probes
     List<DeSubjectMirnaData> mirnaData
-    
+
     public MirnaTestData() {
         generateTestData()
     }
@@ -48,14 +48,14 @@ class MirnaTestData {
         this.typeName = typeName
         generateTestData()
     }
-    
+
     protected void generateTestData() {
         platform = new DeGplInfo(
                 title: 'TaqMan® Rodent MicroRNA Array v3.0 A/B',
                 organism: 'Mus musculus',
                 markerType: typeName == 'mirnaseq' ? 'MIRNA_SEQ' : 'MIRNA_QPCR')
         platform.id = 'BOGUSGPL15466'
-        
+
         patients = HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
         assays = HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
@@ -81,8 +81,8 @@ class MirnaTestData {
 
     protected List<DeSubjectMirnaData> createData() {
         def createMirnaEntry = { DeSubjectSampleMapping assay,
-                                      DeQpcrMirnaAnnotation probe,
-                                      double intensity ->
+                                 DeQpcrMirnaAnnotation probe,
+                                 double intensity ->
             new DeSubjectMirnaData(
                     probe: probe,
                     assay: assay,

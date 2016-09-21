@@ -31,7 +31,6 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster
 import spock.lang.Specification
 
-import static groovy.util.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestPatients
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
@@ -171,19 +170,23 @@ class HighDimensionResourceServiceIntegrationSpec extends Specification {
 
     void testBogusConstraint() {
         setupData()
-        shouldFail InvalidArgumentsException, {
-            highDimensionResourceService.createAssayConstraint([:],
-                    'bogus constraint name')
-        }
+
+        when:
+        highDimensionResourceService.createAssayConstraint([:],
+                'bogus constraint name')
+        then:
+        thrown(InvalidArgumentsException)
     }
 
     void testInvalidParametersConstraint() {
         setupData()
-        shouldFail InvalidArgumentsException, {
-            highDimensionResourceService.createAssayConstraint(
-                    foobar: [],
-                    AssayConstraint.PATIENT_SET_CONSTRAINT)
-        }
+
+        when:
+        highDimensionResourceService.createAssayConstraint(
+                foobar: [],
+                AssayConstraint.PATIENT_SET_CONSTRAINT)
+        then:
+        thrown(InvalidArgumentsException)
     }
 
     void testEqualityOfReturnedHighDimensionDataTypeResources() {

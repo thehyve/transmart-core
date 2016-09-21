@@ -45,10 +45,10 @@ class RbmTestData {
     }()
 
     List<PatientDimension> patients =
-        HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
+            HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
 
     List<DeSubjectSampleMapping> assays =
-        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
+            HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME)
 
     List<DeRbmAnnotation> annotations = {
         def createAnnotation = { id, antigene, uniprotId, uniprotName, geneSymbol, geneId ->
@@ -81,12 +81,12 @@ class RbmTestData {
                                double value,
                                String unit = null ->
             new DeSubjectRbmData(
-                    annotations:  annotations,
-                    assay:        assay,
-                    value:        value,
+                    annotations: annotations,
+                    assay: assay,
+                    value: value,
                     logIntensity: Math.log(value),
-                    unit:         unit ? "(${unit})" : null,
-                    zscore:       (value - 0.35) / 0.1871,
+                    unit: unit ? "(${unit})" : null,
+                    zscore: (value - 0.35) / 0.1871,
             )
         }
 
@@ -114,7 +114,7 @@ class RbmTestData {
     void saveAll() {
         bioMarkerTestData.saveProteinData()
 
-        save([ platform ])
+        save([platform])
         save patients
         save assays
         save annotations

@@ -61,9 +61,9 @@ class AcrossTrialsTestData {
         result.modifierMetadatas = list*.get(1)
 
         def tableAccess = ConceptTestData.createTableAccess(
-                level:     0,
-                fullName:  '\\foo\\',
-                name:      'foo',
+                level: 0,
+                fullName: '\\foo\\',
+                name: 'foo',
                 tableCode: 'i2b2 main',
                 tableName: 'i2b2')
 
@@ -143,6 +143,7 @@ class AcrossTrialsTestData {
      * - valueType (optional, N/T, calculated)
      * - unit (optional)
      */
+
     static List createModifier(Map<String, Object> properties) {
         if (['path', 'code', 'nodeType'].
                 collect { properties."$it" == null }.any()) {

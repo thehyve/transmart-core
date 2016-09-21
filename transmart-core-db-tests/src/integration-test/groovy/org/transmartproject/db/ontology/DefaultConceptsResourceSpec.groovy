@@ -27,7 +27,6 @@ import org.transmartproject.core.ontology.ConceptsResource
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
-import static org.junit.Assert.fail
 import static org.transmartproject.db.ontology.ConceptTestData.addI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 import static spock.util.matcher.HamcrestSupport.that
@@ -77,41 +76,25 @@ class DefaultConceptsResourceSpec extends Specification {
 
     void testGetByKeyBogusTableCode() {
         setupData()
-        def keys = [
-                "\\\\does not exist\\foo\\bar\\",
-                "\\\\bogus code\\foo\\bar\\"
-        ]
-        keys.each {
-            try {
-                conceptsResourceService.getByKey(it)
-                fail "There should've been an exception"
-            } catch (e) {
-                expect:
-                e allOf(
-                        isA(NoSuchResourceException),
-                        hasProperty('message', allOf(
-                                containsString('Unknown or unmapped table code'),
-                                containsString(new ConceptKey(it).tableCode)
-                        )))
-            }
-        }
+        def concept = "\\\\bogus code\\foo\\bar\\"
 
+        when:
+        conceptsResourceService.getByKey(concept)
+        then:
+        def e = thrown(NoSuchResourceException)
+        e.message.contains('Unknown or unmapped table code')
+        e.message.contains(new ConceptKey(concept).tableCode)
     }
 
     void testNoSuchFullName() {
         setupData()
-        try {
-            conceptsResourceService.getByKey('\\\\i2b2 main\\does not exist\\')
-            fail "There should've been an exception"
-        } catch (e) {
-            expect:
-            e allOf(
-                    isA(NoSuchResourceException),
-                    hasProperty('message', allOf(
-                            containsString('No non-synonym concept with ' +
-                                    'fullName'),
-                            containsString('\\does not exist\\')
-                    )))
-        }
+
+        when:
+        conceptsResourceService.getByKey('\\\\i2b2 main\\does not exist\\')
+        then:
+        def e = thrown(NoSuchResourceException)
+        e.message.contains('No non-synonym concept with fullName')
+        e.message.contains('\\does not exist\\')
     }
+
 }

@@ -31,7 +31,6 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 
-import static groovy.test.GroovyAssert.shouldFail
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.FLAG
@@ -347,14 +346,12 @@ class QueriesResourceServiceSpec extends Specification {
                 }
         ] as PatientSetQueryBuilderService
 
-        try {
-            QueryResult result = queriesResourceService.runQuery(inputDefinition)
-
-            expect:
-            result hasProperty('status', equalTo(QueryStatus.ERROR))
-        } finally {
-            queriesResourceService.patientSetQueryBuilderService = orig
-        }
+        when:
+        QueryResult result = queriesResourceService.runQuery(inputDefinition)
+        then:
+        result.status == QueryStatus.ERROR
+        cleanup:
+        queriesResourceService.patientSetQueryBuilderService = orig
     }
 
 
@@ -372,14 +369,12 @@ class QueriesResourceServiceSpec extends Specification {
                 }
         ] as PatientSetQueryBuilderService
 
-        try {
-            QueryResult result = queriesResourceService.runQuery(inputDefinition)
-
-            expect:
-            result hasProperty('status', equalTo(QueryStatus.ERROR))
-        } finally {
-            queriesResourceService.patientSetQueryBuilderService = orig
-        }
+        when:
+        QueryResult result = queriesResourceService.runQuery(inputDefinition)
+        then:
+        result.status == QueryStatus.ERROR
+        cleanup:
+        queriesResourceService.patientSetQueryBuilderService = orig
     }
 
     void testGetQueryResultFromIdBasic() {
@@ -403,9 +398,12 @@ class QueriesResourceServiceSpec extends Specification {
 
     void testQueryResultResultNonExistent() {
         setupData()
-        shouldFail NoSuchResourceException, {
-            queriesResourceService.getQueryResultFromId(-99112 /* bogus id */)
-        }
+
+        when:
+        queriesResourceService.getQueryResultFromId(-99112 /* bogus id */)
+
+        then:
+        thrown(NoSuchResourceException)
     }
 
     void testOverloadWithUsername() {

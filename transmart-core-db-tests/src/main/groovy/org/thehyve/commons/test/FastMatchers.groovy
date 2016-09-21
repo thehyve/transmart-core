@@ -39,7 +39,7 @@ class FastMatchers {
 
     /**
      * @param map
-     * @return allOf(hasEntry()) Matcher for the given map
+     * @return allOf ( hasEntry ( ) ) Matcher for the given map
      */
     static Matcher mapWith(Map map) {
         allOf(map.collect { entryOf(it.key, it.value) })
@@ -66,7 +66,7 @@ class FastMatchers {
 
     /**
      * @param map
-     * @return allOd(hasProperty()) for the given map
+     * @return allOd ( hasProperty ( ) ) for the given map
      */
     static Matcher propsWith(Map map) {
         allOf(map.collect { hasProperty(it.key, matcherOf(it.value)) })
@@ -74,7 +74,7 @@ class FastMatchers {
 
     /**
      * @param list
-     * @return containsInAnyOrder() for the given list
+     * @return containsInAnyOrder ( ) for the given list
      */
     static Matcher listOf(List list) {
         if (list.isEmpty()) {
@@ -85,7 +85,7 @@ class FastMatchers {
 
     /**
      * @param list
-     * @return contains() for the given list
+     * @return contains ( ) for the given list
      */
     static Matcher listOfWithOrder(List list) {
         if (list.isEmpty()) {

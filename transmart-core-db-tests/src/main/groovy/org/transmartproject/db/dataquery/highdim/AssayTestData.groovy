@@ -82,12 +82,12 @@ class AssayTestData {
         //save is cascaded to the platform
         HighDimTestData.createTestAssays(patients, -200, platform,
                 'SAMPLE_TRIAL_1', dimensionConcepts[0].conceptCode) +
-            HighDimTestData.createTestAssays(patients, -300, platform,
-                    'SAMPLE_TRIAL_1', dimensionConcepts[1].conceptCode) +
-            HighDimTestData.createTestAssays(patients, -400, platform,
-                    'SAMPLE_TRIAL_2', dimensionConcepts[1].conceptCode) +
-            HighDimTestData.createTestAssays(patients, -500, platform2,
-                     'SAMPLE_TRIAL_1', dimensionConcepts[2].conceptCode)
+                HighDimTestData.createTestAssays(patients, -300, platform,
+                        'SAMPLE_TRIAL_1', dimensionConcepts[1].conceptCode) +
+                HighDimTestData.createTestAssays(patients, -400, platform,
+                        'SAMPLE_TRIAL_2', dimensionConcepts[1].conceptCode) +
+                HighDimTestData.createTestAssays(patients, -500, platform2,
+                        'SAMPLE_TRIAL_1', dimensionConcepts[2].conceptCode)
     }()
 
     void saveAll() {

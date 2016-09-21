@@ -22,7 +22,6 @@ package org.transmartproject.db.dataquery.clinical
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.gmock.WithGMock
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.db.dataquery.clinical.variables.AcrossTrialsTerminalVariable
 import org.transmartproject.db.ontology.AcrossTrialsTestData
@@ -32,7 +31,6 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.AcrossTrialsTestData.MODIFIER_AGE_AT_DIAGNOSIS
 import static spock.util.matcher.HamcrestSupport.that
 
-@WithGMock
 @Integration
 @Rollback
 class AcrossTrialsDataRetrievalSpec extends Specification {
