@@ -1,9 +1,9 @@
 package org.transmartproject.rest.misc
 
 import grails.converters.JSON
-import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
-import org.codehaus.groovy.grails.web.json.JSONElement
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.converters.exceptions.ConverterException
+import org.grails.web.json.JSONElement
+import org.grails.web.json.JSONObject
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 class JsonParametersParser {

@@ -1,6 +1,6 @@
 package org.transmartproject.rest
 
-import org.codehaus.groovy.grails.web.mime.MimeType
+import grails.web.mime.MimeType
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*

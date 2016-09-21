@@ -33,6 +33,7 @@
 									<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadAnalysisResultsGrid(${analysisId}, {sortField: '${col.sortField}', order: 'desc'})">
 										${col.sTitle} <asset:image src="asc.gif"/>
 									</th>
+								</g:else>
 							</g:if>
 							<%-- Otherwise just provide asc link --%>
 							<g:else>

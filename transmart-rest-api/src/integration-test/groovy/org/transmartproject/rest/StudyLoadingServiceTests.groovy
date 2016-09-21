@@ -32,8 +32,8 @@ import grails.test.mixin.integration.IntegrationTestMixin
 import grails.util.GrailsWebUtil
 import org.codehaus.groovy.grails.commons.spring.GrailsWebApplicationContext
 import org.codehaus.groovy.grails.test.runner.phase.IntegrationTestPhaseConfigurer
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import org.gmock.WithGMock
+import org.grails.web.servlet.mvc.GrailsWebRequest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -46,7 +46,6 @@ import org.transmartproject.rest.misc.CurrentUser
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.equalTo
-import static org.hamcrest.Matchers.hasProperty
 
 @TestMixin(IntegrationTestMixin)
 @WithGMock
@@ -98,7 +97,7 @@ class StudyLoadingServiceTests {
          * testee skips the whole thing otherwise */
         originalSpringSecurityState = SpringSecurityUtils.securityConfig.active
         SpringSecurityUtils.securityConfig.active = true
-     }
+    }
 
     @After
     void tearDown() {

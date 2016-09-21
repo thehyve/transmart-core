@@ -1,7 +1,8 @@
 package jobs.steps.helpers
 
 import com.google.common.collect.Lists
-import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import jobs.UserParameters
 import jobs.table.Table
 import jobs.table.columns.PrimaryKeyColumn
@@ -18,7 +19,8 @@ import static jobs.steps.helpers.ConfiguratorTestsHelper.*
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-@TestMixin(JobsIntegrationTestMixin)
+@Integration
+@Rollback
 class BoxPlotVariableColumnConfiguratorTests {
 
     public static final String VALUE_FOR_COLUMN_BEING_BINNED = 'IND'

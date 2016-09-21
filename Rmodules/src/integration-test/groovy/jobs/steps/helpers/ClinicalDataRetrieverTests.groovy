@@ -1,6 +1,7 @@
 package jobs.steps.helpers
 
-import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import groovy.transform.EqualsAndHashCode
 import org.gmock.GMockController
 import org.junit.Before
@@ -13,7 +14,8 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.contains
 import static org.hamcrest.Matchers.sameInstance
 
-@TestMixin(JobsIntegrationTestMixin)
+@Integration
+@Rollback
 class ClinicalDataRetrieverTests {
 
     @Delegate(interfaces = false)

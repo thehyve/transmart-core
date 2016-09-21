@@ -69,7 +69,7 @@ class HighDimBuilder {
     // each closure is associated with a column
     // the order is that of the columns as given in the sorted map dataColumns
     @Lazy private List<Closure> columnValueBuilderCreators = {
-        dataColumns.collect { String dataProperty, Class clazz ->
+        dataColumns.collect { String dataProperty, Class<?> clazz ->
             // the builder will be reused across rows
             def builder = ColumnValue.newBuilder()
             if (clazz == Double) {
@@ -159,6 +159,7 @@ class HighDimBuilder {
         Number.isAssignableFrom(clazz) ? ColumnType.DOUBLE : ColumnType.STRING
     }
 
+    @CompileStatic(groovy.transform.TypeCheckingMode.SKIP)
     private SortedMap<String, Class> getDataProperties(Projection projection) {
         if (projection instanceof MultiValueProjection) {
             MultiValueProjection mvp = projection as MultiValueProjection

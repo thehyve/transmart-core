@@ -19,7 +19,7 @@
 
     <filter>
         <filter-name>sitemesh</filter-name>
-        <filter-class>org.codehaus.groovy.grails.web.sitemesh.GrailsPageFilter</filter-class>
+        <filter-class>org.grails.web.sitemesh.GrailsPageFilter</filter-class>
     </filter>
 
     <filter>
@@ -48,13 +48,13 @@
     </filter-mapping>
 
     <listener>
-        <listener-class>org.codehaus.groovy.grails.web.context.GrailsContextLoaderListener</listener-class>
+        <listener-class>org.grails.web.context.GrailsContextLoaderListener</listener-class>
     </listener>
 
     <!-- Grails dispatcher servlet -->
     <servlet>
         <servlet-name>grails</servlet-name>
-        <servlet-class>org.codehaus.groovy.grails.web.servlet.GrailsDispatcherServlet</servlet-class>
+        <servlet-class>org.grails.web.servlet.GrailsDispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
         <init-param>
             <param-name>dispatchOptionsRequest</param-name>
@@ -65,7 +65,7 @@
     <!-- The Groovy Server Pages servlet -->
     <servlet>
         <servlet-name>gsp</servlet-name>
-        <servlet-class>org.codehaus.groovy.grails.web.pages.GroovyPagesServlet</servlet-class>
+        <servlet-class>org.grails.web.pages.GroovyPagesServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>

@@ -199,10 +199,12 @@ uploadArchives {
                 password: project.ext.properties['mavenTheHyvePassword'] ?: '',
             ]
 
-            repository url: 'https://repo.thehyve.nl/content/repositories/releases/',
-                authentication: credentials
-            snapshotRepository url: 'https://repo.thehyve.nl/content/repositories/snapshots/',
-                authentication: credentials
+            //FIXME Cannot set the value of read-only property 'authentication' for object
+            // of type org.gradle.api.publication.maven.internal.deployer.MavenRemoteRepository.
+            repository url: 'https://repo.thehyve.nl/content/repositories/releases/'
+            //, authentication: credentials
+            snapshotRepository url: 'https://repo.thehyve.nl/content/repositories/snapshots/'
+            //, authentication: credentials
 
             pom.project pomConfiguration
         }

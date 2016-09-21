@@ -29,7 +29,7 @@ import grails.converters.JSON
 import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.IntegrationTestMixin
 import groovy.json.JsonSlurper
-import org.codehaus.groovy.grails.web.mime.MimeType
+import grails.web.mime.MimeType
 import org.gmock.WithGMock
 import org.junit.Test
 import org.transmartproject.core.ontology.Study

@@ -27,8 +27,7 @@ package org.transmartproject.rest.marshallers
 
 import grails.converters.JSON
 import grails.rest.Link
-import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
-import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller
+import org.grails.web.converters.marshaller.ObjectMarshaller
 
 import static grails.rest.render.util.AbstractLinkingRenderer.*
 
@@ -48,7 +47,7 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
     }
 
     @Override
-    void marshalObject(Object object, JSON json) throws ConverterException {
+    void marshalObject(Object object, JSON json) {
         Map<String, Object> mapRepresentation =
                 serializationHelper.convertToMap(object)
 
@@ -72,7 +71,7 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
         grouped.each {
             key, list ->
                 if (serializationHelper.aggregatedLinkRelations.contains(key)) {
-                    result.put(key, list.collect { convertLink(it)} )
+                    result.put(key, list.collect { convertLink(it) })
                 } else {
                     //only the first element will be picked. Its not supposed to have more than one anyway
                     result.put(key, convertLink(list.get(0)))

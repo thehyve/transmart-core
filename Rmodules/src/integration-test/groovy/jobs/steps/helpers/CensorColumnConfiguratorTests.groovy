@@ -1,7 +1,8 @@
 package jobs.steps.helpers
 
 import com.google.common.collect.Lists
-import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import jobs.UserParameters
 import jobs.table.Column
 import jobs.table.Table
@@ -18,7 +19,8 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.contains
 import static org.hamcrest.Matchers.containsInAnyOrder
 
-@TestMixin(JobsIntegrationTestMixin)
+@Integration
+@Rollback
 class CensorColumnConfiguratorTests {
 
     @Autowired
@@ -48,7 +50,7 @@ class CensorColumnConfiguratorTests {
     @Test
     void testCensoring() {
         params.@map.putAll([
-                censoringVariable: BUNDLE_OF_CLINICAL_CONCEPT_PATH.join('|'),
+                censoringVariable  : BUNDLE_OF_CLINICAL_CONCEPT_PATH.join('|'),
                 result_instance_id1: RESULT_INSTANCE_ID1,
                 result_instance_id2: RESULT_INSTANCE_ID2,
         ])
@@ -56,7 +58,7 @@ class CensorColumnConfiguratorTests {
         List<ClinicalVariableColumn> columns =
                 createClinicalVariableColumns(BUNDLE_OF_CLINICAL_CONCEPT_PATH)
         setupClinicalResult(2, columns, ['var 1', null, 'var 3',
-                null, null, null])
+                                         null, null, null])
 
         configuratorTestsHelper.play {
             table.addColumn(new PrimaryKeyColumn(header: 'PK'), [] as Set)
@@ -82,7 +84,7 @@ class CensorColumnConfiguratorTests {
     @Test
     void testCensoringUnspecified() {
         params.@map.putAll([
-                censoringVariable: '',
+                censoringVariable  : '',
                 result_instance_id1: RESULT_INSTANCE_ID1,
                 result_instance_id2: RESULT_INSTANCE_ID2,
         ])

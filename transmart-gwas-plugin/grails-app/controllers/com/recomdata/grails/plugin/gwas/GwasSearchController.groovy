@@ -4,7 +4,7 @@ import au.com.bytecode.opencsv.CSVWriter
 import com.recomdata.transmart.domain.searchapp.FormLayout
 import grails.converters.JSON
 import org.grails.web.json.JSONObject;
-import org.codehaus.groovy.grails.web.mapping.LinkGenerator
+import org.grails.web.mapping.LinkGenerator
 import org.transmart.biomart.BioAssayAnalysis
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.*

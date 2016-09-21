@@ -1,6 +1,7 @@
 package jobs.steps.helpers
 
-import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import jobs.UserParameters
 import jobs.table.Table
 import org.junit.Before
@@ -14,7 +15,8 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.closeTo
 import static org.hamcrest.Matchers.contains
 
-@TestMixin(JobsIntegrationTestMixin)
+@Integration
+@Rollback
 class NumericColumnConfiguratorTests {
 
     @Autowired

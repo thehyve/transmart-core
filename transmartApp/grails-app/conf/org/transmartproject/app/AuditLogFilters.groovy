@@ -1,7 +1,7 @@
 package org.transmartproject.app
 
 import grails.converters.JSON
-import org.codehaus.groovy.grails.web.json.*
+import org.grails.web.json.*
 import org.transmartproject.core.users.User
 import org.transmartproject.core.log.AccessLogEntryResource
 

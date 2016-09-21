@@ -25,7 +25,7 @@
 
 package org.transmartproject.rest
 
-import static org.codehaus.groovy.grails.web.json.JSONObject.NULL
+import static org.grails.web.json.JSONObject.NULL
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder

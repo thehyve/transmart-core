@@ -17,7 +17,7 @@ import static org.transmart.authorization.QueriesResourceAuthorizationDecorator.
  */
 @Deprecated
 public class GexDao {
-    ApplicationContext ctx = org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute(org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes.APPLICATION_CONTEXT)
+    ApplicationContext ctx = org.grails.web.context.ServletContextHolder.getServletContext().getAttribute(org.grails.web.servlet.GrailsApplicationAttributes.APPLICATION_CONTEXT)
     def dataSource = ctx.getBean('dataSource')
     def i2b2HelperService = ctx.getBean('i2b2HelperService')
     def springSecurityService = ctx.getBean('springSecurityService')
