@@ -1,4 +1,6 @@
 # transmart-upgrade
+[![Build Status](https://travis-ci.org/thehyve/transmart-upgrade.svg?branch=master)](https://travis-ci.org/thehyve/transmart-upgrade/branches)
+
 Temporary repo for sharing work on transmart upgrade to grails 3.1.10
 
 TODO LIST:
