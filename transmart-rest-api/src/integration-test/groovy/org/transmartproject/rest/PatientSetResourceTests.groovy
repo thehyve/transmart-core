@@ -6,7 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
 
-class PatientSetResourceTests extends ResourceTestCase {
+class PatientSetResourceTests extends ResourceSpecification {
 
 
     public static final String QUERY_DEFINITION = '''

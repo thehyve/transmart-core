@@ -25,10 +25,12 @@
 
 package org.transmartproject.rest
 
+import static spock.util.matcher.HamcrestSupport.that
+
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-class SubjectsResourceTests extends ResourceTestCase {
+class SubjectsResourceTests extends ResourceSpecification {
 
     def study = 'study_id_1'
     def defaultTrial = study.toUpperCase()
@@ -44,9 +46,11 @@ class SubjectsResourceTests extends ResourceTestCase {
     def subjectUrl3 = "/studies/${study}/subjects/-103"
 
     void testShowAsJson() {
+        when:
         def result = getAsJson subjectUrl
-        assertStatus 200
-        assertThat result, hasJsonSubject()
+        then:
+        result.status == 200
+        that(result, hasJsonSubject())
     }
 
     void testShowAsHal() {

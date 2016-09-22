@@ -34,7 +34,7 @@ import org.hamcrest.Matcher
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-class ConceptsResourceTests extends ResourceTestCase {
+class ConceptsResourceTests extends ResourceSpecification {
 
     def studyId = 'study_id_1'
     def studyFolderName = 'study1'

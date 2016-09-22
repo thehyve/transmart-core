@@ -25,21 +25,28 @@
 
 package org.transmartproject.rest
 
-import com.grailsrocks.functionaltest.APITestCase
+import grails.plugins.rest.client.RestBuilder
+import grails.plugins.rest.client.RestResponse
+import grails.test.mixin.integration.Integration
 import org.grails.web.json.JSONElement
 import org.hamcrest.Matcher
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
 
-abstract class ResourceTestCase extends APITestCase {
+@Integration
+abstract class ResourceSpecification extends Specification {
+
+    String getBaseURL() { "http://localhost:8080/transmart-rest-api" }
 
     def contentTypeForHAL = 'application/hal+json'
+    RestBuilder rest = new RestBuilder()
 
-    JSONElement getAsJson(String path) {
-        client.setStickyHeader('Accept', contentTypeForJSON)
-        get(path)
-        JSON
+    RestResponse getAsJson(String path) {
+        rest.post("${baseURL}${path}")
+        //client.setStickyHeader('Accept', contentTypeForJSON)
+        //get(path)
     }
 
     JSONElement postAsHal(String path, Closure paramSetup = null) {
@@ -86,7 +93,7 @@ abstract class ResourceTestCase extends APITestCase {
         )
     }
 
-    Matcher hasLinks(Map<String,String> linkMap) {
+    Matcher hasLinks(Map<String, String> linkMap) {
         Map expectedLinksMap = linkMap.collectEntries {
             String tempUrl = "${it.value}"
             [(it.key): ([href: tempUrl])]

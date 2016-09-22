@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
 import static org.thehyve.commons.test.FastMatchers.mapWith
 
-class ObservationsResourceTests extends ResourceTestCase {
+class ObservationsResourceTests extends ResourceSpecification {
 
     def studyId = 'STUDY_ID_1'
     def label = "\\foo\\study1\\bar\\"

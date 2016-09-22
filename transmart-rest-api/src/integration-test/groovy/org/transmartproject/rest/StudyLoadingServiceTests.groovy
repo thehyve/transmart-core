@@ -30,15 +30,14 @@ import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.IntegrationTestMixin
 import grails.util.GrailsWebUtil
-import org.codehaus.groovy.grails.commons.spring.GrailsWebApplicationContext
-import org.codehaus.groovy.grails.test.runner.phase.IntegrationTestPhaseConfigurer
+import grails.util.Holders
 import org.gmock.WithGMock
 import org.grails.web.servlet.mvc.GrailsWebRequest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
+import org.springframework.context.ApplicationContext
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.users.User
 import org.transmartproject.db.user.AccessLevelTestData
@@ -65,11 +64,10 @@ class StudyLoadingServiceTests {
     void setUp() {
         /* instantiate testee and do autowiring on it */
         testee = new StudyLoadingService()
-        GrailsWebApplicationContext appCtx =
-                IntegrationTestPhaseConfigurer.currentApplicationContext
+        ApplicationContext appCtx = Holders.applicationContext
 
-        ConfigurableListableBeanFactory beanFactory =
-                appCtx.beanFactory
+        AutowireCapableBeanFactory beanFactory =
+                appCtx.autowireCapableBeanFactory
 
         // traditional autowiring
         beanFactory.autowireBeanProperties(testee,
