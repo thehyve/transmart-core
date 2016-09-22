@@ -13,15 +13,15 @@
     %{--<r:require module="extjs" />--}%
     %{--<r:layoutResources/>--}%
     <asset:stylesheet href='main.css'/>
-    <asset:script type="text/javascript" charset="utf-8">
+    <script type="text/javascript" charset="utf-8">
 
-        Ext.BLANK_IMAGE_URL = "assets/default/s.gif";
+        Ext.BLANK_IMAGE_URL = "${resource(dir:'images', file:'s.gif')}";
         Ext.Ajax.timeout = 180000;
         Ext.QuickTips.init();
 
         var $j = window.$j = jQuery.noConflict();
 
-    </asset:script>
+    </script>
 
     <g:layoutHead/>
     %{--<r:layoutResources/>--}%

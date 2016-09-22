@@ -8,8 +8,8 @@
     <asset:javascript src="admintab.js"/>
     %{--<r:require module="adminTab" />--}%
 
-    <asset:script>
-			Ext.BLANK_IMAGE_URL = "assets/images/default/s.gif'";
+    <script>
+			Ext.BLANK_IMAGE_URL = "${resource(dir:'images', file:'s.gif')}";
 
 			// set ajax to 90*1000 milliseconds
 			Ext.Ajax.timeout = 180000;
@@ -40,7 +40,7 @@
 					basePath :"${request.getContextPath()}"
 				}
 	        });
-    </asset:script>
+    </script>
     %{--<g:layoutHead/>--}%
     %{--<r:layoutResources/>--}%
 </head>

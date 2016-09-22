@@ -23,7 +23,7 @@
     <asset:stylesheet href="jquery-plugin.css"/>
 
     <script type="text/javascript" charset="utf-8">
-        Ext.BLANK_IMAGE_URL = "assets/images/default/s.gif";
+        Ext.BLANK_IMAGE_URL = "${resource(dir:'images', file:'s.gif')}";
         Ext.Ajax.timeout = 180000;
         Ext.onReady(function () {
             Ext.QuickTips.init()

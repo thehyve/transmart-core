@@ -40,8 +40,8 @@ class DataAssociationController {
 
         // list of required css
         def styles = [
-                servletContext.contextPath+pluginContextPath+'/css/rmodules.css',
-                servletContext.contextPath+pluginContextPath+'/css/jquery.qtip.min.css']
+                servletContext.contextPath+pluginContextPath+'/assets/rmodules.css',
+                servletContext.contextPath+pluginContextPath+'/assets/jquery.qtip.min.css']
                 //TODO: requires images: servletContext.contextPath+pluginContextPath+'/css/jquery-ui-1.10.3.custom.css']
 
         JSONObject result = new JSONObject()

@@ -14,13 +14,17 @@
 
     <%-- We do not have a central template, so this only works in the database explorer for now --%>
     <g:if test="${['true', true]*.equals(grailsApplication.config.com.recomdata.debug.jsCallbacks).any()}">
-        <g:javascript src="long-stack-traces.js"/>
+        <asset:javascript src="long-stack-traces.js"/>
     </g:if>
 
     <!-- Include jQuery, Ext and app-specific scripts: -->
     %{--<g:javascript library="jquery" />--}%
     <asset:javascript src="jquery-2.2.0.min.js"/>
     <asset:javascript src="extjs.js"/>
+    <asset:stylesheet href="folderManagement.css"/>
+    <asset:javascript src="folderManagementDE.js"/>
+    <asset:stylesheet href="analysetab.css" />
+    <asset:javascript src="analysetab.js" />
     <script type="text/javascript" >
 
         var pageInfo = {
@@ -108,7 +112,7 @@
         var dseClosedNodes = "${dseClosedNodes}";
         var helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 
-        Ext.BLANK_IMAGE_URL = "assets/images/default/s.gif";
+        Ext.BLANK_IMAGE_URL = "${resource(dir:'images', file:'s.gif')}";
         Ext.Ajax.timeout = 1800000;
         Ext.Updater.defaults.timeout = 1800000;
 
@@ -116,11 +120,6 @@
 
     </script>
     <tmpl:/RWG/urls/>
-    <asset:stylesheet href="analysetab.css" />
-    <asset:javascript src="analysetab.js" />
-
-    <asset:stylesheet href="folderManagement.css"/>
-    <asset:javascript src="folderManagementDE.js"/>
     %{--<asset:deferredScripts/>--}%
 
 </head>
