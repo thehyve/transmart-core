@@ -9,7 +9,7 @@ import java.sql.Statement
 
 public class ExperimentData {
 
-    ApplicationContext ctx = org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute(org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes.APPLICATION_CONTEXT)
+    ApplicationContext ctx = org.grails.web.context.ServletContextHolder.getServletContext().getAttribute(org.grails.web.servlet.GrailsApplicationAttributes.APPLICATION_CONTEXT)
     def dataSource = ctx.getBean('dataSource')
     def sessionFactory = ctx.getBean('sessionFactory');
     def sampleInfoService = ctx.getBean('sampleInfoService');

@@ -14,7 +14,7 @@ import org.transmart.biomart.Taxonomy
  */
 @Deprecated
 public class StudyDao {
-    ApplicationContext ctx = org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute(org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes.APPLICATION_CONTEXT)
+    ApplicationContext ctx = org.grails.web.context.ServletContextHolder.getServletContext().getAttribute(org.grails.web.servlet.GrailsApplicationAttributes.APPLICATION_CONTEXT)
     def dataSource = ctx.getBean('dataSource')
     def springSecurityService = ctx.getBean('springSecurityService')
     def dataTypeName = "Study"

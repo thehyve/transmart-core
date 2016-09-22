@@ -24,12 +24,12 @@ import groovy.transform.CompileStatic
 @CompileStatic
 public class GenericWrapper {
 
-    Collection<Link> links
+    Collection links
     Set<String> embeddedEntities
     Map<String,Object> values
 
     public GenericWrapper(Map<String,Object> args) {
-        links = (Collection<Link>) args.remove('links') ?: []
+        links = (Collection) args.remove('links') ?: []
         embeddedEntities = (args.remove('embeddedEntities') ?: []) as Set<String>
         values = args
     }

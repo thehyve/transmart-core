@@ -1,6 +1,7 @@
 package jobs.steps.helpers
 
-import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import jobs.UserParameters
 import jobs.table.Column
 import jobs.table.Table
@@ -12,7 +13,8 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.contains
 import static org.hamcrest.Matchers.is
 
-@TestMixin(JobsIntegrationTestMixin)
+@Integration
+@Rollback
 class OptionalColumnConfiguratorDecoratorTests {
 
     public static final String COLUMN_HEADER = 'SAMPLE_HEADER'

@@ -167,8 +167,9 @@ public class ExpandingMapIterator extends AbstractIterator<String[]> {
         Integer currentRank = maxRank;
         while (!mapIterators.get(currentRank).hasNext()) {
             if (currentRank == 0) {
+                String[] returnArray = getReturnArray();
                 originalRow = null /* everything seen there */;
-                return getReturnArray();
+                return returnArray;
             }
             mapIterators.set(currentRank, createIterator(currentRank));
             currentRank--;

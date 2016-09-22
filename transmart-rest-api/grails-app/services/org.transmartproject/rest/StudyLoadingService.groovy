@@ -25,7 +25,7 @@
 
 package org.transmartproject.rest
 
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
+import org.springframework.web.context.request.RequestAttributes
 import org.springframework.web.context.request.RequestContextHolder
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -58,7 +58,7 @@ class StudyLoadingService {
     }
 
     Study fetchStudy() {
-        GrailsWebRequest webRequest = RequestContextHolder.currentRequestAttributes()
+        RequestAttributes webRequest = RequestContextHolder.currentRequestAttributes()
         def studyId = webRequest.params.get STUDY_ID_PARAM
 
         if (!studyId) {
