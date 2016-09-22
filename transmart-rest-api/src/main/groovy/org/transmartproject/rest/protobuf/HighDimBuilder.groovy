@@ -60,8 +60,6 @@ class HighDimBuilder {
 
     private Row.Builder rowBuilder = Row.newBuilder()
 
-    @Lazy boolean multiValuedProjection = projection instanceof MultiValueProjection
-
     // class is either Double or String
     @Lazy private SortedMap<String, ? extends Class> dataColumns = getDataProperties(projection)
 
@@ -69,6 +67,9 @@ class HighDimBuilder {
     // each closure is associated with a column
     // the order is that of the columns as given in the sorted map dataColumns
     @Lazy private List<Closure> columnValueBuilderCreators = {
+
+        boolean multiValuedProjection = projection instanceof MultiValueProjection
+
         dataColumns.collect { String dataProperty, Class<?> clazz ->
             // the builder will be reused across rows
             def builder = ColumnValue.newBuilder()
@@ -214,7 +215,7 @@ class HighDimBuilder {
                 TimepointName: col.timepoint?.label,
                 TissueTypeName: col.tissueType?.label,
         ]
-        
+
         optionalValues.each { field, value ->
             if(value != null) {
                 // Java reflection because of CompileStatic. The conversion to Object[] is not necessary,

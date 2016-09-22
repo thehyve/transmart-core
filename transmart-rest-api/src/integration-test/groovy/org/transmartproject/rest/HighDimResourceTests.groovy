@@ -35,7 +35,7 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.*
 
-class HighDimResourceTests extends ResourceTestCase {
+class HighDimResourceTests extends ResourceSpecification {
 
     def expectedMrnaAssays = [-402, -401]*.toLong() //groovy autoconverts to BigInteger, and we have to force Long here
     def expectedMrnaRowLabels = ["1553513_at", "1553510_s_at","1553506_at"]
