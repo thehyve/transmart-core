@@ -2,8 +2,14 @@ package org.transmartproject.interceptors
 
 
 class OauthInterceptor {
-
-    boolean before() { true }
+    //matches OauthController and all actions of controller by naming convention
+    def auditLogService
+    boolean before() {
+        auditLogService.report("OAuth authentication", request,
+                user: currentUserBean,
+        )
+        true
+    }
 
     boolean after() { true }
 
