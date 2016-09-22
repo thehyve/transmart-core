@@ -28,7 +28,7 @@ package org.transmartproject.rest
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-class StudiesResourceTests extends ResourceTestCase {
+class StudiesResourceTests extends ResourceSpecification {
 
     def childLinkHrefPath = '_embedded.ontologyTerm._links.children[0].href'
     def expectedChildLinkHrefValue = '/studies/study_id_1/concepts/bar'

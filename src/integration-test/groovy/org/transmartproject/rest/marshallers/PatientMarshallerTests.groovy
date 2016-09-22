@@ -38,7 +38,6 @@ import org.transmartproject.rest.test.StubStudyLoadingService
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 
-import static org.codehaus.groovy.grails.test.runner.phase.IntegrationTestPhaseConfigurer.getCurrentApplicationContext
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.rest.test.StubStudyLoadingService.createStudy
