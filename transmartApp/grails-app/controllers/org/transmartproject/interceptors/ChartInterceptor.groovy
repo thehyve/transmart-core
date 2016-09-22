@@ -9,7 +9,7 @@ class ChartInterceptor {
     User currentUserBean
 
     ChartInterceptor(){
-        matchAll().excludes(controller:'chart', action:~/(clearGrid|displayChart|childConceptPatientCounts)/)
+        match(controller: 'chart').excludes(action:~/(clearGrid|displayChart|childConceptPatientCounts)/)
     }
 
     boolean before() {
