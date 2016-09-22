@@ -15,7 +15,7 @@
     <asset:javascript src="analysetab.js" />
 
     <script type="text/javascript" charset="utf-8">
-        Ext.BLANK_IMAGE_URL = "${resource(dir:'js', file:'ext/resources/images/default/s.gif')}";
+        Ext.BLANK_IMAGE_URL = "${resource(dir:'images', file:'s.gif')}";
 
         // set ajax to 90*1000 milliseconds
         Ext.Ajax.timeout = 180000;

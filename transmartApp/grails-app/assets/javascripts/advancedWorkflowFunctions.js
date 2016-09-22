@@ -445,7 +445,7 @@ function showGeneSelection()
 	              		}
 		           }],
 		 autoLoad: {
-		   url: pageInfo.basePath+'/panels/compareGeneSelection.html',
+		   url: pageInfo.basePath+'/assets/panels/compareGeneSelection.html',
 		   scripts: true,
 		   nocache:true, 
 		   discardUrl:true,

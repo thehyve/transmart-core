@@ -30,7 +30,7 @@
 
 <body>
 <script type="text/javascript">
-    Ext.BLANK_IMAGE_URL = "asset/images/default/s.gif";
+    Ext.BLANK_IMAGE_URL = "${resource(dir:'images', file:'s.gif')}";
 
     //set ajax to 600*1000 milliseconds
     Ext.Ajax.timeout = 1800000;
