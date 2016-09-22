@@ -6,16 +6,18 @@ php:
   - 5.6
 env:
   - TERM=dumb; DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
-  - TERM=dumb; DIR=transmart-data; PREINSTALL="createVars setupPostgres"
+  - TERM=dumb; DIR=transmart-data; PREINSTALL="createVars setupPostgres"; INSTALL=downloadTransmartETL; TEST=dataloadingTest
 
 addons:
   postgres: 9.4
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -rf $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-    - $HOME/.gradle
+    - $HOME/.gradle/caches
+    - $HOME/.gradle/wrapper
     - $HOME/.m2
     - $HOME/pg
 
@@ -32,22 +34,22 @@ before_install:
   - echo $DIR; cd $DIR
   - PWD=`pwd`
   - echo $PWD
-  - ([ "$PREINSTALL" == "" ] && echo "Skipping preinstall.") || (echo $PREINSTALL; sudo -i -- sh -c "cd $PWD; gradle $PREINSTALL")
+  - ([ -z "$PREINSTALL" ] && echo "Skipping preinstall.") || (echo $PREINSTALL; sudo -i -- sh -c "cd $PWD; gradle $PREINSTALL")
   - cd -
 
 install:
   - echo $DIR; cd $DIR
-  - ([ "$INSTALL" == "" ] && echo "Skipping install.") || (echo $INSTALL; gradle $INSTALL)
+  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; gradle $INSTALL)
   - cd -
 
 before_script:
   - echo $DIR; cd $DIR
-  - ([ "$PREPARE" == "" ] && echo "Skipping prepare.") || (echo $PREPARE; gradle $PREPARE)
+  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; gradle $PREPARE)
   - cd -
 
 script:
   - echo $DIR; cd $DIR
-  - ([ "$TEST" == "" ] && echo "Skipping test.") || (echo $TEST; gradle --stacktrace $TEST)
+  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; gradle --stacktrace $TEST)
   - cd -
 
 notifications:
@@ -55,5 +57,5 @@ notifications:
     rooms:
       secure: "rNPPKSL1o8R71YcD7T+jDFTFfSFoXO/YKCubqwP5TXFL+OtqEwZOrkpKSpyN+Ap6Uxk85TBgat8Bur/WkTWXcq6HruyhfKkKea96ZVVSWjZWhKHqqTLvMeABb1uh6JxpXAc/5Cm3K5/yTHBFFiFSyOemuEl88bqeqJjDSzIxvOLrdLhnYWVlo3SJcUwAab0IKab8MpbZUEa6eFB5+MmCQfwjDZBr9Qn7UGfQWQdEp801sHGzU2i58uwF7+RVYhUyZtT9428FmPhxAS2EgW663JpzNQYpVCws02UW8aCgu2SCWWtUKwk3dy/6hSc5UoxWIIKaIpPbre+SA5JYeB7RwIad7N6/eDHdb/ByN1lOP6/pAEzPSnajxJrU/AnohhIwgcPaZ3aHbrqq8RrGPy1sNwFTKvFzBkVu5aWKR7JMgKuBq0LXv4iq1qBJw1s+xK4CHNoOAESZG2a0wo/cmzK+C2OzKdTnjN25RoHwXBOS7AzJtdtqpU8PaESZ0X1BxT19nD3RALiCfS/054SU3mfswhVAdo6rVhHDgGNxqRflgZIVmDsYjBRZ4TR4jDnUhc+s9ILo1eI/imq7tQZ6rFeQrydCu4p2U4LrFAWu7E0QwTbsfnSs5KN7Fah1xhS+6xttOuqbAmPQXEeLKSkk6B9Q7G/R0VHAKdaNkLweA0ZzATM="
     on_success: change
-    on_failure: always
+    on_failure: change
 
