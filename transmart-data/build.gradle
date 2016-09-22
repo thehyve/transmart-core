@@ -15,24 +15,64 @@ project.ext {
     environment = [PATH: '/bin/:/usr/bin/:/usr/local/bin/']
 }
 
-task createVars(type:Exec) {
+task createVars(type: Exec) {
     commandLine 'make', '-C', 'env', '../vars'
 }
 createVars.onlyIf { !file('vars').exists() }
 
 def make(String target) {
+    println "make: ${target}"
     exec {
         commandLine 'bash', '-c', 'source ./vars && make ' + target
     }
-    println target
 }
 
 def sudo_make(String target) {
+    println "sudo make: ${target}"
     exec {
         commandLine 'bash', '-c', 'source ./vars && sudo make ' + target
     }
-    println target
 }
+
+task checkDependencies() {
+    def out = new ByteArrayOutputStream()
+    exec {
+        commandLine 'php', '--version'
+        standardOutput out
+    }
+    println out.toString().readLines()[0]
+    def php_installed = false
+    out.toString().find(/PHP (\d+).(\d+)/) { match, major, minor ->
+        if (major > 5 || major == 5 && minor >= 4) {
+            php_installed = true
+        }
+    }
+    if (!php_installed) {
+        throw new StopActionException('PHP version >= 5.4 required.')
+    }
+    out.reset()
+    exec {
+        commandLine 'svn', '--version'
+        standardOutput out
+    }
+    println out.toString().readLines()[0]
+}
+
+def etl_target = 'env/tranSMART-ETL'
+
+task downloadTransmartETL << {
+    def repo = 'https://github.com/transmart/tranSMART-ETL/trunk'
+    exec {
+        commandLine 'svn', 'checkout', '--depth', 'immediates', repo, etl_target
+    }
+    exec {
+        commandLine 'svn', 'up', '--set-depth=infinity', "${etl_target}/Postgres"
+    }
+    exec {
+        commandLine 'svn', 'up', '--set-depth=infinity', "${etl_target}/Kettle-GPL"
+    }
+}
+downloadTransmartETL.onlyIf { !file(etl_target).exists() }
 
 task setupPostgres << {
     sudo_make('-C env /var/lib/postgresql/tablespaces')
@@ -53,6 +93,12 @@ task startSolr << {
 
 task stopSolr << {
     make('-C solr stop_solr')
+}
+
+task dataloadingTest << {
+    make('-C env data-integration')
+    make('-C samples/postgres load_clinical_GSE8581')
+    make('-C samples/postgres showdblog')
 }
 
 defaultTasks 'createVars'
