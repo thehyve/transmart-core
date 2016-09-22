@@ -1,8 +1,11 @@
 package org.transmartproject.interceptors
 
+import org.transmartproject.core.users.User
+
 
 class RWGInterceptor {
     def auditLogService
+    User currentUserBean
     RWGInterceptor(){
         match(controller: 'RWG', action: 'getFacetResults')
     }

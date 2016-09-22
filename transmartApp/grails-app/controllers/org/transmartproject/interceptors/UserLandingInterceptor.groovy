@@ -1,9 +1,13 @@
 package org.transmartproject.interceptors
 
+import org.transmartproject.core.users.User
+
 
 class UserLandingInterceptor {
     def auditLogService
+    User currentUserBean
     UserLandingInterceptor(){
+
         match(controller: 'userLanding').excludes(action: 'checkHeartBeat')
     }
 
