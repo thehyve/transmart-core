@@ -47,7 +47,8 @@ class SubjectController {
      *  where each subject will be rendered in its short format
     */
     def index() {
-        respond wrapSubjects(studyLoadingServiceProxy.study.patients, selfLinkForStudy())
+        Set<Patient> patients = studyLoadingServiceProxy.study.patients
+        respond wrapSubjects(patients, selfLinkForStudy())
     }
 
     /** GET request on /studies/XXX/subjects/${id}

@@ -27,6 +27,10 @@ class OntologyTermTagsResourceService implements OntologyTermTagsResource {
             order 'position'
         }
 
+        if (!orderedTags) {
+            return [:]
+        }
+
         def terms = I2b2.findAllByFullNameInList((orderedTags*.ontologyTermFullName).unique())
         def termsMap = terms.collectEntries { [it.fullName, it] }
 

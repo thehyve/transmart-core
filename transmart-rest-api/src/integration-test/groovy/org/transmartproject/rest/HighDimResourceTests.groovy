@@ -31,11 +31,10 @@ import org.transmartproject.db.dataquery.highdim.acgh.AcghValuesProjection
 import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.HighDimProtos
 
-import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.*
 
-class HighDimResourceTests extends ResourceSpecification {
+class HighDimResourceTests extends ResourceSpec {
 
     def expectedMrnaAssays = [-402, -401]*.toLong() //groovy autoconverts to BigInteger, and we have to force Long here
     def expectedMrnaRowLabels = ["1553513_at", "1553510_s_at","1553506_at"]
@@ -57,20 +56,20 @@ class HighDimResourceTests extends ResourceSpecification {
     ]
 
     void testSummaryAsJson() {
-        def result = getAsJson indexUrlMap['mrna']
-        assertStatus 200
+        def response = getAsJson indexUrlMap['mrna']
+        response.status == 200
 
         Map summary = [
                 dataTypes: [getExpectedMrnaSummary()]
         ]
 
-        assertThat result, mapWith(summary)
+        that response, mapWith(summary)
     }
 
     void testSummaryAsHal() {
         String url = indexUrlMap['mrna']
         Map result = getAsHal url
-        assertStatus 200
+        response.status == 200
 
         Map summary = getExpectedMrnaSummary()
         summary['_links'] = getExpectedMrnaHalLinks()
@@ -84,7 +83,7 @@ class HighDimResourceTests extends ResourceSpecification {
                 ]
         ]
 
-        assertThat result, mapWith(expected)
+        that response, mapWith(expected)
     }
 
     void testMrna() {
@@ -119,7 +118,7 @@ class HighDimResourceTests extends ResourceSpecification {
         HighDimResult result = getAsHighDim(
                 getHighDimUrl('acgh', null, assayConstraints))
 
-        assertThat result.header.assayList, contains(
+        that result.header.assayList, contains(
                 hasProperty('assayId', equalTo(-3002L))
         )
     }
@@ -131,7 +130,7 @@ class HighDimResourceTests extends ResourceSpecification {
         HighDimResult result = getAsHighDim(
                 getHighDimUrl('acgh', null, assayConstraints))
 
-        assertThat result.header.assayList, contains(
+        that result.header.assayList, contains(
                 hasProperty('assayId', equalTo(-3002L))
         )
     }
@@ -142,7 +141,7 @@ class HighDimResourceTests extends ResourceSpecification {
         HighDimResult result = getAsHighDim(
                 getHighDimUrl('acgh', null, null, dataConstraints))
 
-        assertThat result.rows, contains(
+        that result.rows, contains(
                 hasProperty('bioMarker', equalTo('ADIRF'))
         )
     }
@@ -201,11 +200,11 @@ class HighDimResourceTests extends ResourceSpecification {
                          List<String> expectedRowLabels,
                          Map<String, Class> columnsMap) {
 
-        assertThat result.header.assayList*.assayId, containsInAnyOrder(expectedAssays.toArray())
+        that result.header.assayList*.assayId, containsInAnyOrder(expectedAssays.toArray())
 
-        assertThat result.header.columnSpecList, columnSpecMatcher(columnsMap)
+        that result.header.columnSpecList, columnSpecMatcher(columnsMap)
 
-        assertThat result.rows*.label, containsInAnyOrder(expectedRowLabels.toArray())
+        that result.rows*.label, containsInAnyOrder(expectedRowLabels.toArray())
     }
 
     private Matcher columnSpecMatcher(Map<String, Class> dataProperties) {

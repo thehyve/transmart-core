@@ -46,8 +46,8 @@ class ConceptTestData {
         // useful to test rest-api
         i2b2List << createI2b2Concept(code: 6, level: 2, fullName: '\\foo\\study2\\long path\\',
                 name: 'long path', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'FA')
-        i2b2List << createI2b2Concept(code: 7, level: 3, fullName: '\\foo\\study2\\long path\\with%some$characters_\\',
-                name: 'with%some$characters_', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA',
+        i2b2List << createI2b2Concept(code: 7, level: 3, fullName: '\\foo\\study2\\long path\\with some$characters_\\',
+                name: 'with some$characters_', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA',
                 metadataxml: numericXml)
         //categorical node
         i2b2List << createI2b2Concept(code: 8, level: 2, fullName: '\\foo\\study2\\sex\\', name: 'sex',
