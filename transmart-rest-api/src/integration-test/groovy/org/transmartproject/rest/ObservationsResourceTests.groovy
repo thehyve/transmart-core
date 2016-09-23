@@ -26,12 +26,12 @@
 package org.transmartproject.rest
 
 import static org.grails.web.json.JSONObject.NULL
-import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
 import static org.thehyve.commons.test.FastMatchers.mapWith
+import static spock.util.matcher.HamcrestSupport.that
 
-class ObservationsResourceTests extends ResourceSpecification {
+class ObservationsResourceTests extends ResourceSpec {
 
     def studyId = 'STUDY_ID_1'
     def label = "\\foo\\study1\\bar\\"
@@ -55,18 +55,24 @@ class ObservationsResourceTests extends ResourceSpecification {
     ]
 
     void testListAllObservationsForStudy() {
-        get("${baseURL}studies/${studyId}/observations")
-        assertStatus 200
+        def response = get("/studies/${studyId}/observations")
 
-        assertThat JSON, listOfWithOrder(study1BarExpectedObservations)
+        when:
+        response.status == 200
+
+        then:
+        that response.json, listOfWithOrder(study1BarExpectedObservations)
     }
 
     void testListAllObservationsForSubject() {
         def subjectId = -101
-        get("${baseURL}studies/${studyId}/subjects/${subjectId}/observations")
-        assertStatus 200
 
-        assertThat JSON, contains(
+        when:
+        def response = get("/studies/${studyId}/subjects/${subjectId}/observations")
+
+        then:
+        response.status == 200
+        that response.json, contains(
                 allOf(
                         hasEntry(is('subject'), allOf(
                                 hasEntry('id', subjectId),
@@ -88,17 +94,22 @@ class ObservationsResourceTests extends ResourceSpecification {
 
     void testListAllObservationsForConcept() {
         def conceptId = 'bar'
-        get("${baseURL}studies/${studyId}/concepts/${conceptId}/observations")
-        assertStatus 200
 
-        assertThat JSON, listOfWithOrder(study1BarExpectedObservations)
+        when:
+        def response = get("/studies/${studyId}/concepts/${conceptId}/observations")
+
+        then:
+        response.status == 200
+        that response.json, listOfWithOrder(study1BarExpectedObservations)
     }
 
     void testVariablesAreNormalized() {
-        get("/studies/study_id_2/concepts/sex/observations")
-        assertStatus 200
+        when:
+        def response = get("/studies/study_id_2/concepts/sex/observations")
 
-        assertThat JSON, allOf(
+        then:
+        response.status == 200
+        that response.json, allOf(
                 hasSize(2),
                 everyItem(
                         hasEntry('label', '\\foo\\study2\\sex\\'),
@@ -109,40 +120,41 @@ class ObservationsResourceTests extends ResourceSpecification {
     }
 
     void testIndexStandalonePatientSet() {
-        get('/observations') {
-            patient_sets = '1'
-            concept_paths = '\\foo\\study1\\bar\\'
+        when:
+        def response = get('/observations?patient_sets={patient_sets}&concept_paths={concept_paths}') {
+            urlVariables patient_sets: '1', concept_paths: '\\foo\\study1\\bar\\'
         }
 
-        assertStatus 200
-
-        assertThat JSON, listOfWithOrder(study1BarExpectedObservations)
+        then:
+        response.status == 200
+        that response.json, listOfWithOrder(study1BarExpectedObservations)
     }
 
     void testIndexStandalone() {
-        get('/observations') {
-            patients = -101
-            concept_paths = '\\foo\\study1\\bar\\'
+        when:
+        def response = get('/observations?patients={patients}&concept_paths={concept_paths}') {
+            urlVariables patients: -101, concept_paths: '\\foo\\study1\\bar\\'
         }
 
-        assertStatus 200
-
-        assertThat JSON, contains(
+        then:
+        response.status == 200
+        that response.json, contains(
                 hasEntry(is('subject'),
                         hasEntry('id', -101)))
     }
 
     void testIndexStandaloneDefaultIsNormalizedLeaves() {
-        get(('/observations' +
+        when:
+        def response = get(('/observations' +
                 '?patients=-201' +
                 '&patients=-202' +
                 '&concept_paths=\\foo\\study2\\sex\\')
                 .replaceAll('\\\\', '%5C'))
 
-        assertStatus 200
-
+        then:
+        response.status == 200
         // should be normalized
-        assertThat JSON, allOf(
+        that response.json, allOf(
                 hasSize(2),
                 containsInAnyOrder(
                         allOf(
@@ -154,15 +166,16 @@ class ObservationsResourceTests extends ResourceSpecification {
     }
 
     void testIndexStandaloneDifferentVariableType() {
-        get(('/observations?variable_type=terminal_concept_variable' +
+        when:
+        def response = get(('/observations?variable_type=terminal_concept_variable' +
                 '&patients=-201' +
                 '&patients=-202' +
                 '&concept_paths=\\foo\\study2\\sex\\')
                 .replaceAll('\\\\', '%5C'))
 
-        assertStatus 200
-
-        assertThat JSON, allOf(
+        then:
+        response.status == 200
+        that response.json, allOf(
                 hasSize(2),
                 everyItem(allOf(
                         hasEntry('label', '\\foo\\study2\\sex\\'),
@@ -170,14 +183,15 @@ class ObservationsResourceTests extends ResourceSpecification {
     }
 
     void testHalStandalone() {
-        getAsHal('/observations') {
+        when:
+        def response = getAsHal('/observations') {
             patients = -101
             concept_paths = '\\foo\\study1\\bar\\'
         }
 
-        assertStatus 200
-
-        allOf(
+        then:
+        response.status == 200
+        that response.json, allOf(
                 hasLinks([:]),
                 hasEntry(
                         is('_embedded'),

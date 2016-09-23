@@ -28,46 +28,44 @@ package org.transmartproject.rest
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
 import grails.test.mixin.integration.Integration
-import org.grails.web.json.JSONElement
 import org.hamcrest.Matcher
+import org.springframework.beans.factory.annotation.Value
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
 
 @Integration
-abstract class ResourceSpecification extends Specification {
+abstract class ResourceSpec extends Specification {
 
-    String getBaseURL() { "http://localhost:8080/transmart-rest-api" }
+    String getBaseURL() { "http://localhost:${serverPort}" }
+
+    @Value('${local.server.port}')
+    Integer serverPort
 
     def contentTypeForHAL = 'application/hal+json'
+    def contentTypeForJSON = 'application/json'
+
     RestBuilder rest = new RestBuilder()
 
-    RestResponse getAsJson(String path) {
-        rest.post("${baseURL}${path}")
-        //client.setStickyHeader('Accept', contentTypeForJSON)
-        //get(path)
+    RestResponse get(String path, Closure paramSetup = {}) {
+        rest.get("${baseURL}${path}", paramSetup)
     }
 
-    JSONElement postAsHal(String path, Closure paramSetup = null) {
-        doAsHal 'post', path, paramSetup
+    RestResponse getAsJson(String path, Closure paramSetup = {}) {
+        rest.get("${baseURL}${path}") {
+            header 'Accept', contentTypeForJSON
+        }
     }
 
-    JSONElement getAsHal(String path, Closure paramSetup = null) {
-        doAsHal 'get', path, paramSetup
+    RestResponse getAsHal(String path, Closure paramSetup = {}) {
+        rest.get("${baseURL}${path}") {
+            header 'Accept', contentTypeForHAL
+        }
     }
 
-    JSONElement doAsHal(String method, String path, Closure paramSetup = null) {
-        client.setStickyHeader('Accept', contentTypeForHAL)
-        "$method"(path, paramSetup)
-
-        //cannot use client.responseAsString, as HAL is considered binary and is trimmed (no parsing is possible)
-        //grails.converters.JSON.parse(client.responseAsString)
-
-        //hack around this:
-        client.response.data.reset() //to reset the stream (pointer = 0), as it was partially read before
-        def text = client.response.data.text //obtain all the text from the stream
-        grails.converters.JSON.parse(text) //parse normally as JSON
+    RestResponse post(String path, Closure paramSetup = {}) {
+        rest.post("${baseURL}${path}", paramSetup)
     }
 
     InputStream getAsInputStream(String path) {

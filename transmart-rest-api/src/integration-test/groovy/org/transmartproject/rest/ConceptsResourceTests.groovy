@@ -31,10 +31,9 @@ import org.hamcrest.Description
 import org.hamcrest.DiagnosingMatcher
 import org.hamcrest.Matcher
 
-import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-class ConceptsResourceTests extends ResourceSpecification {
+class ConceptsResourceTests extends ResourceSpec {
 
     def studyId = 'study_id_1'
     def studyFolderName = 'study1'
@@ -52,10 +51,10 @@ class ConceptsResourceTests extends ResourceSpecification {
     def conceptUrl = "/studies/${studyId}/concepts/${conceptId}"
     def rootConceptUrl = "/studies/${studyId}/concepts/ROOT"
 
-    def longConceptName = 'with%some$characters_'
+    def longConceptName = 'with some$characters_'
     def longConceptPath = "\\foo\\study2\\long path\\$longConceptName\\"
     def longConceptKey = "\\\\i2b2 main$longConceptPath"
-    def longConceptUrl = '/studies/study_id_2/concepts/long%20path/with%25some%24characters_'
+    def longConceptUrl = '/studies/study_id_2/concepts/long%20path/with%20some%24characters_'
 
     def sexConceptUrl = '/studies/study_id_2/concepts/sex'
     def femaleConceptUrl = '/studies/study_id_2/concepts/sex/female'
@@ -68,19 +67,19 @@ class ConceptsResourceTests extends ResourceSpecification {
     ]
 
     void testIndexAsJson() {
-        def result = getAsJson conceptListUrl
-        assertStatus 200
+        def response = getAsJson conceptListUrl
+        response.status == 200
 
-        assertThat result, hasEntry(is('ontology_terms'),
+        that response, hasEntry(is('ontology_terms'),
                 contains(jsonConceptResponse())
         )
     }
 
     void testIndexAsHal() {
-        def result = getAsHal conceptListUrl
-        assertStatus 200
+        def response = getAsHal conceptListUrl
+        response.status == 200
 
-        assertThat result,
+        that response,
                 halIndexResponse(
                         conceptListUrl,
                         ['ontology_terms': contains(
@@ -91,46 +90,46 @@ class ConceptsResourceTests extends ResourceSpecification {
     }
 
     void testShowAsJson() {
-        def result = getAsJson conceptUrl
-        assertStatus 200
-        assertThat result, jsonConceptResponse()
+        def response = getAsJson conceptUrl
+        response.status == 200
+        that response, jsonConceptResponse()
     }
 
     void testShowAsHal() {
-        def result = getAsHal conceptUrl
-        assertStatus 200
+        def response = getAsHal conceptUrl
+        response.status == 200
 
-        assertThat result, halConceptResponse()
+        that response, halConceptResponse()
     }
 
     void testShowRootConceptAsJson() {
-        def result = getAsJson rootConceptUrl
-        assertStatus 200
-        assertThat result, jsonConceptResponse(rootConceptKey, studyFolderName, rootConceptPath)
+        def response = getAsJson rootConceptUrl
+        response.status == 200
+        that response, jsonConceptResponse(rootConceptKey, studyFolderName, rootConceptPath)
     }
 
     void testShowRootConceptAsHal() {
-        def result = getAsHal rootConceptUrl
-        assertStatus 200
+        def response = getAsHal rootConceptUrl
+        response.status == 200
 
-        assertThat result, halConceptResponse(rootConceptKey, studyFolderName, rootConceptPath, rootConceptUrl, false)
+        that response, halConceptResponse(rootConceptKey, studyFolderName, rootConceptPath, rootConceptUrl, false)
     }
 
     void testPathOfLongConcept() {
-        def result = getAsHal study2ConceptListUrl
+        def response = getAsHal study2ConceptListUrl
 
-        assertStatus 200
-        assertThat result, is(halIndexResponse(
+        response.status == 200
+        that response, is(halIndexResponse(
                 study2ConceptListUrl,
                 ['ontology_terms': hasItem(
                         hasSelfLink(longConceptUrl))]))
     }
 
     void testCanHitLongConcept() {
-        def result = getAsHal longConceptUrl
+        def response = getAsHal longConceptUrl
 
-        assertStatus 200
-        assertThat result, is(halConceptResponse(
+        response.status == 200
+        that response, is(halConceptResponse(
                 longConceptKey,
                 longConceptName,
                 longConceptPath,
@@ -139,27 +138,27 @@ class ConceptsResourceTests extends ResourceSpecification {
     }
 
     void testNavigableConceptRoot() {
-        def result = getAsHal rootConceptUrl
-        assertStatus 200
-        assertThat result, NavigationLinksMatcher.hasNavigationLinks(rootConceptUrl, null, 'bar')
+        def response = getAsHal rootConceptUrl
+        response.status == 200
+        that response, NavigationLinksMatcher.hasNavigationLinks(rootConceptUrl, null, 'bar')
     }
 
     void testNavigableConceptLeaf() {
-        def result = getAsHal conceptUrl
-        assertStatus 200
-        assertThat result, NavigationLinksMatcher.hasNavigationLinks(conceptUrl, rootConceptUrl, null)
+        def response = getAsHal conceptUrl
+        response.status == 200
+        that response, NavigationLinksMatcher.hasNavigationLinks(conceptUrl, rootConceptUrl, null)
     }
 
     void testMetadataTagsAsJson() {
-        def result = getAsJson rootConceptUrl
-        assertStatus 200
-        assertThat result, MetadataTagsMatcher.hasTags(study1RootConceptTags)
+        def response = getAsJson rootConceptUrl
+        response.status == 200
+        that response, MetadataTagsMatcher.hasTags(study1RootConceptTags)
     }
 
     void testMetadataTagsAsHal() {
-        def result = getAsHal rootConceptUrl
-        assertStatus 200
-        assertThat result, MetadataTagsMatcher.hasTags(study1RootConceptTags)
+        def response = getAsHal rootConceptUrl
+        response.status == 200
+        that response, MetadataTagsMatcher.hasTags(study1RootConceptTags)
     }
 
     void testDataTypeStudy() {
@@ -167,33 +166,33 @@ class ConceptsResourceTests extends ResourceSpecification {
         // visual attribute. This is detected as a study because the ontology
         // term is the same as the one studyLoadingService.study.ot returns
         // See OntologyTermWrapper
-        def result = getAsJson rootConceptUrl
-        assertStatus 200
-        assertThat result, hasEntry('type', 'STUDY')
+        def response = getAsJson rootConceptUrl
+        response.status == 200
+        that response, hasEntry('type', 'STUDY')
     }
 
     void testDataTypeHighDimensional() {
-        def result = getAsJson conceptUrl //study 1/bar
-        assertStatus 200
-        assertThat result, hasEntry('type', 'HIGH_DIMENSIONAL')
+        def response = getAsJson conceptUrl //study 1/bar
+        response.status == 200
+        that response, hasEntry('type', 'HIGH_DIMENSIONAL')
     }
 
     void testDataTypeNumeric() {
-        def result = getAsJson longConceptUrl
-        assertStatus 200
-        assertThat result, hasEntry('type', 'NUMERIC')
+        def response = getAsJson longConceptUrl
+        response.status == 200
+        that response, hasEntry('type', 'NUMERIC')
     }
 
     void testDataTypeCategoricalOption() {
-        def result = getAsJson femaleConceptUrl
-        assertStatus 200
-        assertThat result, hasEntry('type', 'CATEGORICAL_OPTION')
+        def response = getAsJson femaleConceptUrl
+        response.status == 200
+        that response, hasEntry('type', 'CATEGORICAL_OPTION')
     }
 
     void testDataTypeUnknown() {
-        def result = getAsJson sexConceptUrl
-        assertStatus 200
-        assertThat result, hasEntry('type', 'UNKNOWN')
+        def response = getAsJson sexConceptUrl
+        response.status == 200
+        that response, hasEntry('type', 'UNKNOWN')
     }
 
     private Matcher jsonConceptResponse(String key = conceptKey,

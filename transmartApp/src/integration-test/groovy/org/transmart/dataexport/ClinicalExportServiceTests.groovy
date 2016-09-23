@@ -64,7 +64,7 @@ class ClinicalExportServiceTests {
         sexNode = studyNodes.find { it.name == 'sex' }
         I2b2 femaleNode = studyNodes.find { it.name == 'female' }
         I2b2 maleNode = studyNodes.find { it.name == 'male' }
-        I2b2 charNode = studyNodes.find { it.name == 'with%some$characters_' }
+        I2b2 charNode = studyNodes.find { it.name == 'with some$characters_' }
         I2b2 study1SubNode = studyNodes.find { it.name == 'study1' }
 
         List<PatientTrialCoreDb> patientTrials = I2b2Data.createPatientTrialLinks(patients, trialId)
@@ -170,7 +170,7 @@ class ClinicalExportServiceTests {
         def dataFile = files.find { it.absolutePath.endsWith '/data_clinical.tsv' }
         def table = parseSepValTable(dataFile)
         assertThat table, contains(
-                contains('Subject ID', '\\foo\\study2\\long path\\with%some$characters_\\',
+                contains('Subject ID', '\\foo\\study2\\long path\\with some$characters_\\',
                         '\\foo\\study2\\sex\\', '\\foo\\study2\\study1\\'),
                 contains('SUBJ_ID_3', '', 'female', ''),
                 contains('SUBJ_ID_2', '', 'male', 'foo'),
@@ -206,8 +206,8 @@ class ClinicalExportServiceTests {
                 contains('\\foo\\study2\\', '3 name 1', '3 description 1'),
                 contains('\\foo\\study2\\long path\\', '6 name 2', '6 description 2'),
                 contains('\\foo\\study2\\long path\\', '6 name 1', '6 description 1'),
-                contains('\\foo\\study2\\long path\\with%some$characters_\\', '7 name 2', '7 description 2'),
-                contains('\\foo\\study2\\long path\\with%some$characters_\\', '7 name 1', '7 description 1'),
+                contains('\\foo\\study2\\long path\\with some$characters_\\', '7 name 2', '7 description 2'),
+                contains('\\foo\\study2\\long path\\with some$characters_\\', '7 name 1', '7 description 1'),
                 contains('\\foo\\study2\\sex\\', '8 name 2', '8 description 2'),
                 contains('\\foo\\study2\\sex\\', '8 name 1', '8 description 1'),
                 contains('\\foo\\study2\\sex\\female\\', '10 name 2', '10 description 2'),

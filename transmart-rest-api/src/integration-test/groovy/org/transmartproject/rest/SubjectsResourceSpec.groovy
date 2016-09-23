@@ -25,12 +25,10 @@
 
 package org.transmartproject.rest
 
+import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
-
-class SubjectsResourceTests extends ResourceSpecification {
+class SubjectsResourceSpec extends ResourceSpec {
 
     def study = 'study_id_1'
     def defaultTrial = study.toUpperCase()
@@ -47,23 +45,26 @@ class SubjectsResourceTests extends ResourceSpecification {
 
     void testShowAsJson() {
         when:
-        def result = getAsJson subjectUrl
+        def response = getAsJson subjectUrl
         then:
-        result.status == 200
-        that(result, hasJsonSubject())
+        response.status == 200
+        that response.json, hasJsonSubject()
     }
 
     void testShowAsHal() {
-        def result = getAsHal subjectUrl
-        assertStatus 200
-        assertThat result, hasHalSubject()
+        when:
+        def response = getAsHal subjectUrl
+        then:
+        response.status == 200
+        that response.json, hasHalSubject()
     }
 
     void testIndexPerStudyAsJson() {
-
-        def result = getAsJson subjectsPerStudyUrl
-        assertStatus 200
-        assertThat result,
+        when:
+        def response = getAsJson subjectsPerStudyUrl
+        then:
+        response.status == 200
+        that response.json,
                 hasEntry(is('subjects'),
                         containsInAnyOrder(
                                 hasJsonSubject(),
@@ -74,10 +75,11 @@ class SubjectsResourceTests extends ResourceSpecification {
     }
 
     void testIndexPerStudyAsHal() {
-
-        def result = getAsHal subjectsPerStudyUrl
-        assertStatus 200
-        assertThat result,
+        when:
+        def response = getAsHal subjectsPerStudyUrl
+        response.status == 200
+        then:
+        that response.json,
                 halIndexResponse(
                         subjectsPerStudyUrl,
                         ['subjects': containsInAnyOrder(
@@ -90,10 +92,11 @@ class SubjectsResourceTests extends ResourceSpecification {
     }
 
     void testIndexPerConceptAsJson() {
-        def result = getAsJson subjectsPerConceptUrl
-        assertStatus 200
-
-        assertThat result, hasEntry(is('subjects'),
+        when:
+        def response = getAsJson subjectsPerConceptUrl
+        then:
+        response.status == 200
+        that response.json, hasEntry(is('subjects'),
                 contains(
                         hasJsonSubject(),
                 )
@@ -101,26 +104,29 @@ class SubjectsResourceTests extends ResourceSpecification {
     }
 
     void testIndexPerConceptAsHal() {
-        def result = getAsHal subjectsPerConceptUrl
-        assertStatus 200
-
-        assertThat result,
+        when:
+        def response = getAsHal subjectsPerConceptUrl
+        then:
+        response.status == 200
+        that response.json,
                 halIndexResponse(
                         subjectsPerConceptUrl,
                         ['subjects': contains(
-                            hasHalSubject()
+                                hasHalSubject()
                         )]
                 )
     }
 
-    def subjectsPerLongConceptUrl  = '/studies/study_id_2/concepts/long%20path/with%25some%24characters_/subjects'
+    //TODO controllers do not get decoded version of url when run from functional tests
+    def subjectsPerLongConceptUrl = '/studies/study_id_2/concepts/long path/with some$characters_/subjects'
 
     void testSubjectsIndexOnLongConcept() {
-        def result = getAsHal subjectsPerLongConceptUrl
-        assertStatus 200
-
-        assertThat result, is(halIndexResponse(
-                subjectsPerLongConceptUrl,
+        when:
+        def response = getAsHal subjectsPerLongConceptUrl
+        then:
+        response.status == 200
+        that response.json, is(halIndexResponse(
+                '/studies/study_id_2/concepts/long%20path/with%20some%24characters_/subjects',
                 [subjects: any(List)]
         ))
     }
@@ -168,30 +174,31 @@ class SubjectsResourceTests extends ResourceSpecification {
         )
     }
 
-    /*//FIXME response contains null
     void testGetNonExistentStudy() {
         def studyName = 'STUDY_NOT_EXIST'
-        get("${baseURL}studies/${studyName}/subjects")
-        assertStatus 404
 
-        assertThat JSON, allOf(
-                hasEntry('httpStatus', 404),
-                hasEntry('type', 'NoSuchResourceException'),
-                hasEntry('message', "No study with name '${studyName}' was found"),
-        )
+        when:
+        def response = get("/studies/${studyName}/subjects")
+
+        then:
+        response.status == 404
+        response.status == 404
+        response.json.httpStatus == 404
+        response.json.type == 'NoSuchResourceException'
+        response.json.message == "No study with id '${studyName}' was found"
     }
 
-            //FIXME response contains null
     void testGetNonExistentSubjectForStudy() {
         def patientNum = -9999
-        get("${baseURL}studies/${study}/subjects/${patientNum}")
-        assertStatus 404
 
-        assertThat JSON, allOf(
-                hasEntry('httpStatus', 404),
-                hasEntry('type', 'NoSuchResourceException'),
-                hasEntry('message', "No subject with id '${studyName}' was found"),
-        )
-    }*/
+        when:
+        def response = get("/studies/${study}/subjects/${patientNum}")
+
+        then:
+        response.status == 404
+        response.json.httpStatus == 404
+        response.json.type == 'NoSuchResourceException'
+        response.json.message == "No patient with number ${patientNum}"
+    }
 }
 

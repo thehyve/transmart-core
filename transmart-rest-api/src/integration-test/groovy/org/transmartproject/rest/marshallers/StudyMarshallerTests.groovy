@@ -56,7 +56,7 @@ class StudyMarshallerTests {
         def json = mockStudy as JSON
 
         JsonSlurper slurper = new JsonSlurper()
-        assertThat slurper.parseText(json.toString()), allOf(
+        that slurper.parseText(json.toString()), allOf(
                 hasEntry('id', STUDY_ID),
                 hasEntry(is('ontologyTerm'), allOf(
                         hasEntry('name', ONTOLOGY_TERM_NAME),
@@ -75,7 +75,7 @@ class StudyMarshallerTests {
         println stringResult
 
         JsonSlurper slurper = new JsonSlurper()
-        assertThat slurper.parseText(stringResult), allOf(
+        that slurper.parseText(stringResult), allOf(
                 hasEntry('id', STUDY_ID),
                 hasEntry(is('_links'),
                         hasEntry(is('self'),

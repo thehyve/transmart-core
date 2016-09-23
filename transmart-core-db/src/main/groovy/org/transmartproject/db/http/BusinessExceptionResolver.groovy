@@ -23,7 +23,7 @@ import grails.web.mapping.UrlMappingData
 import grails.web.mapping.UrlMappingInfo
 import org.apache.log4j.Logger
 import org.grails.web.mapping.DefaultUrlMappingInfo
-import org.grails.web.util.WebUtils
+import org.grails.web.mapping.UrlMappingUtils
 import org.springframework.core.Ordered
 import org.springframework.web.context.ServletContextAware
 import org.springframework.web.servlet.HandlerExceptionResolver
@@ -122,7 +122,7 @@ class BusinessExceptionResolver implements ServletContextAware,
                     (UrlMappingData) null,
                     servletContext)
 
-            WebUtils.forwardRequestForUrlMappingInfo(
+            UrlMappingUtils.forwardRequestForUrlMappingInfo(
                     request, response, info, model, true)
 
             return EMPTY_MV
