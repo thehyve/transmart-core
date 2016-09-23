@@ -15,11 +15,6 @@ project.ext {
     environment = [PATH: '/bin/:/usr/bin/:/usr/local/bin/']
 }
 
-task createVars(type: Exec) {
-    commandLine 'make', '-C', 'env', '../vars'
-}
-createVars.onlyIf { !file('vars').exists() }
-
 def make(String target) {
     println "make: ${target}"
     exec {
@@ -34,7 +29,7 @@ def sudo_make(String target) {
     }
 }
 
-task checkDependencies() {
+task checkDependencies << {
     def out = new ByteArrayOutputStream()
     exec {
         commandLine 'php', '--version'
@@ -58,6 +53,12 @@ task checkDependencies() {
     println out.toString().readLines()[0]
 }
 
+task createVars(type: Exec) {
+    commandLine 'make', '-C', 'env', '../vars'
+}
+createVars.onlyIf { !file('vars').exists() }
+createVars.dependsOn 'checkDependencies'
+
 def etl_target = 'env/tranSMART-ETL'
 
 task downloadTransmartETL << {
@@ -73,6 +74,7 @@ task downloadTransmartETL << {
     }
 }
 downloadTransmartETL.onlyIf { !file(etl_target).exists() }
+downloadTransmartETL.dependsOn 'checkDependencies'
 
 task setupPostgres << {
     sudo_make('-C env /var/lib/postgresql/tablespaces')
@@ -100,5 +102,6 @@ task dataloadingTest << {
     make('-C samples/postgres load_clinical_GSE8581')
     make('-C samples/postgres showdblog')
 }
+dataloadingTest.dependsOn 'checkDependencies'
 
 defaultTasks 'createVars'
