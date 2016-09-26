@@ -125,15 +125,20 @@ dependencies {
     compile files('lib/GenePattern.jar')
     compile 'org.jfree:jfreesvg:3.1'
     compile project(':transmart-core-api')
-    compile project (':transmart-gwas-plugin')
-    compile project(':Rmodules')
     compile project(':transmart-core-db')
     compile project(':transmart-java')
     compile project(':search-domain')
     compile project(':biomart-domain')
     compile project(':transmart-legacy-db')
-    compile project(':folder-management-plugin')
-    compile project(':transmart-gwas-plugin')
+}
+
+grails {
+    exploded = true
+    plugins {
+        compile project(':Rmodules')
+        compile project(':transmart-gwas-plugin')
+        compile project(':folder-management-plugin')
+    }
 }
 
 assets {
