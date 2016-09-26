@@ -4,7 +4,7 @@
     <tbody>
     <tr>
         <td width="30%" style="text-align: right">
-            ${subsets?.commons?."${prefix}Histo" ?: ''}
+            ${raw(subsets?.commons?."${prefix}Histo" ?: '')}
         </td>
         <g:each in="${subsets}" var="s">
             <g:set var="p" value="${s?.value}"/>
@@ -36,7 +36,7 @@
             </g:if>
         </g:each>
         <td width="30%">
-            ${subsets?.commons?."${prefix}Plot" ?: ''}
+            ${raw(subsets?.commons?."${prefix}Plot" ?: '')}
         </td>
     </tr>
     </tbody>
