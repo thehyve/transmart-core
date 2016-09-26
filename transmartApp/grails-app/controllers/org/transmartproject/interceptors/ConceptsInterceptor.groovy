@@ -1,11 +1,12 @@
 package org.transmartproject.interceptors
 
+import org.transmart.audit.AuditLogService
 import org.transmartproject.core.users.User
 
 
 class ConceptsInterceptor {
 
-    def auditLogService
+    AuditLogService auditLogService
     def studyIdService
     User currentUserBean
 
@@ -14,17 +15,17 @@ class ConceptsInterceptor {
     }
 
     boolean before() {
-            if (!auditLogService.enabled) return
-            def studies = null
-            if (params.concept_key) {
-                studies = studyIdService.getStudyIdForConceptKey(params.concept_key, studyConceptOnly: true)
-            }
-            if (studies == null) return
-            def task = "Clinical Data Access"
-            auditLogService.report(task, request,
-                    study: studies,
-                    user: currentUserBean
-            )
+        if (!auditLogService.enabled) return true
+        def studies = null
+        if (params.concept_key) {
+            studies = studyIdService.getStudyIdForConceptKey(params.concept_key, studyConceptOnly: true)
+        }
+        if (studies == null) return true
+        def task = "Clinical Data Access"
+        auditLogService.report(task, request,
+                study: studies,
+                user: currentUserBean
+        )
         true
     }
 
