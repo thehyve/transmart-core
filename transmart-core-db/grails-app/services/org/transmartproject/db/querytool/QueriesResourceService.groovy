@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.querytool
 
+import grails.transaction.Transactional
 import org.hibernate.jdbc.Work
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
@@ -30,6 +31,7 @@ import org.transmartproject.db.user.User
 
 import java.sql.Connection
 
+@Transactional
 class QueriesResourceService implements QueriesResource {
 
     def grailsApplication
