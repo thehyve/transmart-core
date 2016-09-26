@@ -38,7 +38,6 @@ import org.transmartproject.rest.test.StubStudyLoadingService
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 
-import static org.codehaus.groovy.grails.test.runner.phase.IntegrationTestPhaseConfigurer.getCurrentApplicationContext
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.rest.test.StubStudyLoadingService.createStudy
@@ -81,7 +80,7 @@ class PatientMarshallerTests {
         JsonSlurper slurper = new JsonSlurper()
         println json.toString()
 
-        assertThat slurper.parseText(json.toString()), allOf(
+        that slurper.parseText(json.toString()), allOf(
                 hasEntry('id',            ID as Integer),
                 hasEntry('trial',         TRIAL),
                 hasEntry('inTrialId',     SUBJECT_ID),
@@ -122,7 +121,7 @@ class PatientMarshallerTests {
         println stringResult
 
         JsonSlurper slurper = new JsonSlurper()
-        assertThat slurper.parseText(stringResult), allOf(
+        that slurper.parseText(stringResult), allOf(
                 hasEntry('age',           AGE as Integer),
                 hasEntry('race',          RACE),
                 hasEntry('maritalStatus', MARITAL_STATUS),

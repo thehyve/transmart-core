@@ -25,42 +25,47 @@
 
 package org.transmartproject.rest
 
-import com.grailsrocks.functionaltest.APITestCase
-import org.grails.web.json.JSONElement
+import grails.plugins.rest.client.RestBuilder
+import grails.plugins.rest.client.RestResponse
+import grails.test.mixin.integration.Integration
 import org.hamcrest.Matcher
+import org.springframework.beans.factory.annotation.Value
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
 
-abstract class ResourceTestCase extends APITestCase {
+@Integration
+abstract class ResourceSpec extends Specification {
+
+    String getBaseURL() { "http://localhost:${serverPort}" }
+
+    @Value('${local.server.port}')
+    Integer serverPort
 
     def contentTypeForHAL = 'application/hal+json'
+    def contentTypeForJSON = 'application/json'
 
-    JSONElement getAsJson(String path) {
-        client.setStickyHeader('Accept', contentTypeForJSON)
-        get(path)
-        JSON
+    RestBuilder rest = new RestBuilder()
+
+    RestResponse get(String path, Closure paramSetup = {}) {
+        rest.get("${baseURL}${path}", paramSetup)
     }
 
-    JSONElement postAsHal(String path, Closure paramSetup = null) {
-        doAsHal 'post', path, paramSetup
+    RestResponse getAsJson(String path, Closure paramSetup = {}) {
+        rest.get("${baseURL}${path}") {
+            header 'Accept', contentTypeForJSON
+        }
     }
 
-    JSONElement getAsHal(String path, Closure paramSetup = null) {
-        doAsHal 'get', path, paramSetup
+    RestResponse getAsHal(String path, Closure paramSetup = {}) {
+        rest.get("${baseURL}${path}") {
+            header 'Accept', contentTypeForHAL
+        }
     }
 
-    JSONElement doAsHal(String method, String path, Closure paramSetup = null) {
-        client.setStickyHeader('Accept', contentTypeForHAL)
-        "$method"(path, paramSetup)
-
-        //cannot use client.responseAsString, as HAL is considered binary and is trimmed (no parsing is possible)
-        //grails.converters.JSON.parse(client.responseAsString)
-
-        //hack around this:
-        client.response.data.reset() //to reset the stream (pointer = 0), as it was partially read before
-        def text = client.response.data.text //obtain all the text from the stream
-        grails.converters.JSON.parse(text) //parse normally as JSON
+    RestResponse post(String path, Closure paramSetup = {}) {
+        rest.post("${baseURL}${path}", paramSetup)
     }
 
     InputStream getAsInputStream(String path) {
@@ -86,7 +91,7 @@ abstract class ResourceTestCase extends APITestCase {
         )
     }
 
-    Matcher hasLinks(Map<String,String> linkMap) {
+    Matcher hasLinks(Map<String, String> linkMap) {
         Map expectedLinksMap = linkMap.collectEntries {
             String tempUrl = "${it.value}"
             [(it.key): ([href: tempUrl])]

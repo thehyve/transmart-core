@@ -185,7 +185,7 @@ class ComposedVariablesCreationSpec extends Specification {
             it.fullName == '\\foo\\study2\\study1\\'
         }
         def withSomeCharsI2b2 = conceptData.i2b2List.find {
-            it.name == 'with%some$characters_'
+            it.name == 'with some$characters_'
         }
 
         when:
