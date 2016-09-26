@@ -1442,7 +1442,7 @@ function showCompareStepPathwaySelection()
 			resizable: false,
 			autoLoad:
 			{
-				url: pageInfo.basePath+'/panels/compareStepPathwaySelection.html',
+				url: pageInfo.basePath+'/assets/panels/compareStepPathwaySelection.html',
 				scripts: true,
 				nocache:true,
 				discardUrl:true,
@@ -1630,7 +1630,7 @@ function showCompareStepPathwaySelectionRBM()
 			resizable: false,
 			autoLoad:
 			{
-				url: pageInfo.basePath+'/panels/compareStepPathwaySelectionRBM.html',
+				url: pageInfo.basePath+'/assets/panels/compareStepPathwaySelectionRBM.html',
 				scripts: true,
 				nocache:true,
 				discardUrl:true,

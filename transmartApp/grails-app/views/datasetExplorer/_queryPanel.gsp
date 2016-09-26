@@ -1,3 +1,7 @@
+<!DOCTYPE HTML>
+<html>
+<head></head>
+<body>
 <table id="queryTable" border="0">
     <tr>
         <td>Subset 1</td>
@@ -78,3 +82,5 @@
         applySubsets(GLOBAL.restoreSubsetId);
     }
 </script>
+</body>
+</html>
