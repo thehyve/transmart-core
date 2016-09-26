@@ -13,6 +13,7 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
+import org.transmartproject.db.util.StringUtils
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
@@ -632,7 +633,7 @@ class I2b2HelperService {
                 ORDER BY C_FULLNAME
             """
             log.trace(sqlt);
-            sql.eachRow(sqlt, [fullname.asLikeLiteral() + "%", i], { row ->
+            sql.eachRow(sqlt, [StringUtils.asLikeLiteral(fullname) + "%", i], { row ->
                 results.put(row[0], getObservationCountForConceptForSubset("\\blah" + row[1], result_instance_id));
             });
         }
@@ -706,9 +707,9 @@ class I2b2HelperService {
 		    ON i.c_name=m.c_name
 		    ORDER BY c_name""";
         sql.eachRow(sqlt, [
-                fullname.asLikeLiteral() + "%", // Note: .asLikeLiteral() defined in github: 994dc5bb50055f8b800045f65c8e565b4aa0c113
+                StringUtils.asLikeLiteral(fullname) + "%",
                 i,
-                fullname.asLikeLiteral() + "%",
+                StringUtils.asLikeLiteral(fullname) + "%",
                 i,
                 result_instance_id
         ], { row ->
@@ -750,7 +751,7 @@ class I2b2HelperService {
                 String sqlt =
                         "SELECT DISTINCT c_name, c_fullname FROM i2b2metadata.i2b2 WHERE C_FULLNAME LIKE ? escape '\\' AND c_hlevel = ? ORDER BY C_FULLNAME";
                 log.trace(sqlt);
-                sql.eachRow(sqlt, [fullname.asLikeLiteral() + "%", i], { row ->
+                sql.eachRow(sqlt, [StringUtils.asLikeLiteral(fullname) + "%", i], { row ->
                     if (results.get(row[0]) == null) {
                         results.put(row[0], getObservationCountForConceptForSubset("\\blah" + row[1], result_instance_id));
                     } else {
@@ -763,7 +764,7 @@ class I2b2HelperService {
             Sql sql = new Sql(dataSource);
             String sqlt = "SELECT DISTINCT c_name, c_fullname FROM i2b2metadata.i2b2 WHERE C_FULLNAME LIKE ? escape '\\' AND c_hlevel = ? ORDER BY C_FULLNAME";
             log.trace(sqlt);
-            sql.eachRow(sqlt, [fullname.asLikeLiteral() + "%", i], { row ->
+            sql.eachRow(sqlt, [StringUtils.asLikeLiteral(fullname) + "%", i], { row ->
                 results.put(row[0], getObservationCountForConceptForSubset("\\blah" + row[1], result_instance_id));
             });
         }
@@ -784,7 +785,7 @@ class I2b2HelperService {
         int i = getLevelFromKey(concept_key) + 1;
         Sql sql = new Sql(dataSource);
         String sqlt = "SELECT C_FULLNAME, C_METADATAXML FROM i2b2metadata.i2b2 WHERE C_FULLNAME LIKE ? escape '\\' AND c_hlevel = ? ORDER BY C_FULLNAME";
-        sql.eachRow(sqlt, [fullname.asLikeLiteral() + "%", i], { row ->
+        sql.eachRow(sqlt, [StringUtils.asLikeLiteral(fullname) + "%", i], { row ->
             String conceptkey = prefix + row.c_fullname;
             xml = clobToString(row.c_metadataxml);
             log.trace("METADATA XML:" + xml);
@@ -822,7 +823,7 @@ class I2b2HelperService {
 		    FROM i2b2demodata.observation_fact
 		    WHERE (((concept_cd IN (select concept_cd from i2b2demodata.concept_dimension c
 		    where concept_path LIKE ? escape '\\'))))""";
-        sql.eachRow(sqlt, [fullname.asLikeLiteral() + "%"], { row ->
+        sql.eachRow(sqlt, [StringUtils.asLikeLiteral(fullname) + "%"], { row ->
             i = row[1];
         })
         return i;
@@ -998,7 +999,7 @@ class I2b2HelperService {
 
         log.trace("Getting observation count for concept:" + concept_key + " and instance:" + result_instance_id);
         String fullname = concept_key.substring(concept_key.indexOf("\\", 2), concept_key.length());
-        String fullnameLike = fullname.asLikeLiteral() + "%" // Note: .asLikeLiteral() defined in github: 994dc5bb50055f8b800045f65c8e565b4aa0c113
+        String fullnameLike = StringUtils.asLikeLiteral(fullname) + "%" // Note: .asLikeLiteral() defined in github: 994dc5bb50055f8b800045f65c8e565b4aa0c113
         int i = 0;
         log.trace("sql inputs: fullnameLike = " + fullnameLike)
         log.trace("\tresult_instance_id = " + result_instance_id)
@@ -5263,7 +5264,7 @@ class I2b2HelperService {
         int i = getLevelFromKey(concept_key) + 1;
         Sql sql = new Sql(dataSource);
         String sqlt = "SELECT C_FULLNAME FROM i2b2metadata.i2b2 WHERE C_FULLNAME LIKE ? escape '\\' AND c_hlevel = ? ORDER BY C_FULLNAME";
-        sql.eachRow(sqlt, [fullname.asLikeLiteral() + "%", i], { row ->
+        sql.eachRow(sqlt, [StringUtils.asLikeLiteral(fullname) + "%", i], { row ->
             String conceptkey = prefix + row.c_fullname;
             ls.add(keyToPath(conceptkey));
         })
@@ -5633,7 +5634,7 @@ class I2b2HelperService {
         int i = getLevelFromKey(concept_key) + 1;
         Sql sql = new Sql(dataSource)
         String sqlt = "SELECT C_FULLNAME, SECURE_OBJ_TOKEN FROM i2b2metadata.i2b2_SECURE WHERE C_FULLNAME LIKE ? escape '\\' AND c_hlevel = ? ORDER BY C_FULLNAME";
-        sql.eachRow(sqlt, [fullname.asLikeLiteral() + "%", i], { row ->
+        sql.eachRow(sqlt, [StringUtils.asLikeLiteral(fullname) + "%", i], { row ->
             String conceptkey = prefix + row.c_fullname;
             ls.put(keyToPath(conceptkey), row.secure_obj_token);
             log.trace("@@found" + conceptkey);
