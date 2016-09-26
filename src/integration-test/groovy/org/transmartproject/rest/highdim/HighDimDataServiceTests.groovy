@@ -154,11 +154,11 @@ class HighDimDataServiceTests {
         }
 
         // assert header data
-        MatcherAssert.assertThat input,
+        MatcherAssert.that input,
                 hasHeaderWithAssaysAndColumns(expectedAssays, dataProperties)
 
         //asserting row data
-        MatcherAssert.assertThat input,
+        MatcherAssert.that input,
                 hasRowsMatchingSpecsAndDataRow(
                         expectedRows,
                         proj instanceof  MultiValueProjection)

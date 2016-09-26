@@ -22,30 +22,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-import grails.util.Environment
 import groovy.util.logging.Slf4j
+import org.transmartproject.db.TestData
 
 @Slf4j
 class BootStrap {
 
-    final static String TEST_PHASE_CONFIGURER_CLASS_NAME =
-            'org.codehaus.groovy.grails.test.runner.phase.IntegrationTestPhaseConfigurer'
-
     def init = { servletContext ->
-        if (Environment.currentEnvironment == Environment.TEST) {
-            if (Class.forName(TEST_PHASE_CONFIGURER_CLASS_NAME).currentApplicationContext) {
-                /* don't load the test data bundle for integration tests */
-                return
-            }
-            def testData = createTestData()
-            log.info 'About to save test data'
-            testData.saveAll()
-        }
+        new TestData()
+                .createDefault()
+                .saveAll()
     }
 
-    def createTestData() {
-        Class clazz = Class.forName('org.transmartproject.db.TestData')
-        clazz.getMethod('createDefault').invoke(null) //static method
-    }
 }
