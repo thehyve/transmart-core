@@ -47,7 +47,8 @@ class VcfTestData {
 
     SampleBioMarkerTestData bioMarkerTestData
 
-    public VcfTestData(String conceptCode = 'bogus') {
+    public VcfTestData(String conceptCode = 'bogus',
+                       SampleBioMarkerTestData bioMarkerTestData = null) {
         // Create VCF platform and assays
         platform = new DeGplInfo(
                 title: 'Test VCF',
@@ -105,7 +106,7 @@ class VcfTestData {
 
         assays += HighDimTestData.createTestAssays(patients, -1800, otherPlatform, "OTHER_TRIAL")
 
-        bioMarkerTestData = bioMarkerTestData ?: new SampleBioMarkerTestData()
+        this.bioMarkerTestData = bioMarkerTestData ?: new SampleBioMarkerTestData()
     }
 
     @Lazy
@@ -177,8 +178,10 @@ class VcfTestData {
     }
 
 
-    void saveAll() {
-        bioMarkerTestData.saveGeneData()
+    void saveAll(boolean skipBioMarkerData = false) {
+        if (!skipBioMarkerData) {
+            bioMarkerTestData.saveGeneData()
+        }
 
         assert platform.save()
         assert otherPlatform.save()

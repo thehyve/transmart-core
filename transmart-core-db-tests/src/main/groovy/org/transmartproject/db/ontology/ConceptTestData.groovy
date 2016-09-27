@@ -119,7 +119,12 @@ class ConceptTestData {
     static I2b2Secure createI2b2Secure(Map properties) {
         I2b2Secure result = new I2b2Secure()
         setQueryTypeBase(result)
-        result.properties = properties
+        properties.each { k, v ->
+            if (k in I2b2Secure.metaClass.properties*.name) {
+                result."$k" = v
+            }
+        }
+        //result.properties = properties
         result
     }
 
@@ -136,7 +141,10 @@ class ConceptTestData {
         I2b2 result = setI2b2xBase(new I2b2())
         setConceptDefaultValues(result)
         result.dimensionCode = properties.fullName
-        result.properties = properties
+        properties.each { k, v ->
+            result."$k" = v
+        }
+        //result.properties = properties
         result
     }
 
@@ -150,7 +158,10 @@ class ConceptTestData {
         // To escape data binding conversions (e.g. convertEmptyStringsToNull) we use direct assignment to the fields.
         setQueryTypeBase(tableAccess)
 
-        tableAccess.properties = properties
+        properties.each { k, v ->
+            tableAccess."$k" = v
+        }
+        //tableAccess.properties = properties
         tableAccess
     }
 
@@ -184,20 +195,23 @@ class ConceptTestData {
     static List<ConceptDimension> createConceptDimensions(List<I2b2> list) {
         list.collect {
             assert it.code != null
-            new ConceptDimension(conceptPath: it.fullName, conceptCode: it.code)
+            def concept = new ConceptDimension()
+            concept.conceptPath = it.fullName
+            concept.conceptCode = it.code
+            concept
         }
     }
 
     static List<I2b2Tag> createI2b2Tags(List<I2b2> list, int number = 2) {
         list.collectMany { I2b2 i2b2 ->
             (1..number).collect { iteration ->
-                new I2b2Tag(
-                        ontologyTermFullName: i2b2.fullName,
-                        name: "${i2b2.code} name ${iteration}",
-                        description: "${i2b2.code} description ${iteration}",
-                        //for reverse order
-                        position: number - iteration + 1
-                )
+                def tag = new I2b2Tag()
+                tag.ontologyTermFullName = i2b2.fullName
+                tag.name = "${i2b2.code} name ${iteration}"
+                tag.description = "${i2b2.code} description ${iteration}"
+                //for reverse order
+                tag.position = number - iteration + 1
+                tag
             }
         }
     }
