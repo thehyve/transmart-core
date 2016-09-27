@@ -2,17 +2,16 @@ package com.recomdata.transmart.data.export
 
 import com.recomdata.snp.SnpData
 import com.recomdata.transmart.data.export.exception.DataNotFoundException
+import grails.transaction.Transactional
 import groovy.json.JsonSlurper
 import org.apache.commons.lang.StringUtils
-import org.springframework.transaction.annotation.Transactional
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.users.User
 
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.EXPORT
 
+@Transactional
 class DataExportService {
-
-    boolean transactional = true
 
     def i2b2ExportHelperService
     def grailsApplication

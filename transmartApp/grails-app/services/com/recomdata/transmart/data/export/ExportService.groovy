@@ -6,17 +6,16 @@ import com.recomdata.transmart.validate.RequestValidator
 import grails.converters.JSON
 import org.apache.commons.lang.StringUtils
 import org.json.JSONObject
+import org.quartz.JobBuilder
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
-import org.quartz.SimpleTrigger
+import org.quartz.TriggerBuilder
 import org.transmart.authorization.CurrentUserBeanProxyFactory
 import org.transmart.searchapp.AccessLog
 
 import javax.annotation.Resource
 
 class ExportService {
-
-    static transactional = true
 
     def i2b2HelperService
     def i2b2ExportHelperService
@@ -198,13 +197,20 @@ class ExportService {
 
         jdm.put("userInContext", currentUserBean.targetSource.target)
 
-        def jobDetail = new JobDetail(params.jobName, params.analysis, GenericJobExecutor.class)
-        jobDetail.setJobDataMap(jdm)
+        JobDetail jobDetail = JobBuilder.newJob(GenericJobExecutor.class)
+            .withIdentity(params.jobName, params.analysis)
+            .setJobData(jdm)
+            .build()
 
         if (asyncJobService.updateStatus(params.jobName, statusList[2])) {
             return
         }
-        def trigger = new SimpleTrigger("triggerNow" + Math.random(), params.analysis)
+        def randomDelay = Math.random()*10 as int
+        def startTime = new Date(new Date().time + randomDelay)
+        def trigger = TriggerBuilder.newTrigger()
+            .startAt(startTime)
+            .withIdentity(params.analysis)
+            .build()
         quartzScheduler.scheduleJob(jobDetail, trigger)
     }
 

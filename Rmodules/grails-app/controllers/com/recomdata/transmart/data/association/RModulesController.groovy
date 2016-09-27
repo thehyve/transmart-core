@@ -19,15 +19,17 @@ package com.recomdata.transmart.data.association
 import com.google.common.collect.Maps
 import grails.converters.JSON
 import grails.core.GrailsApplication
-import grails.util.Holders
 import jobs.*
 import jobs.misc.AnalysisConstraints
 import jobs.misc.AnalysisQuartzJobAdapter
 import org.grails.web.converters.exceptions.ConverterException
 import org.grails.web.json.JSONElement
+import org.quartz.JobBuilder
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.SimpleTrigger
+import org.quartz.TriggerBuilder
+import org.quartz.core.QuartzScheduler
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 import static jobs.misc.AnalysisQuartzJobAdapter.*
@@ -55,6 +57,7 @@ class RModulesController {
     def RModulesService
     GrailsApplication grailsApplication
     def jobResultsService
+    QuartzScheduler quartzScheduler
 
     /**
      * Method called that will cancel a running job
@@ -169,9 +172,14 @@ class RModulesController {
         params.put(PARAM_USER_PARAMETERS, userParams)
         params.put(PARAM_USER_IN_CONTEXT, currentUserBean.targetSource.target)
 
-        JobDetail jobDetail   = new JobDetail(params.jobName, params.jobType, AnalysisQuartzJobAdapter)
-        jobDetail.jobDataMap  = new JobDataMap(params)
-        SimpleTrigger trigger = new SimpleTrigger("triggerNow ${Calendar.instance.time.time}", 'RModules')
+        JobDetail jobDetail   = JobBuilder.newJob(AnalysisQuartzJobAdapter)
+            .withIdentity(params.jobName, params.jobType)
+            .setJobData(params)
+            .build()
+        SimpleTrigger trigger = TriggerBuilder.newTrigger()
+            .startNow()
+            .withIdentity('RModules')
+            .build()
         quartzScheduler.scheduleJob(jobDetail, trigger)
     }
 
@@ -226,7 +234,4 @@ class RModulesController {
         constraints
     }
 
-    private static def getQuartzScheduler() {
-        Holders.grailsApplication.mainContext.quartzScheduler
-    }
 }

@@ -17,14 +17,16 @@
 package com.recomdata.transmart.data.association
 
 import com.recomdata.transmart.data.association.asynchronous.RModulesJobService
+import grails.transaction.Transactional
 import org.grails.web.json.JSONObject
+import org.quartz.JobBuilder
 import org.quartz.JobDataMap
-import org.quartz.JobDetail
-import org.quartz.SimpleTrigger
+import org.quartz.TriggerBuilder
+import org.quartz.core.QuartzScheduler
 
+@Transactional
 class RModulesService {
 
-    static transactional = true
 	static scope = 'request'
 
     static STATUS_LIST = [
@@ -39,8 +41,7 @@ class RModulesService {
 	/**
 	* quartzScheduler is available from the Quartz grails-plugin
 	*/
-    def quartzScheduler
-	
+    QuartzScheduler quartzScheduler
 	def jobResultsService
 	def asyncJobService
 	def grailsApplication
@@ -211,16 +212,21 @@ class RModulesService {
 		if (jobResultsService[params.jobName]["Status"] == "Cancelled")	{return}
 
 		//com.recomdata.transmart.plugin.PluginJobExecutionService should be implemented by all Plugins
-		def jobDetail = new JobDetail(params.jobName, params.jobType, RModulesJobService.class)
+		def jobDetail = JobBuilder.newJob(RModulesJobService.class)
+			.withIdentity(params.jobName, params.jobType)
+			.build()
 		jobDetail.setJobDataMap(jobDataMap)
 
 		if (asyncJobService.updateStatus(params.jobName, jobStatusList[2]))	{
 			return
 		}
-		def trigger = new SimpleTrigger("triggerNow"+Calendar.instance.time.time, 'RModules')
+		def trigger = TriggerBuilder.newTrigger()
+			.startNow()
+			.withIdentity('RModules')
+			.build()
 		quartzScheduler.scheduleJob(jobDetail, trigger)
 	}
-	
+
 	// method for non-R jobs
 	def prepareDataForExport(userName, params) {
 		loadJobDataMap(userName, params);
