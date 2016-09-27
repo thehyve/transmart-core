@@ -35,7 +35,7 @@ import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.*
 import static spock.util.matcher.HamcrestSupport.that
 
-class HighDimResourceTests extends ResourceSpec {
+class HighDimResourceSpec extends ResourceSpec {
 
     def expectedMrnaAssays = [-402, -401]*.toLong() //groovy autoconverts to BigInteger, and we have to force Long here
     def expectedMrnaRowLabels = ["1553513_at", "1553510_s_at", "1553506_at"]
@@ -98,7 +98,9 @@ class HighDimResourceTests extends ResourceSpec {
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna'))
 
         then:
-        assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, ['value': Double])
+        that result.header.assayList*.assayId, containsInAnyOrder(expectedMrnaAssays.toArray())
+        that result.header.columnSpecList, columnSpecMatcher(['value': Double])
+        that result.rows*.label, containsInAnyOrder(expectedMrnaRowLabels.toArray())
     }
 
     void testMrnaDefaultRealProjection() {
@@ -106,7 +108,9 @@ class HighDimResourceTests extends ResourceSpec {
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna', Projection.DEFAULT_REAL_PROJECTION))
 
         then:
-        assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, ['value': Double])
+        that result.header.assayList*.assayId, containsInAnyOrder(expectedMrnaAssays.toArray())
+        that result.header.columnSpecList, columnSpecMatcher(['value': Double])
+        that result.rows*.label, containsInAnyOrder(expectedMrnaRowLabels.toArray())
     }
 
     void testMrnaAllDataProjection() {
@@ -121,7 +125,9 @@ class HighDimResourceTests extends ResourceSpec {
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna', Projection.ALL_DATA_PROJECTION))
 
         then:
-        assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, dataColumns)
+        that result.header.assayList*.assayId, containsInAnyOrder(expectedMrnaAssays.toArray())
+        that result.header.columnSpecList, columnSpecMatcher(dataColumns)
+        that result.rows*.label, containsInAnyOrder(expectedMrnaRowLabels.toArray())
     }
 
     void ignored_testAcgh() {
@@ -131,7 +137,9 @@ class HighDimResourceTests extends ResourceSpec {
         HighDimResult result = getAsHighDim(getHighDimUrl('acgh', 'acgh_values'))
 
         then:
-        assertResult(result, expectedAcghAssays, expectedAcghRowLabels, dataColumns)
+        that result.header.assayList*.assayId, containsInAnyOrder(expectedAcghAssays.toArray())
+        that result.header.columnSpecList, columnSpecMatcher(dataColumns)
+        that result.rows*.label, containsInAnyOrder(expectedAcghRowLabels.toArray())
     }
 
     void testAssayConstraints() {
@@ -140,7 +148,6 @@ class HighDimResourceTests extends ResourceSpec {
         when:
         HighDimResult result = getAsHighDim(
                 getHighDimUrl('acgh', null, assayConstraints))
-
         then:
         that result.header.assayList, contains(
                 hasProperty('assayId', equalTo(-3002L))
@@ -213,26 +220,6 @@ class HighDimResourceTests extends ResourceSpec {
             String tempUrl = "${it.value}"
             [(it.key): ([href: tempUrl])]
         }
-    }
-
-    /**
-     * Verified the given HighDimResult is correct in terms of rows (labels) and columns (assayIds and mapColumns).
-     *
-     * @param result actual result to assert
-     * @param expectedAssays expected assay Ids
-     * @param expectedRowLabels expected row labels
-     * @param columnsMap expected column names and type
-     */
-    private assertResult(HighDimResult result,
-                         List<Long> expectedAssays,
-                         List<String> expectedRowLabels,
-                         Map<String, Class> columnsMap) {
-
-        that result.header.assayList*.assayId, containsInAnyOrder(expectedAssays.toArray())
-
-        that result.header.columnSpecList, columnSpecMatcher(columnsMap)
-
-        that result.rows*.label, containsInAnyOrder(expectedRowLabels.toArray())
     }
 
     private Matcher columnSpecMatcher(Map<String, Class> dataProperties) {
