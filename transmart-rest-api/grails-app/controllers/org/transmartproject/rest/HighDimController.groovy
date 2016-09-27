@@ -64,10 +64,14 @@ class HighDimController {
         respond wrapList(getHighDimSummaries(concept), selfLink)
     }
 
+    private urldecode(String s) {
+        s ? java.net.URLDecoder.decode(s, 'UTF-8') : ''
+    }
+
     def download(String dataType) {
         assert dataType != null // ensured by mapping
-        def assayConstraintsSpec = JsonParametersParser.parseConstraints params.assayConstraints
-        def dataConstraintsSpec = JsonParametersParser.parseConstraints params.dataConstraints
+        def assayConstraintsSpec = JsonParametersParser.parseConstraints urldecode(params.assayConstraints)
+        def dataConstraintsSpec = JsonParametersParser.parseConstraints urldecode(params.dataConstraints)
 
         String conceptKey = getConceptKey(params.conceptId)
         OutputStream out = new LazyOutputStreamDecorator(
