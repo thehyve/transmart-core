@@ -45,7 +45,9 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testShowAsJson() {
         when:
-        def response = getAsJson subjectUrl
+        def response = get subjectUrl, {
+            header 'Accept', contentTypeForJSON
+        }
         then:
         response.status == 200
         that response.json, hasJsonSubject()
@@ -53,7 +55,9 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testShowAsHal() {
         when:
-        def response = getAsHal subjectUrl
+        def response = get subjectUrl, {
+            header 'Accept', contentTypeForHAL
+        }
         then:
         response.status == 200
         that response.json, hasHalSubject()
@@ -61,7 +65,9 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testIndexPerStudyAsJson() {
         when:
-        def response = getAsJson subjectsPerStudyUrl
+        def response = get subjectsPerStudyUrl, {
+            header 'Accept', contentTypeForJSON
+        }
         then:
         response.status == 200
         that response.json,
@@ -76,7 +82,9 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testIndexPerStudyAsHal() {
         when:
-        def response = getAsHal subjectsPerStudyUrl
+        def response = get subjectsPerStudyUrl, {
+            header 'Accept', contentTypeForHAL
+        }
         response.status == 200
         then:
         that response.json,
@@ -93,7 +101,9 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testIndexPerConceptAsJson() {
         when:
-        def response = getAsJson subjectsPerConceptUrl
+        def response = get subjectsPerConceptUrl, {
+            header 'Accept', contentTypeForJSON
+        }
         then:
         response.status == 200
         that response.json, hasEntry(is('subjects'),
@@ -105,7 +115,9 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testIndexPerConceptAsHal() {
         when:
-        def response = getAsHal subjectsPerConceptUrl
+        def response = get subjectsPerConceptUrl, {
+            header 'Accept', contentTypeForHAL
+        }
         then:
         response.status == 200
         that response.json,
@@ -122,7 +134,9 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testSubjectsIndexOnLongConcept() {
         when:
-        def response = getAsHal subjectsPerLongConceptUrl
+        def response = get subjectsPerLongConceptUrl, {
+            header 'Accept', contentTypeForHAL
+        }
         then:
         response.status == 200
         that response.json, is(halIndexResponse(

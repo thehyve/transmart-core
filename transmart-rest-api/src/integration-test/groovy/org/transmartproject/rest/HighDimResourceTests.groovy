@@ -33,11 +33,12 @@ import org.transmartproject.rest.protobuf.HighDimProtos
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.*
+import static spock.util.matcher.HamcrestSupport.that
 
 class HighDimResourceTests extends ResourceSpec {
 
     def expectedMrnaAssays = [-402, -401]*.toLong() //groovy autoconverts to BigInteger, and we have to force Long here
-    def expectedMrnaRowLabels = ["1553513_at", "1553510_s_at","1553506_at"]
+    def expectedMrnaRowLabels = ["1553513_at", "1553510_s_at", "1553506_at"]
 
     def expectedAcghAssays = [-3001, -3002]*.toLong()
     def expectedAcghRowLabels = ['region 1:33-9999', 'region 2:66-99']
@@ -50,32 +51,31 @@ class HighDimResourceTests extends ResourceSpec {
                                         'gene_signatures', 'genes',
                                         'disjunction', 'pathways', 'proteins',]
 
-    Map<String,String> indexUrlMap = [
+    Map<String, String> indexUrlMap = [
             mrna: "/studies/study_id_1/concepts/bar/highdim",
             acgh: "/studies/study_id_2/concepts/study1/highdim",
     ]
 
     void testSummaryAsJson() {
-        def response = getAsJson indexUrlMap['mrna']
+        when:
+        def response = get indexUrlMap['mrna'], {
+            header 'Accept', contentTypeForJSON
+        }
+
+        then:
         response.status == 200
-
-        Map summary = [
+        that response.json as Map, mapWith([
                 dataTypes: [getExpectedMrnaSummary()]
-        ]
-
-        that response, mapWith(summary)
+        ])
     }
 
     void testSummaryAsHal() {
         String url = indexUrlMap['mrna']
-        Map result = getAsHal url
-        response.status == 200
-
         Map summary = getExpectedMrnaSummary()
         summary['_links'] = getExpectedMrnaHalLinks()
 
         Map expected = [
-                '_links': [
+                '_links'   : [
                         self: [href: url]
                 ],
                 '_embedded': [
@@ -83,41 +83,65 @@ class HighDimResourceTests extends ResourceSpec {
                 ]
         ]
 
-        that response, mapWith(expected)
+        when:
+        def response = get url, {
+            header 'Accept', contentTypeForHAL
+        }
+
+        then:
+        response.status == 200
+        that response.json as Map, mapWith(expected)
     }
 
     void testMrna() {
+        when:
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna'))
+
+        then:
         assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, ['value': Double])
     }
 
     void testMrnaDefaultRealProjection() {
+        when:
         HighDimResult result = getAsHighDim(getHighDimUrl('mrna', Projection.DEFAULT_REAL_PROJECTION))
+
+        then:
         assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, ['value': Double])
     }
 
     void testMrnaAllDataProjection() {
-        HighDimResult result = getAsHighDim(getHighDimUrl('mrna', Projection.ALL_DATA_PROJECTION))
         Map<String, Class> dataColumns = [
-                trialName: String,
+                trialName   : String,
                 rawIntensity: Double,
                 logIntensity: Double,
-                zscore: Double
+                zscore      : Double
         ]
+
+        when:
+        HighDimResult result = getAsHighDim(getHighDimUrl('mrna', Projection.ALL_DATA_PROJECTION))
+
+        then:
         assertResult(result, expectedMrnaAssays, expectedMrnaRowLabels, dataColumns)
     }
 
     void ignored_testAcgh() {
-        HighDimResult result = getAsHighDim(getHighDimUrl('acgh', 'acgh_values'))
         Map<String, Class> dataColumns = new AcghValuesProjection().dataProperties
+
+        when:
+        HighDimResult result = getAsHighDim(getHighDimUrl('acgh', 'acgh_values'))
+
+        then:
         assertResult(result, expectedAcghAssays, expectedAcghRowLabels, dataColumns)
     }
 
     void testAssayConstraints() {
         def assayConstraints = '{assay_id_list: { ids: [-3002] }}'
+
+        when:
         HighDimResult result = getAsHighDim(
                 getHighDimUrl('acgh', null, assayConstraints))
 
+        then:
         that result.header.assayList, contains(
                 hasProperty('assayId', equalTo(-3002L))
         )
@@ -127,9 +151,11 @@ class HighDimResourceTests extends ResourceSpec {
         def assayConstraints =
                 '{ assay_id_list: [ { ids: [-3001, -3002] }, { ids: [-3002] } ] }'
 
+        when:
         HighDimResult result = getAsHighDim(
                 getHighDimUrl('acgh', null, assayConstraints))
 
+        then:
         that result.header.assayList, contains(
                 hasProperty('assayId', equalTo(-3002L))
         )
@@ -138,9 +164,11 @@ class HighDimResourceTests extends ResourceSpec {
     void testDataConstraint() {
         def dataConstraints = '{ genes: [ { names: ["ADIRF"] } ] }'
 
+        when:
         HighDimResult result = getAsHighDim(
                 getHighDimUrl('acgh', null, null, dataConstraints))
 
+        then:
         that result.rows, contains(
                 hasProperty('bioMarker', equalTo('ADIRF'))
         )
@@ -167,18 +195,18 @@ class HighDimResourceTests extends ResourceSpec {
 
     private Map getExpectedMrnaSummary() {
         [
-                assayCount: 2,
-                name: 'mrna',
-                supportedProjections: hasItems(*mrnaSupportedProjections),
+                assayCount               : 2,
+                name                     : 'mrna',
+                supportedProjections     : hasItems(*mrnaSupportedProjections),
                 supportedAssayConstraints: hasItems(*mrnaSupportedAssayConstraints),
-                supportedDataConstraints: hasItems(*mrnaSupportedDataConstraints),
-                genomeBuildId: 'hg19'
+                supportedDataConstraints : hasItems(*mrnaSupportedDataConstraints),
+                genomeBuildId            : 'hg19'
         ]
     }
 
     private Map getExpectedMrnaHalLinks() {
         String selfDataLink = getHighDimUrl('mrna')
-        Map expectedLinks = mrnaSupportedProjections.collectEntries { [(it):("${selfDataLink}&projection=${it}")] }
+        Map expectedLinks = mrnaSupportedProjections.collectEntries { [(it): ("${selfDataLink}&projection=${it}")] }
         expectedLinks.put('self', selfDataLink)
 
         expectedLinks.collectEntries {
