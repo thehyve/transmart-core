@@ -218,7 +218,7 @@ class ConceptTestData {
 
         initListsIfNull()
 
-        tableAccesses << createTableAccess(fullName: "\\$root\\", name: root, tableCode: 'i2b2 main', tableName: 'i2b2')
+        tableAccesses << createTableAccess(level: 0, fullName: "\\$root\\", name: root, tableCode: 'i2b2 main', tableName: 'i2b2')
         i2b2List << createI2b2Concept(level: 1, fullName: "\\$root\\$study\\", name: study,
                 code: study, cVisualattributes: 'FA')
         I2b2 result = createI2b2Concept(level: 2, fullName: "\\$root\\$study\\$concept\\", name: concept,
