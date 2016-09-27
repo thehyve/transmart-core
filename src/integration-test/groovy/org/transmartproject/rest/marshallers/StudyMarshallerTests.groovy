@@ -26,21 +26,18 @@
 package org.transmartproject.rest.marshallers
 
 import grails.converters.JSON
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.IntegrationTestMixin
-import groovy.json.JsonSlurper
+import grails.test.mixin.integration.Integration
 import grails.web.mime.MimeType
-import org.gmock.WithGMock
-import org.junit.Test
+import groovy.json.JsonSlurper
 import org.transmartproject.core.ontology.Study
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
-import static org.hamcrest.MatcherAssert.assertThat
 import static org.transmartproject.rest.test.StubStudyLoadingService.createStudy
+import static spock.util.matcher.HamcrestSupport.that
 
-@WithGMock
-@TestMixin(IntegrationTestMixin)
-class StudyMarshallerTests {
+@Integration
+class StudyMarshallerTests extends Specification {
 
     private static final String STUDY_ID = 'TEST_STUDY'
     private static final String ONTOLOGY_TERM_NAME = 'test_study'
@@ -51,12 +48,12 @@ class StudyMarshallerTests {
         createStudy(STUDY_ID, ONTOLOGY_KEY)
     }
 
-    @Test
     void basicTest() {
+        when:
         def json = mockStudy as JSON
 
-        JsonSlurper slurper = new JsonSlurper()
-        that slurper.parseText(json.toString()), allOf(
+        then:
+        that new JsonSlurper().parseText(json.toString()), allOf(
                 hasEntry('id', STUDY_ID),
                 hasEntry(is('ontologyTerm'), allOf(
                         hasEntry('name', ONTOLOGY_TERM_NAME),
@@ -65,15 +62,15 @@ class StudyMarshallerTests {
                 )))
     }
 
-    @Test
     void testHal() {
         def json = new JSON()
         json.contentType = MimeType.HAL_JSON.name
         json.target = mockStudy
 
+        when:
         def stringResult = json.toString()
-        println stringResult
 
+        then:
         JsonSlurper slurper = new JsonSlurper()
         that slurper.parseText(stringResult), allOf(
                 hasEntry('id', STUDY_ID),
@@ -81,14 +78,14 @@ class StudyMarshallerTests {
                         hasEntry(is('self'),
                                 hasEntry('href', "/studies/${STUDY_ID.toLowerCase()}".toString()))),
                 hasEntry(is('_embedded'),
-                    hasEntry(is('ontologyTerm'), allOf(
-                            hasEntry(is('_links'),
-                                    hasEntry(is('self'),
-                                            hasEntry('href', "/studies/${STUDY_ID.toLowerCase()}/concepts/ROOT".toString()))),
-                            hasEntry('name', ONTOLOGY_TERM_NAME),
-                            hasEntry('fullName', ONTOLOGY_FULL_NAME),
-                            hasEntry('key', ONTOLOGY_KEY),
-                    ))))
+                        hasEntry(is('ontologyTerm'), allOf(
+                                hasEntry(is('_links'),
+                                        hasEntry(is('self'),
+                                                hasEntry('href', "/studies/${STUDY_ID.toLowerCase()}/concepts/ROOT".toString()))),
+                                hasEntry('name', ONTOLOGY_TERM_NAME),
+                                hasEntry('fullName', ONTOLOGY_FULL_NAME),
+                                hasEntry('key', ONTOLOGY_KEY),
+                        ))))
     }
 
 }
