@@ -864,7 +864,7 @@ Ext.onReady(function () {
         width: 490,
         split: false,
         autoLoad: {
-            url: pageInfo.basePath+'/panels/setValueDialog.html',
+            url: pageInfo.basePath+'/assets/panels/setValueDialog.html',
             scripts: true,
             nocache: true,
             discardUrl: true,
@@ -1628,7 +1628,7 @@ function showExportStepSplitTimeSeries() {
             ],
             resizable: false ,
             autoLoad: {
-                url: pageInfo.basePath+'/panels/exportStepSplitTimeSeries.html',
+                url: pageInfo.basePath+'/assets/panels/exportStepSplitTimeSeries.html',
                 scripts: true,
                 nocache: true,
                 discardUrl: true,
@@ -1677,7 +1677,7 @@ function showExportStepDataSelection() {
             ],
             resizable: false,
             autoLoad: {
-                url: pageInfo.basePath+'/panels/exportStepDataSelection.html',
+                url: pageInfo.basePath+'/assets/panels/exportStepDataSelection.html',
                 scripts: true,
                 nocache: true,
                 discardUrl: true,

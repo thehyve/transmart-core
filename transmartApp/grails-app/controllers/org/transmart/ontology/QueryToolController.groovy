@@ -1,6 +1,7 @@
 package org.transmart.ontology
 
 import grails.converters.JSON
+import grails.transaction.Transactional
 import org.transmart.marshallers.QueryResultConverter
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.QueryDefinition
@@ -18,6 +19,7 @@ class QueryToolController {
      *
      * The result is a JSON serialized QueryResult.
      */
+    @Transactional
     def runQueryFromDefinition() {
         QueryDefinition definition =
                 queryDefinitionXmlService.fromXml(request.reader)

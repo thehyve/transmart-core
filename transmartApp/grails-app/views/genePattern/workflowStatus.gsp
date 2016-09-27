@@ -4,7 +4,7 @@
     <title>workflow status</title>
     <meta http-equiv="description" content="workflow status">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <asset:stylesheet href="datasetExplorer.css">
+    <asset:stylesheet href="datasetExplorer.css"/>
     <style>
     p {
         width: 430px;

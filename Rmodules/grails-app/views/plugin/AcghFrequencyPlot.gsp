@@ -1,6 +1,6 @@
 %{--include js lib for heatmap dynamically--}%
-<r:require modules="freq_plot"/>
-<r:layoutResources disposition="defer"/>
+%{--<r:require modules="freq_plot"/>--}%
+%{--<r:layoutResources disposition="defer"/>--}%
 
 %{--Input Container--}%
 <div id="freq_plot_container" class="analysis_container"></div>

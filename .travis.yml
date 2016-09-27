@@ -1,25 +1,55 @@
 language: groovy
-sudo: false
 
 jdk:
-    - oraclejdk8
+  - oraclejdk8
+php:
+  - 5.6
+env:
+  - TERM=dumb; DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
+  - TERM=dumb; DIR=transmart-data; PREINSTALL="createVars setupPostgres"; INSTALL=downloadTransmartETL; TEST=dataloadingTest
+
+addons:
+  postgres: 9.4
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -rf $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
-    - $HOME/.m2/
+    - $HOME/.gradle/caches
+    - $HOME/.gradle/wrapper
+    - $HOME/.m2
+    - $HOME/pg
+
+before_install:
+  - gradle --version
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 3375DA21
+  - echo deb http://apt.thehyve.net/internal/ trusty main | sudo tee /etc/apt/sources.list.d/hyve_internal.list
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E5267A6C
+  - echo deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main  | sudo tee /etc/apt/sources.list.d/ondrej_php5.list
+  - sudo apt-get -qq update
+  - apt-cache search php
+  - sudo apt-get install -y tk-dev php5-cli php5-json
+  - php --version
+  - echo $DIR; cd $DIR
+  - PWD=`pwd`
+  - echo $PWD
+  - ([ -z "$PREINSTALL" ] && echo "Skipping preinstall.") || (echo $PREINSTALL; sudo -i -- sh -c "cd $PWD; gradle $PREINSTALL")
+  - cd -
+
+install:
+  - echo $DIR; cd $DIR
+  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; gradle $INSTALL)
+  - cd -
 
 before_script:
-  - cd transmart-core-db-tests
-  - ./gradlew --console=plain assemble
+  - echo $DIR; cd $DIR
+  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; gradle $PREPARE)
   - cd -
 
 script:
-  - cd transmart-core-db-tests
-  - ./gradlew --console=plain --stacktrace check
+  - echo $DIR; cd $DIR
+  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; gradle --stacktrace $TEST)
   - cd -
 
 notifications:
@@ -27,5 +57,5 @@ notifications:
     rooms:
       secure: "rNPPKSL1o8R71YcD7T+jDFTFfSFoXO/YKCubqwP5TXFL+OtqEwZOrkpKSpyN+Ap6Uxk85TBgat8Bur/WkTWXcq6HruyhfKkKea96ZVVSWjZWhKHqqTLvMeABb1uh6JxpXAc/5Cm3K5/yTHBFFiFSyOemuEl88bqeqJjDSzIxvOLrdLhnYWVlo3SJcUwAab0IKab8MpbZUEa6eFB5+MmCQfwjDZBr9Qn7UGfQWQdEp801sHGzU2i58uwF7+RVYhUyZtT9428FmPhxAS2EgW663JpzNQYpVCws02UW8aCgu2SCWWtUKwk3dy/6hSc5UoxWIIKaIpPbre+SA5JYeB7RwIad7N6/eDHdb/ByN1lOP6/pAEzPSnajxJrU/AnohhIwgcPaZ3aHbrqq8RrGPy1sNwFTKvFzBkVu5aWKR7JMgKuBq0LXv4iq1qBJw1s+xK4CHNoOAESZG2a0wo/cmzK+C2OzKdTnjN25RoHwXBOS7AzJtdtqpU8PaESZ0X1BxT19nD3RALiCfS/054SU3mfswhVAdo6rVhHDgGNxqRflgZIVmDsYjBRZ4TR4jDnUhc+s9ILo1eI/imq7tQZ6rFeQrydCu4p2U4LrFAWu7E0QwTbsfnSs5KN7Fah1xhS+6xttOuqbAmPQXEeLKSkk6B9Q7G/R0VHAKdaNkLweA0ZzATM="
     on_success: change
-    on_failure: always
+    on_failure: change
 

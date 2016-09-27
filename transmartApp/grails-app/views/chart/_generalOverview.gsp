@@ -10,12 +10,12 @@
     <tr>
         <td width="50%" align="center" valign="top" style="padding: 10px">
             <br/><br/>
-            ${subsets[1].query}
+            ${raw(subsets[1].query)}
             <br/><br/>
         </td>
         <td width="50%" align="center" valign="top" style="padding: 10px">
             <br/><br/>
-            ${subsets[2].query}
+            ${raw(subsets[2].query)}
             <br/><br/>
         </td>
     </tr>
