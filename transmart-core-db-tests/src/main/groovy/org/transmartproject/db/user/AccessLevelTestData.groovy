@@ -104,9 +104,9 @@ class AccessLevelTestData {
 
         long id = -500L
         tokens.collect { token ->
-            def secObj = new SecuredObject(
-                    dataType: 'BIO_CLINICAL_TRIAL',
-                    bioDataUniqueId: token)
+            def secObj = new SecuredObject()
+            secObj.dataType = 'BIO_CLINICAL_TRIAL'
+            secObj.bioDataUniqueId = token
             secObj.id = --id
             secObj
         }
@@ -119,7 +119,10 @@ class AccessLevelTestData {
                 [name: 'EXPORT', value: 8],
                 [name: 'VIEW', value: 1],
         ].collect {
-            def accessLevel = new AccessLevel(it)
+            def accessLevel = new AccessLevel()
+            it.each { k, v ->
+                accessLevel."$k" = v
+            }
             accessLevel.id = --id
             accessLevel
         }
@@ -134,7 +137,10 @@ class AccessLevelTestData {
                 [authority: 'ROLE_DATASET_EXPLORER_ADMIN', description: 'dataset Explorer admin users - can view all trials'],
                 [authority: 'ROLE_PUBLIC_USER', description: 'public user'],
         ].collect {
-            def role = new RoleCoreDb(it)
+            def role = new RoleCoreDb()
+            it.each { k, v ->
+                role."$k" = v
+            }
             role.id = --id
             role
         }
@@ -144,10 +150,10 @@ class AccessLevelTestData {
         (1..count).collect {
             long id = baseId - it
             String username = "user_$id"
-            def ret = new User(
-                    username: username,
-                    uniqueId: username,
-                    enable: true)
+            def ret = new User()
+            ret.username = username
+            ret.uniqueId = username
+            ret.enabled = true
             ret.id = id
             ret
         }
@@ -157,10 +163,10 @@ class AccessLevelTestData {
         (1..count).collect {
             long id = baseId - it
             def name = "group_$id"
-            def ret = new Group(
-                    category: name,
-                    uniqueId: name,
-                    enabled: true)
+            def ret = new Group()
+            ret.category = name
+            ret.uniqueId = name
+            ret.enabled = true
             ret.id = id
             ret
         }
@@ -183,6 +189,14 @@ class AccessLevelTestData {
         createUsers(6, -300L)
     }()
 
+    static SecuredObjectAccess createSecuredObjectAccess(Map properties) {
+        def result = new SecuredObjectAccess()
+        properties.each { k, v ->
+            result."$k" = v
+        }
+        result
+    }
+
     /* 1 first user is admin
      * 2 second user is in group test_-201, which has access to study 2
      * 3 third user has direct access to study 2
@@ -197,30 +211,30 @@ class AccessLevelTestData {
         List<SecuredObjectAccess> ret = []
         if (STUDY2 in studies) {
             ret += [
-                    new SecuredObjectAccess( // 2
+                    createSecuredObjectAccess( // 2
                             principal: groups.find { it.category == 'group_-201' },
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
                             accessLevel: accessLevels.find { it.name == 'EXPORT' }),
-                    new SecuredObjectAccess( // 3
+                    createSecuredObjectAccess( // 3
                             principal: users[2],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
                             accessLevel: accessLevels.find { it.name == 'OWN' }),
-                    new SecuredObjectAccess( // 5
+                    createSecuredObjectAccess( // 5
                             principal: users[4],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
                             accessLevel: accessLevels.find { it.name == 'VIEW' }),
-                    new SecuredObjectAccess( // 6 (1)
+                    createSecuredObjectAccess( // 6 (1)
                             principal: users[5],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
                             accessLevel: accessLevels.find { it.name == 'VIEW' }),
-                    new SecuredObjectAccess( // 6 (2)
+                    createSecuredObjectAccess( // 6 (2)
                             principal: users[5],
                             securedObject: securedObjects.find { it.bioDataUniqueId == STUDY2_SECURE_TOKEN },
                             accessLevel: accessLevels.find { it.name == 'EXPORT' }),
             ]
         }
         if (STUDY3 in studies) {
-            ret += new SecuredObjectAccess( // 7
+            ret += createSecuredObjectAccess( // 7
                     principal: groups.find { it.category == EVERYONE_GROUP_NAME },
                     securedObject: securedObjects.find { it.bioDataUniqueId == STUDY3_SECURE_TOKEN },
                     accessLevel: accessLevels.find { it.name == 'EXPORT' })

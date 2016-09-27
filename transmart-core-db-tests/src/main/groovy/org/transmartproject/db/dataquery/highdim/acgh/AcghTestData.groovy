@@ -141,8 +141,10 @@ class AcghTestData {
         ]
     }()
 
-    void saveAll() {
-        bioMarkerTestData.saveGeneData()
+    void saveAll(boolean skipBioMarkerData = false) {
+        if (!skipBioMarkerData) {
+            bioMarkerTestData.saveGeneData()
+        }
 
         save([regionPlatform, bogusTypePlatform])
         save regions

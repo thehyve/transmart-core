@@ -40,6 +40,7 @@ import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.dataquery.InMemoryTabularResult
+import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.dataquery.highdim.vcf.VcfTestData
@@ -49,6 +50,7 @@ import org.transmartproject.rest.protobuf.HighDimProtos
 import org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec.ColumnType
 import org.transmartproject.rest.protobuf.HighDimProtos.Row
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
@@ -64,6 +66,7 @@ class HighDimDataServiceSpec extends Specification {
     HighDimDataService svc
 
     HighDimTestData testData
+    SampleBioMarkerTestData sampleBioMarkerTestData
     I2b2 concept
 
     TabularResult<AssayColumn, DataRow> collectedTable
@@ -83,26 +86,27 @@ class HighDimDataServiceSpec extends Specification {
 
         testData = new HighDimTestData()
         concept = testData.conceptData.addLeafConcept()
+        testData.saveAll()
+        sampleBioMarkerTestData = new SampleBioMarkerTestData()
     }
 
     private void setupMrna() {
-        testData.mrnaData = new MrnaTestData(concept.code)
-        testData.saveAll()
+        testData.mrnaData = new MrnaTestData(concept.code, sampleBioMarkerTestData)
+        testData.mrnaData.saveAll(true)
         testData.mrnaData.updateDoubleScaledValues()
     }
 
     private void setupAcgh() {
-        testData.acghData = new AcghTestData(concept.code)
-        testData.saveAll()
+        testData.acghData = new AcghTestData(concept.code, sampleBioMarkerTestData)
+        testData.acghData.saveAll(true)
     }
 
     private void setupVcf() {
-        testData.vcfData = new VcfTestData(concept.code)
-        testData.saveAll()
+        testData.vcfData = new VcfTestData(concept.code, sampleBioMarkerTestData)
+        testData.vcfData.saveAll(true)
     }
 
     private void setupTestData(dataType) {
-        setupData()
         switch (dataType) {
             case 'mrna':
                 setupMrna()
@@ -116,11 +120,13 @@ class HighDimDataServiceSpec extends Specification {
         }
     }
 
+    @Unroll
     void testAll() {
         given:
-        setupTestData(dataType)
+        setupData()
 
         when:
+        setupTestData(dataType)
         HighDimResult result = getProtoBufResult(dataType, projection)
 
         Projection proj = svc.getProjection(dataType, projection)
