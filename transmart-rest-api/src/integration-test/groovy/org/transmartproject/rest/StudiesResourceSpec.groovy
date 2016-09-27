@@ -182,8 +182,8 @@ class StudiesResourceSpec extends ResourceSpec {
         response.status == 404
 
         then:
-        response.json.httpStatus == 404
-        response.json.type == 'NoSuchResourceException'
+        response.json.status == 404
+        response.json.exception == 'org.transmartproject.core.exceptions.NoSuchResourceException'
         response.json.message == "No study with id '${studyName}' was found"
     }
 
