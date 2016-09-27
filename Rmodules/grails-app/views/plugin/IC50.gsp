@@ -1,6 +1,6 @@
-%{--include js lib for ic50 dynamically--}%
-<r:require modules="ic50_plot"/>
-<r:layoutResources disposition="defer"/>
+<html>
+<body>
+<asset:javascript src="r-modules.js"/>
 
 <div>
 	<form>
@@ -55,3 +55,5 @@
 		</table>
 	</form>
 </div>
+</body>
+</html>

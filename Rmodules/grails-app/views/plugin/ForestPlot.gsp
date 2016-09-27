@@ -1,8 +1,8 @@
-%{--include js lib for box plot dynamically--}%
-<r:require modules="forest_plot"/>
-<r:layoutResources disposition="defer"/>
+<html>
+<body>
+<asset:javascript src="r-modules.js"/>
 
-	<form>
+<form>
 		<table class="subsettable" style="margin: 10px;width:600px; border: 0px none; border-collapse: collapse;">
 			<tr>
 				<td colspan="4">
@@ -346,3 +346,5 @@
 		
 		
 	</form>
+</body>
+</html>

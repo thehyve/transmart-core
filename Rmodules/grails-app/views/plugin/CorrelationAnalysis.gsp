@@ -1,6 +1,6 @@
-%{--include js lib for heatmap dynamically--}%
-<r:require modules="correlation_analysis"/>
-<r:layoutResources disposition="defer"/>
+<html>
+<body>
+<asset:javascript src="r-modules.js"/>
 
 <div id="analysisWidget">
     <h2>
@@ -39,3 +39,5 @@
     </form>
 
 </div>
+</body>
+</html>

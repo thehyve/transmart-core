@@ -1,6 +1,6 @@
-%{--include js lib for scatter plot dynamically--}%
-<r:require modules="scatter_plot"/>
-<r:layoutResources disposition="defer"/>
+<html>
+<body>
+<asset:javascript src="r-modules.js"/>
 
 <div id="analysisWidget">
 
@@ -79,3 +79,5 @@
     </form>
 
 </div>
+</body>
+</html>
