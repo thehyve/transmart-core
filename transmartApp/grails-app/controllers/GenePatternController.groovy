@@ -6,16 +6,17 @@ import com.recomdata.genepattern.JobStatus
 import com.recomdata.genepattern.WorkflowStatus
 import grails.converters.JSON
 import org.json.JSONObject
+import org.quartz.JobBuilder
 import org.quartz.JobDataMap
-import org.quartz.JobDetail
-import org.quartz.SimpleTrigger
+import org.quartz.TriggerBuilder
+import org.quartz.core.QuartzScheduler
 import org.transmart.CohortInformation
 import org.transmart.ExperimentData
 import org.transmart.HeatmapValidator
 import org.transmart.searchapp.AccessLog
 
 class GenePatternController {
-    def quartzScheduler
+    QuartzScheduler quartzScheduler
     def genePatternService
     def springSecurityService
     def i2b2HelperService
@@ -215,13 +216,18 @@ class GenePatternController {
         jdm.put("userName", userName)
 
         def group = "heatmaps"
-        def jobDetail = new JobDetail(jobName, group, genePatternService.getClass())
-        jobDetail.setJobDataMap(jdm)
+        def jobDetail = JobBuilder.newJob(genePatternService.class)
+            .withIdentity(jobName, group)
+            .setJobData(jdm)
+            .build()
 
         if (asyncJobService.updateStatus(jobName, statusList[5])) {
             return
         }
-        def trigger = new SimpleTrigger("triggerNow", group)
+        def trigger = TriggerBuilder.newTrigger()
+            .startNow()
+            .withIdentity(group)
+            .build()
         quartzScheduler.scheduleJob(jobDetail, trigger)
         ////println "WIP: Gene Pattern replacement"
         // log.debug('WIP: Gene Pattern replacement')
@@ -344,15 +350,20 @@ class GenePatternController {
         jdm.put("error", error)
 
         def group = "heatmaps"
-        def jobDetail = new JobDetail(jobName, group, genePatternService.getClass())
-        jobDetail.setJobDataMap(jdm)
+        def jobDetail = JobBuilder.newJob(genePatternService.class)
+            .withIdentity(jobName, group)
+            .setJobData(jdm)
+            .build()
 
         //
         if (asyncJobService.updateStatus(jobName, statusList[3])) {
             return
         }
 
-        def trigger = new SimpleTrigger("triggerNow", group)
+        def trigger = TriggerBuilder.newTrigger()
+            .startNow()
+            .withIdentity(group)
+            .build()
         quartzScheduler.scheduleJob(jobDetail, trigger)
         //   println "WIP: Gene Pattern replacement"
         // log.debug('WIP: Gene Pattern replacement')
@@ -452,11 +463,16 @@ class GenePatternController {
         jdm.put("userName", userName)
 
         def group = "heatmaps"
-        def jobDetail = new JobDetail(jobName, group, genePatternService.getClass())
-        jobDetail.setJobDataMap(jdm)
+        def jobDetail = JobBuilder.newJob(genePatternService.class)
+            .withIdentity(jobName, group)
+            .setJobData(jdm)
+            .build()
 
         asyncJobService.updateStatus(jobName, statusList[3])
-        def trigger = new SimpleTrigger("triggerNow", group)
+        def trigger = TriggerBuilder.newTrigger()
+            .startNow()
+            .withIdentity(group)
+            .build()
         quartzScheduler.scheduleJob(jobDetail, trigger)
         //println "WIP: Gene Pattern replacement"
         //log.debug('WIP: Gene Pattern replacement')
@@ -833,11 +849,16 @@ class GenePatternController {
         jdm.put("userName", userName)
 
         def group = "heatmaps"
-        def jobDetail = new JobDetail(jobName, group, genePatternService.getClass())
-        jobDetail.setJobDataMap(jdm)
+        def jobDetail = JobBuilder.newJob(genePatternService.class)
+            .withIdentity(jobName, group)
+            .setJobData(jdm)
+            .build()
 
         asyncJobService.updateStatus(jobName, statusList[3])
-        def trigger = new SimpleTrigger("triggerNow", group)
+        def trigger = TriggerBuilder.newTrigger()
+            .startNow()
+            .withIdentity(group)
+            .build()
         quartzScheduler.scheduleJob(jobDetail, trigger)
         //println "WIP: Gene Pattern replacement"
         //log.debug('WIP: Gene Pattern replacement')
