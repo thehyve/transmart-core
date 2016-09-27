@@ -29,6 +29,7 @@ import grails.converters.JSON
 import grails.test.mixin.integration.Integration
 import grails.web.mime.MimeType
 import groovy.json.JsonSlurper
+import org.junit.Ignore
 import org.springframework.beans.MutablePropertyValues
 import org.springframework.beans.factory.support.GenericBeanDefinition
 import org.transmartproject.core.dataquery.Patient
@@ -45,6 +46,7 @@ import static org.transmartproject.rest.test.StubStudyLoadingService.createStudy
 import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
+@Ignore
 class PatientMarshallerTests extends Specification {
 
     private static final String ONTOLOGY_KEY = '\\\\foo bar\\foo\\test_study\\'
