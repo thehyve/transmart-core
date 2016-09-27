@@ -27,12 +27,10 @@ package org.transmartproject.rest.highdim
 
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.hamcrest.Description
 import org.hamcrest.DiagnosingMatcher
 import org.hamcrest.Matcher
-import org.hamcrest.MatcherAssert
-import org.junit.Before
-import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
@@ -50,14 +48,17 @@ import org.transmartproject.rest.HighDimDataService
 import org.transmartproject.rest.protobuf.HighDimProtos
 import org.transmartproject.rest.protobuf.HighDimProtos.ColumnSpec.ColumnType
 import org.transmartproject.rest.protobuf.HighDimProtos.Row
+import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
+import static spock.util.matcher.HamcrestSupport.that
 import static org.thehyve.commons.test.FastMatchers.propsWith
 import static org.transmartproject.rest.highdim.HighDimResultHeaderMatcher.hasHeaderWithAssaysAndColumns
 import static org.transmartproject.rest.highdim.HighDimResultRowsMatcher.hasRowsMatchingSpecsAndDataRow
 
 @Integration
-class HighDimDataServiceTests {
+@Rollback
+class HighDimDataServiceSpec extends Specification {
 
     @Autowired
     HighDimDataService svc
@@ -70,8 +71,7 @@ class HighDimDataServiceTests {
     boolean checkBioMarker
     boolean isDoubleType
 
-    @Before
-    void setUp() {
+    void setupData() {
         svc.resultTransformer = { TabularResult source ->
             collectedTable = new InMemoryTabularResult(source) //collecting the result
             expectedRows = collectedTable.rows.collect()
@@ -85,82 +85,68 @@ class HighDimDataServiceTests {
         concept = testData.conceptData.addLeafConcept()
     }
 
-    private void setUpMrna() {
+    private void setupMrna() {
         testData.mrnaData = new MrnaTestData(concept.code)
         testData.saveAll()
         testData.mrnaData.updateDoubleScaledValues()
     }
 
-    private void setUpAcgh() {
+    private void setupAcgh() {
         testData.acghData = new AcghTestData(concept.code)
         testData.saveAll()
     }
 
-    private void setUpVcf() {
+    private void setupVcf() {
         testData.vcfData = new VcfTestData(concept.code)
         testData.saveAll()
     }
 
-    @Test
-    void testMrnaDefaultRealProjection() {
-        setUpMrna()
-        String projection = Projection.DEFAULT_REAL_PROJECTION
-        HighDimResult result = getProtoBufResult('mrna', projection)
-
-        assertResults(result, 'mrna', projection)
+    private void setupTestData(dataType) {
+        setupData()
+        switch (dataType) {
+            case 'mrna':
+                setupMrna()
+                break
+            case 'acgh':
+                setupAcgh()
+                break
+            case 'vcf':
+                setupVcf()
+                break
+        }
     }
 
-    @Test
-    void testMrnaAllDataProjection() {
-        setUpMrna()
-        String projection = Projection.ALL_DATA_PROJECTION
-        HighDimResult result = getProtoBufResult('mrna', projection)
+    void testAll() {
+        given:
+        setupTestData(dataType)
 
-        assertResults(result, 'mrna', projection)
-    }
-
-    @Test
-    void testAcgh() {
-        setUpAcgh()
-        String projection = 'acgh_values'
-        HighDimResult result = getProtoBufResult('acgh', projection)
-
-        assertResults(result, 'acgh', projection)
-    }
-
-    @Test
-    void testVcf_singleFieldProjection() {
-        setUpVcf()
-        String projection = 'variant'
-        HighDimResult result = getProtoBufResult('vcf', projection)
-
-        assertResults(result, 'vcf', projection, [value: String])
-    }
-
-    private void assertResults(HighDimResult input,
-                               String dataType,
-                               String projection,
-                               Map dataPropertyTypes = null /* autodetect */) {
-
-        List<AssayColumn> expectedAssays = collectedTable.indicesList
+        when:
+        HighDimResult result = getProtoBufResult(dataType, projection)
 
         Projection proj = svc.getProjection(dataType, projection)
-        Map<String,Class> dataProperties = dataPropertyTypes
         if (!dataProperties) {
             dataProperties = proj instanceof  MultiValueProjection ?
-                   proj.dataProperties :
-                   [value: Double] // ASSUMPTION. Provide arg if it doesn't hold
+                    proj.dataProperties :
+                    [value: Double] // ASSUMPTION. Provide arg if it doesn't hold
         }
 
+        then:
         // assert header data
-        MatcherAssert.that input,
-                hasHeaderWithAssaysAndColumns(expectedAssays, dataProperties)
+        that result,
+                hasHeaderWithAssaysAndColumns(collectedTable.indicesList, dataProperties)
 
         //asserting row data
-        MatcherAssert.that input,
+        that result,
                 hasRowsMatchingSpecsAndDataRow(
                         expectedRows,
                         proj instanceof  MultiValueProjection)
+
+        where:
+        dataType    || projection                           || dataProperties
+        'mrna'      || Projection.DEFAULT_REAL_PROJECTION   || null
+        'mrna'      || Projection.ALL_DATA_PROJECTION       || null
+        'acgh'      || 'acgh_values'                        || null
+        'vcf'       || 'variant'                            || [value: String]
     }
 
     HighDimResult getProtoBufResult(String dataType, String projection) {
