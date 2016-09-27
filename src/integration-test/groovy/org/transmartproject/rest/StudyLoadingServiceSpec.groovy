@@ -28,23 +28,24 @@ package org.transmartproject.rest
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import grails.util.GrailsWebMockUtil
 import grails.util.Holders
 import org.grails.web.servlet.mvc.GrailsWebRequest
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.context.ApplicationContext
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.users.User
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.misc.CurrentUser
+import spock.lang.Specification
 
-import static org.hamcrest.Matchers.equalTo
+import static spock.util.matcher.HamcrestSupport.that
+import static org.hamcrest.Matchers.*
 
 @Integration
-class StudyLoadingServiceTests {
+@Rollback
+class StudyLoadingServiceSpec extends Specification {
 
     StudyLoadingService testee
 
@@ -57,8 +58,7 @@ class StudyLoadingServiceTests {
     boolean originalSpringSecurityState
 
     //FIXME Setting bean properties with a map through data binding does not work here
-    @Before
-    void setUp() {
+    void setupData() {
         /* instantiate testee and do autowiring on it */
         testee = new StudyLoadingService()
         ApplicationContext appCtx = Holders.applicationContext
@@ -94,15 +94,14 @@ class StudyLoadingServiceTests {
         SpringSecurityUtils.securityConfig.active = true
     }
 
-    @After
-    void tearDown() {
+    void cleanup() {
         SpringSecurityUtils.securityConfig.active = originalSpringSecurityState
     }
 
     private void setUser(User user) {
         springSecurityServiceMock.isLoggedIn() >> true
 
-        def principalMock = Mock()
+        def principalMock = Mock(org.transmartproject.db.user.User)
         principalMock.username >> user.username
 
         springSecurityServiceMock.principal >> principalMock
@@ -112,65 +111,71 @@ class StudyLoadingServiceTests {
         grailsWebRequest.params[StudyLoadingService.STUDY_ID_PARAM] = studyName
     }
 
-    @Test
     void testGrantedAccessBecauseAdmin() {
+        setupData()
         //first user is an admin
         user = accessLevelTestData.users[0]
         studyInRequest = AccessLevelTestData.STUDY1
 
+        expect:
         that testee.study, hasProperty('id',
                 equalTo(AccessLevelTestData.STUDY1))
     }
 
-    @Test
     void testGrantedAccessBecauseDirectlyGrantedAccess() {
+        setupData()
         // third user has direct access to study 2
         user = accessLevelTestData.users[2]
         studyInRequest = AccessLevelTestData.STUDY2
 
+        expect:
         that testee.study, hasProperty('id',
                 equalTo(AccessLevelTestData.STUDY2))
     }
 
-    @Test
     void testDeniedAccess() {
+        setupData()
         // fourth user has no access to study 2
         user = accessLevelTestData.users[3]
         studyInRequest = AccessLevelTestData.STUDY2
 
-        shouldFail AccessDeniedException, {
-            testee.study
-        }
+        when:
+        testee.study
+        then:
+        thrown(AccessDeniedException)
     }
 
-    @Test
     void testGrantAccessWhenNoSpringSecurityService() {
+        setupData()
         studyInRequest = AccessLevelTestData.STUDY2
 
         testee.currentUser.springSecurityService = null
 
+        expect:
         that testee.study, hasProperty('id',
                 equalTo(AccessLevelTestData.STUDY2))
     }
 
-    @Test
     void testGrantAccessWhenSpringSecurityInactive() {
+        setupData()
         studyInRequest = AccessLevelTestData.STUDY2
 
         SpringSecurityUtils.securityConfig.active = false
 
+        expect:
         that testee.study, hasProperty('id',
                 equalTo(AccessLevelTestData.STUDY2))
     }
 
-    @Test
     void testDeniedAccessWhenNotLoggedIn() {
+        setupData()
         studyInRequest = AccessLevelTestData.STUDY1
 
         springSecurityServiceMock.isLoggedIn() >> false
 
-        shouldFail AccessDeniedException, {
-            testee.study
-        }
+        when:
+        testee.study
+        then:
+        thrown(AccessDeniedException)
     }
 }
