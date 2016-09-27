@@ -58,7 +58,9 @@ class PatientSetResourceTests extends ResourceSpec {
         response1.status == 201
 
         when:
-        def response2 = getAsHal('/patient_sets/' + response1.json['id'])
+        def response2 = get '/patient_sets/' + response1.json['id'], {
+            header 'Accept', contentTypeForHAL
+        }
 
         then:
         response2.status == 200
