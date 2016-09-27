@@ -214,8 +214,8 @@ class RModulesService {
 		//com.recomdata.transmart.plugin.PluginJobExecutionService should be implemented by all Plugins
 		def jobDetail = JobBuilder.newJob(RModulesJobService.class)
 			.withIdentity(params.jobName, params.jobType)
+			.setJobData(jobDataMap)
 			.build()
-		jobDetail.setJobDataMap(jobDataMap)
 
 		if (asyncJobService.updateStatus(params.jobName, jobStatusList[2]))	{
 			return
