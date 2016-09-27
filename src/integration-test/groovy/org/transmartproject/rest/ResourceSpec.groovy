@@ -30,6 +30,9 @@ import grails.plugins.rest.client.RestResponse
 import grails.test.mixin.integration.Integration
 import org.hamcrest.Matcher
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.TestRestTemplate
+import org.springframework.core.io.Resource
+import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
@@ -48,6 +51,8 @@ abstract class ResourceSpec extends Specification {
 
     RestBuilder rest = new RestBuilder()
 
+    RestTemplate restTemplate = new TestRestTemplate()
+
     RestResponse get(String path, Closure paramSetup = {}) {
         rest.get("${baseURL}${path}", paramSetup)
     }
@@ -57,10 +62,8 @@ abstract class ResourceSpec extends Specification {
     }
 
     InputStream getAsInputStream(String path) {
-        def response = get(path)
-        assert 'application/octet-stream' in response.headers['Content-Type']
-        //FIXME How to get binary content out of the response?
-        new ByteArrayInputStream(response.body.getBytes('UTF-8'))
+        Resource res = restTemplate.getForObject(baseURL + path, Resource.class)
+        res.inputStream
     }
 
     /**
