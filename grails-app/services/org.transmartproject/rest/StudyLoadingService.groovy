@@ -29,6 +29,7 @@ import org.springframework.web.context.request.RequestAttributes
 import org.springframework.web.context.request.RequestContextHolder
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.users.ProtectedOperation
@@ -49,7 +50,7 @@ class StudyLoadingService {
 
     private Study cachedStudy
 
-    Study getStudy() {
+    Study getStudy() throws NoSuchResourceException {
         if (!cachedStudy) {
             cachedStudy = fetchStudy()
         }
@@ -57,7 +58,7 @@ class StudyLoadingService {
         cachedStudy
     }
 
-    Study fetchStudy() {
+    Study fetchStudy() throws NoSuchResourceException {
         RequestAttributes webRequest = RequestContextHolder.currentRequestAttributes()
         def studyId = webRequest.params.get STUDY_ID_PARAM
 
