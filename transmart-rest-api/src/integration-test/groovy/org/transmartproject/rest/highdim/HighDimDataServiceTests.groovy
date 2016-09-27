@@ -26,8 +26,7 @@
 package org.transmartproject.rest.highdim
 
 import com.google.common.collect.Lists
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.IntegrationTestMixin
+import grails.test.mixin.integration.Integration
 import org.hamcrest.Description
 import org.hamcrest.DiagnosingMatcher
 import org.hamcrest.Matcher
@@ -57,7 +56,7 @@ import static org.thehyve.commons.test.FastMatchers.propsWith
 import static org.transmartproject.rest.highdim.HighDimResultHeaderMatcher.hasHeaderWithAssaysAndColumns
 import static org.transmartproject.rest.highdim.HighDimResultRowsMatcher.hasRowsMatchingSpecsAndDataRow
 
-@TestMixin(IntegrationTestMixin)
+@Integration
 class HighDimDataServiceTests {
 
     @Autowired

@@ -27,11 +27,9 @@ package org.transmartproject.rest
 
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.SpringSecurityUtils
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.IntegrationTestMixin
-import grails.util.GrailsWebUtil
+import grails.test.mixin.integration.Integration
+import grails.util.GrailsWebMockUtil
 import grails.util.Holders
-import org.gmock.WithGMock
 import org.grails.web.servlet.mvc.GrailsWebRequest
 import org.junit.After
 import org.junit.Before
@@ -43,11 +41,9 @@ import org.transmartproject.core.users.User
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.misc.CurrentUser
 
-import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.equalTo
 
-@TestMixin(IntegrationTestMixin)
-@WithGMock
+@Integration
 class StudyLoadingServiceTests {
 
     StudyLoadingService testee
@@ -60,6 +56,7 @@ class StudyLoadingServiceTests {
 
     boolean originalSpringSecurityState
 
+    //FIXME Setting bean properties with a map through data binding does not work here
     @Before
     void setUp() {
         /* instantiate testee and do autowiring on it */
@@ -80,7 +77,7 @@ class StudyLoadingServiceTests {
         beanFactory.autowireBean(testee.currentUser)
 
         /* mock web request */
-        grailsWebRequest = GrailsWebUtil.bindMockWebRequest()
+        grailsWebRequest = GrailsWebMockUtil.bindMockWebRequest()
 
         /* insert test data */
         accessLevelTestData = AccessLevelTestData.createDefault()
@@ -88,7 +85,7 @@ class StudyLoadingServiceTests {
 
         /* setup spring security service mock
          * maybe we could also use http://grails.org/plugin/spring-security-mock */
-        springSecurityServiceMock = mock(SpringSecurityService)
+        springSecurityServiceMock = Mock(SpringSecurityService)
         testee.currentUser.springSecurityService = springSecurityServiceMock
 
         /* spring security is disabled in test env; activate it because the
@@ -103,12 +100,12 @@ class StudyLoadingServiceTests {
     }
 
     private void setUser(User user) {
-        springSecurityServiceMock.isLoggedIn().returns true
+        springSecurityServiceMock.isLoggedIn() >> true
 
-        def principalMock = mock()
-        principalMock.username.returns user.username
+        def principalMock = Mock()
+        principalMock.username >> user.username
 
-        springSecurityServiceMock.principal.returns principalMock
+        springSecurityServiceMock.principal >> principalMock
     }
 
     private void setStudyInRequest(String studyName) {
@@ -121,10 +118,8 @@ class StudyLoadingServiceTests {
         user = accessLevelTestData.users[0]
         studyInRequest = AccessLevelTestData.STUDY1
 
-        play {
-            that testee.study, hasProperty('id',
-                    equalTo(AccessLevelTestData.STUDY1))
-        }
+        that testee.study, hasProperty('id',
+                equalTo(AccessLevelTestData.STUDY1))
     }
 
     @Test
@@ -133,10 +128,8 @@ class StudyLoadingServiceTests {
         user = accessLevelTestData.users[2]
         studyInRequest = AccessLevelTestData.STUDY2
 
-        play {
-            that testee.study, hasProperty('id',
-                    equalTo(AccessLevelTestData.STUDY2))
-        }
+        that testee.study, hasProperty('id',
+                equalTo(AccessLevelTestData.STUDY2))
     }
 
     @Test
@@ -145,10 +138,8 @@ class StudyLoadingServiceTests {
         user = accessLevelTestData.users[3]
         studyInRequest = AccessLevelTestData.STUDY2
 
-        play {
-            shouldFail AccessDeniedException, {
-                testee.study
-            }
+        shouldFail AccessDeniedException, {
+            testee.study
         }
     }
 
@@ -176,12 +167,10 @@ class StudyLoadingServiceTests {
     void testDeniedAccessWhenNotLoggedIn() {
         studyInRequest = AccessLevelTestData.STUDY1
 
-        springSecurityServiceMock.isLoggedIn().returns false
+        springSecurityServiceMock.isLoggedIn() >> false
 
-        play {
-            shouldFail AccessDeniedException, {
-                testee.study
-            }
+        shouldFail AccessDeniedException, {
+            testee.study
         }
     }
 }

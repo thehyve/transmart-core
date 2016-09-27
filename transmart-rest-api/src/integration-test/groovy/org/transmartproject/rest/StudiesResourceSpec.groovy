@@ -68,7 +68,9 @@ class StudiesResourceSpec extends ResourceSpec {
 
     void testListAllStudiesAsHal() {
         when:
-        def response = getAsHal("/studies")
+        def response = get "/studies", {
+            header 'Accept', contentTypeForHAL
+        }
 
         then:
         response.status == 200
@@ -129,7 +131,9 @@ class StudiesResourceSpec extends ResourceSpec {
         def studyId = 'STUDY_ID_1'
 
         when:
-        def response = getAsHal("/studies/${studyId}")
+        def response = get "/studies/${studyId}", {
+            header 'Accept', contentTypeForHAL
+        }
 
         then:
         response.status == 200
@@ -149,7 +153,9 @@ class StudiesResourceSpec extends ResourceSpec {
         def path = "_embedded.studies[0].$childLinkHrefPath"
 
         when:
-        def response = getAsHal '/studies'
+        def response = get '/studies', {
+            header 'Accept', contentTypeForHAL
+        }
 
         then:
         response.status == 200
@@ -158,7 +164,9 @@ class StudiesResourceSpec extends ResourceSpec {
 
     void testGetStudyChildLink() {
         when:
-        def response = getAsHal '/studies/study_id_1'
+        def response = get '/studies/study_id_1', {
+            header 'Accept', contentTypeForHAL
+        }
 
         then:
         response.status == 200

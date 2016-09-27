@@ -25,7 +25,6 @@
 
 package org.transmartproject.rest
 
-import static org.grails.web.json.JSONObject.NULL
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
 import static org.thehyve.commons.test.FastMatchers.mapWith
@@ -39,18 +38,18 @@ class ObservationsResourceTests extends ResourceSpec {
     def study1BarExpectedObservations = [
             [
                     subject: [id: -103],
-                    label: label,
-                    value: null,
+                    label  : label,
+                    value  : null,
             ],
             [
                     subject: [id: -102],
-                    label: label,
-                    value: null,
+                    label  : label,
+                    value  : null,
             ],
             [
                     subject: [id: -101],
-                    label: label,
-                    value: closeTo(10.0 as Double, 0.00001 as Double),
+                    label  : label,
+                    value  : closeTo(10.0 as Double, 0.00001 as Double),
             ],
     ]
 
@@ -115,8 +114,8 @@ class ObservationsResourceTests extends ResourceSpec {
                         hasEntry('label', '\\foo\\study2\\sex\\'),
                 ),
                 containsInAnyOrder(
-                                hasEntry('value', 'male'),
-                                hasEntry('value', 'female')))
+                        hasEntry('value', 'male'),
+                        hasEntry('value', 'female')))
     }
 
     void testIndexStandalonePatientSet() {
@@ -148,8 +147,7 @@ class ObservationsResourceTests extends ResourceSpec {
         def response = get(('/observations' +
                 '?patients=-201' +
                 '&patients=-202' +
-                '&concept_paths=\\foo\\study2\\sex\\')
-                .replaceAll('\\\\', '%5C'))
+                '&concept_paths=\\foo\\study2\\sex\\'))
 
         then:
         response.status == 200
@@ -166,30 +164,28 @@ class ObservationsResourceTests extends ResourceSpec {
     }
 
     void testIndexStandaloneDifferentVariableType() {
+        def conceptPath = '\\foo\\study2\\sex\\'
         when:
         def response = get(('/observations?variable_type=terminal_concept_variable' +
                 '&patients=-201' +
                 '&patients=-202' +
-                '&concept_paths=\\foo\\study2\\sex\\')
-                .replaceAll('\\\\', '%5C'))
+                '&concept_paths=' + conceptPath))
 
         then:
         response.status == 200
-        that response.json, allOf(
-                hasSize(2),
-                everyItem(allOf(
-                        hasEntry('label', '\\foo\\study2\\sex\\'),
-                        hasEntry(is('value'), is(NULL)))))
+        response.json.size() == 2
+        response.json.every { it.label == conceptPath && it.value == null }
     }
 
     void testHalStandalone() {
         when:
-        def response = getAsHal('/observations') {
-            patients = -101
-            concept_paths = '\\foo\\study1\\bar\\'
+        def response = get('/observations?patients={patients}&concept_paths={concept_paths}') {
+            header 'Accept', contentTypeForHAL
+            urlVariables patients: -101, concept_paths: '\\foo\\study1\\bar\\'
         }
 
         then:
+        //FIXME From time to time the status is 406 (response content is different from what's specified in the Accept)
         response.status == 200
         that response.json, allOf(
                 hasLinks([:]),
@@ -199,7 +195,7 @@ class ObservationsResourceTests extends ResourceSpec {
                                 is('observations'),
                                 contains(
                                         mapWith(
-                                               label: '\\foo\\study1\\bar\\',
+                                                label: '\\foo\\study1\\bar\\',
                                                 value: BigDecimal.valueOf(10.00000),
                                         )))))
 

@@ -52,29 +52,15 @@ abstract class ResourceSpec extends Specification {
         rest.get("${baseURL}${path}", paramSetup)
     }
 
-    RestResponse getAsJson(String path, Closure paramSetup = {}) {
-        rest.get("${baseURL}${path}") {
-            header 'Accept', contentTypeForJSON
-        }
-    }
-
-    RestResponse getAsHal(String path, Closure paramSetup = {}) {
-        rest.get("${baseURL}${path}") {
-            header 'Accept', contentTypeForHAL
-        }
-    }
-
     RestResponse post(String path, Closure paramSetup = {}) {
         rest.post("${baseURL}${path}", paramSetup)
     }
 
     InputStream getAsInputStream(String path) {
-        get(path)
-        assertContentType 'application/octet-stream'
-
-        InputStream result = client.response.data
-        result.reset() //to reset the stream (pointer = 0), as it was partially read before
-        result
+        def response = get(path)
+        assert 'application/octet-stream' in response.headers['Content-Type']
+        //FIXME How to get binary content out of the response?
+        new ByteArrayInputStream(response.body.getBytes('UTF-8'))
     }
 
     /**

@@ -19,7 +19,6 @@
 
 package org.transmartproject.db.ontology
 
-import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.i2b2data.ConceptDimension
 
 import static org.transmartproject.db.TestDataHelper.save
@@ -76,22 +75,15 @@ class ConceptTestData {
     /**
      * map with common default values for creating a concept
      */
-    static Map conceptDefaultValues = {
-        [
-                factTableColumn   : 'CONCEPT_CD',
-                dimensionTableName: 'CONCEPT_DIMENSION',
-                columnName        : 'CONCEPT_PATH',
-                operator          : 'LIKE',
-                columnDataType    : 'T',
-        ]
-    }()
-
-    static Set<String> ontologyQueryRequiredFields = {
-        def result = []
-        result.add 'dimensionCode'
-        result.addAll getConceptDefaultValues().keySet().asList()
-        result
-    }()
+    static AbstractQuerySpecifyingType setConceptDefaultValues(AbstractQuerySpecifyingType qst) {
+        qst.factTableColumn = 'CONCEPT_CD'
+        qst.dimensionTableName = 'CONCEPT_DIMENSION'
+        qst.columnName = 'CONCEPT_PATH'
+        qst.operator = 'LIKE'
+        qst.columnDataType = 'T'
+        qst.dimensionCode = 'CD'
+        qst
+    }
 
     void saveAll() {
         save tableAccesses
@@ -100,23 +92,35 @@ class ConceptTestData {
         save conceptDimensions
     }
 
-    private static Map i2b2xBase = [
-            factTableColumn   : '',
-            dimensionTableName: '',
-            columnName        : '',
-            columnDataType    : '',
-            operator          : '',
-            dimensionCode     : '',
-            mAppliedPath      : '',
-            updateDate        : new Date()
-    ]
+    private static AbstractQuerySpecifyingType setQueryTypeBase(AbstractQuerySpecifyingType qst) {
+        qst.factTableColumn = ''
+        qst.dimensionTableName = ''
+        qst.columnName = ''
+        qst.columnDataType = ''
+        qst.operator = ''
+        qst.dimensionCode = ''
+        qst
+    }
+
+    private static I2b2 setI2b2xBase(I2b2 i2b2) {
+        setQueryTypeBase(i2b2)
+        i2b2.level = 0
+        i2b2.mAppliedPath = ''
+        i2b2.updateDate = new Date()
+        i2b2
+    }
 
     static I2b2 createI2b2(Map properties) {
-        new I2b2([*: i2b2xBase, *: properties])
+        I2b2 result = setI2b2xBase(new I2b2())
+        result.properties = properties
+        result
     }
 
     static I2b2Secure createI2b2Secure(Map properties) {
-        new I2b2Secure([*: i2b2xBase, *: properties])
+        I2b2Secure result = new I2b2Secure()
+        setQueryTypeBase(result)
+        result.properties = properties
+        result
     }
 
     /**
@@ -129,19 +133,11 @@ class ConceptTestData {
         assert properties.get('fullName')
         assert properties.get('code')
 
-        def extraProps = [
-                dimensionCode: properties.get('fullName') //needed for ontology queries
-        ]
-        //field values are set in layers:
-        //1 - getConceptDefaultValues(): typical values for concepts
-        //2 - extraProps: derived or unique per object
-        //3 - properties: values given by the client (these will override all others)
-        //4 - completes any remaining mandatory fields with a dummy value
-        def o = new I2b2([*: getConceptDefaultValues(), *: extraProps, *: properties])
-        fillInNotNullFields(o)
-        //we need to make sure the i2b2 instance is valid for the ontology queries
-        checkValidForOntologyQueries(o)
-        o
+        I2b2 result = setI2b2xBase(new I2b2())
+        setConceptDefaultValues(result)
+        result.dimensionCode = properties.fullName
+        result.properties = properties
+        result
     }
 
     static addI2b2(Map properties) {
@@ -152,15 +148,7 @@ class ConceptTestData {
         def tableAccess = new TableAccess()
         //defaults.
         // To escape data binding conversions (e.g. convertEmptyStringsToNull) we use direct assignment to the fields.
-        tableAccess.with {
-            level = 0
-            factTableColumn = ''
-            dimensionTableName = ''
-            columnName = ''
-            columnDataType = ''
-            operator = ''
-            dimensionCode = ''
-        }
+        setQueryTypeBase(tableAccess)
 
         tableAccess.properties = properties
         tableAccess
@@ -168,11 +156,6 @@ class ConceptTestData {
 
     static addTableAccess(Map properties) {
         assert createTableAccess(properties).save() != null
-    }
-
-    static fillInNotNullFields(I2b2 i2b2) {
-        i2b2.mAppliedPath = '/test/'
-        i2b2.updateDate = new Date()
     }
 
     static List<I2b2> createMultipleI2B2(int count, String basePath = "\\test", String codePrefix = "test", int level = 1) {
@@ -187,9 +170,10 @@ class ConceptTestData {
                     dimensionCode: fullName
             ]
 
-            I2b2 o = new I2b2([*: getConceptDefaultValues(), *: props])
-            fillInNotNullFields(o)
-            o
+            I2b2 result = setI2b2xBase(new I2b2())
+            setConceptDefaultValues(result)
+            result.properties = props
+            result
         }
     }
 
@@ -215,13 +199,6 @@ class ConceptTestData {
                         position: number - iteration + 1
                 )
             }
-        }
-    }
-
-    static def checkValidForOntologyQueries(I2b2 input) {
-        def missing = TestDataHelper.getMissingValueFields(input, ontologyQueryRequiredFields)
-        if (missing.size() > 0) {
-            throw new IllegalArgumentException("Some I2b2 instances miss fields required for ontology queries: $missing")
         }
     }
 
