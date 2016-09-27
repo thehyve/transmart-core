@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <asset:link rel="shortcut icon" href='searchtool.ico' type="image/x-ico" />
     <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
-    <asset:stylesheet href="main.css">
+    <asset:stylesheet href="main.css"/>
     <title>${grailsApplication.config.com.recomdata.appTitle}</title>
 </head>
 
