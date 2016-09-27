@@ -1,6 +1,6 @@
-%{--include js lib for table fisher dynamically--}%
-<r:require modules="table_fisher"/>
-<r:layoutResources disposition="defer"/>
+<html>
+<body>
+<asset:javascript src="r-modules.js"/>
 
 <div id="analysisWidget">
 
@@ -197,3 +197,5 @@
 
     </form>
 </div>
+</body>
+</html>

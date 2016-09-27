@@ -1,6 +1,6 @@
-%{--include js lib for heatmap dynamically--}%
-<r:require modules="hclust"/>
-<r:layoutResources disposition="defer"/>
+<html>
+<body>
+<asset:javascript src="r-modules.js"/>
 
 <div id="analysisWidget">
 
@@ -50,3 +50,5 @@
     </div>
 
 </div>
+</body>
+</html>

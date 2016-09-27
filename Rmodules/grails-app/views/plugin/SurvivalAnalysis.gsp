@@ -1,6 +1,6 @@
-%{--include js lib for box plot dynamically--}%
-<r:require modules="survival_analysis"/>
-<r:layoutResources disposition="defer"/>
+<html>
+<body>
+<asset:javascript src="r-modules.js"/>
 
 <div id="analysisWidget">
 
@@ -140,3 +140,5 @@
         </fieldset>
     </form>
 </div>
+</body>
+</html>

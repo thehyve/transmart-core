@@ -1,6 +1,6 @@
-%{--include js lib for heatmap dynamically--}%
-<r:require modules="acgh_survival_analysis"/>
-<r:layoutResources disposition="defer"/>
+<html>
+<body>
+<asset:javascript src="r-modules.js"/>
 
 %{--Survival Analysis aCGH input Container--}%
 <div id="analysisContainer"></div>
@@ -100,3 +100,5 @@
 		</div>
 	</div>
 </div>
+</body>
+</html>

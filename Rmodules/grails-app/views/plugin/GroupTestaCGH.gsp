@@ -1,6 +1,6 @@
-%{--include js lib for heatmap dynamically--}%
-<r:require modules="acgh_group_test"/>
-<r:layoutResources disposition="defer"/>
+<html>
+<body>
+<asset:javascript src="r-modules.js"/>
 
 %{--Input Container--}%
 <div id="gtContainer"></div>
@@ -70,3 +70,5 @@
         </table>
 	</div>
 </div>
+</body>
+</html>

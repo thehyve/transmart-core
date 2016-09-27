@@ -1,6 +1,6 @@
-%{--include js lib for box plot dynamically--}%
-<r:require modules="line_graph"/>
-<r:layoutResources disposition="defer"/>
+<html>
+<body>
+<asset:javascript src="r-modules.js"/>
 
 <div id="analysisWidget">
 
@@ -158,3 +158,5 @@
         </fieldset>
     </form>
 </div>
+</body>
+</html>
