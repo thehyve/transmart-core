@@ -196,9 +196,8 @@ class SubjectsResourceSpec extends ResourceSpec {
 
         then:
         response.status == 404
-        response.status == 404
-        response.json.status == 404
-        response.json.exception == 'org.transmartproject.core.exceptions.NoSuchResourceException'
+        response.json.httpStatus == 404
+        response.json.type == 'NoSuchResourceException'
         response.json.message == "No study with id '${studyName}' was found"
     }
 
@@ -210,8 +209,8 @@ class SubjectsResourceSpec extends ResourceSpec {
 
         then:
         response.status == 404
-        response.json.status == 404
-        response.json.exception == 'org.transmartproject.core.exceptions.NoSuchResourceException'
+        response.json.httpStatus == 404
+        response.json.type == 'NoSuchResourceException'
         response.json.message == "No patient with number ${patientNum}"
     }
 }

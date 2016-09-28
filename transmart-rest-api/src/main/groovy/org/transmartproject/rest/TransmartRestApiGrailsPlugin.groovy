@@ -29,6 +29,7 @@ import org.springframework.aop.scope.ScopedProxyFactoryBean
 import org.springframework.stereotype.Component
 import org.transmartproject.rest.marshallers.MarshallersRegistrar
 import org.transmartproject.rest.marshallers.TransmartRendererRegistry
+import org.transmartproject.db.http.BusinessExceptionResolver
 
 class TransmartRestApiGrailsPlugin {
     def grailsVersion = "3.1.10 > *"
@@ -73,6 +74,9 @@ class TransmartRestApiGrailsPlugin {
         rendererRegistry(TransmartRendererRegistry) { bean ->
             modelSuffix = application.flatConfig.get('grails.scaffolding.templates.domainSuffix') ?: ''
         }
+
+
+        businessExceptionResolver(BusinessExceptionResolver)
     }
 
     def doWithApplicationContext = { ctx ->
