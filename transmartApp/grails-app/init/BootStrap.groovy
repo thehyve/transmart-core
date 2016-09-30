@@ -66,9 +66,10 @@ class BootStrap {
         }
 
         def servletContext = grailsApplication.mainContext.servletContext
+        def ctx = grailsApplication.getMainContext()
         def tsAppRScriptsDir
 
-        def basePath = ((String[])[
+        ((String[])[
             servletContext.getRealPath("/"),
             servletContext.getRealPath("/") + "../",
             servletContext.getResource("/")?.file,
@@ -81,14 +82,16 @@ class BootStrap {
         }
 
         if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
-            throw new RuntimeException('Could not determine proper for ' +
-                    'com.recomdata.transmart.data.export.rScriptDirectory')
+            tsAppRScriptsDir = ctx.getResource('classpath:dataExportRScripts').getFile()
+            if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
+                throw new RuntimeException('Could not determine proper for ' +
+                        'com.recomdata.transmart.data.export.rScriptDirectory')
+            }
         }
         c.com.recomdata.transmart.data.export.rScriptDirectory = tsAppRScriptsDir.canonicalPath
 
         logger.info("com.recomdata.transmart.data.export.rScriptDirectory = " +
                 "${c.com.recomdata.transmart.data.export.rScriptDirectory}")
-        def ctx = grailsApplication.getMainContext()
         def f = ctx.getResource('classpath:Rscripts').getFile()
         c.RModules.pluginScriptDirectory = f.absolutePath
 
