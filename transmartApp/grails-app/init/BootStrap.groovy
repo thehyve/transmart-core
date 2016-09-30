@@ -92,7 +92,10 @@ class BootStrap {
 
         logger.info("com.recomdata.transmart.data.export.rScriptDirectory = " +
                 "${c.com.recomdata.transmart.data.export.rScriptDirectory}")
-        def f = ctx.getResource('classpath:Rscripts').getFile()
+        def f = ctx.getResource('WEB-INF/Rscripts').getFile()
+        if (!f || !f.isDirectory()) {
+            f = ctx.getResource('classpath:Rscripts').getFile()
+        }
         c.RModules.pluginScriptDirectory = f.absolutePath
 
         logger.info("RModules.pluginScriptDirectory = " +
