@@ -1,4 +1,7 @@
 package org.transmartproject.rest
+
+import grails.plugins.Plugin
+
 /*
  * Copyright 2014 Janssen Research & Development, LLC.
  *
@@ -24,14 +27,15 @@ package org.transmartproject.rest
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import org.grails.plugins.web.rest.render.DefaultRendererRegistry
 import org.springframework.aop.scope.ScopedProxyFactoryBean
 import org.springframework.stereotype.Component
+import org.transmartproject.db.ontology.http.BusinessExceptionController
 import org.transmartproject.rest.marshallers.MarshallersRegistrar
 import org.transmartproject.rest.marshallers.TransmartRendererRegistry
 import org.transmartproject.db.http.BusinessExceptionResolver
+import org.transmartproject.rest.misc.HandleAllExceptionsBeanFactoryPostProcessor
 
-class TransmartRestApiGrailsPlugin {
+class TransmartRestApiGrailsPlugin extends Plugin {
     def grailsVersion = "3.1.10 > *"
     def title = "Transmart Rest Api Plugin"
     def author = "Transmart Foundation"
@@ -53,7 +57,7 @@ class TransmartRestApiGrailsPlugin {
 
     def scm = [url: "https://fisheye.ctmmtrait.nl/browse/transmart_rest_api"]
 
-    def doWithSpring = {
+    Closure doWithSpring() {{->
         xmlns context: 'http://www.springframework.org/schema/context'
 
         context.'component-scan'('base-package': 'org.transmartproject.rest') {
@@ -61,6 +65,8 @@ class TransmartRestApiGrailsPlugin {
                     type: 'annotation',
                     expression: Component.canonicalName)
         }
+
+        businessExceptionController(BusinessExceptionController)
 
         studyLoadingServiceProxy(ScopedProxyFactoryBean) {
             targetBeanName = 'studyLoadingService'
@@ -71,16 +77,16 @@ class TransmartRestApiGrailsPlugin {
         }
 
         // override bean
-        rendererRegistry(TransmartRendererRegistry) { bean ->
-            modelSuffix = application.flatConfig.get('grails.scaffolding.templates.domainSuffix') ?: ''
-        }
-
+        rendererRegistry(TransmartRendererRegistry)
 
         businessExceptionResolver(BusinessExceptionResolver)
-    }
 
-    def doWithApplicationContext = { ctx ->
+        handleAllExceptionsBeanFactoryPostProcessor(HandleAllExceptionsBeanFactoryPostProcessor)
+    }}
+
+    @Override
+    void doWithApplicationContext() {
         // Force the bean being initialized
-        ctx.getBean 'marshallersRegistrar'
+        applicationContext.getBean 'marshallersRegistrar'
     }
 }

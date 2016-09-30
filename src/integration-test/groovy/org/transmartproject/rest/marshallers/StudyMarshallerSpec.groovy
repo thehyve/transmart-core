@@ -25,35 +25,31 @@
 
 package org.transmartproject.rest.marshallers
 
-import grails.converters.JSON
-import grails.test.mixin.integration.Integration
-import grails.web.mime.MimeType
 import groovy.json.JsonSlurper
-import org.transmartproject.core.ontology.Study
-import spock.lang.Specification
+import org.springframework.core.io.Resource
+import org.springframework.http.ResponseEntity
 
 import static org.hamcrest.Matchers.*
-import static org.transmartproject.rest.test.StubStudyLoadingService.createStudy
 import static spock.util.matcher.HamcrestSupport.that
 
-@Integration
-class StudyMarshallerTests extends Specification {
+class StudyMarshallerSpec extends MarshallerSpec {
 
-    private static final String STUDY_ID = 'TEST_STUDY'
-    private static final String ONTOLOGY_TERM_NAME = 'test_study'
-    private static final String ONTOLOGY_KEY = '\\\\foo bar\\foo\\test_study\\'
-    private static final String ONTOLOGY_FULL_NAME = '\\foo\\test_study\\'
-
-    Study getMockStudy() {
-        createStudy(STUDY_ID, ONTOLOGY_KEY)
-    }
+    public static final String STUDY_ID = 'STUDY_ID_1'
+    public static final String ONTOLOGY_TERM_NAME = 'study1'
+    public static final String ONTOLOGY_KEY = '\\\\i2b2 main\\foo\\study1\\'
+    public static final String ONTOLOGY_FULL_NAME = '\\foo\\study1\\'
 
     void basicTest() {
         when:
-        def json = mockStudy as JSON
+        def url = "${baseURL}/studies/${STUDY_ID}?key=${ONTOLOGY_KEY}".toString()
+        ResponseEntity<Resource> response = getJson(url)
+        String content = response.body.inputStream.readLines().join('\n')
+        def result = new JsonSlurper().parseText(content)
 
         then:
-        that new JsonSlurper().parseText(json.toString()), allOf(
+        response.statusCode.value() == 200
+        response.headers.getFirst('Content-Type').split(';')[0]  == 'application/json'
+        that result as Map, allOf(
                 hasEntry('id', STUDY_ID),
                 hasEntry(is('ontologyTerm'), allOf(
                         hasEntry('name', ONTOLOGY_TERM_NAME),
@@ -63,16 +59,16 @@ class StudyMarshallerTests extends Specification {
     }
 
     void testHal() {
-        def json = new JSON()
-        json.contentType = MimeType.HAL_JSON.name
-        json.target = mockStudy
-
         when:
-        def stringResult = json.toString()
+        def url = "${baseURL}/studies/${STUDY_ID}?key=${ONTOLOGY_KEY}".toString()
+        ResponseEntity<Resource> response = getHal(url)
+        String content = response.body.inputStream.readLines().join('\n')
+        def result = new JsonSlurper().parseText(content)
 
         then:
-        JsonSlurper slurper = new JsonSlurper()
-        that slurper.parseText(stringResult), allOf(
+        response.statusCode.value() == 200
+        response.headers.getFirst('Content-Type').split(';')[0]  == 'application/hal+json'
+        that result as Map, allOf(
                 hasEntry('id', STUDY_ID),
                 hasEntry(is('_links'),
                         hasEntry(is('self'),

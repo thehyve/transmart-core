@@ -27,19 +27,38 @@ package org.transmartproject.rest
 
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
+import grails.rest.render.RendererRegistry
 import grails.test.mixin.integration.Integration
+import grails.test.runtime.FreshRuntime
+import grails.transaction.Rollback
+import grails.util.Holders
+import groovy.util.logging.Slf4j
 import org.hamcrest.Matcher
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.TestRestTemplate
 import org.springframework.core.io.Resource
 import org.springframework.web.client.RestTemplate
+import org.transmartproject.db.http.BusinessExceptionResolver
+import org.transmartproject.rest.marshallers.TransmartRendererRegistry
+import org.transmartproject.rest.misc.HandleAllExceptionsBeanFactoryPostProcessor
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.mapWith
 
+@FreshRuntime
+@Rollback
 @Integration
+@Slf4j
 abstract class ResourceSpec extends Specification {
+
+    void setup() {
+        Holders.applicationContext.getBeansOfType(RendererRegistry.class).each {
+            log.info "RendererRegistry bean: ${it}"
+        }
+        def rendererRegistry = Holders.applicationContext.getBean('rendererRegistry')
+        assert rendererRegistry.class == TransmartRendererRegistry
+    }
 
     String getBaseURL() { "http://localhost:${serverPort}" }
 
@@ -80,7 +99,7 @@ abstract class ResourceSpec extends Specification {
         )
     }
 
-    Matcher hasLinks(Map<String, String> linkMap) {
+    static Matcher hasLinks(Map<String, String> linkMap) {
         Map expectedLinksMap = linkMap.collectEntries {
             String tempUrl = "${it.value}"
             [(it.key): ([href: tempUrl])]

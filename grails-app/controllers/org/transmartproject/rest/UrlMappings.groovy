@@ -1,3 +1,4 @@
+package org.transmartproject.rest
 /*
  * Copyright 2014 Janssen Research & Development, LLC.
  *
@@ -24,8 +25,12 @@
  */
 
 class UrlMappings {
-    /* This empty mappings file seems to be required when inlining core-db
-     * plugins. Otherwise we get:
-     * Class not found loading Grails application: UrlMappings */
-    static mappings = { }
+
+    static mappings = {
+        "/$controller/$action?/$id?(.$format)?"{
+            constraints {
+                // apply constraints here
+            }
+        }
+    }
 }
