@@ -38,11 +38,13 @@ import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.users.User
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.misc.CurrentUser
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import static spock.util.matcher.HamcrestSupport.that
 import static org.hamcrest.Matchers.*
 
+@Ignore
 @Integration
 @Rollback
 class StudyLoadingServiceSpec extends Specification {

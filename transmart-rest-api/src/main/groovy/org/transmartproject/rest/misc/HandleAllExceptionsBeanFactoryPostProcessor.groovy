@@ -1,11 +1,12 @@
+package org.transmartproject.rest.misc
+
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 
-beans = {
-    handleAllExceptionsBeanFactoryPostProcessor(HandleAllExceptionsBeanFactoryPostProcessor)
-}
-
+/**
+ * Created by gijs on 30/09/16.
+ */
 class HandleAllExceptionsBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
     @Override
