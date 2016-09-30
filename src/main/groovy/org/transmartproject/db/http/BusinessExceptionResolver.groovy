@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.http
 
+import grails.util.Holders
 import grails.web.mapping.UrlMappingData
 import grails.web.mapping.UrlMappingInfo
 import org.apache.log4j.Logger
@@ -84,7 +85,8 @@ class BusinessExceptionResolver implements ServletContextAware,
 
         def exceptionPlusStatus = null
         def e = ex
-        while (!exceptionPlusStatus && e) {
+        def x = e
+        while (!exceptionPlusStatus && x) {
             exceptionPlusStatus = statusCodeMappings.findResult {
                 if (it.key.isAssignableFrom(e.getClass())) {
                     return [
@@ -94,7 +96,10 @@ class BusinessExceptionResolver implements ServletContextAware,
                 }
             }
 
-            e = resolveCause(e)
+            x = resolveCause(e)
+            if (x) {
+                e = x
+            }
         }
 
         if (!exceptionPlusStatus && handleAll) {
@@ -120,7 +125,7 @@ class BusinessExceptionResolver implements ServletContextAware,
                     (String) null, /* version */
                     [:],           /* params */
                     (UrlMappingData) null,
-                    servletContext)
+                    Holders.grailsApplication)
 
             UrlMappingUtils.forwardRequestForUrlMappingInfo(
                     request, response, info, model, true)
