@@ -63,6 +63,8 @@ class StubStudyLoadingService extends StudyLoadingService {
 
     static StudyAccess createStudyAccess(String studyId, String key, Map accessibleByUser) {
         def study = [
+                getStudy: { ->
+                    [
                     getId          : { -> studyId },
                     getOntologyTerm: { ->
                         [
