@@ -37,8 +37,6 @@ class ObservationFact implements Serializable {
     String     valueFlag
     String     sourcesystemCd
 
-
-    // these are not used, but we need them because they're not nullable
     BigDecimal encounterNum
     String     providerId
     Date       startDate
@@ -59,12 +57,14 @@ class ObservationFact implements Serializable {
 
     static belongsTo = [
             patient: PatientDimension,
+            trialVisit: TrialVisit,
     ]
 
     static mapping = {
         table        name: 'observation_fact', schema: 'I2B2DEMODATA'
 
-        id           composite: ['encounterNum', 'patient', 'conceptCode', 'providerId', 'startDate', 'modifierCd']
+        id           composite: ['encounterNum', 'patient', 'conceptCode', 'providerId', 'startDate', 'modifierCd',
+                                 'instanceNum']
 
         conceptCode  column: 'concept_cd'
         patient      column: 'patient_num'
