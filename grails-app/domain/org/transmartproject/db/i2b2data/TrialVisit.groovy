@@ -4,7 +4,7 @@ class TrialVisit {
 
     long id
     String relTimeUnit
-    int relTime
+    Integer relTime
     String relTimeLabel
 
 
@@ -13,5 +13,9 @@ class TrialVisit {
         relTimeUnit     nullable: true
         relTime         nullable: true
         relTimeLabel    nullable: true
+    }
+
+    static belongsTo = {
+        study: Study
     }
 }
