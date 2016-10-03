@@ -28,6 +28,7 @@ package org.transmartproject.rest.test
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.ontology.StudyAccess
 import org.transmartproject.rest.StudyLoadingService
 
 class StubStudyLoadingService extends StudyLoadingService {
@@ -57,6 +58,33 @@ class StubStudyLoadingService extends StudyLoadingService {
                     ] as OntologyTerm
                 }
         ] as Study
+    }
+
+    static StudyAccess createStudyAccess(String studyId, String key, Map accessibility) {
+        def studyAccess
+        studyAccess = [
+                getStudy: { ->
+                    [
+                    getId          : { -> studyId },
+                    getOntologyTerm: { ->
+                        [
+                                getName            : { -> getComponents(key, -1) },
+                                getFullName        : { -> '\\' + getComponents(key, 3, -1) + '\\' },
+                                getKey             : { -> key },
+                                getVisualAttributes: { -> EnumSet.of(VisualAttributes.STUDY) },
+                                getStudy           : { -> createStudy(studyId, key) },
+                                getChildren        : { -> [] },
+                                getLevel           : { -> 0 }, //just to make sure we have no parent
+                                //getLevel: { -> key.split('\\\\').length },
+                                getPatientCount    : { -> 0 }
+                        ] as OntologyTerm
+                    },
+                    ] as Study
+                },
+                getAccessibility: { -> accessibility
+                }
+        ] as StudyAccess
+        studyAccess
     }
 
     private static String getComponents(String key, int a, int b = a) {

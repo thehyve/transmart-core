@@ -33,6 +33,10 @@ import javax.annotation.Resource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
+import org.transmartproject.db.ontology.StudyAccessImpl
+
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.API_READ
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.EXPORT
 
 class StudyController {
 
@@ -45,7 +49,23 @@ class StudyController {
      *  This will return the list of studies, where each study will be rendered in its short format
     */
     def index() {
-        respond wrapStudies(studiesResourceService.studySet)
+        def studiesAccess = []
+        def studies = studiesResourceService.studySet
+        //Checks to which studies the user has access.
+        studies.each { study ->
+            boolean accessView = currentUser.canPerform(API_READ, study)
+            boolean accessExport = currentUser.canPerform(EXPORT, study)
+            //Possibility of adding more access types.
+            Map accessibility = [
+                    accessView:accessView,
+                    accessExport:accessExport]
+            StudyAccessImpl studyAccessImpl= new StudyAccessImpl(
+                    accessibility:accessibility,
+                    study:study)
+            studiesAccess.add(studyAccessImpl)
+        }
+        def studiesAccessWrapped =  wrapStudies(studiesAccess)
+        respond studiesAccessWrapped
     }
 
     /** GET request on /v1/studies/${id}
@@ -54,7 +74,19 @@ class StudyController {
      *  @param name the name of the study
      */
     def show(String id) {
-        respond studiesResourceService.getStudyById(id)
+        def studyImpl =  studiesResourceService.getStudyById(id)
+        //Check if the user has access to the specific study.
+        boolean accessView = currentUser.canPerform(API_READ, studyImpl)
+        boolean accessExport = currentUser.canPerform(EXPORT, studyImpl)
+        //Possibility of adding more access types.
+        Map accessibility = [
+                accessView:accessView,
+                accessExport:accessExport]
+        StudyAccessImpl studyAccessImpl = new StudyAccessImpl(
+                accessibility:accessibility,
+                study:studyImpl,
+                )
+        respond studyAccessImpl
     }
     
     private wrapStudies(Object source) {
