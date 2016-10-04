@@ -30,7 +30,7 @@ before_install:
   - echo deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main  | sudo tee /etc/apt/sources.list.d/ondrej_php5.list
   - sudo apt-get -qq update
   - apt-cache search php
-  - sudo apt-get install -y tk-dev php5-cli php5-json
+  - sudo apt-get install -y tk-dev php5-cli php5-json html2text
   - php --version
   - echo $DIR; cd $DIR
   - PWD=`pwd`
@@ -50,8 +50,12 @@ before_script:
 
 script:
   - echo $DIR; cd $DIR
-  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; gradle --stacktrace $TEST)
+  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; gradle $TEST)
   - cd -
+
+after_failure:
+  - echo "Writing reports..."
+  - for f in $DIR/build/reports/tests/classes/*.html; do echo $f; html2text $f; done
 
 notifications:
   hipchat:
