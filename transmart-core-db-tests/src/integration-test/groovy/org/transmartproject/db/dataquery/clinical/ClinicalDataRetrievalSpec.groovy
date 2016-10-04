@@ -36,6 +36,7 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
+import org.transmartproject.db.i2b2data.TrialVisit
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
@@ -91,6 +92,11 @@ class ClinicalDataRetrievalSpec extends Specification {
     }
 
     void setupData() {
+        def trialVisit = TrialVisit.first()
+        if (!trialVisit) {
+            trialVisit = ClinicalData.createTrialVisit()
+            trialVisit.save()
+        }
         testData = createTestData()
         testData.saveAll()
         sessionFactory.currentSession.flush()

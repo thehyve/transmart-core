@@ -18,4 +18,7 @@ class TrialVisit {
     static belongsTo = {
         study: Study
     }
+    static mapping = {
+        table schema: 'I2B2DEMODATA'
+    }
 }

@@ -25,8 +25,12 @@ import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.i2b2data.TrialVisit
+import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
+
+import java.util.concurrent.TimeUnit
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
@@ -110,10 +114,26 @@ class ClinicalTestData {
         }
     }
 
+    static TrialVisit createTrialVisit()
+    {
+        def study = new Study(
+                name: "study_name"
+        )
+
+        def tv = new TrialVisit(
+                relTimeUnit: TimeUnit.DAYS,
+                relTime: 3,
+                relTimeLabel: 'label',
+                study: study
+        )
+        tv
+    }
+
     static ObservationFact createObservationFact(ConceptDimension concept,
                                                  PatientDimension patient,
                                                  Long encounterId,
                                                  Object value) {
+
         createObservationFact(concept.conceptCode, patient, encounterId, value)
     }
 
@@ -121,6 +141,8 @@ class ClinicalTestData {
                                                  PatientDimension patient,
                                                  Long encounterId,
                                                  Object value) {
+        def trialVisit = TrialVisit.first()
+
         def of = new ObservationFact(
                 encounterNum: encounterId as BigDecimal,
                 providerId: 'fakeProviderId',
@@ -129,7 +151,9 @@ class ClinicalTestData {
                 conceptCode: conceptCode,
                 startDate: new Date(),
                 sourcesystemCd: patient.trial,
-                instanceNum: 0)
+                instanceNum: 0,
+                trialVisit: trialVisit
+        )
 
         if (value instanceof Number) {
             of.valueType = ObservationFact.TYPE_NUMBER
@@ -154,7 +178,7 @@ class ClinicalTestData {
 
         list1 + [
                 // missing fact for patients[0]
-                createObservationFact(concepts[2], patients[1], --encounterNum, ''), //empty value
+                createObservationFact(concepts[2], patients[1], --encounterNum, '', ), //empty value
                 createObservationFact(concepts[2], patients[2], --encounterNum, -45.42) //numeric value
         ]
     }
