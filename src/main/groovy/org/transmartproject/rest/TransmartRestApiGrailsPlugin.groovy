@@ -28,6 +28,8 @@ import grails.plugins.Plugin
  */
 
 import org.springframework.aop.scope.ScopedProxyFactoryBean
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component
 import org.transmartproject.db.ontology.http.BusinessExceptionController
 import org.transmartproject.rest.marshallers.MarshallersRegistrar
@@ -57,7 +59,8 @@ class TransmartRestApiGrailsPlugin extends Plugin {
 
     def scm = [url: "https://fisheye.ctmmtrait.nl/browse/transmart_rest_api"]
 
-    Closure doWithSpring() {{->
+    @Override
+    Closure doWithSpring() {{ ->
         xmlns context: 'http://www.springframework.org/schema/context'
 
         context.'component-scan'('base-package': 'org.transmartproject.rest') {
@@ -66,8 +69,6 @@ class TransmartRestApiGrailsPlugin extends Plugin {
                     expression: Component.canonicalName)
         }
 
-        businessExceptionController(BusinessExceptionController)
-
         studyLoadingServiceProxy(ScopedProxyFactoryBean) {
             targetBeanName = 'studyLoadingService'
         }
@@ -75,9 +76,9 @@ class TransmartRestApiGrailsPlugin extends Plugin {
         marshallersRegistrar(MarshallersRegistrar) {
             packageName = 'org.transmartproject.rest.marshallers'
         }
-
-        // override bean
         rendererRegistry(TransmartRendererRegistry)
+
+        businessExceptionController(BusinessExceptionController)
 
         businessExceptionResolver(BusinessExceptionResolver)
 
