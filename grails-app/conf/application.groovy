@@ -141,7 +141,7 @@ dataSource {
     username        = 'sa'
     password        = ''
     dbCreate        = 'update'
-    logSql          = true
+    logSql          = false
     formatSql       = true
 }
 
