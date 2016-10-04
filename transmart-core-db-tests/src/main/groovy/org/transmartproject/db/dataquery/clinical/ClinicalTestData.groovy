@@ -45,6 +45,9 @@ class ClinicalTestData {
     @Lazy
     QtQueryMaster patientsQueryMaster = createQueryResult patients
 
+    @Lazy
+    static volatile private TrialVisit defaultTrialVisit = createTrialVisit()
+
     QueryResult getQueryResult() {
         getQueryResultFromMaster patientsQueryMaster
     }
@@ -141,8 +144,6 @@ class ClinicalTestData {
                                                  PatientDimension patient,
                                                  Long encounterId,
                                                  Object value) {
-        def trialVisit = TrialVisit.first()
-
         def of = new ObservationFact(
                 encounterNum: encounterId as BigDecimal,
                 providerId: 'fakeProviderId',
@@ -152,7 +153,7 @@ class ClinicalTestData {
                 startDate: new Date(),
                 sourcesystemCd: patient.trial,
                 instanceNum: 0,
-                trialVisit: trialVisit
+                trialVisit: defaultTrialVisit
         )
 
         if (value instanceof Number) {
