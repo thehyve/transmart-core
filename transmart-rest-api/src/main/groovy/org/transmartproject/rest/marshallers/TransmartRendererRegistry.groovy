@@ -12,7 +12,7 @@ class TransmartRendererRegistry extends DefaultRendererRegistry {
 
     @Override
     void initialize() {
-        modelSuffix = Holders.config.getAt('grails.scaffolding.templates.domainSuffix') ?: ''
+        this.modelSuffix = "${Holders.config.grails.scaffolding.templates.domainSuffix ?: ''}"
         super.initialize()
     }
 
