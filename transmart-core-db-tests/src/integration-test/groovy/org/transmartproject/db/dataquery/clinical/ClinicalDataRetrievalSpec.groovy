@@ -92,11 +92,6 @@ class ClinicalDataRetrievalSpec extends Specification {
     }
 
     void setupData() {
-        def trialVisit = TrialVisit.first()
-        if (!trialVisit) {
-            trialVisit = ClinicalData.createTrialVisit()
-            trialVisit.save()
-        }
         testData = createTestData()
         testData.saveAll()
         sessionFactory.currentSession.flush()
