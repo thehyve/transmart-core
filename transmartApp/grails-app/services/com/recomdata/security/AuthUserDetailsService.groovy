@@ -80,8 +80,7 @@ class AuthUserDetailsService implements GrailsUserDetailsService {
 
         if (!user) {
             log.warn "User not found with $property = $value"
-            throw new UsernameNotFoundException("User not found",
-                    "$property = $value")
+            throw new UsernameNotFoundException("User not found")
         }
 
         if (loadRoles) {
