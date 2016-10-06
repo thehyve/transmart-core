@@ -5,6 +5,7 @@ import groovy.transform.TupleConstructor
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.db.i2b2data.ObservationFact
 
 import static org.transmartproject.db.dataquery2.Dimension.Size.*
 import static org.transmartproject.db.dataquery2.Dimension.Density.*
@@ -18,11 +19,13 @@ class QueryResource {
         def pack = args.pack
         def preloadDimensions = args.pack ?: false
 
-        //...
+        ObservationFact.executeQuery()
 
     }
 
 }
+
+
 
 class Hypercube {
     IterableResult<ClinicalValue> getValues() {
