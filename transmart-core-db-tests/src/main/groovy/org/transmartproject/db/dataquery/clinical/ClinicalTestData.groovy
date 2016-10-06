@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.clinical
 
+import com.google.common.collect.ImmutableSet
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.TestDataHelper
@@ -125,7 +126,9 @@ class ClinicalTestData {
                 relTimeUnit: relTimeUnit,
                 relTime: relTime,
                 relTimeLabel: studyLabel,
+                study: study,
         )
+        study.addToTrialVisits(tv)
         tv
     }
 
@@ -162,8 +165,10 @@ class ClinicalTestData {
                 startDate: new Date(),
                 sourcesystemCd: patient.trial,
                 instanceNum: instanceNum,
-                trialVisit: trialVisit
+                trialVisit: trialVisit,
         )
+
+        trialVisit.addToObservationFacts(of)
 
         if (value instanceof Number) {
             of.valueType = ObservationFact.TYPE_NUMBER
@@ -202,7 +207,7 @@ class ClinicalTestData {
 
     void saveAll() {
         TestDataHelper.save([patientsQueryMaster])
-        TestDataHelper.save facts
+        TestDataHelper.save ImmutableSet.copyOf(facts*.trialVisit*.study)
     }
 
 }

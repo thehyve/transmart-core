@@ -19,6 +19,8 @@
 
 package org.transmartproject.db
 
+import grails.util.Pair
+
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.everyItem
 import static org.hamcrest.Matchers.isA
@@ -33,19 +35,19 @@ class TestDataHelper {
         props.findAll({ !it.getProperty(obj) }).collect({ it.name })
     }
 
-    static void save(List objects) {
+    static void save(Collection objects) {
         if (objects == null) {
             return //shortcut for no objects to save
         }
 
-        List result = objects*.save()
-        result.eachWithIndex { def entry, int i ->
-            if (entry == null) {
-                throw new RuntimeException("Could not save ${objects[i]}. Errors: ${objects[i]?.errors}")
+        List<Pair> result = objects.collect { new Pair(it.save(), it) }
+        result.each {
+            if (it.aValue == null) {
+                throw new RuntimeException("Could not save ${it.bValue}. Errors: ${it.bValue?.errors}")
             }
         }
 
-        assertThat result, everyItem(isA(objects[0].getClass()))
+        assertThat result.collect { it.aValue }, everyItem(isA(result[0].bValue.getClass()))
     }
 
 }
