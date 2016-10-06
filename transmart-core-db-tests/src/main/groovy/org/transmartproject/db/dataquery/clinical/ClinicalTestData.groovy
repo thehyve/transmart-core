@@ -38,15 +38,16 @@ import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFr
 
 class ClinicalTestData {
 
-    public static final long DUMMY_ENCOUNTER_ID = -300L
+    public static final long DUMMY_ENCOUNTER_ID = -1
     List<Patient> patients
     List<ObservationFact> facts
+    List<ObservationFact> multipleTrialVisitsFacts
 
     @Lazy
     QtQueryMaster patientsQueryMaster = createQueryResult patients
 
     @Lazy
-    static volatile private TrialVisit defaultTrialVisit = createTrialVisit()
+    static volatile private TrialVisit defaultTrialVisit = createTrialVisit(TimeUnit.DAYS, 3, 'label')
 
     QueryResult getQueryResult() {
         getQueryResultFromMaster patientsQueryMaster
@@ -117,20 +118,20 @@ class ClinicalTestData {
         }
     }
 
-    static TrialVisit createTrialVisit()
-    {
+    static TrialVisit createTrialVisit(TimeUnit relTimeUnit, int relTime, String studyLabel) {
         def study = new Study(
                 name: "study_name"
         )
 
         def tv = new TrialVisit(
-                relTimeUnit: TimeUnit.DAYS,
-                relTime: 3,
-                relTimeLabel: 'label',
+                relTimeUnit: relTimeUnit,
+                relTime: relTime,
+                relTimeLabel: studyLabel,
                 study: study
         )
         tv
     }
+
 
     static ObservationFact createObservationFact(ConceptDimension concept,
                                                  PatientDimension patient,
@@ -140,10 +141,21 @@ class ClinicalTestData {
         createObservationFact(concept.conceptCode, patient, encounterId, value)
     }
 
+    static ObservationFact createObservationFact(String concept,
+                                                 PatientDimension patient,
+                                                 Long encounterId,
+                                                 Object value){
+        def defaultInstanceNum = 1
+        createObservationFact(concept, patient, encounterId, value, defaultInstanceNum, defaultTrialVisit)
+
+    }
+
     static ObservationFact createObservationFact(String conceptCode,
                                                  PatientDimension patient,
                                                  Long encounterId,
-                                                 Object value) {
+                                                 Object value,
+                                                 int instanceNum,
+                                                 TrialVisit trialVisit) {
         def of = new ObservationFact(
                 encounterNum: encounterId as BigDecimal,
                 providerId: 'fakeProviderId',
@@ -152,8 +164,8 @@ class ClinicalTestData {
                 conceptCode: conceptCode,
                 startDate: new Date(),
                 sourcesystemCd: patient.trial,
-                instanceNum: 0,
-                trialVisit: defaultTrialVisit
+                instanceNum: instanceNum,
+                trialVisit: trialVisit
         )
 
         if (value instanceof Number) {
@@ -179,9 +191,16 @@ class ClinicalTestData {
 
         list1 + [
                 // missing fact for patients[0]
-                createObservationFact(concepts[2], patients[1], --encounterNum, '', ), //empty value
+                createObservationFact(concepts[2], patients[1], --encounterNum, '',), //empty value
                 createObservationFact(concepts[2], patients[2], --encounterNum, -45.42) //numeric value
         ]
+    }
+
+    static List<ObservationFact> createMultipleTrialVisitsFacts(List<ConceptDimension> concepts, List<Patient> patients){
+
+        def list =[]
+        list << [createObservationFact(concepts[0].conceptCode, patients[1], DUMMY_ENCOUNTER_ID, -45.42, 1, createTrialVisit(TimeUnit.DAYS, 2, 'label_1')),
+                 createObservationFact(concepts[2].conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 2, createTrialVisit(TimeUnit.DAYS, 4, 'label_2'))]
     }
 
     void saveAll() {

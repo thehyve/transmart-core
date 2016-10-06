@@ -36,7 +36,6 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
-import org.transmartproject.db.i2b2data.TrialVisit
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
@@ -82,11 +81,13 @@ class ClinicalDataRetrievalSpec extends Specification {
 
         def facts = ClinicalTestData.createFacts(conceptDims, patients)
 
+        def multiFacts = ClinicalTestData.createMultipleTrialVisitsFacts(conceptDims, patients)
+
         def conceptData = new ConceptTestData(tableAccesses: [tableAccess], i2b2List: i2b2List, conceptDimensions: conceptDims)
 
         def i2b2Data = new I2b2Data(trialName: 'TEST', patients: patients)
 
-        def clinicalData = new ClinicalTestData(patients: patients, facts: facts)
+        def clinicalData = new ClinicalTestData(patients: patients, facts: facts, multipleTrialVisitsFacts: multiFacts)
 
         new TestData(conceptData: conceptData, i2b2Data: i2b2Data, clinicalData: clinicalData)
     }

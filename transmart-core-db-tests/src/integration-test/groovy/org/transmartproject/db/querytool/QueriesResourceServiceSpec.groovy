@@ -53,7 +53,7 @@ class QueriesResourceServiceSpec extends Specification {
                                     String conceptCd,
                                     BigDecimal patientNum) {
         def commonProperties = [
-                encounterNum: 1,
+                encounterNum: -1,
                 providerId  : 1,
                 startDate   : new Date(),
                 modifierCd  : '@',

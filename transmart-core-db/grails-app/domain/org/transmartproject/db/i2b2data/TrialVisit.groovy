@@ -15,9 +15,14 @@ class TrialVisit {
         relTimeLabel    nullable: true
     }
 
-    static belongsTo = {
+    static belongsTo = [
         study: Study
+    ]
+
+    static hasMany = {
+        observationFact: ObservationFact
     }
+
     static mapping = {
         table schema: 'I2B2DEMODATA'
         id            generator: 'assigned', column: 'id', type: Long
