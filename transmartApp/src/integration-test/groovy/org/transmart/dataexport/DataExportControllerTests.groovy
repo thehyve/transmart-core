@@ -3,6 +3,8 @@ package org.transmart.dataexport
 import com.recomdata.transmart.data.export.DataExportController
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import org.gmock.WithGMock
 import org.hibernate.SessionFactory
@@ -16,7 +18,6 @@ import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.PatientTrialCoreDb
 import org.transmartproject.db.querytool.QueryResultData
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 import org.transmartproject.db.user.AccessLevelTestData
 
 import static groovy.util.GroovyAssert.shouldFail
@@ -25,7 +26,8 @@ import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.i2b2data.I2b2Data.createPatientTrialLinks
 import static org.transmartproject.db.i2b2data.I2b2Data.createTestPatients
 
-@TestMixin(RuleBasedIntegrationTestMixin)
+@Integration
+@Rollback
 @WithGMock
 class DataExportControllerTests {
 

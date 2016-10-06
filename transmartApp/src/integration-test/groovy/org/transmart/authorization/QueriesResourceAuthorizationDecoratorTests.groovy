@@ -1,7 +1,8 @@
 package org.transmart.authorization
 
 import grails.plugin.springsecurity.SpringSecurityService
-import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import grails.util.GrailsWebUtil
 import org.junit.Before
 import org.junit.Test
@@ -11,7 +12,6 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 import org.transmartproject.db.user.AccessLevelTestData
 
 import static groovy.util.GroovyAssert.shouldFail
@@ -22,7 +22,8 @@ import static org.transmart.authorization.QueriesResourceAuthorizationDecorator.
 /**
  * Created by glopes on 3/31/14.
  */
-@TestMixin(RuleBasedIntegrationTestMixin)
+@Integration
+@Rollback
 class QueriesResourceAuthorizationDecoratorTests {
 
     AccessLevelTestData accessLevelTestData = AccessLevelTestData.createDefault()

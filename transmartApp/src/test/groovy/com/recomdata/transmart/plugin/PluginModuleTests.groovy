@@ -1,15 +1,8 @@
 package com.recomdata.transmart.plugin
 
-import grails.test.GrailsUnitTestCase
+import spock.lang.Specification
 
-class PluginModuleTests extends GrailsUnitTestCase {
-    protected void setUp() {
-        super.setUp()
-    }
-
-    protected void tearDown() {
-        super.tearDown()
-    }
+class PluginModuleTests extends Specification {
 
     void testCRUD() {
         def pluginModule = new PluginModule()
