@@ -6,7 +6,7 @@ class TrialVisit {
     String relTimeUnit
     Integer relTime
     String relTimeLabel
-
+    Study study
 
 
     static constraints = {
@@ -15,13 +15,9 @@ class TrialVisit {
         relTimeLabel    nullable: true
     }
 
-    static belongsTo = [
-        study: Study
+    static hasMany = [
+        observationFacts: ObservationFact
     ]
-
-    static hasMany = {
-        observationFact: ObservationFact
-    }
 
     static mapping = {
         table schema: 'I2B2DEMODATA'

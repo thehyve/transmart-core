@@ -9,9 +9,9 @@ class Study {
     static constraints = {
     }
 
-    static hasMany = {
-        trialVisit: TrialVisit
-    }
+    static hasMany = [
+        trialVisits: TrialVisit
+    ]
 
     static mapping = {
         table schema: 'I2B2DEMODATA'
