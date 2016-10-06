@@ -30,8 +30,6 @@ import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
 
-import java.util.concurrent.TimeUnit
-
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
@@ -47,7 +45,7 @@ class ClinicalTestData {
     QtQueryMaster patientsQueryMaster = createQueryResult patients
 
     @Lazy
-    static volatile private TrialVisit defaultTrialVisit = createTrialVisit(TimeUnit.DAYS, 3, 'label')
+    static volatile private TrialVisit defaultTrialVisit = createTrialVisit("days", 3, 'label')
 
     QueryResult getQueryResult() {
         getQueryResultFromMaster patientsQueryMaster
@@ -118,7 +116,7 @@ class ClinicalTestData {
         }
     }
 
-    static TrialVisit createTrialVisit(TimeUnit relTimeUnit, int relTime, String studyLabel) {
+    static TrialVisit createTrialVisit(String relTimeUnit, int relTime, String studyLabel) {
         def study = new Study(
                 name: "study_name"
         )
@@ -127,7 +125,6 @@ class ClinicalTestData {
                 relTimeUnit: relTimeUnit,
                 relTime: relTime,
                 relTimeLabel: studyLabel,
-                study: study
         )
         tv
     }
@@ -199,8 +196,8 @@ class ClinicalTestData {
     static List<ObservationFact> createMultipleTrialVisitsFacts(List<ConceptDimension> concepts, List<Patient> patients){
 
         def list =[]
-        list << [createObservationFact(concepts[0].conceptCode, patients[1], DUMMY_ENCOUNTER_ID, -45.42, 1, createTrialVisit(TimeUnit.DAYS, 2, 'label_1')),
-                 createObservationFact(concepts[2].conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 2, createTrialVisit(TimeUnit.DAYS, 4, 'label_2'))]
+        list << [createObservationFact(concepts[0].conceptCode, patients[1], DUMMY_ENCOUNTER_ID, -45.42, 1, createTrialVisit("days", 2, 'label_1')),
+                 createObservationFact(concepts[2].conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 2, createTrialVisit("days", 4, 'label_2'))]
     }
 
     void saveAll() {

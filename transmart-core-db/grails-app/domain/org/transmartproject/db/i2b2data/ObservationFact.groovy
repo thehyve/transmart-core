@@ -57,7 +57,7 @@ class ObservationFact implements Serializable {
 
     static belongsTo = [
             patient: PatientDimension,
-            trialVisit: TrialVisit,
+            //trialVisit: TrialVisit,
     ]
 
     static mapping = {

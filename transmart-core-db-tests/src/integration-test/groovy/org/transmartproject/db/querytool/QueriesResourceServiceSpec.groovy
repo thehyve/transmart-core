@@ -33,8 +33,6 @@ import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 
-import java.util.concurrent.TimeUnit
-
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
 import static org.transmartproject.core.querytool.ConstraintByValue.ValueType.FLAG
@@ -115,9 +113,8 @@ class QueriesResourceServiceSpec extends Specification {
         )
 
         def trialVisit = new TrialVisit(
-                relTimeUnit: TimeUnit.DAYS,
+                relTimeUnit: "days",
                 relTime: 3,
-                relTimeLabel: 'label',
                 study: study
         )
 
