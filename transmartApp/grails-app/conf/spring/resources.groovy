@@ -1,5 +1,7 @@
 import com.google.common.collect.ImmutableMap
 import com.recomdata.security.ActiveDirectoryLdapAuthenticationExtension
+import com.recomdata.security.CustomGormAuthorizationCodeService
+import com.recomdata.security.CustomGormClientDetailsService
 import grails.plugin.springsecurity.SpringSecurityUtils
 import com.recomdata.extensions.ExtensionsRegistry
 import org.apache.log4j.Logger
@@ -121,6 +123,16 @@ beans = {
 
     //overrides bean implementing GormUserDetailsService?
     userDetailsService(com.recomdata.security.AuthUserDetailsService)
+
+    gormClientDetailsService(CustomGormClientDetailsService) {
+        grailsApplication = ref('grailsApplication')
+        clientAdditionalInformationSerializer = ref('clientAdditionalInformationSerializer')
+    }
+
+    gormAuthorizationCodeService(CustomGormAuthorizationCodeService) {
+        grailsApplication = ref('grailsApplication')
+        oauth2AuthenticationSerializer = ref('oauth2AuthenticationSerializer')
+    }
 
     marshallerRegistrarService(MarshallerRegistrarService)
 
