@@ -8,6 +8,11 @@ class Study {
 
     static constraints = {
     }
+
+    static hasMany = {
+        trialVisit: TrialVisit
+    }
+
     static mapping = {
         table schema: 'I2B2DEMODATA'
         id    generator: 'assigned', column: 'id', type: Long
