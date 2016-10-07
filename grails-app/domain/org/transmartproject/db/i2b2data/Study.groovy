@@ -15,7 +15,7 @@ class Study {
 
     static mapping = {
         table schema: 'I2B2DEMODATA'
-        id    generator: 'assigned', column: 'id', type: Long
+        id    name:   'id', generator: 'assigned'
 
     }
 }
