@@ -14,6 +14,7 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy
 import org.springframework.security.web.session.ConcurrentSessionFilter
+import org.springframework.web.util.IntrospectorCleanupListener
 import org.transmart.authorization.CurrentUserBeanFactoryBean
 import org.transmart.authorization.CurrentUserBeanProxyFactory
 import org.transmart.authorization.QueriesResourceAuthorizationDecorator
@@ -207,5 +208,7 @@ beans = {
 
     transmartExtensionsRegistry(ExtensionsRegistry) {
     }
+
+    introspectorCleanupListener(IntrospectorCleanupListener)
 
 }
