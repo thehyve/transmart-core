@@ -14,11 +14,11 @@
                 <li><a href="#">Environment: ${grails.util.Environment.current.name}</a></li>
                 <li><a href="#">App profile: ${grailsApplication.config.grails?.profile}</a></li>
                 <li><a href="#">App version:
-                    <g:meta name="info.app.version"/></a>
+                    <g:meta name="${grails.util.Metadata.APPLICATION_VERSION}"/></a>
                 </li>
                 <li role="separator" class="divider"></li>
                 <li><a href="#">Grails version:
-                    <g:meta name="info.app.grailsVersion"/></a>
+                    <g:meta name="${grails.util.Metadata.APPLICATION_GRAILS_VERSION}"/></a>
                 </li>
                 <li><a href="#">Groovy version: ${GroovySystem.getVersion()}</a></li>
                 <li><a href="#">JVM version: ${System.getProperty('java.version')}</a></li>
