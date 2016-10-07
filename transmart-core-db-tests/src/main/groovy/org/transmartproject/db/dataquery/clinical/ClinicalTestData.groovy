@@ -128,7 +128,6 @@ class ClinicalTestData {
                 relTimeLabel: studyLabel,
                 study: study,
         )
-        study.addToTrialVisits(tv)
         tv
     }
 
@@ -168,8 +167,6 @@ class ClinicalTestData {
                 trialVisit: trialVisit,
         )
 
-        trialVisit.addToObservationFacts(of)
-
         if (value instanceof Number) {
             of.valueType = ObservationFact.TYPE_NUMBER
             of.textValue = 'E' //equal to
@@ -201,13 +198,12 @@ class ClinicalTestData {
     static List<ObservationFact> createMultipleTrialVisitsFacts(List<ConceptDimension> concepts, List<Patient> patients){
 
         def list =[]
-        list << [createObservationFact(concepts[0].conceptCode, patients[1], DUMMY_ENCOUNTER_ID, -45.42, 1, createTrialVisit("days", 2, 'label_1')),
-                 createObservationFact(concepts[2].conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 2, createTrialVisit("days", 4, 'label_2'))]
+        list << [createObservationFact(concepts[0].conceptCode, patients[1], DUMMY_ENCOUNTER_ID, -45.42, 1, createTrialVisit('days', 2, 'label_1')),
+                 createObservationFact(concepts[2].conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 2, createTrialVisit('weeks', 4, 'label_2'))]
     }
 
     void saveAll() {
         TestDataHelper.save([patientsQueryMaster])
-        TestDataHelper.save ImmutableSet.copyOf(facts*.trialVisit*.study)
+        TestDataHelper.save facts
     }
-
 }

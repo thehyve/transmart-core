@@ -43,7 +43,7 @@ class ObservationFact implements Serializable {
     String     modifierCd
     Long       instanceNum
 
-    TrialVisit trialVisit
+    //TrialVisit trialVisit
 
     // unsed for now
     //BigDecimal quantityNum
@@ -59,7 +59,7 @@ class ObservationFact implements Serializable {
 
     static belongsTo = [
             patient: PatientDimension,
-            //trialVisit: TrialVisit,
+            trialVisit: TrialVisit,
     ]
 
     static mapping = {
@@ -74,6 +74,7 @@ class ObservationFact implements Serializable {
         textValue    column: 'tval_char'
         numberValue  column: 'nval_num'
         valueFlag    column: 'valueflag_cd'
+        trialVisit   cascade: 'save-update'
 
         version false
     }
