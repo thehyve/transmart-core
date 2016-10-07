@@ -59,14 +59,14 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         def crit = TrialVisit.where {
             study {
-                name in [thename]
+                studyId in [thename]
             }
         }
         crit = ObservationFact.createCriteria()
         def res  = crit.where {
             trialVisit {
                 study {
-                    name in [thename]
+                    studyId in [thename]
                 }
             }
         }.scroll()

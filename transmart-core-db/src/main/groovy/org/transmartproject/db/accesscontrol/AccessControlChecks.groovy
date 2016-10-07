@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.accesscontrol
 
+import grails.gorm.DetachedCriteria
 import groovy.util.logging.Slf4j
 import org.hibernate.Session
 import org.hibernate.SessionFactory
@@ -178,6 +179,26 @@ class AccessControlChecks {
             studySOTMap[study] == PUBLIC_SOT ||
                     studySOTMap[study] in userGrantedSOTs
         }
+    }
+
+    /* Study is included if the user has ANY kind of access */
+    Collection<org.transmartproject.db.i2b2data.Study> getDimensionStudiesForUser(User user) {
+        if (user.admin) {
+            return org.transmartproject.db.i2b2data.Study.findAll()
+        }
+
+        DetachedCriteria query = org.transmartproject.db.i2b2data.Study.where {
+            (secureObjectToken == org.transmartproject.db.i2b2data.Study.PUBLIC) ||
+                    (secureObjectToken in SecuredObject.where {
+                        def so = SecuredObject
+                        dataType == 'BIO_CLINICAL_TRIAL'
+                        exists SecuredObjectAccessView.where {
+                            user == user
+                            securedObject.id == so.id
+                        }.id()
+                    }.bioDataUniqueId)
+        }
+        query.list()
     }
 
     boolean canPerform(User user,

@@ -79,5 +79,8 @@ class RestApiUrlMappings {
         '/observations'(method: 'GET', controller: 'observation', action: 'indexStandalone')
 
         '/businessException/index'(controller: 'businessException', action: 'index')
+
+        "/query/$action?"(method: 'GET', controller: 'query')
+
     }
 }

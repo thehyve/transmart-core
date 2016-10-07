@@ -45,7 +45,7 @@ import static org.springframework.beans.factory.support.BeanDefinitionReaderUtil
  * JSON Marshaller so that {@link grails.converters.JSON} knows what to do
  * when it find <code>foo as JSON</code>.
  *
- * Also register the {@link IteratorMarshaller} so that
+ * Also register the {@link IteratorMarshaller} and the {@link EnumMarshaller} so that
  * {@link grails.converters.JSON} knows how to handle them.
  */
 @Slf4j
@@ -56,6 +56,9 @@ public class MarshallersRegistrar implements FactoryBean {
 
     @Autowired
     IteratorMarshaller iteratorMarshaller
+
+    @Autowired
+    EnumMarshaller enumMarshaller
 
     String packageName
 
@@ -110,6 +113,7 @@ public class MarshallersRegistrar implements FactoryBean {
 
     private void registerMiscMarshallers() {
         JSON.registerObjectMarshaller iteratorMarshaller, DEFAULT_PRIORITY - 10
+        JSON.registerObjectMarshaller enumMarshaller
     }
 
     @Override

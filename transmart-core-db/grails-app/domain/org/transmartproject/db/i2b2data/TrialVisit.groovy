@@ -2,7 +2,6 @@ package org.transmartproject.db.i2b2data
 
 class TrialVisit {
 
-    long id
     String relTimeUnit
     Integer relTime
     String relTimeLabel
@@ -25,7 +24,7 @@ class TrialVisit {
 
     static mapping = {
         table schema: 'I2B2DEMODATA'
-        id    name:   'id'
+        id    name:   'id', type: Long
         study cascade: 'save-update'
     }
 }

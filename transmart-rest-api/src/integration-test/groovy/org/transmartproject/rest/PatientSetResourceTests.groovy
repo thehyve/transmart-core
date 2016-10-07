@@ -34,7 +34,7 @@ class PatientSetResourceTests extends ResourceSpec {
                 setSize: 1,
                 status: 'FINISHED',
                 id: isA(Number),
-                username: 'admin',)
+                username: 'user_-301',)
         that response.json, hasSelfLink('/patient_sets/' + response.json['id'])
         that response.json, hasEntry(is('_embedded'),
                 hasEntry(is('patients'),

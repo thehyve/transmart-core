@@ -109,7 +109,8 @@ class QueriesResourceServiceSpec extends TransmartSpecification {
         }
 
         def study = new Study(
-                name: "study_name"
+                studyId: "study_name",
+                secureObjectToken: "EXP:study_name"
         )
 
         def trialVisit = new TrialVisit(

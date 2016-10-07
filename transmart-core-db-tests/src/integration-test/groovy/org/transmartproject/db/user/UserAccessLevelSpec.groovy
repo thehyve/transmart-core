@@ -31,6 +31,7 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedResource
+import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.TransmartSpecification
 
@@ -47,6 +48,9 @@ class UserAccessLevelSpec extends TransmartSpecification {
 
     @Autowired
     SessionFactory sessionFactory
+
+    @Autowired
+    AccessControlChecks accessControlChecks
 
     AccessLevelTestData accessLevelTestData = AccessLevelTestData.createDefault()
 
@@ -425,6 +429,30 @@ class UserAccessLevelSpec extends TransmartSpecification {
         secondUser.canPerform(API_READ, res)
         then:
         thrown(UnsupportedOperationException)
+    }
+
+    void 'test get dimension studies for regular user'() {
+        setupData()
+        def secondUser = accessLevelTestData.users[1]
+
+        when:
+        def studies = accessControlChecks.getDimensionStudiesForUser(secondUser).toSorted { it.studyId }
+
+        then:
+        studies.size() == 2
+        studies[0].studyId == 'study1'
+        studies[0].secureObjectToken == org.transmartproject.db.i2b2data.Study.PUBLIC
+        studies[1].studyId == 'study2'
+    }
+
+    void 'test get dimension studies for admin'() {
+        setupData()
+        def adminUser = accessLevelTestData.users[0]
+
+        when:
+        def studies = accessControlChecks.getDimensionStudiesForUser(adminUser)
+        then:
+        studies.size() == 3
     }
 
     private Study getStudy(String id) {

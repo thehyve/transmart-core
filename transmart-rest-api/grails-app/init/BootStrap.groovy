@@ -24,16 +24,19 @@
  */
 import groovy.util.logging.Slf4j
 import org.transmartproject.db.TestData
+import org.transmartproject.db.user.AccessLevelTestData
 
 @Slf4j
 class BootStrap {
 
     def init = { servletContext ->
-        new TestData()
+        def testData = new TestData()
                 .createDefault()
-                .saveAll()
+        testData.saveAll()
         new org.transmartproject.rest.test.TestData()
             .createTestData()
+        new AccessLevelTestData().createWithAlternativeConceptData(testData.conceptData)
+            .saveAll()
     }
 
 }

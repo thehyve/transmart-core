@@ -22,6 +22,7 @@ package org.transmartproject.db.user
 import org.transmartproject.db.accesscontrol.AccessLevel
 import org.transmartproject.db.accesscontrol.SecuredObject
 import org.transmartproject.db.accesscontrol.SecuredObjectAccess
+import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.ontology.I2b2Secure
@@ -109,6 +110,16 @@ class AccessLevelTestData {
             secObj.bioDataUniqueId = token
             secObj.id = --id
             secObj
+        }
+    }()
+
+    @Lazy
+    List<Study> dimensionStudies = {
+        i2b2Secures.findAll { it.level == 1 }.collect {
+            new Study(
+                    studyId: it.name,
+                    secureObjectToken: it.secureObjectToken == 'EXP:PUBLIC' ? Study.PUBLIC : it.secureObjectToken
+            )
         }
     }()
 
@@ -258,6 +269,7 @@ class AccessLevelTestData {
         users[0].addToRoles(roles.find { it.authority == 'ROLE_ADMIN' })
         users[1].addToGroups(groups.find { it.category == 'group_-201' })
         save securedObjectAccesses
+        save dimensionStudies
     }
 
 

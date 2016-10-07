@@ -50,14 +50,14 @@ class MultidimensionalDataResourceService {
 
             trialVisit {
                 study {
-                    inList 'name', studynames
+                    inList 'studyId', studynames
                 }
             }
         }
 
         // This throws a LegacyStudyException for non-17.1 style studies
         List<Dimension> dimensions = Study.findAll {
-            name in studynames
+            studyId in studynames
         }*.dimensions.flatten()*.dimension.unique()
 
         Query query = new Query(q, [modifierCodes: ['@']], [])

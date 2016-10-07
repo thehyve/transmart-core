@@ -12,7 +12,8 @@ class StudyTestData {
         )
 
         def study = new Study(
-                name: "Default tabular study"
+                studyId: "Default tabular study",
+                secureObjectToken: 'EXP:Default tabular study'
         )
         study.addToDimensions(legacyDimension)
         study
@@ -25,7 +26,7 @@ class StudyTestData {
      * @return
      */
     static Study createStudy(String name, Iterable dimensions) {
-        def study = new Study(name: name)
+        def study = new Study(studyId: name, secureObjectToken: "EXP:${name}")
         dimensions.each {
             if(it instanceof DimensionDescription) {
                 study.addToDimensions(it)
