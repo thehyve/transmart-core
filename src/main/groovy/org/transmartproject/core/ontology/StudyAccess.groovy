@@ -16,6 +16,6 @@ interface StudyAccess {
      * which kind of access the user has.
      * @return boolean to determine if the user has access to the study or not.
      */
-    Map getAccessibility()
+    Map getAccessibleByUser()
 
 }
