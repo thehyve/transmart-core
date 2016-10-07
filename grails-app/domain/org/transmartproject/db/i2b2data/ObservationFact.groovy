@@ -70,6 +70,8 @@ class ObservationFact implements Serializable {
 
         conceptCode  column: 'concept_cd'
         patient      column: 'patient_num'
+        startDate    column: 'start_date'
+        modifierCd   column: 'modifier_cd'
         valueType    column: 'valtype_cd'
         textValue    column: 'tval_char'
         numberValue  column: 'nval_num'

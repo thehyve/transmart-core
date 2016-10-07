@@ -1,13 +1,13 @@
 package org.transmartproject.db.i2b2data
 
-import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.db.metadata.DimensionDescription
 
 class Study {
 
-    long id
+    static final String PUBLIC = 'PUBLIC'
 
-    String name
+    String studyId
+    String secureObjectToken
 
     static constraints = {
     }
@@ -18,8 +18,10 @@ class Study {
     ]
 
     static mapping = {
-        table schema: 'I2B2DEMODATA'
-        id    name:   'id'
-
+        table               name: 'study', schema: 'I2B2DEMODATA'
+        id                  column: 'study_num', type: Long
+        studyId             column: 'study_id'
+        secureObjectToken   column: 'secure_obj_token'
     }
+
 }
