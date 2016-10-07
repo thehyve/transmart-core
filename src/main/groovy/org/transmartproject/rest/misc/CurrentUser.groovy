@@ -83,7 +83,7 @@ class CurrentUser implements User {
         /* These correspond to the properties of the default transmart
          * administrator user */
         final Long id = 1
-        final String username = 'admin'
+        final String username = 'user_-301'
         final String realName = 'Sys Admin'
 
         @Override
