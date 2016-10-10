@@ -1,5 +1,5 @@
 
-//= require jquery
+//= require jquery-2.2.0.min.js
 //= require jquery-plugin.js
 //= require extjs.js
 //= require session_time.js

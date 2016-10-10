@@ -4,4 +4,4 @@
  *  Module session_timeout
  */
 
-//= require session_timeout_nodep
+//= require session_timeout_nodep.js
