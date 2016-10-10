@@ -1,9 +1,7 @@
 import com.google.common.collect.ImmutableMap
-import com.recomdata.security.ActiveDirectoryLdapAuthenticationExtension
-import com.recomdata.security.CustomGormAuthorizationCodeService
-import com.recomdata.security.CustomGormClientDetailsService
-import grails.plugin.springsecurity.SpringSecurityUtils
 import com.recomdata.extensions.ExtensionsRegistry
+import com.recomdata.security.ActiveDirectoryLdapAuthenticationExtension
+import grails.plugin.springsecurity.SpringSecurityUtils
 import org.apache.log4j.Logger
 import org.grails.spring.DefaultBeanConfiguration
 import org.springframework.beans.factory.config.CustomScopeConfigurer
@@ -14,27 +12,27 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy
 import org.springframework.security.web.session.ConcurrentSessionFilter
+import org.springframework.transaction.interceptor.TransactionInterceptor
 import org.springframework.web.util.IntrospectorCleanupListener
 import org.transmart.authorization.CurrentUserBeanFactoryBean
 import org.transmart.authorization.CurrentUserBeanProxyFactory
 import org.transmart.authorization.QueriesResourceAuthorizationDecorator
 import org.transmart.marshallers.MarshallerRegistrarService
 import org.transmart.spring.QuartzSpringScope
+import org.transmartproject.core.users.User
 
 // plugin is not functional at this point
 //import org.springframework.security.extensions.kerberos.web.SpnegoAuthenticationProcessingFilter
-import org.transmartproject.core.users.User
 import org.transmartproject.export.HighDimExporter
 import org.transmartproject.security.AuthSuccessEventListener
 import org.transmartproject.security.BadCredentialsEventListener
 import org.transmartproject.security.BruteForceLoginLockService
-import org.transmartproject.security.SSLCertificateValidation
 
 def logger = Logger.getLogger('com.recomdata.conf.resources')
 
 beans = {
     xmlns context: "http://www.springframework.org/schema/context"
-    xmlns aop:"http://www.springframework.org/schema/aop"
+    xmlns aop: "http://www.springframework.org/schema/aop"
 
     if (grailsApplication.config.org.transmart.security.samlEnabled) {
         importBeans('classpath:/spring/spring-security-saml.xml')
@@ -104,9 +102,9 @@ beans = {
     sessionRegistry(SessionRegistryImpl)
     sessionAuthenticationStrategy(ConcurrentSessionControlStrategy, sessionRegistry) {
         if (grailsApplication.config.org.transmartproject.maxConcurrentUserSessions) {
-                maximumSessions = grailsApplication.config.org.transmartproject.maxConcurrentUserSessions
+            maximumSessions = grailsApplication.config.org.transmartproject.maxConcurrentUserSessions
         } else {
-                maximumSessions = 10
+            maximumSessions = 10
         }
     }
     concurrentSessionFilter(ConcurrentSessionFilter) {
@@ -125,14 +123,9 @@ beans = {
     //overrides bean implementing GormUserDetailsService?
     userDetailsService(com.recomdata.security.AuthUserDetailsService)
 
-    gormClientDetailsService(CustomGormClientDetailsService) {
-        grailsApplication = ref('grailsApplication')
-        clientAdditionalInformationSerializer = ref('clientAdditionalInformationSerializer')
-    }
-
-    gormAuthorizationCodeService(CustomGormAuthorizationCodeService) {
-        grailsApplication = ref('grailsApplication')
-        oauth2AuthenticationSerializer = ref('oauth2AuthenticationSerializer')
+    transactionInterceptor(TransactionInterceptor) {
+        transactionManagerBeanName = 'transactionManager'
+        transactionAttributeSource = ref('transactionAttributeSource')
     }
 
     marshallerRegistrarService(MarshallerRegistrarService)
