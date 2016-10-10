@@ -87,7 +87,7 @@ class ClinicalDataRetrievalSpec extends Specification {
 
         def i2b2Data = new I2b2Data(trialName: 'TEST', patients: patients)
 
-        def clinicalData = new ClinicalTestData(patients: patients, facts: facts, multipleTrialVisitsFacts: multiFacts)
+        def clinicalData = new ClinicalTestData(patients: patients, facts: facts, longitudinalClinicalFacts: multiFacts)
 
         new TestData(conceptData: conceptData, i2b2Data: i2b2Data, clinicalData: clinicalData)
     }

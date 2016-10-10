@@ -40,7 +40,7 @@ class ClinicalTestData {
     public static final long DUMMY_ENCOUNTER_ID = -1
     List<Patient> patients
     List<ObservationFact> facts
-    List<ObservationFact> multipleTrialVisitsFacts
+    List<ObservationFact> longitudinalClinicalFacts
 
     @Lazy
     QtQueryMaster patientsQueryMaster = createQueryResult patients
@@ -195,15 +195,16 @@ class ClinicalTestData {
         ]
     }
 
-    static List<ObservationFact> createMultipleTrialVisitsFacts(List<ConceptDimension> concepts, List<Patient> patients){
-
-        def list =[]
-        list << [createObservationFact(concepts[0].conceptCode, patients[1], DUMMY_ENCOUNTER_ID, -45.42, 1, createTrialVisit('days', 2, 'label_1')),
-                 createObservationFact(concepts[2].conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 2, createTrialVisit('weeks', 4, 'label_2'))]
+    static List<ObservationFact> createMultipleTrialVisitsFacts(List<ConceptDimension> concepts, List<Patient> patients) {
+        [
+                createObservationFact(concepts[0].conceptCode, patients[1], DUMMY_ENCOUNTER_ID, -45.42, 1, createTrialVisit('days', 2, 'label_1')),
+                createObservationFact(concepts[2].conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 2, createTrialVisit('weeks', 4, 'label_2')),
+        ]
     }
 
     void saveAll() {
         TestDataHelper.save([patientsQueryMaster])
         TestDataHelper.save facts
+        TestDataHelper.save longitudinalClinicalFacts
     }
 }

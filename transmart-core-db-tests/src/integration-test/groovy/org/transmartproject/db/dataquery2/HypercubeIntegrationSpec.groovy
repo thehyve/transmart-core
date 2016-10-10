@@ -14,4 +14,5 @@ class HypercubeIntegrationSpec extends Specification {
     int method(a, b) {
         return a+b
     }
+
 }
