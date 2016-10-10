@@ -81,13 +81,13 @@ class ClinicalDataRetrievalSpec extends Specification {
 
         def facts = ClinicalTestData.createFacts(conceptDims, patients)
 
-        def multiFacts = ClinicalTestData.createMultipleTrialVisitsFacts(conceptDims, patients)
+        def longitudinalClinicalFacts = ClinicalTestData.createLongitudinalFacts(conceptDims, patients)
 
         def conceptData = new ConceptTestData(tableAccesses: [tableAccess], i2b2List: i2b2List, conceptDimensions: conceptDims)
 
         def i2b2Data = new I2b2Data(trialName: 'TEST', patients: patients)
 
-        def clinicalData = new ClinicalTestData(patients: patients, facts: facts, longitudinalClinicalFacts: multiFacts)
+        def clinicalData = new ClinicalTestData(patients: patients, facts: facts, longitudinalClinicalFacts: longitudinalClinicalFacts)
 
         new TestData(conceptData: conceptData, i2b2Data: i2b2Data, clinicalData: clinicalData)
     }

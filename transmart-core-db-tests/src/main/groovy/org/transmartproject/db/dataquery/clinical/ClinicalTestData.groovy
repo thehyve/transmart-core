@@ -140,25 +140,17 @@ class ClinicalTestData {
         createObservationFact(concept.conceptCode, patient, encounterId, value)
     }
 
-    static ObservationFact createObservationFact(String concept,
-                                                 PatientDimension patient,
-                                                 Long encounterId,
-                                                 Object value){
-        def defaultInstanceNum = 1
-        createObservationFact(concept, patient, encounterId, value, defaultInstanceNum, defaultTrialVisit)
-
-    }
-
     static ObservationFact createObservationFact(String conceptCode,
                                                  PatientDimension patient,
                                                  Long encounterId,
                                                  Object value,
-                                                 int instanceNum,
-                                                 TrialVisit trialVisit) {
+                                                 int instanceNum = 1,
+                                                 TrialVisit trialVisit = defaultTrialVisit){
+
         def of = new ObservationFact(
                 encounterNum: encounterId as BigDecimal,
                 providerId: 'fakeProviderId',
-                modifierCd: 'fakeModifierCd',
+                modifierCd: '@',
                 patient: patient,
                 conceptCode: conceptCode,
                 startDate: new Date(),
@@ -179,6 +171,27 @@ class ClinicalTestData {
         of
     }
 
+    static ObservationFact extendObservationFact(ObservationFact observationFact,
+                                                 int instanceNum,
+                                                 String modifierCd,
+                                                 Object value,
+                                                 Date startDate) {
+
+        observationFact.setInstanceNum(instanceNum)
+        observationFact.setModifierCd(modifierCd)
+
+        if (value instanceof Number) {
+            observationFact.valueType = ObservationFact.TYPE_NUMBER
+            observationFact.textValue = 'E' //equal to
+            observationFact.numberValue = value as BigDecimal
+        } else if (value != null) {
+            observationFact.valueType = ObservationFact.TYPE_TEXT
+            observationFact.textValue = value as String
+        }
+        observationFact.setStartDate(startDate)
+        observationFact
+    }
+
     static List<ObservationFact> createFacts(List<ConceptDimension> concepts, List<Patient> patients) {
         long encounterNum = -200
         def list1 = concepts[0..1].collect { ConceptDimension concept ->
@@ -195,11 +208,15 @@ class ClinicalTestData {
         ]
     }
 
-    static List<ObservationFact> createMultipleTrialVisitsFacts(List<ConceptDimension> concepts, List<Patient> patients) {
-        [
-                createObservationFact(concepts[0].conceptCode, patients[1], DUMMY_ENCOUNTER_ID, -45.42, 1, createTrialVisit('days', 2, 'label_1')),
-                createObservationFact(concepts[2].conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 2, createTrialVisit('weeks', 4, 'label_2')),
-        ]
+    static List<ObservationFact> createLongitudinalFacts(List<ConceptDimension> concepts, List<Patient> patients){
+
+        def fact = createObservationFact(concepts[0].conceptCode, patients[1], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 2, 'label_1'))
+        String modifierCd = 'TEST:TISSUETYPE'
+        Date startDate = new Date()
+
+        [fact,
+         extendObservationFact(fact, 1, modifierCd, 'CONNECTIVE TISSUE', startDate),
+         extendObservationFact(fact, 2, modifierCd, 'MUSCLE TISSUE', startDate)]
     }
 
     void saveAll() {
