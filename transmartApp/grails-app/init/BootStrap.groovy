@@ -1,5 +1,6 @@
 import grails.plugin.springsecurity.SecurityFilterPosition
 import grails.plugin.springsecurity.SpringSecurityUtils
+import grails.util.Environment
 import org.grails.core.exceptions.GrailsConfigurationException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -65,24 +66,16 @@ class BootStrap {
                     "should not be explicitly set, value '$val' ignored")
         }
 
-        def servletContext = grailsApplication.mainContext.servletContext
         def ctx = grailsApplication.getMainContext()
         def tsAppRScriptsDir
-
-        ((String[])[
-            servletContext.getRealPath("/"),
-            servletContext.getRealPath("/") + "../",
-            servletContext.getResource("/")?.file,
-            "webapps${servletContext.contextPath}",
-            "web-app/",
-            servletContext.getRealPath("/") + "../resources/"
-
-        ]).find { obj ->
-            obj && (tsAppRScriptsDir = new File(obj, 'dataExportRScripts')).isDirectory()
+        if (Environment.current == Environment.PRODUCTION) {
+            tsAppRScriptsDir = ctx.getResource("WEB-INF/dataExportRScripts").getFile()
+        }
+        else {
+            tsAppRScriptsDir = new File("src/main/resources/dataExportRScripts")
         }
 
         if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
-            tsAppRScriptsDir = ctx.getResource('classpath:dataExportRScripts').getFile()
             if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
                 throw new RuntimeException('Could not determine proper for ' +
                         'com.recomdata.transmart.data.export.rScriptDirectory')

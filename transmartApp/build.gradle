@@ -187,7 +187,13 @@ task installTransmartPlugins << {
 
 war {
     webInf {
-        from '../Rmodules/src/main/resources/Rscripts'
-        into 'Rscripts'
+        with copySpec({
+            from '../Rmodules/src/main/resources/Rscripts'
+            into 'Rscripts'
+        })
+        with copySpec({
+            from 'src/main/resources/dataExportRScripts'
+            into 'dataExportRScripts'
+        })
     } //Rscripts from Rmodules into WEB-INF dir.
 }
