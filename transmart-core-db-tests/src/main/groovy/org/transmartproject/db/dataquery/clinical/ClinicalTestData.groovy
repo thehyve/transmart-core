@@ -126,8 +126,8 @@ class ClinicalTestData {
                 relTimeUnit: relTimeUnit,
                 relTime: relTime,
                 relTimeLabel: studyLabel,
-                study: study,
         )
+        study.addToTrialVisits(tv)
         tv
     }
 
@@ -156,8 +156,8 @@ class ClinicalTestData {
                 startDate: new Date(),
                 sourcesystemCd: patient.trial,
                 instanceNum: instanceNum,
-                trialVisit: trialVisit,
         )
+        trialVisit.addToObservationFacts(of)
 
         if (value instanceof Number) {
             of.valueType = ObservationFact.TYPE_NUMBER
@@ -222,6 +222,6 @@ class ClinicalTestData {
     void saveAll() {
         TestDataHelper.save([patientsQueryMaster])
         TestDataHelper.save facts
-        TestDataHelper.save longitudinalClinicalFacts
+        TestDataHelper.save ImmutableSet.copyOf(longitudinalClinicalFacts*.trialVisit*.study)
     }
 }
