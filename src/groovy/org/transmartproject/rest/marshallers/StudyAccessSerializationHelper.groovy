@@ -48,7 +48,7 @@ class StudyAccessSerializationHelper extends AbstractHalOrJsonSerializationHelpe
     @Override
     Map<String, Object> convertToMap(StudyAccessImpl StudyAccessImpl) {
         def term = new OntologyTermWrapper(StudyAccessImpl.study.ontologyTerm, true)
-        def mapResponse = [id: StudyAccessImpl.study.id, ontologyTerm: term, accessibility:StudyAccessImpl.accessibility]
+        def mapResponse = [id: StudyAccessImpl.study.id, ontologyTerm: term, accessibleByUser:StudyAccessImpl.accessibleByUser]
         mapResponse
     }
 

@@ -60,7 +60,7 @@ class StubStudyLoadingService extends StudyLoadingService {
         ] as Study
     }
 
-    static StudyAccess createStudyAccess(String studyId, String key, Map accessibility) {
+    static StudyAccess createStudyAccess(String studyId, String key, Map accessibleByUser) {
         def studyAccess
         studyAccess = [
                 getStudy: { ->
@@ -81,7 +81,7 @@ class StubStudyLoadingService extends StudyLoadingService {
                     },
                     ] as Study
                 },
-                getAccessibility: { -> accessibility
+                getAccessibleByUser: { -> accessibleByUser
                 }
         ] as StudyAccess
         studyAccess
