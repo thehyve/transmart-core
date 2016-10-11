@@ -27,7 +27,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.i2b2data.PatientDimension
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
@@ -35,7 +35,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class MrnaGeneDataConstraintSpec extends Specification {
+class MrnaGeneDataConstraintSpec extends TransmartSpecification {
 
     MrnaModule mrnaModule
 

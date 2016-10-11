@@ -30,13 +30,13 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.TestData
+import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
-import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
@@ -45,7 +45,7 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 @Integration
 @Rollback
-class ClinicalDataRetrievalSpec extends Specification {
+class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     TestData testData
 

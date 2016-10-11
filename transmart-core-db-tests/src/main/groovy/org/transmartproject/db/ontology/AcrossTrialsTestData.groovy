@@ -20,6 +20,7 @@
 package org.transmartproject.db.ontology
 
 import org.transmartproject.core.concept.ConceptFullName
+import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.user.AccessLevelTestData

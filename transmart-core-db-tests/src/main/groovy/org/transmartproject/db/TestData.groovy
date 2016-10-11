@@ -36,6 +36,10 @@ class TestData {
     AcghTestData acghData
     SampleBioMarkerTestData bioMarkerTestData
 
+    static void reset() {
+        ClinicalTestData.reset()
+    }
+
     static TestData createDefault() {
         def conceptData = ConceptTestData.createDefault()
         def i2b2Data = I2b2Data.createDefault() // study 1

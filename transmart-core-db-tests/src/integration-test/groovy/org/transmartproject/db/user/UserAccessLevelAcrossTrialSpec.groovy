@@ -32,7 +32,7 @@ import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.AcrossTrialsTestData
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.ontology.ModifierDimensionView
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
@@ -44,7 +44,7 @@ import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
 
 @Integration
 @Rollback
-class UserAccessLevelAcrossTrialSpec extends Specification {
+class UserAccessLevelAcrossTrialSpec extends TransmartSpecification {
 
     @Autowired
     StudiesResource studiesResource

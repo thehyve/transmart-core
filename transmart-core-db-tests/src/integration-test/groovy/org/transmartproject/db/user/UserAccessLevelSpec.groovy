@@ -32,7 +32,7 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.db.ontology.I2b2Secure
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.*
@@ -40,7 +40,7 @@ import static org.transmartproject.db.user.AccessLevelTestData.*
 
 @Integration
 @Rollback
-class UserAccessLevelSpec extends Specification {
+class UserAccessLevelSpec extends TransmartSpecification {
 
     @Autowired
     StudiesResource studiesResource

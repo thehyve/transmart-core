@@ -45,8 +45,18 @@ class ClinicalTestData {
     @Lazy
     QtQueryMaster patientsQueryMaster = createQueryResult patients
 
-    @Lazy
-    static volatile private TrialVisit defaultTrialVisit = createTrialVisit("days", 3, 'label')
+    static private _defaultTrialVisit = null
+    static private synchronized getDefaultTrialVisit() {
+        if(!_defaultTrialVisit) {
+            _defaultTrialVisit = createTrialVisit("days", 3, 'label')
+        }
+        _defaultTrialVisit
+    }
+
+    /** Any tests that use ClinicalTestData must call reset() in their cleanup method */
+    static synchronized reset() {
+        _defaultTrialVisit = null
+    }
 
     QueryResult getQueryResult() {
         getQueryResultFromMaster patientsQueryMaster
@@ -222,6 +232,6 @@ class ClinicalTestData {
     void saveAll() {
         TestDataHelper.save([patientsQueryMaster])
         TestDataHelper.save facts
-        TestDataHelper.save ImmutableSet.copyOf(longitudinalClinicalFacts*.trialVisit*.study)
+        TestDataHelper.save longitudinalClinicalFacts
     }
 }

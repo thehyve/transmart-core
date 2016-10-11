@@ -22,12 +22,12 @@ package org.transmartproject.db.http
 import grails.test.mixin.integration.Integration
 import org.springframework.context.ApplicationContext
 import org.springframework.web.servlet.HandlerExceptionResolver
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 
 @Integration
-class BusinessExceptionResolverSpec extends Specification {
+class BusinessExceptionResolverSpec extends TransmartSpecification {
 
     def grailsApplication
 

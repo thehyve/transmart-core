@@ -31,7 +31,7 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.user.User
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
@@ -42,7 +42,7 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
 @Integration
 @Rollback
-class QueriesResourceServiceSpec extends Specification {
+class QueriesResourceServiceSpec extends TransmartSpecification {
 
     QueriesResource queriesResourceService
     def sessionFactory

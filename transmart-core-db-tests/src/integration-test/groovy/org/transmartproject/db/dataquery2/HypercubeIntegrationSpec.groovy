@@ -1,8 +1,8 @@
 package org.transmartproject.db.dataquery2
 
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
-class HypercubeIntegrationSpec extends Specification {
+class HypercubeIntegrationSpec extends TransmartSpecification {
 
     void testTest() {
         def it = method(1,1)

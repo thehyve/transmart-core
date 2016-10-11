@@ -32,14 +32,14 @@ import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.TestDataHelper.save
 
 @Integration
 @Rollback
-class ComposedVariablesCreationSpec extends Specification {
+class ComposedVariablesCreationSpec extends TransmartSpecification {
 
     def clinicalDataResourceService
 
