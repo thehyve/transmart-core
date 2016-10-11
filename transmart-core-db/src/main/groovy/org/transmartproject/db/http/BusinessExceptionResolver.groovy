@@ -22,7 +22,7 @@ package org.transmartproject.db.http
 import grails.util.Holders
 import grails.web.mapping.UrlMappingData
 import grails.web.mapping.UrlMappingInfo
-import org.apache.log4j.Logger
+import groovy.util.logging.Slf4j
 import org.grails.web.mapping.DefaultUrlMappingInfo
 import org.grails.web.mapping.UrlMappingUtils
 import org.springframework.core.Ordered
@@ -37,10 +37,9 @@ import javax.servlet.http.HttpServletResponse
 
 import static javax.servlet.http.HttpServletResponse.*
 
+@Slf4j
 class BusinessExceptionResolver implements ServletContextAware,
         HandlerExceptionResolver, Ordered {
-
-    private Logger log = Logger.getLogger(getClass())
 
     ServletContext servletContext
     int order = Ordered.HIGHEST_PRECEDENCE

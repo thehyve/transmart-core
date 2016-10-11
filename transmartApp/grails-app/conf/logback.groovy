@@ -8,7 +8,7 @@ appender('stdout', ConsoleAppender) {
     }
 }
 
-root(ERROR, ['stdout'])
+root(INFO, ['stdout'])
 
 def targetDir = BuildSettings.TARGET_DIR
 if (Environment.isDevelopmentMode() && targetDir) {
