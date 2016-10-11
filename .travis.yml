@@ -53,8 +53,13 @@ script:
   - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; gradle $TEST)
   - cd -
 
+after_success:
+  - echo "Writing summary..."
+  - html2text $DIR/build/reports/tests/index.html
+
 after_failure:
   - echo "Writing reports..."
+  - html2text $DIR/build/reports/tests/index.html
   - for f in $DIR/build/reports/tests/classes/*.html; do echo $f; html2text $f; done
 
 notifications:
