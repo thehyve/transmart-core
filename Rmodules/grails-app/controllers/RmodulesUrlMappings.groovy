@@ -4,7 +4,7 @@
  * MyPluginUrlMappings.groovy.
  */
 
-class ExportedUrlMappings {
+class RmodulesUrlMappings {
     static mappings = {
         def analysisFilesClosure = {
             controller = 'analysisFiles'
