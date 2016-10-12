@@ -46,6 +46,8 @@ class TransmartRestApiGrailsPlugin extends Plugin {
         Plugin adds rest api to transmart applicaion
     '''
 
+    def loadAfter = ['restResponder']
+
     def documentation = "https://wiki.thehyve.nl/"
 
     def organization = [name: "The Hyve", url: "http://www.thehyve.nl/"]
