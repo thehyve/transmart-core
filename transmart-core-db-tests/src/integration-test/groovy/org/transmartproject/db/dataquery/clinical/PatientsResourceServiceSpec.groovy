@@ -42,7 +42,6 @@ class PatientsResourceServiceSpec extends TransmartSpecification {
     void setupData() {
         patients = I2b2Data.createTestPatients(2, -100, TRIAL_NAME)
         save patients
-        sessionFactory.currentSession.flush()
     }
 
     void testLoadPatientById() {

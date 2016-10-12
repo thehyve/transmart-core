@@ -52,7 +52,6 @@ class UserAccessLevelSpec extends TransmartSpecification {
 
     void setupData() {
         accessLevelTestData.saveAll()
-        sessionFactory.currentSession.flush()
     }
 
     void testAdminAlwaysHasAccess() {

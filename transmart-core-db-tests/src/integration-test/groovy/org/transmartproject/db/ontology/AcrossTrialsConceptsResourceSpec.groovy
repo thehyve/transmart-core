@@ -50,8 +50,6 @@ class AcrossTrialsConceptsResourceSpec extends TransmartSpecification {
 
         testData = AcrossTrialsTestData.createDefault()
         testData.saveAll()
-
-        sessionFactory.currentSession.flush()
     }
 
     void testTopTermIsReturned() {

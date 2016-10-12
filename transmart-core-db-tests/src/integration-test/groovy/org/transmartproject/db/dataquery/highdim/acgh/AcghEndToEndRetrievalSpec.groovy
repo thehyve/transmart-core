@@ -62,7 +62,6 @@ class AcghEndToEndRetrievalSpec extends TransmartSpecification {
 
     void setupData() {
         testData.saveAll()
-        sessionFactory.currentSession.flush()
 
         acghResource = highDimensionResourceService.getSubResourceForType 'acgh'
 

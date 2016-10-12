@@ -46,7 +46,6 @@ class QueriesResourceAcrossTrialsSpec extends TransmartSpecification {
     void setupData() {
         testData = AcrossTrialsTestData.createDefault()
         testData.saveAll()
-        sessionFactory.currentSession.flush()
     }
 
     void testUserAdmin() {

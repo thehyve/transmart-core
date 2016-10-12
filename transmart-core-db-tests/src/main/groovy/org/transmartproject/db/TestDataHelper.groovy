@@ -40,7 +40,7 @@ class TestDataHelper {
             return //shortcut for no objects to save
         }
 
-        List<Pair> result = objects.collect { new Pair(it.save(), it) }
+        List<Pair> result = objects.collect { new Pair(it.save(flush: true), it) }
         result.each {
             if (it.aValue == null) {
                 throw new RuntimeException("Could not save ${it.bValue}. Errors: ${it.bValue?.errors}")

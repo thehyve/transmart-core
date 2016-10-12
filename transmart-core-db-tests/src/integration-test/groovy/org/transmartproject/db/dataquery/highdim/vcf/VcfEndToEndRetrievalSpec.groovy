@@ -306,8 +306,6 @@ class VcfEndToEndRetrievalSpec extends TransmartSpecification {
         }
         detail.save()
         TestDataHelper.save(summariesData)
-        sessionFactory.currentSession.flush()
-
 
         List dataConstraints = [vcfResource.createDataConstraint(
                 DataConstraint.DISJUNCTION_CONSTRAINT,

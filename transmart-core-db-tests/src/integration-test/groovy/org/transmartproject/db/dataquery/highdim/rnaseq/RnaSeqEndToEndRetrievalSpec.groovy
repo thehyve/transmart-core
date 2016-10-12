@@ -66,7 +66,6 @@ class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
 
     void setupData() {
         testData.saveAll()
-        sessionFactory.currentSession.flush()
 
         rnaseqResource = highDimensionResourceService.getSubResourceForType 'rnaseq'
 

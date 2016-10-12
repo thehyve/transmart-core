@@ -73,6 +73,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
                 createI2b2(level: 1, fullName: '\\foo\\concept 2\\', name: 'c2', cVisualattributes: 'LA'),
                 createI2b2(level: 1, fullName: '\\foo\\concept 3\\', name: 'c3'),
                 createI2b2(level: 1, fullName: '\\foo\\concept 4\\', name: 'c4'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 5\\', name: 'c5'),
         ]
 
         def conceptDims = ConceptTestData.createConceptDimensions(i2b2List)
@@ -95,7 +96,6 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
     void setupData() {
         testData = createTestData()
         testData.saveAll()
-        sessionFactory.currentSession.flush()
     }
 
     void cleanup() {
@@ -284,6 +284,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
         }.collect { patientId, List<ObservationFact> facts ->
             facts*.textValue
         }
+
 
         when:
         def resultList = Lists.newArrayList(clinicalDataResourceService.retrieveData(

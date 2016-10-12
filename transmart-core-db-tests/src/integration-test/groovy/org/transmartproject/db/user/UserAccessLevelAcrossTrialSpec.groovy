@@ -59,7 +59,6 @@ class UserAccessLevelAcrossTrialSpec extends TransmartSpecification {
 
         def acrossTrialsTestData = AcrossTrialsTestData.createDefault()
         acrossTrialsTestData.saveAll()
-        sessionFactory.currentSession.flush()
 
         /* add entry in I2b2Secure to make sure we're not allowing the thing
          * because of the "public by default" behavior */

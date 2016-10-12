@@ -45,8 +45,6 @@ class AcrossTrialsDataRetrievalSpec extends TransmartSpecification {
 
     void setupData() {
         testData.saveAll()
-
-        sessionFactory.currentSession.flush()
     }
 
     void terminalNumericVariableTest() {
