@@ -17,26 +17,29 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.http
+package org.transmartproject.rest
 
-import grails.test.mixin.integration.Integration
-import org.springframework.context.ApplicationContext
-import org.springframework.web.servlet.HandlerExceptionResolver
+import grails.test.mixin.TestFor
+import org.transmartproject.rest.http.BusinessExceptionResolver
 import spock.lang.Specification
 
-import static org.hamcrest.Matchers.*
+/**
+ * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
+ */
+@TestFor(BusinessExceptionController)
+class BusinessExceptionControllerSpec extends Specification {
 
-@Integration
-class BusinessExceptionResolverSpec extends Specification {
+    void basicTest() {
+        request.setAttribute(BusinessExceptionResolver
+                .REQUEST_ATTRIBUTE_STATUS, 403)
+        request.setAttribute(BusinessExceptionResolver
+                .REQUEST_ATTRIBUTE_EXCEPTION, new RuntimeException('foo'))
 
-    def grailsApplication
-
-    void testExceptionResolverWasReplaced() {
-        ApplicationContext ctx = grailsApplication.mainContext
-        def beans = ctx.getBeansOfType(HandlerExceptionResolver)
+        controller.index()
 
         expect:
-        beans hasEntry(equalTo('businessExceptionResolver'),
-                any(BusinessExceptionResolver))
+        response.status == 403
+        response.text.contains('foo')
+        response.text.contains('RuntimeException')
     }
 }

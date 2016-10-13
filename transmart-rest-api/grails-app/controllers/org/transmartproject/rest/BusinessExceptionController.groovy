@@ -17,10 +17,10 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.ontology.http
+package org.transmartproject.rest
 
 import grails.converters.JSON
-import org.transmartproject.db.http.BusinessExceptionResolver
+import org.transmartproject.rest.http.BusinessExceptionResolver
 
 class BusinessExceptionController {
 
@@ -34,8 +34,8 @@ class BusinessExceptionController {
 
         render([
                 httpStatus: httpStatus,
-                type: e.getClass().simpleName,
-                message: e.message
+                type      : e.getClass().simpleName,
+                message   : e.message
         ] as JSON)
     }
 }

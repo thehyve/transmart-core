@@ -17,7 +17,7 @@
  * transmart-core-db.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmartproject.db.http
+package org.transmartproject.rest.http
 
 import grails.util.Holders
 import grails.web.mapping.UrlMappingData
@@ -56,13 +56,13 @@ class BusinessExceptionResolver implements ServletContextAware,
             '.transmartproject.db.http.BusinessExceptionResolver.EXCEPTION'
 
     static statusCodeMappings = [
-            (NoSuchResourceException):        SC_NOT_FOUND,
-            (InvalidRequestException):        SC_BAD_REQUEST,
-            (InvalidArgumentsException):      SC_BAD_REQUEST,
-            (EmptySetException):              SC_NOT_FOUND,
+            (NoSuchResourceException)       : SC_NOT_FOUND,
+            (InvalidRequestException)       : SC_BAD_REQUEST,
+            (InvalidArgumentsException)     : SC_BAD_REQUEST,
+            (EmptySetException)             : SC_NOT_FOUND,
             (UnsupportedByDataTypeException): SC_BAD_REQUEST,
-            (UnexpectedResultException):      SC_INTERNAL_SERVER_ERROR,
-            (AccessDeniedException):          SC_FORBIDDEN,
+            (UnexpectedResultException)     : SC_INTERNAL_SERVER_ERROR,
+            (AccessDeniedException)         : SC_FORBIDDEN,
     ]
 
     private Throwable resolveCause(Throwable t) {
@@ -90,7 +90,7 @@ class BusinessExceptionResolver implements ServletContextAware,
                 if (it.key.isAssignableFrom(e.getClass())) {
                     return [
                             (REQUEST_ATTRIBUTE_EXCEPTION): e,
-                            (REQUEST_ATTRIBUTE_STATUS): it.value
+                            (REQUEST_ATTRIBUTE_STATUS)   : it.value
                     ]
                 }
             }
@@ -104,7 +104,7 @@ class BusinessExceptionResolver implements ServletContextAware,
         if (!exceptionPlusStatus && handleAll) {
             exceptionPlusStatus = [
                     (REQUEST_ATTRIBUTE_EXCEPTION): ex,
-                    (REQUEST_ATTRIBUTE_STATUS): SC_INTERNAL_SERVER_ERROR
+                    (REQUEST_ATTRIBUTE_STATUS)   : SC_INTERNAL_SERVER_ERROR
             ]
         }
 
@@ -132,7 +132,7 @@ class BusinessExceptionResolver implements ServletContextAware,
             return EMPTY_MV
         }
 
-        /* returns null */
+        return null
     }
 
 }

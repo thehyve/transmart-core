@@ -26,7 +26,6 @@ import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.clinical.InnerClinicalTabularResultFactory
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
-import org.transmartproject.db.http.BusinessExceptionResolver
 import org.transmartproject.db.ontology.AcrossTrialsConceptsResourceDecorator
 import org.transmartproject.db.ontology.DefaultConceptsResource
 import org.transmartproject.db.support.DatabasePortabilityService
@@ -74,8 +73,6 @@ A runtime dependency for tranSMART that implements the Core API
         /* unless explicitly disabled, enable across trials functionality */
         def haveAcrossTrials =
                 config.org.transmartproject.enableAcrossTrials != false
-
-        businessExceptionResolver(BusinessExceptionResolver)
 
         accessControlChecks(AccessControlChecks)
 

@@ -38,9 +38,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.TestRestTemplate
 import org.springframework.core.io.Resource
 import org.springframework.web.client.RestTemplate
-import org.transmartproject.db.http.BusinessExceptionResolver
 import org.transmartproject.rest.marshallers.TransmartRendererRegistry
-import org.transmartproject.rest.misc.HandleAllExceptionsBeanFactoryPostProcessor
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*
