@@ -1,5 +1,8 @@
 package org.transmartproject.db.i2b2data
 
+import org.apache.commons.lang.NotImplementedException
+import org.transmartproject.db.metadata.DimensionDescription
+
 class Study {
 
     long id
@@ -10,7 +13,8 @@ class Study {
     }
 
     static hasMany = [
-        trialVisits: TrialVisit
+        trialVisits: TrialVisit,
+        dimensions: DimensionDescription,
     ]
 
     static mapping = {

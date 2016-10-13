@@ -238,7 +238,19 @@ class ClinicalTestData {
         ehrFacts
     }
 
-    static TrialVisit createTrialVisit(String relTimeUnit, int relTime, String studyLabel) {
+    static TrialVisit createTrialVisit(String relTimeUnit, int relTime, String studyLabel, Study study) {
+        def tv = new TrialVisit(
+                relTimeUnit: relTimeUnit,
+                relTime: relTime,
+                relTimeLabel: studyLabel,
+        )
+        study.addToTrialVisits(tv)
+        tv
+    }
+
+    static TrialVisit createDefaultTrialVisit(String relTimeUnit, int relTime, String studyLabel) {
+
+
         def study = new Study(
                 name: "study_name"
         )
@@ -251,6 +263,7 @@ class ClinicalTestData {
         study.addToTrialVisits(tv)
         tv
     }
+
 
     static List<VisitDimension> createTestVisit(int n, PatientDimension patient, Date startDate, Date endDate) {
         (1..n).collect { int i ->
