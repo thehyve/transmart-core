@@ -1,8 +1,11 @@
 package org.transmartproject.db.i2b2data
 
-class VisitDimension {
+import groovy.transform.EqualsAndHashCode
 
-    BigDecimal  encounterNum
+@EqualsAndHashCode(includes = [ 'encounterNum'])
+class VisitDimension implements Serializable{
+
+    Long        encounterNum
     String      activeStatusCd
     Date        startDate
     Date        endDate
@@ -17,14 +20,16 @@ class VisitDimension {
     String      sourcesystemCd
     BigDecimal  uploadId
 
-    static hasMany = [
-        observationFacts: ObservationFact,
-        patient         : PatientDimension
-    ]
+//    static hasMany = [
+//        observationFacts: ObservationFact
+//    ]
+
+    static belongsTo = [ patient: PatientDimension ]
 
     static mapping = {
         table           name: 'visit_dimension', schema: 'I2B2DEMODATA'
         id              composite: ['encounterNum', 'patient']
+        patient         column: 'patient_num'
         activeStatusCd  column: 'active_status_cd'
         startDate       column: 'start_date'
         endDate         column: 'end_date'
@@ -41,6 +46,7 @@ class VisitDimension {
     }
 
     static constraints = {
+        patient           nullable:   true
         activeStatusCd    nullable:   true,   maxSize:   50
         startDate         nullable:   true
         endDate           nullable:   true
@@ -56,3 +62,6 @@ class VisitDimension {
         uploadId          nullable:   true
     }
 }
+
+
+

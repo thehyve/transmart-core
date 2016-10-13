@@ -74,21 +74,36 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
                 createI2b2(level: 1, fullName: '\\foo\\concept 3\\', name: 'c3'),
                 createI2b2(level: 1, fullName: '\\foo\\concept 4\\', name: 'c4'),
                 createI2b2(level: 1, fullName: '\\foo\\concept 5\\', name: 'c5'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 6\\', name: 'c6'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 7\\', name: 'c7'),
         ]
 
         def conceptDims = ConceptTestData.createConceptDimensions(i2b2List)
 
         List<Patient> patients = I2b2Data.createTestPatients(3, -100, 'SAMP_TRIAL')
 
+        def visits = ClinicalTestData.createTestVisit(3, patients[2], new Date(), new Date() + 20)
+
         def facts = ClinicalTestData.createFacts(conceptDims, patients)
 
-        def longitudinalClinicalFacts = ClinicalTestData.createLongitudinalFacts(conceptDims, patients)
+        def longitudinalClinicalFacts = ClinicalTestData.createLongitudinalFacts(conceptDims[4], patients)
+
+        def sampleClinicalFacts = ClinicalTestData.createSampleFacts(conceptDims[5], patients)
+
+        def ehrClinicalFacts = ClinicalTestData.createEhrFacts(conceptDims[6], visits)
 
         def conceptData = new ConceptTestData(tableAccesses: [tableAccess], i2b2List: i2b2List, conceptDimensions: conceptDims)
 
         def i2b2Data = new I2b2Data(trialName: 'TEST', patients: patients)
 
-        def clinicalData = new ClinicalTestData(patients: patients, facts: facts, longitudinalClinicalFacts: longitudinalClinicalFacts)
+        def clinicalData = new ClinicalTestData(
+                patients: patients,
+                visits: visits,
+                facts: facts,
+                longitudinalClinicalFacts: longitudinalClinicalFacts,
+                sampleClinicalFacts: sampleClinicalFacts,
+                ehrClinicalFacts: ehrClinicalFacts
+        )
 
         new TestData(conceptData: conceptData, i2b2Data: i2b2Data, clinicalData: clinicalData)
     }

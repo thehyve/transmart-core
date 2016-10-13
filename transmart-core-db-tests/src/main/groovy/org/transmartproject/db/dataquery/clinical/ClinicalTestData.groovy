@@ -28,6 +28,7 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.i2b2data.VisitDimension
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.codehaus.groovy.runtime.InvokerHelper
@@ -41,8 +42,11 @@ class ClinicalTestData {
     public static final long DUMMY_ENCOUNTER_ID = -1
     public static final long DUMMY_INSTANCE_ID = 1
     List<Patient> patients
+    List<VisitDimension> visits
     List<ObservationFact> facts
     List<ObservationFact> longitudinalClinicalFacts
+    List<ObservationFact> sampleClinicalFacts
+    List<ObservationFact> ehrClinicalFacts
 
     @Lazy
     QtQueryMaster patientsQueryMaster = createQueryResult patients
@@ -129,21 +133,6 @@ class ClinicalTestData {
         }
     }
 
-    static TrialVisit createTrialVisit(String relTimeUnit, int relTime, String studyLabel) {
-        def study = new Study(
-                name: "study_name"
-        )
-
-        def tv = new TrialVisit(
-                relTimeUnit: relTimeUnit,
-                relTime: relTime,
-                relTimeLabel: studyLabel,
-        )
-        study.addToTrialVisits(tv)
-        tv
-    }
-
-
     static ObservationFact createObservationFact(ConceptDimension concept,
                                                  PatientDimension patient,
                                                  Long encounterId,
@@ -186,8 +175,7 @@ class ClinicalTestData {
     static ObservationFact extendObservationFact(ObservationFact basicObservationFact,
                                                  int instanceNum,
                                                  String modifierCd,
-                                                 Object value,
-                                                 Date startDate) {
+                                                 Object value) {
 
         def extendedFact = new ObservationFact()
         InvokerHelper.setProperties(extendedFact, basicObservationFact.properties)
@@ -203,7 +191,7 @@ class ClinicalTestData {
             extendedFact.valueType = ObservationFact.TYPE_TEXT
             extendedFact.textValue = value as String
         }
-        extendedFact.setStartDate(startDate)
+
         extendedFact
     }
 
@@ -223,21 +211,75 @@ class ClinicalTestData {
         ]
     }
 
-    static List<ObservationFact> createLongitudinalFacts(List<ConceptDimension> concepts, List<Patient> patients){
+    static List<ObservationFact> createLongitudinalFacts(ConceptDimension concept, List<Patient> patients){
 
-        def fact = createObservationFact(concepts[4].conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 2, 'label_1'))
+        [ createObservationFact(concept.conceptCode, patients[0], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 2, 'label_1')),
+          createObservationFact(concept.conceptCode, patients[1], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 4, 'label_2')),
+          createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('weeks', 2, 'label_3')) ]
+    }
+
+    static List<ObservationFact> createSampleFacts(ConceptDimension concept, List<Patient> patients){
+
+        def fact = createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 2, 'label_1'))
         String modifierCd = 'TEST:TISSUETYPE'
-        Date startDate = new Date()
 
         [ fact,
-          extendObservationFact(fact, 1, modifierCd, 'CONNECTIVE TISSUE', startDate),
-          extendObservationFact(fact, 2, modifierCd, 'MUSCLE TISSUE', startDate) ]
+          extendObservationFact(fact, 1, modifierCd, 'CONNECTIVE TISSUE'),
+          extendObservationFact(fact, 2, modifierCd, 'MUSCLE TISSUE')      ]
+    }
 
+    static List<ObservationFact> createEhrFacts(ConceptDimension concept, List<VisitDimension> visits){
+        def ehrFacts = []
+        for (int i = 0; i < visits.size(); i++) {
+            ehrFacts << createObservationFact(concept.conceptCode, visits[i].patient, visits[i].encounterNum, -45.42)
+        }
+        ehrFacts
+    }
+
+    static TrialVisit createTrialVisit(String relTimeUnit, int relTime, String studyLabel) {
+        def study = new Study(
+                name: "study_name"
+        )
+
+        def tv = new TrialVisit(
+                relTimeUnit: relTimeUnit,
+                relTime: relTime,
+                relTimeLabel: studyLabel,
+        )
+        study.addToTrialVisits(tv)
+        tv
+    }
+
+    static List<VisitDimension> createTestVisit(int n, PatientDimension patient, Date startDate, Date endDate) {
+        (1..n).collect { int i ->
+            def visit = new VisitDimension(
+                    patient: patient,
+                    encounterNum: DUMMY_ENCOUNTER_ID + (i +1),
+                    startDate: startDate + (10*i),
+                    endDate: endDate + (10*i),
+//                activeStatusCd: ActiveStatus.ACTIVE,
+//                inoutCd: 'inout_cd',
+//                locationCd: 'location_cd',
+//                locationPath: 'location_path',
+//                lengthOfStay: 1,
+//                visitBlob: 'visit_blob',
+//                updateDate: new Date(),
+//                downloadDate: new Date(),
+//                importDate: new Date(),
+//                sourcesystemCd: 'sourcesystem_cd',
+//                uploadId: 'upload_id'
+            )
+            visit
+        }
     }
 
     void saveAll() {
         TestDataHelper.save([patientsQueryMaster])
+        TestDataHelper.save visits
         TestDataHelper.save facts
+        TestDataHelper.save sampleClinicalFacts
         TestDataHelper.save longitudinalClinicalFacts
+        TestDataHelper.save ehrClinicalFacts
     }
+
 }

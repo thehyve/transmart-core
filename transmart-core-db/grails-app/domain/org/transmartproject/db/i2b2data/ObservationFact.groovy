@@ -44,7 +44,7 @@ class ObservationFact implements Serializable {
     Long       instanceNum
 
     //TrialVisit trialVisit
-
+    //VisitDimension visit
     // unsed for now
     //BigDecimal quantityNum
     //String     unitsCd
@@ -58,9 +58,8 @@ class ObservationFact implements Serializable {
     //BigDecimal uploadId
 
     static belongsTo = [
-        patient:    PatientDimension,
-        trialVisit: TrialVisit,
-        visit:      VisitDimension
+        patient      : PatientDimension,
+        trialVisit   : TrialVisit,
     ]
 
     static mapping = {
