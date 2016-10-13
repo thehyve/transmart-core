@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.support
 
-//import grails.orm.HibernateCriteriaBuilder
+import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.Criteria
 import org.hibernate.criterion.LikeExpression
 import org.springframework.beans.factory.annotation.Autowired
