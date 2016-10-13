@@ -58,8 +58,9 @@ class ObservationFact implements Serializable {
     //BigDecimal uploadId
 
     static belongsTo = [
-            patient: PatientDimension,
-            trialVisit: TrialVisit,
+        patient:    PatientDimension,
+        trialVisit: TrialVisit,
+        visit:      VisitDimension
     ]
 
     static mapping = {
