@@ -114,6 +114,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         criteriaBuilder.instance.fetchSize = FETCH_SIZE
 
         module.transformResults(
+                // NB: The Postgres connection protocol only supports FORWARD_ONLY, any other value will cause the
+                // JDBC Postgres driver to load the entire result set at once!
                 criteriaBuilder.instance.scroll(ScrollMode.FORWARD_ONLY),
                 assays.collect { new AssayColumnImpl(it) },
                 projection)
