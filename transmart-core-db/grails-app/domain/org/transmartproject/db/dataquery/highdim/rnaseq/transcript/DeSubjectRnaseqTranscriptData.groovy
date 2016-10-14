@@ -1,0 +1,38 @@
+package org.transmartproject.db.dataquery.highdim.rnaseq.transcript
+
+import groovy.transform.EqualsAndHashCode
+import org.transmartproject.core.dataquery.highdim.rnaseq.RnaSeqValues
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+
+
+@EqualsAndHashCode(includes = ['assay', 'transcript'])
+class DeSubjectRnaseqTranscriptData implements RnaSeqValues, Serializable {
+
+    Integer readcount
+    Double normalizedReadcount
+    Double logNormalizedReadcount
+    Double zscore
+
+    static belongsTo = [
+            assay     : DeSubjectSampleMapping,
+            transcript: DeRnaseqTranscriptAnnotation
+    ]
+
+
+    static mapping = {
+        table schema: 'deapp'
+
+        id composite: ['assay', 'transcript']
+
+        version false
+    }
+
+    static constraints = {
+        readcount nullable: true
+        normalizedReadcount nullable: true
+        logNormalizedReadcount nullable: true
+        zscore nullable: true
+
+
+    }
+}
