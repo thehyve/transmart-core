@@ -1,5 +1,6 @@
 package org.transmartproject.rest.marshallers
 
+import grails.util.Holders
 import org.grails.plugins.web.rest.render.DefaultRendererRegistry
 import org.transmartproject.rest.misc.ComponentIndicatingContainer
 
@@ -8,6 +9,12 @@ import org.transmartproject.rest.misc.ComponentIndicatingContainer
  * {@link ComponentIndicatingContainer}.
  */
 class TransmartRendererRegistry extends DefaultRendererRegistry {
+
+    @Override
+    void initialize() {
+        this.modelSuffix = "${Holders.config.grails.scaffolding.templates.domainSuffix ?: ''}"
+        super.initialize()
+    }
 
     @Override
     protected Class<? extends Object> getTargetClassForContainer(

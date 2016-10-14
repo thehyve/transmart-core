@@ -32,6 +32,8 @@ class BootStrap {
         new TestData()
                 .createDefault()
                 .saveAll()
+        new org.transmartproject.rest.test.TestData()
+            .createTestData()
     }
 
 }
