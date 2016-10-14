@@ -90,7 +90,10 @@ class PatientDimension implements Patient {
 
     @Override
     String getTrial() {
-        sourcesystemCd?.split(/:/, 2)[0]
+        if (sourcesystemCd == null) {
+            return null
+        }
+        sourcesystemCd.split(/:/, 2)[0]
     }
 
     @Override

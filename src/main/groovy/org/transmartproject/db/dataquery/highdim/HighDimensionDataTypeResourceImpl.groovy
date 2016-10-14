@@ -22,6 +22,7 @@ package org.transmartproject.db.dataquery.highdim
 import grails.orm.HibernateCriteriaBuilder
 import groovy.util.logging.Slf4j
 import org.hibernate.ScrollMode
+import org.hibernate.SessionFactory
 import org.hibernate.StatelessSession
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -61,7 +62,11 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     }
 
     protected StatelessSession openSession() {
-        module.sessionFactory.openStatelessSession()
+        SessionFactory sessionFactory = module.sessionFactory
+        StatelessSession statelessSession = sessionFactory.openStatelessSession()
+        //To prevent out of memory exception for big data sets: fetch data from the database in the cursor mode.
+        statelessSession.connection().autoCommit = false
+        statelessSession
     }
 
     protected getAssayProperty() {
