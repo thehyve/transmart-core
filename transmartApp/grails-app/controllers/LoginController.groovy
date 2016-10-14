@@ -106,9 +106,6 @@ class LoginController {
         String msg = ''
         def exception = session[WebAttributes.AUTHENTICATION_EXCEPTION]
         String username = null
-        if (exception instanceof AuthenticationException) {
-            username = exception.authentication.name
-        }
         if (exception) {
             if (exception instanceof AccountExpiredException) {
                 msg = g.message(code: "springSecurity.errors.login.expired")

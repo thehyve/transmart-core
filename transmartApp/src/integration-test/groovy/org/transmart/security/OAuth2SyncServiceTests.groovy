@@ -4,7 +4,9 @@ import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.authentication.encoding.BCryptPasswordEncoder
 import grails.test.mixin.TestMixin
 import grails.test.mixin.domain.DomainClassUnitTestMixin
+import grails.test.mixin.integration.Integration
 import grails.test.mixin.services.ServiceUnitTestMixin
+import grails.transaction.Rollback
 import grails.util.Holders
 import org.gmock.WithGMock
 import org.hamcrest.Description
@@ -15,13 +17,13 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmart.oauth2.Client
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 import org.transmartproject.security.OAuth2SyncService
 
 import static org.hamcrest.Matchers.*
 import static org.junit.Assert.assertThat
 
-@TestMixin(RuleBasedIntegrationTestMixin)
+@Integration
+@Rollback
 class OAuth2SyncServiceTests {
 
     @Autowired

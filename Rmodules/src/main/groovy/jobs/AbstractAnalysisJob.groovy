@@ -1,19 +1,18 @@
 package jobs
 
+import groovy.util.logging.Slf4j
 import jobs.misc.AnalysisConstraints
 import jobs.steps.ParametersFileStep
 import jobs.steps.Step
-import org.apache.log4j.Logger
 import org.quartz.JobExecutionException
 import org.springframework.beans.factory.annotation.Autowired
 
 import javax.annotation.Resource
 
+@Slf4j
 abstract class AbstractAnalysisJob {
 
     static final String PARAM_ANALYSIS_CONSTRAINTS = 'analysisConstraints'
-
-    Logger log = Logger.getLogger(getClass())
 
     @Autowired
     UserParameters params

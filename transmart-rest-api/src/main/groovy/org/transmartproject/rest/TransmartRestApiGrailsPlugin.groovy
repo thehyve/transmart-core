@@ -28,13 +28,10 @@ import grails.plugins.Plugin
  */
 
 import org.springframework.aop.scope.ScopedProxyFactoryBean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component
-import org.transmartproject.db.ontology.http.BusinessExceptionController
+import org.transmartproject.rest.http.BusinessExceptionResolver
 import org.transmartproject.rest.marshallers.MarshallersRegistrar
 import org.transmartproject.rest.marshallers.TransmartRendererRegistry
-import org.transmartproject.db.http.BusinessExceptionResolver
 import org.transmartproject.rest.misc.HandleAllExceptionsBeanFactoryPostProcessor
 
 class TransmartRestApiGrailsPlugin extends Plugin {
@@ -45,6 +42,8 @@ class TransmartRestApiGrailsPlugin extends Plugin {
     def description = '''\
         Plugin adds rest api to transmart applicaion
     '''
+
+    def loadAfter = ['restResponder']
 
     def documentation = "https://wiki.thehyve.nl/"
 

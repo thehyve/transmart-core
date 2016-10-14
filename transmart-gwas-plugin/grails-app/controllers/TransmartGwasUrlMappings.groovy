@@ -1,6 +1,0 @@
-class TransmartGwasUrlMappings {
-
-    static mappings = {
-
-    }
-}

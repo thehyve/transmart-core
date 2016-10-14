@@ -3,6 +3,8 @@ package org.transmart.dataexport
 import com.google.common.io.Files
 import com.recomdata.asynchronous.JobResultsService
 import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
@@ -12,14 +14,14 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.ontology.StudyTestData
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.junit.Assert.assertTrue
 import static org.transmart.dataexport.FileContentTestUtils.parseSepValTable
 
-@TestMixin(RuleBasedIntegrationTestMixin)
+@Integration
+@Rollback
 @WithGMock
 class HighDimExportServiceTests {
 
