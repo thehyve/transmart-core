@@ -13,10 +13,10 @@
         <td><g:message code="grails.env"/></td><td>${Environment.current}</td>
     </tr>
     <tr class="even" style="height: 30px;">
-        <td><g:message code="app.version"/></td><td><g:meta name="app.version"/></td>
+        <td><g:message code="app.version"/></td><td><g:meta name="${grails.util.Metadata.APPLICATION_VERSION}"/></td>
     </tr>
     <tr class="odd" style="height: 30px;">
-        <td><g:message code="app.grails.version"/></td><td><g:meta name="app.grails.version"/></td>
+        <td><g:message code="app.grails.version"/></td><td><g:meta name="${grails.util.Metadata.APPLICATION_GRAILS_VERSION}"/></td>
     </tr>
     <tr class="even" style="height: 30px;">
         <td><g:message code="java.version"/></td><td>${System.getProperty('java.version')}</td>

@@ -1,6 +1,7 @@
 package org.transmart.ontology
 
-import grails.test.mixin.TestMixin
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import org.gmock.WithGMock
 import org.junit.Before
@@ -8,12 +9,12 @@ import org.junit.Test
 import org.springframework.web.context.request.RequestContextHolder
 import org.transmartproject.core.querytool.*
 import org.transmartproject.core.users.User
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-@TestMixin(RuleBasedIntegrationTestMixin)
+@Integration
+@Rollback
 @WithGMock
 class QueryToolControllerTests {
 

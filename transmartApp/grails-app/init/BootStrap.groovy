@@ -1,5 +1,6 @@
 import grails.plugin.springsecurity.SecurityFilterPosition
 import grails.plugin.springsecurity.SpringSecurityUtils
+import grails.util.Environment
 import org.grails.core.exceptions.GrailsConfigurationException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -65,31 +66,29 @@ class BootStrap {
                     "should not be explicitly set, value '$val' ignored")
         }
 
-        def servletContext = grailsApplication.mainContext.servletContext
+        def ctx = grailsApplication.getMainContext()
         def tsAppRScriptsDir
-
-        def basePath = ((String[])[
-            servletContext.getRealPath("/"),
-            servletContext.getRealPath("/") + "../",
-            servletContext.getResource("/")?.file,
-            "webapps${servletContext.contextPath}",
-            "web-app/",
-            servletContext.getRealPath("/") + "../resources/"
-
-        ]).find { obj ->
-            obj && (tsAppRScriptsDir = new File(obj, 'dataExportRScripts')).isDirectory()
+        if (Environment.current == Environment.PRODUCTION) {
+            tsAppRScriptsDir = ctx.getResource("WEB-INF/dataExportRScripts").getFile()
+        }
+        else {
+            tsAppRScriptsDir = new File("src/main/resources/dataExportRScripts")
         }
 
         if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
-            throw new RuntimeException('Could not determine proper for ' +
-                    'com.recomdata.transmart.data.export.rScriptDirectory')
+            if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
+                throw new RuntimeException('Could not determine proper for ' +
+                        'com.recomdata.transmart.data.export.rScriptDirectory')
+            }
         }
         c.com.recomdata.transmart.data.export.rScriptDirectory = tsAppRScriptsDir.canonicalPath
 
         logger.info("com.recomdata.transmart.data.export.rScriptDirectory = " +
                 "${c.com.recomdata.transmart.data.export.rScriptDirectory}")
-        def ctx = grailsApplication.getMainContext()
-        def f = ctx.getResource('classpath:Rscripts').getFile()
+        def f = ctx.getResource('WEB-INF/Rscripts').getFile()
+        if (!f || !f.isDirectory()) {
+            f = ctx.getResource('classpath:Rscripts').getFile()
+        }
         c.RModules.pluginScriptDirectory = f.absolutePath
 
         logger.info("RModules.pluginScriptDirectory = " +

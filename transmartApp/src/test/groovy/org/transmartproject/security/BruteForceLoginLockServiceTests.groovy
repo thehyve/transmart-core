@@ -2,16 +2,15 @@ package org.transmartproject.security
 
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
-import grails.test.GrailsUnitTestCase
+import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit
 
-class BruteForceLoginLockServiceTests extends GrailsUnitTestCase {
+class BruteForceLoginLockServiceTests extends Specification {
 
     BruteForceLoginLockService service
 
-    void setUp() {
-        super.setUp()
+    void setup() {
         service = new BruteForceLoginLockService(allowedNumberOfAttempts: 2, lockTimeInMinutes: 10)
         service.init()
     }

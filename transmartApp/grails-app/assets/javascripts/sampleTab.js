@@ -1,5 +1,5 @@
 
-//= require jquery
+//= require jquery-2.2.0.min.js
 //= require jquery-ui.min.js
 //= require jquery-plugins.js
 //= require extjs.js

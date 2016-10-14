@@ -187,7 +187,7 @@ class ObservationsResourceTests extends ResourceSpec {
         then:
         //FIXME From time to time the status is 406 (response content is different from what's specified in the Accept)
         response.status == 200
-        that response.json, allOf(
+        that response.json as Map, allOf(
                 hasLinks([:]),
                 hasEntry(
                         is('_embedded'),
@@ -198,6 +198,5 @@ class ObservationsResourceTests extends ResourceSpec {
                                                 label: '\\foo\\study1\\bar\\',
                                                 value: 10.0 as Double,
                                         )))))
-
     }
 }

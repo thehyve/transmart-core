@@ -3,7 +3,7 @@
  */
 
 
-//= require jquery
+//= require jquery-2.2.0.min.js
 //= require jquery-ui.min.js
 //= require jquery/jquery.migrate.js
 //= require jquery/jquery.tablesorter.js
