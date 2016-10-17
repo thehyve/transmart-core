@@ -95,7 +95,7 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
                 property 'transcript.chromosome', 'chromosome'
                 property 'transcript.start', 'start'
                 property 'transcript.end', 'end'
-               // property 'transcript.id', ''
+                property 'transcript.id', 'id'
 
                 property 'platform.id', 'platformId'
                 property 'platform.markerType', 'platformMarkerType'
@@ -125,7 +125,7 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
                 finalizeGroup: { List list ->
                     def firstRow = list.find()[0]
                     new RegionRowImpl(
-                            id: firstRow.transcriptId,
+                            id: firstRow.id,
                             chromosome: firstRow.chromosome,
                             start: firstRow.start,
                             end: firstRow.end,
