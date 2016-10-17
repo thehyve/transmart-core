@@ -151,7 +151,7 @@ class ClinicalTestData {
         def of = new ObservationFact(
                 encounterNum: encounterId as BigDecimal,
                 providerId: 'fakeProviderId',
-                modifierCd: 'fakeModifierCd',
+                modifierCd: '@',
                 patient: patient,
                 conceptCode: conceptCode,
                 startDate: new Date(),

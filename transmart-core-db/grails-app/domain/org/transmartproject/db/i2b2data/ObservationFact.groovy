@@ -80,6 +80,7 @@ class ObservationFact implements Serializable {
     }
 
     static constraints = {
+        //TODO: patient is not nullable in the database, remove next line
         patient           nullable:   true
         conceptCode       maxSize:    50
         providerId        maxSize:    50
@@ -102,5 +103,9 @@ class ObservationFact implements Serializable {
         //downloadDate      nullable:   true
         //importDate        nullable:   true
         //uploadId          nullable:   true
+    }
+
+    VisitDimension getVisit() {
+        VisitDimension.get(new VisitDimension(patient: patient, encounterNum: encounterNum))
     }
 }
