@@ -38,6 +38,8 @@ import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
 
+import java.text.SimpleDateFormat
+
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
@@ -60,6 +62,9 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
     }
 
     TestData createTestData() {
+        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
+        Date startDate = sdf.parse('2016-10-17 10:00:00')
+        Date endDate = sdf.parse('2016-10-27 10:00:00')
 
         def tableAccess = ConceptTestData.createTableAccess(
                 level: 0,
@@ -82,7 +87,7 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
         List<Patient> patients = I2b2Data.createTestPatients(3, -100, 'SAMP_TRIAL')
 
-        def visits = ClinicalTestData.createTestVisit(3, patients[2], new Date(), new Date() + 20)
+        def visits = ClinicalTestData.createTestVisit(3, patients[2], startDate, endDate)
 
         def facts = ClinicalTestData.createFacts(conceptDims, patients)
 

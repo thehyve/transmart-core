@@ -80,8 +80,6 @@ class ObservationFact implements Serializable {
     }
 
     static constraints = {
-        //TODO: patient is not nullable in the database, remove next line
-        patient           nullable:   true
         conceptCode       maxSize:    50
         providerId        maxSize:    50
         modifierCd        maxSize:    100

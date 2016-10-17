@@ -5,26 +5,25 @@ import groovy.transform.EqualsAndHashCode
 @EqualsAndHashCode(includes = [ 'encounterNum'])
 class VisitDimension implements Serializable{
 
-    Long        encounterNum
-    String      activeStatusCd
-    Date        startDate
-    Date        endDate
-    String      inoutCd
-    String      locationCd
-    String      locationPath
-    BigDecimal  lengthOfStay
-    String      visitBlob
-    Date        updateDate
-    Date        downloadDate
-    Date        importDate
-    String      sourcesystemCd
-    BigDecimal  uploadId
+    Long                encounterNum
+    PatientDimension    patient
+    String              activeStatusCd
+    Date                startDate
+    Date                endDate
+    String              inoutCd
+    String              locationCd
+    String              locationPath
+    BigDecimal          lengthOfStay
+    String              visitBlob
+    Date                updateDate
+    Date                downloadDate
+    Date                importDate
+    String              sourcesystemCd
+    BigDecimal          uploadId
 
 //    static hasMany = [
 //        observationFacts: ObservationFact
 //    ]
-
-    static belongsTo = [ patient: PatientDimension ]
 
     static mapping = {
         table           name: 'visit_dimension', schema: 'I2B2DEMODATA'
@@ -46,7 +45,6 @@ class VisitDimension implements Serializable{
     }
 
     static constraints = {
-        patient           nullable:   true
         activeStatusCd    nullable:   true,   maxSize:   50
         startDate         nullable:   true
         endDate           nullable:   true
