@@ -51,6 +51,8 @@ class ClinicalTestData {
     @Lazy
     QtQueryMaster patientsQueryMaster = createQueryResult patients
 
+    // defaultTrialVisit should be test scoped, but I haven't found an automatic way to do that. For now we just
+    // clear the field after every test.
     static private _defaultTrialVisit = null
     static private synchronized getDefaultTrialVisit() {
         if(!_defaultTrialVisit) {
