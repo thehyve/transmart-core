@@ -171,7 +171,7 @@ class HighDimensionAllDataTests {
     void testRnaSeqTranscriptRetrieval() {
         type = highDimensionResourceService.getSubResourceForType('rnaseq_transcript')
         dataProperties = [readcount: Integer, normalizedReadcount: Double, logNormalizedReadcount: Double, zscore: Double]
-        rowProperties = [id: Long, chromosome: String, start: Long, end: Long, bioMarker: String]
+        rowProperties = [id: Long, chromosome: String, start: Long, end: Long]//, bioMarker: String]
         new RnaSeqTranscriptTestData().saveAll()
 
         testRetrieval()
