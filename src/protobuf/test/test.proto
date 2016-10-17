@@ -30,27 +30,31 @@ option java_outer_classname = "TestProtos";
 //command to compile this file, from the transmart-rest-api base folder:
 //protoc --java_out=src/main/groovy src/protobuf/test/test.proto
 
+// Header: descriptions of dimensions
 message Dimension {
     required string name = 1;
+    repeated ColumnSpec columnSpec = 2;
 }
 
-// Cell per observation
+message ColumnSpec {
+    enum ColumnType { DOUBLE = 1; STRING = 2; }
+
+    required string name = 1;
+    required ColumnType type = 2;
+}
+
+// Cell per observation: list of observation values
 message Cell {
     required int64 denseDimId = 1;
-    required SparseDim sparseDim = 2;
 }
 
+// Footer: dimension elements
 message DimensionElement {
-    required string name = 1;
-    repeated ColumnValue value = 2;
-}
-
-message ColumnValue {
-    repeated double doubleValue = 1 [packed=true];
-    repeated string stringValue = 2;
+    required string label = 1;
+    required SparseDim sparseDim = 3;
 }
 
 message SparseDim {
-    required string patientId = 1;
-    optional string timepointName = 2;
+    repeated double doubleValue = 1 [packed=true];
+    repeated string stringValue = 2;
 }
