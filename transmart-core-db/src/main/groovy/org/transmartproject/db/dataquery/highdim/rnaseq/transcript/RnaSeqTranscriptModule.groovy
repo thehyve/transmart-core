@@ -37,7 +37,7 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
             ['readcount', 'normalizedReadcount', 'logNormalizedReadcount', 'zscore'])
     //FIXME Create a transcript entity in the api so the RegionRowImp can be replaced
     final Map<String, Class> rowProperties = typesMap(RegionRowImpl,
-            ['id', 'chromosome', 'start', 'end', 'platform', 'transcript'])
+            ['id', 'chromosome', 'start', 'end', 'platform', 'bioMarker'])
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -129,7 +129,7 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
                             chromosome: firstRow.chromosome,
                             start: firstRow.start,
                             end: firstRow.end,
-                            transcript: firstRow.transcriptId,
+                            bioMarker: firstRow.transcriptId,
                             platform: new PlatformImpl(
                                     id: firstRow.platformId,
                                     markerType: firstRow.platformMarkerType,
