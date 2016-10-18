@@ -27,6 +27,14 @@ $dependencies = array (
   array (
     0 => 'de_rbm_annotation',
   ),
+  'de_rnaseq_transcript_annotation' => 
+  array (
+    0 => 'de_gpl_info',
+  ),
+  'de_rnaseq_transcript_data' => 
+  array (
+    0 => 'de_rnaseq_transcript_annotation',
+  ),
   'de_subject_metabolomics_data' => 
   array (
     0 => 'de_metabolite_annotation',
