@@ -112,6 +112,20 @@ class SampleBioMarkerTestData {
             'HOMO SAPIENS',
             'HMDB')
 
+    List<BioMarkerCoreDb> transcriptBioMarkers = createBioMarkers(-1700L, [
+            [name       : 'TRANSCRIPT_1',
+             description: 'Foo transcript 1',
+             externalId : 'foo_transcript_1'],
+            [name       : 'TRANSCRIPT_2',
+             description: 'Foo transcript 2',
+             externalId : 'foo_transcript_2'],
+            [name       : 'TRANSCRIPT_3',
+             description: 'Foo transcript 3',
+             externalId : 'foo_transcript_3']],
+            'TRANSCRIPT',
+            'HOMO SAPIENS',
+            'foo')
+
     List<SearchKeywordCoreDb> geneSearchKeywords =
             createSearchKeywordsForBioMarkers(geneBioMarkers, -2100L)
 
@@ -127,6 +141,8 @@ class SampleBioMarkerTestData {
     List<SearchKeywordCoreDb> metaboliteSearchKeywords =
             createSearchKeywordsForBioMarkers(metaboliteBioMarkers, -2600L)
 
+    List<SearchKeywordCoreDb> transcriptSearchKeywords =
+            createSearchKeywordsForBioMarkers(transcriptBioMarkers, -2700L)
 
     @Lazy
     // Lazy so other test data can be accessed outside of a grails application context, e.g. in an APIClient
@@ -273,7 +289,7 @@ class SampleBioMarkerTestData {
             createSearchKeywordsForGeneSignatures(geneSignatures, -2300L)
 
     List<BioMarkerCoreDb> getAllBioMarkers() {
-        [geneBioMarkers, proteinBioMarkers, pathwayBioMarkers, mirnaBioMarkers, metaboliteBioMarkers].flatten()
+        [geneBioMarkers, proteinBioMarkers, pathwayBioMarkers, mirnaBioMarkers, metaboliteBioMarkers, transcriptBioMarkers].flatten()
     }
 
     void saveGeneData() {
@@ -318,10 +334,16 @@ class SampleBioMarkerTestData {
         save metaboliteSearchKeywords
     }
 
+    void saveTranscriptData() {
+        save transcriptBioMarkers
+        save transcriptSearchKeywords
+    }
+
     void saveAll() {
         saveGeneData()
         saveProteinData()
         saveMirnaData()
         saveMetabolomicsData()
+        saveTranscriptData()
     }
 }
