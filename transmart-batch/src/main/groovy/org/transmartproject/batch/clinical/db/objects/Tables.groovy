@@ -69,6 +69,6 @@ final class Tables {
     public static final String MIRNA_DATA               = 'deapp.de_subject_mirna_data'
 
     public static final String RNASEQ_TRANSCRIPT_ANNOTATION = 'deapp.de_rnaseq_transcript_annotation'
-    public static final String RNASEQ_TRANSCRIPT_DATA   = 'deapp.de_subject_rnaseq_transcript_data'
+    public static final String RNASEQ_TRANSCRIPT_DATA   = 'deapp.de_rnaseq_transcript_data'
 
 }

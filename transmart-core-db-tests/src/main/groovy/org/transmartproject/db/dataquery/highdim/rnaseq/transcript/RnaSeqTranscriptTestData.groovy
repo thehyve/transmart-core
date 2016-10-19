@@ -2,7 +2,6 @@ package org.transmartproject.db.dataquery.highdim.rnaseq.transcript
 
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster
-import org.transmartproject.db.search.SearchKeywordCoreDb
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.search.SearchKeywordCoreDb
@@ -42,8 +41,9 @@ class RnaSeqTranscriptTestData {
 
     def transcripts = {
         def t = [
-                new DeRnaseqTranscriptAnnotation(
+                new DeRnaseqTranscriptAnnot(
                         chromosome: '1',
+                        refId: 'ref1',
                         start: 100,
                         end: 200,
                         transcriptId: 'first',
@@ -63,7 +63,7 @@ class RnaSeqTranscriptTestData {
 
     def assays = createTestAssays(patients, -2010L, regionPlatform, TRIAL_NAME)
 
-    def rnaseqTranscriptData = [new DeSubjectRnaseqTranscriptData(
+    def rnaseqTranscriptData = [new DeRnaseqTranscriptData(
             transcript: transcripts[0],
             assay: assays[0],
             readcount: 10,

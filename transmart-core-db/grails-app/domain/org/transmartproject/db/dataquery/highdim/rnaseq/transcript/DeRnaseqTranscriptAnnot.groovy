@@ -2,28 +2,32 @@ package org.transmartproject.db.dataquery.highdim.rnaseq.transcript
 
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 
-class DeRnaseqTranscriptAnnotation {
+class DeRnaseqTranscriptAnnot {
 
     String chromosome
     Long start
     Long end
+    String refId
     String transcriptId
 
     static belongsTo = [platform: DeGplInfo]
 
     static mapping = {
-        table   schema: 'deapp'
+        table schema: 'deapp'
 
         id generator: "assigned"
+        start column: 'start_bp'
+        end column: 'end_bp'
 
         version false
     }
 
     static constraints = {
-        chromosome  nullable: false, maxSize: 2
-        start       nullable: false
-        end         nullable: false
-        platform    nullable: false
+        chromosome nullable: false, maxSize: 2
+        start nullable: false
+        end nullable: false
+        platform nullable: false
+        refId nullable: false
         transcriptId nullable: true
 
     }
