@@ -56,7 +56,10 @@ class RnaSeqTranscriptTestData {
 
     List<PatientDimension> patients = createTestPatients(2, -2010, TRIAL_NAME)
 
-    QtQueryMaster allPatientsQueryResult = createQueryResult(patients)
+    @Lazy
+    QtQueryMaster allPatientsQueryResult = {
+        createQueryResult(patients)
+    }()
 
     def assays = createTestAssays(patients, -2010L, regionPlatform, TRIAL_NAME)
 
