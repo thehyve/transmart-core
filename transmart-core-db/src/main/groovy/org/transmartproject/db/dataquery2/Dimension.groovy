@@ -1,7 +1,6 @@
 package org.transmartproject.db.dataquery2
 
-import groovy.transform.EqualsAndHashCode
-import groovy.transform.TupleConstructor
+import groovy.transform.InheritConstructors
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
 import org.transmartproject.db.i2b2data.Study
@@ -29,9 +28,15 @@ abstract class Dimension {
         boolean packable
     }
 
-    Size size
-    Density density
-    Packable packable
+    final Size size
+    final Density density
+    final Packable packable
+
+    Dimension(Size size, Density density, Packable packable) {
+        this.size = size
+        this.density = density
+        this.packable = packable
+    }
 
     IterableResult<Object> getElements(Study[] studies) {
         throw new NotImplementedException()
@@ -59,9 +64,12 @@ abstract class Dimension {
 
 //TODO: supporting modifier dimensions requires support for sorting, since we need to sort on the full PK except
 // modifierCd in order to ensure that modifier ObservationFacts come next to their observation value
-@TupleConstructor(includes="name, modifierCode, size, density, packable")
-@EqualsAndHashCode(includes="modifierCode, size, ensity")
 class ModifierDimension extends Dimension {
+    ModifierDimension(String name, String modifierCode, Size size, Density density, Packable packable) {
+        super(size, density, packable)
+        this.name = name
+        this.modifierCode = modifierCode
+    }
 
     String name
     String modifierCode
@@ -77,7 +85,7 @@ class ModifierDimension extends Dimension {
     }
 }
 
-@TupleConstructor(includeSuperProperties = true)
+@InheritConstructors
 class PatientDimension extends Dimension {
 
     def selectIDs(Query query) {
@@ -93,7 +101,7 @@ class PatientDimension extends Dimension {
     }
 }
 
-@TupleConstructor(includeSuperProperties = true)
+@InheritConstructors
 class ConceptDimension extends Dimension {
 
     def selectIDs(Query query) {
@@ -109,7 +117,7 @@ class ConceptDimension extends Dimension {
     }
 }
 
-@TupleConstructor(includeSuperProperties = true)
+@InheritConstructors
 class TrialVisitDimension extends Dimension {
 
     def selectIDs(Query query) {
@@ -125,7 +133,7 @@ class TrialVisitDimension extends Dimension {
     }
 }
 
-@TupleConstructor(includeSuperProperties = true)
+@InheritConstructors
 class StudyDimension extends Dimension {
 
     def selectIDs(Query query) {
@@ -140,7 +148,7 @@ class StudyDimension extends Dimension {
     }
 }
 
-@TupleConstructor(includeSuperProperties = true)
+@InheritConstructors
 class StartTimeDimension extends Dimension {
     def selectIDs(Query query) {
         query.projection += {
