@@ -1,7 +1,7 @@
 package org.transmartproject.db.metadata
 
 import com.google.common.collect.ImmutableMap
-import org.springframework.dao.DataIntegrityViolationException
+import groovy.transform.InheritConstructors
 import org.springframework.dao.DataRetrievalFailureException
 import org.transmartproject.db.dataquery2.ConceptDimension
 import org.transmartproject.db.dataquery2.Dimension
@@ -20,6 +20,7 @@ import static org.transmartproject.db.dataquery2.Dimension.Size.LARGE
 import static org.transmartproject.db.dataquery2.Dimension.Size.MEDIUM
 
 class DimensionDescription {
+    static final String LEGACY_MARKER = "legacy tabular study marker"
 
     String name
     String modifierCode
@@ -33,7 +34,6 @@ class DimensionDescription {
     ]
 
     static constraints = {
-        //name            inList: dimensionsMap.keySet() as List        // not for modifier dimensions
         modifierCode    nullable: true
         size            nullable: true
         density         nullable: true
@@ -56,20 +56,30 @@ class DimensionDescription {
 //            "assay": new AssayDimension(LARGE, DENSE, PACKABLE),
     ])
 
+    boolean isLegacyTabular() {
+        return name == LEGACY_MARKER
+    }
+
     def afterLoad() {
         check()
     }
 
     void check() {
-        if((dimensionsMap.keySet().contains(name) && [modifierCode, size, density, packable].any { it != null }) ||
-            (!dimensionsMap.keySet().contains(name) && [modifierCode, size, density, packable].any { it == null })
-        ) {
-            throw new DataRetrievalFailureException("DimensionDescription columns modifierCode, size and density " +
-                    "must all be NULL or all be not null, " + this)
+        if(name == LEGACY_MARKER) return
+        if(dimensionsMap.keySet().contains(name) && [modifierCode, size, density, packable].any { it != null }) {
+            throw new DataRetrievalFailureException("Inconsistent data in DimensionDescription: For builtin '$name' " +
+                    "dimension all other fields must be set to NULL")
+        } else if(!dimensionsMap.keySet().contains(name) && [modifierCode, size, density, packable].any { it == null }) {
+            throw new DataRetrievalFailureException("Inconsistent data in DimensionDescription: '$name' dimension is " +
+                    "not builtin and some modifier dimension fields are NULL")
         }
     }
 
     Dimension getDimension() {
+        if(name == LEGACY_MARKER) {
+            throw new LegacyStudyException("This study is loaded according to the pre-TranSMART 17.1 rules. " +
+                    "Retrieving 17.1 dimensions is not possible.")
+        }
         if(modifierCode == null) {
             return dimensionsMap[name]
         } else {
@@ -78,3 +88,7 @@ class DimensionDescription {
     }
 
 }
+
+
+@InheritConstructors
+class LegacyStudyException extends UnsupportedOperationException {}
