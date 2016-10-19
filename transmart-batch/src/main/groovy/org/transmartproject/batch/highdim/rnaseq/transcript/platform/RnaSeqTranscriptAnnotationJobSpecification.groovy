@@ -1,7 +1,6 @@
 package org.transmartproject.batch.highdim.rnaseq.transcript.platform
 
 import org.transmartproject.batch.highdim.platform.AbstractPlatformJobSpecification
-import org.transmartproject.batch.highdim.platform.chrregion.transcript.RnaSeqTranscriptAnnotationJobConfig
 
 /**
  * Job specification for RNASeq platform (trascript level) loading.

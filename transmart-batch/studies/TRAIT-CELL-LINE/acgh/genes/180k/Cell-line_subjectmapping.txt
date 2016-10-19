@@ -1,6 +1,0 @@
-STUDY_ID	SITE_ID	SUBJECT_ID	SAMPLE_ID	PLATFORM	TISSUETYPE	ATTR1	ATTR2	CATEGORY_CD	SOURCE_CD
-TraIT-Cell-line		LS174T	microarray004	CNV_ANNOT	Colon	Microarray: Agilent 180K CNV	Genes	4. Molecular profiling+DNA somatic copy number alterations+ATTR1+ATTR2	STD2
-TraIT-Cell-line		COLO205	microarray007	CNV_ANNOT	Colon	Microarray: Agilent 180K CNV	Genes	4. Molecular profiling+DNA somatic copy number alterations+ATTR1+ATTR2	STD2
-TraIT-Cell-line		LIM1863	microarray001	CNV_ANNOT	Colon	Microarray: Agilent 180K CNV	Genes	4. Molecular profiling+DNA somatic copy number alterations+ATTR1+ATTR2	STD2
-TraIT-Cell-line		SW48	microarray002	CNV_ANNOT	Colon	Microarray: Agilent 180K CNV	Genes	4. Molecular profiling+DNA somatic copy number alterations+ATTR1+ATTR2	STD2
-TraIT-Cell-line		HCT15	microarray003	CNV_ANNOT	Colon	Microarray: Agilent 180K CNV	Genes	4. Molecular profiling+DNA somatic copy number alterations+ATTR1+ATTR2	STD2

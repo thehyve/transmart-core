@@ -47,17 +47,17 @@ class ChromosomalRegionRowWriter implements ItemWriter<ChromosomalRegionRow> {
 
     Map<String, Object> doItem(ChromosomalRegionRow row) {
         [
-                region_id          : sequenceReserver.getNext(Sequences.CHROMOSOMAL_REGION_ID),
-                gpl_id      : platform.id,
-                chromosome  : row.chromosome,
-                start_bp    : row.startBp,
-                end_bp      : row.endBp,
-                num_probes  : row.numProbes,
-                region_name : row.regionName,
-                cytoband    : row.cytoband,
-                gene_symbol : row.geneSymbol,
-                gene_id     : row.geneId,
-                organism    : platform.organism,
+                region_id  : sequenceReserver.getNext(Sequences.CHROMOSOMAL_REGION_ID),
+                gpl_id     : platform.id,
+                chromosome : row.chromosome,
+                start_bp   : row.startBp,
+                end_bp     : row.endBp,
+                num_probes : row.numProbes,
+                region_name: row.regionName,
+                cytoband   : row.cytoband,
+                gene_symbol: row.geneSymbol,
+                gene_id    : row.geneId,
+                organism   : platform.organism,
         ]
     }
 }

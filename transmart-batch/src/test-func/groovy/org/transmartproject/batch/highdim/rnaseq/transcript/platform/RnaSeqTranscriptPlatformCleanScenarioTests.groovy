@@ -25,7 +25,7 @@ class RnaSeqTranscriptPlatformCleanScenarioTests implements JobRunningTestTrait 
 
     private final static String PLATFORM_ID = 'RNASEQ_TRANSCRIPT_ANNOT'
     private final static String MARKER_TYPE = 'RNASEQ_TRANSCRIPT'
-    private final static Long NUMBER_OF_REGIONS = 4
+    private final static Long NUMBER_OF_REGIONS = 3
 
     @ClassRule
     public final static RunJobRule RUN_JOB_RULE = new RunJobRule(PLATFORM_ID, 'rnaseq_transcript_annotation')
@@ -69,22 +69,23 @@ class RnaSeqTranscriptPlatformCleanScenarioTests implements JobRunningTestTrait 
     }
 
     @Test
-    void testChromosomalRegionRow() {
+    void testTranscriptAnnotationRow() {
         def q = """
                 SELECT *
                 FROM ${Tables.RNASEQ_TRANSCRIPT_ANNOTATION}
-                WHERE gene_id = :gene_id
+                WHERE transcript = :transcript
         """
-        def p = [transcript_id: 'TRANSCRIPT1']
+        def p = [transcript: 'TR2']
 
         List<Map<String, Object>> r = queryForList q, p
 
         assertThat r, contains(
                 allOf(
                         hasEntry('gpl_id', PLATFORM_ID),
-                        hasEntry('chromosome', '1'),
-                        hasEntry(equalTo('start_bp'), isIntegerNumber(2)),
-                        hasEntry(equalTo('end_bp'), isIntegerNumber(3)),
+                        hasEntry('ref_id', '3'),
+                        hasEntry('chromosome', '10'),
+                        hasEntry(equalTo('start_bp'), isIntegerNumber(3000)),
+                        hasEntry(equalTo('end_bp'), isIntegerNumber(4000)),
                 )
         )
 

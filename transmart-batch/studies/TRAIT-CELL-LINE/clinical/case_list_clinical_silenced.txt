@@ -1,3 +1,0 @@
-Subject_id	Cell line name	
-CACO2_AURKA	CACO2_AURKA	
-SW480_AURKA	SW480_AURKA	
