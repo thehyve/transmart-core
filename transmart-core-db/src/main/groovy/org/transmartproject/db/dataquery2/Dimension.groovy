@@ -29,9 +29,9 @@ abstract class Dimension {
         boolean packable
     }
 
-    final Size size
-    final Density density
-    final Packable packable
+    Size size
+    Density density
+    Packable packable
 
     IterableResult<Object> getElements(Study[] studies) {
         throw new NotImplementedException()
