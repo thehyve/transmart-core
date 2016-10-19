@@ -13,6 +13,8 @@ import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeMo
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.PlatformImpl
 import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
+import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
+import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
@@ -48,6 +50,9 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
     @Autowired
     DataRetrievalParameterFactory chromosomeSegmentConstraintFactory
 
+    @Autowired
+    CorrelationTypesRegistry correlationTypesRegistry
+
     @Override
     protected List<DataRetrievalParameterFactory> createAssayConstraintFactories() {
         [standardAssayConstraintFactory]
@@ -57,7 +62,9 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [
                 standardDataConstraintFactory,
-                chromosomeSegmentConstraintFactory
+                chromosomeSegmentConstraintFactory,
+                new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
+                        'TRANSCRIPT', 'transcript', 'transcriptId')
         ]
     }
 
