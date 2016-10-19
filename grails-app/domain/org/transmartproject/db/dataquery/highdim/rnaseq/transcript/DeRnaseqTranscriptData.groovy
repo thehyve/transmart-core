@@ -6,7 +6,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
 
 @EqualsAndHashCode(includes = ['assay', 'transcript'])
-class DeSubjectRnaseqTranscriptData implements RnaSeqValues, Serializable {
+class DeRnaseqTranscriptData implements RnaSeqValues, Serializable {
 
     Integer readcount
     Double normalizedReadcount
@@ -15,7 +15,7 @@ class DeSubjectRnaseqTranscriptData implements RnaSeqValues, Serializable {
 
     static belongsTo = [
             assay     : DeSubjectSampleMapping,
-            transcript: DeRnaseqTranscriptAnnotation
+            transcript: DeRnaseqTranscriptAnnot
     ]
 
 

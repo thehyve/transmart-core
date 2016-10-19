@@ -35,7 +35,7 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
 
     final String description = "Transcript Level Messenger RNA data (Sequencing)"
 
-    final Map<String, Class> dataProperties = typesMap(DeSubjectRnaseqTranscriptData,
+    final Map<String, Class> dataProperties = typesMap(DeRnaseqTranscriptData,
             ['readcount', 'normalizedReadcount', 'logNormalizedReadcount', 'zscore'])
     //FIXME Create a transcript entity in the api so the RegionRowImp can be replaced
     final Map<String, Class> rowProperties = typesMap(RegionRowImpl,
@@ -86,7 +86,7 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
     @Override
     HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session) {
         HibernateCriteriaBuilder criteriaBuilder = createCriteriaBuilder(
-                DeSubjectRnaseqTranscriptData, 'rnaseqtranscript', session)
+                DeRnaseqTranscriptData, 'rnaseqtranscript', session)
         criteriaBuilder.with {
             createAlias('transcript', 'transcript')
             createAlias('transcript.platform', 'platform')
