@@ -89,13 +89,13 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
         def visits = ClinicalTestData.createTestVisit(3, patients[2], startDate, endDate)
 
-        def facts = ClinicalTestData.createFacts(conceptDims, patients)
+        def facts = ClinicalTestData.createTabularFacts(conceptDims, patients)
 
-        def longitudinalClinicalFacts = ClinicalTestData.createLongitudinalFacts(conceptDims[4], patients)
+        //def longitudinalClinicalFacts = ClinicalTestData.createLongitudinalFacts(conceptDims[4], patients)
 
-        def sampleClinicalFacts = ClinicalTestData.createSampleFacts(conceptDims[5], patients)
+        //def sampleClinicalFacts = ClinicalTestData.createSampleFacts(conceptDims[5], patients)
 
-        def ehrClinicalFacts = ClinicalTestData.createEhrFacts(conceptDims[6], visits)
+        //def ehrClinicalFacts = ClinicalTestData.createEhrFacts(conceptDims[6], visits)
 
         def conceptData = new ConceptTestData(tableAccesses: [tableAccess], i2b2List: i2b2List, conceptDimensions: conceptDims)
 
@@ -105,9 +105,9 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
                 patients: patients,
                 visits: visits,
                 facts: facts,
-                longitudinalClinicalFacts: longitudinalClinicalFacts,
-                sampleClinicalFacts: sampleClinicalFacts,
-                ehrClinicalFacts: ehrClinicalFacts
+                //longitudinalClinicalFacts: longitudinalClinicalFacts,
+                //sampleClinicalFacts: sampleClinicalFacts,
+                //ehrClinicalFacts: ehrClinicalFacts
         )
 
         new TestData(conceptData: conceptData, i2b2Data: i2b2Data, clinicalData: clinicalData)

@@ -29,6 +29,7 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.VisitDimension
+import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.codehaus.groovy.runtime.InvokerHelper
@@ -41,7 +42,7 @@ class ClinicalTestData {
 
     public static final long DUMMY_ENCOUNTER_ID = -1
     public static final long DUMMY_INSTANCE_ID = 1
-    List<Patient> patients
+    List<PatientDimension> patients
     List<VisitDimension> visits
     List<ObservationFact> facts
     List<ObservationFact> longitudinalClinicalFacts
@@ -56,7 +57,7 @@ class ClinicalTestData {
     static private _defaultTrialVisit = null
     static private synchronized getDefaultTrialVisit() {
         if(!_defaultTrialVisit) {
-            _defaultTrialVisit = createTrialVisit("days", 3, 'label')
+            _defaultTrialVisit = createDefaultTrialVisit("day", 3)
         }
         _defaultTrialVisit
     }
@@ -70,7 +71,7 @@ class ClinicalTestData {
         getQueryResultFromMaster patientsQueryMaster
     }
 
-    static ClinicalTestData createDefault(List<I2b2> concepts, List<Patient> patients) {
+    static ClinicalTestData createDefault(List<I2b2> concepts, List<PatientDimension> patients) {
         def facts = createDiagonalFacts(2, concepts, patients)
         new ClinicalTestData(patients: patients, facts: facts)
     }
@@ -92,7 +93,7 @@ class ClinicalTestData {
      * @param patients
      * @return facts for leaf_concept[0] / patients[0], leaf_concept[1] / patients[1], etc...
      */
-    static List<ObservationFact> createDiagonalFacts(int count, List<I2b2> concepts, List<Patient> patients) {
+    static List<ObservationFact> createDiagonalFacts(int count, List<I2b2> concepts, List<PatientDimension> patients) {
 
         assert patients.size() >= count
 
@@ -111,7 +112,7 @@ class ClinicalTestData {
     }
 
     static List<ObservationFact> createDiagonalCategoricalFacts(
-            int count, List<I2b2> concepts /* terminal */, List<Patient> patients) {
+            int count, List<I2b2> concepts /* terminal */, List<PatientDimension> patients) {
 
         assert patients.size() >= count
         assert concepts.size() > 0
@@ -128,7 +129,7 @@ class ClinicalTestData {
         createCategoricalFacts map
     }
 
-    static List<ObservationFact> createCategoricalFacts(Map<Patient, I2b2> values) {
+    static List<ObservationFact> createCategoricalFacts(Map<PatientDimension, I2b2> values) {
         values.collect { patient, i2b2 ->
             createObservationFact(
                     i2b2.code, patient, DUMMY_ENCOUNTER_ID, i2b2.name)
@@ -197,7 +198,7 @@ class ClinicalTestData {
         extendedFact
     }
 
-    static List<ObservationFact> createFacts(List<ConceptDimension> concepts, List<Patient> patients) {
+    static List<ObservationFact> createTabularFacts(List<ConceptDimension> concepts, List<PatientDimension> patients) {
         long encounterNum = -200
         def list1 = concepts[0..1].collect { ConceptDimension concept ->
             patients.collect { PatientDimension patient ->
@@ -213,14 +214,14 @@ class ClinicalTestData {
         ]
     }
 
-    static List<ObservationFact> createLongitudinalFacts(ConceptDimension concept, List<Patient> patients){
+    static List<ObservationFact> createLongitudinalFacts(ConceptDimension concept, List<PatientDimension> patients){
 
-        [ createObservationFact(concept.conceptCode, patients[0], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 2, 'label_1')),
-          createObservationFact(concept.conceptCode, patients[1], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 4, 'label_2')),
-          createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('weeks', 2, 'label_3')) ]
+        [ createObservationFact(concept.conceptCode, patients[0], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 2, 'label_1')),
+          createObservationFact(concept.conceptCode, patients[1], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 4, 'label_2')),
+          createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('week', 2, 'label_3')) ]
     }
 
-    static List<ObservationFact> createSampleFacts(ConceptDimension concept, List<Patient> patients){
+    static List<ObservationFact> createSampleFacts(ConceptDimension concept, List<PatientDimension> patients){
 
         def fact = createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 2, 'label_1'))
         String modifierCd = 'TEST:TISSUETYPE'
@@ -238,30 +239,28 @@ class ClinicalTestData {
         ehrFacts
     }
 
-    static TrialVisit createTrialVisit(String relTimeUnit, int relTime, String studyLabel, Study study) {
+    static TrialVisit createTrialVisit(String relTimeUnit, int relTime, String relTimeLabel, Study study) {
         def tv = new TrialVisit(
                 relTimeUnit: relTimeUnit,
                 relTime: relTime,
-                relTimeLabel: studyLabel,
+                relTimeLabel: relTimeLabel,
         )
         study.addToTrialVisits(tv)
         tv
     }
 
-    static TrialVisit createDefaultTrialVisit(String relTimeUnit, int relTime, String studyLabel) {
+    static TrialVisit createDefaultTrialVisit(String relTimeUnit, int relTime) {
 
+        def legacyDimension = new DimensionDescription(
+                name: DimensionDescription.LEGACY_MARKER
+        )
 
         def study = new Study(
-                name: "study_name"
+                name: "Default tabular study"
         )
+        study.addToDimensions(legacyDimension)
 
-        def tv = new TrialVisit(
-                relTimeUnit: relTimeUnit,
-                relTime: relTime,
-                relTimeLabel: studyLabel,
-        )
-        study.addToTrialVisits(tv)
-        tv
+        createTrialVisit(relTimeUnit, relTime, null, study)
     }
 
 
