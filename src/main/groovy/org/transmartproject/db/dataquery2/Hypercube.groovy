@@ -113,7 +113,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
      *
      * For packable dimensions:
      * Dimension element keys are stored in dimensionElementIdxes. Those are mapped to the actual dimension elements
-     * in dimensionElements. Each dimension has a numeric index in dimensionsIndexMap. Each
+     * in dimensionElements. Each dimension has a numeric index in dimensionsIndexMap. Each ClinicalValue
      */
 
     Hypercube(ScrollableResults results, List<Dimension> dimensions, Query query) {
