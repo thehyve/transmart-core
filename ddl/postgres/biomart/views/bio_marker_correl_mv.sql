@@ -74,5 +74,13 @@ UNION
     'METABOLITE'::text AS correl_type,
     9 AS mv_id
    FROM bio_marker b
-  WHERE ((b.bio_marker_type)::text = 'METABOLITE'::text);
+  WHERE ((b.bio_marker_type)::text = 'METABOLITE'::text)
+  UNION
+  SELECT DISTINCT
+    b.bio_marker_id,
+    b.bio_marker_id AS asso_bio_marker_id,
+    'TRANSCRIPT'::text AS correl_type,
+    10 AS mv_id
+  FROM biomart.bio_marker b
+  WHERE ((b.bio_marker_type)::text = 'TRANSCRIPT'::text);
 
