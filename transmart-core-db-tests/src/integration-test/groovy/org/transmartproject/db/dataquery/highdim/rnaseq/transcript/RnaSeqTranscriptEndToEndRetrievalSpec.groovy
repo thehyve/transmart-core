@@ -60,6 +60,7 @@ class RnaSeqTranscriptEndToEndRetrievalSpec extends Specification{
                         DataConstraint.SEARCH_KEYWORD_IDS_CONSTRAINT
                 )
         ]
+
         def projection = rnaseqTranscriptResource.createProjection([:], RNASEQ_VALUES_PROJECTION)
 
         dataQueryResult = rnaseqTranscriptResource.retrieveData(
@@ -71,7 +72,7 @@ class RnaSeqTranscriptEndToEndRetrievalSpec extends Specification{
         that(resultList, allOf(
                 hasSize(1),
                 everyItem(hasProperty('data', hasSize(2))),
-                contains(hasProperty('bioMarker', equalTo('TRANSCRIPT_1')))
+                contains(hasProperty('bioMarker', equalTo('foo_transcript_1')))
         ))
     }
 }

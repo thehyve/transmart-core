@@ -46,7 +46,7 @@ class RnaSeqTranscriptTestData {
                         refId: 'ref1',
                         start: 100,
                         end: 200,
-                        transcriptId: 'first',
+                        transcriptId: 'foo_transcript_1',
                         platform: regionPlatform,
                 )
         ]
