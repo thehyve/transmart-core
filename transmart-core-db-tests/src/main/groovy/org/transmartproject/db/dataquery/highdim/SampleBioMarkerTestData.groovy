@@ -185,6 +185,22 @@ class SampleBioMarkerTestData {
                 ])
     }()
 
+    @Lazy
+    List<BioDataCorrelationCoreDb> geneTranscriptCorrelations = {
+        def aurkaGene = geneBioMarkers.find { it.name == 'AURKA' }
+        createCorrelationPairs(-3500L,
+                [
+                        aurkaGene,
+                        aurkaGene,
+                        geneBioMarkers.find { it.name == 'SLC14A2' },
+                ],
+                [
+                        transcriptBioMarkers.find { it.name == 'TRANSCRIPT_1' },
+                        transcriptBioMarkers.find { it.name == 'TRANSCRIPT_2' },
+                        transcriptBioMarkers.find { it.name == 'TRANSCRIPT_3' },
+                ])
+    }()
+
     /* The view SEARCH_BIO_MKR_CORREL_VIEW associates
      * gene signature ids with bio marker ids in two ways:
      *
@@ -337,6 +353,7 @@ class SampleBioMarkerTestData {
     void saveTranscriptData() {
         save transcriptBioMarkers
         save transcriptSearchKeywords
+        save geneTranscriptCorrelations
     }
 
     void saveAll() {

@@ -77,6 +77,7 @@ class CorrelationTypesRegistry {
                 leftSideColumn:   'DOMAIN_OBJECT_ID')
 
         registryTable << new CorrelationType(name: 'TRANSCRIPT', sourceType: 'TRANSCRIPT', targetType: 'TRANSCRIPT')
+        registryTable << new CorrelationType(name: 'GENE TO TRANSCRIPT', sourceType: 'GENE', targetType: 'TRANSCRIPT')
     }
 
     private void registerKnownConstraints() {
