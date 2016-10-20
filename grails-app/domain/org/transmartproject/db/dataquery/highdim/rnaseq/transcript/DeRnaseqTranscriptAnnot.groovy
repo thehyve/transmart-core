@@ -8,7 +8,7 @@ class DeRnaseqTranscriptAnnot {
     Long start
     Long end
     String refId
-    String transcriptId
+    String transcript
 
     static belongsTo = [platform: DeGplInfo]
 
@@ -28,7 +28,7 @@ class DeRnaseqTranscriptAnnot {
         end nullable: false
         platform nullable: false
         refId nullable: false
-        transcriptId nullable: true
+        transcript nullable: true
 
     }
 }
