@@ -82,5 +82,14 @@ UNION
     'TRANSCRIPT'::text AS correl_type,
     10 AS mv_id
   FROM biomart.bio_marker b
-  WHERE ((b.bio_marker_type)::text = 'TRANSCRIPT'::text);
+  WHERE ((b.bio_marker_type)::text = 'TRANSCRIPT'::text)
+  UNION
+  SELECT DISTINCT c.bio_data_id AS bio_marker_id,
+    c.asso_bio_data_id AS asso_bio_marker_id,
+    'GENE TO TRANSCRIPT'::text AS correl_type,
+    11 AS mv_id
+   FROM bio_marker b,
+    bio_data_correlation c,
+    bio_data_correl_descr d
+  WHERE (((b.bio_marker_id = c.bio_data_id) AND (c.bio_data_correl_descr_id = d.bio_data_correl_descr_id)) AND ((d.correlation)::text = 'GENE TO TRANSCRIPT'::text));
 
