@@ -64,7 +64,7 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
                 standardDataConstraintFactory,
                 chromosomeSegmentConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'TRANSCRIPT', 'transcript', 'transcriptId')
+                        'TRANSCRIPT', 'transcript', 'transcript')
         ]
     }
 
@@ -98,7 +98,7 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
                 property 'rnaseqtranscript.logNormalizedReadcount', 'logNormalizedReadcount'
                 property 'rnaseqtranscript.zscore', 'zscore'
 
-                property 'transcript.transcriptId', 'transcriptId'
+                property 'transcript.transcript', 'transcript'
                 property 'transcript.chromosome', 'chromosome'
                 property 'transcript.start', 'start'
                 property 'transcript.end', 'end'
@@ -128,7 +128,7 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
                 results: results,
                 allowMissingAssays: true,
                 assayIdFromRow: { it[0].assayId },
-                inSameGroup: { a, b -> a.transcriptId == b.transcriptId },
+                inSameGroup: { a, b -> a.transcript == b.transcript },
                 finalizeGroup: { List list ->
                     def firstRow = list.find()[0]
                     new RegionRowImpl(
@@ -136,7 +136,7 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
                             chromosome: firstRow.chromosome,
                             start: firstRow.start,
                             end: firstRow.end,
-                            bioMarker: firstRow.transcriptId,
+                            bioMarker: firstRow.transcript,
                             platform: new PlatformImpl(
                                     id: firstRow.platformId,
                                     markerType: firstRow.platformMarkerType,

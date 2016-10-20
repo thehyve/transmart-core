@@ -46,11 +46,20 @@ class RnaSeqTranscriptTestData {
                         refId: 'ref1',
                         start: 100,
                         end: 200,
-                        transcriptId: 'foo_transcript_1',
-                        platform: regionPlatform,
+                        transcript: 'foo_transcript_1',
+                        platform: regionPlatform
+                ),
+                new DeRnaseqTranscriptAnnot(
+                        chromosome: '2',
+                        refId: 'ref2',
+                        start: 150,
+                        end: 500,
+                        transcript: 'foo_transcript_2',
+                        platform: regionPlatform
                 )
         ]
         t[0].id = -100L
+        t[1].id = -101L
         t
     }()
 

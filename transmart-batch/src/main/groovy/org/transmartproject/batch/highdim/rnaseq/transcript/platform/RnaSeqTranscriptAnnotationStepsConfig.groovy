@@ -71,7 +71,7 @@ class RnaSeqTranscriptAnnotationStepsConfig implements StepBuildingConfiguration
                 annotationsFileResource,
                 linesToSkip: 1,
                 beanClass: RnaSeqTranscriptAnnotationRow,
-                columnNames: ['refId', 'gplId', 'chromosome', 'start', 'end', 'transcriptId'])
+                columnNames: ['refId', 'gplId', 'chromosome', 'start', 'end', 'transcript'])
     }
 
     @Bean

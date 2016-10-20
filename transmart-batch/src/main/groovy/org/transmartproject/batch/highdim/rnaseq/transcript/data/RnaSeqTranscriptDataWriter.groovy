@@ -42,7 +42,7 @@ class RnaSeqTranscriptDataWriter implements ItemWriter<RnaSeqDataValue> {
                         patientIdAssayIdMap.keySet().sort())
             }
             [
-                    transcript_id           : annotationEntityMap[it.annotation],
+                    transcript              : annotationEntityMap[it.annotation],
                     assay_id                : assayId,
                     readcount               : it.readCount,
                     normalized_readcount    : it.value,
