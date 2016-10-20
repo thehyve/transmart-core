@@ -2,7 +2,6 @@ package org.transmart.dataexport
 
 import com.google.common.io.Files
 import com.recomdata.asynchronous.JobResultsService
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.gmock.WithGMock
@@ -13,7 +12,7 @@ import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.ontology.I2b2
-import org.transmartproject.db.ontology.StudyTestData
+import org.transmartproject.db.ontology.TabularStudyTestData
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -26,7 +25,7 @@ import static org.transmart.dataexport.FileContentTestUtils.parseSepValTable
 class HighDimExportServiceTests {
 
     MrnaTestData testData = new MrnaTestData()
-    StudyTestData studyTestData = new StudyTestData()
+    TabularStudyTestData studyTestData = new TabularStudyTestData()
     I2b2 i2b2Node
 
     def highDimExportService

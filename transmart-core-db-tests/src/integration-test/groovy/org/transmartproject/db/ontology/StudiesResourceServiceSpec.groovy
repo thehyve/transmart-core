@@ -34,7 +34,7 @@ import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Concept
 @Rollback
 class StudiesResourceServiceSpec extends TransmartSpecification {
 
-    StudyTestData studyTestData = new StudyTestData()
+    TabularStudyTestData studyTestData = new TabularStudyTestData()
 
     StudiesResource studiesResourceService
 

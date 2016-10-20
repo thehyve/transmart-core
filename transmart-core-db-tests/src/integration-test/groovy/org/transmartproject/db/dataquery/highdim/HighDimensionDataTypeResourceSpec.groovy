@@ -28,7 +28,7 @@ import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.ontology.I2b2
-import org.transmartproject.db.ontology.StudyTestData
+import org.transmartproject.db.ontology.TabularStudyTestData
 import org.transmartproject.db.TransmartSpecification
 
 import javax.annotation.Resource
@@ -49,7 +49,7 @@ class HighDimensionDataTypeResourceSpec extends TransmartSpecification {
     I2b2 i2b2Node
 
     void setupData() {
-        StudyTestData studyTestData = new StudyTestData()
+        TabularStudyTestData studyTestData = new TabularStudyTestData()
         studyTestData.saveAll()
         i2b2Node = studyTestData.i2b2List[0]
 

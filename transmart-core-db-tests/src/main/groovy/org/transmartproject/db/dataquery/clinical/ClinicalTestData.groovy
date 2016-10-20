@@ -22,6 +22,7 @@ package org.transmartproject.db.dataquery.clinical
 import com.google.common.collect.ImmutableSet
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -45,8 +46,11 @@ class ClinicalTestData {
     List<PatientDimension> patients
     List<VisitDimension> visits
     List<ObservationFact> facts
+    Study longitudinalStudy
     List<ObservationFact> longitudinalClinicalFacts
+    Study sampleStudy
     List<ObservationFact> sampleClinicalFacts
+    Study ehrStudy
     List<ObservationFact> ehrClinicalFacts
 
     @Lazy
@@ -148,7 +152,7 @@ class ClinicalTestData {
                                                  PatientDimension patient,
                                                  Long encounterId,
                                                  Object value,
-                                                 int instanceNum = DUMMY_INSTANCE_ID,
+                                                 long instanceNum = DUMMY_INSTANCE_ID,
                                                  TrialVisit trialVisit = defaultTrialVisit){
 
         def of = new ObservationFact(
@@ -214,16 +218,18 @@ class ClinicalTestData {
         ]
     }
 
-    static List<ObservationFact> createLongitudinalFacts(ConceptDimension concept, List<PatientDimension> patients){
+    static List<ObservationFact> createLongitudinalFacts(ConceptDimension concept, List<PatientDimension> patients,
+                                                         Study study){
 
-        [ createObservationFact(concept.conceptCode, patients[0], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 2, 'label_1')),
-          createObservationFact(concept.conceptCode, patients[1], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 4, 'label_2')),
-          createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('week', 2, 'label_3')) ]
+        [ createObservationFact(concept.conceptCode, patients[0], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 2, 'label_1', study)),
+          createObservationFact(concept.conceptCode, patients[1], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 4, 'label_2', study)),
+          createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('week', 2, 'label_3', study)) ]
     }
 
-    static List<ObservationFact> createSampleFacts(ConceptDimension concept, List<PatientDimension> patients){
+    static List<ObservationFact> createSampleFacts(ConceptDimension concept, List<PatientDimension> patients,
+                                                   Study study){
 
-        def fact = createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 2, 'label_1'))
+        def fact = createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 2, 'label_1', study))
         String modifierCd = 'TEST:TISSUETYPE'
 
         [ fact,
@@ -231,10 +237,11 @@ class ClinicalTestData {
           extendObservationFact(fact, 2, modifierCd, 'MUSCLE TISSUE')      ]
     }
 
-    static List<ObservationFact> createEhrFacts(ConceptDimension concept, List<VisitDimension> visits){
+    static List<ObservationFact> createEhrFacts(ConceptDimension concept, List<VisitDimension> visits, Study study){
         def ehrFacts = []
         for (int i = 0; i < visits.size(); i++) {
-            ehrFacts << createObservationFact(concept.conceptCode, visits[i].patient, visits[i].encounterNum, -45.42)
+            ehrFacts << createObservationFact(concept.conceptCode, visits[i].patient, visits[i].encounterNum, -45.42,
+                    DUMMY_INSTANCE_ID, createTrialVisit('default', 0, null, study))
         }
         ehrFacts
     }
@@ -250,17 +257,7 @@ class ClinicalTestData {
     }
 
     static TrialVisit createDefaultTrialVisit(String relTimeUnit, int relTime) {
-
-        def legacyDimension = new DimensionDescription(
-                name: DimensionDescription.LEGACY_MARKER
-        )
-
-        def study = new Study(
-                name: "Default tabular study"
-        )
-        study.addToDimensions(legacyDimension)
-
-        createTrialVisit(relTimeUnit, relTime, null, study)
+        createTrialVisit(relTimeUnit, relTime, null, StudyTestData.createDefaultTabularStudy())
     }
 
 

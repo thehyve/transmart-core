@@ -16,7 +16,7 @@ class OntologyTermTagsResourceServiceSpec extends TransmartSpecification {
     OntologyTermTagsResourceService ontologyTermTagsResourceService
     ConceptsResource conceptsResourceService
 
-    StudyTestData studyTestData = new StudyTestData()
+    TabularStudyTestData studyTestData = new TabularStudyTestData()
 
     void setupData() {
         studyTestData.saveAll()

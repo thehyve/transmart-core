@@ -29,7 +29,7 @@ import org.transmartproject.db.TransmartSpecification
 @Rollback
 class StudyImplSpec extends TransmartSpecification {
 
-    StudyTestData studyTestData = new StudyTestData()
+    TabularStudyTestData studyTestData = new TabularStudyTestData()
 
     StudiesResource studiesResourceService
 
