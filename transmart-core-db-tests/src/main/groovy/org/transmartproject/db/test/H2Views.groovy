@@ -197,7 +197,21 @@ class H2Views {
             FROM
                 biomart.bio_marker b
             WHERE
-               b.bio_marker_type = 'TRANSCRIPT';'''
+               b.bio_marker_type = 'TRANSCRIPT'
+            UNION
+            SELECT DISTINCT
+                c.bio_data_id AS bio_marker_id,
+                c.asso_bio_data_id AS asso_bio_marker_id,
+                'GENE TO TRANSCRIPT' AS correl_type,
+                11 AS mv_id
+            FROM
+                biomart.bio_marker b,
+                biomart.bio_data_correlation c,
+                biomart.bio_data_correl_descr d
+            WHERE
+                b.bio_marker_id = c.bio_data_id
+                AND c.bio_data_correl_descr_id = d.bio_data_correl_descr_id
+                AND d.correlation = 'GENE TO TRANSCRIPT';'''
 
     }
 
