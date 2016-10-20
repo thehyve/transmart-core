@@ -94,5 +94,12 @@
    'METABOLITE'    AS correl_type,
    9               AS mv_id
  FROM biomart.bio_marker b
- WHERE b.bio_marker_type = 'METABOLITE';
+ WHERE b.bio_marker_type = 'METABOLITE'
+ UNION
+ SELECT DISTINCT b.bio_marker_id,
+   b.bio_marker_id AS asso_bio_marker_id,
+   'TRANSCRIPT'    AS correl_type,
+   10              AS mv_id
+ FROM biomart.bio_marker b
+ WHERE b.bio_marker_type = 'TRANSCRIPT';
  
