@@ -351,8 +351,12 @@ class SampleBioMarkerTestData {
     }
 
     void saveTranscriptData() {
+        save geneBioMarkers
+        save geneSearchKeywords
+
         save transcriptBioMarkers
         save transcriptSearchKeywords
+
         save geneTranscriptCorrelations
     }
 

@@ -1,14 +1,14 @@
 package org.transmartproject.db.dataquery.highdim.rnaseq.transcript
 
-import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.querytool.QtQueryMaster
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
+import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.search.SearchKeywordCoreDb
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
-
 /**
  * Created by olafmeuwese on 13/10/16.
  */
@@ -26,16 +26,20 @@ class RnaSeqTranscriptTestData {
 
     @Lazy
     List<SearchKeywordCoreDb> searchKeywords = {
-        bioMarkerTestData.transcriptSearchKeywords
+        bioMarkerTestData.transcriptSearchKeywords +
+                bioMarkerTestData.geneSearchKeywords
     }()
 
 
     DeGplInfo regionPlatform = {
         def p = new DeGplInfo(
+                title: 'Test Region Platform',
+                organism: 'Homo Sapiens',
+                annotationDate: Date.parse('yyyy-MM-dd', '2013-05-03'),
                 markerType: REGION_PLATFORM_MARKER_TYPE,
                 genomeReleaseId: 'hg18',
         )
-        p.id = -1000L
+        p.id = 'test-region-platform_rnaseq'
         p
     }()
 
@@ -44,22 +48,31 @@ class RnaSeqTranscriptTestData {
                 new DeRnaseqTranscriptAnnot(
                         chromosome: '1',
                         refId: 'ref1',
-                        start: 100,
-                        end: 200,
+                        start: 33,
+                        end: 9999,
                         transcript: 'foo_transcript_1',
                         platform: regionPlatform
                 ),
                 new DeRnaseqTranscriptAnnot(
                         chromosome: '2',
                         refId: 'ref2',
-                        start: 150,
-                        end: 500,
+                        start: 66,
+                        end: 99,
                         transcript: 'foo_transcript_2',
+                        platform: regionPlatform
+                ),
+                new DeRnaseqTranscriptAnnot(
+                        chromosome: '3',
+                        refId: 'ref2',
+                        start: 150,
+                        end: 300,
+                        transcript: 'foo_transcript_3',
                         platform: regionPlatform
                 )
         ]
         t[0].id = -100L
         t[1].id = -101L
+        t[2].id = -102L
         t
     }()
 
@@ -72,14 +85,32 @@ class RnaSeqTranscriptTestData {
 
     def assays = createTestAssays(patients, -2010L, regionPlatform, TRIAL_NAME)
 
-    def rnaseqTranscriptData = [new DeRnaseqTranscriptData(
-            transcript: transcripts[0],
-            assay: assays[0],
-            readcount: 10,
-            normalizedReadcount: 2,
-            logNormalizedReadcount: 5,
-            zscore: 1.5
-    )]
+
+    DeRnaseqTranscriptData createRNASEQTranscriptData(DeRnaseqTranscriptAnnot transcript,
+                                                      Assay assay,
+                                                      readcount = 0,
+                                                      normalizedreadcount = 0.0) {
+        new DeRnaseqTranscriptData(
+                transcript: transcript,
+                assay: assay,
+                patient: assay.patient,
+                readcount: readcount,
+                normalizedReadcount: normalizedreadcount,
+                logNormalizedReadcount: Math.log(normalizedreadcount) / Math.log(2.0),
+                zscore: ((Math.log(normalizedreadcount) / Math.log(2.0)) - 0.5) / 1.5,
+        )
+    }
+
+    List<DeRnaseqTranscriptData> rnaseqTranscriptData = {
+        [
+                createRNASEQTranscriptData(transcripts[0], assays[0], 1, 1.0),
+                createRNASEQTranscriptData(transcripts[0], assays[1], 10, 4.0),
+                createRNASEQTranscriptData(transcripts[1], assays[0], 2, 0.5),
+                createRNASEQTranscriptData(transcripts[1], assays[1], 2, 2.0),
+                createRNASEQTranscriptData(transcripts[2], assays[0], 2, 0.5),
+                createRNASEQTranscriptData(transcripts[2], assays[1], 2, 2.0)
+        ]
+    }()
 
     void saveAll() {
         bioMarkerTestData.saveTranscriptData()
