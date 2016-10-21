@@ -18,6 +18,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataC
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
+import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 import org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqValuesProjection
 
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
@@ -79,6 +80,11 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
                             new RnaSeqValuesProjection()
                         }
                 ),
+                new SimpleRealProjectionsFactory(
+                        (Projection.LOG_INTENSITY_PROJECTION): 'logNormalizedReadcount',
+                        (Projection.DEFAULT_REAL_PROJECTION):  'normalizedReadcount',
+                        (Projection.ZSCORE_PROJECTION):        'zscore'
+                ),
                 new AllDataProjectionFactory(dataProperties, rowProperties)
         ]
     }
@@ -109,6 +115,8 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
                 property 'platform.genomeReleaseId', 'platformGenomeReleaseId'
 
             }
+            order 'transcript.id', 'asc'
+            order 'assay.id',  'asc' // important
             instance.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
 
         }
