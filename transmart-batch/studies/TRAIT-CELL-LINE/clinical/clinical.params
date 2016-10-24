@@ -1,0 +1,7 @@
+# Mandetory
+COLUMN_MAP_FILE=Cell-line_columns.txt
+
+#Optional
+WORD_MAP_FILE=Cell-line_wordmap.txt
+#TOP_NODE_PREFIX=
+

@@ -2,6 +2,8 @@ package org.transmartproject.batch.startup
 
 import com.google.common.base.Function
 import com.google.common.collect.Maps
+import groovy.io.FileType
+import groovy.transform.ToString
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
 import groovy.util.logging.Slf4j
@@ -29,43 +31,59 @@ import org.transmartproject.batch.tag.TagsLoadJobSpecification
 
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.regex.Pattern
 
 /**
  * Gets all details needed for running a job.
  */
 @TypeChecked
 @Slf4j
-final class JobStartupDetails {
+@ToString(includes = ['dataTypeParamsFilePath', 'params'])
+final class JobStartupDetails implements Comparable<JobStartupDetails> {
 
+    /**
+     * Order of entries matters. See {@link this.DATA_TYPES_UPLOAD_PRIORITY_ORDER}
+     */
     private final static Map<String, Class<? extends JobSpecification>> DATA_TYPE_TO_JOB_SPEC = [
-            'clinical'               : ClinicalJobSpecification,
+            'backout'                     : BackoutJobSpecification,
+            'i2b2'                        : I2b2JobSpecification,
+            'clinical'                    : ClinicalJobSpecification,
             //Legacy. Deprecated. Use mrna_annotation instead
-            'annotation'             : AnnotationJobSpecification,
+            'annotation'                  : AnnotationJobSpecification,
             //New name for mrna platform. Unlike old platform data file, new file contains a header.
             //That's why we need ne specification class.
-            'mrna_annotation'        : MrnaAnnotationJobSpecification,
-            'tags'                   : TagsLoadJobSpecification,
-            'expression'             : MrnaDataJobSpecification,
-            'metabolomics_annotation': MetabolomicsAnnotationJobSpecification,
-            'metabolomics'           : MetabolomicsDataJobSpecification,
-            'i2b2'                   : I2b2JobSpecification,
-            'proteomics_annotation'  : ProteomicsAnnotationJobSpecification,
-            'proteomics'             : ProteomicsDataJobSpecification,
-            'gwas'                   : GwasJobSpecification,
-            'backout'                : BackoutJobSpecification,
-            'rnaseq_annotation'      : RnaSeqAnnotationJobSpecification,
-            'rnaseq'                 : RnaSeqDataJobSpecification,
-            'cnv_annotation'         : CnvAnnotationJobSpecification,
-            'cnv'                    : CnvDataJobSpecification,
-            'mirna_annotation'       : MirnaAnnotationJobSpecification,
-            'mirna'                  : MirnaDataJobSpecification,
+            'mrna_annotation'             : MrnaAnnotationJobSpecification,
+            'expression'                  : MrnaDataJobSpecification,
+            'metabolomics_annotation'     : MetabolomicsAnnotationJobSpecification,
+            'metabolomics'                : MetabolomicsDataJobSpecification,
+            'proteomics_annotation'       : ProteomicsAnnotationJobSpecification,
+            'proteomics'                  : ProteomicsDataJobSpecification,
+            'gwas'                        : GwasJobSpecification,
+            'rnaseq_annotation'           : RnaSeqAnnotationJobSpecification,
+            'rnaseq'                      : RnaSeqDataJobSpecification,
+            'cnv_annotation'              : CnvAnnotationJobSpecification,
+            'cnv'                         : CnvDataJobSpecification,
+            'mirna_annotation'            : MirnaAnnotationJobSpecification,
+            'mirna'                       : MirnaDataJobSpecification,
+            'tags'                        : TagsLoadJobSpecification,
     ]
+
+    private final static Map<String, Integer> DATA_TYPES_UPLOAD_PRIORITY_ORDER
+    static {
+        DATA_TYPES_UPLOAD_PRIORITY_ORDER = [:]
+        DATA_TYPE_TO_JOB_SPEC.eachWithIndex { Map.Entry entry, int i ->
+            DATA_TYPES_UPLOAD_PRIORITY_ORDER[(String) entry.key] = i
+        }
+    }
+
     public static final String STUDY_PARAMS_FILE_NAME = 'study' + PARAMS_FILE_EXTENSION
     public static final String PARAMS_FILE_EXTENSION = '.params'
 
-    private Map<String, String> params
+    Class<?> jobPath
 
-    private Path dataTypeParamsFilePath
+    Map<String, String> params
+
+    Path dataTypeParamsFilePath
 
     private String typeName
 
@@ -73,9 +91,27 @@ final class JobStartupDetails {
 
     private Set<String> fileParameterKeys
 
-    Class<?> jobPath
-
     private JobStartupDetails() {}
+
+    /**
+     *
+     * @param folderPath - folder that contains *.params files in any depth
+     * @param overrides - parameters to override ones in the *.params file
+     * @return
+     */
+    @TypeChecked(TypeCheckingMode.SKIP)
+    static List<JobStartupDetails> fromFolder(Path folderPath, Map<String, String> overrides = [:]) {
+        List<JobStartupDetails> result = []
+        Pattern fileNamePattern = Pattern.compile('.*' + Pattern.quote(PARAMS_FILE_EXTENSION) + '$')
+        folderPath.traverse([type: FileType.FILES, nameFilter: fileNamePattern]) { Path filePath ->
+            String fileNameStr = filePath.fileName.toString()
+            String type = StringUtils.removeLast(fileNameStr, PARAMS_FILE_EXTENSION)
+            if (type in DATA_TYPE_TO_JOB_SPEC && type != 'backout') {
+                result << fromFile(filePath, overrides)
+            }
+        }
+        result
+    }
 
     /**
      * Detects the job to run by '*.params' file.
@@ -263,6 +299,18 @@ final class JobStartupDetails {
             String getTypeName() {
                 JobStartupDetails.this.typeName
             }
+        }
+    }
+
+    @Override
+    int compareTo(JobStartupDetails jobStartupDetails) {
+        Integer thisPos = DATA_TYPES_UPLOAD_PRIORITY_ORDER[this.typeName]
+        Integer thatPos = DATA_TYPES_UPLOAD_PRIORITY_ORDER[jobStartupDetails.typeName]
+        int cmp = thisPos <=> thatPos
+        if (cmp == 0) {
+            this.dataTypeParamsFilePath <=> jobStartupDetails.dataTypeParamsFilePath
+        } else {
+            cmp
         }
     }
 }

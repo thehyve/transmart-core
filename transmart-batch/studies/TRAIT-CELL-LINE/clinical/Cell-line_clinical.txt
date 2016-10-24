@@ -1,0 +1,20 @@
+Subject_id	Cell line name	Organism	Origin tissue	Cell type	Disease	Ethnicity	Age patient at time of tumour (years)	Gender	Ectopic MLH1 expression	AURKA silencing	DMSO Control	Untreated	siRNA non-targeting
+CACO2	CACO2	Homo sapiens	Colon	Epithelial adherent cells	Colorectal adenocarcinoma	Caucasian	72	Male	No	No	Yes	Yes	Yes
+CACO2_AURKA	CACO2_AURKA	Homo sapiens	Colon	Epithelial adherent cells	Colorectal adenocarcinoma	Caucasian	72	Male	No	Yes	No	No	No
+COLO205	COLO205	Homo sapiens	Colon	Round & refractile	Colorectal adenocarcinoma	Caucasian	70	Male	No	No	No	No	No
+COLO320	COLO320	Homo sapiens	Colon	Round & refractile	Colorectal adenocarcinoma	Caucasian	55	Female	No	No	No	No	No
+DLD1	DLD1	Homo sapiens	Colon	Epithelial cells	Colorectal adenocarcinoma	Caucasian		Male	No	No	No	No	No
+HCT116	HCT116	Homo sapiens	Colon	Epithelial-like cells	Colorectal carcinoma	Caucasian		Male	No	No	No	No	No
+HCT116_MLH1	HCT116_MLH1	Homo sapiens	Colon	Epithelial-like cells	Colorectal carcinoma	Caucasian		Male	Yes	No	No	No	No
+HCT15	HCT15	Homo sapiens	Colon	Epithelial-like cells	Colorectal adenocarcinoma	No information		Male	No	No	No	No	No
+HT29	HT29	Homo sapiens	Colon	Epithelial-like cells	Colorectal adenocarcinoma	Caucasian	44	Female	No	No	No	No	No
+LIM1863	LIM1863	Homo sapiens	Colon	Organoids, columnar cells with a polarised normal brush border and goblet cells	Colorectal carcinoma	Caucasian	74	Female	No	No	No	No	No
+LS174T	LS174T	Homo sapiens	Colon	Epithelial adherent cells	Colorectal carcinoma	Caucasian	58	Female	No	No	No	No	No
+LS513	LS513	Homo sapiens	Cecum	Epithelial cells	Colorectal adenocarcinoma	Caucasian	63	Male	No	No	No	No	No
+PC346c	PC346c	Homo sapiens	Prostate	Epithelial cells	Prostatic carcinoma: derived from transurethral resection of a primary tumor	Caucasian	68	Male	No	No	No	No	No
+RKO	RKO	Homo sapiens	Colon	Epithelial cells	Colorectal adenocarcinoma	Caucasian	82	Female	No	No	No	No	No
+SW1398	SW1398	Homo sapiens	Colon	Epithelial adherent cells	Colorectal carcinoma	No information		No information	No	No	No	No	No
+SW48	SW48	Homo sapiens	Colon	Epithelial cells	Colorectal adenocarcinoma	Caucasian	82	Female	No	No	No	No	No
+SW480	SW480	Homo sapiens	Colon	Epithelial cells	Colorectal adenocarcinoma	Caucasian	50	Male	No	No	No	No	No
+SW480_AURKA	SW480_AURKA	Homo sapiens	Colon	Epithelial cells	Colorectal adenocarcinoma	Caucasian	50	Male	No	Yes	No	No	No
+VCaP	VCaP	Homo sapiens	Prostate	Epithelial cells	Prostatic carcinoma: derived from metastatic site - vertebral metastasis	Caucasian	59	Male	No	No	No	No	No

@@ -1,0 +1,4 @@
+# Mandatory
+DATA_FILE=Cell-line_samples_batch.txt
+MAP_FILENAME=Cell-line_subjectmapping.txt
+DATA_TYPE=R
