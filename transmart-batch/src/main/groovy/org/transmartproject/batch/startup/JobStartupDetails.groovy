@@ -25,6 +25,8 @@ import org.transmartproject.batch.highdim.proteomics.data.ProteomicsDataJobSpeci
 import org.transmartproject.batch.highdim.proteomics.platform.ProteomicsAnnotationJobSpecification
 import org.transmartproject.batch.highdim.rnaseq.data.RnaSeqDataJobSpecification
 import org.transmartproject.batch.highdim.rnaseq.platform.RnaSeqAnnotationJobSpecification
+import org.transmartproject.batch.highdim.rnaseq.transcript.data.RnaSeqTranscriptDataJobSpecification
+import org.transmartproject.batch.highdim.rnaseq.transcript.platform.RnaSeqTranscriptAnnotationJobSpecification
 import org.transmartproject.batch.i2b2.I2b2JobSpecification
 import org.transmartproject.batch.support.StringUtils
 import org.transmartproject.batch.tag.TagsLoadJobSpecification
@@ -66,6 +68,8 @@ final class JobStartupDetails implements Comparable<JobStartupDetails> {
             'mirna_annotation'            : MirnaAnnotationJobSpecification,
             'mirna'                       : MirnaDataJobSpecification,
             'tags'                        : TagsLoadJobSpecification,
+            'rnaseq_transcript_annotation': RnaSeqTranscriptAnnotationJobSpecification,
+            'rnaseq_transcript'           : RnaSeqTranscriptDataJobSpecification,
     ]
 
     private final static Map<String, Integer> DATA_TYPES_UPLOAD_PRIORITY_ORDER

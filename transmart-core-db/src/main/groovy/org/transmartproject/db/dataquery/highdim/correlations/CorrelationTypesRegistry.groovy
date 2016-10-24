@@ -75,6 +75,9 @@ class CorrelationTypesRegistry {
                 targetType:       'GENE',
                 correlationTable: 'SEARCHAPP.SEARCH_BIO_MKR_CORREL_VIEW',
                 leftSideColumn:   'DOMAIN_OBJECT_ID')
+
+        registryTable << new CorrelationType(name: 'TRANSCRIPT', sourceType: 'TRANSCRIPT', targetType: 'TRANSCRIPT')
+        registryTable << new CorrelationType(name: 'GENE TO TRANSCRIPT', sourceType: 'GENE', targetType: 'TRANSCRIPT')
     }
 
     private void registerKnownConstraints() {
@@ -84,6 +87,7 @@ class CorrelationTypesRegistry {
         constraintMap.HOMOLOGENE = 'homologenes'
         constraintMap.GENESIG    = DataConstraint.GENE_SIGNATURES_CONSTRAINT
         constraintMap.GENELIST   = 'gene_lists'
+        constraintMap.TRANSCRIPT = DataConstraint.TRANSCRIPTS_CONSTRAINT
     }
 
     void registerCorrelation(CorrelationType correlationType) {

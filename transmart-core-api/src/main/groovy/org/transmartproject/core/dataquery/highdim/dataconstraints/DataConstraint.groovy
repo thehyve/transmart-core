@@ -91,5 +91,14 @@ public interface DataConstraint {
      */
     public final static String GENE_SIGNATURES_CONSTRAINT = 'gene_signatures'
 
-
+    /**
+     * Filter rows relevant to some pathways. Prefer this to
+     * {@link #SEARCH_KEYWORD_IDS_CONSTRAINT}.
+     *
+     * Parameters: 'names' => <list of pathway names>
+     *             XOR
+     *             'ids' => <list of names in the form
+     *                       <database>:<db specific id>>
+     */
+    public final static String TRANSCRIPTS_CONSTRAINT = 'transcripts'
 }

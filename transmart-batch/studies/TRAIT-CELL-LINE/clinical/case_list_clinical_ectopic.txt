@@ -1,2 +1,0 @@
-Subject_id	Cell line name	
-HCT116_MLH1	HCT116_MLH1	

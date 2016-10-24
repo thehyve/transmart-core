@@ -112,6 +112,20 @@ class SampleBioMarkerTestData {
             'HOMO SAPIENS',
             'HMDB')
 
+    List<BioMarkerCoreDb> transcriptBioMarkers = createBioMarkers(-1700L, [
+            [name       : 'TRANSCRIPT_1',
+             description: 'Foo transcript 1',
+             externalId : 'foo_transcript_1'],
+            [name       : 'TRANSCRIPT_2',
+             description: 'Foo transcript 2',
+             externalId : 'foo_transcript_2'],
+            [name       : 'TRANSCRIPT_3',
+             description: 'Foo transcript 3',
+             externalId : 'foo_transcript_3']],
+            'TRANSCRIPT',
+            'HOMO SAPIENS',
+            'foo')
+
     List<SearchKeywordCoreDb> geneSearchKeywords =
             createSearchKeywordsForBioMarkers(geneBioMarkers, -2100L)
 
@@ -127,6 +141,8 @@ class SampleBioMarkerTestData {
     List<SearchKeywordCoreDb> metaboliteSearchKeywords =
             createSearchKeywordsForBioMarkers(metaboliteBioMarkers, -2600L)
 
+    List<SearchKeywordCoreDb> transcriptSearchKeywords =
+            createSearchKeywordsForBioMarkers(transcriptBioMarkers, -2700L)
 
     @Lazy
     // Lazy so other test data can be accessed outside of a grails application context, e.g. in an APIClient
@@ -166,6 +182,22 @@ class SampleBioMarkerTestData {
                 ],
                 [
                         geneBioMarkers.find { it.name == 'AURKA' }
+                ])
+    }()
+
+    @Lazy
+    List<BioDataCorrelationCoreDb> geneTranscriptCorrelations = {
+        def aurkaGene = geneBioMarkers.find { it.name == 'AURKA' }
+        createCorrelationPairs(-3500L,
+                [
+                        aurkaGene,
+                        aurkaGene,
+                        geneBioMarkers.find { it.name == 'SLC14A2' },
+                ],
+                [
+                        transcriptBioMarkers.find { it.name == 'TRANSCRIPT_1' },
+                        transcriptBioMarkers.find { it.name == 'TRANSCRIPT_2' },
+                        transcriptBioMarkers.find { it.name == 'TRANSCRIPT_3' },
                 ])
     }()
 
@@ -273,7 +305,7 @@ class SampleBioMarkerTestData {
             createSearchKeywordsForGeneSignatures(geneSignatures, -2300L)
 
     List<BioMarkerCoreDb> getAllBioMarkers() {
-        [geneBioMarkers, proteinBioMarkers, pathwayBioMarkers, mirnaBioMarkers, metaboliteBioMarkers].flatten()
+        [geneBioMarkers, proteinBioMarkers, pathwayBioMarkers, mirnaBioMarkers, metaboliteBioMarkers, transcriptBioMarkers].flatten()
     }
 
     void saveGeneData() {
@@ -318,10 +350,21 @@ class SampleBioMarkerTestData {
         save metaboliteSearchKeywords
     }
 
+    void saveTranscriptData() {
+        save geneBioMarkers
+        save geneSearchKeywords
+
+        save transcriptBioMarkers
+        save transcriptSearchKeywords
+
+        save geneTranscriptCorrelations
+    }
+
     void saveAll() {
         saveGeneData()
         saveProteinData()
         saveMirnaData()
         saveMetabolomicsData()
+        saveTranscriptData()
     }
 }

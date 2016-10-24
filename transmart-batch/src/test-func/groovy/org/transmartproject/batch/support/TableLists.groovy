@@ -74,6 +74,13 @@ class TableLists {
             Tables.CHROMOSOMAL_REGION,
     ]
 
+    public static final List<String> RNA_SEQ_TR_TABLES = [
+            Tables.GPL_INFO,
+            Tables.SUBJ_SAMPLE_MAP,
+            Tables.RNASEQ_TRANSCRIPT_DATA,
+            Tables.RNASEQ_TRANSCRIPT_ANNOTATION,
+    ]
+
     public static final List<String> CNV_TABLES = [
             Tables.GPL_INFO,
             Tables.SUBJ_SAMPLE_MAP,

@@ -1,4 +1,4 @@
-package org.transmartproject.batch.highdim.platform.chrregion
+package org.transmartproject.batch.highdim.rnaseq.transcript.platform
 
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.configuration.annotation.StepScope
@@ -13,13 +13,12 @@ import org.transmartproject.batch.db.SequenceReserver
 import org.transmartproject.batch.highdim.platform.Platform
 
 /**
- * Writes {@link org.transmartproject.batch.highdim.platform.chrregion.ChromosomalRegionRow} objects
- * into the database.
+ * Writes RnaSeq transcript data into the database.
  */
 @Component
 @StepScope
 @Slf4j
-class ChromosomalRegionRowWriter implements ItemWriter<ChromosomalRegionRow> {
+class RnaSeqTranscriptAnnotationWriter implements ItemWriter<RnaSeqTranscriptAnnotationRow> {
 
     @Autowired
     Platform platform
@@ -27,11 +26,11 @@ class ChromosomalRegionRowWriter implements ItemWriter<ChromosomalRegionRow> {
     @Autowired
     SequenceReserver sequenceReserver
 
-    @Value(Tables.CHROMOSOMAL_REGION)
+    @Value(Tables.RNASEQ_TRANSCRIPT_ANNOTATION)
     SimpleJdbcInsert jdbcInsert
 
     @Override
-    void write(List<? extends ChromosomalRegionRow> items) throws Exception {
+    void write(List<? extends RnaSeqTranscriptAnnotationRow> items) throws Exception {
         List<Map<String, Object>> dbRows = []
 
         items.each {
@@ -45,19 +44,16 @@ class ChromosomalRegionRowWriter implements ItemWriter<ChromosomalRegionRow> {
         log.debug("Written ${dbRows.size()} rows")
     }
 
-    Map<String, Object> doItem(ChromosomalRegionRow row) {
+    Map<String, Object> doItem(RnaSeqTranscriptAnnotationRow row) {
         [
-                region_id  : sequenceReserver.getNext(Sequences.CHROMOSOMAL_REGION_ID),
-                gpl_id     : platform.id,
-                chromosome : row.chromosome,
-                start_bp   : row.startBp,
-                end_bp     : row.endBp,
-                num_probes : row.numProbes,
-                region_name: row.regionName,
-                cytoband   : row.cytoband,
-                gene_symbol: row.geneSymbol,
-                gene_id    : row.geneId,
-                organism   : platform.organism,
+                //FIXME Use own sequence
+                id        : sequenceReserver.getNext(Sequences.CHROMOSOMAL_REGION_ID),
+                gpl_id    : platform.id,
+                ref_id    : row.refId,
+                chromosome: row.chromosome,
+                start_bp  : row.startBp,
+                end_bp    : row.endBp,
+                transcript: row.transcript
         ]
     }
 }
