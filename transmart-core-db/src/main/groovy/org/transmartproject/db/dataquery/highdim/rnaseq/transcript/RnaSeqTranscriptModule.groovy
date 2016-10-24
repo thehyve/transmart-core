@@ -98,11 +98,11 @@ class RnaSeqTranscriptModule extends AbstractHighDimensionDataTypeModule {
             createAlias('transcript.platform', 'platform')
 
             projections {
-                property 'rnaseqtranscript.assay.id', 'assayId'
-                property 'rnaseqtranscript.readcount', 'readcount'
-                property 'rnaseqtranscript.normalizedReadcount', 'normalizedReadcount'
-                property 'rnaseqtranscript.logNormalizedReadcount', 'logNormalizedReadcount'
-                property 'rnaseqtranscript.zscore', 'zscore'
+                property 'assay.id', 'assayId'
+                property 'readcount', 'readcount'
+                property 'normalizedReadcount', 'normalizedReadcount'
+                property 'logNormalizedReadcount', 'logNormalizedReadcount'
+                property 'zscore', 'zscore'
 
                 property 'transcript.transcript', 'transcript'
                 property 'transcript.chromosome', 'chromosome'
