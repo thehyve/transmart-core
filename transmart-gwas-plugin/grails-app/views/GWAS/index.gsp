@@ -7,30 +7,14 @@
         <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
         <title>${grailsApplication.config.com.recomdata.searchtool.appTitle}</title>
         
-        <!-- jQuery CSS for cupertino theme -->
-        <asset:stylesheet href="/jquery/skin/ui.dynatree.css')}"/>
-        
         <!-- Our CSS -->
-        <asset:stylesheet href="/jquery.loadmask.css')}"/>
-        <asset:stylesheet href="/jquery/simpleModal.css"/>
-        <asset:stylesheet href="/jquery/multiselect/ui.multiselect.css')}"/>
+        <asset:stylesheet href="jquery-plugin.css"/>
 
         <!-- jQuery JS libraries -->
-        <asset:javascript src="jquery-2.2.0.min.js"/>
+        <asset:javascript src="jquery-plugin.js"/>
 	    <script>jQuery.noConflict();</script> 
         
-        <asset:javascript src="jquery-ui.min.js"/>
-        <asset:javascript src="/jquery/jquery.cookie.js"/>
-        <asset:javascript src="/jquery/jquery.dynatree.min.js"/>
-		<asset:javascript src="/jquery/jquery.paging.min.js"/>
-		<asset:javascript src="/jquery/jquery.loadmask.min.js"/>
- 		<asset:javascript src="/jquery/jquery.ajaxmanager.js"/>
-  		<asset:javascript src="/jquery/jquery.numeric.js"/>
-  		%{--<asset:javascript src="/jquery/jquery.colorbox.js"/>--}%
-  		%{--<asset:javascript src="/jquery/jquery.simplemodal.js"/>--}%
-  		<asset:javascript src="/jquery/jquery.dataTables.js"/>
   		<asset:javascript src="/facetedSearch/facetedSearchBrowse.js"/>
-  		<asset:javascript src="/jquery/ui.multiselect.js"/>
   		<asset:javascript src="/help/D2H_ctxt.js"/>
   		
   		<g:ifPlugin name="folder-management">
@@ -151,7 +135,7 @@
 			});
 		</script>
 
-		<asset:javascript src="browseTab.js"/>
+		<asset:javascript src="browsetab.min.js"/>
 		<asset:stylesheet href="browseTab.css"/>
 		<asset:javascript src="gwas.js"/>
 		<asset:stylesheet href="gwas.css"/>

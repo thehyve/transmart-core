@@ -16,7 +16,7 @@
 }
 </style>
 
-<asset:javascript src="extjs.js"/>
+<asset:javascript src="extjs.min.js"/>
 
 <script type="text/javascript">
 

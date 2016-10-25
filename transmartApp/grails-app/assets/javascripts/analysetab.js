@@ -1,7 +1,6 @@
 
-//= require jquery-2.2.0.min.js
-//= require jquery-plugin.js
-// require extjs.js
+// require jquery-plugin.js
+// require extjs.min.js
 //= require session_time.js
 //= require advancedWorkflowFunctions.js
 //= require ajax_queue.js

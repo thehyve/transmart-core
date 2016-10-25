@@ -4,7 +4,7 @@ Original:
     Module: adminTab
 
 
-*= require jquery/ui
+*= require jquery/ui/jquery-ui.min.css
 *= require extjs.css
 *= require main_mod.css
 *= require session_timeout.css

@@ -14,7 +14,7 @@
     %{--<g:javascript library="jquery" />--}%
 
 
-    <asset:javascript src="jquery-2.2.0.min.js"/>
+    <asset:javascript src="jquery-plugin.js"/>
 
     %{--<r:require module="sampleTab" />--}%
     %{--<r:layoutResources/>--}%
@@ -25,56 +25,55 @@
 
     </script>
     <asset:stylesheet href="sampletab.css" />
-    <asset:javascript src="sampleTab.js" />
+    <asset:javascript src="sampletab.min.js" />
+
+    <script type="text/javascript">
+        Ext.BLANK_IMAGE_URL = "${resource(dir:'images', file:'s.gif')}";
+
+        //set ajax to 600*1000 milliseconds
+        Ext.Ajax.timeout = 1800000;
+
+        // this overrides the above
+        Ext.Updater.defaults.timeout = 1800000;
+
+        var pageInfo = {
+            basePath: "${request.getContextPath()}"
+        };
+
+        var sampleRequestType = "${sampleRequestType}" || "";
+        var currentResultInstanceId = "${result_instance_id}" || "";
+
+        /******************************************************************************/
+        //Global Variables
+        var GLOBAL = {
+            Version: '1.0',
+            SearchJSON: {},
+            resultDataSet: {},
+            resultGridPanel: '',
+            columnMap: ${raw(columnData.toString().replaceAll('\n','') ?: '{}')},
+            CurrentTimepoints: [],
+            CurrentSamples: [],
+            CurrentPlatforms: [],
+            CurrentGpls: [],
+            CurrentTissues: [],
+            CurrentRbmpanels: [],
+            Explorer: "SAMPLE",
+            resulttype: 'applet',
+            subsetTabs: 1,
+            HelpURL: '${grailsApplication.config.com.recomdata.adminHelpURL}',
+            ContactUs: '${grailsApplication.config.com.recomdata.contactUs}',
+            basePath: pageInfo.basePath,
+            AppTitle: '${grailsApplication.config.com.recomdata.appTitle}',
+            resultsGridHeight: jQuery(window).height() - 120,
+            //resultsGridHeight : ${grailsApplication.config.sampleExplorer.resultsGridHeight},
+            resultsGridWidth: '100%',
+            BuildVersion: 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:meta name="environment.BUILD_ID"/>',
+            explorerType: 'sampleExplorer'
+        };
+    </script>
 </head>
 
 <body>
-<script type="text/javascript">
-    Ext.BLANK_IMAGE_URL = "${resource(dir:'images', file:'s.gif')}";
-
-    //set ajax to 600*1000 milliseconds
-    Ext.Ajax.timeout = 1800000;
-
-    // this overrides the above
-    Ext.Updater.defaults.timeout = 1800000;
-
-    var pageInfo = {
-        basePath: "${request.getContextPath()}"
-    }
-
-    var sampleRequestType = "${sampleRequestType}" || ""
-    var currentResultInstanceId = "${result_instance_id}" || ""
-
-    /******************************************************************************/
-    //Global Variables
-    GLOBAL = {
-        Version: '1.0',
-        SearchJSON: {},
-        resultDataSet: {},
-        resultGridPanel: '',
-        columnMap: "${columnData.toString().replaceAll('\n','')}",
-        CurrentTimepoints: [],
-        CurrentSamples: [],
-        CurrentPlatforms: [],
-        CurrentGpls: [],
-        CurrentTissues: [],
-        CurrentRbmpanels: [],
-        Explorer: "SAMPLE",
-        resulttype: 'applet',
-        subsetTabs: 1,
-        HelpURL: '${grailsApplication.config.com.recomdata.adminHelpURL}',
-        ContactUs: '${grailsApplication.config.com.recomdata.contactUs}',
-        basePath: pageInfo.basePath,
-        AppTitle: '${grailsApplication.config.com.recomdata.appTitle}',
-        resultsGridHeight: jQuery(window).height() - 120,
-        //resultsGridHeight : ${grailsApplication.config.sampleExplorer.resultsGridHeight},
-        resultsGridWidth: '100%',
-        BuildVersion: 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:meta name="environment.BUILD_ID"/>',
-        explorerType: 'sampleExplorer'
-    };
-
-</script>
-
 <div id="header-div" class="header-div">
     <g:render template="/layouts/commonheader" model="['app': 'sampleexplorer', 'utilitiesMenu': 'true']"/>
 </div>
