@@ -1,7 +1,9 @@
 package fm
 
 import grails.util.Holders
+import groovy.transform.EqualsAndHashCode
 
+@EqualsAndHashCode
 class FmFolderAssociation implements Serializable {
 
     static transients = ['bioObject']
