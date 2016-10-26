@@ -19,8 +19,7 @@
 
 package org.transmartproject.db.dataquery.clinical
 
-import com.google.common.collect.ImmutableSet
-import org.transmartproject.core.dataquery.Patient
+import org.codehaus.groovy.runtime.InvokerHelper
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.TestDataHelper
@@ -30,10 +29,8 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.VisitDimension
-import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
-import org.codehaus.groovy.runtime.InvokerHelper
 
 import java.text.SimpleDateFormat
 
@@ -79,20 +76,28 @@ class ClinicalTestData {
 
     static ClinicalTestData createDefault(List<I2b2> concepts, List<PatientDimension> patients) {
         def facts = createDiagonalFacts(2, concepts, patients)
+        new ClinicalTestData(patients: patients, facts: facts)
+    }
 
-        //todo: not sure if we also need to instantiate ConceptDimensions in order to create these observation facts
+    static ClinicalTestData createHypercubeDefault(List<ConceptDimension> conceptDims,
+                                                   List<PatientDimension> patients) {
+
+        assert conceptDims.size() >= 7
+        assert patients.size() >= 3
+
+        def facts = createTabularFacts(conceptDims, patients)
+
         def longitudinalStudy = StudyTestData.createStudy "longitudinal study", ["patient", "concept", "trial visit", "study"]
-        def longitudinalClinicalFacts = createLongitudinalFacts(concepts[4].code, patients,
-                longitudinalStudy)
+        def longitudinalClinicalFacts = createLongitudinalFacts(conceptDims[4], patients, longitudinalStudy)
 
         def sampleStudy = StudyTestData.createStudy "sample study", ["patient", "concept", "study"] // todo: "sample", "testmodifier"
-        def sampleClinicalFacts = createSampleFacts(concepts[5].code, patients, sampleStudy)
+        def sampleClinicalFacts = createSampleFacts(conceptDims[5], patients, sampleStudy)
 
         SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         def visits = createTestVisit(3, patients[2], sdf.parse('2016-10-17 10:00:00'), sdf.parse('2016-10-27 10:00:00'))
 
         def ehrStudy = StudyTestData.createStudy "ehr study", ["patient", "concept", "study"] // todo: "visit"
-        def ehrClinicalFacts = createEhrFacts(concepts[6].code, visits, ehrStudy)
+        def ehrClinicalFacts = createEhrFacts(conceptDims[6], visits, ehrStudy)
 
         new ClinicalTestData(
                 patients: patients,
@@ -245,18 +250,18 @@ class ClinicalTestData {
         ]
     }
 
-    static List<ObservationFact> createLongitudinalFacts(String conceptCode, List<PatientDimension> patients,
+    static List<ObservationFact> createLongitudinalFacts(ConceptDimension concept, List<PatientDimension> patients,
                                                          Study study){
 
-        [ createObservationFact(conceptCode, patients[0], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 2, 'label_1', study)),
-          createObservationFact(conceptCode, patients[1], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 4, 'label_2', study)),
-          createObservationFact(conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('week', 2, 'label_3', study)) ]
+        [ createObservationFact(concept.conceptCode, patients[0], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 2, 'label_1', study)),
+          createObservationFact(concept.conceptCode, patients[1], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 4, 'label_2', study)),
+          createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('week', 2, 'label_3', study)) ]
     }
 
-    static List<ObservationFact> createSampleFacts(String conceptCode, List<PatientDimension> patients,
+    static List<ObservationFact> createSampleFacts(ConceptDimension concept, List<PatientDimension> patients,
                                                    Study study){
 
-        def fact = createObservationFact(conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 2, 'label_1', study))
+        def fact = createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 2, 'label_1', study))
         String modifierCd = 'TEST:TISSUETYPE'
 
         [ fact,
@@ -264,10 +269,10 @@ class ClinicalTestData {
           extendObservationFact(fact, 2, modifierCd, 'MUSCLE TISSUE')      ]
     }
 
-    static List<ObservationFact> createEhrFacts(String conceptCode, List<VisitDimension> visits, Study study){
+    static List<ObservationFact> createEhrFacts(ConceptDimension concept, List<VisitDimension> visits, Study study){
         def ehrFacts = []
         for (int i = 0; i < visits.size(); i++) {
-            ehrFacts << createObservationFact(conceptCode, visits[i].patient, visits[i].encounterNum, -45.42,
+            ehrFacts << createObservationFact(concept.conceptCode, visits[i].patient, visits[i].encounterNum, -45.42,
                     DUMMY_INSTANCE_ID, createTrialVisit('default', 0, null, study))
         }
         ehrFacts

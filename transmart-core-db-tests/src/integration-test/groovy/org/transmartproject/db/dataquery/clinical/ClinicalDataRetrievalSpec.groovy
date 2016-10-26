@@ -63,10 +63,6 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
     }
 
     TestData createTestData() {
-        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
-        Date startDate = sdf.parse('2016-10-17 10:00:00')
-        Date endDate = sdf.parse('2016-10-27 10:00:00')
-
         def tableAccess = ConceptTestData.createTableAccess(
                 level: 0,
                 fullName: '\\foo\\',
@@ -88,8 +84,6 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
         List<Patient> patients = I2b2Data.createTestPatients(3, -100, 'SAMP_TRIAL')
 
-        def visits = ClinicalTestData.createTestVisit(3, patients[2], startDate, endDate)
-
         def facts = ClinicalTestData.createTabularFacts(conceptDims, patients)
 
         def conceptData = new ConceptTestData(tableAccesses: [tableAccess], i2b2List: i2b2List, conceptDimensions: conceptDims)
@@ -98,7 +92,6 @@ class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
         def clinicalData = new ClinicalTestData(
                 patients: patients,
-                visits: visits,
                 facts: facts,
         )
 
