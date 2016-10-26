@@ -23,8 +23,7 @@
 		
 		%{--<g:javascript library="prototype" />--}%
 
-<asset:javascript src="jquery-2.2.0.min.js" />
-<asset:javascript src="jquery-ui.min.js" />
+<asset:javascript src="jquery-plugin.js" />
 <script type="text/javascript">$j = jQuery.noConflict();</script>
 <asset:javascript src="uploadData.js"/>
 <script type="text/javascript" charset="utf-8">
@@ -58,7 +57,7 @@ var buildVer = 'Build Version: <g:meta name="environment.BUILD_NUMBER"/> - <g:me
     helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 </script>
 <!-- ************************************** -->
-<asset:javascript src="browseTab.js"/>
+<asset:javascript src="browsetab.min.js"/>
 <asset:stylesheet href="browseTab.css"/>
 <asset:stylesheet href="uploadData.css" />
 

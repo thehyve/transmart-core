@@ -1,3 +1,9 @@
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder
+import ch.qos.logback.core.ConsoleAppender
+import ch.qos.logback.core.FileAppender
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy
+import ch.qos.logback.core.rolling.RollingFileAppender
+import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy
 import grails.util.BuildSettings
 import grails.util.Environment
 
@@ -10,16 +16,38 @@ appender('stdout', ConsoleAppender) {
 
 root(INFO, ['stdout'])
 
-def targetDir = BuildSettings.TARGET_DIR
-if (Environment.isDevelopmentMode() && targetDir) {
+boolean productionMode = Environment.current == Environment.PRODUCTION
+def logDirectory = BuildSettings.TARGET_DIR
+if (productionMode) {
+    def catalinaBase = System.getProperty('catalina.base') ?: '.'
+    logDirectory = "${catalinaBase}/logs".toString()
+}
+if ((productionMode || Environment.isDevelopmentMode()) && logDirectory) {
     appender("FULL_STACKTRACE", FileAppender) {
-        file = "${targetDir}/stacktrace.log"
+        file = "${logDirectory}/stacktrace.log"
         append = true
         encoder(PatternLayoutEncoder) {
             pattern = "%level %logger - %msg%n"
         }
     }
     logger("StackTrace", ERROR, ['FULL_STACKTRACE'], false)
+}
+if (productionMode && logDirectory) {
+    appender('transmart', RollingFileAppender) {
+        file = "${logDirectory}/transmart.log"
+        encoder(PatternLayoutEncoder) {
+            pattern = '%d{dd-MM-yyyy HH:mm:ss,SSS} %5p %c{1} - %m%n'
+        }
+        triggeringPolicy(SizeBasedTriggeringPolicy) {
+            maxFileSize = '100MB'
+        }
+        rollingPolicy(FixedWindowRollingPolicy) {
+            fileNamePattern = 'transmart.%i.log'
+            minIndex = 1
+            maxIndex = 9
+        }
+    }
+    root(WARN, ['transmart'])
 }
 
 /**
@@ -53,12 +81,10 @@ logger('org.transmart.audit', TRACE, ['stdout'])
 */
 
 if (Environment.is(Environment.TEST)) {
-    logger('org.codehaus.groovy.grails.commons.spring', WARN)
-    logger('org.codehaus.groovy.grails.domain.GrailsDomainClassCleaner', WARN)
-    logger('org.codehaus.groovy.grails.plugins.DefaultGrailsPluginManager', WARN) //info to show plugin versions
-    logger('org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsDomainBinder', WARN) //info to show joined-subclass indo
+    logger('org.grails.spring', WARN)
+    logger('org.grails.plugins.domain.support.GrailsDomainClassCleaner', WARN)
+    logger('grails.plugins.DefaultGrailsPluginManager', WARN) //info to show plugin versions
+    logger('org.grails.orm.hibernate.cfg', WARN) //info to show joined-subclass indo
 
     root(INFO, ['stdout'])
 }
-
-logger('org.codehaus.groovy.grails.commons.cfg.ConfigurationHelper', WARN)
