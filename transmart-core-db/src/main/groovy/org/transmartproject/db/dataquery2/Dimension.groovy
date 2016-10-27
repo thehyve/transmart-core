@@ -172,5 +172,60 @@ class StartTimeDimension extends Dimension {
     }
 }
 
+@InheritConstructors
+class EndTimeDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.projection += {
+            endTime 'endDate'
+        }
+        query.projectionOwners += this
+    }
 
+    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
+        elementIds
+    }
+}
 
+@InheritConstructors
+class LocationDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.projection += {
+            location 'locationCd'
+        }
+        query.projectionOwners += this
+    }
+
+    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
+        elementIds
+    }
+}
+
+@InheritConstructors
+class VisitDimension extends Dimension {
+
+    def selectIDs(Query query) {
+        query.projection += {
+            visitId 'getVisit().id'
+        }   //TODO not sure if this mapping works
+        query.projectionOwners += this
+    }
+
+    @Override
+    List<Object> resolveElements(Collection<Serializable> elementIds) {
+        org.transmartproject.db.i2b2data.VisitDimension.getAll(elementIds)
+    }
+}
+
+@InheritConstructors
+class ProviderDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.projection += {
+            provider 'providerId'
+        }
+        query.projectionOwners += this
+    }
+
+    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
+        elementIds
+    }
+}

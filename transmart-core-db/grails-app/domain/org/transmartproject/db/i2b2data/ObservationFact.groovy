@@ -40,16 +40,16 @@ class ObservationFact implements Serializable {
     BigDecimal encounterNum
     String     providerId
     Date       startDate
+    Date       endDate
     String     modifierCd
     Long       instanceNum
+    String     locationCd
 
     //TrialVisit trialVisit
     //VisitDimension visit
     // unsed for now
     //BigDecimal quantityNum
     //String     unitsCd
-    //Date       endDate
-    //String     locationCd
     //String     observationBlob
     //BigDecimal confidenceNum
     //Date       updateDate
@@ -88,13 +88,12 @@ class ObservationFact implements Serializable {
         numberValue       nullable:   true,   scale:     5
         valueFlag         nullable:   true,   maxSize:   50
         sourcesystemCd    nullable:   true,   maxSize:   50
-
+        endDate           nullable:   true
+        locationCd        nullable:   true,   maxSize:   50
 
         // unused for now
         //quantityNum       nullable:   true,   scale:     5
         //unitsCd           nullable:   true,   maxSize:   50
-        //endDate           nullable:   true
-        //locationCd        nullable:   true,   maxSize:   50
         //observationBlob   nullable:   true
         //confidenceNum     nullable:   true,   scale:     5
         //updateDate        nullable:   true
