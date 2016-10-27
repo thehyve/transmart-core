@@ -229,3 +229,48 @@ class ProviderDimension extends Dimension {
         elementIds
     }
 }
+
+@InheritConstructors
+class AssayDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.projection += {
+            assay 'assay.id'
+        }
+        query.projectionOwners += this
+    }
+
+    @Override
+    List<Object> resolveElements(Collection<Serializable> elementIds) {
+        throw new NotImplementedException()
+    }
+}
+
+@InheritConstructors
+class BioMarkerDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.projection += {
+            bioMarker 'biomarker.id'
+        }
+        query.projectionOwners += this
+    }
+
+    @Override
+    List<Object> resolveElements(Collection<Serializable> elementIds) {
+        throw new NotImplementedException()
+    }
+}
+
+@InheritConstructors
+class ProjectionDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.projection += {
+            projection 'projection.id'
+        }
+        query.projectionOwners += this
+    }
+
+    @Override
+    List<Object> resolveElements(Collection<Serializable> elementIds) {
+        throw new NotImplementedException()
+    }
+}
