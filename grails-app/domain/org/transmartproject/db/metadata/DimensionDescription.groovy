@@ -8,8 +8,13 @@ import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.ModifierDimension
 import org.transmartproject.db.dataquery2.PatientDimension
 import org.transmartproject.db.dataquery2.StartTimeDimension
+import org.transmartproject.db.dataquery2.EndTimeDimension
+import org.transmartproject.db.dataquery2.LocationDimension
 import org.transmartproject.db.dataquery2.StudyDimension
 import org.transmartproject.db.dataquery2.TrialVisitDimension
+import org.transmartproject.db.dataquery2.VisitDimension
+import org.transmartproject.db.dataquery2.ProviderDimension
+
 import org.transmartproject.db.i2b2data.Study
 
 import static org.transmartproject.db.dataquery2.Dimension.Density.SPARSE
@@ -18,6 +23,7 @@ import static org.transmartproject.db.dataquery2.Dimension.Packable.PACKABLE
 import static org.transmartproject.db.dataquery2.Dimension.Packable.NOT_PACKABLE
 import static org.transmartproject.db.dataquery2.Dimension.Size.LARGE
 import static org.transmartproject.db.dataquery2.Dimension.Size.MEDIUM
+import static org.transmartproject.db.dataquery2.Dimension.Size.SMALL
 
 class DimensionDescription {
     static final String LEGACY_MARKER = "legacy tabular study marker"
@@ -45,12 +51,14 @@ class DimensionDescription {
             "study": new StudyDimension(MEDIUM, SPARSE, PACKABLE),
             "concept": new ConceptDimension(MEDIUM, DENSE, PACKABLE),
             "patient": new PatientDimension(LARGE, DENSE, PACKABLE),
-//            "visit": new VisitDimension(SMALL, DENSE, PACKABLE),
+            "visit": new VisitDimension(SMALL, DENSE, PACKABLE),
             "start time": new StartTimeDimension(LARGE, SPARSE, NOT_PACKABLE),
-//            "end time": new EndTimeDimension(LARGE, SPARSE, NOT_PACKABLE),
-//            "location": new LocationDimension(MEDIUM, SPARSE, NOT_PACKABLE),
+            "end time": new EndTimeDimension(LARGE, SPARSE, NOT_PACKABLE),
+            "location": new LocationDimension(MEDIUM, SPARSE, NOT_PACKABLE),
             "trial visit": new TrialVisitDimension(MEDIUM, DENSE, PACKABLE),
+            "provider": new ProviderDimension(SMALL, DENSE, PACKABLE),
 //            "sample": new SampleDimension(SMALL, DENSE, NOT_PACKABLE),
+
 //            "biomarker": new BioMarkerDimension(LARGE, DENSE, PACKABLE),
 //            "projection": new ProjectionDimension(SMALL, DENSE, PACKABLE),
 //            "assay": new AssayDimension(LARGE, DENSE, PACKABLE),
