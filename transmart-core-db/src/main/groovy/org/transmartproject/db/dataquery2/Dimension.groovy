@@ -90,7 +90,9 @@ class PatientDimension extends Dimension {
 
     def selectIDs(Query query) {
         query.criteria.with {
-            property 'patient.id'
+            projections {
+                property 'patient.id'
+            }
         }
         query.projectionOwners += this
     }
@@ -106,7 +108,9 @@ class ConceptDimension extends Dimension {
 
     def selectIDs(Query query) {
         query.criteria.with {
-            property 'conceptCode'
+            projections {
+                property 'conceptCode'
+            }
         }
         query.projectionOwners += this
     }
@@ -122,7 +126,9 @@ class TrialVisitDimension extends Dimension {
 
     def selectIDs(Query query) {
         query.criteria.with {
-            property 'trialVisit.id'
+            projections {
+                property 'trialVisit.id'
+            }
         }
         query.projectionOwners += this
     }
@@ -138,8 +144,10 @@ class StudyDimension extends Dimension {
 
     def selectIDs(Query query) {
         query.criteria.with {
-            trialVisit {
-                property 'study.id'
+            projections {
+                trialVisit {
+                    property 'study.id'
+                }
             }
         }
         query.projectionOwners += this
