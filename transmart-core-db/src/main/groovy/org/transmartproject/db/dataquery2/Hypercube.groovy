@@ -5,7 +5,10 @@ import com.google.common.collect.HashBiMap
 import com.google.common.collect.ImmutableMap
 import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
+import org.hibernate.StatelessSession
 import org.transmartproject.core.IterableResult
+import org.transmartproject.db.clinical.MultidimensionalDataResourceService
+import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 
 /**
@@ -21,10 +24,11 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
      * in dimensionElements. Each dimension has a numeric index in dimensionsIndexMap. Each ClinicalValue
      */
 
-    Hypercube(ScrollableResults results, List<Dimension> dimensions, Query query) {
+    Hypercube(ScrollableResults results, List<Dimension> dimensions, Query query, StatelessSession session) {
         this.results = results
         this.dimensions = dimensions
         this.query = query
+        this.session = session
     }
 
     Iterator getIterator() {
@@ -51,7 +55,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
             // Closures are not called statically afaik, even with @CompileStatic; use a plain old loop
             for(int i=0; i<nDims; i++) {
                 Dimension d = query.projectionOwners[i]
-                Serializable dimElementKey = result[i + HQueryResourceService.NUM_FIXED_PROJECTIONS]
+                Serializable dimElementKey = result[i + MultidimensionalDataResourceService.NUM_FIXED_PROJECTIONS]
                 if(d.packable.packable) {
                     Map<Serializable,Integer> elementIdxes = Hypercube.this.dimensionElementIdxes[d]
                     Integer dimElementIdx = elementIdxes[dimElementKey]
@@ -68,6 +72,8 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
             new HypercubeValue(Hypercube.this, dimensionElementIdxes, textValue)
         }
     }
+
+    StatelessSession session
 
     //def sort
     //def pack
@@ -132,6 +138,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
 
     void close() {
         results.close()
+        session.close()
     }
 }
 
