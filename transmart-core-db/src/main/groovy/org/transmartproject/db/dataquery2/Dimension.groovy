@@ -23,7 +23,7 @@ abstract class Dimension {
     }
 
     enum Packable {
-        PACKABLE    (packable: true),
+        PACKABLE(packable: true),
         NOT_PACKABLE(packable: false);
 
         boolean packable
@@ -50,18 +50,17 @@ abstract class Dimension {
      * GORM cache.
      * Non-packable dimensions must return a List<Object>
      */
+
     abstract Collection<Object> resolveElements(Collection<Serializable> elementIds)
 
     /* This default implementation should be overridden for efficiency for non-packable dimensions.
      */
+
     Object resolveElement(Serializable elementId) {
         resolveElements([elementId])[0]
     }
 
 }
-
-
-
 
 //TODO: supporting modifier dimensions requires support for sorting, since we need to sort on the full PK except
 // modifierCd in order to ensure that modifier ObservationFacts come next to their observation value
@@ -90,9 +89,7 @@ class PatientDimension extends Dimension {
 
     def selectIDs(Query query) {
         query.criteria.with {
-            projections {
-                property 'patient.id'
-            }
+            property 'patient.id'
         }
         query.projectionOwners += this
     }
@@ -108,9 +105,7 @@ class ConceptDimension extends Dimension {
 
     def selectIDs(Query query) {
         query.criteria.with {
-            projections {
-                property 'conceptCode'
-            }
+            property 'conceptCode'
         }
         query.projectionOwners += this
     }
@@ -126,9 +121,7 @@ class TrialVisitDimension extends Dimension {
 
     def selectIDs(Query query) {
         query.criteria.with {
-            projections {
-                property 'trialVisit.id'
-            }
+            property 'trialVisit.id'
         }
         query.projectionOwners += this
     }
@@ -144,10 +137,8 @@ class StudyDimension extends Dimension {
 
     def selectIDs(Query query) {
         query.criteria.with {
-            projections {
-                trialVisit {
-                    property 'study.id'
-                }
+            trialVisit {
+                property 'study.id'
             }
         }
         query.projectionOwners += this
@@ -158,10 +149,11 @@ class StudyDimension extends Dimension {
     }
 }
 
+
 @InheritConstructors
 class StartTimeDimension extends Dimension {
     def selectIDs(Query query) {
-        query.projection += {
+        query.criteria.with {
             property 'startDate'
         }
         query.projectionOwners += this
@@ -175,8 +167,8 @@ class StartTimeDimension extends Dimension {
 @InheritConstructors
 class EndTimeDimension extends Dimension {
     def selectIDs(Query query) {
-        query.projection += {
-            endTime 'endDate'
+        query.criteria.with {
+            property 'endDate'
         }
         query.projectionOwners += this
     }
@@ -189,8 +181,8 @@ class EndTimeDimension extends Dimension {
 @InheritConstructors
 class LocationDimension extends Dimension {
     def selectIDs(Query query) {
-        query.projection += {
-            location 'locationCd'
+        query.criteria.with {
+            property 'locationCd'
         }
         query.projectionOwners += this
     }
@@ -204,9 +196,9 @@ class LocationDimension extends Dimension {
 class VisitDimension extends Dimension {
 
     def selectIDs(Query query) {
-        query.projection += {
-            visitId 'getVisit().id'
-        }   //TODO not sure if this mapping works
+        query.criteria.with {
+            property 'getVisit().id'
+        }
         query.projectionOwners += this
     }
 
@@ -219,8 +211,8 @@ class VisitDimension extends Dimension {
 @InheritConstructors
 class ProviderDimension extends Dimension {
     def selectIDs(Query query) {
-        query.projection += {
-            provider 'providerId'
+        query.criteria.with {
+            property 'providerId'
         }
         query.projectionOwners += this
     }
@@ -233,8 +225,8 @@ class ProviderDimension extends Dimension {
 @InheritConstructors
 class AssayDimension extends Dimension {
     def selectIDs(Query query) {
-        query.projection += {
-            assay 'assay.id'
+        query.criteria.with {
+            property 'assay.id'
         }
         query.projectionOwners += this
     }
@@ -248,8 +240,8 @@ class AssayDimension extends Dimension {
 @InheritConstructors
 class BioMarkerDimension extends Dimension {
     def selectIDs(Query query) {
-        query.projection += {
-            bioMarker 'biomarker.id'
+        query.criteria.with {
+            property 'biomarker.id'
         }
         query.projectionOwners += this
     }
@@ -263,8 +255,8 @@ class BioMarkerDimension extends Dimension {
 @InheritConstructors
 class ProjectionDimension extends Dimension {
     def selectIDs(Query query) {
-        query.projection += {
-            projection 'projection.id'
+        query.criteria.with {
+            property 'projection.id'
         }
         query.projectionOwners += this
     }

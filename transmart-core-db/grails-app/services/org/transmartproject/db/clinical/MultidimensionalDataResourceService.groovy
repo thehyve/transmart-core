@@ -39,6 +39,9 @@ class MultidimensionalDataResourceService {
 
         HibernateCriteriaBuilder q = GormWorkarounds.createCriteriaBuilder(ObservationFact, 'observations', session)
         q.with {
+
+            // The main reason to use this projections block is that it clears all the default projections that
+            // select all fields.
             projections {
                 // NUM_FIXED_PROJECTIONS must match the number of projections defined here
                 property 'textValue'
