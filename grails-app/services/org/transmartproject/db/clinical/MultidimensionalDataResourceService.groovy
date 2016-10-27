@@ -11,12 +11,14 @@ import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.StatelessSession
 import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.Hypercube
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.util.GormWorkarounds
 
 
 class MultidimensionalDataResourceService {
@@ -32,18 +34,31 @@ class MultidimensionalDataResourceService {
         def pack = args.pack
         def preloadDimensions = args.pack ?: false
 
-        def studynames = [constraints?.study]
-        if(!studynames?.get(0)) {
+        def studynames = constraints?.study
+        if (studynames instanceof String) studynames = [studynames]
+        if(!studynames[0]) {
             throw new RuntimeException("no study provided")
         }
 
-        DetachedCriteria<ObservationFact> q = ObservationFact.where {
-            trialvisit.study.name in studynames
-        }
+        // We need methods from different interfaces that StatelessSessionImpl implements.
+        def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
+        session.connection().autoCommit = false
 
-        if(constraints?.study) {
-            q = q.where {
-                trialVisit.study.name == constraints.study
+        HibernateCriteriaBuilder q = GormWorkarounds.createCriteriaBuilder(ObservationFact, 'observations', session)
+        q.with {
+
+            // The main reason to use this projections block is that it clears all the default projections that
+            // select all fields.
+            projections {
+                // NUM_FIXED_PROJECTIONS must match the number of projections defined here
+                property 'textValue'
+                property 'numberValue'
+            }
+
+            trialVisit {
+                study {
+                    inList 'name', studynames
+                }
             }
         }
 
@@ -52,41 +67,19 @@ class MultidimensionalDataResourceService {
             name in studynames
         }*.dimensions.flatten()*.dimension.unique()
 
-
-        def projection = {
-            // NUM_FIXED_PROJECTIONS must match the number of projections defined here
-            textValue 'textValue'
-            numberValue 'numberValue'
-        }
-        Query query = new Query(q, [modifierCodes: ['@']], [projection], [])
+        Query query = new Query(q, [modifierCodes: ['@']], [])
 
         dimensions.each {
             it.selectIDs(query)
         }
-        if (query.params.mofifierCodes != ['@']) throw new NotImplementedException("Modifer dimensions are not yet implemented")
+        if (query.params.modifierCodes != ['@']) throw new NotImplementedException("Modifer dimensions are not yet implemented")
 
-        q = query.criteria.where {
-            projection {
-                query.projection.each {
-                    it.delegate = delegate
-                    it()
-                    it.delegate = null
-                }
-            }
+        q.with {
+            inList 'modifierCd', query.params.modifierCodes
+            // todo: order by primary-key-except-modifierCodes
         }
 
-        def hibernateCriteria = HibernateCriteriaBuilder.getHibernateDetachedCriteria(
-                /*not used in this method's implementation*/ null, q)
-
-        def session = sessionFactory.openStatelessSession()
-        session.connection().autoCommit = false
-
-        // we need to access a private here, the official getExecutableCriteria method requires a Session which
-        // it casts to a SessionImplementor
-        Criteria criteria = hibernateCriteria.criteriaImpl
-        criteria.session = (SessionImplementor) session
-
-        ScrollableResults results = criteria.scroll(ScrollMode.FORWARD_ONLY)
+        ScrollableResults results = query.criteria.instance.scroll(ScrollMode.FORWARD_ONLY)
 
         new Hypercube(results, dimensions, query, session)
         // session will be closed by the Hypercube
@@ -106,8 +99,7 @@ class MultidimensionalDataResourceService {
 
 @TupleConstructor
 class Query {
-    DetachedCriteria<ObservationFact> criteria
+    HibernateCriteriaBuilder criteria
     Map params
-    List<Closure> projection
     List<Dimension> projectionOwners
 }

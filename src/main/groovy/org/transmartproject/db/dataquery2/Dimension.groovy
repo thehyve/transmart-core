@@ -77,7 +77,6 @@ class ModifierDimension extends Dimension {
 
     def selectIDs(Query query) {
         query.params.modifierCodes += modifierCode
-        query
     }
 
     @Override
@@ -90,8 +89,8 @@ class ModifierDimension extends Dimension {
 class PatientDimension extends Dimension {
 
     def selectIDs(Query query) {
-        query.projection += {
-            patientId 'patient.id'
+        query.criteria.with {
+            property 'patient.id'
         }
         query.projectionOwners += this
     }
@@ -106,8 +105,8 @@ class PatientDimension extends Dimension {
 class ConceptDimension extends Dimension {
 
     def selectIDs(Query query) {
-        query.projection += {
-            conceptCode 'conceptCode'
+        query.criteria.with {
+            property 'conceptCode'
         }
         query.projectionOwners += this
     }
@@ -122,8 +121,8 @@ class ConceptDimension extends Dimension {
 class TrialVisitDimension extends Dimension {
 
     def selectIDs(Query query) {
-        query.projection += {
-            trialVisitId 'trialVisit.id'
+        query.criteria.with {
+            property 'trialVisit.id'
         }
         query.projectionOwners += this
     }
@@ -138,8 +137,10 @@ class TrialVisitDimension extends Dimension {
 class StudyDimension extends Dimension {
 
     def selectIDs(Query query) {
-        query.projection += {
-            studyId 'trialVisit.study.id'
+        query.criteria.with {
+            trialVisit {
+                property 'study.id'
+            }
         }
         query.projectionOwners += this
     }
@@ -153,7 +154,7 @@ class StudyDimension extends Dimension {
 class StartTimeDimension extends Dimension {
     def selectIDs(Query query) {
         query.projection += {
-            startTime 'startDate'
+            property 'startDate'
         }
         query.projectionOwners += this
     }

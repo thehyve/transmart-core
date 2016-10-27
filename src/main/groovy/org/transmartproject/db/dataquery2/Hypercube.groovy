@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableMap
 import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.StatelessSession
+import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.internal.StatelessSessionImpl
 import org.transmartproject.core.IterableResult
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.clinical.Query
@@ -24,7 +26,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
      * in dimensionElements. Each dimension has a numeric index in dimensionsIndexMap. Each ClinicalValue
      */
 
-    Hypercube(ScrollableResults results, List<Dimension> dimensions, Query query, StatelessSession session) {
+    Hypercube(ScrollableResults results, List<Dimension> dimensions, Query query, StatelessSessionImpl session) {
         this.results = results
         this.dimensions = dimensions
         this.query = query
@@ -73,7 +75,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
         }
     }
 
-    StatelessSession session
+    StatelessSessionImpl session
 
     //def sort
     //def pack
