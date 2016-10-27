@@ -1,25 +1,18 @@
 package org.transmartproject.db.clinical
 
-import grails.gorm.DetachedCriteria
 import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
-import org.hibernate.Criteria
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
-import org.hibernate.Session
 import org.hibernate.SessionFactory
-import org.hibernate.StatelessSession
-import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.Hypercube
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.util.GormWorkarounds
-
 
 class MultidimensionalDataResourceService {
 

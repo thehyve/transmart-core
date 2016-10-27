@@ -23,7 +23,7 @@ abstract class Dimension {
     }
 
     enum Packable {
-        PACKABLE    (packable: true),
+        PACKABLE(packable: true),
         NOT_PACKABLE(packable: false);
 
         boolean packable
@@ -50,18 +50,17 @@ abstract class Dimension {
      * GORM cache.
      * Non-packable dimensions must return a List<Object>
      */
+
     abstract Collection<Object> resolveElements(Collection<Serializable> elementIds)
 
     /* This default implementation should be overridden for efficiency for non-packable dimensions.
      */
+
     Object resolveElement(Serializable elementId) {
         resolveElements([elementId])[0]
     }
 
 }
-
-
-
 
 //TODO: supporting modifier dimensions requires support for sorting, since we need to sort on the full PK except
 // modifierCd in order to ensure that modifier ObservationFacts come next to their observation value
@@ -150,10 +149,11 @@ class StudyDimension extends Dimension {
     }
 }
 
+
 @InheritConstructors
 class StartTimeDimension extends Dimension {
     def selectIDs(Query query) {
-        query.projection += {
+        query.criteria.with {
             property 'startDate'
         }
         query.projectionOwners += this
@@ -164,5 +164,105 @@ class StartTimeDimension extends Dimension {
     }
 }
 
+@InheritConstructors
+class EndTimeDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.criteria.with {
+            property 'endDate'
+        }
+        query.projectionOwners += this
+    }
 
+    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
+        elementIds
+    }
+}
 
+@InheritConstructors
+class LocationDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.criteria.with {
+            property 'locationCd'
+        }
+        query.projectionOwners += this
+    }
+
+    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
+        elementIds
+    }
+}
+
+@InheritConstructors
+class VisitDimension extends Dimension {
+
+    def selectIDs(Query query) {
+        query.criteria.with {
+            property 'getVisit().id'
+        }
+        query.projectionOwners += this
+    }
+
+    @Override
+    List<Object> resolveElements(Collection<Serializable> elementIds) {
+        org.transmartproject.db.i2b2data.VisitDimension.getAll(elementIds)
+    }
+}
+
+@InheritConstructors
+class ProviderDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.criteria.with {
+            property 'providerId'
+        }
+        query.projectionOwners += this
+    }
+
+    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
+        elementIds
+    }
+}
+
+@InheritConstructors
+class AssayDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.criteria.with {
+            property 'assay.id'
+        }
+        query.projectionOwners += this
+    }
+
+    @Override
+    List<Object> resolveElements(Collection<Serializable> elementIds) {
+        throw new NotImplementedException()
+    }
+}
+
+@InheritConstructors
+class BioMarkerDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.criteria.with {
+            property 'biomarker.id'
+        }
+        query.projectionOwners += this
+    }
+
+    @Override
+    List<Object> resolveElements(Collection<Serializable> elementIds) {
+        throw new NotImplementedException()
+    }
+}
+
+@InheritConstructors
+class ProjectionDimension extends Dimension {
+    def selectIDs(Query query) {
+        query.criteria.with {
+            property 'projection.id'
+        }
+        query.projectionOwners += this
+    }
+
+    @Override
+    List<Object> resolveElements(Collection<Serializable> elementIds) {
+        throw new NotImplementedException()
+    }
+}

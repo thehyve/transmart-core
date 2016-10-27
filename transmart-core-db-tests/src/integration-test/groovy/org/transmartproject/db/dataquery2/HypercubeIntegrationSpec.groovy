@@ -87,6 +87,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         result as HashMultiset == clinicalData.longitudinalClinicalFacts*.textValue as HashMultiset
     }
 
+    @Ignore
     void 'test_basic_longitudinal_retrieval'() {
         setupData()
 
