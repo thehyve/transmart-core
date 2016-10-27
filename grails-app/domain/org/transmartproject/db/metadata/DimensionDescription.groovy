@@ -41,7 +41,7 @@ class DimensionDescription {
     }
 
 
-    static dimensionsMap = ImmutableMap.copyOf([
+    static ImmutableMap<String,Dimension> dimensionsMap = ImmutableMap.copyOf([
             "study": new StudyDimension(MEDIUM, SPARSE, PACKABLE),
             "concept": new ConceptDimension(MEDIUM, DENSE, PACKABLE),
             "patient": new PatientDimension(LARGE, DENSE, PACKABLE),

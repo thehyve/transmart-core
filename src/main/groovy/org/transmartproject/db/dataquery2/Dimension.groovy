@@ -3,6 +3,7 @@ package org.transmartproject.db.dataquery2
 import groovy.transform.InheritConstructors
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
+import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
 
