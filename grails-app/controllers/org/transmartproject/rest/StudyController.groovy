@@ -53,12 +53,12 @@ class StudyController {
         def studies = studiesResourceService.studySet
         //Checks to which studies the user has access.
         studies.each { study ->
-            boolean accessView = currentUser.canPerform(API_READ, study)
-            boolean accessExport = currentUser.canPerform(EXPORT, study)
+            boolean view = currentUser.canPerform(API_READ, study)
+            boolean export = currentUser.canPerform(EXPORT, study)
             //Possibility of adding more access types.
             Map accessibleByUser = [
-                    view:accessView,
-                    export:accessExport]
+                    view:view,
+                    export:export]
             StudyAccessImpl studyAccessImpl= new StudyAccessImpl(
                     accessibleByUser:accessibleByUser,
                     study:study)
@@ -76,12 +76,12 @@ class StudyController {
     def show(String id) {
         def studyImpl =  studiesResourceService.getStudyById(id)
         //Check if the user has access to the specific study.
-        boolean accessView = currentUser.canPerform(API_READ, studyImpl)
-        boolean accessExport = currentUser.canPerform(EXPORT, studyImpl)
+        boolean view = currentUser.canPerform(API_READ, studyImpl)
+        boolean export = currentUser.canPerform(EXPORT, studyImpl)
         //Possibility of adding more access types.
         Map accessibleByUser = [
-                view:accessView,
-                export:accessExport]
+                view:view,
+                export:export]
         StudyAccessImpl studyAccessImpl = new StudyAccessImpl(
                 accessibleByUser:accessibleByUser,
                 study:studyImpl,
