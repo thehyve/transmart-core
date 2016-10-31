@@ -40,15 +40,15 @@ class StudyAccessSerializationHelper extends AbstractHalOrJsonSerializationHelpe
     final String collectionName = 'studiesAccess'
 
     @Override
-    Collection<Link> getLinks(StudyAccessImpl StudyAccessImpl) {
+    Collection<Link> getLinks(StudyAccessImpl studyAccessImpl) {
         [new Link(RELATIONSHIP_SELF, '/studies/' +
-                StudyAccessImpl.study.id.toLowerCase(Locale.ENGLISH).encodeAsURL())]
+                studyAccessImpl.study.id.toLowerCase(Locale.ENGLISH).encodeAsURL())]
     }
 
     @Override
-    Map<String, Object> convertToMap(StudyAccessImpl StudyAccessImpl) {
-        def term = new OntologyTermWrapper(StudyAccessImpl.study.ontologyTerm, true)
-        def mapResponse = [id: StudyAccessImpl.study.id, ontologyTerm: term, accessibleByUser:StudyAccessImpl.accessibleByUser]
+    Map<String, Object> convertToMap(StudyAccessImpl studyAccessImpl) {
+        def term = new OntologyTermWrapper(studyAccessImpl.study.ontologyTerm, true)
+        def mapResponse = [id: studyAccessImpl.study.id, ontologyTerm: term, accessibleByUser:studyAccessImpl.accessibleByUser]
         mapResponse
     }
 

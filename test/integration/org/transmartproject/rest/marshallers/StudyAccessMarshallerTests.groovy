@@ -47,28 +47,26 @@ class StudyAccessMarshallerTests {
     private static final String ONTOLOGY_KEY = '\\\\foo bar\\foo\\test_study\\'
     private static final String ONTOLOGY_FULL_NAME = '\\foo\\test_study\\'
     private static final String version = 'v1'
-    private static final Map ACCESSIBLEBYUSER = [ view : true,
+    private static final Map ACCESSIBLE_BY_USER = [ view : true,
                                                export : true ]
 
     StudyAccess getMockStudyAccess() {
-        createStudyAccess(STUDY_ID, ONTOLOGY_KEY, ACCESSIBLEBYUSER)
+        createStudyAccess(STUDY_ID, ONTOLOGY_KEY, ACCESSIBLE_BY_USER)
     }
 
     @Test
     void basicTest() {
-        def preJson = mockStudyAccess
-        def json = preJson as JSON
+        def json = mockStudyAccess as JSON
 
         JsonSlurper slurper = new JsonSlurper()
         assertThat slurper.parseText(json.toString()), allOf(
-                hasEntry(is('study'), allOf(
                     hasEntry('id', STUDY_ID),
                     hasEntry(is('ontologyTerm'), allOf(
                         hasEntry('name', ONTOLOGY_TERM_NAME),
                         hasEntry('fullName', ONTOLOGY_FULL_NAME),
                         hasEntry('key', ONTOLOGY_KEY),
-                    )))),
-                hasEntry('accessibleByUser', ACCESSIBLEBYUSER)
+                    )),
+                hasEntry('accessibleByUser', ACCESSIBLE_BY_USER)
                     )
 
     }
@@ -84,7 +82,6 @@ class StudyAccessMarshallerTests {
 
         JsonSlurper slurper = new JsonSlurper()
         assertThat slurper.parseText(stringResult), allOf(
-                hasEntry(is('study'), allOf(
                     hasEntry('id', STUDY_ID),
                     hasEntry(is('_links'),
                         hasEntry(is('self'),
@@ -97,8 +94,8 @@ class StudyAccessMarshallerTests {
                                 hasEntry('name', ONTOLOGY_TERM_NAME),
                                 hasEntry('fullName', ONTOLOGY_FULL_NAME),
                                 hasEntry('key', ONTOLOGY_KEY),
-                        ))))),
-                hasEntry('accessibleByUser', ACCESSIBLEBYUSER),)
+                        ))),
+                hasEntry('accessibleByUser', ACCESSIBLE_BY_USER),)
     }
 
 }

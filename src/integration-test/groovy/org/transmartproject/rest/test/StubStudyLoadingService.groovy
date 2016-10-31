@@ -29,6 +29,7 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.ontology.StudyAccess
+import org.transmartproject.db.ontology.StudyAccessImpl
 import org.transmartproject.rest.StudyLoadingService
 
 class StubStudyLoadingService extends StudyLoadingService {
@@ -61,10 +62,7 @@ class StubStudyLoadingService extends StudyLoadingService {
     }
 
     static StudyAccess createStudyAccess(String studyId, String key, Map accessibleByUser) {
-        def studyAccess
-        studyAccess = [
-                getStudy: { ->
-                    [
+        def study = [
                     getId          : { -> studyId },
                     getOntologyTerm: { ->
                         [
@@ -80,10 +78,7 @@ class StubStudyLoadingService extends StudyLoadingService {
                         ] as OntologyTerm
                     },
                     ] as Study
-                },
-                getAccessibleByUser: { -> accessibleByUser
-                }
-        ] as StudyAccess
+        StudyAccess studyAccess = new StudyAccessImpl(study : study, accessibleByUser: accessibleByUser)
         studyAccess
     }
 
