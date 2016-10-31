@@ -19,6 +19,8 @@
 
 package org.transmartproject.db.ontology
 
+import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.criterion.MatchMode
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
@@ -87,9 +89,9 @@ abstract class AbstractAcrossTrialsOntologyTerm
         String pathPrefix = conceptKey.conceptFullName.length > 1 ?
                 "\\${conceptKey.conceptFullName[1..-1].join '\\'}\\" : null
 
-        ModifierDimensionView.withCriteria {
+        ((HibernateCriteriaBuilder)ModifierDimensionView.createCriteria()).list {
             if (pathPrefix) {
-                like 'path', StringUtils.asLikeLiteral(pathPrefix) + '%'
+                add(StringUtils.like('path', pathPrefix, MatchMode.START))
             }
             if (!allDescendants) {
                 eq 'level',
