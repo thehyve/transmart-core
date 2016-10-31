@@ -21,4 +21,12 @@ class I2b2Sequences {
     String getVisit() {
         "${crcSchema}.seq_encounter_num"
     }
+
+    String getTrialVisit() {
+        "${crcSchema}.trial_visit_num_seq"
+    }
+
+    String getStudy() {
+        "${crcSchema}.study_num_seq"
+    }
 }

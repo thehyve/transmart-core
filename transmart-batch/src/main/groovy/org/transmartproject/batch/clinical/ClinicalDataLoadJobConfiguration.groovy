@@ -79,6 +79,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     ItemWriter<ClinicalFactsRowSet> conceptsTablesWriter
 
     @javax.annotation.Resource
+    ItemWriter<ClinicalFactsRowSet> trialVisitTableWriter
+
+    @javax.annotation.Resource
     ItemWriter<ClinicalFactsRowSet> observationFactTableWriter
 
     @Bean(name = 'ClinicalDataLoadJob')
@@ -252,6 +255,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 ))
                 .writer(compositeOf(
                     patientDimensionTableWriter,
+                    trialVisitTableWriter,
                     conceptsTablesWriter,
                     observationFactTableWriter,
                     bitSetConceptCountsWriter(),

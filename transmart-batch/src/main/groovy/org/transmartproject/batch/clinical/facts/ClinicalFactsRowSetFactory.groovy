@@ -6,6 +6,8 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.format.annotation.DateTimeFormat
+import org.springframework.format.datetime.DateFormatter
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingCollection
@@ -17,6 +19,7 @@ import org.transmartproject.batch.concept.ConceptTree
 import org.transmartproject.batch.concept.ConceptType
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.patient.PatientSet
+import org.transmartproject.batch.secureobject.Study
 
 /**
  * Creates {@link org.transmartproject.batch.facts.ClinicalFactsRowSet} objects.
@@ -38,6 +41,9 @@ class ClinicalFactsRowSetFactory {
     String studyId
 
     @Autowired
+    Study study
+
+    @Autowired
     ConceptTree tree
 
     @Autowired
@@ -48,6 +54,8 @@ class ClinicalFactsRowSetFactory {
 
     @Value("#{clinicalJobContext.variables}")
     List<ClinicalVariable> variables
+
+    DateFormatter dateFormatter = new DateFormatter(iso: DateTimeFormat.ISO.DATE)
 
     @Lazy
     Map<String, ClinicalDataFileVariables> fileVariablesMap = generateVariablesMap()
@@ -61,6 +69,9 @@ class ClinicalFactsRowSetFactory {
         result.studyId = studyId
         result.siteId = fileVariables.getSiteId(row)
         result.visitName = fileVariables.getVisitName(row)
+        def startDate = fileVariables.getStartDate(row)
+        result.startDate = startDate ? dateFormatter.parse(startDate, Locale.ENGLISH) : new Date()
+        result.trialVisit = study.getTrialVisit(fileVariables.getTrialVisitLabel(row))
 
         def patient = patientSet[fileVariables.getPatientId(row)]
         patient.putDemographicValues(fileVariables.getDemographicVariablesValues(row))
