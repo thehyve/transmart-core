@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultiset
 import com.google.common.collect.Multiset
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.junit.Ignore
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
@@ -51,29 +52,28 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         it == 3
     }
 
-    @Ignore
     void 'devTest'() {
         setupData()
 
         def thename = clinicalData.longitudinalStudy.name
 
-        def crit = TrialVisit.where {
+        def critWhereQuery = TrialVisit.where {
             study {
-                name in [thename]
+                'name' in [thename]
             }
         }
-        crit = ObservationFact.createCriteria()
-        def res  = crit.where {
+
+        def critCriteriaBuilder = ObservationFact.createCriteria().list {
             trialVisit {
                 study {
-                    name in [thename]
+                    like ('name', thename)
                 }
             }
-        }.scroll()
-        def o = crit.list()
+    }
+//        def o = crit.list()
 
         expect:
-        clinicalData.longitudinalClinicalFacts[0] in o
+        clinicalData.longitudinalClinicalFacts[0] in critCriteriaBuilder
     }
 
     @Ignore
