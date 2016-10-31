@@ -19,9 +19,12 @@
 
 package org.transmartproject.db.i2b2data
 
+import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
+import org.transmartproject.db.DataInconsistencyException
 
-@EqualsAndHashCode(includes = ['encounterNum', 'conceptCode', 'providerId', 'startDate', 'modifierCd', 'instanceNum'])
+@EqualsAndHashCode(includes = ['encounterNum', 'patient', 'conceptCode', 'providerId', 'startDate', 'modifierCd',
+        'instanceNum'])
 class ObservationFact implements Serializable {
 
     public static String TYPE_TEXT   = 'T'
@@ -104,5 +107,24 @@ class ObservationFact implements Serializable {
 
     VisitDimension getVisit() {
         VisitDimension.get(new VisitDimension(patient: patient, encounterNum: encounterNum))
+    }
+
+    def getValue() {
+        observationFactValue(valueType, textValue, numberValue)
+    }
+
+    // Separate static method so this can also be called from code that accesses the database without converting to
+    // domain classes
+    @CompileStatic
+    static final def observationFactValue(String valueType, String textValue, BigDecimal numberValue) {
+        switch(valueType) {
+            case TYPE_TEXT:
+                return textValue
+            case TYPE_NUMBER:
+                return numberValue
+            default:
+                throw new DataInconsistencyException("Inconsistent database value: ObservationFact.valueType " +
+                        "must be either '$TYPE_TEXT' or '$TYPE_NUMBER'. Found '${valueType}'")
+        }
     }
 }

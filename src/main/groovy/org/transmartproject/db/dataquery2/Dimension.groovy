@@ -1,12 +1,13 @@
 package org.transmartproject.db.dataquery2
 
+import grails.util.Pair
+import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
-
 
 abstract class Dimension {
     // TODO(jan): Which properties on dimensions do we actually need for the hypercube to work?
@@ -43,24 +44,64 @@ abstract class Dimension {
         throw new NotImplementedException()
     }
 
-    def abstract selectIDs(Query query)
+    abstract def selectIDs(Query query)
+
+    @CompileStatic
+    abstract def getElementKey(ProjectionMap result)
 
     /*
      * This method is assumed to do internal caching. As all implementations call GORM methods, they can rely on the
      * GORM cache.
      * Non-packable dimensions must return a List<Object>
      */
-
-    abstract Collection<Object> resolveElements(Collection<Serializable> elementIds)
+    abstract List<Object> resolveElements(List elementKeys)
 
     /* This default implementation should be overridden for efficiency for non-packable dimensions.
      */
 
-    Object resolveElement(Serializable elementId) {
+    Object resolveElement(elementId) {
         resolveElements([elementId])[0]
     }
 
+    @Override String toString() {
+        this.class.simpleName
+    }
 }
+
+@InheritConstructors
+@CompileStatic
+abstract class I2b2Dimension extends Dimension {
+    abstract String getAlias()
+    abstract String getColumnName()
+
+    @Override
+    def selectIDs(Query query) {
+        query.criteria.property columnName, alias
+    }
+
+    def getElementKey(ProjectionMap result) {
+        result[alias]
+    }
+}
+
+@InheritConstructors
+abstract class HighDimDimension extends Dimension {
+    @Override
+    def selectIDs(Query query) {
+        throw new NotImplementedException()
+    }
+
+    @Override
+    List<Object> resolveElements(List elementKeys) {
+        throw new NotImplementedException()
+    }
+
+    @Override @CompileStatic
+    def getElementKey(ProjectionMap result) {
+        throw new NotImplementedException()
+    }
+}
+
 
 //TODO: supporting modifier dimensions requires support for sorting, since we need to sort on the full PK except
 // modifierCd in order to ensure that modifier ObservationFacts come next to their observation value
@@ -78,117 +119,105 @@ class ModifierDimension extends Dimension {
         query.params.modifierCodes += modifierCode
     }
 
+    def getElementKey(ProjectionMap result) {
+        throw new UnsupportedOperationException("ModifierDimension.getElementKey")
+    }
+
     @Override
-    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
-        return elementIds
+    List<Object> resolveElements(List elementKeys) {
+        return elementKeys
+    }
+
+    @Override String toString() {
+        "${this.class.simpleName}('$name')"
     }
 }
 
 @InheritConstructors
-class PatientDimension extends Dimension {
+class PatientDimension extends I2b2Dimension {
+    String alias = 'patient'
+    String columnName = 'patient.id'
 
-    def selectIDs(Query query) {
-        query.criteria.with {
-            property 'patient.id'
-        }
-        query.projectionOwners += this
+    @Override def selectIDs(Query query) {
+        if(query.params.patientSelected) return
+        super.selectIDs(query)
+        query.params.patientSelected = true
     }
 
     @Override
-    List<Object> resolveElements(Collection<Serializable> elementIds) {
-        org.transmartproject.db.i2b2data.PatientDimension.getAll(elementIds)
+    List<Object> resolveElements(List elementKeys) {
+        org.transmartproject.db.i2b2data.PatientDimension.getAll(elementKeys)
     }
 }
 
 @InheritConstructors
-class ConceptDimension extends Dimension {
-
-    def selectIDs(Query query) {
-        query.criteria.with {
-            property 'conceptCode'
-        }
-        query.projectionOwners += this
-    }
+class ConceptDimension extends I2b2Dimension {
+    String alias = 'conceptCode'
+    String columnName = 'conceptCode'
 
     @Override
-    List<Object> resolveElements(Collection<Serializable> elementIds) {
-        org.transmartproject.db.i2b2data.ConceptDimension.getAll(elementIds)
+    List<Object> resolveElements(List elementKeys) {
+        org.transmartproject.db.i2b2data.ConceptDimension.findAllByConceptCode(elementKeys)
     }
 }
 
 @InheritConstructors
-class TrialVisitDimension extends Dimension {
-
-    def selectIDs(Query query) {
-        query.criteria.with {
-            property 'trialVisit.id'
-        }
-        query.projectionOwners += this
-    }
+class TrialVisitDimension extends I2b2Dimension {
+    String alias = 'trialVisit'
+    String columnName = 'trialVisit.id'
 
     @Override
-    List<Object> resolveElements(Collection<Serializable> elementIds) {
-        TrialVisit.getAll(elementIds)
+    List<Object> resolveElements(List elementKeys) {
+        TrialVisit.getAll(elementKeys)
     }
 }
 
 @InheritConstructors
-class StudyDimension extends Dimension {
+class StudyDimension extends I2b2Dimension {
+    String alias = 'study'
+    String getColumnName() {throw new UnsupportedOperationException()}
 
     def selectIDs(Query query) {
         query.criteria.with {
             trialVisit {
-                property 'study.id'
+                property 'study.id', alias
             }
         }
-        query.projectionOwners += this
     }
 
-    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
-        Study.getAll(elementIds)
+    List<Object> resolveElements(List elementKeys) {
+        Study.getAll(elementKeys)
     }
 }
 
 
 @InheritConstructors
-class StartTimeDimension extends Dimension {
-    def selectIDs(Query query) {
-        query.criteria.with {
-            property 'startDate'
-        }
-        query.projectionOwners += this
-    }
+class StartTimeDimension extends I2b2Dimension {
+    String alias = 'startDate'
+    String columnName = 'startDate'
 
-    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
-        elementIds
+    List<Object> resolveElements(List elementKeys) {
+        elementKeys
     }
 }
 
 @InheritConstructors
-class EndTimeDimension extends Dimension {
-    def selectIDs(Query query) {
-        query.criteria.with {
-            property 'endDate'
-        }
-        query.projectionOwners += this
-    }
+class EndTimeDimension extends I2b2Dimension {
+    String alias = 'endDate'
+    String columnName = 'endDate'
 
-    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
-        elementIds
+    List<Object> resolveElements(List elementKeys) {
+        elementKeys
     }
 }
 
 @InheritConstructors
-class LocationDimension extends Dimension {
-    def selectIDs(Query query) {
-        query.criteria.with {
-            property 'locationCd'
-        }
-        query.projectionOwners += this
-    }
+class LocationDimension extends I2b2Dimension {
+    String alias = 'locationCode'
+    String columnName = 'locationCd'
 
-    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
-        elementIds
+    List<Object> resolveElements(List elementKeys) {
+        elementKeys
     }
 }
 
@@ -197,72 +226,43 @@ class VisitDimension extends Dimension {
 
     def selectIDs(Query query) {
         query.criteria.with {
-            property 'getVisit().id'
+            if(!query.params.patientSelected) {
+                property 'patient.id', 'patient'
+                query.params.patientSelected = true
+            }
+            property 'encounterNum', 'encounterNum'
         }
-        query.projectionOwners += this
+    }
+
+    def getElementKey(ProjectionMap result) {
+        new Pair(result.patient, result.encounterNum)
     }
 
     @Override
-    List<Object> resolveElements(Collection<Serializable> elementIds) {
-        org.transmartproject.db.i2b2data.VisitDimension.getAll(elementIds)
+    List<Object> resolveElements(List elementKeys) {
+        throw new NotImplementedException() // TODO
+        //org.transmartproject.db.i2b2data.VisitDimension.getAll(elementKeys)
     }
 }
 
 @InheritConstructors
-class ProviderDimension extends Dimension {
-    def selectIDs(Query query) {
-        query.criteria.with {
-            property 'providerId'
-        }
-        query.projectionOwners += this
-    }
+class ProviderDimension extends I2b2Dimension {
+    String alias = 'provider'
+    String columnName = 'providerId'
 
-    Collection<Object> resolveElements(Collection<Serializable> elementIds) {
-        elementIds
+    List<Object> resolveElements(List elementKeys) {
+        elementKeys
     }
 }
 
 @InheritConstructors
-class AssayDimension extends Dimension {
-    def selectIDs(Query query) {
-        query.criteria.with {
-            property 'assay.id'
-        }
-        query.projectionOwners += this
-    }
-
-    @Override
-    List<Object> resolveElements(Collection<Serializable> elementIds) {
-        throw new NotImplementedException()
-    }
+class AssayDimension extends HighDimDimension {
 }
 
 @InheritConstructors
-class BioMarkerDimension extends Dimension {
-    def selectIDs(Query query) {
-        query.criteria.with {
-            property 'biomarker.id'
-        }
-        query.projectionOwners += this
-    }
-
-    @Override
-    List<Object> resolveElements(Collection<Serializable> elementIds) {
-        throw new NotImplementedException()
-    }
+class BioMarkerDimension extends HighDimDimension {
 }
 
 @InheritConstructors
-class ProjectionDimension extends Dimension {
-    def selectIDs(Query query) {
-        query.criteria.with {
-            property 'projection.id'
-        }
-        query.projectionOwners += this
-    }
-
-    @Override
-    List<Object> resolveElements(Collection<Serializable> elementIds) {
-        throw new NotImplementedException()
-    }
+class ProjectionDimension extends HighDimDimension {
 }
