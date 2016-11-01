@@ -19,9 +19,12 @@
 
 package org.transmartproject.db.i2b2data
 
+import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
+import org.transmartproject.db.DataInconsistencyException
 
-@EqualsAndHashCode(includes = ['encounterNum', 'conceptCode', 'providerId', 'startDate', 'modifierCd', 'instanceNum'])
+@EqualsAndHashCode(includes = ['encounterNum', 'patient', 'conceptCode', 'providerId', 'startDate', 'modifierCd',
+        'instanceNum'])
 class ObservationFact implements Serializable {
 
     public static String TYPE_TEXT   = 'T'
@@ -37,19 +40,19 @@ class ObservationFact implements Serializable {
     String     valueFlag
     String     sourcesystemCd
 
-
-    // these are not used, but we need them because they're not nullable
     BigDecimal encounterNum
     String     providerId
     Date       startDate
+    Date       endDate
     String     modifierCd
     Long       instanceNum
+    String     locationCd
 
+    //TrialVisit trialVisit
+    //VisitDimension visit
     // unsed for now
     //BigDecimal quantityNum
     //String     unitsCd
-    //Date       endDate
-    //String     locationCd
     //String     observationBlob
     //BigDecimal confidenceNum
     //Date       updateDate
@@ -58,13 +61,15 @@ class ObservationFact implements Serializable {
     //BigDecimal uploadId
 
     static belongsTo = [
-            patient: PatientDimension,
+        patient      : PatientDimension,
+        trialVisit   : TrialVisit,
     ]
 
     static mapping = {
         table        name: 'observation_fact', schema: 'I2B2DEMODATA'
 
-        id           composite: ['encounterNum', 'patient', 'conceptCode', 'providerId', 'startDate', 'modifierCd']
+        id           composite: ['encounterNum', 'patient', 'conceptCode', 'providerId', 'startDate', 'modifierCd',
+                                 'instanceNum']
 
         conceptCode  column: 'concept_cd'
         patient      column: 'patient_num'
@@ -72,12 +77,12 @@ class ObservationFact implements Serializable {
         textValue    column: 'tval_char'
         numberValue  column: 'nval_num'
         valueFlag    column: 'valueflag_cd'
+        trialVisit   cascade: 'save-update'
 
         version false
     }
 
     static constraints = {
-        patient           nullable:   true
         conceptCode       maxSize:    50
         providerId        maxSize:    50
         modifierCd        maxSize:    100
@@ -86,18 +91,40 @@ class ObservationFact implements Serializable {
         numberValue       nullable:   true,   scale:     5
         valueFlag         nullable:   true,   maxSize:   50
         sourcesystemCd    nullable:   true,   maxSize:   50
-
+        endDate           nullable:   true
+        locationCd        nullable:   true,   maxSize:   50
 
         // unused for now
         //quantityNum       nullable:   true,   scale:     5
         //unitsCd           nullable:   true,   maxSize:   50
-        //endDate           nullable:   true
-        //locationCd        nullable:   true,   maxSize:   50
         //observationBlob   nullable:   true
         //confidenceNum     nullable:   true,   scale:     5
         //updateDate        nullable:   true
         //downloadDate      nullable:   true
         //importDate        nullable:   true
         //uploadId          nullable:   true
+    }
+
+    VisitDimension getVisit() {
+        VisitDimension.get(new VisitDimension(patient: patient, encounterNum: encounterNum))
+    }
+
+    def getValue() {
+        observationFactValue(valueType, textValue, numberValue)
+    }
+
+    // Separate static method so this can also be called from code that accesses the database without converting to
+    // domain classes
+    @CompileStatic
+    static final def observationFactValue(String valueType, String textValue, BigDecimal numberValue) {
+        switch(valueType) {
+            case TYPE_TEXT:
+                return textValue
+            case TYPE_NUMBER:
+                return numberValue
+            default:
+                throw new DataInconsistencyException("Inconsistent database value: ObservationFact.valueType " +
+                        "must be either '$TYPE_TEXT' or '$TYPE_NUMBER'. Found '${valueType}'")
+        }
     }
 }
