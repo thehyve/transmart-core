@@ -10,7 +10,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.ConceptsResource
 
 @Component
-class DataFetchTaskFactory implements  ApplicationContextAware {
+class DataExportFetchTaskFactory implements  ApplicationContextAware {
 
     public static final String CONCEPT_KEYS_PARAMETER_NAME = 'conceptKeys'
     public static final String ASSAY_CONSTRAINTS_PARAMETER_NAME = 'assayConstraints'
@@ -35,7 +35,7 @@ class DataFetchTaskFactory implements  ApplicationContextAware {
     }
 
     @Override
-    DataFetchTask createTask(Map<String, Object> arguments) {
+    DataExportFetchTask createTask(Map<String, Object> arguments) {
         def conceptKeysArg = arguments[CONCEPT_KEYS_PARAMETER_NAME]
         def ridsArg =
                 arguments[RESULT_INSTANCE_IDS_PARAMETER_NAME]
@@ -89,7 +89,7 @@ class DataFetchTaskFactory implements  ApplicationContextAware {
             }
         }
 
-        applicationContext.getBean(DataFetchTask).with {
+        applicationContext.getBean(DataExportFetchTask).with {
             ontologyTerms = conceptKeysArg
 
             resultInstanceIds = ridsArg.collect { it as Long }

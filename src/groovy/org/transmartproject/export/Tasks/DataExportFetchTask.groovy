@@ -37,7 +37,7 @@ import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.H
 
 @Component
 @Log4j
-class DataFetchTask  {
+class DataExportFetchTask {
 
     private static final char SEPARATOR = "\t" as char
 
