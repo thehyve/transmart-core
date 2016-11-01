@@ -352,12 +352,34 @@
     "child" : {
       "type" : "INDEX",
       "owner" : "I2B2DEMODATA",
+      "name" : "IDX_OB_FACT_TRIAL_VISIT"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
       "name" : "IDX_PD_SOURCESYSTEMCD_PNUM"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
       "name" : "PATIENT_DIMENSION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "IDX_STUDY_SECURE_OBJ_TOKEN"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STUDY"
     } ]
   }, {
     "child" : {
@@ -551,7 +573,11 @@
       "owner" : "I2B2DEMODATA",
       "name" : "OBSERVATION_FACT"
     },
-    "parents" : [ ]
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRIAL_VISIT_DIMENSION"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -559,6 +585,17 @@
       "name" : "OBSERVATION_FACT_BK"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBS_FACT_TRIAL_VISIT_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBSERVATION_FACT"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -1136,6 +1173,20 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STUDY"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STUDY_NUM_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "PROCEDURE",
       "owner" : "I2B2DEMODATA",
       "name" : "SYNC_CLEAR_CONCEPT_TABLE"
@@ -1359,6 +1410,28 @@
     } ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRIAL_VISIT_DIMENSION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STUDY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRIAL_VISIT_DIMENSION_STUDY_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRIAL_VISIT_DIMENSION"
+    } ]
+  }, {
+    "child" : {
       "type" : "TRIGGER",
       "owner" : "I2B2DEMODATA",
       "name" : "TR_QT_PSC_PSC_ID"
@@ -1517,7 +1590,7 @@
       "owner" : "I2B2DEMODATA",
       "name" : "CONCEPT_ID"
     },
-    "file" : "i2b2demodata/_misc.sql"
+    "file" : "i2b2demodata/concept_dimension.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -1732,9 +1805,23 @@
     "item" : {
       "type" : "INDEX",
       "owner" : "I2B2DEMODATA",
+      "name" : "IDX_OB_FACT_TRIAL_VISIT"
+    },
+    "file" : "i2b2demodata/observation_fact.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
       "name" : "IDX_PD_SOURCESYSTEMCD_PNUM"
     },
     "file" : "i2b2demodata/patient_dimension.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "IDX_STUDY_SECURE_OBJ_TOKEN"
+    },
+    "file" : "i2b2demodata/study.sql"
   }, {
     "item" : {
       "type" : "PROCEDURE",
@@ -1903,6 +1990,13 @@
       "name" : "OBSERVATION_FACT_BK"
     },
     "file" : "i2b2demodata/observation_fact_bk.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "OBS_FACT_TRIAL_VISIT_FK"
+    },
+    "file" : "i2b2demodata/observation_fact.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -2360,6 +2454,20 @@
     "file" : "i2b2demodata/set_type.sql"
   }, {
     "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STUDY"
+    },
+    "file" : "i2b2demodata/study.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STUDY_NUM_SEQ"
+    },
+    "file" : "i2b2demodata/_misc.sql"
+  }, {
+    "item" : {
       "type" : "PROCEDURE",
       "owner" : "I2B2DEMODATA",
       "name" : "SYNC_CLEAR_CONCEPT_TABLE"
@@ -2477,6 +2585,20 @@
       "name" : "TRG_UPLOAD_STATUS_UPLOAD_ID"
     },
     "file" : "i2b2demodata/upload_status.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRIAL_VISIT_DIMENSION"
+    },
+    "file" : "i2b2demodata/trial_visit_dimension.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRIAL_VISIT_DIMENSION_STUDY_FK"
+    },
+    "file" : "i2b2demodata/trial_visit_dimension.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

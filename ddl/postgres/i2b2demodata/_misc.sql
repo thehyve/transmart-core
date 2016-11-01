@@ -38,3 +38,14 @@ CREATE SEQUENCE sq_up_encdim_encounternum
     NO MAXVALUE
     CACHE 1;
 
+--
+-- Name: study_num_seq; Type: SEQUENCE OWNED BY; Schema: i2b2demodata; Owner: -
+--
+ALTER SEQUENCE study_num_seq
+    OWNED BY study.study_num;
+
+--
+-- Name: trial_visit_num_seq; Type: SEQUENCE OWNED BY; Schema: i2b2demodata; Owner: -
+--
+ALTER SEQUENCE trial_visit_num_seq
+OWNED BY trial_visit_dimension.trial_visit_num;

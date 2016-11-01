@@ -9,6 +9,7 @@ CREATE TABLE observation_fact (
     start_date timestamp without time zone,
     modifier_cd character varying(100) NOT NULL,
     instance_num numeric(18,0),
+    trial_visit_num numeric(38,0),
     valtype_cd character varying(50),
     tval_char character varying(255),
     nval_num numeric(18,5),
@@ -31,7 +32,7 @@ CREATE TABLE observation_fact (
 -- Name: observation_fact_pkey; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY observation_fact
-    ADD CONSTRAINT observation_fact_pkey PRIMARY KEY (patient_num, concept_cd, provider_id, modifier_cd);
+    ADD CONSTRAINT observation_fact_pkey PRIMARY KEY (encounter_num, patient_num, concept_cd, provider_id, instance_num, modifier_cd, start_date);
 
 --
 -- Name: fact_modifier_patient; Type: INDEX; Schema: i2b2demodata; Owner: -
@@ -44,6 +45,11 @@ CREATE INDEX fact_modifier_patient ON observation_fact USING btree (modifier_cd,
 CREATE INDEX idx_fact_patient_num ON observation_fact USING btree (patient_num);
 
 --
+-- Name: idx_fact_trial_visit_num; Type: INDEX; Schema: i2b2demodata; Owner: -
+--
+CREATE INDEX idx_fact_trial_visit_num ON observation_fact USING btree (trial_visit_num);
+
+--
 -- Name: idx_fact_concept Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX idx_fact_concept ON observation_fact USING btree (concept_cd);
@@ -52,6 +58,12 @@ CREATE INDEX idx_fact_concept ON observation_fact USING btree (concept_cd);
 -- Name: idx_fact_cpe; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX idx_fact_cpe ON observation_fact USING btree (concept_cd, patient_num, encounter_num);
+
+--
+-- Name: observation_fact_trial_visit_fk; Type: FK CONSTRAINT; Schema: i2b2metadata; Owner: -
+--
+ALTER TABLE ONLY observation_fact
+ADD CONSTRAINT observation_fact_trial_visit_fk FOREIGN KEY (trial_visit_num) REFERENCES trial_visit_dimension(trial_visit_num);
 
 --
 -- Name: tf_trg_encounter_num(); Type: FUNCTION; Schema: i2b2demodata; Owner: -
