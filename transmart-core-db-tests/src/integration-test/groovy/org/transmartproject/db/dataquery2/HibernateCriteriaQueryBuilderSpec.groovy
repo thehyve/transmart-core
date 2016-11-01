@@ -75,6 +75,62 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         result2.size() == 0
     }
 
+    void 'test CriteriaQueryBuilder with patient set constraint'() {
+        setupData()
+        org.transmartproject.db.i2b2data.ConceptDimension concept =
+                org.transmartproject.db.i2b2data.ConceptDimension.find { conceptPath == '\\foo\\study1\\bar\\'}
+
+        FieldConstraint constraint = new FieldConstraint()
+        constraint.field = conceptCodeField
+        constraint.operator = Operator.EQUALS
+        constraint.value = concept.conceptCode
+
+        ObservationQuery subquery = new ObservationQuery()
+        subquery.queryType = QueryType.VALUES
+        subquery.constraint = constraint
+
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: Study.findAll()
+        )
+
+        when:
+        def patientIds = [this.testData.clinicalData.patients[1].id,
+                          this.testData.clinicalData.patients[2].id]
+
+        PatientSetConstraint subqueryConstraint = new PatientSetConstraint(
+                patientIds: patientIds
+        )
+        ObservationQuery query = new ObservationQuery(
+                queryType: QueryType.VALUES,
+                constraint: subqueryConstraint
+        )
+
+        DetachedCriteria criteriaForPatientId = builder.detachedCriteriaFor(query)
+        List resultsForPatientId = getList(criteriaForPatientId)
+
+        then:
+        resultsForPatientId.size() == 2
+        (resultsForPatientId[0] as ObservationFact).patient.id == patientIds[0]
+        (resultsForPatientId[1] as ObservationFact).patient.id == patientIds[1]
+
+        when:
+        def patientSetId = this.testData.clinicalData.patientsQueryMaster.queryInstances[0].queryResults[0].patientSet[0].id
+        subqueryConstraint = new PatientSetConstraint(
+                patientSetId: patientSetId
+        )
+        query = new ObservationQuery(
+                queryType: QueryType.VALUES,
+                constraint: subqueryConstraint
+        )
+        DetachedCriteria criteriaForPatientSetId = builder.detachedCriteriaFor(query)
+        List resultsForPatientSetId = getList(criteriaForPatientSetId)
+
+        then:
+        resultsForPatientSetId.size() == 1
+        (resultsForPatientSetId[0] as ObservationFact).patient.id == testData.clinicalData.patients[0].id
+    }
+
+
     void 'test CriteriaQueryBuilder with clinical data'() {
         setupData()
 
