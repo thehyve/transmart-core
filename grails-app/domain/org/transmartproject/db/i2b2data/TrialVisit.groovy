@@ -5,8 +5,6 @@ class TrialVisit {
     String relTimeUnit
     Integer relTime
     String relTimeLabel
-    //Study study
-
 
     static constraints = {
         relTimeUnit     nullable: true
@@ -23,8 +21,11 @@ class TrialVisit {
     ]
 
     static mapping = {
-        table schema: 'I2B2DEMODATA'
-        id    name:   'id', type: Long
-        study cascade: 'save-update'
+        table           name: 'trial_visit_dimension', schema: 'I2B2DEMODATA'
+        id              column: 'trial_visit_num', type: Long, generator: 'assigned'
+        study           column: 'study_num', cascade: 'save-update'
+        relTimeUnit     column: 'rel_time_unit_cd'
+        relTime         column: 'rel_time_num'
+        relTimeLabel    column: 'rel_time_label'
     }
 }
