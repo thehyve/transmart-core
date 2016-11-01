@@ -68,9 +68,13 @@ class SecureObjectDAO {
                     "$secureObjectValues")
         }
         if (studyValues['secure_obj_token'] != token.toString()) {
-            throw new IllegalStateException("Study found " +
-                    "($studyValues) does not have expected " +
-                    "secure object token ${token.toString()}")
+            if (studyValues['secure_obj_token'] == 'PUBLIC' && token.toString() == 'EXP:PUBLIC') {
+                // all fine
+            } else {
+                throw new IllegalStateException("Study found " +
+                        "($studyValues) does not have expected " +
+                        "secure object token ${token.toString()}")
+            }
         }
     }
 

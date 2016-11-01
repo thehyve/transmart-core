@@ -115,13 +115,14 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .next(stepOf(this.&deleteObservationFactTasklet))
                 .next(stepOf(this.&deleteConceptCountsTasklet))
 
+                .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object, study
+                .next(stepOf(this.&getInsertTableAccessTasklet))
+
                 // main data reading and insertion step (in observation_fact)
                 .next(rowProcessingStep())
                 .next(tagsLoadStep)
 
                 // insertion of ancillary data
-                .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object
-                .next(stepOf(this.&getInsertTableAccessTasklet))
                 .next(wrapStepWithName('insertConceptCountsStep',
                         insertConceptCountsStep(null)))
                 .build()

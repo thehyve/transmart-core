@@ -54,7 +54,7 @@ class Study {
             // FIXME: include unit and value
             trialVisit = new TrialVisit(
                     studyNum: getStudyNum(),
-                    label: label
+                    relTimeLabel: label
             )
             trialVisits[label] = trialVisit
         }
