@@ -21,6 +21,7 @@ package org.transmartproject.db.ontology
 
 import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.EqualsAndHashCode
+import org.hibernate.criterion.MatchMode
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
@@ -172,12 +173,12 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
                                               boolean showHidden = false,
                                               boolean showSynonyms = false) {
         HibernateCriteriaBuilder c
-        def fullNameSearch = StringUtils.asLikeLiteral(this.conceptKey.conceptFullName.toString()) + '%'
+        def fullNameSearch = this.conceptKey.conceptFullName.toString()
 
         c = createCriteria()
         def ret = c.list {
             and {
-                like 'fullName', fullNameSearch
+                add(StringUtils.like('fullName', fullNameSearch, MatchMode.START))
                 if (allDescendants) {
                     gt 'level', level
                 } else {
