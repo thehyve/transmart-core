@@ -25,16 +25,16 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Concept
 
 @Integration
 @Rollback
-class StudiesResourceServiceSpec extends Specification {
+class StudiesResourceServiceSpec extends TransmartSpecification {
 
-    StudyTestData studyTestData = new StudyTestData()
+    TabularStudyTestData studyTestData = new TabularStudyTestData()
 
     StudiesResource studiesResourceService
 

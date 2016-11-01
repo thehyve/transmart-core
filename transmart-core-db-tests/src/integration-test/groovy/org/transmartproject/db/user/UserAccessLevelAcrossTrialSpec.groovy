@@ -32,7 +32,7 @@ import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
 import org.transmartproject.db.ontology.AcrossTrialsTestData
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.ontology.ModifierDimensionView
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
@@ -44,7 +44,7 @@ import static org.transmartproject.db.ontology.ConceptTestData.createI2b2Secure
 
 @Integration
 @Rollback
-class UserAccessLevelAcrossTrialSpec extends Specification {
+class UserAccessLevelAcrossTrialSpec extends TransmartSpecification {
 
     @Autowired
     StudiesResource studiesResource
@@ -59,7 +59,6 @@ class UserAccessLevelAcrossTrialSpec extends Specification {
 
         def acrossTrialsTestData = AcrossTrialsTestData.createDefault()
         acrossTrialsTestData.saveAll()
-        sessionFactory.currentSession.flush()
 
         /* add entry in I2b2Secure to make sure we're not allowing the thing
          * because of the "public by default" behavior */

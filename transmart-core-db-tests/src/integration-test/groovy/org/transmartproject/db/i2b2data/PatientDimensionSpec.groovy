@@ -23,13 +23,13 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.dataquery.highdim.SampleHighDimTestData
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class PatientDimensionSpec extends Specification {
+class PatientDimensionSpec extends TransmartSpecification {
 
     SampleHighDimTestData testData
 

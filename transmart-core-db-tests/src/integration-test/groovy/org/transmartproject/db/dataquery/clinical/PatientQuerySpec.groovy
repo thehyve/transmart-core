@@ -28,13 +28,13 @@ import org.transmartproject.db.dataquery.clinical.patientconstraints.StudyPatien
 import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.ontology.StudyImpl
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class PatientQuerySpec extends Specification {
+class PatientQuerySpec extends TransmartSpecification {
 
     TestData testData = TestData.createDefault()
 

@@ -27,7 +27,7 @@ import org.transmartproject.core.dataquery.highdim.acgh.ChromosomalSegment
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
@@ -38,7 +38,7 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 @Integration
 @Rollback
-class AcghDataTypeResourceSpec extends Specification {
+class AcghDataTypeResourceSpec extends TransmartSpecification {
 
     HighDimensionResource highDimensionResourceService
 

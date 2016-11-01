@@ -4,9 +4,6 @@ import org.springframework.beans.BeansException
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 
-/**
- * Created by gijs on 30/09/16.
- */
 class HandleAllExceptionsBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
     @Override

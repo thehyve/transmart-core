@@ -27,13 +27,13 @@ import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QueryResultData
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class DefaultPatientSetConstraintSpec extends Specification {
+class DefaultPatientSetConstraintSpec extends TransmartSpecification {
 
     /* patient set with only the first patient (AssayTestData.patients[0]) */
     QueryResult firstPatientResult

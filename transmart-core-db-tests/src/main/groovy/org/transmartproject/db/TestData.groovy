@@ -19,12 +19,14 @@
 
 package org.transmartproject.db
 
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.ontology.ConceptTestData
+import org.transmartproject.db.ontology.I2b2
 
 class TestData {
 
@@ -35,6 +37,10 @@ class TestData {
     MrnaTestData mrnaData
     AcghTestData acghData
     SampleBioMarkerTestData bioMarkerTestData
+
+    static void reset() {
+        ClinicalTestData.reset()
+    }
 
     static TestData createDefault() {
         def conceptData = ConceptTestData.createDefault()
@@ -69,6 +75,50 @@ class TestData {
                 bioMarkerTestData: bioMarkerTestData,
         )
     }
+
+    private static I2b2 createI2b2(Map props) {
+        ConceptTestData.createI2b2([code: props['name'], *: props])
+    }
+
+    /**
+     * This testdata is partially copied from ClinicalDataRetrievalSpec. Having separate 'default' TestDatas for
+     * tabular and hypercube data is not desirable, so these should be merged, but I had some problems with that when
+     * I tried it.
+     *
+     * TODO: have a single default TestData that includes both hypercube and tabular data.
+     */
+    static TestData createHypercubeDefault() {
+        def tableAccess = ConceptTestData.createTableAccess(
+                level: 0,
+                fullName: '\\foo\\',
+                name: 'foo',
+                tableCode: 'i2b2 main',
+                tableName: 'i2b2')
+
+        def i2b2List = [
+                createI2b2(level: 1, fullName: '\\foo\\concept 1\\', name: 'd1'), //not c, to test ordering
+                createI2b2(level: 1, fullName: '\\foo\\concept 2\\', name: 'c2', cVisualattributes: 'LA'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 3\\', name: 'c3'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 4\\', name: 'c4'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 5\\', name: 'c5'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 6\\', name: 'c6'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 7\\', name: 'c7'),
+        ]
+
+        def conceptDims = ConceptTestData.createConceptDimensions(i2b2List)
+
+        List<Patient> patients = I2b2Data.createTestPatients(3, -100, 'SAMP_TRIAL')
+
+        def conceptData = new ConceptTestData(tableAccesses: [tableAccess], i2b2List: i2b2List, conceptDimensions: conceptDims)
+
+        def i2b2Data = new I2b2Data(trialName: 'TEST', patients: patients)
+
+        def clinicalData = ClinicalTestData.createHypercubeDefault(conceptDims, patients)
+
+        new TestData(conceptData: conceptData, i2b2Data: i2b2Data, clinicalData: clinicalData)
+    }
+
+
 
     void saveAll() {
         conceptData?.saveAll()

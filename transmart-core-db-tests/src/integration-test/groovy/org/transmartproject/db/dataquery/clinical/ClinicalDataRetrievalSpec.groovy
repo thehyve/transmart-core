@@ -29,14 +29,17 @@ import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.TestData
+import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.querytool.QtQueryMaster
-import spock.lang.Specification
+
+import java.text.SimpleDateFormat
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
@@ -45,7 +48,7 @@ import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
 
 @Integration
 @Rollback
-class ClinicalDataRetrievalSpec extends Specification {
+class ClinicalDataRetrievalSpec extends TransmartSpecification {
 
     TestData testData
 
@@ -60,7 +63,6 @@ class ClinicalDataRetrievalSpec extends Specification {
     }
 
     TestData createTestData() {
-
         def tableAccess = ConceptTestData.createTableAccess(
                 level: 0,
                 fullName: '\\foo\\',
@@ -73,19 +75,25 @@ class ClinicalDataRetrievalSpec extends Specification {
                 createI2b2(level: 1, fullName: '\\foo\\concept 2\\', name: 'c2', cVisualattributes: 'LA'),
                 createI2b2(level: 1, fullName: '\\foo\\concept 3\\', name: 'c3'),
                 createI2b2(level: 1, fullName: '\\foo\\concept 4\\', name: 'c4'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 5\\', name: 'c5'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 6\\', name: 'c6'),
+                createI2b2(level: 1, fullName: '\\foo\\concept 7\\', name: 'c7'),
         ]
 
         def conceptDims = ConceptTestData.createConceptDimensions(i2b2List)
 
         List<Patient> patients = I2b2Data.createTestPatients(3, -100, 'SAMP_TRIAL')
 
-        def facts = ClinicalTestData.createFacts(conceptDims, patients)
+        def facts = ClinicalTestData.createTabularFacts(conceptDims, patients)
 
         def conceptData = new ConceptTestData(tableAccesses: [tableAccess], i2b2List: i2b2List, conceptDimensions: conceptDims)
 
         def i2b2Data = new I2b2Data(trialName: 'TEST', patients: patients)
 
-        def clinicalData = new ClinicalTestData(patients: patients, facts: facts)
+        def clinicalData = new ClinicalTestData(
+                patients: patients,
+                facts: facts,
+        )
 
         new TestData(conceptData: conceptData, i2b2Data: i2b2Data, clinicalData: clinicalData)
     }
@@ -93,7 +101,6 @@ class ClinicalDataRetrievalSpec extends Specification {
     void setupData() {
         testData = createTestData()
         testData.saveAll()
-        sessionFactory.currentSession.flush()
     }
 
     void cleanup() {
@@ -282,6 +289,7 @@ class ClinicalDataRetrievalSpec extends Specification {
         }.collect { patientId, List<ObservationFact> facts ->
             facts*.textValue
         }
+
 
         when:
         def resultList = Lists.newArrayList(clinicalDataResourceService.retrieveData(

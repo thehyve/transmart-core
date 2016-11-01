@@ -5,18 +5,18 @@ import grails.transaction.Rollback
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 
 @Integration
 @Rollback
-class OntologyTermTagsResourceServiceSpec extends Specification {
+class OntologyTermTagsResourceServiceSpec extends TransmartSpecification {
 
     OntologyTermTagsResourceService ontologyTermTagsResourceService
     ConceptsResource conceptsResourceService
 
-    StudyTestData studyTestData = new StudyTestData()
+    TabularStudyTestData studyTestData = new TabularStudyTestData()
 
     void setupData() {
         studyTestData.saveAll()

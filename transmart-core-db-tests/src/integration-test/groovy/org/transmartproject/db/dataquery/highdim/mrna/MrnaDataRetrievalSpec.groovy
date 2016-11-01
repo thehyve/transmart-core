@@ -42,7 +42,7 @@ import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataC
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.DisjunctionDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.SimpleRealProjection
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import javax.sql.DataSource
 
@@ -53,7 +53,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class MrnaDataRetrievalSpec extends Specification {
+class MrnaDataRetrievalSpec extends TransmartSpecification {
 
     private static final double DELTA = 0.0001
 
@@ -89,9 +89,7 @@ class MrnaDataRetrievalSpec extends Specification {
     }
 
     void cleanup() {
-        if (dataQueryResult) {
-            dataQueryResult.close()
-        }
+        dataQueryResult?.close()
     }
 
     void basicTest() {

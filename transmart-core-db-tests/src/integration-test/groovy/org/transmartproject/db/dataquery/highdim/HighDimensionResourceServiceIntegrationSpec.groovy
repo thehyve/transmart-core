@@ -29,7 +29,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.querytool.QtQueryMaster
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.createTestPatients
@@ -41,7 +41,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-class HighDimensionResourceServiceIntegrationSpec extends Specification {
+class HighDimensionResourceServiceIntegrationSpec extends TransmartSpecification {
 
     private static final String TEST_DATA_TYPE = 'foobar'
 

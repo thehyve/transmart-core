@@ -26,14 +26,14 @@ import org.transmartproject.db.i2b2data.ObservationFact
 
 import static org.transmartproject.db.TestDataHelper.save
 
-class StudyTestData {
+class TabularStudyTestData {
 
     I2b2Data i2b2Data = I2b2Data.createDefault()
 
     ConceptTestData conceptData = ConceptTestData.createDefault()
 
     List<ObservationFact> facts = {
-        ClinicalTestData.createFacts(conceptData.conceptDimensions, i2b2Data.patients)
+        ClinicalTestData.createTabularFacts(conceptData.conceptDimensions, i2b2Data.patients)
     }()
 
     List<I2b2> i2b2List = {

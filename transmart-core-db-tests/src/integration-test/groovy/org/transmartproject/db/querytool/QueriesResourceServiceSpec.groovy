@@ -28,8 +28,10 @@ import org.transmartproject.core.querytool.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.i2b2data.TrialVisit
+import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.user.User
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
@@ -40,7 +42,7 @@ import static org.transmartproject.db.ontology.ConceptTestData.addTableAccess
 
 @Integration
 @Rollback
-class QueriesResourceServiceSpec extends Specification {
+class QueriesResourceServiceSpec extends TransmartSpecification {
 
     QueriesResource queriesResourceService
     def sessionFactory
@@ -49,7 +51,7 @@ class QueriesResourceServiceSpec extends Specification {
                                     String conceptCd,
                                     BigDecimal patientNum) {
         def commonProperties = [
-                encounterNum: 1,
+                encounterNum: -1,
                 providerId  : 1,
                 startDate   : new Date(),
                 modifierCd  : '@',
@@ -106,16 +108,26 @@ class QueriesResourceServiceSpec extends Specification {
             addPatient it
         }
 
+        def study = new Study(
+                name: "study_name"
+        )
+
+        def trialVisit = new TrialVisit(
+                relTimeUnit: "days",
+                relTime: 3,
+                study: study
+        )
+
         /* 3. Create facts */
-        addObservationFact('A:B', 100, valueType: 'N', numberValue: 50, textValue: 'E')
-        addObservationFact('A:C', 100, valueType: 'T', textValue: 'FOO')
-        addObservationFact('A:B', 101, valueType: 'N', numberValue: 75, textValue: 'E')
-        addObservationFact('A:B', 102, valueType: 'N', numberValue: 99, textValue: 'E')
-        addObservationFact('A:B', 103, valueType: 'N', numberValue: 40, textValue: 'GE')
-        addObservationFact('A:B', 104, valueFlag: 'L')
-        addObservationFact('A:B', 105, valueType: 'N', textValue: 'BAR')
-        addObservationFact('A:C', 105, valueType: 'N', numberValue: 40, textValue: 'L')
-        addObservationFact('A:C', 106, valueType: 'N', textValue: 'XPTO')
+        addObservationFact('A:B', 100, valueType: 'N', numberValue: 50, textValue: 'E', trialVisit: trialVisit)
+        addObservationFact('A:C', 100, valueType: 'T', textValue: 'FOO', trialVisit: trialVisit)
+        addObservationFact('A:B', 101, valueType: 'N', numberValue: 75, textValue: 'E', trialVisit: trialVisit)
+        addObservationFact('A:B', 102, valueType: 'N', numberValue: 99, textValue: 'E', trialVisit: trialVisit)
+        addObservationFact('A:B', 103, valueType: 'N', numberValue: 40, textValue: 'GE', trialVisit: trialVisit)
+        addObservationFact('A:B', 104, valueFlag: 'L', trialVisit: trialVisit)
+        addObservationFact('A:B', 105, valueType: 'N', textValue: 'BAR', trialVisit: trialVisit)
+        addObservationFact('A:C', 105, valueType: 'N', numberValue: 40, textValue: 'L', trialVisit: trialVisit)
+        addObservationFact('A:C', 106, valueType: 'N', textValue: 'XPTO', trialVisit: trialVisit)
 
         /* 4. Flush session so these objects are available from SQL */
         sessionFactory.currentSession.flush()

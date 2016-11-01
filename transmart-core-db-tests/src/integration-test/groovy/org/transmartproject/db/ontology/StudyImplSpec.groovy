@@ -23,13 +23,13 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 @Integration
 @Rollback
-class StudyImplSpec extends Specification {
+class StudyImplSpec extends TransmartSpecification {
 
-    StudyTestData studyTestData = new StudyTestData()
+    TabularStudyTestData studyTestData = new TabularStudyTestData()
 
     StudiesResource studiesResourceService
 

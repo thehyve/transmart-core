@@ -196,7 +196,7 @@ class ObservationsResourceTests extends ResourceSpec {
                                 contains(
                                         mapWith(
                                                 label: '\\foo\\study1\\bar\\',
-                                                value: equalTo(new Double(10.00000))
+                                                value: 10.0 as Double,
                                         )))))
     }
 }

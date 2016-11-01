@@ -24,14 +24,14 @@ import grails.transaction.Rollback
 import org.thehyve.commons.test.FastMatchers
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.ontology.OntologyTerm
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 
 @Integration
 @Rollback
-class AcrossTrialsOntologyTermSpec extends Specification {
+class AcrossTrialsOntologyTermSpec extends TransmartSpecification {
 
     private static final String DEMOGRAPHICS_NODE =
             '\\\\xtrials\\Across Trials\\Demographics\\'
@@ -45,7 +45,6 @@ class AcrossTrialsOntologyTermSpec extends Specification {
     void setupData() {
         testData = AcrossTrialsTestData.createDefault()
         testData.saveAll()
-        sessionFactory.currentSession.flush()
     }
 
     void testGetTopNodeChildren() {

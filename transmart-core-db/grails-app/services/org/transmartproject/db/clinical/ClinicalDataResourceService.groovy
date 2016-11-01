@@ -75,6 +75,14 @@ class ClinicalDataResourceService implements ClinicalDataResource {
         retrieveDataImpl(patientCollection, variables)
     }
 
+    @Override
+    TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(QueryResult patientSet,
+                                                                   List<ClinicalVariable> variables) {
+        assert patientSet
+
+        retrieveData([patientSet], variables)
+    }
+
     private TabularResult<ClinicalVariableColumn, PatientRow> retrieveDataImpl(Iterable<PatientDimension> patients,
                                                                    List<ClinicalVariable> variables) {
 
@@ -120,14 +128,6 @@ class ClinicalDataResourceService implements ClinicalDataResource {
                 target << var
             }
         }
-    }
-
-    @Override
-    TabularResult<ClinicalVariableColumn, PatientRow> retrieveData(QueryResult patientSet,
-                                                                   List<ClinicalVariable> variables) {
-        assert patientSet
-
-        retrieveData([patientSet], variables)
     }
 
     @Override
