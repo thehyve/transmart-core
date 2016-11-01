@@ -1,8 +1,6 @@
 package org.transmartproject.db.dataquery2
 
 import com.google.common.collect.AbstractIterator
-import com.google.common.collect.BiMap
-import com.google.common.collect.HashBiMap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import groovy.transform.CompileStatic
@@ -10,9 +8,15 @@ import groovy.transform.TupleConstructor
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.StatelessSessionImpl
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
+
+import java.util.function.Predicate
+import java.util.function.UnaryOperator
+
+import static java.util.Objects.requireNonNull
 
 /**
  *
@@ -26,6 +30,30 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
      * Dimension element keys are stored in dimensionElementIdxes. Those are mapped to the actual dimension elements
      * in dimensionElements. Each dimension has a numeric index in dimensionsIndexMap. Each ClinicalValue
      */
+
+    StatelessSessionImpl session
+
+    //def sort
+    //def pack
+    boolean autoLoadDimensions = true
+    private ScrollableResults results
+    final ImmutableMap<String,Integer> aliases
+    final ImmutableList<Dimension> dimensions
+    Query query
+
+    // This could also be an (immutable) IndexedList<Dimension>, but we don't use the list aspects.
+    final ImmutableMap<Dimension,Integer> dimensionsList =
+            ImmutableMap.copyOf(dimensions.withIndex().collectEntries())
+
+    // Map from Dimension -> dimension element keys
+    // The IndexedList provides efficient O(1) indexOf/contains operations
+    // Only used for packable dimensions
+    Map<Dimension,IndexedList<Object>> dimensionElementKeys =
+            dimensions.findAll { it.packable.packable }.collectEntries(new HashMap()) { [it, new IndexedList()] }
+
+    // A map that stores the actual dimension elements once they are loaded
+    Map<Dimension, List<Object>> dimensionElements = new HashMap()
+
 
     Hypercube(ScrollableResults results, List<Dimension> dimensions, String[] aliases,
               Query query, StatelessSessionImpl session) {
@@ -65,10 +93,11 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
                 Dimension d = dimensions[i]
                 def dimElementKey = d.getElementKey(result)
                 if(d.packable.packable) {
-                    Map<Object,Integer> elementIdxes = Hypercube.this.dimensionElementIdxes[d]
-                    Integer dimElementIdx = elementIdxes[dimElementKey]
-                    if(dimElementIdx == null) {
-                        elementIdxes[dimElementKey] = dimElementIdx = elementIdxes.size()
+                    IndexedList<Object> elementKeys = dimensionElementKeys[d]
+                    int dimElementIdx = elementKeys.indexOf(dimElementKey)
+                    if(dimElementIdx == -1) {
+                        dimElementIdx = elementKeys.size()
+                        elementKeys.add(dimElementKey)
                     }
                     dimensionElementIdxes[i] = dimElementIdx
                 } else {
@@ -81,34 +110,8 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
         }
     }
 
-    StatelessSessionImpl session
-
-    //def sort
-    //def pack
-    boolean autoLoadDimensions = true
-    private ScrollableResults results
-    final ImmutableMap<String,Integer> aliases
-    final ImmutableList<Dimension> dimensions
-    Query query
-    final ImmutableMap<Dimension,Integer> dimensionsIndexMap =
-            ImmutableMap.copyOf(dimensions.withIndex().collectEntries())
-
-    // Map from Dimension -> dimension element key <-> index of element value in dimensionElements[dim]
-    //
-    // Ideally the inner maps would be something like an indexed list, but a bidirectional map works too, and the
-    // Guava HashBiMap has a pretty efficient implementation though still slightly more memory overhead than a
-    // dedicated indexed list might have.
-    // Only for packable dimensions
-    Map<Dimension,HashBiMap<Object,Integer>> dimensionElementIdxes =
-            dimensions.findAll { it.packable.packable }.collectEntries(new HashMap()) { [it, HashBiMap.create()] }
-    // A map that stores the actual dimension elements once they are loaded
-    Map<Dimension, List<Object>> dimensionElements = new HashMap()
-
-
     List<Object> dimensionElements(Dimension dim) {
-        BiMap<Integer,Object> keymap = dimensionElementIdxes.get(dim).inverse()
-        List<Object> keys = (0..keymap.size()-1).collect { keymap[it] }
-        List ret = (List) dim.resolveElements(keys)
+        List ret = dim.resolveElements(dimensionElementKeys[dim])
         dimensionElements[dim] = ret
         return ret
     }
@@ -130,7 +133,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
 
     Object dimensionElementKey(Dimension dim, int idx) {
         checkNotPackable(dim)
-        dimensionElementIdxes[dim].inverse().get(idx)
+        dimensionElementKeys[dim][idx]
     }
 
     void loadDimensions() {
@@ -177,23 +180,23 @@ class HypercubeValue {
 
     def getDimElement(Dimension dim) {
         if(dim.packable.packable) {
-            cube.dimensionElement(dim, (int) dimensionElementIdxes[cube.dimensionsIndexMap[dim]])
+            cube.dimensionElement(dim, (int) dimensionElementIdxes[cube.dimensionsList[dim]])
         } else {
-            dim.resolveElement(dimensionElementIdxes[cube.dimensionsIndexMap[dim]])
+            dim.resolveElement(dimensionElementIdxes[cube.dimensionsList[dim]])
         }
     }
 
     int getDimElementIndex(Dimension dim) {
         cube.checkNotPackable(dim)
-        (int) dimensionElementIdxes[cube.dimensionsIndexMap[dim]]
+        (int) dimensionElementIdxes[cube.dimensionsList[dim]]
     }
 
     def getDimKey(Dimension dim) {
-        cube.dimensionElementKey(dim, (int) dimensionElementIdxes[cube.dimensionsIndexMap[dim]])
+        cube.dimensionElementKey(dim, (int) dimensionElementIdxes[cube.dimensionsList[dim]])
     }
 
     Set<Dimension> availableDimensions() {
-        cube.dimensionsIndexMap.keySet()
+        cube.dimensionsList.keySet()
     }
 }
 
@@ -220,4 +223,127 @@ class ProjectionMap extends AbstractMap<String,Object> {
     @Override int size() { mapping.size() }
     @Override boolean containsKey(key) { mapping.containsKey(key) }
     @Override Set<String> keySet() { mapping.keySet() }
+}
+
+@CompileStatic
+class IndexedList<E> extends ArrayList<E> {
+    private HashMap<E,Integer> indexMap = new HashMap()
+
+    private void reindex() {
+        indexMap.clear()
+        int idx = 0
+        this.each { addToIndex(it, idx++) }
+    }
+
+    private E addToIndex(E e, int idx) {
+        if(indexMap.putIfAbsent(requireNonNull(e), idx) != null) duplicateError(e)
+        e
+    }
+
+    private E checkDuplicates(E e) {
+        if(indexMap.containsKey(requireNonNull(e))) duplicateError(e)
+        e
+    }
+
+    static private void duplicateError(E e) {
+        throw new InvalidArgumentsException("IndexedList cannot contain duplicate elements, '$e' is already present.")
+    }
+
+    @Override boolean add(E e) {
+        super.add(addToIndex(e, size()))
+        true
+    }
+
+    @Override boolean addAll(Collection<? extends E> c) {
+        c.each { add(it) }
+        c.size() != 0
+    }
+
+    @Override boolean contains(Object e) {
+        indexMap.containsKey(e)
+    }
+
+    @Override int indexOf(Object e) {
+        if(e == null) return -1
+        indexMap[(E) e] ?: -1
+    }
+
+    @Override int lastIndexOf(Object e) {
+        indexOf(e)
+    }
+
+    @Override E set(int idx, E e) {
+        Integer oldidx = indexMap.putIfAbsent(requireNonNull(e), idx)
+        if(oldidx != null && oldidx != idx) duplicateError(e)
+        E rv = super.set(idx, e)
+        if(oldidx == null) indexMap.remove(rv)
+        rv
+    }
+
+    @Override void add(int idx, E e) {
+        super.add(idx, checkDuplicates(e))
+        reindex()
+    }
+
+    @Override boolean remove(Object e) {
+        boolean rv = super.remove(e)
+        reindex()
+        rv
+    }
+
+    @Override E remove(int idx) {
+        E rv = super.remove(idx)
+        reindex()
+        rv
+    }
+
+    @Override void clear() {
+        super.clear()
+        indexMap.clear()
+    }
+
+    @Override boolean addAll(int idx, Collection<? extends E> c) {
+        c.each { addToIndex(it, -1) }
+        boolean rv = super.addAll(idx, c)
+        reindex()
+        rv
+    }
+
+    @Override boolean removeAll(Collection<?> c) {
+        boolean rv = super.removeAll(c)
+        reindex()
+        rv
+    }
+
+    @Override boolean retainAll(Collection<?> c) {
+        boolean rv = super.retainAll(c)
+        reindex()
+        rv
+    }
+
+    @Override boolean removeIf(Predicate<? super E> filter) {
+        boolean rv = super.removeIf(filter)
+        reindex()
+        rv
+    }
+
+    @Override void replaceAll(UnaryOperator<E> operator) {
+        indexMap.clear()
+        try {
+            this.eachWithIndex { E e, int idx ->
+                E newval = operator.apply(e)
+                addToIndex(newval, idx)
+                super.set(idx, newval)
+            }
+        } catch(Exception ex) {
+            // If there's an exception the indexMap will be inconsistent
+            reindex()
+            throw ex
+        }
+    }
+
+    @Override void sort(Comparator<? super E> c) {
+        super.sort(c)
+        reindex()
+    }
 }

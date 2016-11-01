@@ -21,7 +21,7 @@ package org.transmartproject.db.i2b2data
 
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
-import org.transmartproject.db.DataInconsistencyException
+import org.transmartproject.core.exceptions.DataInconsistencyException
 
 @EqualsAndHashCode(includes = ['encounterNum', 'patient', 'conceptCode', 'providerId', 'startDate', 'modifierCd',
         'instanceNum'])
