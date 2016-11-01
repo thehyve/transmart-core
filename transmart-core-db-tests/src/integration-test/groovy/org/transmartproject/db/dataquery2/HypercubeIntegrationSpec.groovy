@@ -37,7 +37,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_basic_longitudinal_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.name]])
+        def hypercube = queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.studyId]])
         def resultObs = Lists.newArrayList(hypercube)
         def result = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
