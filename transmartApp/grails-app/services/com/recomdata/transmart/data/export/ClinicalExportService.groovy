@@ -142,9 +142,9 @@ class ClinicalExportService {
     }
 
     private Collection<ComposedVariable> createClinicalVariablesForConceptKeys(Collection<String> conceptKeys) {
-        conceptKeys.collectAll {
+        conceptKeys.collect {
             def conceptKey = new ConceptKey(it)
-            clinicalDataResourceService.createClinicalVariable(
+            (ComposedVariable)clinicalDataResourceService.createClinicalVariable(
                     NORMALIZED_LEAFS_VARIABLE,
                     concept_path: conceptKey.conceptFullName.toString())
         }
@@ -152,7 +152,7 @@ class ClinicalExportService {
 
     private Collection<ComposedVariable> createClinicalVariablesForStudies(Set<Study> queriedStudies) {
         queriedStudies.collect { Study study ->
-            clinicalDataResourceService.createClinicalVariable(
+            (ComposedVariable)clinicalDataResourceService.createClinicalVariable(
                     NORMALIZED_LEAFS_VARIABLE,
                     concept_path: study.ontologyTerm.fullName)
         }
