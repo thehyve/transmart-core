@@ -1,5 +1,8 @@
 package annotation
 
+import groovy.transform.EqualsAndHashCode
+
+@EqualsAndHashCode
 class AmTagDisplayValue implements Serializable {
 
     AmTagItem amTagItem

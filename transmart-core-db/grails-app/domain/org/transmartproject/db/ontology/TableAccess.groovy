@@ -23,6 +23,7 @@ package org.transmartproject.db.ontology
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
 import groovy.transform.EqualsAndHashCode
+import org.hibernate.criterion.MatchMode
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
@@ -198,13 +199,10 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                     "could not find it in ${domainClass}'s table (fullname: " +
                     "$fullName)")
 
-        /* Finally select the relevant stuff */
-        def fullNameSearch = StringUtils.asLikeLiteral(fullName) + '%'
-
         c = domainClass.createCriteria()
         c.list {
             and {
-                like 'fullName', fullNameSearch
+                add(StringUtils.like('fullName', fullName, MatchMode.START))
                 if (allDescendants) {
                     gt 'level', parentLevel
                 } else {

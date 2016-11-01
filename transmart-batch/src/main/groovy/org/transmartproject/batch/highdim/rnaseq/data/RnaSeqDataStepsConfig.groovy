@@ -2,12 +2,15 @@ package org.transmartproject.batch.highdim.rnaseq.data
 
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
+import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.item.file.transform.FieldSet
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader
 import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -16,6 +19,8 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.transmartproject.batch.batchartifacts.CollectMinimumPositiveValueListener
+import org.transmartproject.batch.batchartifacts.HeaderParsingLineCallbackHandler
+import org.transmartproject.batch.batchartifacts.HeaderSavingLineCallbackHandler
 import org.transmartproject.batch.batchartifacts.MultipleItemsLineItemReader
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
@@ -47,11 +52,12 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
     DatabaseImplementationClassPicker picker
 
     @Bean
-    Step firstPass(RnaSeqDataValueValidator rnaSeqDataValueValidator) {
+    Step firstPass(RnaSeqDataValueValidator rnaSeqDataValueValidator,
+                   ItemStreamReader rnaSeqDataTsvFileReader) {
         CollectMinimumPositiveValueListener minPosValueColector = collectMinimumPositiveValueListener()
         TaskletStep step = steps.get('firstPass')
                 .chunk(dataFilePassChunkSize)
-                .reader(rnaSeqDataTsvFileReader())
+                .reader(rnaSeqDataTsvFileReader)
                 .processor(compositeOf(
                 new ValidatingItemProcessor(adaptValidator(rnaSeqDataValueValidator)),
                 new NegativeDataPointWarningProcessor(),
@@ -80,10 +86,11 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
 
     @Bean
     Step secondPass(ItemWriter<RnaSeqDataValue> rnaSeqDataWriter,
-                    ItemProcessor compositeOfRnaSeqSecondPassProcessors) {
+                    ItemProcessor compositeOfRnaSeqSecondPassProcessors,
+                    ItemStreamReader rnaSeqDataTsvFileReader) {
         TaskletStep step = steps.get('secondPass')
                 .chunk(dataFilePassChunkSize)
-                .reader(rnaSeqDataTsvFileReader())
+                .reader(rnaSeqDataTsvFileReader)
                 .processor(compositeOfRnaSeqSecondPassProcessors)
                 .writer(rnaSeqDataWriter)
                 .listener(logCountsStepListener())
@@ -143,11 +150,48 @@ class RnaSeqDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
+    @StepScope
+    HeaderSavingLineCallbackHandler headerSavingLineCallbackHandler() {
+        new HeaderSavingLineCallbackHandler()
+    }
+
+    @Bean
+    @StepScope
+    HeaderParsingLineCallbackHandler headerParsingLineCallbackHandler(
+            RnaSeqDataMultipleVariablesPerSampleFieldSetMapper rnaSeqDataMultipleVariablesPerSampleFieldSetMapper) {
+        new HeaderParsingLineCallbackHandler(
+                registeredSuffixes: rnaSeqDataMultipleVariablesPerSampleFieldSetMapper.fieldSetters.keySet(),
+                defaultSuffix: 'readcount'
+        )
+    }
+
+    @Bean
+    @StepScope
+    AbstractItemCountingItemStreamItemReader<FieldSet> itemStreamReader(
+            org.springframework.core.io.Resource dataFileResource,
+            HeaderParsingLineCallbackHandler headerParsingLineCallbackHandler) {
+        tsvFileReader(
+                dataFileResource,
+                linesToSkip: 1,
+                columnNames: 'auto',
+                saveHeader: headerParsingLineCallbackHandler,
+                saveState: true
+        )
+    }
+
+    @Bean
+    @StepScope
+    RnaSeqDataMultipleVariablesPerSampleFieldSetMapper rnaSeqDataMultipleVariablesPerSampleFieldSetMapper() {
+        new RnaSeqDataMultipleVariablesPerSampleFieldSetMapper()
+    }
+
+    @Bean
     ItemStreamReader rnaSeqDataTsvFileReader(
-            RnaSeqDataMultipleVariablesPerSampleFieldSetMapper rnaSeqDataMultipleSamplesFieldSetMapper) {
+            AbstractItemCountingItemStreamItemReader<FieldSet> itemStreamReader,
+            RnaSeqDataMultipleVariablesPerSampleFieldSetMapper rnaSeqDataMultipleVariablesPerSampleFieldSetMapper) {
         new MultipleItemsLineItemReader(
-                resource: dataFileResource(),
-                multipleItemsFieldSetMapper: rnaSeqDataMultipleSamplesFieldSetMapper
+                multipleItemsFieldSetMapper: rnaSeqDataMultipleVariablesPerSampleFieldSetMapper,
+                itemStreamReader: itemStreamReader
         )
     }
 

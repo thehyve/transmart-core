@@ -9,7 +9,7 @@ apply plugin: 'codenarc'
 apply plugin: 'maven'
 
 group 'org.transmartproject'
-version '17.1-SNAPSHOT'
+version '1.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -199,12 +199,10 @@ uploadArchives {
                 password: project.ext.properties['mavenTheHyvePassword'] ?: '',
             ]
 
-            //FIXME Cannot set the value of read-only property 'authentication' for object
-            // of type org.gradle.api.publication.maven.internal.deployer.MavenRemoteRepository.
-            repository url: 'https://repo.thehyve.nl/content/repositories/releases/'
-            //, authentication: credentials
-            snapshotRepository url: 'https://repo.thehyve.nl/content/repositories/snapshots/'
-            //, authentication: credentials
+            repository url: 'https://repo.thehyve.nl/content/repositories/releases/',
+                authentication: credentials
+            snapshotRepository url: 'https://repo.thehyve.nl/content/repositories/snapshots/',
+                authentication: credentials
 
             pom.project pomConfiguration
         }

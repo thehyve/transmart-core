@@ -112,7 +112,7 @@ class PatientDimensionTableWriter implements ItemWriter<ClinicalFactsRowSet> {
             return new int[0]
         }
 
-        log.info("Inserting ${newPatients.size()} new patients (patient_dimension)")
+        log.info("Inserting ${newPatients.size()} new patients (patient_trial)")
         List<Map> patientTrialRows = newPatients.collect { Patient patient ->
             [
                     patient_num     : patient.code,

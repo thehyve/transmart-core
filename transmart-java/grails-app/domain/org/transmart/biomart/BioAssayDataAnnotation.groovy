@@ -20,6 +20,9 @@
 
 package org.transmart.biomart
 
+import groovy.transform.EqualsAndHashCode
+
+@EqualsAndHashCode
 class BioAssayDataAnnotation implements Serializable {
 
     BioMarker bioMarker

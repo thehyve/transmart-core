@@ -18,18 +18,14 @@
     </g:if>
 
     <!-- Include jQuery, Ext and app-specific scripts: -->
-    %{--<g:javascript library="jquery" />--}%
-    <asset:javascript src="jquery-2.2.0.min.js"/>
-    <asset:javascript src="extjs.js"/>
+    <asset:javascript src="jquery-plugin.js"/>
+    <asset:javascript src="extjs.min.js"/>
     <asset:stylesheet href="folderManagement.css"/>
     <asset:javascript src="folderManagementDE.js"/>
-    <asset:stylesheet href="analysetab.css" />
-    <asset:javascript src="analysetab.js" />
-    <script type="text/javascript" >
-
+    <script type="text/javascript">
         var pageInfo = {
             basePath: "${request.getContextPath()}"
-        }
+        };
 
         var GLOBAL = {
             Version: '1.0',
@@ -60,7 +56,7 @@
             HeatmapType: 'Compare',
             IsAdmin: ${admin},
             Tokens: "${tokens}",
-            InitialSecurity: "${initialaccess.replaceAll('\n', '')}",
+            InitialSecurity: ${raw(initialaccess.replaceAll('\n', '') ?: '{}')},
             restoreSubsetId: '${params.sId}',
             resulttype: 'applet',
             searchType: "${grailsApplication.config.com.recomdata.search.genepathway}",
@@ -117,10 +113,10 @@
         Ext.Updater.defaults.timeout = 1800000;
 
         var $j = window.$j = jQuery.noConflict();
-
     </script>
+    <asset:stylesheet href="analysetab.css" />
+    <asset:javascript src="analysetab.js" />
     <tmpl:/RWG/urls/>
-    %{--<asset:deferredScripts/>--}%
 
 </head>
 

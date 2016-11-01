@@ -129,11 +129,11 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
             createAlias 'jRegion.platform', 'platform', INNER_JOIN
 
             projections {
-                property 'rnaseqdata.assay.id',               'assayId'
-                property 'rnaseqdata.readcount',              'readcount'
-                property 'rnaseqdata.normalizedReadcount',    'normalizedReadcount'
-                property 'rnaseqdata.logNormalizedReadcount', 'logNormalizedReadcount'
-                property 'rnaseqdata.zscore',                 'zscore'
+                property 'assay.id',               'assayId'
+                property 'readcount',              'readcount'
+                property 'normalizedReadcount',    'normalizedReadcount'
+                property 'logNormalizedReadcount', 'logNormalizedReadcount'
+                property 'zscore',                 'zscore'
 
                 property 'region.id',                         'id'
                 property 'region.name',                       'name'

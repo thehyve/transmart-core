@@ -23,6 +23,8 @@ import com.google.common.collect.HashMultimap
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.Multimap
 import com.google.common.collect.Sets
+import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.criterion.MatchMode
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -147,7 +149,7 @@ class ClinicalVariableFactory {
         def resolvedConceptPath = resolveConceptPath(conceptCode, conceptPath)
 
         List<? extends OntologyTerm> terms = I2b2.withCriteria {
-            'like' 'fullName', StringUtils.asLikeLiteral(resolvedConceptPath) + '%'
+            add(StringUtils.like('fullName', resolvedConceptPath, MatchMode.START))
             order 'fullName', 'asc'
         }
 
@@ -264,8 +266,8 @@ class ClinicalVariableFactory {
 
         def resolvedConceptPath = resolveConceptPath(conceptCode, conceptPath)
 
-        def result = ConceptDimension.withCriteria {
-            like 'conceptPath', StringUtils.asLikeLiteral(resolvedConceptPath) + '%'
+        def result = ((HibernateCriteriaBuilder)ConceptDimension.createCriteria()).list {
+            add(StringUtils.like('conceptPath', resolvedConceptPath, MatchMode.START))
 
             order 'conceptPath', 'asc'
         }

@@ -26,6 +26,8 @@ if (!Environment.isWarDeployed() && Environment.isWithinShell()) {
  */
 org.transmart.originalConfigBinding = getBinding()
 
+grails.assets.bundle = true
+
 grails.mime.disable.accept.header.userAgents = []
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.types = [html         : [
