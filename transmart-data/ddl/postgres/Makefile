@@ -1,10 +1,10 @@
 include ../../makefile.inc
 
 SCHEMAS = \
-		  i2b2metadata \
-		  i2b2demodata \
 		  biomart_user \
 		  biomart \
+		  i2b2metadata \
+		  i2b2demodata \
 		  deapp \
 		  tm_lz \
 		  tm_cz \

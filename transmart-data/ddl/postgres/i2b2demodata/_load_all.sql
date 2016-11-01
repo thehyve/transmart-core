@@ -42,6 +42,9 @@
 \i i2b2demodata/modifier_metadata.sql
 \i i2b2demodata/views/modifier_dimension_view.sql
 \i i2b2demodata/news_updates.sql
+\i i2b2demodata/visit_dimension.sql
+\i i2b2demodata/study.sql
+\i i2b2demodata/trial_visit_dimension.sql
 \i i2b2demodata/observation_fact.sql
 \i i2b2demodata/patient_dimension.sql
 \i i2b2demodata/patient_mapping.sql
@@ -69,5 +72,4 @@
 \i i2b2demodata/source_master.sql
 \i i2b2demodata/timers.sql
 \i i2b2demodata/upload_status.sql
-\i i2b2demodata/visit_dimension.sql
 \i i2b2demodata/_misc.sql
