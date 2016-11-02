@@ -210,7 +210,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
         } else {
             constraint.value = convertValue(constraint.field, constraint.value)
         }
-        if (constraint.field.type == Type.STRING && constraint.operator == Operator.IN) {
+        if (constraint.field.type == Type.STRING && constraint.operator == Operator.CONTAINS) {
             constraint.operator = Operator.LIKE
             constraint.value = "%${constraint.value.toString().replaceAll('%','\\%')}%".toString()
         }
@@ -265,19 +265,11 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
             build(new FieldConstraint(field: patientIdField, operator: Operator.IN, value: constraint.patientIds))
         }
         else if (constraint.patientSetId != null) {
-
-            QueryBuilder subQueryBuilder = new HibernateCriteriaQueryBuilder(
-                    aliasSuffixes: aliasSuffixes,
-                    studies: studies
-            )
-            def observationFactAlias = getAlias('observation_fact')
-            def subqueryAlias = subQueryBuilder.getAlias('qt_patient_set_collection')
-
-            DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, subqueryAlias)
-            subCriteria.add(Restrictions.eq("${subqueryAlias}.id", constraint.patientSetId))
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')
+            subCriteria.add(Restrictions.eq("qt_patient_set_collection.id", constraint.patientSetId))
             
             return Subqueries.propertyEq('patient',
-                    subCriteria.setProjection(Projections.property("${subqueryAlias}.patient")))
+                    subCriteria.setProjection(Projections.property("patient")))
         }
         else {
             throw new QueryBuilderException("Constraint value not specified: ${constraint.class}")
