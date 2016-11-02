@@ -30,12 +30,10 @@ import org.transmartproject.db.user.AccessLevelTestData
 class BootStrap {
 
     def init = { servletContext ->
-        def testData = new TestData()
-                .createDefault()
+        def testData = TestData.createDefault()
         testData.saveAll()
-        new org.transmartproject.rest.test.TestData()
-            .createTestData()
-        new AccessLevelTestData().createWithAlternativeConceptData(testData.conceptData)
+        new org.transmartproject.rest.test.TestData().createTestData()
+        AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
             .saveAll()
     }
 
