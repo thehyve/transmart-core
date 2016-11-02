@@ -4,6 +4,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.function.Predicate;
@@ -11,10 +12,10 @@ import java.util.function.UnaryOperator;
 import static java.util.Objects.requireNonNull;
 
 /**
- * An ArrayList that keeps an index of its content so that contains()/indexOf() are fast. This implementation
- * requires uniqueness of its contents, so it also works like an ordered set.
+ * An ArrayList that keeps an index of its content so that contains()/indexOf() are fast. Duplicate entries are
+ * ignored as most other java Set's do.
  */
-public class IndexedList<E> extends ArrayList<E> {
+public class IndexedArraySet<E> extends ArrayList<E> implements Set<E> {
 
     private HashMap<E, Integer> indexMap = new HashMap<>();
 
@@ -27,31 +28,24 @@ public class IndexedList<E> extends ArrayList<E> {
     }
 
     private E addToIndex(E e, int idx) {
-        if (indexMap.putIfAbsent(requireNonNull(e), idx) != null) duplicateError(e);
+        indexMap.putIfAbsent(requireNonNull(e), idx);
         return e;
-    }
-
-    private E checkDuplicates(E e) {
-        if (indexMap.containsKey(requireNonNull(e))) duplicateError(e);
-        return e;
-    }
-
-    private void duplicateError(E e) {
-        throw new InvalidArgumentsException("IndexedList cannot contain duplicate elements, '"+e+"' is already present.");
     }
 
     @Override
     public boolean add(E e) {
-        super.add(addToIndex(e, size()));
+        if(indexMap.putIfAbsent(requireNonNull(e), size()) != null) return false;
+        super.add(e);
         return true;
     }
 
     @Override
     public boolean addAll(Collection<? extends E> c) {
+        boolean rv = false;
         for (E item: c) {
-            add(item);
+            rv |= add(item);
         }
-        return c.size() != 0;
+        return rv;
     }
 
     @Override
@@ -72,8 +66,16 @@ public class IndexedList<E> extends ArrayList<E> {
     }
 
     @Override
+    public Object clone() {
+        IndexedArraySet clone = (IndexedArraySet) super.clone();
+        clone.indexMap = (HashMap) indexMap.clone();
+        return clone;
+    }
+
+    @Override
     public void add(int idx, E e) {
-        super.add(idx, checkDuplicates(e));
+        if(indexMap.putIfAbsent(requireNonNull(e), -1) != null) return;
+        super.add(idx, e);
         reindex();
     }
 
@@ -134,11 +136,16 @@ public class IndexedList<E> extends ArrayList<E> {
     public void replaceAll(final UnaryOperator<E> operator) {
         indexMap.clear();
         try {
+            int duplicates = 0;
             for (int i = 0; i < size(); i++) {
-                E newval = operator.apply(this.get(i));
-                addToIndex(newval, i);
-                IndexedList.super.set(i, newval);
+                E newval = requireNonNull(operator.apply(this.get(i)));
+                if(indexMap.putIfAbsent(newval, i-duplicates) == null) {
+                    super.set(i-duplicates, newval);
+                } else {
+                    duplicates++;
+                }
             }
+            removeRange(size()-duplicates, size());
         } catch (Exception ex) {
             // If there's an exception the indexMap will be inconsistent
             reindex();
