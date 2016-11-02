@@ -1,19 +1,18 @@
+import grails.core.GrailsApplication
 import grails.plugin.springsecurity.SecurityFilterPosition
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.util.Environment
 import org.grails.core.exceptions.GrailsConfigurationException
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.ApplicationContext
-import org.springframework.core.io.ResourceLoader
+import org.springframework.security.web.context.SecurityContextPersistenceFilter
 
 class BootStrap {
 
     final static logger = LoggerFactory.getLogger(this)
 
-    def securityContextPersistenceFilter
+    SecurityContextPersistenceFilter securityContextPersistenceFilter
 
-    def grailsApplication
+    GrailsApplication grailsApplication
 
     def OAuth2SyncService
 
@@ -67,32 +66,37 @@ class BootStrap {
         }
 
         def ctx = grailsApplication.getMainContext()
-        def tsAppRScriptsDir
-        if (Environment.current == Environment.PRODUCTION) {
-            tsAppRScriptsDir = ctx.getResource("WEB-INF/dataExportRScripts").getFile()
-        }
-        else {
-            tsAppRScriptsDir = new File("src/main/resources/dataExportRScripts")
-        }
-
-        if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
-            if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
-                throw new RuntimeException('Could not determine proper for ' +
-                        'com.recomdata.transmart.data.export.rScriptDirectory')
+        try { // find location of data export R scripts
+            def tsAppRScriptsDir
+            if (Environment.current == Environment.PRODUCTION) {
+                tsAppRScriptsDir = ctx.getResource("WEB-INF/dataExportRScripts").getFile()
+            } else {
+                tsAppRScriptsDir = new File("src/main/resources/dataExportRScripts")
             }
+            if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
+                if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
+                    throw new RuntimeException('Could not determine proper for ' +
+                            'com.recomdata.transmart.data.export.rScriptDirectory')
+                }
+            }
+            c.com.recomdata.transmart.data.export.rScriptDirectory = tsAppRScriptsDir.canonicalPath
+            logger.info("com.recomdata.transmart.data.export.rScriptDirectory = " +
+                    "${c.com.recomdata.transmart.data.export.rScriptDirectory}")
+        } catch(Exception e) {
+            logger.warn "No location found for com.recomdata.transmart.data.export.rScriptDirectory: ${e.message}"
         }
-        c.com.recomdata.transmart.data.export.rScriptDirectory = tsAppRScriptsDir.canonicalPath
 
-        logger.info("com.recomdata.transmart.data.export.rScriptDirectory = " +
-                "${c.com.recomdata.transmart.data.export.rScriptDirectory}")
-        def f = ctx.getResource('WEB-INF/Rscripts').getFile()
-        if (!f || !f.isDirectory()) {
-            f = ctx.getResource('classpath:Rscripts').getFile()
+        try { // find location of R scripts of RModules
+            def f = ctx.getResource('WEB-INF/Rscripts').getFile()
+            if (!f || !f.isDirectory()) {
+                f = ctx.getResource('classpath:Rscripts').getFile()
+            }
+            c.RModules.pluginScriptDirectory = f.absolutePath
+            logger.info("RModules.pluginScriptDirectory = " +
+                    "${c.RModules.pluginScriptDirectory}")
+        } catch(Exception e) {
+            logger.warn "No location found for RModules.pluginScriptDirectory: ${e.message}"
         }
-        c.RModules.pluginScriptDirectory = f.absolutePath
-
-        logger.info("RModules.pluginScriptDirectory = " +
-                "${c.RModules.pluginScriptDirectory}")
 
         // At this point we assume c.RModules exists
         if (!c.RModules.containsKey("host")) {

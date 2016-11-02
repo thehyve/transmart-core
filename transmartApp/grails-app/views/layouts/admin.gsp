@@ -2,11 +2,9 @@
 <head>
     <title>Transmart Administration</title>
 
-    %{--<g:javascript library="jquery" />--}%
-    <asset:javascript src="jquery-2.2.0.min.js"/>
+    <asset:javascript src="jquery-plugin.js"/>
     <asset:stylesheet src="admintab.css"/>
-    <asset:javascript src="admintab.js"/>
-    %{--<r:require module="adminTab" />--}%
+    <asset:javascript src="admintab.min.js"/>
 
     <script>
 			Ext.BLANK_IMAGE_URL = "${resource(dir:'images', file:'s.gif')}";
@@ -41,8 +39,6 @@
 				}
 	        });
     </script>
-    %{--<g:layoutHead/>--}%
-    %{--<r:layoutResources/>--}%
 </head>
 
 <body>
@@ -52,7 +48,6 @@
     <div id='navbar'><g:render template="/layouts/adminnavbar"/></div>
 
     <div id="content"><g:layoutBody/></div>
-    %{--<r:layoutResources/>--}%
 </div>
 </body>
 </html>

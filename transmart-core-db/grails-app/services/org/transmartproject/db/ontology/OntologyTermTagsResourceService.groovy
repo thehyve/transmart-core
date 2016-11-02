@@ -1,5 +1,6 @@
 package org.transmartproject.db.ontology
 
+import org.hibernate.criterion.MatchMode
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
@@ -17,7 +18,7 @@ class OntologyTermTagsResourceService implements OntologyTermTagsResource {
             or {
                 ontologyTerms.each { OntologyTerm term ->
                     if (includeDescendantsTags) {
-                        like 'ontologyTermFullName', (StringUtils.asLikeLiteral(term.fullName) + '%')
+                        add(StringUtils.like('ontologyTermFullName', term.fullName, MatchMode.START))
                     } else {
                         eq 'ontologyTermFullName', term.fullName
                     }

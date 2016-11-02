@@ -1,5 +1,8 @@
 package annotation
 
+import groovy.transform.EqualsAndHashCode
+
+@EqualsAndHashCode
 class AmTagAssociation implements Serializable {
 
     String objectType

@@ -1,5 +1,0 @@
-This repository is part of the tranSMART Foundation's release of 
-transmartApp and the accompanying projects.
-
-VERSION: 16.2-SNAPSHOT
-

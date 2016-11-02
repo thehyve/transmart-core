@@ -34,6 +34,7 @@ import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.dataquery.highdim.protein.ProteinTestData
 import org.transmartproject.db.dataquery.highdim.rbm.RbmTestData
 import org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqTestData
+import org.transmartproject.db.dataquery.highdim.rnaseq.transcript.RnaSeqTranscriptTestData
 import org.transmartproject.db.dataquery.highdim.rnaseqcog.RnaSeqCogTestData
 import org.transmartproject.db.dataquery.highdim.tworegion.TwoRegionTestData
 import org.transmartproject.db.dataquery.highdim.vcf.VcfTestData
@@ -162,6 +163,16 @@ class HighDimensionAllDataTests {
         rowProperties = [id            : Long, name: String, cytoband: String, chromosome: String, start: Long, end: Long,
                          numberOfProbes: Integer, bioMarker: String]
         new RnaSeqTestData().saveAll()
+
+        testRetrieval()
+    }
+
+    @Test
+    void testRnaSeqTranscriptRetrieval() {
+        type = highDimensionResourceService.getSubResourceForType('rnaseq_transcript')
+        dataProperties = [readcount: Integer, normalizedReadcount: Double, logNormalizedReadcount: Double, zscore: Double]
+        rowProperties = [id: Long, chromosome: String, start: Long, end: Long, bioMarker: String]
+        new RnaSeqTranscriptTestData().saveAll()
 
         testRetrieval()
     }

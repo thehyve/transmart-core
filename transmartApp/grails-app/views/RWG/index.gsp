@@ -10,7 +10,7 @@
 <asset:link rel="shortcut icon" href='searchtool.ico' type="image/x-ico" />
 <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
 
-<asset:javascript src="jquery-2.2.0.min.js"/>
+<asset:javascript src="jquery-plugin.js"/>
 
 <tmpl:/RWG/urls/>
 
@@ -416,8 +416,7 @@
     });
 </script>
 
-%{--<r:require module="browseTab" />--}%
-<asset:javascript src="browseTab.js" />
+<asset:javascript src="browsetab.min.js" />
 <asset:stylesheet href="browseTab.css" />
 <asset:stylesheet href="rwg.css" />
 <asset:javascript src="rwgsearch.js" />

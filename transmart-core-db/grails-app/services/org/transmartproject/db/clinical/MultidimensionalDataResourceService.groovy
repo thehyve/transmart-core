@@ -6,6 +6,8 @@ import org.apache.commons.lang.NotImplementedException
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
+import org.hibernate.criterion.ProjectionList
+import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.dataquery2.Dimension
@@ -19,10 +21,10 @@ class MultidimensionalDataResourceService {
     @Autowired
     SessionFactory sessionFactory
 
-    static final int NUM_FIXED_PROJECTIONS = 2
+    static final int NUM_FIXED_PROJECTIONS = 3
 
     Hypercube doQuery(Map args) {
-        def constraints = args.constraints
+        Map constraints = args.constraints
         def sort = args.sort
         def pack = args.pack
         def preloadDimensions = args.pack ?: false
@@ -44,9 +46,12 @@ class MultidimensionalDataResourceService {
             // select all fields.
             projections {
                 // NUM_FIXED_PROJECTIONS must match the number of projections defined here
-                property 'textValue'
-                property 'numberValue'
+                property 'valueType', 'valueType'
+                property 'textValue', 'textValue'
+                property 'numberValue', 'numberValue'
             }
+
+            //instance.resultTransformer = Transformers.ALIAS_TO_ENTITY_MAP
 
             trialVisit {
                 study {
@@ -60,7 +65,7 @@ class MultidimensionalDataResourceService {
             studyId in studynames
         }*.dimensions.flatten()*.dimension.unique()
 
-        Query query = new Query(q, [modifierCodes: ['@']], [])
+        Query query = new Query(q, [modifierCodes: ['@']])
 
         dimensions.each {
             it.selectIDs(query)
@@ -72,9 +77,10 @@ class MultidimensionalDataResourceService {
             // todo: order by primary-key-except-modifierCodes
         }
 
+        String[] aliases = ((query.criteria.instance as CriteriaImpl).projection as ProjectionList).aliases
         ScrollableResults results = query.criteria.instance.scroll(ScrollMode.FORWARD_ONLY)
 
-        new Hypercube(results, dimensions, query, session)
+        new Hypercube(results, dimensions, aliases, query, session)
         // session will be closed by the Hypercube
 
     }
@@ -94,5 +100,4 @@ class MultidimensionalDataResourceService {
 class Query {
     HibernateCriteriaBuilder criteria
     Map params
-    List<Dimension> projectionOwners
 }

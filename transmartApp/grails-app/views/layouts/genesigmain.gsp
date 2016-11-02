@@ -4,18 +4,11 @@
 
     <asset:link rel="shortcut icon" href='searchtool.ico' type="image/x-ico" />
     <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
-    %{--<r:require module="signatureTab" />--}%
-    <asset:javascript src="jquery-2.2.0.min.js"/>
-    <asset:javascript src="jquery-ui.min.js"/>
+    <asset:javascript src="jquery-plugin.js"/>
     <asset:javascript src="session_timeout_nodep.js"/>
-    <asset:javascript src="jquery-2.2.0.min.js"/>
-    <asset:javascript src="extjs.js"/>
-    <asset:javascript src="ext/ext-base.js"/>
-    <asset:javascript src="ext/ext-all-debug.js"/>
-    <asset:javascript src="ext-ux/miframe.js"/>
+    <asset:javascript src="extjs.min.js"/>
     <asset:javascript src="maintabpanel.js"/>
     <asset:javascript src="toggle.js"/>
-    <asset:javascript src="ext-ux/miframe.js"/>
     <asset:stylesheet href="extjs.css"/>
     <asset:stylesheet href="main.css"/>
     <asset:stylesheet href="sanofi.css"/>

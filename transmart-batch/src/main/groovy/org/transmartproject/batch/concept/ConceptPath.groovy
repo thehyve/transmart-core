@@ -65,4 +65,8 @@ class ConceptPath extends ConceptFragment {
         }
         res
     }
+
+    boolean contains(ConceptPath otherPath) {
+        path.contains(otherPath.path)
+    }
 }

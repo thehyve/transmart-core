@@ -88,7 +88,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
         }
         String dimensionAlias = getAlias(metadata.fieldName)
         if (field.type == Type.OBJECT) {
-            return "${dimensionAlias}.id"
+            return "${dimensionAlias}.id".toString()
         }
         def fieldType = metadata.fieldTypes[field.fieldName]
         if (fieldType == null) {
@@ -97,7 +97,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
         if (!field.type.supportsClass(fieldType)) {
             throw new QueryBuilderException("Field type '${field.type.name()}' not compatible with type ${fieldType.simpleName} of ${metadata.domainClass.simpleName}.${field.fieldName}")
         }
-        "${dimensionAlias}.${field.fieldName}"
+        "${dimensionAlias}.${field.fieldName}".toString()
     }
 
     /**
@@ -207,7 +207,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
         }
         if (constraint.field.type == Type.STRING && constraint.operator == Operator.CONTAINS) {
             constraint.operator = Operator.LIKE
-            constraint.value = "%${constraint.value.toString().replaceAll('%','\\%')}%"
+            constraint.value = "%${constraint.value.toString().replaceAll('%','\\%')}%".toString()
         }
         String propertyName = getFieldPropertyName(constraint.field)
         switch(constraint.operator) {
