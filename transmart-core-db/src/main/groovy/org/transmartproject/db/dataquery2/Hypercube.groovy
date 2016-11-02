@@ -11,7 +11,7 @@ import org.transmartproject.core.IterableResult
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
-import org.transmartproject.db.util.IndexedList
+import org.transmartproject.db.util.IndexedArraySet
 
 /**
  *
@@ -36,15 +36,15 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
     final ImmutableList<Dimension> dimensions
     Query query
 
-    // This could also be an (immutable) IndexedList<Dimension>, but we don't use the list aspects.
+    // This could also be an (immutable) IndexedArraySet<Dimension>, but we don't use the list aspects.
     final ImmutableMap<Dimension,Integer> dimensionsList =
             ImmutableMap.copyOf(dimensions.withIndex().collectEntries())
 
     // Map from Dimension -> dimension element keys
-    // The IndexedList provides efficient O(1) indexOf/contains operations
+    // The IndexedArraySet provides efficient O(1) indexOf/contains operations
     // Only used for packable dimensions
-    Map<Dimension,IndexedList<Object>> dimensionElementKeys =
-            dimensions.findAll { it.packable.packable }.collectEntries(new HashMap()) { [it, new IndexedList()] }
+    Map<Dimension,IndexedArraySet<Object>> dimensionElementKeys =
+            dimensions.findAll { it.packable.packable }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
 
     // A map that stores the actual dimension elements once they are loaded
     Map<Dimension, List<Object>> dimensionElements = new HashMap()
@@ -88,7 +88,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
                 Dimension d = dimensions[i]
                 def dimElementKey = d.getElementKey(result)
                 if(d.packable.packable) {
-                    IndexedList<Object> elementKeys = dimensionElementKeys[d]
+                    IndexedArraySet<Object> elementKeys = dimensionElementKeys[d]
                     int dimElementIdx = elementKeys.indexOf(dimElementKey)
                     if(dimElementIdx == -1) {
                         dimElementIdx = elementKeys.size()
