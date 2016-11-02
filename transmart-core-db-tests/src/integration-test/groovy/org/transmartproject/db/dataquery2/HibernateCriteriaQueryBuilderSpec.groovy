@@ -109,9 +109,8 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         List resultsForPatientId = getList(criteriaForPatientId)
 
         then:
-        resultsForPatientId.size() == 2
+        resultsForPatientId.size() == 1
         (resultsForPatientId[0] as ObservationFact).patient.id == patientIds[0]
-        (resultsForPatientId[1] as ObservationFact).patient.id == patientIds[1]
 
         when:
         def patientSetId = this.testData.clinicalData.patientsQueryMaster.queryInstances[0].queryResults[0].patientSet[0].id

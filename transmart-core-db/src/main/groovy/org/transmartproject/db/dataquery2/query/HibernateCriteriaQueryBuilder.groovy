@@ -167,12 +167,17 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
      */
     protected static Object convertValue(Field field, Object value) {
         def typedValue = value
-        if (field.type == Type.OBJECT || field.type == Type.ID) {
-            typedValue = Long.newInstance(value)
-        } else {
-            def fieldType = DimensionMetadata.forDimension(field?.dimension).fieldTypes[field.fieldName]
-            if (fieldType != null && !fieldType.isInstance(typedValue)) {
-                typedValue = fieldType.newInstance(value)
+        if (value instanceof Collection){
+            typedValue = value.collect{convertValue(field, it)}
+        }
+        else {
+            if (field.type == Type.OBJECT || field.type == Type.ID) {
+                typedValue = Long.newInstance(value)
+            } else {
+                def fieldType = DimensionMetadata.forDimension(field?.dimension).fieldTypes[field.fieldName]
+                if (fieldType != null && !fieldType.isInstance(typedValue)) {
+                    typedValue = fieldType.newInstance(value)
+                }
             }
         }
         return typedValue
@@ -205,7 +210,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
         } else {
             constraint.value = convertValue(constraint.field, constraint.value)
         }
-        if (constraint.field.type == Type.STRING && constraint.operator == Operator.CONTAINS) {
+        if (constraint.field.type == Type.STRING && constraint.operator == Operator.IN) {
             constraint.operator = Operator.LIKE
             constraint.value = "%${constraint.value.toString().replaceAll('%','\\%')}%".toString()
         }
@@ -225,6 +230,8 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
                 return Restrictions.in(propertyName, constraint.value)
             case Operator.LIKE:
                 return Restrictions.like(propertyName, constraint.value)
+            case Operator.IN:
+                return Restrictions.in(propertyName, constraint.value)
             default:
                 throw new QueryBuilderException("Operator '${constraint.operator.symbol}' not supported.")
         }
@@ -255,7 +262,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
     Criterion build(PatientSetConstraint constraint) {
 
         if (constraint.patientIds != null) {
-            build(new FieldConstraint(field: patientIdField, operator: Operator.CONTAINS, value: constraint.patientIds))
+            build(new FieldConstraint(field: patientIdField, operator: Operator.IN, value: constraint.patientIds))
         }
         else if (constraint.patientSetId != null) {
 
