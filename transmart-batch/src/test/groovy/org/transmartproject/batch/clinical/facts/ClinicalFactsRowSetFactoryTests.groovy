@@ -12,12 +12,14 @@ import org.transmartproject.batch.concept.ConceptType
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.patient.DemographicVariable
 import org.transmartproject.batch.patient.PatientSet
+import org.transmartproject.batch.secureobject.Study
 
 import static org.transmartproject.batch.clinical.variable.ClinicalVariable.DATA_LABEL
 import static org.transmartproject.batch.clinical.variable.ClinicalVariable.SITE_ID
 import static org.transmartproject.batch.clinical.variable.ClinicalVariable.SUBJ_ID
 import static org.transmartproject.batch.clinical.variable.ClinicalVariable.TEMPLATE
 import static org.transmartproject.batch.clinical.variable.ClinicalVariable.VISIT_NAME
+import static org.transmartproject.batch.clinical.variable.ClinicalVariable.TRIAL_VISIT_LABEL
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
@@ -30,6 +32,7 @@ class ClinicalFactsRowSetFactoryTests {
     def topNodePath = new ConceptPath('\\Test\\')
     def fileName = 'foo.txt'
     def studyId = 'test_study'
+    Long studyNum = -100
 
     ClinicalFactsRowSetFactory testee
 
@@ -55,11 +58,14 @@ class ClinicalFactsRowSetFactoryTests {
     @Before
     void init() {
         testee = new ClinicalFactsRowSetFactory()
-        testee.studyId = studyId
-        testee.topNodePath = topNodePath
-        testee.tree = new ConceptTree(topNodePath: topNodePath)
-        testee.patientSet = new PatientSet()
-        testee.xtrialMapping = new XtrialMappingCollection(topNode: topNodePath)
+        testee.with {
+            studyId = this.studyId
+            study = new Study(studyId: studyId, studyNum: studyNum)
+            topNodePath = this.topNodePath
+            tree = new ConceptTree(topNodePath: topNodePath)
+            patientSet = new PatientSet()
+            xtrialMapping = new XtrialMappingCollection(topNode: topNodePath)
+        }
     }
 
     @Test
@@ -161,6 +167,25 @@ class ClinicalFactsRowSetFactoryTests {
             assertThat e.message, equalTo('Data label source of column #3 has to point to existing DATA_LABEL column' +
                     ' number.')
         }
+    }
+
+    @Test
+    void testTrialVisit() {
+        testee.variables = buildClinicalVariables([
+                [categoryCode: 'Subjects', columnNumber: 1, dataLabel: SUBJ_ID],
+                [categoryCode: 'foo',      columnNumber: 2, dataLabel: TRIAL_VISIT_LABEL],
+        ])
+        String trialVisitLabel = 'Baseline'
+        ClinicalDataRow clinicalDataRow = buildClinicalDataRows([
+                ['subj_1', trialVisitLabel]
+        ])[0]
+
+        ClinicalFactsRowSet rowSet = testee.create(clinicalDataRow)
+
+        assertThat rowSet, hasProperty('trialVisit', allOf(
+                hasProperty('studyNum', is(studyNum)),
+                hasProperty('relTimeLabel', is(trialVisitLabel)),
+        ))
     }
 
     private List<ClinicalVariable> buildClinicalVariables(List columnMappings) {

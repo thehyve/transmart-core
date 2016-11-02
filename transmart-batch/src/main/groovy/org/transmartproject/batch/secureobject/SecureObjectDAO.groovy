@@ -68,9 +68,7 @@ class SecureObjectDAO {
                     "$secureObjectValues")
         }
         if (studyValues['secure_obj_token'] != token.toString()) {
-            if (studyValues['secure_obj_token'] == 'PUBLIC' && token.toString() == 'EXP:PUBLIC') {
-                // all fine
-            } else {
+            if (!(studyValues['secure_obj_token'] == 'PUBLIC' && token.toString() == 'EXP:PUBLIC')) {
                 throw new IllegalStateException("Study found " +
                         "($studyValues) does not have expected " +
                         "secure object token ${token.toString()}")
@@ -120,6 +118,17 @@ class SecureObjectDAO {
             log.warn("Found no entry with id $experimentId (the experiment " +
                     "id associated witht the secure object) in " +
                     Tables.BIO_DATA_UID)
+        }
+
+        log.debug("About to delete ${Tables.STUDY} with bio_experiment_id=${experimentId}")
+        affected = jdbcTemplate.update("""
+                DELETE FROM ${Tables.STUDY}
+                WHERE bio_experiment_id = :id""",
+                [id: experimentId])
+        log.debug("$affected row(s) affected")
+
+        if (!affected) {
+            log.warn("Found no studies with id ${experimentId}")
         }
 
         log.debug("About to delete bio_experiment with id $experimentId")

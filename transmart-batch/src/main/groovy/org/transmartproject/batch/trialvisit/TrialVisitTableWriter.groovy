@@ -6,11 +6,16 @@ import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.DatabaseUtil
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.secureobject.Study
 
+/**
+ * Inserts trial visits to the db table.
+ */
+@Component
 @Slf4j
 class TrialVisitTableWriter implements ItemWriter<ClinicalFactsRowSet> {
 
@@ -22,7 +27,7 @@ class TrialVisitTableWriter implements ItemWriter<ClinicalFactsRowSet> {
 
     @Override
     void write(List<? extends ClinicalFactsRowSet> items) throws Exception {
-        List<TrialVisit> newTrialVisits = study.trialVisits.values().collect {
+        List<TrialVisit> newTrialVisits = study.trialVisits.values().findAll {
             it.id == null
         }
         study.reserveIdsFor(newTrialVisits)

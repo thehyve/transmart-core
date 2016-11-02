@@ -92,15 +92,18 @@ class ClinicalFactsRowSet {
                     valtype_cd     : valueTypeCode,
                     tval_char      : stringValue,
                     nval_num       : numericValue,
-                    start_date     : startDate, // in i2b2 schema, part of PK
+                    //FIXME
+                    start_date     : startDate ?: new GregorianCalendar(1970, 0, 1).time, // in i2b2 schema, part of PK
+
                     import_date    : importDate,
 
                     provider_id    : '@',
                     location_cd    : '@',
                     modifier_cd    : xtrialNode?.code ?: '@',
                     valueflag_cd   : '@',
-                    instance_num   : instanceNum,
-                    trial_visit_num: trialVisit.id
+                    //FIXME
+                    instance_num   : instanceNum ?: 1,
+                    trial_visit_num: trialVisit?.id
             ]
         }
     }

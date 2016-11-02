@@ -53,7 +53,8 @@ import org.transmartproject.batch.tag.TagsLoadJobConfiguration
 @ComponentScan(['org.transmartproject.batch.clinical',
         'org.transmartproject.batch.concept',
         'org.transmartproject.batch.patient',
-        'org.transmartproject.batch.facts'])
+        'org.transmartproject.batch.facts',
+        'org.transmartproject.batch.trialvisit'])
 @Import(TagsLoadJobConfiguration)
 class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
@@ -68,6 +69,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     
     @javax.annotation.Resource
     Tasklet gatherCurrentConceptsTasklet
+
+    @javax.annotation.Resource
+    Tasklet gatherCurrentTrialVisitsTasklet
 
     @javax.annotation.Resource
     Tasklet createSecureStudyTasklet
@@ -109,6 +113,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .next(wrapStepWithName('gatherCurrentPatients',
                         gatherCurrentPatientsStep(null, null)))
                 .next(allowStartStepOf(this.&getGatherCurrentConceptsTasklet))
+                .next(allowStartStepOf(this.&getGatherCurrentTrialVisitsTasklet))
                 .next(allowStartStepOf(this.&gatherXtrialNodesTasklet))
 
                 // delete data we'll be replacing

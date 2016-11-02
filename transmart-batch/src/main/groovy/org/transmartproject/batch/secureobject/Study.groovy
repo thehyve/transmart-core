@@ -10,11 +10,13 @@ import org.springframework.util.Assert
 import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.SequenceReserver
-import org.transmartproject.batch.patient.Patient
 import org.transmartproject.batch.trialvisit.TrialVisit
 
 import javax.annotation.PostConstruct
 
+/**
+ * The class to represent a study and hold it's visits.
+ */
 @Component
 @JobScope
 @Slf4j
@@ -40,15 +42,24 @@ class Study {
 
     Long getStudyNum() {
         if (studyNum == null) {
-            studyNum = namedTemplate.queryForObject(
+            List<Long> studyNums = namedTemplate.queryForList(
                     "select study_num from ${Tables.STUDY} where study_id = :study_id",
                     [study_id: studyId],
-                    Long.class)
+                    Long)
+
+            if (studyNums) {
+                assert studyNums.size() == 1
+                studyNum = studyNums.first()
+            }
         }
         studyNum
     }
 
+    @SuppressWarnings('UnnecessaryGetter')
     TrialVisit getTrialVisit(String label) {
+        if (!label) {
+            return null
+        }
         def trialVisit = trialVisits[label]
         if (trialVisit == null) {
             // FIXME: include unit and value
@@ -69,9 +80,16 @@ class Study {
         trialVisit.id = sequenceReserver.getNext(Sequences.TRIAL_VISIT)
     }
 
-    void reserveIdsFor(Map<String, TrialVisit> trialVisits) {
-        trialVisits.each { label, trialVisit ->
+    void reserveIdsFor(List<TrialVisit> trialVisits) {
+        trialVisits.each { trialVisit ->
             reserveIdFor(trialVisit)
         }
+    }
+
+    void leftShift(TrialVisit trialVisit) {
+        assert trialVisit.id != null
+        assert trialVisit.relTimeLabel != null
+
+        trialVisits[trialVisit.relTimeLabel] = trialVisit
     }
 }
