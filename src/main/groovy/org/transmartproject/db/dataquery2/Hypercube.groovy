@@ -3,6 +3,7 @@ package org.transmartproject.db.dataquery2
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
+import com.google.common.collect.ImmutableSet
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.hibernate.ScrollableResults
@@ -33,32 +34,36 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
     boolean autoLoadDimensions = true
     private ScrollableResults results
     final ImmutableMap<String,Integer> aliases
-    final ImmutableList<Dimension> dimensions
     Query query
 
-    // This could also be an (immutable) IndexedArraySet<Dimension>, but we don't use the list aspects.
-    final ImmutableMap<Dimension,Integer> dimensionsList =
-            ImmutableMap.copyOf(dimensions.withIndex().collectEntries())
+    // ImmutableMap guarantees the same iteration order as the input, and can in fact be converted efficently to an
+    // ImmutableList<Entry>.
+    final ImmutableMap<Dimension,Integer> dimensionsIndex
+    final ImmutableList<Dimension> dimensions
 
     // Map from Dimension -> dimension element keys
     // The IndexedArraySet provides efficient O(1) indexOf/contains operations
     // Only used for packable dimensions
-    Map<Dimension,IndexedArraySet<Object>> dimensionElementKeys =
-            dimensions.findAll { it.packable.packable }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
+    final Map<Dimension,IndexedArraySet<Object>> dimensionElementKeys
 
     // A map that stores the actual dimension elements once they are loaded
     Map<Dimension, List<Object>> dimensionElements = new HashMap()
 
-
     Hypercube(ScrollableResults results, List<Dimension> dimensions, String[] aliases,
               Query query, StatelessSessionImpl session) {
         this.results = results
+        this.dimensionsIndex = ImmutableMap.copyOf(dimensions.withIndex().collectEntries())
+        // The Guava immutable collections do this efficiently, the same underlying array of entries is used.
+        //this.dimensions = dimensionsIndex.keySet().asList()
         this.dimensions = ImmutableList.copyOf(dimensions)
         this.query = query
         this.session = session
 
         int idx = 0
         this.aliases = ImmutableMap.copyOf(aliases.collectEntries { [it, idx++] })
+
+        dimensionElementKeys = this.dimensions
+                .findAll { it.packable.packable }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
     }
 
     Iterator getIterator() {
@@ -175,32 +180,39 @@ class HypercubeValue {
 
     def getDimElement(Dimension dim) {
         if(dim.packable.packable) {
-            cube.dimensionElement(dim, (int) dimensionElementIdxes[cube.dimensionsList[dim]])
+            cube.dimensionElement(dim, (int) dimensionElementIdxes[cube.dimensionsIndex[dim]])
         } else {
-            dim.resolveElement(dimensionElementIdxes[cube.dimensionsList[dim]])
+            dim.resolveElement(dimensionElementIdxes[cube.dimensionsIndex[dim]])
         }
     }
 
     int getDimElementIndex(Dimension dim) {
         cube.checkNotPackable(dim)
-        (int) dimensionElementIdxes[cube.dimensionsList[dim]]
+        (int) dimensionElementIdxes[cube.dimensionsIndex[dim]]
     }
 
     def getDimKey(Dimension dim) {
-        cube.dimensionElementKey(dim, (int) dimensionElementIdxes[cube.dimensionsList[dim]])
+        cube.dimensionElementKey(dim, (int) dimensionElementIdxes[cube.dimensionsIndex[dim]])
     }
 
     Set<Dimension> availableDimensions() {
-        cube.dimensionsList.keySet()
+        cube.dimensionsIndex.keySet()
     }
 }
 
+//@TupleConstructor(includeFields=true)  // TupleConstructor generates invalid bytecode, sometimes. Started happening
+// after converting IndexedArraySet to java, dunno if that has anything to do with it. It includes the (hidden)
+// metaClass field in the constructor args. Maybe something to do with the order in which some transformations run?
 @CompileStatic
-@TupleConstructor(includeFields=true)
 class ProjectionMap extends AbstractMap<String,Object> {
     // @Delegate(includes="size, containsKey, keySet") can't delegate since these methods are already implemented on AbstractMap :(
     private final ImmutableMap<String,Integer> mapping
     private final Object[] tuple
+
+    ProjectionMap(ImmutableMap<String,Integer> _mapping, Object[] _tuple) {
+        mapping = _mapping
+        tuple = _tuple
+    }
 
     // This get is not entirely compliant to the Map contract as we throw on null or on a value not present in the
     // mapping
@@ -210,7 +222,7 @@ class ProjectionMap extends AbstractMap<String,Object> {
         tuple[idx]
     }
 
-    @Override Set<Map.Entry<String,Serializable>> entrySet() {
+    @Override Set<Map.Entry<String,Object>> entrySet() {
         (Set) mapping.collect(new HashSet()) { new AbstractMap.SimpleImmutableEntry(it.key, tuple[it.value]) } as Set
     }
 
