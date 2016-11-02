@@ -12,6 +12,7 @@ import org.transmartproject.db.dataquery2.PatientDimension
 import org.transmartproject.db.dataquery2.StartTimeDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.querytool.QtPatientSetCollection
 
 /**
  * QueryBuilder that produces a {@link DetachedCriteria} object representing
@@ -166,12 +167,17 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
      */
     protected static Object convertValue(Field field, Object value) {
         def typedValue = value
-        if (field.type == Type.OBJECT || field.type == Type.ID) {
-            typedValue = Long.newInstance(value)
-        } else {
-            def fieldType = DimensionMetadata.forDimension(field?.dimension).fieldTypes[field.fieldName]
-            if (fieldType != null && !fieldType.isInstance(typedValue)) {
-                typedValue = fieldType.newInstance(value)
+        if (value instanceof Collection){
+            typedValue = value.collect{convertValue(field, it)}
+        }
+        else {
+            if (field.type == Type.OBJECT || field.type == Type.ID) {
+                typedValue = Long.newInstance(value)
+            } else {
+                def fieldType = DimensionMetadata.forDimension(field?.dimension).fieldTypes[field.fieldName]
+                if (fieldType != null && !fieldType.isInstance(typedValue)) {
+                    typedValue = fieldType.newInstance(value)
+                }
             }
         }
         return typedValue
@@ -224,6 +230,8 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
                 return Restrictions.in(propertyName, constraint.value)
             case Operator.LIKE:
                 return Restrictions.like(propertyName, constraint.value)
+            case Operator.IN:
+                return Restrictions.in(propertyName, constraint.value)
             default:
                 throw new QueryBuilderException("Operator '${constraint.operator.symbol}' not supported.")
         }
@@ -252,7 +260,21 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
      * Creates a criteria object for a patient set by conversion to a field constraint for the patient id field.
      */
     Criterion build(PatientSetConstraint constraint) {
-        build(new FieldConstraint(field: patientIdField, operator: Operator.CONTAINS, value: constraint.patientIds))
+
+        if (constraint.patientIds != null) {
+            build(new FieldConstraint(field: patientIdField, operator: Operator.IN, value: constraint.patientIds))
+        }
+        else if (constraint.patientSetId != null) {
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')
+            subCriteria.add(Restrictions.eq("qt_patient_set_collection.id", constraint.patientSetId))
+            
+            return Subqueries.propertyEq('patient',
+                    subCriteria.setProjection(Projections.property("patient")))
+        }
+        else {
+            throw new QueryBuilderException("Constraint value not specified: ${constraint.class}")
+        }
+
     }
 
     /**
@@ -375,7 +397,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
     }
 
     Criterion build(PatientQuery query) {
-        throw new NotImplementedException()
+
     }
 
     Criterion build(Query query) {
