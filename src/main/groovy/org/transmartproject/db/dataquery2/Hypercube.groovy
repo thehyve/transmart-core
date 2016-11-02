@@ -8,15 +8,10 @@ import groovy.transform.TupleConstructor
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.StatelessSessionImpl
 import org.transmartproject.core.IterableResult
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
-
-import java.util.function.Predicate
-import java.util.function.UnaryOperator
-
-import static java.util.Objects.requireNonNull
+import org.transmartproject.db.util.IndexedList
 
 /**
  *
@@ -225,125 +220,3 @@ class ProjectionMap extends AbstractMap<String,Object> {
     @Override Set<String> keySet() { mapping.keySet() }
 }
 
-@CompileStatic
-class IndexedList<E> extends ArrayList<E> {
-    private HashMap<E,Integer> indexMap = new HashMap()
-
-    private void reindex() {
-        indexMap.clear()
-        int idx = 0
-        this.each { addToIndex(it, idx++) }
-    }
-
-    private E addToIndex(E e, int idx) {
-        if(indexMap.putIfAbsent(requireNonNull(e), idx) != null) duplicateError(e)
-        e
-    }
-
-    private E checkDuplicates(E e) {
-        if(indexMap.containsKey(requireNonNull(e))) duplicateError(e)
-        e
-    }
-
-    static private void duplicateError(E e) {
-        throw new InvalidArgumentsException("IndexedList cannot contain duplicate elements, '$e' is already present.")
-    }
-
-    @Override boolean add(E e) {
-        super.add(addToIndex(e, size()))
-        true
-    }
-
-    @Override boolean addAll(Collection<? extends E> c) {
-        c.each { add(it) }
-        c.size() != 0
-    }
-
-    @Override boolean contains(Object e) {
-        indexMap.containsKey(e)
-    }
-
-    @Override int indexOf(Object e) {
-        if(e == null) return -1
-        indexMap[(E) e] ?: -1
-    }
-
-    @Override int lastIndexOf(Object e) {
-        indexOf(e)
-    }
-
-    @Override E set(int idx, E e) {
-        Integer oldidx = indexMap.putIfAbsent(requireNonNull(e), idx)
-        if(oldidx != null && oldidx != idx) duplicateError(e)
-        E rv = super.set(idx, e)
-        if(oldidx == null) indexMap.remove(rv)
-        rv
-    }
-
-    @Override void add(int idx, E e) {
-        super.add(idx, checkDuplicates(e))
-        reindex()
-    }
-
-    @Override boolean remove(Object e) {
-        boolean rv = super.remove(e)
-        reindex()
-        rv
-    }
-
-    @Override E remove(int idx) {
-        E rv = super.remove(idx)
-        reindex()
-        rv
-    }
-
-    @Override void clear() {
-        super.clear()
-        indexMap.clear()
-    }
-
-    @Override boolean addAll(int idx, Collection<? extends E> c) {
-        c.each { addToIndex(it, -1) }
-        boolean rv = super.addAll(idx, c)
-        reindex()
-        rv
-    }
-
-    @Override boolean removeAll(Collection<?> c) {
-        boolean rv = super.removeAll(c)
-        reindex()
-        rv
-    }
-
-    @Override boolean retainAll(Collection<?> c) {
-        boolean rv = super.retainAll(c)
-        reindex()
-        rv
-    }
-
-    @Override boolean removeIf(Predicate<? super E> filter) {
-        boolean rv = super.removeIf(filter)
-        reindex()
-        rv
-    }
-
-    @Override void replaceAll(UnaryOperator<E> operator) {
-        indexMap.clear()
-        try {
-            this.eachWithIndex { E e, int idx ->
-                E newval = operator.apply(e)
-                addToIndex(newval, idx)
-                super.set(idx, newval)
-            }
-        } catch(Exception ex) {
-            // If there's an exception the indexMap will be inconsistent
-            reindex()
-            throw ex
-        }
-    }
-
-    @Override void sort(Comparator<? super E> c) {
-        super.sort(c)
-        reindex()
-    }
-}
