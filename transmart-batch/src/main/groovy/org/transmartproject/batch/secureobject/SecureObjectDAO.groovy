@@ -50,7 +50,7 @@ class SecureObjectDAO {
         long bioExperimentId = bioExperimentDAO.findOrCreateBioExperiment(token.studyId)
         Map secureObjectValues = findOrCreateSecureObject(
                 bioExperimentId, displayName, token)
-        Map studyValues = findOrCreateStudy(studyId, token, bioExperimentId)
+        Map studyValues = findOrCreateStudy(token.studyId, token, bioExperimentId)
 
         insertDummySecurityObservation(token)
 
