@@ -14,7 +14,7 @@ appender('stdout', ConsoleAppender) {
     }
 }
 
-root(INFO, ['stdout'])
+root(WARN, ['stdout'])
 
 boolean productionMode = Environment.current == Environment.PRODUCTION
 def logDirectory = BuildSettings.TARGET_DIR
@@ -42,7 +42,7 @@ if (productionMode && logDirectory) {
             maxFileSize = '100MB'
         }
         rollingPolicy(FixedWindowRollingPolicy) {
-            fileNamePattern = 'transmart.%i.log'
+            fileNamePattern = "${logDirectory}/transmart.%i.log"
             minIndex = 1
             maxIndex = 9
         }
