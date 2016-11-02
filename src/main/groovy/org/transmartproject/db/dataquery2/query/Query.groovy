@@ -30,6 +30,8 @@ enum QueryType {
     VALUES,
     MIN,
     MAX,
+    AVERAGE,
+    COUNT,
     EXISTS,
     NONE
 }
