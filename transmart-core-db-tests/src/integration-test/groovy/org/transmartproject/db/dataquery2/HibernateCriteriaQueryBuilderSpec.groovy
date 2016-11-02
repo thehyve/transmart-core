@@ -317,5 +317,36 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         then:
         result == 10
     }
+    void 'test CriteriaQueryBuilder with count and average queries'() {
+        setupData()
+
+        when:
+        ObservationQuery query = new ObservationQuery(
+                queryType: QueryType.COUNT,
+                select: ['numberValue'],
+                constraint: new TrueConstraint()
+        )
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: Study.findAll()
+        )
+        def criteria = builder.detachedCriteriaFor(query)
+        def result = get(criteria)
+        log.info "Count: ${result}"
+
+        then:
+        result == 2
+
+        when:
+        query.queryType = QueryType.AVERAGE
+        builder = new HibernateCriteriaQueryBuilder(
+                studies: Study.findAll()
+        )
+        criteria = builder.detachedCriteriaFor(query)
+        result = get(criteria)
+        log.info "Average: ${result}"
+
+        then:
+        result == 55
+    }
 
 }

@@ -355,14 +355,20 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
         }
         result.add(criteria)
         switch (query.queryType) {
-            case QueryType.MAX:
-                assert query.select?.size() == 1
-                return result.setProjection(Projections.max(query.select[0]))
-            case QueryType.MIN:
-                assert query.select?.size() == 1
-                return result.setProjection(Projections.min(query.select[0]))
             case QueryType.EXISTS:
                 return result
+            case QueryType.COUNT:
+                assert query.select?.size() == 1
+                return result.setProjection(Projections.count('numberValue'))
+            case QueryType.MIN:
+                assert query.select?.size() == 1
+                return result.setProjection(Projections.min('numberValue'))
+            case QueryType.AVERAGE:
+                assert query.select?.size() == 1
+                return result.setProjection(Projections.avg('numberValue'))
+            case QueryType.MAX:
+                assert query.select?.size() == 1
+                return result.setProjection(Projections.max('numberValue'))
             case QueryType.VALUES:
                 if (query.select == null || query.select.empty) {
                     return result
