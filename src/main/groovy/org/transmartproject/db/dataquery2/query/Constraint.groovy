@@ -58,7 +58,8 @@ enum Operator {
     LESS_THAN_OR_EQUALS('<='),
     GREATER_THAN_OR_EQUALS('>='),
     LIKE('like'),
-    CONTAINS('in'),
+    CONTAINS('contains'),
+    IN('in'),
     BEFORE('<-'),
     AFTER('->'),
     BETWEEN('<-->'),
@@ -92,14 +93,16 @@ enum Operator {
 
     static final Map<Type, Set> operatorsForType = [
             (Type.ID): [
-                    EQUALS
+                    EQUALS,
+                    IN
             ] as Set<Operator>,
             (Type.NUMERIC): [
                     LESS_THAN,
                     GREATER_THAN,
                     EQUALS,
                     LESS_THAN_OR_EQUALS,
-                    GREATER_THAN_OR_EQUALS
+                    GREATER_THAN_OR_EQUALS,
+                    IN
             ] as Set<Operator>,
             (Type.DATE): [
                     BEFORE,
@@ -109,7 +112,8 @@ enum Operator {
             (Type.STRING): [
                     EQUALS,
                     LIKE,
-                    CONTAINS
+                    CONTAINS,
+                    IN
             ] as Set<Operator>,
             (Type.EVENT): [
                     BEFORE,
@@ -117,7 +121,8 @@ enum Operator {
                     EXISTS
             ] as Set<Operator>,
             (Type.OBJECT): [
-                    EQUALS
+                    EQUALS,
+                    IN
             ] as Set<Operator>,
             (Type.COLLECTION): [
                     CONTAINS
