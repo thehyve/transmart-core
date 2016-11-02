@@ -1,7 +1,5 @@
 package org.transmartproject.db.util;
 
-import org.transmartproject.core.exceptions.InvalidArgumentsException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -16,6 +14,13 @@ import static java.util.Objects.requireNonNull;
  * ignored as most other java Set's do.
  */
 public class IndexedArraySet<E> extends ArrayList<E> implements Set<E> {
+
+    public IndexedArraySet() { super(); }
+
+    public IndexedArraySet(Iterable<E> c) {
+        super();
+        addAll(c);
+    }
 
     private HashMap<E, Integer> indexMap = new HashMap<>();
 
@@ -41,6 +46,9 @@ public class IndexedArraySet<E> extends ArrayList<E> implements Set<E> {
 
     @Override
     public boolean addAll(Collection<? extends E> c) {
+        return addAll((Iterable<? extends E>) c);
+    }
+    public boolean addAll(Iterable<? extends E> c) {
         boolean rv = false;
         for (E item: c) {
             rv |= add(item);
@@ -54,6 +62,7 @@ public class IndexedArraySet<E> extends ArrayList<E> implements Set<E> {
     }
 
     @Override
+
     public int indexOf(Object e) {
         if (e == null) return -1;
         Integer i = indexMap.get(e);
@@ -65,7 +74,7 @@ public class IndexedArraySet<E> extends ArrayList<E> implements Set<E> {
         return indexOf(e);
     }
 
-    @Override
+    @Override @SuppressWarnings("unchecked")
     public Object clone() {
         IndexedArraySet clone = (IndexedArraySet) super.clone();
         clone.indexMap = (HashMap) indexMap.clone();
