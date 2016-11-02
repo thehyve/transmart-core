@@ -1,4 +1,4 @@
-package org.transmartproject.db
+package org.transmartproject.core.exceptions
 
 import groovy.transform.InheritConstructors
 
