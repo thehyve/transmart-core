@@ -8,7 +8,7 @@ env:
   - TERM=dumb; DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
   - TERM=dumb; DIR=transmart-data; PREINSTALL="createVars setupPostgres"; INSTALL=downloadTransmartETL; TEST=dataloadingTest
   - TERM=dumb; DIR=transmart-rest-api; TEST=check
-  - TERM=dumb; DIR=transmart-batch; PREINSTALL=functionalTestPreparePostgres; TEST="test functionalTest"
+  - TERM=dumb; DIR=transmart-batch; INSTALL=functionalTestPreparePostgres; PREPARE=capsule; TEST=test
 
 addons:
   postgres: 9.4
@@ -46,12 +46,12 @@ install:
 
 before_script:
   - echo $DIR; cd $DIR
-  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; gradle $PREPARE)
+  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; gradle --info --stacktrace $PREPARE)
   - cd -
 
 script:
   - echo $DIR; cd $DIR
-  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; gradle $TEST)
+  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; gradle --info --stacktrace $TEST)
   - cd -
 
 after_success:
