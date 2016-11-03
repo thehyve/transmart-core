@@ -31,7 +31,8 @@ class ClinicalVariable implements Serializable {
     public static final String VISIT_NAME_PLACEHOLDER = VISIT_NAME.replace('_', '')
     public static final String DATA_LABEL_PLACEHOLDER = DATA_LABEL.replace('_', '')
 
-    public static final List<String> RESERVED = [SUBJ_ID, STUDY_ID, SITE_ID, VISIT_NAME, OMIT, TEMPLATE, DATA_LABEL]
+    public static final Set<String> RESERVED = [SUBJ_ID, STUDY_ID, SITE_ID, VISIT_NAME, TRIAL_VISIT_LABEL,
+                                                START_DATE, INSTANCE_NUM, OMIT, DATA_LABEL, TEMPLATE] as Set
 
     /* The columns have fixed position, but not fixed names.
      * Most of the files have headers [filename, category_cd, col_nbr, data_label]

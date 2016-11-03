@@ -1,7 +1,7 @@
 Filename	Category Code	Column number	Data label
 OBS336-201_demog.txt	Demography	1	SUBJ_ID
 OBS336-201_demog.txt	Demography	2	VISIT_NAME
-OBS336-201_demog.txt	Demography	3	TRIAL_VISIT_NAME
+OBS336-201_demog.txt	Demography	3	TRIAL_VISIT_LABEL
 OBS336-201_demog.txt	Demography	4	START_DATE
 OBS336-201_demog.txt	Demography	5	Sex
 OBS336-201_demog.txt	Demography	6	Race
