@@ -6,20 +6,16 @@ import groovy.util.logging.Slf4j
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.format.annotation.DateTimeFormat
-import org.springframework.format.datetime.DateFormatter
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingCollection
 import org.transmartproject.batch.clinical.xtrial.XtrialNode
-import org.transmartproject.batch.concept.ConceptFragment
-import org.transmartproject.batch.concept.ConceptNode
-import org.transmartproject.batch.concept.ConceptPath
-import org.transmartproject.batch.concept.ConceptTree
-import org.transmartproject.batch.concept.ConceptType
+import org.transmartproject.batch.concept.*
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.patient.PatientSet
 import org.transmartproject.batch.secureobject.Study
+
+import java.text.SimpleDateFormat
 
 /**
  * Creates {@link org.transmartproject.batch.facts.ClinicalFactsRowSet} objects.
@@ -55,7 +51,7 @@ class ClinicalFactsRowSetFactory {
     @Value("#{clinicalJobContext.variables}")
     List<ClinicalVariable> variables
 
-    DateFormatter dateFormatter = new DateFormatter(iso: DateTimeFormat.ISO.DATE)
+    SimpleDateFormat dateFormatter = new SimpleDateFormat('yyyy-MM-dd')
 
     @Lazy
     Map<String, ClinicalDataFileVariables> fileVariablesMap = generateVariablesMap()
@@ -70,10 +66,14 @@ class ClinicalFactsRowSetFactory {
         result.siteId = fileVariables.getSiteId(row)
         result.visitName = fileVariables.getVisitName(row)
         def startDate = fileVariables.getStartDate(row)
-        result.startDate = startDate ? dateFormatter.parse(startDate, Locale.ENGLISH) : new Date()
+        if (startDate) {
+            result.startDate = dateFormatter.parse(startDate)
+        }
         result.trialVisit = study.getTrialVisit(fileVariables.getTrialVisitLabel(row))
         String num = fileVariables.getInstanceNum(row)
-        result.instanceNum = num ? Integer.parseInt(num) : 1
+        if (num) {
+            result.instanceNum = Integer.parseInt(num)
+        }
 
         def patient = patientSet[fileVariables.getPatientId(row)]
         patient.putDemographicValues(fileVariables.getDemographicVariablesValues(row))
@@ -149,8 +149,8 @@ class ClinicalFactsRowSetFactory {
     }
 
     private ConceptPath getOrGenerateConceptPath(ClinicalDataFileVariables variables,
-                                       ClinicalVariable var,
-                                       ClinicalDataRow row) {
+                                                 ClinicalVariable var,
+                                                 ClinicalDataRow row) {
         if (var.conceptPath) {
             return var.conceptPath
         }

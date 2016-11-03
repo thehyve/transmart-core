@@ -14,15 +14,9 @@ import org.transmartproject.batch.patient.DemographicVariable
 import org.transmartproject.batch.patient.PatientSet
 import org.transmartproject.batch.secureobject.Study
 
-import static org.transmartproject.batch.clinical.variable.ClinicalVariable.DATA_LABEL
-import static org.transmartproject.batch.clinical.variable.ClinicalVariable.SITE_ID
-import static org.transmartproject.batch.clinical.variable.ClinicalVariable.SUBJ_ID
-import static org.transmartproject.batch.clinical.variable.ClinicalVariable.TEMPLATE
-import static org.transmartproject.batch.clinical.variable.ClinicalVariable.VISIT_NAME
-import static org.transmartproject.batch.clinical.variable.ClinicalVariable.TRIAL_VISIT_LABEL
-
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
+import static org.transmartproject.batch.clinical.variable.ClinicalVariable.*
 
 /**
  * Unit test for building ClinicalFactsRowSet instance from a clinical data file row.
@@ -170,22 +164,28 @@ class ClinicalFactsRowSetFactoryTests {
     }
 
     @Test
-    void testTrialVisit() {
+    void testNewFields() {
         testee.variables = buildClinicalVariables([
                 [categoryCode: 'Subjects', columnNumber: 1, dataLabel: SUBJ_ID],
                 [categoryCode: 'foo',      columnNumber: 2, dataLabel: TRIAL_VISIT_LABEL],
+                [categoryCode: 'bar',      columnNumber: 3, dataLabel: START_DATE],
+                [categoryCode: 'baz',      columnNumber: 4, dataLabel: INSTANCE_NUM],
         ])
         String trialVisitLabel = 'Baseline'
         ClinicalDataRow clinicalDataRow = buildClinicalDataRows([
-                ['subj_1', trialVisitLabel]
+                ['subj_1', trialVisitLabel, '2016-02-29', '3']
         ])[0]
 
         ClinicalFactsRowSet rowSet = testee.create(clinicalDataRow)
 
-        assertThat rowSet, hasProperty('trialVisit', allOf(
-                hasProperty('studyNum', is(studyNum)),
-                hasProperty('relTimeLabel', is(trialVisitLabel)),
-        ))
+        assertThat rowSet, allOf(
+                hasProperty('startDate', is(new GregorianCalendar(2016, Calendar.FEBRUARY, 29).time)),
+                hasProperty('instanceNum', is(3)),
+                hasProperty('trialVisit', allOf(
+                        hasProperty('studyNum', is(studyNum)),
+                        hasProperty('relTimeLabel', is(trialVisitLabel)),
+                ))
+        )
     }
 
     private List<ClinicalVariable> buildClinicalVariables(List columnMappings) {

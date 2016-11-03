@@ -11,6 +11,10 @@ import org.transmartproject.batch.trialvisit.TrialVisit
  * This includes the Patient and values for all Variables in a row of a file
  */
 class ClinicalFactsRowSet {
+
+    final static Date DEFAULT_START_DATE = new Date(0)
+    final static Integer DEFAULT_INSTANCE_NUM = 1
+
     String studyId
     Patient patient
     String siteId
@@ -92,8 +96,7 @@ class ClinicalFactsRowSet {
                     valtype_cd     : valueTypeCode,
                     tval_char      : stringValue,
                     nval_num       : numericValue,
-                    //FIXME
-                    start_date     : startDate ?: new GregorianCalendar(1970, 0, 1).time, // in i2b2 schema, part of PK
+                    start_date     : startDate ?: DEFAULT_START_DATE, // in i2b2 schema, part of PK
 
                     import_date    : importDate,
 
@@ -101,8 +104,7 @@ class ClinicalFactsRowSet {
                     location_cd    : '@',
                     modifier_cd    : xtrialNode?.code ?: '@',
                     valueflag_cd   : '@',
-                    //FIXME
-                    instance_num   : instanceNum ?: 1,
+                    instance_num   : instanceNum ?: DEFAULT_INSTANCE_NUM,
                     trial_visit_num: trialVisit?.id
             ]
         }
