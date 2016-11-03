@@ -118,7 +118,7 @@ class ClinicalTestData {
                                                                "start time", "end time", "location", "provider"]
 
         def longitudinalStudy = StudyTestData.createStudy "longitudinal study", ["patient", "concept", "trial visit", "study"]
-        def longitudinalClinicalFacts = ClinicalTestData.createLongitudinalFacts(conceptDims[4], patients, longitudinalStudy, observationStartDates, observationEndDates,
+        def longitudinalClinicalFacts = ClinicalTestData.createLongitudinalFacts(conceptDims[4..5], patients, longitudinalStudy, observationStartDates, observationEndDates,
                 locations, providers)
 
         def sampleStudy = StudyTestData.createStudy "sample study", ["patient", "concept", "study"] // todo: "sample", "testmodifier"
@@ -330,14 +330,14 @@ class ClinicalTestData {
         ]
     }
 
-    static List<ObservationFact> createLongitudinalFacts(ConceptDimension concept, List<PatientDimension> patients,
+    static List<ObservationFact> createLongitudinalFacts(List<ConceptDimension> concept, List<PatientDimension> patients,
                                                          Study study, List<Date> startDates, List<Date> endDates,
                                                          List<String> locations, List<String> providers){
 
         def factList = []
-        factList << createObservationFact(concept.conceptCode, patients[0], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 2, 'label_1', study))
-        factList << createObservationFact(concept.conceptCode, patients[1], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('day', 4, 'label_2', study))
-        factList << createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('week', 2, 'label_3', study))
+        factList << createObservationFact(concept[0].conceptCode, patients[0], DUMMY_ENCOUNTER_ID, 'Homo sapiens', 1, createTrialVisit('day', 2, 'label_1', study))
+        factList << createObservationFact(concept[1].conceptCode, patients[1], DUMMY_ENCOUNTER_ID, 'not specified', 1, createTrialVisit('day', 4, 'label_2', study))
+        factList << createObservationFact(concept[0].conceptCode, patients[2], DUMMY_ENCOUNTER_ID, 45.0, 1, createTrialVisit('week', 2, 'label_3', study))
 
         extendObservationFactList(factList, startDates, endDates, locations, providers)
     }
@@ -411,7 +411,7 @@ class ClinicalTestData {
         TestDataHelper.save([patientsQueryMaster])
         TestDataHelper.save visits
         TestDataHelper.save facts
-      //  TestDataHelper.save sampleClinicalFacts
+        TestDataHelper.save sampleClinicalFacts
         TestDataHelper.save longitudinalClinicalFacts
         TestDataHelper.save ehrClinicalFacts
     }

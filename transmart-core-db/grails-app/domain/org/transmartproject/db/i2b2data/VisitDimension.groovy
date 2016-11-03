@@ -2,7 +2,7 @@ package org.transmartproject.db.i2b2data
 
 import groovy.transform.EqualsAndHashCode
 
-@EqualsAndHashCode(includes = [ 'encounterNum'])
+@EqualsAndHashCode(includes = [ 'encounterNum', 'patient'])
 class VisitDimension implements Serializable{
 
     Long                encounterNum
