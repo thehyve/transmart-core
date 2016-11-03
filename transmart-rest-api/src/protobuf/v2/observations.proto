@@ -1,0 +1,45 @@
+package v2;
+
+option java_package = "org.transmartproject.rest.protobuf";
+option java_outer_classname = "Observations";
+
+
+
+message header {
+    repeated dimensionDeclaration dimensionDeclarations = 1;
+}
+
+
+message dimensionDeclaration {
+    required string name = 1;
+    repeated ColumnSpec columnSpec = 2;
+    optional bool isDense = 3;
+
+}
+
+message ColumnSpec {
+    enum ColumnType { DOUBLE = 1; STRING = 2; }
+
+    required string name = 1;
+    required ColumnType type = 2;
+}
+
+message cells {
+    repeated sparseCell sparseCells = 1;
+    repeated denseCell denseCells = 2;
+}
+
+message sparseCell {
+    required int64 dimIndex = 1;
+    repeated double doubleValue = 2 [packed = true];
+    repeated string stringValue = 3;
+}
+
+message denseCell {
+    required int64 dimIndex = 1;
+    required int64 valueIndex = 2;
+}
+
+message footer {
+    repeated sparseCell values = 1;
+}
