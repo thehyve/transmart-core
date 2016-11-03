@@ -109,9 +109,10 @@ sourceSets {
     }
 }
 
-task functionalTestPreparePostgres << {
-    description = 'Preparing PostgreSQL database for functional testing.'
+task travisProperties << {
+    description = 'Setting batchdb.properties for regular user access on Travis.'
     group = 'verification'
+    println 'Setting batchdb.properties for regular user access on Travis.'
     copy {
         from '.'
         into '.'
@@ -121,7 +122,12 @@ task functionalTestPreparePostgres << {
         }
     }
 }
-functionalTestPreparePostgres.dependsOn ':transmart-data:createVars', ':transmart-data:setupPostgres'
+
+task travisPreparePostgres << {
+    description = 'Preparing PostgreSQL database for functional testing on Travis.'
+    group = 'verification'
+}
+travisPreparePostgres.dependsOn 'travisProperties'
 
 task functionalTestPrepare(type: JavaExec) {
     description = 'Prepares the database for functional testing.'

@@ -6,9 +6,9 @@ php:
   - 5.6
 env:
   - TERM=dumb; DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
-  - TERM=dumb; DIR=transmart-data; PREINSTALL="createVars setupPostgres"; INSTALL=downloadTransmartETL; TEST=dataloadingTest
+  - TERM=dumb; DIR=transmart-data; INSTALL="createVars setupPostgres"; PREPARE=downloadTransmartETL; TEST=dataloadingTest
   - TERM=dumb; DIR=transmart-rest-api; TEST=check
-  - TERM=dumb; DIR=transmart-batch; INSTALL=functionalTestPreparePostgres; PREPARE=capsule; TEST=test
+  - TERM=dumb; DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=capsule; TEST="test functionalTest"
 
 addons:
   postgres: 9.4
@@ -46,12 +46,12 @@ install:
 
 before_script:
   - echo $DIR; cd $DIR
-  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; gradle --info --stacktrace $PREPARE)
+  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; gradle $PREPARE)
   - cd -
 
 script:
   - echo $DIR; cd $DIR
-  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; gradle --info --stacktrace $TEST)
+  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; gradle $TEST)
   - cd -
 
 after_success:
@@ -60,8 +60,10 @@ after_success:
 
 after_failure:
   - echo "Writing reports..."
-  - html2text $DIR/build/reports/tests/index.html
-  - for f in $DIR/build/reports/tests/classes/*.html; do echo $f; html2text $f; done
+  - html2text "$DIR/build/reports/tests/index.html"
+  - for f in "$DIR"/build/reports/tests/classes/*.html; do echo "$f"; html2text "$f"; done
+  - ([ -d "$DIR/build/reports/tests/functional" ]) && (html2text "$DIR/build/reports/tests/functional/index.html")
+  - ([ -d "$DIR/build/reports/tests/functional" ]) && (for f in "$DIR"/build/reports/tests/functional/classes/*.html; do echo "$f"; html2text "$f"; done)
 
 notifications:
   hipchat:
