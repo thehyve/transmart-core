@@ -73,7 +73,7 @@ class Study {
     }
 
     void reserveIdFor(TrialVisit trialVisit) {
-        if (trialVisit.id == null) {
+        if (trialVisit.id != null) {
             log.warn("Could not reserve id for trial visit that already has one (${trialVisit.id}).")
             return
         }

@@ -72,6 +72,8 @@ class ClinicalFactsRowSetFactory {
         def startDate = fileVariables.getStartDate(row)
         result.startDate = startDate ? dateFormatter.parse(startDate, Locale.ENGLISH) : new Date()
         result.trialVisit = study.getTrialVisit(fileVariables.getTrialVisitLabel(row))
+        String num = fileVariables.getInstanceNum(row)
+        result.instanceNum = num ? Integer.parseInt(num) : 1
 
         def patient = patientSet[fileVariables.getPatientId(row)]
         patient.putDemographicValues(fileVariables.getDemographicVariablesValues(row))

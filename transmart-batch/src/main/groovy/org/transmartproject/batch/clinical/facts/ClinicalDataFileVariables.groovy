@@ -14,6 +14,7 @@ class ClinicalDataFileVariables {
     ClinicalVariable visitNameVariable
     ClinicalVariable startDateVariable
     ClinicalVariable trialVisitLabelVariable
+    ClinicalVariable instanceNumVariable
     List<ClinicalVariable> otherVariables = []
     List<ClinicalVariable> demographicRelated = []
     Map<Integer, ClinicalVariable> dataLabelsColumnNumberIndex = [:]
@@ -40,6 +41,9 @@ class ClinicalDataFileVariables {
                     break
                 case ClinicalVariable.TRIAL_VISIT_LABEL:
                     args.put('trialVisitLabelVariable', it)
+                    break
+                case ClinicalVariable.INSTANCE_NUM:
+                    args.put('instanceNumVariable', it)
                     break
                 case ClinicalVariable.DATA_LABEL:
                     dataLabelsColumnNumberIndex.put(it.columnNumber, it)
@@ -108,6 +112,12 @@ class ClinicalDataFileVariables {
     String getTrialVisitLabel(ClinicalDataRow row) {
         if (trialVisitLabelVariable) {
             row[trialVisitLabelVariable.columnNumber]
+        }
+    }
+
+    String getInstanceNum(ClinicalDataRow row) {
+        if (instanceNumVariable) {
+            row[instanceNumVariable.columnNumber]
         }
     }
 

@@ -20,6 +20,7 @@ class ClinicalVariable implements Serializable {
     public static final String VISIT_NAME = 'VISIT_NAME'
     public static final String TRIAL_VISIT_LABEL = 'TRIAL_VISIT_LABEL'
     public static final String START_DATE = 'START_DATE'
+    public static final String INSTANCE_NUM = 'INSTANCE_NUM'
     public static final String OMIT = 'OMIT'
     public static final String DATA_LABEL = 'DATA_LABEL'
     public static final String TEMPLATE = '\\'
