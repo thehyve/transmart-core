@@ -73,7 +73,7 @@ class ClinicalDataPublicStudyTests implements JobRunningTestTrait {
 
         def res = queryForList(q, [study: STUDY_ID])
 
-        assertThat res, hasSize(0)
+        assertThat res, hasSize(1)
     }
 
     @Test
@@ -88,7 +88,7 @@ class ClinicalDataPublicStudyTests implements JobRunningTestTrait {
                 WHERE S.bio_data_unique_id = :sot"""
         def res = queryForList(q, [sot: "EXP:PUBLIC" as String])
 
-        assertThat res, hasSize(0)
+        assertThat res, hasSize(1)
 
     }
 

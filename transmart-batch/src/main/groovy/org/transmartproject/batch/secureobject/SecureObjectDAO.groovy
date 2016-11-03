@@ -52,7 +52,9 @@ class SecureObjectDAO {
                 bioExperimentId, displayName, token)
         Map studyValues = findOrCreateStudy(token.studyId, token, bioExperimentId)
 
-        insertDummySecurityObservation(token)
+        if (token.toString() != 'EXP:PUBLIC') {
+            insertDummySecurityObservation(token)
+        }
 
         /* some quick validation */
         if (secureObjectValues['bio_data_id'] != bioExperimentId) {
