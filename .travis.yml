@@ -8,6 +8,7 @@ env:
   - TERM=dumb; DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
   - TERM=dumb; DIR=transmart-data; PREINSTALL="createVars setupPostgres"; INSTALL=downloadTransmartETL; TEST=dataloadingTest
   - TERM=dumb; DIR=transmart-rest-api; TEST=check
+  - TERM=dumb; DIR=transmart-batch; PREINSTALL=functionalTestPreparePostgres; TEST="test functionalTest"
 
 addons:
   postgres: 9.4
