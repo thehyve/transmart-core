@@ -40,6 +40,7 @@ class Study {
     static constraints = {
         studyId             maxSize: 100
         secureObjectToken   maxSize: 200
+        bioExperimentId     nullable: true
     }
 
     static hasMany = [

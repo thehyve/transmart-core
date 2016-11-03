@@ -22,7 +22,7 @@ class TrialVisit {
 
     static mapping = {
         table           name: 'trial_visit_dimension', schema: 'I2B2DEMODATA'
-        id              column: 'trial_visit_num', type: Long, generator: 'assigned'
+        id              column: 'trial_visit_num', type: Long, generator: 'sequence', params: [sequence: 'trial_visit_num_seq']
         study           column: 'study_num', cascade: 'save-update'
         relTimeUnit     column: 'rel_time_unit_cd'
         relTime         column: 'rel_time_num'
