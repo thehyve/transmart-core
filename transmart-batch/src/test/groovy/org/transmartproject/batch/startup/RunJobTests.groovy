@@ -9,6 +9,7 @@ import org.transmartproject.batch.highdim.mrna.data.MrnaDataJobConfig
 import org.transmartproject.batch.highdim.mrna.platform.MrnaPlatformJobConfig
 import org.transmartproject.batch.highdim.proteomics.data.ProteomicsDataJobConfig
 import org.transmartproject.batch.highdim.rnaseq.data.RnaSeqDataJobConfig
+import org.transmartproject.batch.highdim.rnaseq.transcript.data.RnaSeqTranscriptDataJobConfig
 import org.transmartproject.batch.tag.TagsLoadJobConfiguration
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -81,6 +82,7 @@ class RunJobTests {
                 hasProperty('jobPath', equalTo(CnvDataJobConfig)),
                 hasProperty('jobPath', equalTo(MirnaDataJobConfig)),
                 hasProperty('jobPath', equalTo(TagsLoadJobConfiguration)),
+                hasProperty('jobPath', equalTo(RnaSeqTranscriptDataJobConfig)),
         )
     }
 
