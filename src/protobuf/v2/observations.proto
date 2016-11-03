@@ -1,45 +1,58 @@
+syntax = "proto2";
 package v2;
 
 option java_package = "org.transmartproject.rest.protobuf";
-option java_outer_classname = "Observations";
+option java_outer_classname = "ObservationsProto";
+// Style guide for this file: https://developers.google.com/protocol-buffers/docs/style
 
-
-
-message header {
-    repeated dimensionDeclaration dimensionDeclarations = 1;
+message Header { // header is sent without chunking in a one message
+                 repeated DimensionDeclaration dimension_declarations = 1;
 }
 
 
-message dimensionDeclaration {
-    required string name = 1;
-    repeated ColumnSpec columnSpec = 2;
-    optional bool isDense = 3;
+message DimensionDeclaration { // each dimension present in the output is declared with this message
+                               required string name = 1;
+                               optional bool isDense = 2; // if true, values of the observation can be packed along
+                                                          // this dimension
+                               repeated FieldDefinition fields = 3; // a.k.a dimension elements
+                               optional bool inline = 4;  // if true the dimension elements will be stored in the
+                                                          // observation cell instead of the footer
+} //  TODO: packing along dense dimensions is not yet implemented
 
+message FieldDefinition { // each field (dimension element) has its definition specifying type of its value
+                          enum ColumnType {
+                              DOUBLE = 1;
+                              STRING = 2;
+                              INT = 3;
+                          }
+
+                          required string name = 1;
+                          required ColumnType type = 2;
 }
 
-message ColumnSpec {
-    enum ColumnType { DOUBLE = 1; STRING = 2; }
 
-    required string name = 1;
-    required ColumnType type = 2;
+message Observation {
+    repeated DimensionCell dimensions = 1;
+    repeated DimensionElements inline_dimensions = 2;
+    optional string string_value = 3;  // observation values, one, and only can be filled
+    optional double numeric_value = 4;
 }
 
-message cells {
-    repeated sparseCell sparseCells = 1;
-    repeated denseCell denseCells = 2;
+message DimensionCell {
+    required int64 dimension_index = 1;
+    required int64 value_index = 2; // index ref. to the footer array of dimensionElements
 }
 
-message sparseCell {
-    required int64 dimIndex = 1;
-    repeated double doubleValue = 2 [packed = true];
-    repeated string stringValue = 3;
+message Footer {
+    repeated DimensionElements elements = 1;
 }
 
-message denseCell {
-    required int64 dimIndex = 1;
-    required int64 valueIndex = 2;
+message DimensionElements { // values associated with a dimension
+                   map<string, DimensionElement> projects = 1; // name of the dimension element -> value
 }
 
-message footer {
-    repeated sparseCell values = 1;
+message DimensionElement {
+    optional string stringValue = 1; // one, and only one of these fields can be filled
+    optional double doubleValue = 2;
+    optional int64 intValue = 3;
 }
