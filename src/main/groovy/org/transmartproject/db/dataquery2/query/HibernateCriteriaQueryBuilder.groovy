@@ -212,6 +212,8 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
         switch(constraint.operator) {
             case Operator.EQUALS:
                 return Restrictions.eq(propertyName, constraint.value)
+            case Operator.NOT_EQUALS:
+                return Restrictions.ne(propertyName, constraint.value)
             case Operator.GREATER_THAN:
                 return Restrictions.gt(propertyName, constraint.value)
             case Operator.GREATER_THAN_OR_EQUALS:

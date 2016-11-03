@@ -55,6 +55,7 @@ enum Operator {
     LESS_THAN('<'),
     GREATER_THAN('>'),
     EQUALS('='),
+    NOT_EQUALS("!="),
     LESS_THAN_OR_EQUALS('<='),
     GREATER_THAN_OR_EQUALS('>='),
     LIKE('like'),
@@ -68,6 +69,7 @@ enum Operator {
     NOT('not'),
     EXISTS('exists'),
     NONE('none')
+
 
     String symbol
 
@@ -94,12 +96,14 @@ enum Operator {
     static final Map<Type, Set> operatorsForType = [
             (Type.ID): [
                     EQUALS,
+                    NOT_EQUALS,
                     IN
             ] as Set<Operator>,
             (Type.NUMERIC): [
                     LESS_THAN,
                     GREATER_THAN,
                     EQUALS,
+                    NOT_EQUALS,
                     LESS_THAN_OR_EQUALS,
                     GREATER_THAN_OR_EQUALS,
                     IN
@@ -111,6 +115,7 @@ enum Operator {
             ] as Set<Operator>,
             (Type.STRING): [
                     EQUALS,
+                    NOT_EQUALS,
                     LIKE,
                     CONTAINS,
                     IN
@@ -122,6 +127,7 @@ enum Operator {
             ] as Set<Operator>,
             (Type.OBJECT): [
                     EQUALS,
+                    NOT_EQUALS,
                     IN
             ] as Set<Operator>,
             (Type.COLLECTION): [
