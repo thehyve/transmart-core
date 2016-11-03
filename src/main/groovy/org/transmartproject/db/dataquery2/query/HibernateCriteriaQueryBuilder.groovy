@@ -4,6 +4,8 @@ import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.LikeExpression
+import org.hibernate.criterion.MatchMode
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
@@ -205,15 +207,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
         if (!constraint.field.type.supportsValue(constraint.value)) {
             throw new QueryBuilderException("Value of class ${constraint.value?.class?.simpleName} not supported for field type '${constraint.field.type}'.")
         }
-        if (constraint instanceof Collection) {
-            constraint.value = constraint.value.collect { convertValue(constraint.field, it) }
-        } else {
-            constraint.value = convertValue(constraint.field, constraint.value)
-        }
-        if (constraint.field.type == Type.STRING && constraint.operator == Operator.CONTAINS) {
-            constraint.operator = Operator.LIKE
-            constraint.value = "%${constraint.value.toString().replaceAll('%','\\%')}%".toString()
-        }
+        constraint.value = convertValue(constraint.field, constraint.value)
         String propertyName = getFieldPropertyName(constraint.field)
         switch(constraint.operator) {
             case Operator.EQUALS:
@@ -227,9 +221,14 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
             case Operator.LESS_THAN_OR_EQUALS:
                 return Restrictions.le(propertyName, constraint.value)
             case Operator.CONTAINS:
-                return Restrictions.in(propertyName, constraint.value)
+                if (constraint.field.type == Type.STRING) {
+                    def value = constraint.value.toString().replaceAll('%','\\%')
+                    return new LikeExpression(propertyName, value, MatchMode.ANYWHERE, '\\' as char, false){}
+                } else {
+                    return Restrictions.in(propertyName, constraint.value)
+                }
             case Operator.LIKE:
-                return Restrictions.like(propertyName, constraint.value)
+                return new LikeExpression(propertyName, constraint.value.toString(), MatchMode.EXACT, '\\' as char, false){}
             case Operator.IN:
                 return Restrictions.in(propertyName, constraint.value)
             default:
