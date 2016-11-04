@@ -35,7 +35,7 @@ class QueryController {
             bindData(query, queryData)
             query.validate()
             if (query.hasErrors()) {
-                response.status = 403
+                response.status = 400
                 render query.errors as JSON
                 return false
             }

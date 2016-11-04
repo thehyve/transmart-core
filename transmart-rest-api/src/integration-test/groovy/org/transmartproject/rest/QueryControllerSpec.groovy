@@ -64,7 +64,7 @@ class QueryControllerSpec extends MarshallerSpec {
         def result = new JsonSlurper().parseText(content)
 
         then:
-        response.statusCode.value() == 403
+        response.statusCode.value() == 400
         result.errors[0].message == 'Invalid constraint of type ValueConstraint'
         result.errors[0]['rejected-value'].errors.errors[0].message == "Operator [<] not valid for type STRING"
     }
