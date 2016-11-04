@@ -15,7 +15,7 @@ import org.transmartproject.batch.junit.RunJobRule
 import org.transmartproject.batch.support.TableLists
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.*
 
 /**
  * Load clinical data for a study not loaded before.
@@ -29,6 +29,8 @@ class TrialVisitWithTimeDataTests implements JobRunningTestTrait {
     public static final NUMBER_OF_PATIENTS = 8L
     public static final NUMBER_OF_FACTS = 976L
     public static final NUMBER_OF_VISITS = 7L
+
+    private static final BigDecimal DELTA = 0.005
 
     @ClassRule
     public final static TestRule RUN_JOB_RULE = new RunJobRule(STUDY_ID, 'clinical')
@@ -71,6 +73,65 @@ class TrialVisitWithTimeDataTests implements JobRunningTestTrait {
         long numVisits = rowCounter.count([:], Tables.TRIAL_VISIT_DIMENSION)
 
         assertThat numVisits, is(NUMBER_OF_VISITS)
+    }
+
+    @Test
+    void testArbitraryFacts() {
+        def facts = queryForList """
+            SELECT O.*
+            FROM
+                ${Tables.OBSERVATION_FACT} O
+                INNER JOIN ${Tables.CONCEPT_DIMENSION} C
+                    ON (O.concept_cd = C.concept_cd)
+                INNER JOIN ${Tables.TRIAL_VISIT_DIMENSION} SV
+                    ON (O.trial_visit_num = SV.trial_visit_num)
+            WHERE patient_num = (
+                SELECT patient_num
+                FROM ${Tables.PATIENT_DIMENSION}
+                WHERE sourcesystem_cd = :subject_id)
+            AND C.concept_path = :concept_path
+            AND SV.rel_time_label = :visit_label
+            """,
+                [
+                        subject_id  : "TEST_17_1:OBS336-201_05",
+                        concept_path: '\\Public Studies\\TEST_17_1\\PKConc\\Timepoint Hrs.\\',
+                        visit_label : 'Week 1'
+                ]
+
+        assertThat facts, containsInAnyOrder(
+                allOf(
+                        hasEntry(equalTo('nval_num'), closeTo(0.5, DELTA)),
+                        hasEntry(equalTo('start_date'), hasProperty('time',
+                                equalTo(new GregorianCalendar(2016, Calendar.MARCH, 9).timeInMillis))),
+                        hasEntry(equalTo('end_date'), hasProperty('time',
+                                equalTo(new GregorianCalendar(2016, Calendar.MARCH, 10).timeInMillis))),
+                        hasEntry('instance_num', new BigDecimal('1'))
+                ),
+                allOf(
+                        hasEntry(equalTo('nval_num'), closeTo(1, DELTA)),
+                        hasEntry(equalTo('start_date'), hasProperty('time',
+                                equalTo(new GregorianCalendar(2016, Calendar.MARCH, 9).timeInMillis))),
+                        hasEntry(equalTo('end_date'), hasProperty('time',
+                                equalTo(new GregorianCalendar(2016, Calendar.MARCH, 9).timeInMillis))),
+                        hasEntry('instance_num', new BigDecimal('2'))
+                ),
+                allOf(
+                        hasEntry(equalTo('nval_num'), closeTo(2, DELTA)),
+                        hasEntry(equalTo('start_date'), hasProperty('time',
+                                equalTo(new GregorianCalendar(2016, Calendar.MARCH, 9).timeInMillis))),
+                        hasEntry(equalTo('end_date'), hasProperty('time',
+                                equalTo(new GregorianCalendar(2016, Calendar.MARCH, 11).timeInMillis))),
+                        hasEntry('instance_num', new BigDecimal('3'))
+                ),
+                allOf(
+                        hasEntry(equalTo('nval_num'), closeTo(4, DELTA)),
+                        hasEntry(equalTo('start_date'), hasProperty('time',
+                                equalTo(new GregorianCalendar(2016, Calendar.MARCH, 9).timeInMillis))),
+                        hasEntry(equalTo('end_date'), hasProperty('time',
+                                equalTo(new GregorianCalendar(2016, Calendar.MARCH, 9).timeInMillis))),
+                        hasEntry('instance_num', new BigDecimal('4'))
+                ),
+        )
     }
 
 }

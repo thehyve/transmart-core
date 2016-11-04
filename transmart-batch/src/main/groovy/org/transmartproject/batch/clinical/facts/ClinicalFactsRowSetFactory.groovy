@@ -69,6 +69,10 @@ class ClinicalFactsRowSetFactory {
         if (startDate) {
             result.startDate = dateFormatter.parse(startDate)
         }
+        def endDate = fileVariables.getEndDate(row)
+        if (endDate) {
+            result.endDate = dateFormatter.parse(endDate)
+        }
         result.trialVisit = study.getTrialVisit(fileVariables.getTrialVisitLabel(row))
         String num = fileVariables.getInstanceNum(row)
         if (num) {

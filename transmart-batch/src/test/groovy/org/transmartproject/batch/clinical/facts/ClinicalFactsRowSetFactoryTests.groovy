@@ -169,17 +169,19 @@ class ClinicalFactsRowSetFactoryTests {
                 [categoryCode: 'Subjects', columnNumber: 1, dataLabel: SUBJ_ID],
                 [categoryCode: 'foo',      columnNumber: 2, dataLabel: TRIAL_VISIT_LABEL],
                 [categoryCode: 'bar',      columnNumber: 3, dataLabel: START_DATE],
-                [categoryCode: 'baz',      columnNumber: 4, dataLabel: INSTANCE_NUM],
+                [categoryCode: 'baz',      columnNumber: 4, dataLabel: END_DATE],
+                [categoryCode: 'faz',      columnNumber: 5, dataLabel: INSTANCE_NUM],
         ])
         String trialVisitLabel = 'Baseline'
         ClinicalDataRow clinicalDataRow = buildClinicalDataRows([
-                ['subj_1', trialVisitLabel, '2016-02-29', '3']
+                ['subj_1', trialVisitLabel, '2016-02-29', '2016-03-14', '3']
         ])[0]
 
         ClinicalFactsRowSet rowSet = testee.create(clinicalDataRow)
 
         assertThat rowSet, allOf(
                 hasProperty('startDate', is(new GregorianCalendar(2016, Calendar.FEBRUARY, 29).time)),
+                hasProperty('endDate', is(new GregorianCalendar(2016, Calendar.MARCH, 14).time)),
                 hasProperty('instanceNum', is(3)),
                 hasProperty('trialVisit', allOf(
                         hasProperty('studyNum', is(studyNum)),

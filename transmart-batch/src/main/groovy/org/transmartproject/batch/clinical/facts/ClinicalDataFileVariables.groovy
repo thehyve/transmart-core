@@ -13,6 +13,7 @@ class ClinicalDataFileVariables {
     ClinicalVariable siteIdVariable
     ClinicalVariable visitNameVariable
     ClinicalVariable startDateVariable
+    ClinicalVariable endDateVariable
     ClinicalVariable trialVisitLabelVariable
     ClinicalVariable instanceNumVariable
     List<ClinicalVariable> otherVariables = []
@@ -38,6 +39,9 @@ class ClinicalDataFileVariables {
                     break
                 case ClinicalVariable.START_DATE:
                     args.put('startDateVariable', it)
+                    break
+                case ClinicalVariable.END_DATE:
+                    args.put('endDateVariable', it)
                     break
                 case ClinicalVariable.TRIAL_VISIT_LABEL:
                     args.put('trialVisitLabelVariable', it)
@@ -106,6 +110,12 @@ class ClinicalDataFileVariables {
     String getStartDate(ClinicalDataRow row) {
         if (startDateVariable) {
             row[startDateVariable.columnNumber]
+        }
+    }
+
+    String getEndDate(ClinicalDataRow row) {
+        if (endDateVariable) {
+            row[endDateVariable.columnNumber]
         }
     }
 

@@ -25,7 +25,8 @@ OBS336-201_pk.txt	PKConc	1	SUBJ_ID
 OBS336-201_pk.txt	PKConc	2	VISIT_NAME
 OBS336-201_pk.txt	PKConc	3	TRIAL_VISIT_LABEL
 OBS336-201_pk.txt	PKConc	4	START_DATE
-OBS336-201_pk.txt	PKConc	5	INSTANCE_NUM
-OBS336-201_pk.txt	PKConc	6	Treatment
-OBS336-201_pk.txt	PKConc	7	Timepoint Hrs.
-OBS336-201_pk.txt	PKConc	8	Conc (ug/mL)
+OBS336-201_pk.txt	PKConc	5	END_DATE
+OBS336-201_pk.txt	PKConc	6	INSTANCE_NUM
+OBS336-201_pk.txt	PKConc	7	Treatment
+OBS336-201_pk.txt	PKConc	8	Timepoint Hrs.
+OBS336-201_pk.txt	PKConc	9	Conc (ug/mL)

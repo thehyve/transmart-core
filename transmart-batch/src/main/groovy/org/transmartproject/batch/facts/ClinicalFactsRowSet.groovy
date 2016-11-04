@@ -20,6 +20,7 @@ class ClinicalFactsRowSet {
     String siteId
     String visitName
     Date startDate
+    Date endDate
     Integer instanceNum
     TrialVisit trialVisit
 
@@ -97,7 +98,7 @@ class ClinicalFactsRowSet {
                     tval_char      : stringValue,
                     nval_num       : numericValue,
                     start_date     : startDate ?: DEFAULT_START_DATE, // in i2b2 schema, part of PK
-
+                    end_date       : endDate,
                     import_date    : importDate,
 
                     provider_id    : '@',
