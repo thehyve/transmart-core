@@ -5,14 +5,16 @@ import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.dataquery2.query.ConceptConstraint
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.ConstraintFactory
+import org.transmartproject.db.dataquery2.query.InvalidQueryException
 import org.transmartproject.db.dataquery2.query.ObservationQuery
 import org.transmartproject.db.dataquery2.query.QueryType
 import org.transmartproject.db.dataquery2.query.TrueConstraint
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.AccessLevelTestData
-
+import org.transmartproject.db.i2b2data.ConceptDimension
 
 @Rollback
 @Integration
@@ -32,6 +34,39 @@ class QueryServiceSpec extends TransmartSpecification {
         accessLevelTestData = new AccessLevelTestData().createWithAlternativeConceptData(testData.conceptData)
         testData.saveAll()
         accessLevelTestData.saveAll()
+    }
+
+    ObservationQuery createQueryForConcept(ObservationFact observationFact){
+        def conceptCode = observationFact.conceptCode
+        def conceptDimension = ConceptDimension.find {
+            conceptCode == conceptCode
+        }
+        ObservationQuery query = new ObservationQuery(
+                constraint: new ConceptConstraint(
+                        path: conceptDimension.conceptPath
+                )
+        )
+        query
+    }
+
+    ObservationFact createFactForExistingConcept(){
+        def clinicalTestdata = testData.clinicalData
+        def fact = clinicalTestdata.facts.find { it.valueType=='N'}
+        def conceptDimension = testData.conceptData.conceptDimensions.find{ it.conceptCode ==fact.conceptCode}
+        def patientsWithConcept = clinicalTestdata.facts.collect {
+            if(it.conceptCode == conceptDimension.conceptCode){
+                it.patient
+            }
+        }
+        def patientDimension = clinicalTestdata.patients.find {
+            !patientsWithConcept.contains(it)
+        }
+
+        ObservationFact observationFact = clinicalTestdata.createObservationFact(
+                conceptDimension, patientDimension, clinicalTestdata.DUMMY_ENCOUNTER_ID, -1
+        )
+
+        observationFact
     }
 
     void "test query for all observations"() {
@@ -91,6 +126,77 @@ class QueryServiceSpec extends TransmartSpecification {
         result[0].valueType == ObservationFact.TYPE_NUMBER
         result[0].numberValue > 1
         result[0].patient.sourcesystemCd.contains('SUBJ_ID_2')
+    }
+
+    void "test for max, min, average aggregate"(){
+        setupData()
+
+        ObservationFact observationFact = createFactForExistingConcept()
+        observationFact.numberValue = 50
+        testData.clinicalData.facts << observationFact
+
+        testData.saveAll()
+        def query = createQueryForConcept(observationFact)
+
+        when:
+        query.queryType = QueryType.MAX
+        def result = queryService.aggregate(query, accessLevelTestData.users[0])
+
+        then:
+        result == 50
+
+        when:
+        query.queryType = QueryType.MIN
+        result = queryService.aggregate(query, accessLevelTestData.users[0])
+
+        then:
+        result == 10
+
+        when:
+        query.queryType = QueryType.AVERAGE
+        result = queryService.aggregate(query, accessLevelTestData.users[0])
+
+        then:
+        result == 30 //(10+50) / 2
+    }
+
+    void "test for check if aggregate returns error when any numerical value is null"(){
+        setupData()
+
+        def observationFact = createFactForExistingConcept()
+
+        observationFact.numberValue = null
+        observationFact.textValue='E'
+        observationFact.valueType='N'
+        testData.clinicalData.facts << observationFact
+        testData.saveAll()
+
+        when:
+        ObservationQuery query = createQueryForConcept(observationFact)
+        query.queryType = QueryType.MAX
+        queryService.aggregate(query, accessLevelTestData.users[0])
+
+        then:
+        thrown(InvalidQueryException)
+
+    }
+
+    void "test for check if aggregate returns error when any textValue is other then E"(){
+        setupData()
+
+        def observationFact = createFactForExistingConcept()
+        observationFact.textValue = 'GT'
+        observationFact.numberValue = 60
+        testData.clinicalData.facts << observationFact
+        testData.saveAll()
+
+        when:
+        ObservationQuery query = createQueryForConcept(observationFact)
+        query.queryType = QueryType.MAX
+        queryService.aggregate(query, accessLevelTestData.users[0])
+
+        then:
+        thrown(InvalidQueryException)
     }
 
 }

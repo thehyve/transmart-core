@@ -371,6 +371,13 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         result.size() == 1
         fact.conceptCode == '2'
 
+        when:
+        query.queryType = QueryType.EXISTS
+        query.constraint.path = 'NoExistingPath'
+        criteria = builder.detachedCriteriaFor(query)
+        result = exists(criteria)
+        then:
+        result == false
     }
 
     void 'test NullConstraint'(){
