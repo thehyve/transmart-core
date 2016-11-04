@@ -3,7 +3,6 @@ package org.transmartproject.batch.i2b2
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.ClassRule
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
@@ -57,7 +56,6 @@ class I2b2MidwayFailTests implements FileCorruptingTestTrait {
     }
 
     @Test
-    @Ignore // FIXME: This requires additional database access rights (exceeding those of tm_cz)
     void testFailMidwaySecondStep() {
         def params = ['-p', 'studies/' + DATA_DIR + '/i2b2.params',]
 
