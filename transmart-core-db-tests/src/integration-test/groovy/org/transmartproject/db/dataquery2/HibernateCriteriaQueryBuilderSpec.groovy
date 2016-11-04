@@ -369,9 +369,42 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         def fact = result[0]
         then:
         result.size() == 1
-
         fact.conceptCode == '2'
 
+    }
+
+    void 'test NullConstraint'(){
+        setupData()
+
+        def fact = testData.clinicalData.facts.find({
+            it.valueType == 'T'
+        })
+        fact.textValue = null
+        testData.clinicalData.saveAll()
+
+        when:
+        ObservationQuery query = new ObservationQuery(
+                queryType: QueryType.VALUES,
+                constraint: new NullConstraint(
+                        field: new Field(
+                                dimension: ValueDimension.class,
+                                fieldName: 'textValue',
+                                type: 'STRING'
+                        )
+                )
+        )
+        def builder = new HibernateCriteriaQueryBuilder(
+            studies: Study.findAll()
+        )
+
+        def criteria = builder.detachedCriteriaFor(query)
+        def result = getList(criteria)
+
+        def foundFact = result[0]
+        then:
+        result.size() == 1
+        foundFact.valueType == 'T'
+        foundFact.textValue == null
     }
 
 }

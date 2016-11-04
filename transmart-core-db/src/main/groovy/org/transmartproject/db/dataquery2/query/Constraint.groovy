@@ -233,6 +233,11 @@ class ConceptConstraint extends Constraint {
 
 }
 
+@Canonical
+class NullConstraint extends Constraint {
+    Field field
+}
+
 /**
  * Selects observations for which the value of type <code>valueType</code> conforms
  * to <code>operator</code> and <code>value</code>.
@@ -356,6 +361,8 @@ class TemporalConstraint extends Constraint {
  * - {@link Negation}
  * - {@link Combination}
  * - {@link TemporalConstraint}
+ * - {@link ConceptConstraint}
+ * - {@link NullConstraint}
  */
 @Slf4j
 class ConstraintFactory {
@@ -374,7 +381,8 @@ class ConstraintFactory {
             Negation.class,
             Combination.class,
             TemporalConstraint.class,
-            ConceptConstraint.class
+            ConceptConstraint.class,
+            NullConstraint.class
     ].collectEntries {
         Class type -> [(type.simpleName): type]
     } as Map<String, Class>

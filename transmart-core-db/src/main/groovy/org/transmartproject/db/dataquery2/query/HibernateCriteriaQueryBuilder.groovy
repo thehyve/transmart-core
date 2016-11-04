@@ -294,6 +294,10 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
 
     }
 
+    Criterion build(NullConstraint constraint){
+        String propertyName = getFieldPropertyName(constraint.field)
+        Restrictions.isNull(propertyName)
+    }
     /**
      * Creates a criteria object the represents the negation of <code>constraint.arg</code>.
      */
