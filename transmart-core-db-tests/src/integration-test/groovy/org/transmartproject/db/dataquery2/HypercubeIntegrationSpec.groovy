@@ -4,16 +4,14 @@ import com.google.common.collect.HashMultiset
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.junit.Ignore
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
-import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
 import static org.hamcrest.Matchers.*
+import spock.lang.Ignore
 
 @Integration
 @Rollback
@@ -40,6 +38,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def hypercube = queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.name]])
         def resultObs = Lists.newArrayList(hypercube)
         def result = resultObs*.value as HashMultiset
+        def hypercubeFacts = hypercube.results.resultSet.result.rows.collect{it[3..it.size()-1]}
         hypercube.loadDimensions()
         def concepts = hypercube.dimensionElements(dims.concept) as Set
         def patients = hypercube.dimensionElements(dims.patient) as Set
@@ -51,6 +50,10 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         } as Set
         def expectedPatients = clinicalData.longitudinalClinicalFacts*.patient as Set
         def expectedVisits = clinicalData.longitudinalClinicalFacts*.trialVisit as Set
+        def expectedFacts = clinicalData.longitudinalClinicalFacts.collect {
+            [it.patient.id, "'"+it.conceptCode+"'", it.trialVisit.id,
+             clinicalData.longitudinalStudy.id]
+        }
 
         expect:
 
@@ -65,15 +68,19 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         trialVisits.size() == expectedVisits.size()
         trialVisits == expectedVisits
+
+        //FIXME better way to compare
+        hypercubeFacts.sort().toString() == expectedFacts.sort().toString()
     }
 
-
+    @Ignore
     void 'test_basic_sample_retrieval'() {
         setupData()
 
         def hypercube = queryResource.doQuery(constraints: [study: [clinicalData.sampleStudy.name]])
         def resultObs = Lists.newArrayList(hypercube)
         def result = resultObs*.value as HashMultiset
+        def hypercubeFacts = hypercube.results.resultSet.result.rows.collect{it[3..it.size()-1]}
         hypercube.loadDimensions()
         def concepts = hypercube.dimensionElements(dims.concept) as Set
         def patients = hypercube.dimensionElements(dims.patient) as Set
@@ -83,6 +90,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
             it.conceptCode in clinicalData.sampleClinicalFacts*.conceptCode
         } as Set
         def expectedPatients = clinicalData.sampleClinicalFacts*.patient as Set
+        def expectedFacts = clinicalData.sampleClinicalFacts.collect {
+            [it.patient.id, "'"+it.conceptCode+"'", clinicalData.longitudinalStudy.id]
+        }
 
         expect:
         // FIXME Modifiers not supported yet
@@ -94,6 +104,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         patients.size() == expectedPatients.size()
         patients == expectedPatients
+
+        //FIXME better way to compare
+        hypercubeFacts.sort().toString() == expectedFacts.sort().toString()
     }
 
     void 'test_basic_ehr_retrieval'() {
@@ -102,6 +115,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def hypercube = queryResource.doQuery(constraints: [study: [clinicalData.ehrStudy.name]])
         def resultObs = Lists.newArrayList(hypercube)
         def result = resultObs*.value as HashMultiset
+        def hypercubeFacts = hypercube.results.resultSet.result.rows.collect{it[3..it.size()-1]}
         hypercube.loadDimensions()
         def concepts = hypercube.dimensionElements(dims.concept) as Set
         def patients = hypercube.dimensionElements(dims.patient) as Set
@@ -113,26 +127,94 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         } as Set
         def expectedPatients = clinicalData.ehrClinicalFacts*.patient as Set
         def expectedVisits = clinicalData.ehrClinicalFacts*.visit as Set
+        def expectedFacts = clinicalData.ehrClinicalFacts.collect {
+            [it.patient.id, "'"+it.conceptCode+"'", clinicalData.ehrStudy.id,
+            it.encounterNum]
+        }
 
         expect:
-        hypercube.dimensionElements.size() ==  clinicalData.longitudinalStudy.dimensions.size()
+        hypercube.dimensionElements.size() == clinicalData.ehrStudy.dimensions.size()
         result == expected
 
         concepts.size() == expectedConcepts.size()
         concepts == expectedConcepts
 
         patients.size() == expectedPatients.size()
-        patients ==expectedPatients
+        patients == expectedPatients
 
         visits.size() == expectedVisits.size()
         visits == expectedVisits
+
+        //FIXME better way to compare
+        hypercubeFacts.sort().toString() == expectedFacts.sort().toString()
     }
 
     @Ignore
     void 'test_all_dimensions_data_retrieval'() {
         setupData()
 
+        def hypercube = queryResource.doQuery(constraints: [study: [clinicalData.multidimsStudy.name]])
+        def resultObs = Lists.newArrayList(hypercube)
+        def result = resultObs*.value as HashMultiset
+        def hypercubeFacts = hypercube.results.resultSet.result.rows.collect{it[3..it.size()-1]}
+        hypercube.loadDimensions()
+
+        //FIXME: SPARSE dimensions not working
+        def concepts = hypercube.dimensionElements(dims.concept) as Set
+        def patients = hypercube.dimensionElements(dims.patient) as Set
+        def trialVisits = hypercube.dimensionElements(dims.'trial visit') as Set
+        def visit = hypercube.dimensionElements(dims.'visit') as Set
+        def startTime = hypercube.dimensionElements(dims.'start time') as Set
+        def endTime = hypercube.dimensionElements(dims.'end time') as Set
+        def locations = hypercube.dimensionElements(dims.'location') as Set
+        def providers = hypercube.dimensionElements(dims.'provider') as Set
+
+        def expected = clinicalData.multidimsClinicalFacts*.value as HashMultiset
+        def expectedConcepts = testData.conceptData.conceptDimensions.findAll {
+            it.conceptCode in clinicalData.multidimsClinicalFacts*.conceptCode
+        } as Set
+        def expectedPatients = clinicalData.multidimsClinicalFacts*.patient as Set
+        def expectedVisits = clinicalData.multidimsClinicalFacts*.visit as Set
+        def expectedTrialVisits = clinicalData.longitudinalClinicalFacts*.trialVisit as Set
+        def expectedStartTime = clinicalData.multidimsClinicalFacts*.startDate as Set
+        def expectedEndTime = clinicalData.multidimsClinicalFacts*.endDate as Set
+        def expectedLocations = clinicalData.multidimsClinicalFacts*.locationCd as Set
+        def expectedProviders = clinicalData.multidimsClinicalFacts*.providerId as Set
+        def expectedFacts = clinicalData.multidimsClinicalFacts.collect {
+            [it.patient.id, "'"+it.conceptCode+"'", it.trialVisit.id,
+             clinicalData.multidimsStudy.id]
+        }
+
         expect:
-        1==1
+
+        hypercube.dimensionElements.size() ==  clinicalData.multidimsStudy.dimensions.size()
+        result == expected
+
+        concepts.size() == expectedConcepts.size()
+        concepts == expectedConcepts
+
+        patients.size() == expectedPatients.size()
+        patients == expectedPatients
+
+        trialVisits.size() == expectedTrialVisits.size()
+        trialVisits == expectedTrialVisits
+
+        visit.size() == expectedVisits.size()
+        visit == expectedVisits
+
+        startTime.size() == expectedStartTime.size()
+        startTime == expectedStartTime
+
+        endTime.size() == expectedEndTime.size()
+        endTime == expectedEndTime
+
+        locations.size() == expectedLocations.size()
+        locations == expectedLocations
+
+        providers.size() == expectedProviders.size()
+        providers == expectedProviders
+
+        //FIXME better way to compare
+        hypercubeFacts.sort().toString() == expectedFacts.sort().toString()
     }
 }

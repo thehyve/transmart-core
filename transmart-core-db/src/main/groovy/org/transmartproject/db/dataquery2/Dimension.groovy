@@ -215,7 +215,7 @@ class EndTimeDimension extends I2b2Dimension {
 
 @InheritConstructors
 class LocationDimension extends I2b2Dimension {
-    String alias = 'locationCode'
+    String alias = 'location'
     String columnName = 'locationCd'
 
     List<Object> resolveElements(List elementKeys) {
