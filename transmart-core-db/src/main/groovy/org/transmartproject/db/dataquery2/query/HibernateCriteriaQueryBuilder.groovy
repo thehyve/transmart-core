@@ -12,6 +12,7 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.transmartproject.db.dataquery2.PatientDimension
 import org.transmartproject.db.dataquery2.StartTimeDimension
+import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.querytool.QtPatientSetCollection
@@ -278,6 +279,21 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
 
     }
 
+    Criterion build(ConceptConstraint constraint){
+        if (constraint.path == null){
+            throw new QueryBuilderException("Concept constraint shouldn't have a null value for path")
+        }
+        //SELECT * from OBSERVATION_FACT WHERE CONCEPT_CD =
+        //                             (SELECT CONCEPT_CD FROM CONCEPT_DIMENSION WHERE CONCEPT_PATH = ?)
+        DetachedCriteria subCriteria = DetachedCriteria.forClass(ConceptDimension, 'concept_dimension')
+        subCriteria.add(Restrictions.eq('concept_dimension.conceptPath', constraint.path))
+
+        return Subqueries.propertyEq('conceptCode', subCriteria.setProjection(Projections.property('conceptCode')))
+
+
+
+    }
+
     /**
      * Creates a criteria object the represents the negation of <code>constraint.arg</code>.
      */
@@ -362,13 +378,10 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
                 assert query.select?.size() == 1
                 return result.setProjection(Projections.count('numberValue'))
             case QueryType.MIN:
-                assert query.select?.size() == 1
                 return result.setProjection(Projections.min('numberValue'))
             case QueryType.AVERAGE:
-                assert query.select?.size() == 1
                 return result.setProjection(Projections.avg('numberValue'))
             case QueryType.MAX:
-                assert query.select?.size() == 1
                 return result.setProjection(Projections.max('numberValue'))
             case QueryType.VALUES:
                 if (query.select == null || query.select.empty) {

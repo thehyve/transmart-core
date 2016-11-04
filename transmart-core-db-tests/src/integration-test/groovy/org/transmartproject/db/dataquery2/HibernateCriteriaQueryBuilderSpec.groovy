@@ -349,4 +349,29 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         result == 55
     }
 
+    void 'test ConceptConstraint'(){
+        setupData()
+
+
+        when:
+        ObservationQuery query = new ObservationQuery(
+                queryType: QueryType.VALUES,
+                constraint: new ConceptConstraint(
+                        path: '\\foo\\study1\\bar\\'
+                )
+        )
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: Study.findAll()
+        )
+        def criteria = builder.detachedCriteriaFor(query)
+
+        def result = getList(criteria)
+        def fact = result[0]
+        then:
+        result.size() == 1
+
+        fact.conceptCode == '2'
+
+    }
+
 }
