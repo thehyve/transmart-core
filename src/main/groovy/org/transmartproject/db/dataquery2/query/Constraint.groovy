@@ -227,6 +227,12 @@ class FieldConstraint extends Constraint {
     }
 }
 
+@Canonical
+class ConceptConstraint extends Constraint {
+    String path
+
+}
+
 /**
  * Selects observations for which the value of type <code>valueType</code> conforms
  * to <code>operator</code> and <code>value</code>.
@@ -367,7 +373,8 @@ class ConstraintFactory {
             PatientSetConstraint.class,
             Negation.class,
             Combination.class,
-            TemporalConstraint.class
+            TemporalConstraint.class,
+            ConceptConstraint.class
     ].collectEntries {
         Class type -> [(type.simpleName): type]
     } as Map<String, Class>
