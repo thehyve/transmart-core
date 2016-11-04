@@ -54,6 +54,16 @@ class QueryController {
         }
     }
 
+    def aggregate() {
+        ObservationQuery query = new ObservationQuery()
+        if (bindQuery(query)) {
+            User user = (User)usersResource.getUserFromUsername(currentUser.username)
+            def aggregatedValue = queryService.aggregate(query, user)
+            def result = [(query.queryType): aggregatedValue]
+            render result as JSON
+        }
+    }
+
     def supportedFields() {
         List<Field> fields = DimensionMetadata.supportedFields
         render fields as JSON
