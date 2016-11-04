@@ -134,4 +134,21 @@ class TrialVisitWithTimeDataTests implements JobRunningTestTrait {
         )
     }
 
+    @Test
+    void testStrictConceptVariables() {
+        def facts = queryForList """
+            SELECT O.tval_char
+            FROM
+                ${Tables.OBSERVATION_FACT} O
+                INNER JOIN ${Tables.CONCEPT_DIMENSION} C
+                    ON (O.concept_cd = C.concept_cd)
+                WHERE C.concept_path = :concept_path
+            """,
+                [
+                        concept_path: '\\Public Studies\\TEST_17_1\\Demography\\Sex\\',
+                ]
+
+        assertThat facts, everyItem(either(hasEntry('tval_char', 'M')).or(hasEntry('tval_char', 'F')))
+    }
+
 }

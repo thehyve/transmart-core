@@ -145,7 +145,7 @@ class ClinicalFactsRowSetFactory {
         }
 
         // we need a subnode if the variable is categorical
-        if (conceptType == ConceptType.CATEGORICAL) {
+        if (conceptType == ConceptType.CATEGORICAL && !'y'.equalsIgnoreCase(var.strictCategoricalVariable)) {
             concept = tree.getOrGenerate(conceptPath + value, ConceptType.CATEGORICAL)
         }
 

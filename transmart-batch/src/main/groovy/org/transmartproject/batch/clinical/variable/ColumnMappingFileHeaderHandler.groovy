@@ -27,9 +27,9 @@ class ColumnMappingFileHeaderHandler
         } else if (values.size() == 7) {
             log.warn("Column mapping file's header has 7 columns. This is " +
                     "accepted, but the 5th and 6th columns will be ignored")
-        } else {
+        } else if (values.size() != 8) {
             throw new ParseException("Expected the column mapping file " +
-                    "header to have either 4, 6 or 7 columns. " +
+                    "header to have either 4, 6, 7 or 8 columns. " +
                     "Got ${values} (size ${values.size()})")
         }
 
