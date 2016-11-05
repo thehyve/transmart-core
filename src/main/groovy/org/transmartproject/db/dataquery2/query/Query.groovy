@@ -4,6 +4,7 @@ import grails.validation.Validateable
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import grails.databinding.BindUsing
+import groovy.util.logging.Slf4j
 import org.springframework.validation.Errors
 
 /**
@@ -26,6 +27,7 @@ class PatientQuery extends Query {
  * Result types for observation queries.
  */
 @CompileStatic
+@Slf4j
 enum QueryType {
     VALUES,
     MIN,
@@ -34,6 +36,23 @@ enum QueryType {
     COUNT,
     EXISTS,
     NONE
+
+    private static final Map<String, QueryType> mapping = new HashMap<>();
+    static {
+        for (QueryType type: values()) {
+            mapping.put(type.name().toLowerCase(), type);
+        }
+    }
+
+    public static QueryType forName(String name) {
+        name = name.toLowerCase()
+        if (mapping.containsKey(name)) {
+            return mapping[name]
+        } else {
+            log.error "Unknown query type: ${name}"
+            return NONE
+        }
+    }
 }
 
 /**
@@ -44,6 +63,7 @@ enum QueryType {
  */
 @Canonical
 class ObservationQuery extends Query {
+    @BindUsing({obj, source -> QueryType.forName(source['queryType']) })
     QueryType queryType
     List<String> select
     @BindUsing({ obj, source -> ConstraintFactory.create(source['constraint']) })

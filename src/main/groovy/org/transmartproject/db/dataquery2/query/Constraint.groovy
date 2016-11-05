@@ -14,6 +14,7 @@ import org.transmartproject.db.dataquery2.Dimension
  * The data type of a field.
  */
 @CompileStatic
+@Slf4j
 enum Type {
     ID,
     NUMERIC,
@@ -24,6 +25,23 @@ enum Type {
     COLLECTION,
     CONSTRAINT,
     NONE
+
+    private static final Map<String, Type> mapping = new HashMap<>();
+    static {
+        for (Type type: values()) {
+            mapping.put(type.name().toLowerCase(), type);
+        }
+    }
+
+    public static Type forName(String name) {
+        name = name.toLowerCase()
+        if (mapping.containsKey(name)) {
+            return mapping[name]
+        } else {
+            log.error "Unknown type: ${name}"
+            return NONE
+        }
+    }
 
     static final Map<Type, Class> classForType = [
             (ID): Object.class,
@@ -150,6 +168,7 @@ enum Operator {
 @Canonical
 class Field implements Validateable {
     Class<? extends Dimension> dimension
+    @BindUsing({ obj, source -> Type.forName(source['type']) })
     Type type = Type.NONE
     String fieldName
 
@@ -249,6 +268,7 @@ class NullConstraint extends Constraint {
  */
 @Canonical
 class ValueConstraint extends Constraint {
+    @BindUsing({ obj, source -> Type.forName(source['valueType']) })
     Type valueType = Type.NONE
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
@@ -384,7 +404,7 @@ class ConstraintFactory {
             ConceptConstraint.class,
             NullConstraint.class
     ].collectEntries {
-        Class type -> [(type.simpleName): type]
+        Class type -> [(type.simpleName.toLowerCase()): type]
     } as Map<String, Class>
 
     /**
@@ -399,7 +419,7 @@ class ConstraintFactory {
             return null
         }
         String typeName = values['type'] as String
-        Class type = constraintClasses[typeName]
+        Class type = constraintClasses[typeName.toLowerCase()]
         if (type == null) {
             return null
         }
