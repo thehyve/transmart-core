@@ -15,7 +15,6 @@ import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.core.IsNull.notNullValue
 
 
-
 /**
  * Created by piotrzakrzewski on 02/11/2016.
  */
@@ -26,7 +25,7 @@ class ObservationsBuilderTests {
 
     TestData testData
     ClinicalTestData clinicalData
-    Map<String,Dimension> dims
+    Map<String, Dimension> dims
 
 
     @Autowired
@@ -36,9 +35,11 @@ class ObservationsBuilderTests {
     public void testSerialization() throws Exception {
         setupData()
         def builder = new ObservationsSerializer()
-        def mockedCube= queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.name]])
-        def blob =  builder.getDimensionsDefs(mockedCube)
+        def mockedCube = queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.name]])
+        def blob = builder.getDimensionsDefs(mockedCube)
         assertThat(blob, notNullValue())
+        def obs = builder.getCells(mockedCube)
+        assertThat(obs, notNullValue())
     }
 
     void setupData() {
