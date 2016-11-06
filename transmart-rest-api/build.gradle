@@ -48,6 +48,7 @@ dependencies {
     //compile 'org.grails:grails-plugin-rest:2.3.5-hyve4'
 
     compile 'com.google.protobuf:protobuf-java:3.1.0'
+    compile 'com.google.protobuf:protobuf-java-util:3.1.0' // provides  protobuf-to-json serialization
 
     runtime 'org.postgresql:postgresql:9.3-1100-jdbc41'
     runtime 'com.oracle:ojdbc6:11.2.0.3.0'
