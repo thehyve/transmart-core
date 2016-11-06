@@ -3355,12 +3355,6 @@ public final class ObservationsProto {
           return false;
         }
       }
-      for (int i = 0; i < getInlineDimensionsCount(); i++) {
-        if (!getInlineDimensions(i).isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -3800,11 +3794,6 @@ public final class ObservationsProto {
       public final boolean isInitialized() {
         for (int i = 0; i < getDimensionsCount(); i++) {
           if (!getDimensions(i).isInitialized()) {
-            return false;
-          }
-        }
-        for (int i = 0; i < getInlineDimensionsCount(); i++) {
-          if (!getInlineDimensions(i).isInitialized()) {
             return false;
           }
         }
@@ -5491,12 +5480,6 @@ public final class ObservationsProto {
       if (isInitialized == 1) return true;
       if (isInitialized == 0) return false;
 
-      for (int i = 0; i < getElementsCount(); i++) {
-        if (!getElements(i).isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -5782,11 +5765,6 @@ public final class ObservationsProto {
       }
 
       public final boolean isInitialized() {
-        for (int i = 0; i < getElementsCount(); i++) {
-          if (!getElements(i).isInitialized()) {
-            return false;
-          }
-        }
         return true;
       }
 
@@ -6102,15 +6080,6 @@ public final class ObservationsProto {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>required int32 dimIndex = 1;</code>
-     */
-    boolean hasDimIndex();
-    /**
-     * <code>required int32 dimIndex = 1;</code>
-     */
-    int getDimIndex();
-
-    /**
      * <pre>
      * name of the dimension element -&gt; value
      * </pre>
@@ -6180,7 +6149,6 @@ public final class ObservationsProto {
       super(builder);
     }
     private DimensionElements() {
-      dimIndex_ = 0;
     }
 
     @java.lang.Override
@@ -6211,16 +6179,11 @@ public final class ObservationsProto {
               }
               break;
             }
-            case 8: {
-              bitField0_ |= 0x00000001;
-              dimIndex_ = input.readInt32();
-              break;
-            }
             case 18: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
                 fields_ = com.google.protobuf.MapField.newMapField(
                     FieldsDefaultEntryHolder.defaultEntry);
-                mutable_bitField0_ |= 0x00000002;
+                mutable_bitField0_ |= 0x00000001;
               }
               com.google.protobuf.MapEntry<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
               fields = input.readMessage(
@@ -6261,22 +6224,6 @@ public final class ObservationsProto {
       return org.transmartproject.rest.protobuf.ObservationsProto.internal_static_v2_DimensionElements_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.class, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.Builder.class);
-    }
-
-    private int bitField0_;
-    public static final int DIMINDEX_FIELD_NUMBER = 1;
-    private int dimIndex_;
-    /**
-     * <code>required int32 dimIndex = 1;</code>
-     */
-    public boolean hasDimIndex() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required int32 dimIndex = 1;</code>
-     */
-    public int getDimIndex() {
-      return dimIndex_;
     }
 
     public static final int FIELDS_FIELD_NUMBER = 2;
@@ -6377,19 +6324,12 @@ public final class ObservationsProto {
       if (isInitialized == 1) return true;
       if (isInitialized == 0) return false;
 
-      if (!hasDimIndex()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt32(1, dimIndex_);
-      }
       for (java.util.Map.Entry<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> entry
            : internalGetFields().getMap().entrySet()) {
         com.google.protobuf.MapEntry<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
@@ -6407,10 +6347,6 @@ public final class ObservationsProto {
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, dimIndex_);
-      }
       for (java.util.Map.Entry<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> entry
            : internalGetFields().getMap().entrySet()) {
         com.google.protobuf.MapEntry<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
@@ -6438,11 +6374,6 @@ public final class ObservationsProto {
       org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements other = (org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements) obj;
 
       boolean result = true;
-      result = result && (hasDimIndex() == other.hasDimIndex());
-      if (hasDimIndex()) {
-        result = result && (getDimIndex()
-            == other.getDimIndex());
-      }
       result = result && internalGetFields().equals(
           other.internalGetFields());
       result = result && unknownFields.equals(other.unknownFields);
@@ -6456,10 +6387,6 @@ public final class ObservationsProto {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptorForType().hashCode();
-      if (hasDimIndex()) {
-        hash = (37 * hash) + DIMINDEX_FIELD_NUMBER;
-        hash = (53 * hash) + getDimIndex();
-      }
       if (!internalGetFields().getMap().isEmpty()) {
         hash = (37 * hash) + FIELDS_FIELD_NUMBER;
         hash = (53 * hash) + internalGetFields().hashCode();
@@ -6608,8 +6535,6 @@ public final class ObservationsProto {
       }
       public Builder clear() {
         super.clear();
-        dimIndex_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000001);
         internalGetMutableFields().clear();
         return this;
       }
@@ -6634,14 +6559,8 @@ public final class ObservationsProto {
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements buildPartial() {
         org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements result = new org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements(this);
         int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.dimIndex_ = dimIndex_;
         result.fields_ = internalGetFields();
         result.fields_.makeImmutable();
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -6683,9 +6602,6 @@ public final class ObservationsProto {
 
       public Builder mergeFrom(org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements other) {
         if (other == org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.getDefaultInstance()) return this;
-        if (other.hasDimIndex()) {
-          setDimIndex(other.getDimIndex());
-        }
         internalGetMutableFields().mergeFrom(
             other.internalGetFields());
         this.mergeUnknownFields(other.unknownFields);
@@ -6694,9 +6610,6 @@ public final class ObservationsProto {
       }
 
       public final boolean isInitialized() {
-        if (!hasDimIndex()) {
-          return false;
-        }
         return true;
       }
 
@@ -6718,38 +6631,6 @@ public final class ObservationsProto {
         return this;
       }
       private int bitField0_;
-
-      private int dimIndex_ ;
-      /**
-       * <code>required int32 dimIndex = 1;</code>
-       */
-      public boolean hasDimIndex() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required int32 dimIndex = 1;</code>
-       */
-      public int getDimIndex() {
-        return dimIndex_;
-      }
-      /**
-       * <code>required int32 dimIndex = 1;</code>
-       */
-      public Builder setDimIndex(int value) {
-        bitField0_ |= 0x00000001;
-        dimIndex_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>required int32 dimIndex = 1;</code>
-       */
-      public Builder clearDimIndex() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        dimIndex_ = 0;
-        onChanged();
-        return this;
-      }
 
       private com.google.protobuf.MapField<
           java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> fields_;
@@ -7785,15 +7666,14 @@ public final class ObservationsProto {
       "cValue\030\004 \001(\001H\000\022\023\n\004last\030\005 \001(\010:\005falseB\007\n\005v" +
       "alue\"=\n\rDimensionCell\022\027\n\017dimension_index" +
       "\030\001 \002(\003\022\023\n\013value_index\030\002 \002(\003\"1\n\006Footer\022\'\n" +
-      "\010elements\030\001 \003(\0132\025.v2.DimensionElements\"\235" +
-      "\001\n\021DimensionElements\022\020\n\010dimIndex\030\001 \002(\005\0221" +
-      "\n\006fields\030\002 \003(\0132!.v2.DimensionElements.Fi" +
-      "eldsEntry\032C\n\013FieldsEntry\022\013\n\003key\030\001 \001(\t\022#\n" +
-      "\005value\030\002 \001(\0132\024.v2.DimensionElement:\0028\001\"N",
-      "\n\020DimensionElement\022\023\n\013stringValue\030\001 \001(\t\022" +
-      "\023\n\013doubleValue\030\002 \001(\001\022\020\n\010intValue\030\003 \001(\003B7" +
-      "\n\"org.transmartproject.rest.protobufB\021Ob" +
-      "servationsProto"
+      "\010elements\030\001 \003(\0132\025.v2.DimensionElements\"\213" +
+      "\001\n\021DimensionElements\0221\n\006fields\030\002 \003(\0132!.v" +
+      "2.DimensionElements.FieldsEntry\032C\n\013Field" +
+      "sEntry\022\013\n\003key\030\001 \001(\t\022#\n\005value\030\002 \001(\0132\024.v2." +
+      "DimensionElement:\0028\001\"N\n\020DimensionElement",
+      "\022\023\n\013stringValue\030\001 \001(\t\022\023\n\013doubleValue\030\002 \001" +
+      "(\001\022\020\n\010intValue\030\003 \001(\003B7\n\"org.transmartpro" +
+      "ject.rest.protobufB\021ObservationsProto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -7848,7 +7728,7 @@ public final class ObservationsProto {
     internal_static_v2_DimensionElements_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_v2_DimensionElements_descriptor,
-        new java.lang.String[] { "DimIndex", "Fields", });
+        new java.lang.String[] { "Fields", });
     internal_static_v2_DimensionElements_FieldsEntry_descriptor =
       internal_static_v2_DimensionElements_descriptor.getNestedTypes().get(0);
     internal_static_v2_DimensionElements_FieldsEntry_fieldAccessorTable = new

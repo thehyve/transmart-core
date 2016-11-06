@@ -1,8 +1,6 @@
 package org.transmartproject.rest.protobuf
 
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
-import groovy.transform.CompileStatic
 import org.apache.commons.lang.StringUtils
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.Hypercube
@@ -17,6 +15,7 @@ public class ObservationsSerializer {
     public static final Set<String> INLINE_DIMENSIONS = ["start_date"] //TODO: check spelling
 
     Hypercube cube
+    List footerElements = new ArrayList()
 
     ObservationsSerializer(Hypercube cube) {
         this.cube = cube
@@ -63,31 +62,29 @@ public class ObservationsSerializer {
             for (Dimension dim : dims) {
                 Object dimElement = value.getDimElement(dim)
                 if (dim.density == Dimension.Density.SPARSE) {
-                    addSparseCell(builder, dimElement, dim)
+                    ObservationsProto.DimensionElements.Builder inlineDim = buildSparseCell(dimElement)
+                    builder.addInlineDimensions(inlineDim)
                 } else {
-                    int index = value.getDimElementIndex(dim)
-                    addDenseCell(builder, dim, index)
+                    addDenseCell(builder, dim, dimElement)
                 }
-
             }
             obsMessages.add(builder.build())
         }
         obsMessages
     }
 
-    private void addDenseCell(ObservationsProto.Observation.Builder builder, Dimension dim,int dimElIndex) {
+    private void addDenseCell(ObservationsProto.Observation.Builder builder, Dimension dim, Object dimElement) {
         ObservationsProto.DimensionCell.Builder dimBuilder = ObservationsProto.DimensionCell.newBuilder()
         int dimIndex = cube.dimensionsIndex.get(dim)
         dimBuilder.setDimensionIndex(dimIndex)
+        int dimElIndex = determineFooterIndex(dimElement)
         dimBuilder.setValueIndex(dimElIndex)
         builder.addDimensions(dimBuilder)
     }
 
-    private void addSparseCell(ObservationsProto.Observation.Builder builder, Object dimElement, Dimension dimension) {
+    private ObservationsProto.DimensionElements.Builder buildSparseCell(Object dimElement) {
         ObservationsProto.DimensionElements.Builder inlineDimBuilder = ObservationsProto.DimensionElements.newBuilder()
         Map<String, Object> props = dimElement.getProperties()
-        int dimIndex = cube.dimensionsIndex.get(dimension)
-        inlineDimBuilder.setDimIndex(dimIndex)
         for (String fieldName : props.keySet()) {
             ObservationsProto.DimensionElement.Builder dimElementBuilder = ObservationsProto.DimensionElement.newBuilder()
             String fieldVal = props.get(fieldName)
@@ -97,12 +94,20 @@ public class ObservationsSerializer {
                 inlineDimBuilder.putFields(fieldName, msg)
             }
         }
-        builder.addInlineDimensions(inlineDimBuilder)
+        inlineDimBuilder
     }
 
     def getFooter() {
-
+        footerElements.collect() { dimElement ->
+            buildSparseCell(dimElement)
+        }
     }
 
+    int determineFooterIndex(Object dimElements) {
+        if (!footerElements.contains(dimElements)) {
+            footerElements.add(dimElements)
+        }
+        return footerElements.indexOf(dimElements)
+    }
 
 }

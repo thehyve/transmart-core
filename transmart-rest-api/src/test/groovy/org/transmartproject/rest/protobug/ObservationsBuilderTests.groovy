@@ -40,6 +40,8 @@ class ObservationsBuilderTests {
         assertThat(blob, notNullValue())
         def obs = builder.getCells()
         assertThat(obs, notNullValue())
+        def footer = builder.getFooter()
+        assertThat(footer, notNullValue())
     }
 
     void setupData() {
