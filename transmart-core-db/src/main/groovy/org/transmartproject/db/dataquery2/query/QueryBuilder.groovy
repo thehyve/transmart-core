@@ -1,24 +1,24 @@
 package org.transmartproject.db.dataquery2.query
 
-interface QueryBuilder<ResultType> {
+interface QueryBuilder<ConstraintResult, QueryResult> {
 
     /**
-     * Builds a String serialisation of the {@link Constraint} object.
+     * Builds a queryable object for the {@link Constraint} object.
      *
      * @param constraint
-     * @return the String serialisation.
+     * @return the result.
      */
-    ResultType build(Constraint constraint)
+    ConstraintResult build(Constraint constraint)
 
     /**
-     * Builds a RenderedQuery serialisation of the {@link Query} object.
+     * Builds a queryable object for the {@link Query} object.
      *
      * @param query
-     * @return the String serialisation.
+     * @return the result.
      */
-    ResultType build(Query query)
+    QueryResult build(Query query)
 
-    ResultType build(Object obj)
+    void build(Object obj)
 
 }
 

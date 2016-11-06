@@ -54,6 +54,16 @@ class QueryController {
         }
     }
 
+    def count() {
+        ObservationQuery query = new ObservationQuery()
+        if (bindQuery(query)) {
+            User user = (User)usersResource.getUserFromUsername(currentUser.username)
+            def count = queryService.count(query, user)
+            def result = [count: count]
+            render result as JSON
+        }
+    }
+
     def aggregate() {
         ObservationQuery query = new ObservationQuery()
         if (bindQuery(query)) {

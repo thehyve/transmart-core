@@ -15,15 +15,6 @@ abstract class Query implements Validateable {
 }
 
 /**
- * A query for patient dimension entries that are associated with the
- * observations that are selected with the query in <code>subQuery</code>.
- */
-@Canonical
-class PatientQuery extends Query {
-    ObservationQuery subQuery
-}
-
-/**
  * Result types for observation queries.
  */
 @CompileStatic
@@ -65,7 +56,6 @@ enum QueryType {
 class ObservationQuery extends Query {
     @BindUsing({obj, source -> QueryType.forName(source['queryType']) })
     QueryType queryType
-    List<String> select
     @BindUsing({ obj, source -> ConstraintFactory.create(source['constraint']) })
     Constraint constraint
 
