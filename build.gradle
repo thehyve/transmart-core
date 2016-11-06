@@ -39,6 +39,7 @@ task checkDependencies << {
     def php_installed = false
     out.toString().find(/PHP (\d+).(\d+)/) { match, major, minor ->
         if (major > 5 || major == 5 && minor >= 4) {
+            println "Found PHP version ${major}.${minor}."
             php_installed = true
         }
     }
