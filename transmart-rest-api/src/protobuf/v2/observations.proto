@@ -5,6 +5,10 @@ option java_package = "org.transmartproject.rest.protobuf";
 option java_outer_classname = "ObservationsProto";
 // Style guide for this file: https://developers.google.com/protocol-buffers/docs/style
 
+// A full hypercube is a series of messages, each prefixed by its length in the protobuf varint encoding. A hypercube
+// starts with a header, then one or more observations or one or more packedObservations (depending on if there is a
+// dimension marked 'packed'), and then one footer.
+
 message Header { // header is sent without chunking in a one message
                  repeated DimensionDeclaration dimension_declarations = 1;
 }
@@ -20,6 +24,8 @@ message DimensionDeclaration { // each dimension present in the output is declar
 } //  TODO: packing along dense dimensions is not yet implemented
 
 message FieldDefinition { // each field (dimension element) has its definition specifying type of its value
+                          // Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
+                          // age, gender, race, etc.
                           enum ColumnType {
                               DOUBLE = 1;
                               STRING = 2;
@@ -31,11 +37,22 @@ message FieldDefinition { // each field (dimension element) has its definition s
 }
 
 
+
 message Observation {
+    // This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+    // dimension along which observations are packed, if packing is used) and follows their
+    // order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+    // 'not present'.
     repeated DimensionCell dimensions = 1;
+    // A single element for each inline dimension, in the order used in the header.
     repeated DimensionElements inline_dimensions = 2;
-    optional string string_value = 3;  // observation values, one, and only can be filled
-    optional double numeric_value = 4;
+    oneof value {
+        string stringValue = 3;
+        double numericValue = 4;
+    }
+
+    // Set to true on the last observation, the last observation is followed by a footer.
+    required bool last = 5 [default=false];
 }
 
 message DimensionCell {
@@ -48,7 +65,7 @@ message Footer {
 }
 
 message DimensionElements { // values associated with a dimension
-                   map<string, DimensionElement> projects = 1; // name of the dimension element -> value
+                   map<string, DimensionElement> fields = 1; // name of the dimension element -> value
 }
 
 message DimensionElement {

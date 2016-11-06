@@ -2,6 +2,7 @@ package org.transmartproject.rest.protobuf
 
 import com.google.common.collect.ImmutableList
 import groovy.transform.CompileStatic
+import org.apache.commons.lang.StringUtils
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.Hypercube
 import org.transmartproject.db.dataquery2.HypercubeValue
@@ -44,17 +45,34 @@ public class ObservationsSerializer {
         dimensionDeclarations
     }
 
-    @CompileStatic
     def getCells(Hypercube cube) {
         Iterator<HypercubeValue> it = cube.iterator
         List<Dimension> dims = cube.dimensions
+        List<ObservationsProto.Observation> obsMessages = new ArrayList<>()
         while (it.hasNext()) {
             HypercubeValue value = it.next()
-            def dimElements = dims.collect() { dim ->
-                value.getDimElement(dim)
+            ObservationsProto.Observation.Builder builder = ObservationsProto.Observation.newBuilder()
+            builder.stringValue = value.value
+            for (Dimension dim : dims) {
+                Object dimElement = value.getDimElement(dim)
+                ObservationsProto.DimensionCell.Builder dimBuilder = ObservationsProto.DimensionCell.newBuilder()
+                ObservationsProto.DimensionElements.Builder inlineDimBuilder = ObservationsProto.DimensionElements.newBuilder()
+                Map<String, Object> props = dimElement.getProperties()
+                for (String fieldName : props.keySet()) {
+                    ObservationsProto.DimensionElement.Builder dimElementBuilder = ObservationsProto.DimensionElement.newBuilder()
+                    String fieldVal = props.get(fieldName)
+                    if (StringUtils.isNotEmpty(fieldVal)) {
+                        dimElementBuilder.setStringValue(fieldVal)
+                        ObservationsProto.DimensionElement msg = dimElementBuilder.build()
+                        inlineDimBuilder.putFields(fieldName, msg)
+                    }
+                }
+                //builder.addDimensions(dimBuilder)
+                builder.addInlineDimensions(inlineDimBuilder)
             }
-
+            obsMessages.add(builder)
         }
+        obsMessages
     }
 
 

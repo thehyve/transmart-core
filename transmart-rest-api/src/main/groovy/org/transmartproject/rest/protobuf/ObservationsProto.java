@@ -2182,6 +2182,11 @@ public final class ObservationsProto {
     }
 
     /**
+     * <pre>
+     * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
+     * age, gender, race, etc.
+     * </pre>
+     *
      * Protobuf enum {@code v2.FieldDefinition.ColumnType}
      */
     public enum ColumnType
@@ -2832,87 +2837,149 @@ public final class ObservationsProto {
       com.google.protobuf.MessageOrBuilder {
 
     /**
+     * <pre>
+     * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+     * dimension along which observations are packed, if packing is used) and follows their
+     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * 'not present'.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionCell dimensions = 1;</code>
      */
     java.util.List<org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell> 
         getDimensionsList();
     /**
+     * <pre>
+     * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+     * dimension along which observations are packed, if packing is used) and follows their
+     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * 'not present'.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionCell dimensions = 1;</code>
      */
     org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell getDimensions(int index);
     /**
+     * <pre>
+     * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+     * dimension along which observations are packed, if packing is used) and follows their
+     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * 'not present'.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionCell dimensions = 1;</code>
      */
     int getDimensionsCount();
     /**
+     * <pre>
+     * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+     * dimension along which observations are packed, if packing is used) and follows their
+     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * 'not present'.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionCell dimensions = 1;</code>
      */
     java.util.List<? extends org.transmartproject.rest.protobuf.ObservationsProto.DimensionCellOrBuilder> 
         getDimensionsOrBuilderList();
     /**
+     * <pre>
+     * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+     * dimension along which observations are packed, if packing is used) and follows their
+     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * 'not present'.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionCell dimensions = 1;</code>
      */
     org.transmartproject.rest.protobuf.ObservationsProto.DimensionCellOrBuilder getDimensionsOrBuilder(
         int index);
 
     /**
+     * <pre>
+     * A single element for each inline dimension, in the order used in the header.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
      */
     java.util.List<org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements> 
         getInlineDimensionsList();
     /**
+     * <pre>
+     * A single element for each inline dimension, in the order used in the header.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
      */
     org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements getInlineDimensions(int index);
     /**
+     * <pre>
+     * A single element for each inline dimension, in the order used in the header.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
      */
     int getInlineDimensionsCount();
     /**
+     * <pre>
+     * A single element for each inline dimension, in the order used in the header.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
      */
     java.util.List<? extends org.transmartproject.rest.protobuf.ObservationsProto.DimensionElementsOrBuilder> 
         getInlineDimensionsOrBuilderList();
     /**
+     * <pre>
+     * A single element for each inline dimension, in the order used in the header.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
      */
     org.transmartproject.rest.protobuf.ObservationsProto.DimensionElementsOrBuilder getInlineDimensionsOrBuilder(
         int index);
 
     /**
-     * <pre>
-     * observation values, one, and only can be filled
-     * </pre>
-     *
-     * <code>optional string string_value = 3;</code>
+     * <code>optional string stringValue = 3;</code>
      */
     boolean hasStringValue();
     /**
-     * <pre>
-     * observation values, one, and only can be filled
-     * </pre>
-     *
-     * <code>optional string string_value = 3;</code>
+     * <code>optional string stringValue = 3;</code>
      */
     java.lang.String getStringValue();
     /**
-     * <pre>
-     * observation values, one, and only can be filled
-     * </pre>
-     *
-     * <code>optional string string_value = 3;</code>
+     * <code>optional string stringValue = 3;</code>
      */
     com.google.protobuf.ByteString
         getStringValueBytes();
 
     /**
-     * <code>optional double numeric_value = 4;</code>
+     * <code>optional double numericValue = 4;</code>
      */
     boolean hasNumericValue();
     /**
-     * <code>optional double numeric_value = 4;</code>
+     * <code>optional double numericValue = 4;</code>
      */
     double getNumericValue();
+
+    /**
+     * <pre>
+     * Set to true on the last observation, the last observation is followed by a footer.
+     * </pre>
+     *
+     * <code>required bool last = 5 [default = false];</code>
+     */
+    boolean hasLast();
+    /**
+     * <pre>
+     * Set to true on the last observation, the last observation is followed by a footer.
+     * </pre>
+     *
+     * <code>required bool last = 5 [default = false];</code>
+     */
+    boolean getLast();
+
+    public org.transmartproject.rest.protobuf.ObservationsProto.Observation.ValueCase getValueCase();
   }
   /**
    * Protobuf type {@code v2.Observation}
@@ -2928,8 +2995,7 @@ public final class ObservationsProto {
     private Observation() {
       dimensions_ = java.util.Collections.emptyList();
       inlineDimensions_ = java.util.Collections.emptyList();
-      stringValue_ = "";
-      numericValue_ = 0D;
+      last_ = false;
     }
 
     @java.lang.Override
@@ -2980,13 +3046,18 @@ public final class ObservationsProto {
             }
             case 26: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000001;
-              stringValue_ = bs;
+              valueCase_ = 3;
+              value_ = bs;
               break;
             }
             case 33: {
-              bitField0_ |= 0x00000002;
-              numericValue_ = input.readDouble();
+              valueCase_ = 4;
+              value_ = input.readDouble();
+              break;
+            }
+            case 40: {
+              bitField0_ |= 0x00000004;
+              last_ = input.readBool();
               break;
             }
           }
@@ -3020,15 +3091,67 @@ public final class ObservationsProto {
     }
 
     private int bitField0_;
+    private int valueCase_ = 0;
+    private java.lang.Object value_;
+    public enum ValueCase
+        implements com.google.protobuf.Internal.EnumLite {
+      STRINGVALUE(3),
+      NUMERICVALUE(4),
+      VALUE_NOT_SET(0);
+      private final int value;
+      private ValueCase(int value) {
+        this.value = value;
+      }
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static ValueCase valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static ValueCase forNumber(int value) {
+        switch (value) {
+          case 3: return STRINGVALUE;
+          case 4: return NUMERICVALUE;
+          case 0: return VALUE_NOT_SET;
+          default: return null;
+        }
+      }
+      public int getNumber() {
+        return this.value;
+      }
+    };
+
+    public ValueCase
+    getValueCase() {
+      return ValueCase.forNumber(
+          valueCase_);
+    }
+
     public static final int DIMENSIONS_FIELD_NUMBER = 1;
     private java.util.List<org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell> dimensions_;
     /**
+     * <pre>
+     * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+     * dimension along which observations are packed, if packing is used) and follows their
+     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * 'not present'.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionCell dimensions = 1;</code>
      */
     public java.util.List<org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell> getDimensionsList() {
       return dimensions_;
     }
     /**
+     * <pre>
+     * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+     * dimension along which observations are packed, if packing is used) and follows their
+     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * 'not present'.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionCell dimensions = 1;</code>
      */
     public java.util.List<? extends org.transmartproject.rest.protobuf.ObservationsProto.DimensionCellOrBuilder> 
@@ -3036,18 +3159,39 @@ public final class ObservationsProto {
       return dimensions_;
     }
     /**
+     * <pre>
+     * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+     * dimension along which observations are packed, if packing is used) and follows their
+     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * 'not present'.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionCell dimensions = 1;</code>
      */
     public int getDimensionsCount() {
       return dimensions_.size();
     }
     /**
+     * <pre>
+     * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+     * dimension along which observations are packed, if packing is used) and follows their
+     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * 'not present'.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionCell dimensions = 1;</code>
      */
     public org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell getDimensions(int index) {
       return dimensions_.get(index);
     }
     /**
+     * <pre>
+     * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+     * dimension along which observations are packed, if packing is used) and follows their
+     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * 'not present'.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionCell dimensions = 1;</code>
      */
     public org.transmartproject.rest.protobuf.ObservationsProto.DimensionCellOrBuilder getDimensionsOrBuilder(
@@ -3058,12 +3202,20 @@ public final class ObservationsProto {
     public static final int INLINE_DIMENSIONS_FIELD_NUMBER = 2;
     private java.util.List<org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements> inlineDimensions_;
     /**
+     * <pre>
+     * A single element for each inline dimension, in the order used in the header.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
      */
     public java.util.List<org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements> getInlineDimensionsList() {
       return inlineDimensions_;
     }
     /**
+     * <pre>
+     * A single element for each inline dimension, in the order used in the header.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
      */
     public java.util.List<? extends org.transmartproject.rest.protobuf.ObservationsProto.DimensionElementsOrBuilder> 
@@ -3071,18 +3223,30 @@ public final class ObservationsProto {
       return inlineDimensions_;
     }
     /**
+     * <pre>
+     * A single element for each inline dimension, in the order used in the header.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
      */
     public int getInlineDimensionsCount() {
       return inlineDimensions_.size();
     }
     /**
+     * <pre>
+     * A single element for each inline dimension, in the order used in the header.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
      */
     public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements getInlineDimensions(int index) {
       return inlineDimensions_.get(index);
     }
     /**
+     * <pre>
+     * A single element for each inline dimension, in the order used in the header.
+     * </pre>
+     *
      * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
      */
     public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElementsOrBuilder getInlineDimensionsOrBuilder(
@@ -3090,73 +3254,93 @@ public final class ObservationsProto {
       return inlineDimensions_.get(index);
     }
 
-    public static final int STRING_VALUE_FIELD_NUMBER = 3;
-    private volatile java.lang.Object stringValue_;
+    public static final int STRINGVALUE_FIELD_NUMBER = 3;
     /**
-     * <pre>
-     * observation values, one, and only can be filled
-     * </pre>
-     *
-     * <code>optional string string_value = 3;</code>
+     * <code>optional string stringValue = 3;</code>
      */
     public boolean hasStringValue() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return valueCase_ == 3;
     }
     /**
-     * <pre>
-     * observation values, one, and only can be filled
-     * </pre>
-     *
-     * <code>optional string string_value = 3;</code>
+     * <code>optional string stringValue = 3;</code>
      */
     public java.lang.String getStringValue() {
-      java.lang.Object ref = stringValue_;
+      java.lang.Object ref = "";
+      if (valueCase_ == 3) {
+        ref = value_;
+      }
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          stringValue_ = s;
+        if (bs.isValidUtf8() && (valueCase_ == 3)) {
+          value_ = s;
         }
         return s;
       }
     }
     /**
-     * <pre>
-     * observation values, one, and only can be filled
-     * </pre>
-     *
-     * <code>optional string string_value = 3;</code>
+     * <code>optional string stringValue = 3;</code>
      */
     public com.google.protobuf.ByteString
         getStringValueBytes() {
-      java.lang.Object ref = stringValue_;
+      java.lang.Object ref = "";
+      if (valueCase_ == 3) {
+        ref = value_;
+      }
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        stringValue_ = b;
+        if (valueCase_ == 3) {
+          value_ = b;
+        }
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
 
-    public static final int NUMERIC_VALUE_FIELD_NUMBER = 4;
-    private double numericValue_;
+    public static final int NUMERICVALUE_FIELD_NUMBER = 4;
     /**
-     * <code>optional double numeric_value = 4;</code>
+     * <code>optional double numericValue = 4;</code>
      */
     public boolean hasNumericValue() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return valueCase_ == 4;
     }
     /**
-     * <code>optional double numeric_value = 4;</code>
+     * <code>optional double numericValue = 4;</code>
      */
     public double getNumericValue() {
-      return numericValue_;
+      if (valueCase_ == 4) {
+        return (java.lang.Double) value_;
+      }
+      return 0D;
+    }
+
+    public static final int LAST_FIELD_NUMBER = 5;
+    private boolean last_;
+    /**
+     * <pre>
+     * Set to true on the last observation, the last observation is followed by a footer.
+     * </pre>
+     *
+     * <code>required bool last = 5 [default = false];</code>
+     */
+    public boolean hasLast() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <pre>
+     * Set to true on the last observation, the last observation is followed by a footer.
+     * </pre>
+     *
+     * <code>required bool last = 5 [default = false];</code>
+     */
+    public boolean getLast() {
+      return last_;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -3165,6 +3349,10 @@ public final class ObservationsProto {
       if (isInitialized == 1) return true;
       if (isInitialized == 0) return false;
 
+      if (!hasLast()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       for (int i = 0; i < getDimensionsCount(); i++) {
         if (!getDimensions(i).isInitialized()) {
           memoizedIsInitialized = 0;
@@ -3183,11 +3371,15 @@ public final class ObservationsProto {
       for (int i = 0; i < inlineDimensions_.size(); i++) {
         output.writeMessage(2, inlineDimensions_.get(i));
       }
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, stringValue_);
+      if (valueCase_ == 3) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, value_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeDouble(4, numericValue_);
+      if (valueCase_ == 4) {
+        output.writeDouble(
+            4, (double)((java.lang.Double) value_));
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBool(5, last_);
       }
       unknownFields.writeTo(output);
     }
@@ -3205,12 +3397,17 @@ public final class ObservationsProto {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, inlineDimensions_.get(i));
       }
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, stringValue_);
+      if (valueCase_ == 3) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, value_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (valueCase_ == 4) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(4, numericValue_);
+          .computeDoubleSize(
+              4, (double)((java.lang.Double) value_));
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(5, last_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -3233,17 +3430,27 @@ public final class ObservationsProto {
           .equals(other.getDimensionsList());
       result = result && getInlineDimensionsList()
           .equals(other.getInlineDimensionsList());
-      result = result && (hasStringValue() == other.hasStringValue());
-      if (hasStringValue()) {
-        result = result && getStringValue()
-            .equals(other.getStringValue());
+      result = result && (hasLast() == other.hasLast());
+      if (hasLast()) {
+        result = result && (getLast()
+            == other.getLast());
       }
-      result = result && (hasNumericValue() == other.hasNumericValue());
-      if (hasNumericValue()) {
-        result = result && (
-            java.lang.Double.doubleToLongBits(getNumericValue())
-            == java.lang.Double.doubleToLongBits(
-                other.getNumericValue()));
+      result = result && getValueCase().equals(
+          other.getValueCase());
+      if (!result) return false;
+      switch (valueCase_) {
+        case 3:
+          result = result && getStringValue()
+              .equals(other.getStringValue());
+          break;
+        case 4:
+          result = result && (
+              java.lang.Double.doubleToLongBits(getNumericValue())
+              == java.lang.Double.doubleToLongBits(
+                  other.getNumericValue()));
+          break;
+        case 0:
+        default:
       }
       result = result && unknownFields.equals(other.unknownFields);
       return result;
@@ -3264,14 +3471,23 @@ public final class ObservationsProto {
         hash = (37 * hash) + INLINE_DIMENSIONS_FIELD_NUMBER;
         hash = (53 * hash) + getInlineDimensionsList().hashCode();
       }
-      if (hasStringValue()) {
-        hash = (37 * hash) + STRING_VALUE_FIELD_NUMBER;
-        hash = (53 * hash) + getStringValue().hashCode();
+      if (hasLast()) {
+        hash = (37 * hash) + LAST_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getLast());
       }
-      if (hasNumericValue()) {
-        hash = (37 * hash) + NUMERIC_VALUE_FIELD_NUMBER;
-        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-            java.lang.Double.doubleToLongBits(getNumericValue()));
+      switch (valueCase_) {
+        case 3:
+          hash = (37 * hash) + STRINGVALUE_FIELD_NUMBER;
+          hash = (53 * hash) + getStringValue().hashCode();
+          break;
+        case 4:
+          hash = (37 * hash) + NUMERICVALUE_FIELD_NUMBER;
+          hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+              java.lang.Double.doubleToLongBits(getNumericValue()));
+          break;
+        case 0:
+        default:
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -3405,10 +3621,10 @@ public final class ObservationsProto {
         } else {
           inlineDimensionsBuilder_.clear();
         }
-        stringValue_ = "";
-        bitField0_ = (bitField0_ & ~0x00000004);
-        numericValue_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000008);
+        last_ = false;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        valueCase_ = 0;
+        value_ = null;
         return this;
       }
 
@@ -3451,15 +3667,18 @@ public final class ObservationsProto {
         } else {
           result.inlineDimensions_ = inlineDimensionsBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000001;
+        if (valueCase_ == 3) {
+          result.value_ = value_;
         }
-        result.stringValue_ = stringValue_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000002;
+        if (valueCase_ == 4) {
+          result.value_ = value_;
         }
-        result.numericValue_ = numericValue_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.last_ = last_;
         result.bitField0_ = to_bitField0_;
+        result.valueCase_ = valueCase_;
         onBuilt();
         return result;
       }
@@ -3553,13 +3772,23 @@ public final class ObservationsProto {
             }
           }
         }
-        if (other.hasStringValue()) {
-          bitField0_ |= 0x00000004;
-          stringValue_ = other.stringValue_;
-          onChanged();
+        if (other.hasLast()) {
+          setLast(other.getLast());
         }
-        if (other.hasNumericValue()) {
-          setNumericValue(other.getNumericValue());
+        switch (other.getValueCase()) {
+          case STRINGVALUE: {
+            valueCase_ = 3;
+            value_ = other.value_;
+            onChanged();
+            break;
+          }
+          case NUMERICVALUE: {
+            setNumericValue(other.getNumericValue());
+            break;
+          }
+          case VALUE_NOT_SET: {
+            break;
+          }
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -3567,6 +3796,9 @@ public final class ObservationsProto {
       }
 
       public final boolean isInitialized() {
+        if (!hasLast()) {
+          return false;
+        }
         for (int i = 0; i < getDimensionsCount(); i++) {
           if (!getDimensions(i).isInitialized()) {
             return false;
@@ -3592,6 +3824,21 @@ public final class ObservationsProto {
         }
         return this;
       }
+      private int valueCase_ = 0;
+      private java.lang.Object value_;
+      public ValueCase
+          getValueCase() {
+        return ValueCase.forNumber(
+            valueCase_);
+      }
+
+      public Builder clearValue() {
+        valueCase_ = 0;
+        value_ = null;
+        onChanged();
+        return this;
+      }
+
       private int bitField0_;
 
       private java.util.List<org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell> dimensions_ =
@@ -3607,6 +3854,13 @@ public final class ObservationsProto {
           org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell, org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell.Builder, org.transmartproject.rest.protobuf.ObservationsProto.DimensionCellOrBuilder> dimensionsBuilder_;
 
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public java.util.List<org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell> getDimensionsList() {
@@ -3617,6 +3871,13 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public int getDimensionsCount() {
@@ -3627,6 +3888,13 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell getDimensions(int index) {
@@ -3637,6 +3905,13 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public Builder setDimensions(
@@ -3654,6 +3929,13 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public Builder setDimensions(
@@ -3668,6 +3950,13 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public Builder addDimensions(org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell value) {
@@ -3684,6 +3973,13 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public Builder addDimensions(
@@ -3701,6 +3997,13 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public Builder addDimensions(
@@ -3715,6 +4018,13 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public Builder addDimensions(
@@ -3729,6 +4039,13 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public Builder addAllDimensions(
@@ -3744,6 +4061,13 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public Builder clearDimensions() {
@@ -3757,6 +4081,13 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public Builder removeDimensions(int index) {
@@ -3770,6 +4101,13 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell.Builder getDimensionsBuilder(
@@ -3777,6 +4115,13 @@ public final class ObservationsProto {
         return getDimensionsFieldBuilder().getBuilder(index);
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionCellOrBuilder getDimensionsOrBuilder(
@@ -3787,6 +4132,13 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public java.util.List<? extends org.transmartproject.rest.protobuf.ObservationsProto.DimensionCellOrBuilder> 
@@ -3798,6 +4150,13 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell.Builder addDimensionsBuilder() {
@@ -3805,6 +4164,13 @@ public final class ObservationsProto {
             org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell.getDefaultInstance());
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell.Builder addDimensionsBuilder(
@@ -3813,6 +4179,13 @@ public final class ObservationsProto {
             index, org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell.getDefaultInstance());
       }
       /**
+       * <pre>
+       * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
+       * dimension along which observations are packed, if packing is used) and follows their
+       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * 'not present'.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionCell dimensions = 1;</code>
        */
       public java.util.List<org.transmartproject.rest.protobuf.ObservationsProto.DimensionCell.Builder> 
@@ -3847,6 +4220,10 @@ public final class ObservationsProto {
           org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.Builder, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElementsOrBuilder> inlineDimensionsBuilder_;
 
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public java.util.List<org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements> getInlineDimensionsList() {
@@ -3857,6 +4234,10 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public int getInlineDimensionsCount() {
@@ -3867,6 +4248,10 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements getInlineDimensions(int index) {
@@ -3877,6 +4262,10 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public Builder setInlineDimensions(
@@ -3894,6 +4283,10 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public Builder setInlineDimensions(
@@ -3908,6 +4301,10 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public Builder addInlineDimensions(org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements value) {
@@ -3924,6 +4321,10 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public Builder addInlineDimensions(
@@ -3941,6 +4342,10 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public Builder addInlineDimensions(
@@ -3955,6 +4360,10 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public Builder addInlineDimensions(
@@ -3969,6 +4378,10 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public Builder addAllInlineDimensions(
@@ -3984,6 +4397,10 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public Builder clearInlineDimensions() {
@@ -3997,6 +4414,10 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public Builder removeInlineDimensions(int index) {
@@ -4010,6 +4431,10 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.Builder getInlineDimensionsBuilder(
@@ -4017,6 +4442,10 @@ public final class ObservationsProto {
         return getInlineDimensionsFieldBuilder().getBuilder(index);
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElementsOrBuilder getInlineDimensionsOrBuilder(
@@ -4027,6 +4456,10 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public java.util.List<? extends org.transmartproject.rest.protobuf.ObservationsProto.DimensionElementsOrBuilder> 
@@ -4038,6 +4471,10 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.Builder addInlineDimensionsBuilder() {
@@ -4045,6 +4482,10 @@ public final class ObservationsProto {
             org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.getDefaultInstance());
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.Builder addInlineDimensionsBuilder(
@@ -4053,6 +4494,10 @@ public final class ObservationsProto {
             index, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.getDefaultInstance());
       }
       /**
+       * <pre>
+       * A single element for each inline dimension, in the order used in the header.
+       * </pre>
+       *
        * <code>repeated .v2.DimensionElements inline_dimensions = 2;</code>
        */
       public java.util.List<org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.Builder> 
@@ -4074,32 +4519,28 @@ public final class ObservationsProto {
         return inlineDimensionsBuilder_;
       }
 
-      private java.lang.Object stringValue_ = "";
       /**
-       * <pre>
-       * observation values, one, and only can be filled
-       * </pre>
-       *
-       * <code>optional string string_value = 3;</code>
+       * <code>optional string stringValue = 3;</code>
        */
       public boolean hasStringValue() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return valueCase_ == 3;
       }
       /**
-       * <pre>
-       * observation values, one, and only can be filled
-       * </pre>
-       *
-       * <code>optional string string_value = 3;</code>
+       * <code>optional string stringValue = 3;</code>
        */
       public java.lang.String getStringValue() {
-        java.lang.Object ref = stringValue_;
+        java.lang.Object ref = "";
+        if (valueCase_ == 3) {
+          ref = value_;
+        }
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            stringValue_ = s;
+          if (valueCase_ == 3) {
+            if (bs.isValidUtf8()) {
+              value_ = s;
+            }
           }
           return s;
         } else {
@@ -4107,101 +4548,144 @@ public final class ObservationsProto {
         }
       }
       /**
-       * <pre>
-       * observation values, one, and only can be filled
-       * </pre>
-       *
-       * <code>optional string string_value = 3;</code>
+       * <code>optional string stringValue = 3;</code>
        */
       public com.google.protobuf.ByteString
           getStringValueBytes() {
-        java.lang.Object ref = stringValue_;
+        java.lang.Object ref = "";
+        if (valueCase_ == 3) {
+          ref = value_;
+        }
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          stringValue_ = b;
+          if (valueCase_ == 3) {
+            value_ = b;
+          }
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <pre>
-       * observation values, one, and only can be filled
-       * </pre>
-       *
-       * <code>optional string string_value = 3;</code>
+       * <code>optional string stringValue = 3;</code>
        */
       public Builder setStringValue(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
-        stringValue_ = value;
+  valueCase_ = 3;
+        value_ = value;
         onChanged();
         return this;
       }
       /**
-       * <pre>
-       * observation values, one, and only can be filled
-       * </pre>
-       *
-       * <code>optional string string_value = 3;</code>
+       * <code>optional string stringValue = 3;</code>
        */
       public Builder clearStringValue() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        stringValue_ = getDefaultInstance().getStringValue();
-        onChanged();
+        if (valueCase_ == 3) {
+          valueCase_ = 0;
+          value_ = null;
+          onChanged();
+        }
         return this;
       }
       /**
-       * <pre>
-       * observation values, one, and only can be filled
-       * </pre>
-       *
-       * <code>optional string string_value = 3;</code>
+       * <code>optional string stringValue = 3;</code>
        */
       public Builder setStringValueBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
-        stringValue_ = value;
+  valueCase_ = 3;
+        value_ = value;
         onChanged();
         return this;
       }
 
-      private double numericValue_ ;
       /**
-       * <code>optional double numeric_value = 4;</code>
+       * <code>optional double numericValue = 4;</code>
        */
       public boolean hasNumericValue() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return valueCase_ == 4;
       }
       /**
-       * <code>optional double numeric_value = 4;</code>
+       * <code>optional double numericValue = 4;</code>
        */
       public double getNumericValue() {
-        return numericValue_;
+        if (valueCase_ == 4) {
+          return (java.lang.Double) value_;
+        }
+        return 0D;
       }
       /**
-       * <code>optional double numeric_value = 4;</code>
+       * <code>optional double numericValue = 4;</code>
        */
       public Builder setNumericValue(double value) {
-        bitField0_ |= 0x00000008;
-        numericValue_ = value;
+        valueCase_ = 4;
+        value_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional double numeric_value = 4;</code>
+       * <code>optional double numericValue = 4;</code>
        */
       public Builder clearNumericValue() {
-        bitField0_ = (bitField0_ & ~0x00000008);
-        numericValue_ = 0D;
+        if (valueCase_ == 4) {
+          valueCase_ = 0;
+          value_ = null;
+          onChanged();
+        }
+        return this;
+      }
+
+      private boolean last_ ;
+      /**
+       * <pre>
+       * Set to true on the last observation, the last observation is followed by a footer.
+       * </pre>
+       *
+       * <code>required bool last = 5 [default = false];</code>
+       */
+      public boolean hasLast() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <pre>
+       * Set to true on the last observation, the last observation is followed by a footer.
+       * </pre>
+       *
+       * <code>required bool last = 5 [default = false];</code>
+       */
+      public boolean getLast() {
+        return last_;
+      }
+      /**
+       * <pre>
+       * Set to true on the last observation, the last observation is followed by a footer.
+       * </pre>
+       *
+       * <code>required bool last = 5 [default = false];</code>
+       */
+      public Builder setLast(boolean value) {
+        bitField0_ |= 0x00000010;
+        last_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Set to true on the last observation, the last observation is followed by a footer.
+       * </pre>
+       *
+       * <code>required bool last = 5 [default = false];</code>
+       */
+      public Builder clearLast() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        last_ = false;
         onChanged();
         return this;
       }
@@ -5607,42 +6091,42 @@ public final class ObservationsProto {
      * name of the dimension element -&gt; value
      * </pre>
      *
-     * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+     * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
      */
-    int getProjectsCount();
+    int getFieldsCount();
     /**
      * <pre>
      * name of the dimension element -&gt; value
      * </pre>
      *
-     * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+     * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
      */
-    boolean containsProjects(
+    boolean containsFields(
         java.lang.String key);
     /**
-     * Use {@link #getProjectsMap()} instead.
+     * Use {@link #getFieldsMap()} instead.
      */
     @java.lang.Deprecated
     java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
-    getProjects();
+    getFields();
     /**
      * <pre>
      * name of the dimension element -&gt; value
      * </pre>
      *
-     * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+     * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
      */
     java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
-    getProjectsMap();
+    getFieldsMap();
     /**
      * <pre>
      * name of the dimension element -&gt; value
      * </pre>
      *
-     * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+     * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
      */
 
-    org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getProjectsOrDefault(
+    org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getFieldsOrDefault(
         java.lang.String key,
         org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement defaultValue);
     /**
@@ -5650,10 +6134,10 @@ public final class ObservationsProto {
      * name of the dimension element -&gt; value
      * </pre>
      *
-     * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+     * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
      */
 
-    org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getProjectsOrThrow(
+    org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getFieldsOrThrow(
         java.lang.String key);
   }
   /**
@@ -5704,14 +6188,14 @@ public final class ObservationsProto {
             }
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                projects_ = com.google.protobuf.MapField.newMapField(
-                    ProjectsDefaultEntryHolder.defaultEntry);
+                fields_ = com.google.protobuf.MapField.newMapField(
+                    FieldsDefaultEntryHolder.defaultEntry);
                 mutable_bitField0_ |= 0x00000001;
               }
               com.google.protobuf.MapEntry<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
-              projects = input.readMessage(
-                  ProjectsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              projects_.getMutableMap().put(projects.getKey(), projects.getValue());
+              fields = input.readMessage(
+                  FieldsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              fields_.getMutableMap().put(fields.getKey(), fields.getValue());
               break;
             }
           }
@@ -5736,7 +6220,7 @@ public final class ObservationsProto {
         int number) {
       switch (number) {
         case 1:
-          return internalGetProjects();
+          return internalGetFields();
         default:
           throw new RuntimeException(
               "Invalid map field number: " + number);
@@ -5749,77 +6233,77 @@ public final class ObservationsProto {
               org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.class, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.Builder.class);
     }
 
-    public static final int PROJECTS_FIELD_NUMBER = 1;
-    private static final class ProjectsDefaultEntryHolder {
+    public static final int FIELDS_FIELD_NUMBER = 1;
+    private static final class FieldsDefaultEntryHolder {
       static final com.google.protobuf.MapEntry<
           java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> defaultEntry =
               com.google.protobuf.MapEntry
               .<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>newDefaultInstance(
-                  org.transmartproject.rest.protobuf.ObservationsProto.internal_static_v2_DimensionElements_ProjectsEntry_descriptor, 
+                  org.transmartproject.rest.protobuf.ObservationsProto.internal_static_v2_DimensionElements_FieldsEntry_descriptor, 
                   com.google.protobuf.WireFormat.FieldType.STRING,
                   "",
                   com.google.protobuf.WireFormat.FieldType.MESSAGE,
                   org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement.getDefaultInstance());
     }
     private com.google.protobuf.MapField<
-        java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> projects_;
+        java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> fields_;
     private com.google.protobuf.MapField<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
-    internalGetProjects() {
-      if (projects_ == null) {
+    internalGetFields() {
+      if (fields_ == null) {
         return com.google.protobuf.MapField.emptyMapField(
-            ProjectsDefaultEntryHolder.defaultEntry);
+            FieldsDefaultEntryHolder.defaultEntry);
       }
-      return projects_;
+      return fields_;
     }
 
-    public int getProjectsCount() {
-      return internalGetProjects().getMap().size();
+    public int getFieldsCount() {
+      return internalGetFields().getMap().size();
     }
     /**
      * <pre>
      * name of the dimension element -&gt; value
      * </pre>
      *
-     * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+     * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
      */
 
-    public boolean containsProjects(
+    public boolean containsFields(
         java.lang.String key) {
       if (key == null) { throw new java.lang.NullPointerException(); }
-      return internalGetProjects().getMap().containsKey(key);
+      return internalGetFields().getMap().containsKey(key);
     }
     /**
-     * Use {@link #getProjectsMap()} instead.
+     * Use {@link #getFieldsMap()} instead.
      */
     @java.lang.Deprecated
-    public java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> getProjects() {
-      return getProjectsMap();
+    public java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> getFields() {
+      return getFieldsMap();
     }
     /**
      * <pre>
      * name of the dimension element -&gt; value
      * </pre>
      *
-     * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+     * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
      */
 
-    public java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> getProjectsMap() {
-      return internalGetProjects().getMap();
+    public java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> getFieldsMap() {
+      return internalGetFields().getMap();
     }
     /**
      * <pre>
      * name of the dimension element -&gt; value
      * </pre>
      *
-     * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+     * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
      */
 
-    public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getProjectsOrDefault(
+    public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getFieldsOrDefault(
         java.lang.String key,
         org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement defaultValue) {
       if (key == null) { throw new java.lang.NullPointerException(); }
       java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> map =
-          internalGetProjects().getMap();
+          internalGetFields().getMap();
       return map.containsKey(key) ? map.get(key) : defaultValue;
     }
     /**
@@ -5827,14 +6311,14 @@ public final class ObservationsProto {
      * name of the dimension element -&gt; value
      * </pre>
      *
-     * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+     * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
      */
 
-    public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getProjectsOrThrow(
+    public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getFieldsOrThrow(
         java.lang.String key) {
       if (key == null) { throw new java.lang.NullPointerException(); }
       java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> map =
-          internalGetProjects().getMap();
+          internalGetFields().getMap();
       if (!map.containsKey(key)) {
         throw new java.lang.IllegalArgumentException();
       }
@@ -5854,13 +6338,13 @@ public final class ObservationsProto {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       for (java.util.Map.Entry<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> entry
-           : internalGetProjects().getMap().entrySet()) {
+           : internalGetFields().getMap().entrySet()) {
         com.google.protobuf.MapEntry<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
-        projects = ProjectsDefaultEntryHolder.defaultEntry.newBuilderForType()
+        fields = FieldsDefaultEntryHolder.defaultEntry.newBuilderForType()
             .setKey(entry.getKey())
             .setValue(entry.getValue())
             .build();
-        output.writeMessage(1, projects);
+        output.writeMessage(1, fields);
       }
       unknownFields.writeTo(output);
     }
@@ -5871,14 +6355,14 @@ public final class ObservationsProto {
 
       size = 0;
       for (java.util.Map.Entry<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> entry
-           : internalGetProjects().getMap().entrySet()) {
+           : internalGetFields().getMap().entrySet()) {
         com.google.protobuf.MapEntry<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
-        projects = ProjectsDefaultEntryHolder.defaultEntry.newBuilderForType()
+        fields = FieldsDefaultEntryHolder.defaultEntry.newBuilderForType()
             .setKey(entry.getKey())
             .setValue(entry.getValue())
             .build();
         size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(1, projects);
+            .computeMessageSize(1, fields);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -5897,8 +6381,8 @@ public final class ObservationsProto {
       org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements other = (org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements) obj;
 
       boolean result = true;
-      result = result && internalGetProjects().equals(
-          other.internalGetProjects());
+      result = result && internalGetFields().equals(
+          other.internalGetFields());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -5910,9 +6394,9 @@ public final class ObservationsProto {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptorForType().hashCode();
-      if (!internalGetProjects().getMap().isEmpty()) {
-        hash = (37 * hash) + PROJECTS_FIELD_NUMBER;
-        hash = (53 * hash) + internalGetProjects().hashCode();
+      if (!internalGetFields().getMap().isEmpty()) {
+        hash = (37 * hash) + FIELDS_FIELD_NUMBER;
+        hash = (53 * hash) + internalGetFields().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -6017,7 +6501,7 @@ public final class ObservationsProto {
           int number) {
         switch (number) {
           case 1:
-            return internalGetProjects();
+            return internalGetFields();
           default:
             throw new RuntimeException(
                 "Invalid map field number: " + number);
@@ -6028,7 +6512,7 @@ public final class ObservationsProto {
           int number) {
         switch (number) {
           case 1:
-            return internalGetMutableProjects();
+            return internalGetMutableFields();
           default:
             throw new RuntimeException(
                 "Invalid map field number: " + number);
@@ -6058,7 +6542,7 @@ public final class ObservationsProto {
       }
       public Builder clear() {
         super.clear();
-        internalGetMutableProjects().clear();
+        internalGetMutableFields().clear();
         return this;
       }
 
@@ -6082,8 +6566,8 @@ public final class ObservationsProto {
       public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements buildPartial() {
         org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements result = new org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements(this);
         int from_bitField0_ = bitField0_;
-        result.projects_ = internalGetProjects();
-        result.projects_.makeImmutable();
+        result.fields_ = internalGetFields();
+        result.fields_.makeImmutable();
         onBuilt();
         return result;
       }
@@ -6125,8 +6609,8 @@ public final class ObservationsProto {
 
       public Builder mergeFrom(org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements other) {
         if (other == org.transmartproject.rest.protobuf.ObservationsProto.DimensionElements.getDefaultInstance()) return this;
-        internalGetMutableProjects().mergeFrom(
-            other.internalGetProjects());
+        internalGetMutableFields().mergeFrom(
+            other.internalGetFields());
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -6156,76 +6640,76 @@ public final class ObservationsProto {
       private int bitField0_;
 
       private com.google.protobuf.MapField<
-          java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> projects_;
+          java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> fields_;
       private com.google.protobuf.MapField<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
-      internalGetProjects() {
-        if (projects_ == null) {
+      internalGetFields() {
+        if (fields_ == null) {
           return com.google.protobuf.MapField.emptyMapField(
-              ProjectsDefaultEntryHolder.defaultEntry);
+              FieldsDefaultEntryHolder.defaultEntry);
         }
-        return projects_;
+        return fields_;
       }
       private com.google.protobuf.MapField<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
-      internalGetMutableProjects() {
+      internalGetMutableFields() {
         onChanged();;
-        if (projects_ == null) {
-          projects_ = com.google.protobuf.MapField.newMapField(
-              ProjectsDefaultEntryHolder.defaultEntry);
+        if (fields_ == null) {
+          fields_ = com.google.protobuf.MapField.newMapField(
+              FieldsDefaultEntryHolder.defaultEntry);
         }
-        if (!projects_.isMutable()) {
-          projects_ = projects_.copy();
+        if (!fields_.isMutable()) {
+          fields_ = fields_.copy();
         }
-        return projects_;
+        return fields_;
       }
 
-      public int getProjectsCount() {
-        return internalGetProjects().getMap().size();
+      public int getFieldsCount() {
+        return internalGetFields().getMap().size();
       }
       /**
        * <pre>
        * name of the dimension element -&gt; value
        * </pre>
        *
-       * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+       * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
        */
 
-      public boolean containsProjects(
+      public boolean containsFields(
           java.lang.String key) {
         if (key == null) { throw new java.lang.NullPointerException(); }
-        return internalGetProjects().getMap().containsKey(key);
+        return internalGetFields().getMap().containsKey(key);
       }
       /**
-       * Use {@link #getProjectsMap()} instead.
+       * Use {@link #getFieldsMap()} instead.
        */
       @java.lang.Deprecated
-      public java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> getProjects() {
-        return getProjectsMap();
+      public java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> getFields() {
+        return getFieldsMap();
       }
       /**
        * <pre>
        * name of the dimension element -&gt; value
        * </pre>
        *
-       * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+       * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
        */
 
-      public java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> getProjectsMap() {
-        return internalGetProjects().getMap();
+      public java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> getFieldsMap() {
+        return internalGetFields().getMap();
       }
       /**
        * <pre>
        * name of the dimension element -&gt; value
        * </pre>
        *
-       * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+       * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
        */
 
-      public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getProjectsOrDefault(
+      public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getFieldsOrDefault(
           java.lang.String key,
           org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement defaultValue) {
         if (key == null) { throw new java.lang.NullPointerException(); }
         java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> map =
-            internalGetProjects().getMap();
+            internalGetFields().getMap();
         return map.containsKey(key) ? map.get(key) : defaultValue;
       }
       /**
@@ -6233,22 +6717,22 @@ public final class ObservationsProto {
        * name of the dimension element -&gt; value
        * </pre>
        *
-       * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+       * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
        */
 
-      public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getProjectsOrThrow(
+      public org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement getFieldsOrThrow(
           java.lang.String key) {
         if (key == null) { throw new java.lang.NullPointerException(); }
         java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> map =
-            internalGetProjects().getMap();
+            internalGetFields().getMap();
         if (!map.containsKey(key)) {
           throw new java.lang.IllegalArgumentException();
         }
         return map.get(key);
       }
 
-      public Builder clearProjects() {
-        getMutableProjects().clear();
+      public Builder clearFields() {
+        getMutableFields().clear();
         return this;
       }
       /**
@@ -6256,13 +6740,13 @@ public final class ObservationsProto {
        * name of the dimension element -&gt; value
        * </pre>
        *
-       * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+       * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
        */
 
-      public Builder removeProjects(
+      public Builder removeFields(
           java.lang.String key) {
         if (key == null) { throw new java.lang.NullPointerException(); }
-        getMutableProjects().remove(key);
+        getMutableFields().remove(key);
         return this;
       }
       /**
@@ -6270,22 +6754,22 @@ public final class ObservationsProto {
        */
       @java.lang.Deprecated
       public java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement>
-      getMutableProjects() {
-        return internalGetMutableProjects().getMutableMap();
+      getMutableFields() {
+        return internalGetMutableFields().getMutableMap();
       }
       /**
        * <pre>
        * name of the dimension element -&gt; value
        * </pre>
        *
-       * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+       * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
        */
-      public Builder putProjects(
+      public Builder putFields(
           java.lang.String key,
           org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement value) {
         if (key == null) { throw new java.lang.NullPointerException(); }
         if (value == null) { throw new java.lang.NullPointerException(); }
-        getMutableProjects().put(key, value);
+        getMutableFields().put(key, value);
         return this;
       }
       /**
@@ -6293,12 +6777,12 @@ public final class ObservationsProto {
        * name of the dimension element -&gt; value
        * </pre>
        *
-       * <code>map&lt;string, .v2.DimensionElement&gt; projects = 1;</code>
+       * <code>map&lt;string, .v2.DimensionElement&gt; fields = 1;</code>
        */
 
-      public Builder putAllProjects(
+      public Builder putAllFields(
           java.util.Map<java.lang.String, org.transmartproject.rest.protobuf.ObservationsProto.DimensionElement> values) {
-        getMutableProjects().putAll(values);
+        getMutableFields().putAll(values);
         return this;
       }
       public final Builder setUnknownFields(
@@ -7156,10 +7640,10 @@ public final class ObservationsProto {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_v2_DimensionElements_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_v2_DimensionElements_ProjectsEntry_descriptor;
+    internal_static_v2_DimensionElements_FieldsEntry_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_v2_DimensionElements_ProjectsEntry_fieldAccessorTable;
+      internal_static_v2_DimensionElements_FieldsEntry_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_v2_DimensionElement_descriptor;
   private static final 
@@ -7182,21 +7666,21 @@ public final class ObservationsProto {
       "\022\016\n\006inline\030\004 \001(\010\"|\n\017FieldDefinition\022\014\n\004n" +
       "ame\030\001 \002(\t\022,\n\004type\030\002 \002(\0162\036.v2.FieldDefini" +
       "tion.ColumnType\"-\n\nColumnType\022\n\n\006DOUBLE\020" +
-      "\001\022\n\n\006STRING\020\002\022\007\n\003INT\020\003\"\223\001\n\013Observation\022%" +
+      "\001\022\n\n\006STRING\020\002\022\007\n\003INT\020\003\"\263\001\n\013Observation\022%" +
       "\n\ndimensions\030\001 \003(\0132\021.v2.DimensionCell\0220\n",
       "\021inline_dimensions\030\002 \003(\0132\025.v2.DimensionE" +
-      "lements\022\024\n\014string_value\030\003 \001(\t\022\025\n\rnumeric" +
-      "_value\030\004 \001(\001\"=\n\rDimensionCell\022\027\n\017dimensi" +
-      "on_index\030\001 \002(\003\022\023\n\013value_index\030\002 \002(\003\"1\n\006F" +
-      "ooter\022\'\n\010elements\030\001 \003(\0132\025.v2.DimensionEl" +
-      "ements\"\221\001\n\021DimensionElements\0225\n\010projects" +
-      "\030\001 \003(\0132#.v2.DimensionElements.ProjectsEn" +
-      "try\032E\n\rProjectsEntry\022\013\n\003key\030\001 \001(\t\022#\n\005val" +
-      "ue\030\002 \001(\0132\024.v2.DimensionElement:\0028\001\"N\n\020Di" +
-      "mensionElement\022\023\n\013stringValue\030\001 \001(\t\022\023\n\013d",
-      "oubleValue\030\002 \001(\001\022\020\n\010intValue\030\003 \001(\003B7\n\"or" +
-      "g.transmartproject.rest.protobufB\021Observ" +
-      "ationsProto"
+      "lements\022\025\n\013stringValue\030\003 \001(\tH\000\022\026\n\014numeri" +
+      "cValue\030\004 \001(\001H\000\022\023\n\004last\030\005 \002(\010:\005falseB\007\n\005v" +
+      "alue\"=\n\rDimensionCell\022\027\n\017dimension_index" +
+      "\030\001 \002(\003\022\023\n\013value_index\030\002 \002(\003\"1\n\006Footer\022\'\n" +
+      "\010elements\030\001 \003(\0132\025.v2.DimensionElements\"\213" +
+      "\001\n\021DimensionElements\0221\n\006fields\030\001 \003(\0132!.v" +
+      "2.DimensionElements.FieldsEntry\032C\n\013Field" +
+      "sEntry\022\013\n\003key\030\001 \001(\t\022#\n\005value\030\002 \001(\0132\024.v2." +
+      "DimensionElement:\0028\001\"N\n\020DimensionElement",
+      "\022\023\n\013stringValue\030\001 \001(\t\022\023\n\013doubleValue\030\002 \001" +
+      "(\001\022\020\n\010intValue\030\003 \001(\003B7\n\"org.transmartpro" +
+      "ject.rest.protobufB\021ObservationsProto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -7233,7 +7717,7 @@ public final class ObservationsProto {
     internal_static_v2_Observation_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_v2_Observation_descriptor,
-        new java.lang.String[] { "Dimensions", "InlineDimensions", "StringValue", "NumericValue", });
+        new java.lang.String[] { "Dimensions", "InlineDimensions", "StringValue", "NumericValue", "Last", "Value", });
     internal_static_v2_DimensionCell_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_v2_DimensionCell_fieldAccessorTable = new
@@ -7251,12 +7735,12 @@ public final class ObservationsProto {
     internal_static_v2_DimensionElements_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_v2_DimensionElements_descriptor,
-        new java.lang.String[] { "Projects", });
-    internal_static_v2_DimensionElements_ProjectsEntry_descriptor =
+        new java.lang.String[] { "Fields", });
+    internal_static_v2_DimensionElements_FieldsEntry_descriptor =
       internal_static_v2_DimensionElements_descriptor.getNestedTypes().get(0);
-    internal_static_v2_DimensionElements_ProjectsEntry_fieldAccessorTable = new
+    internal_static_v2_DimensionElements_FieldsEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_v2_DimensionElements_ProjectsEntry_descriptor,
+        internal_static_v2_DimensionElements_FieldsEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_v2_DimensionElement_descriptor =
       getDescriptor().getMessageTypes().get(7);
