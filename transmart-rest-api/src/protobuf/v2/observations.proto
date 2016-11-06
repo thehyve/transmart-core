@@ -52,7 +52,7 @@ message Observation {
     }
 
     // Set to true on the last observation, the last observation is followed by a footer.
-    required bool last = 5 [default=false];
+    optional bool last = 5 [default=false];
 }
 
 message DimensionCell {
@@ -65,7 +65,8 @@ message Footer {
 }
 
 message DimensionElements { // values associated with a dimension
-                   map<string, DimensionElement> fields = 1; // name of the dimension element -> value
+                            required int32 dimIndex =1;
+                            map<string, DimensionElement> fields = 2; // name of the dimension element -> value
 }
 
 message DimensionElement {
