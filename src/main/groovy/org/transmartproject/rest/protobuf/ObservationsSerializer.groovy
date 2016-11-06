@@ -1,6 +1,7 @@
 package org.transmartproject.rest.protobuf
 
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import groovy.transform.CompileStatic
 import org.apache.commons.lang.StringUtils
 import org.transmartproject.db.dataquery2.Dimension
@@ -15,8 +16,14 @@ public class ObservationsSerializer {
     public static final Set<String> DENSE_DIMENSIONS = []
     public static final Set<String> INLINE_DIMENSIONS = ["start_date"] //TODO: check spelling
 
-    def getDimensionsDefs(Hypercube hypercube) {
-        ImmutableList<Dimension> dimensions = hypercube.getDimensions()
+    Hypercube cube
+
+    ObservationsSerializer(Hypercube cube) {
+        this.cube = cube
+    }
+
+    def getDimensionsDefs() {
+        ImmutableList<Dimension> dimensions = cube.getDimensions()
 
         def dimensionDeclarations = dimensions.collect() { dim ->
             def builder = ObservationsProto.DimensionDeclaration.newBuilder()
@@ -45,7 +52,7 @@ public class ObservationsSerializer {
         dimensionDeclarations
     }
 
-    def getCells(Hypercube cube) {
+    def getCells() {
         Iterator<HypercubeValue> it = cube.iterator
         List<Dimension> dims = cube.dimensions
         List<ObservationsProto.Observation> obsMessages = new ArrayList<>()
@@ -55,24 +62,46 @@ public class ObservationsSerializer {
             builder.stringValue = value.value
             for (Dimension dim : dims) {
                 Object dimElement = value.getDimElement(dim)
-                ObservationsProto.DimensionCell.Builder dimBuilder = ObservationsProto.DimensionCell.newBuilder()
-                ObservationsProto.DimensionElements.Builder inlineDimBuilder = ObservationsProto.DimensionElements.newBuilder()
-                Map<String, Object> props = dimElement.getProperties()
-                for (String fieldName : props.keySet()) {
-                    ObservationsProto.DimensionElement.Builder dimElementBuilder = ObservationsProto.DimensionElement.newBuilder()
-                    String fieldVal = props.get(fieldName)
-                    if (StringUtils.isNotEmpty(fieldVal)) {
-                        dimElementBuilder.setStringValue(fieldVal)
-                        ObservationsProto.DimensionElement msg = dimElementBuilder.build()
-                        inlineDimBuilder.putFields(fieldName, msg)
-                    }
+                if (dim.density == Dimension.Density.SPARSE) {
+                    addSparseCell(builder, dimElement, dim)
+                } else {
+                    int index = value.getDimElementIndex(dim)
+                    addDenseCell(builder, dim, index)
                 }
-                //builder.addDimensions(dimBuilder)
-                builder.addInlineDimensions(inlineDimBuilder)
+
             }
-            obsMessages.add(builder)
+            obsMessages.add(builder.build())
         }
         obsMessages
+    }
+
+    private void addDenseCell(ObservationsProto.Observation.Builder builder, Dimension dim,int dimElIndex) {
+        ObservationsProto.DimensionCell.Builder dimBuilder = ObservationsProto.DimensionCell.newBuilder()
+        int dimIndex = cube.dimensionsIndex.get(dim)
+        dimBuilder.setDimensionIndex(dimIndex)
+        dimBuilder.setValueIndex(dimElIndex)
+        builder.addDimensions(dimBuilder)
+    }
+
+    private void addSparseCell(ObservationsProto.Observation.Builder builder, Object dimElement, Dimension dimension) {
+        ObservationsProto.DimensionElements.Builder inlineDimBuilder = ObservationsProto.DimensionElements.newBuilder()
+        Map<String, Object> props = dimElement.getProperties()
+        int dimIndex = cube.dimensionsIndex.get(dimension)
+        inlineDimBuilder.setDimIndex(dimIndex)
+        for (String fieldName : props.keySet()) {
+            ObservationsProto.DimensionElement.Builder dimElementBuilder = ObservationsProto.DimensionElement.newBuilder()
+            String fieldVal = props.get(fieldName)
+            if (StringUtils.isNotEmpty(fieldVal)) {
+                dimElementBuilder.setStringValue(fieldVal)
+                ObservationsProto.DimensionElement msg = dimElementBuilder.build()
+                inlineDimBuilder.putFields(fieldName, msg)
+            }
+        }
+        builder.addInlineDimensions(inlineDimBuilder)
+    }
+
+    def getFooter() {
+
     }
 
 
