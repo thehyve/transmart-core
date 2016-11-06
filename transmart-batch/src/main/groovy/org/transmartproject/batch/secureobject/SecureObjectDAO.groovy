@@ -35,6 +35,9 @@ class SecureObjectDAO {
     @Value(Tables.OBSERVATION_FACT)
     private SimpleJdbcInsert dummySecurityObservationsInsert
 
+    @Value(Tables.STUDY)
+    private SimpleJdbcInsert studyInsert
+
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate
 
@@ -47,8 +50,11 @@ class SecureObjectDAO {
         long bioExperimentId = bioExperimentDAO.findOrCreateBioExperiment(token.studyId)
         Map secureObjectValues = findOrCreateSecureObject(
                 bioExperimentId, displayName, token)
+        Map studyValues = findOrCreateStudy(token.studyId, token, bioExperimentId)
 
-        insertDummySecurityObservation(token)
+        if (token.toString() != 'EXP:PUBLIC') {
+            insertDummySecurityObservation(token)
+        }
 
         /* some quick validation */
         if (secureObjectValues['bio_data_id'] != bioExperimentId) {
@@ -62,6 +68,13 @@ class SecureObjectDAO {
                     "existing secure object to be " +
                     "$CLINICAL_TRIAL_SECURE_OBJECT_DATA_TYPE, but got " +
                     "$secureObjectValues")
+        }
+        if (studyValues['secure_obj_token'] != token.toString()) {
+            if (!(studyValues['secure_obj_token'] == 'PUBLIC' && token.toString() == 'EXP:PUBLIC')) {
+                throw new IllegalStateException("Study found " +
+                        "($studyValues) does not have expected " +
+                        "secure object token ${token.toString()}")
+            }
         }
     }
 
@@ -107,6 +120,17 @@ class SecureObjectDAO {
             log.warn("Found no entry with id $experimentId (the experiment " +
                     "id associated witht the secure object) in " +
                     Tables.BIO_DATA_UID)
+        }
+
+        log.debug("About to delete ${Tables.STUDY} with bio_experiment_id=${experimentId}")
+        affected = jdbcTemplate.update("""
+                DELETE FROM ${Tables.STUDY}
+                WHERE bio_experiment_id = :id""",
+                [id: experimentId])
+        log.debug("$affected row(s) affected")
+
+        if (!affected) {
+            log.warn("Found no studies with id ${experimentId}")
         }
 
         log.debug("About to delete bio_experiment with id $experimentId")
@@ -181,6 +205,7 @@ class SecureObjectDAO {
             queryResult
         }
     }
+
     /**
      * Inserts the dummy "SECURITY" fact for the study to prevent existing kettle ETL opening up access to the study.
      * The original purpose of having such observations is unknown.
@@ -216,6 +241,43 @@ class SecureObjectDAO {
                         studyId  : token.studyId,
                         conceptCd: DUMMY_SECURITY_CONCEPT_CD,
                 ])
+    }
+
+    private Map findStudy(String studyId) {
+        def queryResult = jdbcTemplate.queryForList """
+                SELECT study_num,
+                        study_id,
+                        secure_obj_token,
+                        bio_experiment_id
+                FROM ${Tables.STUDY}
+                WHERE study_id = :studyId
+                """, [studyId: studyId]
+
+        if (queryResult.size() > 1) {
+            throw new IncorrectResultSizeDataAccessException("Expected to get " +
+                    "only one study with study_id = " +
+                    "${studyId}, but found: $queryResult", 1)
+        }
+
+        queryResult.size() > 0 ? queryResult.first() : null
+    }
+
+    private Map findOrCreateStudy(String studyId, SecureObjectToken secureObjectToken, Long experimentId) {
+        def study = findStudy(studyId)
+        if (study != null) {
+            return study
+        }
+        Long id = sequenceReserver.getNext(Sequences.STUDY)
+        // The special token 'PUBLIC' is encoded differently in the study table.
+        String token = secureObjectToken.toString() == 'EXP:PUBLIC' ? 'PUBLIC' : secureObjectToken.toString()
+        study = [
+                study_num           : id,
+                study_id            : studyId,
+                secure_obj_token    : token,
+                bio_experiment_id   : experimentId] as Map
+        studyInsert.execute(study)
+        log.info "Inserted new study: ${study.toMapString()}"
+        study
     }
 
 }

@@ -33,6 +33,8 @@ final class Tables {
     public static final String MODIFIER_DIM             = 'i2b2demodata.modifier_dimension'
     public static final String MODIFIER_METADATA        = 'i2b2demodata.modifier_metadata'
     public static final String MODIFIER_DIM_VIEW        = 'i2b2demodata.modifier_dimension_view'
+    public static final String TRIAL_VISIT_DIMENSION    = 'i2b2demodata.trial_visit_dimension'
+    public static final String STUDY                    = 'i2b2demodata.study'
     public static final String BIO_EXPERIMENT           = 'biomart.bio_experiment'
     public static final String SECURE_OBJECT            = 'searchapp.search_secure_object'
     public static final String SEARCH_AUTH_SEC_OBJ_ACC  = 'searchapp.search_auth_sec_object_access'
@@ -68,7 +70,7 @@ final class Tables {
     public static final String MIRNA_ANNOTATION         = 'deapp.de_qpcr_mirna_annotation'
     public static final String MIRNA_DATA               = 'deapp.de_subject_mirna_data'
 
-    public static final String RNASEQ_TRANSCRIPT_ANNOTATION = 'deapp.de_rnaseq_transcript_annotation'
+    public static final String RNASEQ_TRANSCRIPT_ANNOTATION = 'deapp.de_rnaseq_transcript_annot'
     public static final String RNASEQ_TRANSCRIPT_DATA   = 'deapp.de_rnaseq_transcript_data'
 
 }

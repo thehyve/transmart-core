@@ -53,4 +53,12 @@ class I2b2Tables {
     String getModifierDimension() {
         "${crcSchema}.modifier_dimension"
     }
+
+    String getTrialVisitDimension() {
+        "${crcSchema}.trial_visit_dimension"
+    }
+
+    String getStudy() {
+        "${crcSchema}.study"
+    }
 }

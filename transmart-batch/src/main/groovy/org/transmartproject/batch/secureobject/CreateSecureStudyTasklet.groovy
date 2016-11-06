@@ -35,13 +35,6 @@ class CreateSecureStudyTasklet implements Tasklet {
     @Override
     RepeatStatus execute(StepContribution contribution,
                          ChunkContext chunkContext) throws Exception {
-
-        if (secureObjectToken.toString() == 'EXP:PUBLIC') {
-            log.info("Study is public; will not take any action " +
-                    "(existing secure objects will NOT be deleted)")
-            return RepeatStatus.FINISHED
-        }
-
         secureObjectDAO.createSecureObject(
                 displayName, secureObjectToken)
     }

@@ -53,7 +53,8 @@ import org.transmartproject.batch.tag.TagsLoadJobConfiguration
 @ComponentScan(['org.transmartproject.batch.clinical',
         'org.transmartproject.batch.concept',
         'org.transmartproject.batch.patient',
-        'org.transmartproject.batch.facts'])
+        'org.transmartproject.batch.facts',
+        'org.transmartproject.batch.trialvisit'])
 @Import(TagsLoadJobConfiguration)
 class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
@@ -70,6 +71,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     Tasklet gatherCurrentConceptsTasklet
 
     @javax.annotation.Resource
+    Tasklet gatherCurrentTrialVisitsTasklet
+
+    @javax.annotation.Resource
     Tasklet createSecureStudyTasklet
 
     @javax.annotation.Resource
@@ -77,6 +81,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @javax.annotation.Resource
     ItemWriter<ClinicalFactsRowSet> conceptsTablesWriter
+
+    @javax.annotation.Resource
+    ItemWriter<ClinicalFactsRowSet> trialVisitTableWriter
 
     @javax.annotation.Resource
     ItemWriter<ClinicalFactsRowSet> observationFactTableWriter
@@ -106,19 +113,21 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .next(wrapStepWithName('gatherCurrentPatients',
                         gatherCurrentPatientsStep(null, null)))
                 .next(allowStartStepOf(this.&getGatherCurrentConceptsTasklet))
+                .next(allowStartStepOf(this.&getGatherCurrentTrialVisitsTasklet))
                 .next(allowStartStepOf(this.&gatherXtrialNodesTasklet))
 
                 // delete data we'll be replacing
                 .next(stepOf(this.&deleteObservationFactTasklet))
                 .next(stepOf(this.&deleteConceptCountsTasklet))
 
+                .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object, study
+                .next(stepOf(this.&getInsertTableAccessTasklet))
+
                 // main data reading and insertion step (in observation_fact)
                 .next(rowProcessingStep())
                 .next(tagsLoadStep)
 
                 // insertion of ancillary data
-                .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object
-                .next(stepOf(this.&getInsertTableAccessTasklet))
                 .next(wrapStepWithName('insertConceptCountsStep',
                         insertConceptCountsStep(null)))
                 .build()
@@ -252,6 +261,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 ))
                 .writer(compositeOf(
                     patientDimensionTableWriter,
+                    trialVisitTableWriter,
                     conceptsTablesWriter,
                     observationFactTableWriter,
                     bitSetConceptCountsWriter(),

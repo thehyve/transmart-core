@@ -3,6 +3,7 @@ package org.transmartproject.batch.concept
 import com.google.common.collect.Maps
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 import org.transmartproject.batch.patient.Patient
 
 /**
@@ -11,6 +12,7 @@ import org.transmartproject.batch.patient.Patient
  * study in question.
  */
 @Slf4j
+@Component
 class BitSetConceptCounts {
 
     @Autowired

@@ -18,6 +18,10 @@ class ClinicalVariable implements Serializable {
     public static final String STUDY_ID = 'STUDY_ID'
     public static final String SITE_ID = 'SITE_ID'
     public static final String VISIT_NAME = 'VISIT_NAME'
+    public static final String TRIAL_VISIT_LABEL = 'TRIAL_VISIT_LABEL'
+    public static final String START_DATE = 'START_DATE'
+    public static final String END_DATE = 'END_DATE'
+    public static final String INSTANCE_NUM = 'INSTANCE_NUM'
     public static final String OMIT = 'OMIT'
     public static final String DATA_LABEL = 'DATA_LABEL'
     public static final String TEMPLATE = '\\'
@@ -28,7 +32,8 @@ class ClinicalVariable implements Serializable {
     public static final String VISIT_NAME_PLACEHOLDER = VISIT_NAME.replace('_', '')
     public static final String DATA_LABEL_PLACEHOLDER = DATA_LABEL.replace('_', '')
 
-    public static final List<String> RESERVED = [SUBJ_ID, STUDY_ID, SITE_ID, VISIT_NAME, OMIT, TEMPLATE, DATA_LABEL]
+    public static final Set<String> RESERVED = [SUBJ_ID, STUDY_ID, SITE_ID, VISIT_NAME, TRIAL_VISIT_LABEL,
+                                                START_DATE, END_DATE, INSTANCE_NUM, OMIT, DATA_LABEL, TEMPLATE] as Set
 
     /* The columns have fixed position, but not fixed names.
      * Most of the files have headers [filename, category_cd, col_nbr, data_label]
@@ -41,6 +46,7 @@ class ClinicalVariable implements Serializable {
     public static final String FIELD_DATA_LABEL_SOURCE = 'dataLabelSource'
     public static final String FIELD_CONTROL_VOCAB_CODE = 'controlledVocabularyCode' // ignored
     public static final String FIELD_CONCEPT_TYPE = 'conceptType'
+    public static final String FIELD_STRICT_CAT_VAR = 'strictCategoricalVariable'
 
     static final FIELDS = [FIELD_FILENAME,
                            FIELD_CATEGORY_CODE,
@@ -48,7 +54,8 @@ class ClinicalVariable implements Serializable {
                            FIELD_DATA_LABEL,
                            FIELD_DATA_LABEL_SOURCE,
                            FIELD_CONTROL_VOCAB_CODE,
-                           FIELD_CONCEPT_TYPE]
+                           FIELD_CONCEPT_TYPE,
+                           FIELD_STRICT_CAT_VAR]
 
     public static final String CONCEPT_TYPE_CATEGORICAL = 'CATEGORICAL'
     public static final String CONCEPT_TYPE_NUMERICAL = 'NUMERICAL'
@@ -65,6 +72,8 @@ class ClinicalVariable implements Serializable {
     }
 
     String dataLabel
+
+    String strictCategoricalVariable
 
     Integer dataLabelSource
 

@@ -10,13 +10,12 @@ import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingCollection
 import org.transmartproject.batch.clinical.xtrial.XtrialNode
-import org.transmartproject.batch.concept.ConceptFragment
-import org.transmartproject.batch.concept.ConceptNode
-import org.transmartproject.batch.concept.ConceptPath
-import org.transmartproject.batch.concept.ConceptTree
-import org.transmartproject.batch.concept.ConceptType
+import org.transmartproject.batch.concept.*
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.patient.PatientSet
+import org.transmartproject.batch.secureobject.Study
+
+import java.text.SimpleDateFormat
 
 /**
  * Creates {@link org.transmartproject.batch.facts.ClinicalFactsRowSet} objects.
@@ -38,6 +37,9 @@ class ClinicalFactsRowSetFactory {
     String studyId
 
     @Autowired
+    Study study
+
+    @Autowired
     ConceptTree tree
 
     @Autowired
@@ -48,6 +50,8 @@ class ClinicalFactsRowSetFactory {
 
     @Value("#{clinicalJobContext.variables}")
     List<ClinicalVariable> variables
+
+    SimpleDateFormat dateFormatter = new SimpleDateFormat('yyyy-MM-dd')
 
     @Lazy
     Map<String, ClinicalDataFileVariables> fileVariablesMap = generateVariablesMap()
@@ -61,6 +65,19 @@ class ClinicalFactsRowSetFactory {
         result.studyId = studyId
         result.siteId = fileVariables.getSiteId(row)
         result.visitName = fileVariables.getVisitName(row)
+        def startDate = fileVariables.getStartDate(row)
+        if (startDate) {
+            result.startDate = dateFormatter.parse(startDate)
+        }
+        def endDate = fileVariables.getEndDate(row)
+        if (endDate) {
+            result.endDate = dateFormatter.parse(endDate)
+        }
+        result.trialVisit = study.getTrialVisit(fileVariables.getTrialVisitLabel(row))
+        String num = fileVariables.getInstanceNum(row)
+        if (num) {
+            result.instanceNum = Integer.parseInt(num)
+        }
 
         def patient = patientSet[fileVariables.getPatientId(row)]
         patient.putDemographicValues(fileVariables.getDemographicVariablesValues(row))
@@ -128,7 +145,7 @@ class ClinicalFactsRowSetFactory {
         }
 
         // we need a subnode if the variable is categorical
-        if (conceptType == ConceptType.CATEGORICAL) {
+        if (conceptType == ConceptType.CATEGORICAL && !'y'.equalsIgnoreCase(var.strictCategoricalVariable)) {
             concept = tree.getOrGenerate(conceptPath + value, ConceptType.CATEGORICAL)
         }
 
@@ -136,8 +153,8 @@ class ClinicalFactsRowSetFactory {
     }
 
     private ConceptPath getOrGenerateConceptPath(ClinicalDataFileVariables variables,
-                                       ClinicalVariable var,
-                                       ClinicalDataRow row) {
+                                                 ClinicalVariable var,
+                                                 ClinicalDataRow row) {
         if (var.conceptPath) {
             return var.conceptPath
         }

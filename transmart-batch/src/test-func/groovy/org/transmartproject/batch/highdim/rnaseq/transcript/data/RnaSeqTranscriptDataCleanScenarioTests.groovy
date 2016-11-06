@@ -112,7 +112,7 @@ class RnaSeqTranscriptDataCleanScenarioTests implements JobRunningTestTrait {
                 FROM
                     ${Tables.RNASEQ_TRANSCRIPT_DATA} D
                     INNER JOIN ${Tables.SUBJ_SAMPLE_MAP} S ON (D.assay_id = S.assay_id)
-                    INNER JOIN ${Tables.RNASEQ_TRANSCRIPT_ANNOTATION} A ON (D.transcript = A.id)
+                    INNER JOIN ${Tables.RNASEQ_TRANSCRIPT_ANNOTATION} A ON (D.transcript_id = A.id)
                 WHERE
                     S.sample_cd = :sample_name
                     AND A.ref_id = :ref_id"""

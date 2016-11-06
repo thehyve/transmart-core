@@ -13,7 +13,6 @@ import org.transmartproject.batch.clinical.db.objects.Tables
  * Database writer of observation facts, based on FactRowSets
  */
 @Component
-@JobScopeInterfaced
 @Slf4j
 class ObservationFactTableWriter implements ItemWriter<ClinicalFactsRowSet> {
 

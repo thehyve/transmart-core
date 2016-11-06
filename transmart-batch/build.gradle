@@ -109,6 +109,32 @@ sourceSets {
     }
 }
 
+task travisFunctionalTestPrepare << {
+    description = 'Prepares the database for functional testing on Travis.'
+    group = 'verification'
+}
+travisFunctionalTestPrepare.dependsOn 'functionalTestPrepare'
+
+task travisProperties << {
+    description = 'Set batchdb.properties for superuser access on Travis.'
+    group = 'verification'
+    copy {
+        from '.'
+        into '.'
+        include '.batchdb-psql-travis.properties'
+        rename { String fileName ->
+            fileName == '.batchdb-psql-travis.properties' ? 'batchdb.properties' : null
+        }
+    }
+}
+
+task travisPreparePostgres << {
+    description = 'Preparing PostgreSQL database for functional testing on Travis.'
+    group = 'verification'
+}
+travisPreparePostgres.dependsOn 'travisProperties', 'travisFunctionalTestPrepare'
+travisFunctionalTestPrepare.shouldRunAfter 'travisProperties'
+
 task functionalTestPrepare(type: JavaExec) {
     description = 'Prepares the database for functional testing.'
     group = 'verification'

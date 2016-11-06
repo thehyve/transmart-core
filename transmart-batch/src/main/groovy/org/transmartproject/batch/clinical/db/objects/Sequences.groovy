@@ -9,6 +9,8 @@ final class Sequences {
     public static final String PATIENT = 'i2b2demodata.seq_patient_num'
     public static final String VISIT = 'i2b2demodata.seq_encounter_num'
     public static final String CONCEPT = 'i2b2demodata.concept_id'
+    public static final String TRIAL_VISIT = 'i2b2demodata.trial_visit_num_seq'
+    public static final String STUDY = 'i2b2demodata.study_num_seq'
 
     public static final String BIO_DATA_ID = 'biomart.seq_bio_data_id'
 

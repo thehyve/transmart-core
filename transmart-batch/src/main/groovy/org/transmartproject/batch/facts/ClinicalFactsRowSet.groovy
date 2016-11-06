@@ -4,20 +4,27 @@ import org.transmartproject.batch.clinical.xtrial.XtrialNode
 import org.transmartproject.batch.concept.ConceptNode
 import org.transmartproject.batch.concept.ConceptType
 import org.transmartproject.batch.patient.Patient
+import org.transmartproject.batch.trialvisit.TrialVisit
 
 /**
  * Contains the transformed meaningful information from one data Row</br>
  * This includes the Patient and values for all Variables in a row of a file
  */
 class ClinicalFactsRowSet {
+
+    final static Date DEFAULT_START_DATE = new Date(0)
+    final static Integer DEFAULT_INSTANCE_NUM = 1
+
     String studyId
     Patient patient
     String siteId
     String visitName
+    Date startDate
+    Date endDate
+    Integer instanceNum
+    TrialVisit trialVisit
 
-    private final static Date BOGUS_START_DATE = new GregorianCalendar(1970, 0, 1).time
-
-    private final Date date = new Date()
+    Date importDate = new Date()
 
     final List<ClinicalFact> clinicalFacts = []
 
@@ -90,14 +97,16 @@ class ClinicalFactsRowSet {
                     valtype_cd     : valueTypeCode,
                     tval_char      : stringValue,
                     nval_num       : numericValue,
-                    start_date     : BOGUS_START_DATE, // in i2b2 schema, part of PK
-                    import_date    : date,
+                    start_date     : startDate ?: DEFAULT_START_DATE, // in i2b2 schema, part of PK
+                    end_date       : endDate,
+                    import_date    : importDate,
 
                     provider_id    : '@',
                     location_cd    : '@',
                     modifier_cd    : xtrialNode?.code ?: '@',
                     valueflag_cd   : '@',
-                    instance_num   : 1,
+                    instance_num   : instanceNum ?: DEFAULT_INSTANCE_NUM,
+                    trial_visit_num: trialVisit?.id
             ]
         }
     }
