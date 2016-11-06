@@ -11,7 +11,7 @@ class SerializableProperties {
                                                         "age", "race", "maritalStatus",
                                                         "religion", "sourcesystemCd", "sexCd"]
     public static final Set<String> CONCEPT = ["conceptPath", "conceptCode"]
-    public static final Map<String, ImmutableMap<String, Class>> SERIALIZABLES = ["concept": CONCEPT,
-                                                                                           "patient": PATIENT]
+    public static final Map<String, ImmutableMap<String, Class>> SERIALIZABLES = ["ConceptDimension": CONCEPT,
+                                                                                  "PatientDimension": PATIENT]
     // TODO: fill in the rest of the serializable fields for all other dimensions
 }

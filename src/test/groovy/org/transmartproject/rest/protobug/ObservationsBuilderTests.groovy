@@ -35,10 +35,10 @@ class ObservationsBuilderTests {
     @Test
     public void testSerialization() throws Exception {
         setupData()
-        new ObservationsSerializer()
-        //def mockedCube= queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.name]])
-        //def blob =  observationsBuilder.getDimensionsDefs(mockedCube)
-        //assertThat(blob, notNullValue())
+        def builder = new ObservationsSerializer()
+        def mockedCube= queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.name]])
+        def blob =  builder.getDimensionsDefs(mockedCube)
+        assertThat(blob, notNullValue())
     }
 
     void setupData() {
