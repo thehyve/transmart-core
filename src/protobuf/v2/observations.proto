@@ -65,7 +65,6 @@ message Footer {
 }
 
 message DimensionElements { // values associated with a dimension
-                            required int32 dimIndex =1;
                             map<string, DimensionElement> fields = 2; // name of the dimension element -> value
 }
 
