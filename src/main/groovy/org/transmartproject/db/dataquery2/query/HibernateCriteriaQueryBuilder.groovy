@@ -6,7 +6,6 @@ import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.LikeExpression
 import org.hibernate.criterion.MatchMode
-import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
@@ -32,7 +31,7 @@ import org.transmartproject.db.querytool.QtPatientSetCollection
  * </code>
  */
 @Slf4j
-class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
+class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedCriteria> {
 
     final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(ValueDimension)
     final Field valueTypeField = valueMetadata.fields.find { it.fieldName == 'valueType' }
@@ -289,9 +288,6 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
         subCriteria.add(Restrictions.eq('concept_dimension.conceptPath', constraint.path))
 
         return Subqueries.propertyEq('conceptCode', subCriteria.setProjection(Projections.property('conceptCode')))
-
-
-
     }
 
     Criterion build(NullConstraint constraint){
@@ -339,7 +335,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
                 aliasSuffixes: aliasSuffixes,
                 studies: studies
         )
-        def subquery = subQueryBuilder.detachedCriteriaFor(eventQuery)
+        def subquery = subQueryBuilder.build(eventQuery)
         def observationFactAlias = getAlias('observation_fact')
         def subqueryAlias = subQueryBuilder.getAlias('observation_fact')
         subquery.add(Restrictions.eqProperty("${observationFactAlias}.patient", "${subqueryAlias}.patient"))
@@ -365,10 +361,10 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
         throw new QueryBuilderException("Constraint type not supported: ${constraint.class}.")
     }
 
-    DetachedCriteria detachedCriteriaFor(ObservationQuery query) {
+    DetachedCriteria build(ObservationQuery query) {
         aliases = [:]
         def result = builder()
-        def criteria = build(query)
+        def criteria = buildCriterion(query)
         aliases.each { property, alias ->
             if (property != 'observation_fact') {
                 result.createAlias(property, alias)
@@ -379,8 +375,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
             case QueryType.EXISTS:
                 return result
             case QueryType.COUNT:
-                assert query.select?.size() == 1
-                return result.setProjection(Projections.count('numberValue'))
+                return result.setProjection(Projections.rowCount())
             case QueryType.MIN:
                 return result.setProjection(Projections.min('numberValue'))
             case QueryType.AVERAGE:
@@ -388,13 +383,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
             case QueryType.MAX:
                 return result.setProjection(Projections.max('numberValue'))
             case QueryType.VALUES:
-                if (query.select == null || query.select.empty) {
-                    return result
-                } else {
-                    ProjectionList projections = Projections.projectionList()
-                    query.select.each { projections.add(Projections.property(it)) }
-                    return result.setProjection(projections)
-                }
+                return result
             default:
                 throw new QueryBuilderException("Query type not supported: ${query.queryType}")
         }
@@ -412,7 +401,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
      * Use <code>build(query).asBoolean()</code> to get the Boolean result for type <code>EXISTS</code>.
      * Use <code>build(query).list()</code> to get the list of objects.
      */
-    Criterion build(ObservationQuery query) {
+    private Criterion buildCriterion(ObservationQuery query) {
         def trialVisitAlias = getAlias('trialVisit')
         Restrictions.and(
                 build(query.constraint),
@@ -420,15 +409,11 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion> {
         )
     }
 
-    Criterion build(PatientQuery query) {
-
-    }
-
-    Criterion build(Query query) {
+    DetachedCriteria build(Query query) {
         throw new QueryBuilderException("Query type not supported: ${query.class}.")
     }
 
-    Criterion build(Object obj) {
+    void build(Object obj) {
         throw new QueryBuilderException("Type not supported: ${obj?.class?.simpleName}")
     }
 }

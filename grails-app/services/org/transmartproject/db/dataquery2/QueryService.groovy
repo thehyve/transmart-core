@@ -54,7 +54,7 @@ class QueryService {
                 queryType: QueryType.EXISTS,
                 constraint: constraint
         )
-        DetachedCriteria criteria = builder.detachedCriteriaFor(query)
+        DetachedCriteria criteria = builder.build(query)
         (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
     }
 
@@ -72,7 +72,7 @@ class QueryService {
         def builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
-        DetachedCriteria criteria = builder.detachedCriteriaFor(query)
+        DetachedCriteria criteria = builder.build(query)
         getList(criteria)
     }
 
@@ -90,6 +90,14 @@ class QueryService {
         }
     }
 
+    Long count(ObservationQuery query, User user) {
+        query.queryType = QueryType.COUNT
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser(user)
+        )
+        (Long)get(builder.build(query))
+    }
+
     /**
      * @description Function for getting a aggregate value of a single field.
      * The allowed queryTypes are MIN, MAX and AVERAGE.
@@ -100,9 +108,9 @@ class QueryService {
      */
     Number aggregate(ObservationQuery query, User user){
 
-        if (![QueryType.MIN, QueryType.AVERAGE, QueryType.MAX].contains(query.queryType)){
+        if (![QueryType.COUNT, QueryType.MIN, QueryType.AVERAGE, QueryType.MAX].contains(query.queryType)){
             throw new InvalidQueryException(
-                    "Aggregate requires a query with a queryType of MIN, MAX or AVERAGE, got ${query.queryType}"
+                    "Aggregate requires a query with a queryType of COUNT, MIN, MAX or AVERAGE, got ${query.queryType}"
             )
         }
 
@@ -158,7 +166,7 @@ class QueryService {
         }
 
         // get aggregate value
-        DetachedCriteria queryCriteria = builder.detachedCriteriaFor(query)
+        DetachedCriteria queryCriteria = builder.build(query)
         def result = get(queryCriteria)
         result
     }
