@@ -11,9 +11,18 @@ postgres_load:
 postgres_drop:
 	$(MAKE) -C ddl/postgres/GLOBAL drop
 
+postgres_test:
+	$(MAKE) -C ddl/postgres/GLOBAL createdb
+	$(MAKE) -C ddl/postgres load
+	$(MAKE) -C test_data/ postgres_test_data
+
 oracle:
 	$(MAKE) -C ddl/oracle load
 	$(MAKE) -C data/oracle load
+
+oracle_test:
+	$(MAKE) -C ddl/oracle load
+	$(MAKE) -C test_data/ oracle_test_data
 
 oracle_drop:
 	$(MAKE) -C ddl/oracle drop
