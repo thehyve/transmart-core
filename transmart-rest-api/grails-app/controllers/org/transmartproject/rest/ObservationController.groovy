@@ -52,6 +52,7 @@ class ObservationController {
     PatientsResource patientsResourceService
     ConceptsResource conceptsResourceService
     QueriesResource queriesResourceService
+    DataService dataService
 
     /** GET request on /studies/XXX/observations/
      *  This will return the list of observations for study XXX
@@ -67,6 +68,22 @@ class ObservationController {
         } finally {
             observations.close()
         }
+    }
+/**
+ * POST /observations2
+ * Once versioning of the API is introduced this will become /v2/observations
+ */
+    def observations2() {
+        /*def arguments = request.getJSON()
+        if (!arguments["query"]) {
+            throw new InvalidArgumentsException("No query argument passed")
+        }*/
+        def query = [constraints: [study: ["STUDY_ID_1"]]] //arguments["query"]
+
+        dataService.writeData(query, "json", response.outputStream)
+        //response.outputStream << "blbala"
+        //response.setHeader 'application/json'
+        //response.status = 200
     }
 
     /**

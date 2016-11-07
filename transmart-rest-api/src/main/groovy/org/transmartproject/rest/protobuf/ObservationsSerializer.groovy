@@ -1,6 +1,7 @@
 package org.transmartproject.rest.protobuf
 
 import com.google.common.collect.ImmutableList
+import com.google.protobuf.util.JsonFormat
 import org.apache.commons.lang.StringUtils
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.Hypercube
@@ -11,13 +12,12 @@ import org.transmartproject.db.dataquery2.HypercubeValue
  */
 public class ObservationsSerializer {
 
-    public static final Set<String> DENSE_DIMENSIONS = []
-    public static final Set<String> INLINE_DIMENSIONS = ["start_date"] //TODO: check spelling
-
     Hypercube cube
+    JsonFormat.Printer jsonPrinter
     List footerElements = new ArrayList()
 
     ObservationsSerializer(Hypercube cube) {
+        jsonPrinter = JsonFormat.printer()
         this.cube = cube
     }
 
@@ -28,10 +28,10 @@ public class ObservationsSerializer {
             def builder = ObservationsProto.DimensionDeclaration.newBuilder()
             String dimensionName = dim.toString()
             builder.setName(dimensionName)
-            if (DENSE_DIMENSIONS.contains(dimensionName)) {
+            if (dim.packable.packable) {
                 builder.setIsDense(true)
             }
-            if (INLINE_DIMENSIONS.contains(dimensionName)) {
+            if (dim.density == Dimension.Density.DENSE) {
                 builder.setInline(true)
             }
             def properties = dim.properties
@@ -51,26 +51,35 @@ public class ObservationsSerializer {
         dimensionDeclarations
     }
 
-    def getCells() {
+    def writeHeader(BufferedWriter out, String format = "json") {
+        def dimDefs = getDimensionsDefs()
+        dimDefs.forEach() { dimDef ->
+            jsonPrinter.appendTo(dimDef, out)
+        }
+    }
+
+    def writeCells(BufferedWriter out) {
         Iterator<HypercubeValue> it = cube.iterator
-        List<Dimension> dims = cube.dimensions
-        List<ObservationsProto.Observation> obsMessages = new ArrayList<>()
         while (it.hasNext()) {
             HypercubeValue value = it.next()
-            ObservationsProto.Observation.Builder builder = ObservationsProto.Observation.newBuilder()
-            builder.stringValue = value.value
-            for (Dimension dim : dims) {
-                Object dimElement = value.getDimElement(dim)
-                if (dim.density == Dimension.Density.SPARSE) {
-                    ObservationsProto.DimensionElements.Builder inlineDim = buildSparseCell(dimElement)
-                    builder.addInlineDimensions(inlineDim)
-                } else {
-                    addDenseCell(builder, dim, dimElement)
-                }
-            }
-            obsMessages.add(builder.build())
+            ObservationsProto.Observation.Builder builder = createCell(value)
+            jsonPrinter.appendTo(builder, out)
         }
-        obsMessages
+    }
+
+    ObservationsProto.Observation.Builder createCell(HypercubeValue value) {
+        ObservationsProto.Observation.Builder builder = ObservationsProto.Observation.newBuilder()
+        builder.stringValue = value.value
+        for (Dimension dim : cube.dimensions) {
+            Object dimElement = value.getDimElement(dim)
+            if (dim.density == Dimension.Density.SPARSE) {
+                ObservationsProto.DimensionElements.Builder inlineDim = buildSparseCell(dimElement)
+                builder.addInlineDimensions(inlineDim)
+            } else {
+                addDenseCell(builder, dim, dimElement)
+            }
+        }
+        builder
     }
 
     private void addDenseCell(ObservationsProto.Observation.Builder builder, Dimension dim, Object dimElement) {
@@ -103,11 +112,28 @@ public class ObservationsSerializer {
         }
     }
 
+    def writeFooter(BufferedWriter out) {
+        for (Object dimElement : footerElements) {
+            jsonPrinter.appendTo(buildSparseCell(dimElement), out)
+        }
+    }
+
     int determineFooterIndex(Object dimElements) {
         if (!footerElements.contains(dimElements)) {
             footerElements.add(dimElements)
         }
         return footerElements.indexOf(dimElements)
     }
+
+    void writeTo(OutputStream out, String format = "json") {
+        Writer writer = new OutputStreamWriter(out)
+        BufferedWriter bufferedWriter = new BufferedWriter(writer)
+        writeHeader(bufferedWriter)
+        writeCells(bufferedWriter)
+        writeHeader(bufferedWriter)
+        bufferedWriter.flush()
+        bufferedWriter.close()
+    }
+
 
 }

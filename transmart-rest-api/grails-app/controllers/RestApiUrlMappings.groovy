@@ -77,6 +77,7 @@ class RestApiUrlMappings {
         '/patient_sets'(resources: 'patientSet',  include:['index', 'show', 'save'])
 
         '/observations'(method: 'GET', controller: 'observation', action: 'indexStandalone')
+        '/observations2'(method: 'GET', controller: 'observation', action: 'observations2')
 
         '/businessException/index'(controller: 'businessException', action: 'index')
 
