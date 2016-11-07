@@ -64,7 +64,7 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 
-    compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
+    compile group: 'com.google.guava', name: 'guava', version: '18.0'
 
     runtime('org.postgresql:postgresql:9.3-1100-jdbc41')
     compile project(':transmart-core-api')
