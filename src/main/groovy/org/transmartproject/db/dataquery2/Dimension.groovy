@@ -157,9 +157,7 @@ class ConceptDimension extends I2b2Dimension {
 
     @Override
     List<Object> resolveElements(List elementKeys) {
-        elementKeys.collect {
-            org.transmartproject.db.i2b2data.ConceptDimension.findByConceptCode(it)
-        }
+        org.transmartproject.db.i2b2data.ConceptDimension.findAllByConceptCodeInList(elementKeys)
     }
 }
 
@@ -242,8 +240,15 @@ class VisitDimension extends Dimension {
 
     @Override
     List<Object> resolveElements(List elementKeys) {
-        elementKeys.collect {
-            org.transmartproject.db.i2b2data.VisitDimension.get(new org.transmartproject.db.i2b2data.VisitDimension(encounterNum: it.aValue, patient: it.bValue))
+        (List<Object>) org.transmartproject.db.i2b2data.VisitDimension.withCriteria {
+            or {
+                elementKeys.each { Pair key ->
+                    and {
+                        eq 'encounterNum', key.aValue
+                        eq 'patient.id', key.bValue
+                    }
+                }
+            }
         }
     }
 }
