@@ -17,12 +17,13 @@ environments:
     development:
         dataSource:
             dbCreate: create-drop
+            logSql: true
             url: jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE;INIT=
               RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'
     test:
         dataSource:
             dbCreate: create-drop
-            logSql: false
+            logSql: true
             formatSql: true
             url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE;INIT=
               RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'
