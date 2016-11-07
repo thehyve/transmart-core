@@ -5,11 +5,13 @@ import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.dataquery2.query.Combination
 import org.transmartproject.db.dataquery2.query.ConceptConstraint
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.ConstraintFactory
 import org.transmartproject.db.dataquery2.query.InvalidQueryException
 import org.transmartproject.db.dataquery2.query.ObservationQuery
+import org.transmartproject.db.dataquery2.query.Operator
 import org.transmartproject.db.dataquery2.query.QueryType
 import org.transmartproject.db.dataquery2.query.TrueConstraint
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -197,6 +199,60 @@ class QueryServiceSpec extends TransmartSpecification {
 
         then:
         thrown(InvalidQueryException)
+    }
+
+    void "test correct conceptConstraint checker in aggregate function"() {
+        setup:
+        setupData()
+
+        def user = accessLevelTestData.users[0]
+        def fact = testData.clinicalData.facts.find { it.valueType=='N'}
+        def conceptDimension = testData.conceptData.conceptDimensions.find{ it.conceptCode ==fact.conceptCode}
+
+        ObservationQuery query = new ObservationQuery(
+                queryType: QueryType.MAX
+        )
+
+        when:
+        query.constraint = new TrueConstraint()
+        queryService.aggregate(query, user)
+
+        then:
+        thrown(InvalidQueryException)
+
+        when:
+        query.constraint = new Combination(
+                operator: Operator.AND,
+                args:[
+                        new TrueConstraint(),
+                        new ConceptConstraint(
+                                path: conceptDimension.conceptPath
+                        ),
+                        new Combination(
+                                operator: Operator.AND,
+                                args:[
+                                        new ConceptConstraint(
+                                                path:conceptDimension.conceptPath
+                                        ),
+                                        new TrueConstraint()
+                                ]
+                        )
+                ]
+        )
+
+        queryService.aggregate(query, user)
+
+        then:
+        thrown(InvalidQueryException)
+
+        when:
+        def firstConceptConstraint = query.constraint.args.find{ it.class == ConceptConstraint}
+        query.constraint.args = query.constraint.args - firstConceptConstraint
+        def result = queryService.aggregate(query, user)
+
+        then:
+        result == 10
+
     }
 
 }
