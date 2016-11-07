@@ -49,6 +49,10 @@ class DimensionDescription {
         packable        nullable: true
     }
 
+    static mapping = {
+        table schema: 'I2B2METADATA'
+    }
+
 
     static ImmutableMap<String,Dimension> dimensionsMap = ImmutableMap.copyOf([
             "study"      : new StudyDimension(MEDIUM, SPARSE, PACKABLE),
