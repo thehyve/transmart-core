@@ -54,6 +54,7 @@ class Study {
         studyId             column: 'study_id'
         secureObjectToken   column: 'secure_obj_token'
         bioExperimentId     column: 'bio_experiment_id'
+        version false
     }
 
 }

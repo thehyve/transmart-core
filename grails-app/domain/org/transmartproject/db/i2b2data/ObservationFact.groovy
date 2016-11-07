@@ -79,7 +79,7 @@ class ObservationFact implements Serializable {
         textValue    column: 'tval_char'
         numberValue  column: 'nval_num'
         valueFlag    column: 'valueflag_cd'
-        trialVisit   cascade: 'save-update'
+        trialVisit   column: 'trial_visit_num', cascade: 'save-update'
 
         version false
     }
