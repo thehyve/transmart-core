@@ -77,17 +77,6 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
     void 'test CriteriaQueryBuilder with patient set constraint'() {
         setupData()
-        org.transmartproject.db.i2b2data.ConceptDimension concept =
-                org.transmartproject.db.i2b2data.ConceptDimension.find { conceptPath == '\\foo\\study1\\bar\\'}
-
-        FieldConstraint constraint = new FieldConstraint()
-        constraint.field = conceptCodeField
-        constraint.operator = Operator.EQUALS
-        constraint.value = concept.conceptCode
-
-        ObservationQuery subquery = new ObservationQuery()
-        subquery.queryType = QueryType.VALUES
-        subquery.constraint = constraint
 
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: Study.findAll()
@@ -100,12 +89,8 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         PatientSetConstraint subqueryConstraint = new PatientSetConstraint(
                 patientIds: patientIds
         )
-        ObservationQuery query = new ObservationQuery(
-                queryType: QueryType.VALUES,
-                constraint: subqueryConstraint
-        )
 
-        DetachedCriteria criteriaForPatientId = builder.build(query)
+        DetachedCriteria criteriaForPatientId = builder.buildCriteria(subqueryConstraint)
         List resultsForPatientId = getList(criteriaForPatientId)
 
         then:
@@ -117,11 +102,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         subqueryConstraint = new PatientSetConstraint(
                 patientSetId: patientSetId
         )
-        query = new ObservationQuery(
-                queryType: QueryType.VALUES,
-                constraint: subqueryConstraint
-        )
-        DetachedCriteria criteriaForPatientSetId = builder.build(query)
+        DetachedCriteria criteriaForPatientSetId = builder.buildCriteria(subqueryConstraint)
         List resultsForPatientSetId = getList(criteriaForPatientSetId)
 
         then:
@@ -137,14 +118,11 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.field = patientAgeField
         constraint.operator = Operator.GREATER_THAN
         constraint.value = 60L
-        ObservationQuery query = new ObservationQuery()
-        query.queryType = QueryType.VALUES
-        query.constraint = new Negation(arg: constraint)
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: Study.findAll()
         )
 
-        DetachedCriteria criteria = builder.build(query)
+        DetachedCriteria criteria = builder.buildCriteria(new Negation(arg: constraint))
 
         when:
         List results = getList(criteria)
@@ -162,15 +140,11 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.valueType = Type.NUMERIC
         constraint.operator = Operator.GREATER_THAN
         constraint.value = 1L
-        ObservationQuery query = new ObservationQuery(
-                queryType: QueryType.VALUES,
-                constraint: constraint
-        )
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: Study.findAll()
         )
 
-        DetachedCriteria criteria = builder.build(query)
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
 
         when:
         List results = getList(criteria)
@@ -190,14 +164,11 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.field = conceptCodeField
         constraint.operator = Operator.EQUALS
         constraint.value = concept.conceptCode
-        ObservationQuery subquery = new ObservationQuery()
-        subquery.queryType = QueryType.VALUES
-        subquery.constraint = constraint
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: Study.findAll()
         )
 
-        DetachedCriteria criteria = builder.build(subquery)
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
 
         when:
         List results = getList(criteria)
@@ -214,16 +185,12 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         when:
         TemporalConstraint beforeConstraint = new TemporalConstraint(
                 operator: Operator.BEFORE,
-                eventQuery: subquery
-        )
-        ObservationQuery query = new ObservationQuery(
-                queryType: QueryType.VALUES,
-                constraint: beforeConstraint
+                eventConstraint: constraint
         )
         builder = new HibernateCriteriaQueryBuilder(
                 studies: Study.findAll()
         )
-        DetachedCriteria temporalCriteria = builder.build(query)
+        DetachedCriteria temporalCriteria = builder.buildCriteria(beforeConstraint)
         List temporalResults = getList(temporalCriteria)
         log.info "Main query results:"
         temporalResults.each {
@@ -244,14 +211,11 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         constraint.field = conceptCodeField
         constraint.operator = Operator.EQUALS
         constraint.value = concept.conceptCode
-        ObservationQuery query = new ObservationQuery()
-        query.queryType = QueryType.EXISTS
-        query.constraint = constraint
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: Study.findAll()
         )
 
-        def criteria = builder.build(query)
+        def criteria = builder.buildCriteria(constraint)
 
         when:
         def result = exists(criteria)
@@ -261,11 +225,10 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         result
 
         when:
-        query.constraint = new Negation(arg: constraint)
         builder = new HibernateCriteriaQueryBuilder(
                 studies: Study.findAll()
         )
-        criteria = builder.build(query)
+        criteria = builder.buildCriteria(new Negation(arg: constraint))
         result = exists(criteria)
         log.info "Exists: ${result}"
 
@@ -274,11 +237,10 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
         when:
         constraint.value = "xyzabc"
-        query.constraint = constraint
         builder = new HibernateCriteriaQueryBuilder(
                 studies: Study.findAll()
         )
-        criteria = builder.build(query)
+        criteria = builder.buildCriteria(constraint)
         result = exists(criteria)
         log.info "Exists: ${result}"
 
@@ -286,82 +248,16 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         !result
     }
 
-    void 'test CriteriaQueryBuilder with min and max queries'() {
-        setupData()
-
-        when:
-        ObservationQuery query = new ObservationQuery(
-                queryType: QueryType.MAX,
-                constraint: new TrueConstraint()
-        )
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
-        def criteria = builder.build(query)
-        def result = get(criteria)
-        log.info "Max: ${result}"
-
-        then:
-        result == 100
-
-        when:
-        query.queryType = QueryType.MIN
-        builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
-        criteria = builder.build(query)
-        result = get(criteria)
-        log.info "Min: ${result}"
-
-        then:
-        result == 10
-    }
-    void 'test CriteriaQueryBuilder with count and average queries'() {
-        setupData()
-
-        when:
-        ObservationQuery query = new ObservationQuery(
-                queryType: QueryType.COUNT,
-                constraint: new TrueConstraint()
-        )
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
-        def criteria = builder.build(query)
-        def result = get(criteria)
-        log.info "Count: ${result}"
-
-        then:
-        result == 4
-
-        when:
-        query.queryType = QueryType.AVERAGE
-        builder = new HibernateCriteriaQueryBuilder(
-                studies: Study.findAll()
-        )
-        criteria = builder.build(query)
-        result = get(criteria)
-        log.info "Average: ${result}"
-
-        then:
-        result == 55
-    }
-
     void 'test ConceptConstraint'(){
         setupData()
 
 
         when:
-        ObservationQuery query = new ObservationQuery(
-                queryType: QueryType.VALUES,
-                constraint: new ConceptConstraint(
-                        path: '\\foo\\study1\\bar\\'
-                )
-        )
+        def constraint= new ConceptConstraint(path: '\\foo\\study1\\bar\\')
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: Study.findAll()
         )
-        def criteria = builder.build(query)
+        def criteria = builder.buildCriteria(constraint)
 
         def result = getList(criteria)
         def fact = result[0]
@@ -370,9 +266,8 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         fact.conceptCode == '2'
 
         when:
-        query.queryType = QueryType.EXISTS
-        query.constraint.path = 'NoExistingPath'
-        criteria = builder.build(query)
+        constraint.path = 'NoExistingPath'
+        criteria = builder.buildCriteria(constraint)
         result = exists(criteria)
         then:
         result == false
@@ -388,21 +283,18 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         testData.clinicalData.saveAll()
 
         when:
-        ObservationQuery query = new ObservationQuery(
-                queryType: QueryType.VALUES,
-                constraint: new NullConstraint(
-                        field: new Field(
-                                dimension: ValueDimension.class,
-                                fieldName: 'textValue',
-                                type: 'STRING'
-                        )
+        def constraint = new NullConstraint(
+                field: new Field(
+                        dimension: ValueDimension.class,
+                        fieldName: 'textValue',
+                        type: 'STRING'
                 )
         )
         def builder = new HibernateCriteriaQueryBuilder(
             studies: Study.findAll()
         )
 
-        def criteria = builder.build(query)
+        def criteria = builder.buildCriteria(constraint)
         def result = getList(criteria)
 
         def foundFact = result[0]

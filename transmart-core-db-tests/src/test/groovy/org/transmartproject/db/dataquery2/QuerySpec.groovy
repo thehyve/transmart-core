@@ -4,9 +4,7 @@ import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
 import grails.test.mixin.web.ControllerUnitTestMixin
 import org.transmartproject.db.dataquery2.query.Field
-import org.transmartproject.db.dataquery2.query.ObservationQuery
 import org.transmartproject.db.dataquery2.query.Operator
-import org.transmartproject.db.dataquery2.query.QueryType
 import org.transmartproject.db.dataquery2.query.Type
 import org.transmartproject.db.dataquery2.query.FieldConstraint
 import spock.lang.Specification
@@ -28,12 +26,9 @@ class QuerySpec extends Specification {
         constraint.field = patientIdField
         constraint.operator = Operator.EQUALS
         constraint.value = -101
-        ObservationQuery query = mockCommandObject(ObservationQuery)
-        query.queryType = QueryType.VALUES
-        query.constraint = constraint
 
         then:
-        query.validate()
+        constraint.validate()
     }
 
     void 'test invalid value constraint'() {
@@ -43,20 +38,12 @@ class QuerySpec extends Specification {
         constraint.field = patientIdField
         constraint.operator = Operator.EQUALS
         constraint.value = "Invalid patient id"
-        ObservationQuery query = mockCommandObject(ObservationQuery)
-        query.queryType = QueryType.VALUES
-        query.constraint = constraint
 
         then:
         !constraint.validate()
         constraint.errors.fieldErrorCount == 1
         constraint.errors.fieldErrors[0].field == 'value'
         constraint.errors.fieldErrors[0].code == 'org.transmartproject.query.invalid.value.message'
-
-        !query.validate()
-        query.errors.fieldErrorCount == 1
-        query.errors.fieldErrors[0].field == 'constraint'
-        query.errors.fieldErrors[0].code == 'org.transmartproject.query.invalid.constraint.message'
     }
 
     void 'test constraint equality'() {

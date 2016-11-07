@@ -7,10 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.dataquery2.QueryService
+import org.transmartproject.db.dataquery2.query.Constraint
+import org.transmartproject.db.dataquery2.query.ConstraintFactory
 import org.transmartproject.db.dataquery2.query.DimensionMetadata
 import org.transmartproject.db.dataquery2.query.Field
-import org.transmartproject.db.dataquery2.query.ObservationQuery
-import org.transmartproject.db.dataquery2.query.Query
+import org.transmartproject.db.dataquery2.query.QueryType
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 
@@ -25,53 +26,61 @@ class QueryController {
     @Autowired
     UsersResource usersResource
 
-    private boolean bindQuery(Query query) {
-        if (!params.query) {
-            throw new InvalidArgumentsException("Query parameter is missing.")
+    private Constraint bindConstraint() {
+        if (!params.constraint) {
+            throw new InvalidArgumentsException("Constraint parameter is missing.")
         }
-        String queryParam = URLDecoder.decode(params.query, 'UTF-8')
+        Constraint constraint
+        String constraintParam = URLDecoder.decode(params.constraint, 'UTF-8')
         try {
-            Map queryData = JSON.parse(queryParam) as Map
-            bindData(query, queryData)
-            query.validate()
-            if (query.hasErrors()) {
+            Map constraintData = JSON.parse(constraintParam) as Map
+            constraint = ConstraintFactory.create(constraintData)
+            if (constraint == null) {
+                throw new InvalidArgumentsException("Empty constraint parameter.")
+            }
+            constraint.validate()
+            if (constraint.hasErrors()) {
                 response.status = 400
-                render query.errors as JSON
-                return false
+                render constraint.errors as JSON
+                return null
             }
         } catch (ConverterException e) {
-            throw new InvalidArgumentsException("Cannot parse query parameter", e)
+            throw new InvalidArgumentsException("Cannot parse constraint parameter", e)
         }
-        return true
+        return constraint
     }
 
     def observations() {
-        ObservationQuery query = new ObservationQuery()
-        if (bindQuery(query)) {
-            User user = (User)usersResource.getUserFromUsername(currentUser.username)
-            def observations = queryService.list(query, user)
-            render observations as JSON
+        Constraint constraint = bindConstraint()
+        if (constraint == null) {
+            return
         }
+        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        def observations = queryService.list(constraint, user)
+        render observations as JSON
     }
 
     def count() {
-        ObservationQuery query = new ObservationQuery()
-        if (bindQuery(query)) {
-            User user = (User)usersResource.getUserFromUsername(currentUser.username)
-            def count = queryService.count(query, user)
-            def result = [count: count]
-            render result as JSON
+        Constraint constraint = bindConstraint()
+        if (constraint == null) {
+            return
         }
+        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        def count = queryService.count(constraint, user)
+        def result = [count: count]
+        render result as JSON
     }
 
     def aggregate() {
-        ObservationQuery query = new ObservationQuery()
-        if (bindQuery(query)) {
-            User user = (User)usersResource.getUserFromUsername(currentUser.username)
-            def aggregatedValue = queryService.aggregate(query, user)
-            def result = [(query.queryType): aggregatedValue]
-            render result as JSON
+        Constraint constraint = bindConstraint()
+        if (constraint == null) {
+            return
         }
+        def aggregateType = QueryType.forName(params.type)
+        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        def aggregatedValue = queryService.aggregate(aggregateType, constraint, user)
+        def result = [(aggregateType): aggregatedValue]
+        render result as JSON
     }
 
     def supportedFields() {

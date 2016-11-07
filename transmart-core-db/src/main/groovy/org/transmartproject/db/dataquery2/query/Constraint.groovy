@@ -48,7 +48,7 @@ enum Type {
             (NUMERIC): Number.class,
             (DATE): Date.class,
             (STRING): CharSequence.class,
-            (EVENT): ObservationQuery.class,
+            (EVENT): Constraint.class,
             (OBJECT): Object.class,
             (COLLECTION): Collection.class,
             (CONSTRAINT): Constraint.class,
@@ -347,23 +347,23 @@ class Combination extends Constraint {
 
 /**
  * Constraint that specifies a temporal relation between result observations
- * and observations specified in the <code>eventQuery</code>.
+ * and observations specified in the <code>eventConstraint</code>.
  *
  * Two operator types are supported:
  * - BEFORE: selects observations with the start time before the start of all
- * of the observations selected by <code>eventQuery</code>.
+ * of the observations selected by <code>eventConstraint</code>.
  * - AFTER: selects observations with the start time after the start of all
- * of the observations selected by <code>eventQuery</code>.
+ * of the observations selected by <code>eventConstraint</code>.
  */
 @Canonical
 class TemporalConstraint extends Constraint {
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
-    ObservationQuery eventQuery
+    Constraint eventConstraint
 
     static constraints = {
         operator validator: { Operator op -> op.supportsType(Type.EVENT) }
-        eventQuery validator: { it?.validate() }
+        eventConstraint validator: { it?.validate() }
     }
 }
 
