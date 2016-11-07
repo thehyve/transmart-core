@@ -82,6 +82,11 @@ task setupPostgres << {
     make('postgres')
 }
 
+task setupPostgresTest << {
+    sudo_make('-C env /var/lib/postgresql/tablespaces')
+    make('postgres_test')
+}
+
 task setupOracle << {
     make('oracle')
 }
