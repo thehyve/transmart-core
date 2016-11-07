@@ -5,11 +5,12 @@ import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.dataquery2.query.Combination
 import org.transmartproject.db.dataquery2.query.ConceptConstraint
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.ConstraintFactory
 import org.transmartproject.db.dataquery2.query.InvalidQueryException
-import org.transmartproject.db.dataquery2.query.ObservationQuery
+import org.transmartproject.db.dataquery2.query.Operator
 import org.transmartproject.db.dataquery2.query.QueryType
 import org.transmartproject.db.dataquery2.query.TrueConstraint
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -36,17 +37,12 @@ class QueryServiceSpec extends TransmartSpecification {
         accessLevelTestData.saveAll()
     }
 
-    ObservationQuery createQueryForConcept(ObservationFact observationFact){
+    Constraint createQueryForConcept(ObservationFact observationFact){
         def conceptCode = observationFact.conceptCode
         def conceptDimension = ConceptDimension.find {
             conceptCode == conceptCode
         }
-        ObservationQuery query = new ObservationQuery(
-                constraint: new ConceptConstraint(
-                        path: conceptDimension.conceptPath
-                )
-        )
-        query
+        new ConceptConstraint(path: conceptDimension.conceptPath)
     }
 
     ObservationFact createFactForExistingConcept(){
@@ -73,13 +69,9 @@ class QueryServiceSpec extends TransmartSpecification {
         setupData()
 
         TrueConstraint constraint = new TrueConstraint()
-        ObservationQuery query = new ObservationQuery(
-                constraint: constraint,
-                queryType: QueryType.VALUES
-        )
 
         when:
-        def result = queryService.list(query, accessLevelTestData.users[0])
+        def result = queryService.list(constraint, accessLevelTestData.users[0])
 
         then:
         result.size() == 4
@@ -106,10 +98,6 @@ class QueryServiceSpec extends TransmartSpecification {
                         ]
                 ]
         ])
-        ObservationQuery query = new ObservationQuery(
-                constraint: constraint,
-                queryType: QueryType.VALUES
-        )
 
         when:
         def observations = ObservationFact.findAll {
@@ -118,7 +106,7 @@ class QueryServiceSpec extends TransmartSpecification {
             createAlias('patient', 'p')
             like('p.sourcesystemCd', '%SUBJ_ID_2%')
         }
-        def result = queryService.list(query, accessLevelTestData.users[0])
+        def result = queryService.list(constraint, accessLevelTestData.users[0])
 
         then:
         result.size() == observations.size()
@@ -139,22 +127,19 @@ class QueryServiceSpec extends TransmartSpecification {
         def query = createQueryForConcept(observationFact)
 
         when:
-        query.queryType = QueryType.MAX
-        def result = queryService.aggregate(query, accessLevelTestData.users[0])
+        def result = queryService.aggregate(QueryType.MAX, query, accessLevelTestData.users[0])
 
         then:
         result == 50
 
         when:
-        query.queryType = QueryType.MIN
-        result = queryService.aggregate(query, accessLevelTestData.users[0])
+        result = queryService.aggregate(QueryType.MIN, query, accessLevelTestData.users[0])
 
         then:
         result == 10
 
         when:
-        query.queryType = QueryType.AVERAGE
-        result = queryService.aggregate(query, accessLevelTestData.users[0])
+        result = queryService.aggregate(QueryType.AVERAGE, query, accessLevelTestData.users[0])
 
         then:
         result == 30 //(10+50) / 2
@@ -172,9 +157,8 @@ class QueryServiceSpec extends TransmartSpecification {
         testData.saveAll()
 
         when:
-        ObservationQuery query = createQueryForConcept(observationFact)
-        query.queryType = QueryType.MAX
-        queryService.aggregate(query, accessLevelTestData.users[0])
+        Constraint query = createQueryForConcept(observationFact)
+        queryService.aggregate(QueryType.MAX, query, accessLevelTestData.users[0])
 
         then:
         thrown(InvalidQueryException)
@@ -191,12 +175,61 @@ class QueryServiceSpec extends TransmartSpecification {
         testData.saveAll()
 
         when:
-        ObservationQuery query = createQueryForConcept(observationFact)
-        query.queryType = QueryType.MAX
-        queryService.aggregate(query, accessLevelTestData.users[0])
+        Constraint query = createQueryForConcept(observationFact)
+        queryService.aggregate(QueryType.MAX, query, accessLevelTestData.users[0])
 
         then:
         thrown(InvalidQueryException)
+    }
+
+    void "test correct conceptConstraint checker in aggregate function"() {
+        setup:
+        setupData()
+
+        def user = accessLevelTestData.users[0]
+        def fact = testData.clinicalData.facts.find { it.valueType=='N'}
+        def conceptDimension = testData.conceptData.conceptDimensions.find{ it.conceptCode ==fact.conceptCode}
+
+        when:
+        def constraint = new TrueConstraint()
+        queryService.aggregate(QueryType.MAX, constraint, user)
+
+        then:
+        thrown(InvalidQueryException)
+
+        when:
+        constraint = new Combination(
+                operator: Operator.AND,
+                args:[
+                        new TrueConstraint(),
+                        new ConceptConstraint(
+                                path: conceptDimension.conceptPath
+                        ),
+                        new Combination(
+                                operator: Operator.AND,
+                                args:[
+                                        new ConceptConstraint(
+                                                path:conceptDimension.conceptPath
+                                        ),
+                                        new TrueConstraint()
+                                ]
+                        )
+                ]
+        )
+
+        queryService.aggregate(QueryType.MAX, constraint, user)
+
+        then:
+        thrown(InvalidQueryException)
+
+        when:
+        def firstConceptConstraint = constraint.args.find{ it.class == ConceptConstraint}
+        constraint.args = constraint.args - firstConceptConstraint
+        def result = queryService.aggregate(QueryType.MAX, constraint, user)
+
+        then:
+        result == 10
+
     }
 
 }

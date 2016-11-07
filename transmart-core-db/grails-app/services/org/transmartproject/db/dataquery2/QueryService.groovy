@@ -3,6 +3,7 @@ package org.transmartproject.db.dataquery2
 import grails.transaction.Transactional
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.Projections
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery2.query.Combination
@@ -13,9 +14,9 @@ import org.transmartproject.db.dataquery2.query.FieldConstraint
 import org.transmartproject.db.dataquery2.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.dataquery2.query.InvalidQueryException
 import org.transmartproject.db.dataquery2.query.NullConstraint
-import org.transmartproject.db.dataquery2.query.ObservationQuery
 import org.transmartproject.db.dataquery2.query.Operator
 import org.transmartproject.db.dataquery2.query.QueryBuilder
+import org.transmartproject.db.dataquery2.query.QueryBuilderException
 import org.transmartproject.db.dataquery2.query.QueryType
 import org.transmartproject.db.dataquery2.query.Type
 import org.transmartproject.db.dataquery2.query.ValueDimension
@@ -35,6 +36,23 @@ class QueryService {
     private final Field textValueField = new Field(dimension: ValueDimension, fieldName: 'textValue', type: Type.STRING)
     private final Field numberValueField = new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
 
+    private Number getAggregate(QueryType aggregateType, DetachedCriteria criteria) {
+        switch (aggregateType) {
+            case QueryType.MIN:
+                criteria = criteria.setProjection(Projections.min('numberValue'))
+                break
+            case QueryType.AVERAGE:
+                criteria = criteria.setProjection(Projections.avg('numberValue'))
+                break
+            case QueryType.MAX:
+                criteria = criteria.setProjection(Projections.max('numberValue'))
+                break
+            default:
+                throw new QueryBuilderException("Query type not supported: ${aggregateType}")
+        }
+        (Number)get(criteria)
+    }
+
     private Object get(DetachedCriteria criteria) {
         criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult()
     }
@@ -50,11 +68,7 @@ class QueryService {
      * @return true iff an observation fact is found that satisfies <code>constraint</code>.
      */
     private boolean exists(HibernateCriteriaQueryBuilder builder, Constraint constraint) {
-        ObservationQuery query = new ObservationQuery(
-                queryType: QueryType.EXISTS,
-                constraint: constraint
-        )
-        DetachedCriteria criteria = builder.build(query)
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
         (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
     }
 
@@ -64,15 +78,11 @@ class QueryService {
      * @param query
      * @param user
      */
-    List<ObservationFact> list(ObservationQuery query, User user) {
-        if (query.queryType != QueryType.VALUES){
-            throw new InvalidQueryException("Expected queryType VALUES, got ${query.queryType}")
-        }
-
+    List<ObservationFact> list(Constraint constraint, User user) {
         def builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
-        DetachedCriteria criteria = builder.build(query)
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
         getList(criteria)
     }
 
@@ -90,12 +100,11 @@ class QueryService {
         }
     }
 
-    Long count(ObservationQuery query, User user) {
-        query.queryType = QueryType.COUNT
+    Long count(Constraint constraint, User user) {
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
-        (Long)get(builder.build(query))
+        (Long)get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
     }
 
     /**
@@ -106,11 +115,11 @@ class QueryService {
      * @param query
      * @param user
      */
-    Number aggregate(ObservationQuery query, User user){
+    Number aggregate(QueryType aggregateType, Constraint constraint, User user){
 
-        if (![QueryType.COUNT, QueryType.MIN, QueryType.AVERAGE, QueryType.MAX].contains(query.queryType)){
+        if (![QueryType.COUNT, QueryType.MIN, QueryType.AVERAGE, QueryType.MAX].contains(aggregateType)){
             throw new InvalidQueryException(
-                    "Aggregate requires a query with a queryType of COUNT, MIN, MAX or AVERAGE, got ${query.queryType}"
+                    "Aggregate requires a query with a queryType of COUNT, MIN, MAX or AVERAGE, got ${aggregateType}"
             )
         }
 
@@ -120,7 +129,7 @@ class QueryService {
         // check if the constraint from the query has a conceptConstraint
         // and that it has only 1
         def conceptConstraint
-        List<ConceptConstraint> conceptConstraintList = findConceptConstraint(query.constraint)
+        List<ConceptConstraint> conceptConstraintList = findConceptConstraint(constraint)
         switch (conceptConstraintList.size()){
             case 0:
                 throw new InvalidQueryException('Aggregate requires a conceptConstraint, found 0')
@@ -166,8 +175,8 @@ class QueryService {
         }
 
         // get aggregate value
-        DetachedCriteria queryCriteria = builder.build(query)
-        def result = get(queryCriteria)
+        DetachedCriteria queryCriteria = builder.buildCriteria(constraint)
+        def result = getAggregate(aggregateType, queryCriteria)
         result
     }
     
