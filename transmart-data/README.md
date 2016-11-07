@@ -145,6 +145,12 @@ For PostgreSQL, there's a simple script in `data/postgres/set_password.sh` for
 changing users' passwords. If you're using Oracle, you can still use part of it
 to generate the hashes.
 
+### Create the database and load test data
+
+    make -j4 postgres_test
+
+    make -j4 oracle_test
+
 ### Only fix permissions, owners or tablespace assignments (PostgreSQL only)
 
 These can be done with the targets `fix_permissions`, `fix_owners` and
