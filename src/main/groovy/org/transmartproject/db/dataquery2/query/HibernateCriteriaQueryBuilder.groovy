@@ -330,12 +330,12 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * the subquery does not yield an empty result.
      */
     Criterion build(TemporalConstraint constraint) {
-        ObservationQuery eventQuery = constraint.eventQuery
+        Constraint eventConstraint = constraint.eventConstraint
         QueryBuilder subQueryBuilder = new HibernateCriteriaQueryBuilder(
                 aliasSuffixes: aliasSuffixes,
                 studies: studies
         )
-        def subquery = subQueryBuilder.build(eventQuery)
+        def subquery = subQueryBuilder.buildCriteria(eventConstraint)
         def observationFactAlias = getAlias('observation_fact')
         def subqueryAlias = subQueryBuilder.getAlias('observation_fact')
         subquery.add(Restrictions.eqProperty("${observationFactAlias}.patient", "${subqueryAlias}.patient"))
@@ -361,56 +361,28 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         throw new QueryBuilderException("Constraint type not supported: ${constraint.class}.")
     }
 
-    DetachedCriteria build(ObservationQuery query) {
+    /**
+     * Builds a DetachedCriteria object representing the query for observation facts that satisfy
+     * the constraint.
+     *
+     * @param constraint
+     * @return
+     */
+    DetachedCriteria buildCriteria(Constraint constraint) {
         aliases = [:]
         def result = builder()
-        def criteria = buildCriterion(query)
+        def trialVisitAlias = getAlias('trialVisit')
+        def criterion = Restrictions.and(
+                build(constraint),
+                Restrictions.in("${trialVisitAlias}.study", getStudies())
+        )
         aliases.each { property, alias ->
             if (property != 'observation_fact') {
                 result.createAlias(property, alias)
             }
         }
-        result.add(criteria)
-        switch (query.queryType) {
-            case QueryType.EXISTS:
-                return result
-            case QueryType.COUNT:
-                return result.setProjection(Projections.rowCount())
-            case QueryType.MIN:
-                return result.setProjection(Projections.min('numberValue'))
-            case QueryType.AVERAGE:
-                return result.setProjection(Projections.avg('numberValue'))
-            case QueryType.MAX:
-                return result.setProjection(Projections.max('numberValue'))
-            case QueryType.VALUES:
-                return result
-            default:
-                throw new QueryBuilderException("Query type not supported: ${query.queryType}")
-        }
-    }
-
-    /**
-     * Creates a criteria object that represents the top level query for {@link ObservationFact} objects
-     * that match the constraint in <code>query.constraint</code>.
-     * Aliases added during building of the constraint criteria are added to the query criteria object.
-     * For queries of type <code>MIN</code> and <code>MAX</code>, the result of the query will be the selected
-     * value in the singleton list <code>select</code>. Use <code>build(query).get()</code> to get the value.
-     * For queries of type <code>VALUES</code> and <code>EXISTS</code>, the query returns {@link ObservationFact}
-     * objects. If a non-empty list of properties <code>select</code> is specified with type <code>VALUES</code>,
-     * the selected properties are returned.
-     * Use <code>build(query).asBoolean()</code> to get the Boolean result for type <code>EXISTS</code>.
-     * Use <code>build(query).list()</code> to get the list of objects.
-     */
-    private Criterion buildCriterion(ObservationQuery query) {
-        def trialVisitAlias = getAlias('trialVisit')
-        Restrictions.and(
-                build(query.constraint),
-                Restrictions.in("${trialVisitAlias}.study", getStudies())
-        )
-    }
-
-    DetachedCriteria build(Query query) {
-        throw new QueryBuilderException("Query type not supported: ${query.class}.")
+        result.add(criterion)
+        result
     }
 
     void build(Object obj) {
