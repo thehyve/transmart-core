@@ -38,6 +38,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def hypercube = queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.studyId]])
         def resultObs = Lists.newArrayList(hypercube)
         def result = resultObs*.value as HashMultiset
+
+        // TODO: hypercubeFacts is bogus, this doesn't test the hypercube code, only if the right query was made
         def hypercubeFacts = hypercube.results.resultSet.result.rows.collect{it[3..it.size()-1]}
         hypercube.loadDimensions()
         def concepts = hypercube.dimensionElements(dims.concept) as Set
