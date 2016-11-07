@@ -10,13 +10,7 @@ interface QueryBuilder<ConstraintResult, QueryResult> {
      */
     ConstraintResult build(Constraint constraint)
 
-    /**
-     * Builds a queryable object for the {@link Query} object.
-     *
-     * @param query
-     * @return the result.
-     */
-    QueryResult build(Query query)
+    QueryResult buildCriteria(Constraint constraint)
 
     void build(Object obj)
 
