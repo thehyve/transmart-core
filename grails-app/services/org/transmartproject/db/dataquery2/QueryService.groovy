@@ -90,14 +90,10 @@ class QueryService {
     }
 
     private List<ConceptConstraint> findConceptConstraint(Constraint constraint){
-        if (constraint instanceof ConceptConstraint){
+        if (constraint instanceof ConceptConstraint) {
             return [constraint]
-        } else if (constraint instanceof Combination){
-            def result = []
-            constraint.args.each {
-                result.addAll(findConceptConstraint(it))
-            }
-            result
+        } else if (constraint instanceof Combination) {
+            constraint.args.collectMany { findConceptConstraint(it) }
         } else {
             return []
         }
@@ -141,9 +137,7 @@ class QueryService {
         }
 
         // check if the concept exists
-        def concept = org.transmartproject.db.i2b2data.ConceptDimension.find {
-            conceptPath == conceptConstraint.path
-        }
+        def concept = org.transmartproject.db.i2b2data.ConceptDimension.findByConceptPath(conceptConstraint.path)
         if (concept == null) {
             throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}")
         }
@@ -184,8 +178,7 @@ class QueryService {
 
         // get aggregate value
         DetachedCriteria queryCriteria = builder.buildCriteria(constraint)
-        def result = getAggregate(type, queryCriteria)
-        result
+        return getAggregate(type, queryCriteria)
     }
 
 }
