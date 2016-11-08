@@ -11,7 +11,7 @@ import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.ConstraintFactory
 import org.transmartproject.db.dataquery2.query.DimensionMetadata
 import org.transmartproject.db.dataquery2.query.Field
-import org.transmartproject.db.dataquery2.query.QueryType
+import org.transmartproject.db.dataquery2.query.AggregateType
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 
@@ -50,6 +50,15 @@ class QueryController {
         return constraint
     }
 
+    /**
+     * Observations endpoint:
+     * <code>/query/observations?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a list of {@link org.transmartproject.db.i2b2data.ObservationFact} objects that
+     * satisfy the constraint.
+     */
     def observations() {
         Constraint constraint = bindConstraint()
         if (constraint == null) {
@@ -60,6 +69,14 @@ class QueryController {
         render observations as JSON
     }
 
+    /**
+     * Count endpoint:
+     * <code>/query/count?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a the number of observations that satisfy the constraint.
+     */
     def count() {
         Constraint constraint = bindConstraint()
         if (constraint == null) {
@@ -71,18 +88,43 @@ class QueryController {
         render result as JSON
     }
 
+    /**
+     * Aggregate endpoint:
+     * <code>/query/aggregate?type=${type}&constraint=${constraint}</code>
+     *
+     * Expects an {@link AggregateType} parameter <code>type</code> and {@link Constraint}
+     * parameter <code>constraint</code>.
+     *
+     * Checks if the supplied constraint contains a concept constraint on top level, because
+     * aggregations is only valid for a single concept. If the concept is not found or
+     * no observations are found for the concept, an {@link org.transmartproject.db.dataquery2.query.InvalidQueryException}
+     * is thrown.
+     * Also, if the concept is not numerical, has null values or values with an operator
+     * other than 'E'.
+     *
+     * @return a map with the aggregate type as key and the result as value.
+     */
     def aggregate() {
+        if (!params.type) {
+            throw new InvalidArgumentsException("Type parameter is missing.")
+        }
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
         }
-        def aggregateType = QueryType.forName(params.type)
+        def aggregateType = AggregateType.forName(params.type)
         User user = (User)usersResource.getUserFromUsername(currentUser.username)
         def aggregatedValue = queryService.aggregate(aggregateType, constraint, user)
         def result = [(aggregateType): aggregatedValue]
         render result as JSON
     }
 
+    /**
+     * Supported fields endpoint:
+     * <code>/query/supportedFields</code>
+     *
+     * @return the list of fields supported by {@link org.transmartproject.db.dataquery2.query.FieldConstraint}.
+     */
     def supportedFields() {
         List<Field> fields = DimensionMetadata.supportedFields
         render fields as JSON

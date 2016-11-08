@@ -11,7 +11,7 @@ import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.ConstraintFactory
 import org.transmartproject.db.dataquery2.query.InvalidQueryException
 import org.transmartproject.db.dataquery2.query.Operator
-import org.transmartproject.db.dataquery2.query.QueryType
+import org.transmartproject.db.dataquery2.query.AggregateType
 import org.transmartproject.db.dataquery2.query.TrueConstraint
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.AccessLevelTestData
@@ -127,19 +127,19 @@ class QueryServiceSpec extends TransmartSpecification {
         def query = createQueryForConcept(observationFact)
 
         when:
-        def result = queryService.aggregate(QueryType.MAX, query, accessLevelTestData.users[0])
+        def result = queryService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
 
         then:
         result == 50
 
         when:
-        result = queryService.aggregate(QueryType.MIN, query, accessLevelTestData.users[0])
+        result = queryService.aggregate(AggregateType.MIN, query, accessLevelTestData.users[0])
 
         then:
         result == 10
 
         when:
-        result = queryService.aggregate(QueryType.AVERAGE, query, accessLevelTestData.users[0])
+        result = queryService.aggregate(AggregateType.AVERAGE, query, accessLevelTestData.users[0])
 
         then:
         result == 30 //(10+50) / 2
@@ -158,7 +158,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         Constraint query = createQueryForConcept(observationFact)
-        queryService.aggregate(QueryType.MAX, query, accessLevelTestData.users[0])
+        queryService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
 
         then:
         thrown(InvalidQueryException)
@@ -176,7 +176,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         Constraint query = createQueryForConcept(observationFact)
-        queryService.aggregate(QueryType.MAX, query, accessLevelTestData.users[0])
+        queryService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
 
         then:
         thrown(InvalidQueryException)
@@ -192,7 +192,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         def constraint = new TrueConstraint()
-        queryService.aggregate(QueryType.MAX, constraint, user)
+        queryService.aggregate(AggregateType.MAX, constraint, user)
 
         then:
         thrown(InvalidQueryException)
@@ -217,7 +217,7 @@ class QueryServiceSpec extends TransmartSpecification {
                 ]
         )
 
-        queryService.aggregate(QueryType.MAX, constraint, user)
+        queryService.aggregate(AggregateType.MAX, constraint, user)
 
         then:
         thrown(InvalidQueryException)
@@ -225,7 +225,7 @@ class QueryServiceSpec extends TransmartSpecification {
         when:
         def firstConceptConstraint = constraint.args.find{ it.class == ConceptConstraint}
         constraint.args = constraint.args - firstConceptConstraint
-        def result = queryService.aggregate(QueryType.MAX, constraint, user)
+        def result = queryService.aggregate(AggregateType.MAX, constraint, user)
 
         then:
         result == 10
