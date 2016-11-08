@@ -17,7 +17,7 @@ import org.transmartproject.db.dataquery2.query.NullConstraint
 import org.transmartproject.db.dataquery2.query.Operator
 import org.transmartproject.db.dataquery2.query.QueryBuilder
 import org.transmartproject.db.dataquery2.query.QueryBuilderException
-import org.transmartproject.db.dataquery2.query.QueryType
+import org.transmartproject.db.dataquery2.query.AggregateType
 import org.transmartproject.db.dataquery2.query.Type
 import org.transmartproject.db.dataquery2.query.ValueDimension
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -36,15 +36,15 @@ class QueryService {
     private final Field textValueField = new Field(dimension: ValueDimension, fieldName: 'textValue', type: Type.STRING)
     private final Field numberValueField = new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
 
-    private Number getAggregate(QueryType aggregateType, DetachedCriteria criteria) {
+    private Number getAggregate(AggregateType aggregateType, DetachedCriteria criteria) {
         switch (aggregateType) {
-            case QueryType.MIN:
+            case AggregateType.MIN:
                 criteria = criteria.setProjection(Projections.min('numberValue'))
                 break
-            case QueryType.AVERAGE:
+            case AggregateType.AVERAGE:
                 criteria = criteria.setProjection(Projections.avg('numberValue'))
                 break
-            case QueryType.MAX:
+            case AggregateType.MAX:
                 criteria = criteria.setProjection(Projections.max('numberValue'))
                 break
             default:
@@ -115,12 +115,10 @@ class QueryService {
      * @param query
      * @param user
      */
-    Number aggregate(QueryType aggregateType, Constraint constraint, User user){
+    Number aggregate(AggregateType type, Constraint constraint, User user){
 
-        if (![QueryType.COUNT, QueryType.MIN, QueryType.AVERAGE, QueryType.MAX].contains(aggregateType)){
-            throw new InvalidQueryException(
-                    "Aggregate requires a query with a queryType of COUNT, MIN, MAX or AVERAGE, got ${aggregateType}"
-            )
+        if (type == AggregateType.NONE) {
+            throw new InvalidQueryException("Aggregate requires a valid aggregate type.")
         }
 
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
@@ -132,16 +130,23 @@ class QueryService {
         List<ConceptConstraint> conceptConstraintList = findConceptConstraint(constraint)
         switch (conceptConstraintList.size()){
             case 0:
-                throw new InvalidQueryException('Aggregate requires a conceptConstraint, found 0')
+                throw new InvalidQueryException('Aggregate requires exactly one concept constraint, found none.')
             case {it > 1}:
-                throw new InvalidQueryException("Aggregate requires just 1 conceptConstraint, found ${conceptConstraintList.size()}".toString())
+                throw new InvalidQueryException("Aggregate requires exactly one concept constraint, found ${conceptConstraintList.size()}.")
             default:
                 conceptConstraint = conceptConstraintList[0]
         }
 
-        // check if that concept exists
-        if (!exists(builder, conceptConstraint)){
-            throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}".toString())
+        // check if the concept exists
+        def concept = org.transmartproject.db.i2b2data.ConceptDimension.find {
+            conceptPath == conceptConstraint.path
+        }
+        if (concept == null) {
+            throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}")
+        }
+        // check if there are any observations for the concept
+        if (!exists(builder, conceptConstraint)) {
+            throw new InvalidQueryException("No observations found for concept path: ${conceptConstraint.path}")
         }
 
         // check if the concept is truly numerical (all textValue are E and all numberValue have a value)
@@ -176,8 +181,8 @@ class QueryService {
 
         // get aggregate value
         DetachedCriteria queryCriteria = builder.buildCriteria(constraint)
-        def result = getAggregate(aggregateType, queryCriteria)
+        def result = getAggregate(type, queryCriteria)
         result
     }
-    
+
 }

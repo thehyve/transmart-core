@@ -8,28 +8,26 @@ import groovy.util.logging.Slf4j
  */
 @CompileStatic
 @Slf4j
-enum QueryType {
-    VALUES,
+enum AggregateType {
     MIN,
     MAX,
     AVERAGE,
     COUNT,
-    EXISTS,
     NONE
 
-    private static final Map<String, QueryType> mapping = new HashMap<>();
+    private static final Map<String, AggregateType> mapping = new HashMap<>();
     static {
-        for (QueryType type: values()) {
+        for (AggregateType type: values()) {
             mapping.put(type.name().toLowerCase(), type);
         }
     }
 
-    public static QueryType forName(String name) {
+    public static AggregateType forName(String name) {
         name = name.toLowerCase()
         if (mapping.containsKey(name)) {
             return mapping[name]
         } else {
-            log.error "Unknown query type: ${name}"
+            log.error "Unknown aggregate type: ${name}"
             return NONE
         }
     }
