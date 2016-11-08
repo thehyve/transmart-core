@@ -151,7 +151,10 @@ enum Operator {
             (Type.COLLECTION): [
                     CONTAINS
             ] as Set<Operator>,
-            (Type.CONSTRAINT): Collections.emptySet()
+            (Type.CONSTRAINT): [
+                    AND,
+                    OR
+            ] as Set<Operator>
     ] as EnumMap<Type, Set>
 
     boolean supportsType(Type type) {
