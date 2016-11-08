@@ -17,11 +17,8 @@ enum QueryType {
     EXISTS,
     NONE
 
-    private static final Map<String, QueryType> mapping = new HashMap<>();
-    static {
-        for (QueryType type: values()) {
-            mapping.put(type.name().toLowerCase(), type);
-        }
+    private static final Map<String, QueryType> mapping = values().collectEntries {
+        [(it.name().toLowerCase()): it]
     }
 
     public static QueryType forName(String name) {
@@ -29,6 +26,7 @@ enum QueryType {
         if (mapping.containsKey(name)) {
             return mapping[name]
         } else {
+            // TODO(jan): Should this be an exception?
             log.error "Unknown query type: ${name}"
             return NONE
         }
