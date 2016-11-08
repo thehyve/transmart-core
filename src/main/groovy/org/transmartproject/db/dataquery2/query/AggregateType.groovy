@@ -24,6 +24,7 @@ enum AggregateType {
         if (mapping.containsKey(name)) {
             return mapping[name]
         } else {
+            // TODO(jan): Should this be an exception?
             log.error "Unknown aggregate type: ${name}"
             return NONE
         }
