@@ -103,7 +103,7 @@ class QueryService {
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
-        (Long)get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
+        (Long) get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
     }
 
     /**
@@ -114,7 +114,7 @@ class QueryService {
      * @param query
      * @param user
      */
-    Number aggregate(AggregateType type, Constraint constraint, User user){
+    Number aggregate(AggregateType type, Constraint constraint, User user) {
 
         if (type == AggregateType.NONE) {
             throw new InvalidQueryException("Aggregate requires a valid aggregate type.")
@@ -123,18 +123,12 @@ class QueryService {
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
-        // check if the constraint from the query has a conceptConstraint
-        // and that it has only 1
-        def conceptConstraint
         List<ConceptConstraint> conceptConstraintList = findConceptConstraint(constraint)
-        switch (conceptConstraintList.size()){
-            case 0:
-                throw new InvalidQueryException('Aggregate requires exactly one concept constraint, found none.')
-            case {it > 1}:
-                throw new InvalidQueryException("Aggregate requires exactly one concept constraint, found ${conceptConstraintList.size()}.")
-            default:
-                conceptConstraint = conceptConstraintList[0]
-        }
+        if (conceptConstraintList.size() == 0) throw new InvalidQueryException('Aggregate requires exactly one ' +
+                'concept constraint, found none.')
+        if (conceptConstraintList.size() > 1) throw new InvalidQueryException("Aggregate requires exactly one concept" +
+                " constraint, found ${conceptConstraintList.size()}.")
+        def conceptConstraint = conceptConstraintList[0]
 
         // check if the concept exists
         def concept = org.transmartproject.db.i2b2data.ConceptDimension.findByConceptPath(conceptConstraint.path)
