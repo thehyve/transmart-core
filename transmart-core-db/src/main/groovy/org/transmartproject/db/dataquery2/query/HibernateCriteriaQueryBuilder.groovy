@@ -222,6 +222,13 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
                 return Restrictions.lt(propertyName, constraint.value)
             case Operator.LESS_THAN_OR_EQUALS:
                 return Restrictions.le(propertyName, constraint.value)
+            case Operator.BEFORE:
+                return Restrictions.lt(propertyName, constraint.value)
+            case Operator.AFTER:
+                return Restrictions.gt(propertyName, constraint.value)
+            case Operator.BETWEEN:
+                def values = constraint.value as List<Date>
+                return Restrictions.between(propertyName, values[0], values[1])
             case Operator.CONTAINS:
                 if (constraint.field.type == Type.STRING) {
                     def value = constraint.value.toString().replaceAll('%','\\%')
@@ -242,11 +249,23 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * Creates a criteria object for the time constraint by conversion to a field constraint for the start time field.
      */
     Criterion build(TimeConstraint constraint) {
-        build(new FieldConstraint(
-                field: startTimeField,
-                operator: constraint.operator,
-                value: constraint.values
-        ))
+        switch(constraint.operator) {
+            case Operator.BEFORE:
+            case Operator.AFTER:
+                return build(new FieldConstraint(
+                        field: startTimeField,
+                        operator: constraint.operator,
+                        value: constraint.values[0]
+                ))
+            case Operator.BETWEEN:
+                return build(new FieldConstraint(
+                        field: startTimeField,
+                        operator: constraint.operator,
+                        value: constraint.values
+                ))
+            default:
+                throw new QueryBuilderException("Operator '${constraint.operator.symbol}' not supported.")
+        }
     }
 
     /**
