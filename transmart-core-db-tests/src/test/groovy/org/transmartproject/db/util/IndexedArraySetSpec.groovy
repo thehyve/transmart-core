@@ -156,21 +156,19 @@ class IndexedArraySetSpec extends Specification {
     }
 
     def "test sort elements"(){
-        setup()
-
         when:
         IndexedArraySet<String> indexedTestSet = new IndexedArraySet<String>()
         indexedTestSet.addAll(
-                testSet1,
-                testSet2,
-                testSet3
+                'bcd',
+                'a',
+                'ef'
         )
-        indexedTestSet = indexedTestSet.sort{ it }
+        indexedTestSet.sort{ it.size() }
 
         then:
-        indexedTestSet.indexOf(testSet1) == 1
-        indexedTestSet.indexOf(testSet2) == 0
-        indexedTestSet.indexOf(testSet3) == 2
+        indexedTestSet.indexOf('a') == 0
+        indexedTestSet.indexOf('ef') == 1
+        indexedTestSet.indexOf('bcd') == 2
     }
 
     def "test clear array set"(){
