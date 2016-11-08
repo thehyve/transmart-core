@@ -47,10 +47,13 @@ class QueryService {
             case AggregateType.MAX:
                 criteria = criteria.setProjection(Projections.max('numberValue'))
                 break
+            case AggregateType.COUNT:
+                criteria = criteria.setProjection(Projections.rowCount())
+                break
             default:
                 throw new QueryBuilderException("Query type not supported: ${aggregateType}")
         }
-        (Number)get(criteria)
+        aggregateType == AggregateType.COUNT ? (Long)get(criteria) : (Number)get(criteria)
     }
 
     private Object get(DetachedCriteria criteria) {
