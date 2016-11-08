@@ -149,7 +149,8 @@ enum Operator {
                     IN
             ] as Set<Operator>,
             (Type.COLLECTION): [
-                    CONTAINS
+                    CONTAINS,
+                    BETWEEN
             ] as Set<Operator>,
             (Type.CONSTRAINT): [
                     AND,
@@ -310,6 +311,20 @@ class TimeConstraint extends Constraint {
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
     List<Date> values
+
+    static constraints = {
+        values validator: { List values, obj ->
+            switch (obj.operator) {
+                case Operator.BEFORE:
+                case Operator.AFTER:
+                    return (values.size() == 1)
+                case Operator.BETWEEN:
+                    return (values.size() == 2)
+            }
+        }
+        operator validator: { Operator op, obj -> op.supportsType(Type.DATE) }
+        field validator: { Field field, obj -> field.type == Type.DATE }
+    }
 }
 
 /**
