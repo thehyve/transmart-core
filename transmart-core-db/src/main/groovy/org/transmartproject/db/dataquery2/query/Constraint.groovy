@@ -257,6 +257,7 @@ class ConceptConstraint extends Constraint {
 
 @Canonical
 class NullConstraint extends Constraint {
+    @BindUsing({ obj, source -> ConstraintFactory.findField(source['field']) })
     Field field
 }
 
@@ -439,7 +440,10 @@ class ConstraintFactory {
         }
         String dimensionClassName = values['dimension'] as String
         def metadata = DimensionMetadata.forDimensionClassName(dimensionClassName)
-        Field field = DimensionMetadata.getField(metadata.dimension, values['fieldName'] as String)
-        field
+        try {
+            return DimensionMetadata.getField(metadata.dimension, values['fieldName'] as String)
+        } catch (QueryBuilderException e) {
+            return null
+        }
     }
 }
