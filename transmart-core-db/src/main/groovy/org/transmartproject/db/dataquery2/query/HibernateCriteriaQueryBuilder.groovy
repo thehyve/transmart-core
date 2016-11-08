@@ -174,7 +174,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         }
         else {
             if (field.type == Type.OBJECT || field.type == Type.ID) {
-                typedValue = Long.newInstance(value)
+                typedValue = value as Long
             } else {
                 def fieldType = DimensionMetadata.forDimension(field?.dimension).fieldTypes[field.fieldName]
                 if (fieldType != null && !fieldType.isInstance(typedValue)) {

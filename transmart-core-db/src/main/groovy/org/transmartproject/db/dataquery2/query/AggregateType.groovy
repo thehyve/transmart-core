@@ -15,11 +15,8 @@ enum AggregateType {
     COUNT,
     NONE
 
-    private static final Map<String, AggregateType> mapping = new HashMap<>();
-    static {
-        for (AggregateType type: values()) {
-            mapping.put(type.name().toLowerCase(), type);
-        }
+    private static final Map<String, AggregateType> mapping = values().collectEntries {
+        [(it.name().toLowerCase()): it]
     }
 
     public static AggregateType forName(String name) {
