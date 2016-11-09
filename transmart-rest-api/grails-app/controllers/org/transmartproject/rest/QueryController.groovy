@@ -26,26 +26,44 @@ class QueryController {
     @Autowired
     UsersResource usersResource
 
-    private Constraint bindConstraint() {
+    def highDimDataService
+
+    def conceptsResourceService
+
+    private Constraint getConstraint() {
         if (!params.constraint) {
-            throw new InvalidArgumentsException("Constraint parameter is missing.")
+            throw new InvalidArgumentsException('Constraint parameter is missing.')
         }
-        Constraint constraint
         String constraintParam = URLDecoder.decode(params.constraint, 'UTF-8')
         try {
             Map constraintData = JSON.parse(constraintParam) as Map
-            constraint = ConstraintFactory.create(constraintData)
-            if (constraint == null) {
-                throw new InvalidArgumentsException("Empty constraint parameter.")
+            try {
+                return ConstraintFactory.create(constraintData)
+            } catch(Exception e) {
+                throw new InvalidArgumentsException(e.message)
             }
-            constraint.validate()
-            if (constraint.hasErrors()) {
-                response.status = 400
-                render constraint.errors as JSON
-                return null
+            if (constraint == null) {
+                throw new InvalidArgumentsException('Empty constraint parameter.')
             }
         } catch (ConverterException e) {
-            throw new InvalidArgumentsException("Cannot parse constraint parameter", e)
+            throw new InvalidArgumentsException('Cannot parse constraint parameter.')
+        }
+    }
+
+    private Constraint bindConstraint() {
+        Constraint constraint = getConstraint()
+        // check for parse errors
+        if (constraint.hasErrors()) {
+            response.status = 400
+            render constraint.errors as JSON
+            return null
+        }
+        // check for validation errors
+        constraint.validate()
+        if (constraint.hasErrors()) {
+            response.status = 400
+            render constraint.errors as JSON
+            return null
         }
         return constraint
     }
@@ -67,6 +85,17 @@ class QueryController {
         User user = (User)usersResource.getUserFromUsername(currentUser.username)
         def observations = queryService.list(constraint, user)
         render observations as JSON
+    }
+
+    def highdim() {
+        if (!params.dataType) {
+            throw new InvalidArgumentsException("Data type parameter is missing.")
+        }
+        Constraint constraint = bindConstraint()
+        if (constraint == null) {
+            return
+        }
+        highDimDataService.highDimensionResourceService.getSubResourceForType(params.dataType)
     }
 
     /**
