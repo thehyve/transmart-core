@@ -316,7 +316,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         def trialVisitAlias = getAlias('trialVisit')
         DetachedCriteria subCriteria = DetachedCriteria.forClass(Study, 'study')
         subCriteria.add(Restrictions.eq('study.studyId', constraint.studyId))
-        return Subqueries.propertyIn("${trialVisitAlias}.study", subCriteria)
+        return Subqueries.propertyIn("${trialVisitAlias}.study", subCriteria.setProjection(Projections.id()))
     }
 
     Criterion build(NullConstraint constraint){
