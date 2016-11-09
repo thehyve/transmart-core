@@ -105,7 +105,7 @@ class GetQuerySpec extends RESTSpec{
                         operator: AND,
                         args: [
                          [type: ConceptConstraint, path:"\'\\\\Public Studies\\\\TEST_17_1\\\\Vital Signs\\\\Height CM\\\\\'"],
-                         [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:176, path:"\'\\\\Public Studies\\\\TEST_17_1\\\\Vital Signs\\\\Height CM\\\\\'"]
+                         [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:176]
                         ]
                 ]
         ]
