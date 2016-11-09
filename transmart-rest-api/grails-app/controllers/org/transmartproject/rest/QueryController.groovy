@@ -87,17 +87,6 @@ class QueryController {
         render observations as JSON
     }
 
-    def highdim() {
-        if (!params.dataType) {
-            throw new InvalidArgumentsException("Data type parameter is missing.")
-        }
-        Constraint constraint = bindConstraint()
-        if (constraint == null) {
-            return
-        }
-        highDimDataService.highDimensionResourceService.getSubResourceForType(params.dataType)
-    }
-
     /**
      * Count endpoint:
      * <code>/query/count?constraint=${constraint}</code>
@@ -144,7 +133,7 @@ class QueryController {
         def aggregateType = AggregateType.forName(params.type)
         User user = (User)usersResource.getUserFromUsername(currentUser.username)
         def aggregatedValue = queryService.aggregate(aggregateType, constraint, user)
-        def result = [(aggregateType): aggregatedValue]
+        def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
         render result as JSON
     }
 
