@@ -94,9 +94,21 @@ abstract class I2b2Dimension extends Dimension {
         query.criteria.property columnName, alias
     }
 
-    @Override @CompileStatic
+    @Override
     def getElementKey(ProjectionMap result) {
         result[alias]
+    }
+}
+
+// Nullable primary key
+@CompileStatic @InheritConstructors
+abstract class I2b2NullablePKDimension extends I2b2Dimension {
+    abstract def getNullValue()
+
+    @Override
+    def getElementKey(ProjectionMap result) {
+        def res = result[alias]
+        res == nullValue ? null : res
     }
 }
 
@@ -165,9 +177,10 @@ class PatientDimension extends I2b2Dimension {
 }
 
 @InheritConstructors
-class ConceptDimension extends I2b2Dimension {
+class ConceptDimension extends I2b2NullablePKDimension {
     String alias = 'conceptCode'
     String columnName = 'conceptCode'
+    String nullValue = '@'
 
     @Override List<Object> doResolveElements(List elementKeys) {
         org.transmartproject.db.i2b2data.ConceptDimension.findAllByConceptCodeInList(elementKeys)
@@ -204,9 +217,10 @@ class StudyDimension extends I2b2Dimension {
 
 
 @InheritConstructors
-class StartTimeDimension extends I2b2Dimension {
+class StartTimeDimension extends I2b2NullablePKDimension {
     String alias = 'startDate'
     String columnName = 'startDate'
+    Date nullValue = new Date(0) // 1-1-1970
 
     @Override List<Object> doResolveElements(List elementKeys) {
         elementKeys
@@ -247,9 +261,12 @@ class VisitDimension extends Dimension {
         }
     }
 
+    static private BigDecimal minusOne = new BigDecimal(-1)
+
     @Override @CompileStatic
     def getElementKey(ProjectionMap result) {
-        new Pair(result.encounterNum, result.patient)
+        BigDecimal encounterNum = (BigDecimal) result.encounterNum
+        encounterNum == minusOne ? null : new Pair(encounterNum, result.patient)
     }
 
     @Override
@@ -268,9 +285,10 @@ class VisitDimension extends Dimension {
 }
 
 @InheritConstructors
-class ProviderDimension extends I2b2Dimension {
+class ProviderDimension extends I2b2NullablePKDimension {
     String alias = 'provider'
     String columnName = 'providerId'
+    String nullValue = '@'
 
     List<Object> doResolveElements(List elementKeys) {
         elementKeys
