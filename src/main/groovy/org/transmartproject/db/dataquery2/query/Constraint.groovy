@@ -257,6 +257,11 @@ class ConceptConstraint extends Constraint {
 }
 
 @Canonical
+class StudyConstraint extends Constraint {
+    String studyId
+}
+
+@Canonical
 class NullConstraint extends Constraint {
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
@@ -420,6 +425,7 @@ class TemporalConstraint extends Constraint {
  * - {@link Combination}
  * - {@link TemporalConstraint}
  * - {@link ConceptConstraint}
+ * - {@link StudyConstraint}
  * - {@link NullConstraint}
  */
 @Slf4j
@@ -440,6 +446,7 @@ class ConstraintFactory {
             Combination.class,
             TemporalConstraint.class,
             ConceptConstraint.class,
+            StudyConstraint.class,
             NullConstraint.class
     ].collectEntries {
         Class type -> [(type.simpleName.toLowerCase()): type]
