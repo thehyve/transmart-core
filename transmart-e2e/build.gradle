@@ -3,7 +3,9 @@ apply plugin: 'groovy'
 apply plugin: 'java'
 
 repositories {
+    mavenLocal()
     mavenCentral()
+    maven { url "https://repo.grails.org/grails/core" }
 }
 
 dependencies {
@@ -11,8 +13,8 @@ dependencies {
 
     testCompile 'junit:junit:4.11'
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
-    testCompile 'org.grails:grails-dependencies:3.2.0'
-    testCompile 'org.grails:grails-web:3.2.0'
+    testCompile 'org.grails:grails-dependencies:3.1.10'
+    testCompile 'org.grails:grails-web:3.1.10'
     testCompile 'org.hamcrest:java-hamcrest:2.0.0.0'
     testCompile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
     testCompile 'com.google.guava:guava:15.0'
