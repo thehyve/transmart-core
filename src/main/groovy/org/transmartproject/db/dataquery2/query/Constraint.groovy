@@ -225,7 +225,7 @@ class ModifierConstraint extends Constraint {
  */
 @Canonical
 class FieldConstraint extends Constraint {
-    @BindUsing({ obj, source -> ConstraintFactory.findField(source['field']) })
+    @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
@@ -233,7 +233,7 @@ class FieldConstraint extends Constraint {
 
     static constraints = {
         value validator: { Object val, obj, Errors errors ->
-            if (!obj.field.type.supportsValue(val)) {
+            if (obj.field && !obj.field.type.supportsValue(val)) {
                 errors.rejectValue(
                         'value',
                         'org.transmartproject.query.invalid.value.message',
@@ -241,7 +241,7 @@ class FieldConstraint extends Constraint {
                         'Operator not valid for type')
             } }
         operator validator: { Operator op, obj, Errors errors ->
-            if (!op.supportsType(obj.field.type)) {
+            if (obj.field && !op.supportsType(obj.field.type)) {
                 errors.rejectValue(
                         'operator',
                         'org.transmartproject.query.invalid.operator.message', [op.symbol, obj.field.type] as String[],
@@ -258,7 +258,7 @@ class ConceptConstraint extends Constraint {
 
 @Canonical
 class NullConstraint extends Constraint {
-    @BindUsing({ obj, source -> ConstraintFactory.findField(source['field']) })
+    @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
 }
 
@@ -280,7 +280,7 @@ class ValueConstraint extends Constraint {
     Object value
 
     static constraints = {
-        valueType validator: { Type t, obj -> t == Type.NUMERIC || t == Type.STRING}
+        valueType validator: { Type t -> t == Type.NUMERIC || t == Type.STRING }
         value validator: { Object val, obj, Errors errors ->
             if (!obj.valueType.supportsValue(val)) {
                 errors.rejectValue(
@@ -306,7 +306,7 @@ class ValueConstraint extends Constraint {
  */
 @Canonical
 class TimeConstraint extends Constraint {
-    @BindUsing({ obj, source -> ConstraintFactory.findField(source['field']) })
+    @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
@@ -322,8 +322,8 @@ class TimeConstraint extends Constraint {
                     return (values.size() == 2)
             }
         }
-        operator validator: { Operator op, obj -> op.supportsType(Type.DATE) }
-        field validator: { Field field, obj -> field.type == Type.DATE }
+        operator validator: { Operator op -> op.supportsType(Type.DATE) }
+        field validator: { Field field -> field.type == Type.DATE }
     }
 }
 
@@ -346,6 +346,10 @@ class Negation extends Constraint {
 
     @BindUsing({ obj, source -> ConstraintFactory.create(source['arg']) })
     Constraint arg
+
+    static constraints = {
+        arg validator: { it?.validate() }
+    }
 }
 
 /**
@@ -361,6 +365,21 @@ class Combination extends Constraint {
 
     static constraints = {
         operator validator: { Operator op -> op.supportsType(Type.CONSTRAINT) }
+        args validator: { List args, obj, Errors errors ->
+            if (!args || args.empty) {
+                errors.rejectValue(
+                        'args',
+                        'org.transmartproject.query.empty.args.message',
+                        'Empty arguments.')
+            } else {
+                if (!args.findAll({ !it.validate() }).empty) {
+                    errors.rejectValue(
+                            'args',
+                            'org.transmartproject.query.invalid.arg.message',
+                            "Combination contains invalid constraints.")
+                }
+            }
+        }
     }
 }
 
@@ -435,12 +454,12 @@ class ConstraintFactory {
      */
     static Constraint create(Map values) {
         if (values == null || values['type'] == null) {
-            return null
+            throw new ConstraintBindingException('Cannot create constraint for null type.')
         }
         String typeName = values['type'] as String
         Class type = constraintClasses[typeName.toLowerCase()]
         if (type == null) {
-            return null
+            throw new ConstraintBindingException("Constraint not supported: ${typeName}.")
         }
         log.info "Creating constraint of type ${type.simpleName}"
         def result = type.newInstance()
@@ -448,17 +467,23 @@ class ConstraintFactory {
         return result
     }
 
-    static Field findField(Map values) {
+    static Field bindField(Object object, String name, Map values) {
         log.info "Find field for ${values.toMapString()}"
         if (values == null) {
-            return null
+            throw new ConstraintBindingException('Cannot create field for null values.')
         }
         String dimensionClassName = values['dimension'] as String
+        String fieldName = values['fieldName'] as String
         def metadata = DimensionMetadata.forDimensionClassName(dimensionClassName)
         try {
-            return DimensionMetadata.getField(metadata.dimension, values['fieldName'] as String)
+            Field field = DimensionMetadata.getField(metadata.dimension, fieldName)
+            log.info "Field data: ${field}"
+            object.putAt(name, field)
+            log.info "Object: ${object}"
+            return field
         } catch (QueryBuilderException e) {
-            return null
+            throw new ConstraintBindingException(
+                    "Error finding field for dimension '${dimensionClassName}', field name '${fieldName}'.", e)
         }
     }
 }
