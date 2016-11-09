@@ -1,4 +1,4 @@
-def dependsOn = [
+dependsOn = [
         'searchapp.search_auth_group'       : [
                 'searchapp.search_auth_principal'
         ],
@@ -10,31 +10,48 @@ def dependsOn = [
         ]
 ]
 
-def composeTableFileMap(String filePathLine) {
-    File file = new File(filePathLine)
-    String table = "${file.parentFile.name}.${file.name - ~/\.[^.]+$/}"
+def parseTableDataMeta(String filePathLine) {
+    File tableDataFile = new File(filePathLine)
+    File schemaDirectory = tableDataFile.parentFile
+    File tablesSetDirectory = schemaDirectory.parentFile
+    String table = "${schemaDirectory.name}.${tableDataFile.name - ~/\.[^.]+$/}"
 
-    [(table): file]
+    [
+            tablesSetDirectory: tablesSetDirectory,
+            tableDataFile     : tableDataFile,
+            table             : table,
+    ]
 }
 
-def dataTableFileMap = [:]
-System.in.eachLine { String filePathLine ->
-    dataTableFileMap << composeTableFileMap(filePathLine)
-
-}
-
-List loadTablesOrder = dataTableFileMap.keySet().toList()
-dependsOn.each { entry ->
-    if (dataTableFileMap.containsKey(entry.key)) {
-        int dependeeIndex = loadTablesOrder.indexOf(entry.key)
-        int maxIndex = entry.value.collect { loadTablesOrder.indexOf(it) }.max()
-        if (maxIndex > dependeeIndex) {
-            String dependeeTable = loadTablesOrder.remove(dependeeIndex)
-            loadTablesOrder.add(maxIndex, dependeeTable)
+def orderDependencies(List loadTablesOrder) {
+    dependsOn.each { entry ->
+        if (loadTablesOrder.contains(entry.key)) {
+            int dependeeIndex = loadTablesOrder.indexOf(entry.key)
+            int maxIndex = entry.value.collect { loadTablesOrder.indexOf(it) }.max()
+            if (maxIndex > dependeeIndex) {
+                String dependeeTable = loadTablesOrder.remove(dependeeIndex)
+                loadTablesOrder.add(maxIndex, dependeeTable)
+            }
         }
     }
 }
 
-loadTablesOrder.each { String table ->
-    println([table, dataTableFileMap[table]].join('\t'))
+List dataTableMetaItems = []
+System.in.eachLine { String filePathLine ->
+    dataTableMetaItems << parseTableDataMeta(filePathLine)
+}
+
+List allTables = dataTableMetaItems.collect { it.table }.unique().sort()
+
+orderDependencies(allTables)
+
+def allTablesSets = dataTableMetaItems.groupBy { it.tablesSetDirectory }.sort()
+
+allTablesSets.each { entry ->
+    List tablesDataItems = entry.value.sort {
+        allTables.indexOf(it.table)
+    }
+    tablesDataItems.each { tableDataItem ->
+        println([tableDataItem.table, tableDataItem.tableDataFile].join('\t'))
+    }
 }

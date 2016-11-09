@@ -22,7 +22,7 @@ CopyManager copyManager = new CopyManager(connection);
 System.in.eachLine { String line ->
     def (table, file) = line.split('\t')
     new File(file).withReader { reader ->
-        println "Loading ${table}"
+        println "Loading ${table} from ${file}"
         copyManager.copyIn("COPY ${table} FROM STDIN CSV DELIMITER E'\t'", reader)
     }
 }
