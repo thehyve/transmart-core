@@ -1,0 +1,81 @@
+"3"	"\Public Studies\TEST_17_1\PKConc\Conc (ug/mL)\"	"Conc (ug/mL)"	"N"	"LA "		"1341013"	"<ValueMetadata>
+  <Version>3.02</Version>
+  <CreationDateTime>Sun Nov 06 19:31:31 CET 2016</CreationDateTime>
+  <Oktousevalues>Y</Oktousevalues>
+  <UnitValues>
+    <NormalUnits>ratio</NormalUnits>
+  </UnitValues>
+</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\PKConc\Conc (ug/mL)\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\PKConc\Conc (ug/mL)\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\Clinical Chemistry\Treatment\"	"Treatment"	"N"	"FA "		"1341012"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Clinical Chemistry\Treatment\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Clinical Chemistry\Treatment\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\PKConc\Timepoint Hrs.\"	"Timepoint Hrs."	"N"	"LA "		"1341011"	"<ValueMetadata>
+  <Version>3.02</Version>
+  <CreationDateTime>Sun Nov 06 19:31:31 CET 2016</CreationDateTime>
+  <Oktousevalues>Y</Oktousevalues>
+  <UnitValues>
+    <NormalUnits>ratio</NormalUnits>
+  </UnitValues>
+</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\PKConc\Timepoint Hrs.\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\PKConc\Timepoint Hrs.\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"4"	"\Public Studies\TEST_17_1\PKConc\Treatment\75 mg QD\"	"75 mg QD"	"N"	"LA "		"1341010"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\PKConc\Treatment\75 mg QD\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\PKConc\Treatment\75 mg QD\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"4"	"\Public Studies\TEST_17_1\Vital Signs\Treatment\75 mg QD\"	"75 mg QD"	"N"	"LA "		"1341009"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Vital Signs\Treatment\75 mg QD\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Vital Signs\Treatment\75 mg QD\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\Demography\Sex\"	"Sex"	"N"	"LA "		"1341008"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Demography\Sex\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Demography\Sex\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"2"	"\Public Studies\TEST_17_1\Clinical Chemistry\"	"Clinical Chemistry"	"N"	"FA "		"1341007"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Clinical Chemistry\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Clinical Chemistry\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\Clinical Chemistry\TRIG mg/dl\"	"TRIG mg/dl"	"N"	"LA "		"1341006"	"<ValueMetadata>
+  <Version>3.02</Version>
+  <CreationDateTime>Sun Nov 06 19:31:31 CET 2016</CreationDateTime>
+  <Oktousevalues>Y</Oktousevalues>
+  <UnitValues>
+    <NormalUnits>ratio</NormalUnits>
+  </UnitValues>
+</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Clinical Chemistry\TRIG mg/dl\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Clinical Chemistry\TRIG mg/dl\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"2"	"\Public Studies\TEST_17_1\Demography\"	"Demography"	"N"	"FA "		"1341005"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Demography\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Demography\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\Vital Signs\Treatment\"	"Treatment"	"N"	"FA "		"1341004"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Vital Signs\Treatment\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Vital Signs\Treatment\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"4"	"\Public Studies\TEST_17_1\Clinical Chemistry\Treatment\Placebo\"	"Placebo"	"N"	"LA "		"1341023"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Clinical Chemistry\Treatment\Placebo\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Clinical Chemistry\Treatment\Placebo\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\Demography\Race\"	"Race"	"N"	"FA "		"1341022"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Demography\Race\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Demography\Race\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\Vital Signs\Weight KG\"	"Weight KG"	"N"	"LA "		"1341021"	"<ValueMetadata>
+  <Version>3.02</Version>
+  <CreationDateTime>Sun Nov 06 19:31:31 CET 2016</CreationDateTime>
+  <Oktousevalues>Y</Oktousevalues>
+  <UnitValues>
+    <NormalUnits>ratio</NormalUnits>
+  </UnitValues>
+</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Vital Signs\Weight KG\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Vital Signs\Weight KG\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\Vital Signs\Height CM\"	"Height CM"	"N"	"LA "		"1341020"	"<ValueMetadata>
+  <Version>3.02</Version>
+  <CreationDateTime>Sun Nov 06 19:31:31 CET 2016</CreationDateTime>
+  <Oktousevalues>Y</Oktousevalues>
+  <UnitValues>
+    <NormalUnits>ratio</NormalUnits>
+  </UnitValues>
+</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Vital Signs\Height CM\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Vital Signs\Height CM\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\Demography\YOB\"	"YOB"	"N"	"LA "		"1341019"	"<ValueMetadata>
+  <Version>3.02</Version>
+  <CreationDateTime>Sun Nov 06 19:31:31 CET 2016</CreationDateTime>
+  <Oktousevalues>Y</Oktousevalues>
+  <UnitValues>
+    <NormalUnits>ratio</NormalUnits>
+  </UnitValues>
+</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Demography\YOB\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Demography\YOB\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"2"	"\Public Studies\TEST_17_1\Vital Signs\"	"Vital Signs"	"N"	"FA "		"1341018"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Vital Signs\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Vital Signs\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\Clinical Chemistry\LDL mg/dl\"	"LDL mg/dl"	"N"	"LA "		"1341017"	"<ValueMetadata>
+  <Version>3.02</Version>
+  <CreationDateTime>Sun Nov 06 19:31:31 CET 2016</CreationDateTime>
+  <Oktousevalues>Y</Oktousevalues>
+  <UnitValues>
+    <NormalUnits>ratio</NormalUnits>
+  </UnitValues>
+</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Clinical Chemistry\LDL mg/dl\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Clinical Chemistry\LDL mg/dl\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\PKConc\Treatment\"	"Treatment"	"N"	"FA "		"1341016"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\PKConc\Treatment\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\PKConc\Treatment\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"4"	"\Public Studies\TEST_17_1\Clinical Chemistry\Treatment\75 mg QD\"	"75 mg QD"	"N"	"LA "		"1341015"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Clinical Chemistry\Treatment\75 mg QD\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Clinical Chemistry\Treatment\75 mg QD\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"3"	"\Public Studies\TEST_17_1\Clinical Chemistry\HDL mg/dl\"	"HDL mg/dl"	"N"	"LA "		"1341014"	"<ValueMetadata>
+  <Version>3.02</Version>
+  <CreationDateTime>Sun Nov 06 19:31:31 CET 2016</CreationDateTime>
+  <Oktousevalues>Y</Oktousevalues>
+  <UnitValues>
+    <NormalUnits>ratio</NormalUnits>
+  </UnitValues>
+</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Clinical Chemistry\HDL mg/dl\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Clinical Chemistry\HDL mg/dl\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"4"	"\Public Studies\TEST_17_1\Demography\Race\White\"	"White"	"N"	"LA "		"1341033"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Demography\Race\White\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Demography\Race\White\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"4"	"\Public Studies\TEST_17_1\Vital Signs\Treatment\Placebo\"	"Placebo"	"N"	"LA "		"1341032"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\Vital Signs\Treatment\Placebo\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\Vital Signs\Treatment\Placebo\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"1"	"\Public Studies\TEST_17_1\"	"TEST_17_1"	"N"	"FAS"		"1341031"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"2"	"\Public Studies\TEST_17_1\PKConc\"	"PKConc"	"N"	"FA "		"1341030"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\TEST_17_1\PKConc\"	"trial:TEST_17_1"	"\Public Studies\TEST_17_1\PKConc\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"TEST_17_1"						"EXP:PUBLIC"
+"0"	"\Public Studies\"	"Public Studies"	"N"	"FA "		"1341029"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\"		"\Public Studies\"	"@"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"	"2016-11-06 19:31:31.895"							"EXP:PUBLIC"
