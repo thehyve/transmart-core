@@ -87,15 +87,23 @@ class QueryController {
         render observations as JSON
     }
 
-    def highdim() {
-        if (!params.dataType) {
-            throw new InvalidArgumentsException("Data type parameter is missing.")
-        }
+    /**
+     * Patients endpoint:
+     * <code>/query/patients?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a list of {@link org.transmartproject.db.i2b2data.PatientDimension} objects for
+     * which there are observations that satisfy the constraint.
+     */
+    def patients() {
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
         }
-        highDimDataService.highDimensionResourceService.getSubResourceForType(params.dataType)
+        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        def patients = queryService.listPatients(constraint, user)
+        render patients as JSON
     }
 
     /**
@@ -144,7 +152,7 @@ class QueryController {
         def aggregateType = AggregateType.forName(params.type)
         User user = (User)usersResource.getUserFromUsername(currentUser.username)
         def aggregatedValue = queryService.aggregate(aggregateType, constraint, user)
-        def result = [(aggregateType): aggregatedValue]
+        def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
         render result as JSON
     }
 
