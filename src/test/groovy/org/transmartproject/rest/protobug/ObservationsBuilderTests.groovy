@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.dataquery2.Dimension
+import org.transmartproject.db.dataquery2.HypercubeValue
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.TestData
+import org.transmartproject.rest.protobuf.ObservationsProto
 import org.transmartproject.rest.protobuf.ObservationsSerializer
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -34,14 +36,19 @@ class ObservationsBuilderTests {
     @Test
     public void testSerialization() throws Exception {
         setupData()
-       /* def mockedCube = queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.name]])
+        def mockedCube = queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.studyId]])
         def builder = new ObservationsSerializer(mockedCube)
         def blob = builder.getDimensionsDefs()
         assertThat(blob, notNullValue())
-        def obs = builder.getCells()
-        assertThat(obs, notNullValue())
+        Iterator<HypercubeValue> it = mockedCube.iterator
+        def cellMsgs = []
+        while (it.hasNext()) {
+            HypercubeValue value = it.next()
+            cellMsgs.add(builder.createCell(value))
+        }
+        assertThat(cellMsgs, notNullValue())
         def footer = builder.getFooter()
-        assertThat(footer, notNullValue())*/
+        assertThat(footer, notNullValue())
     }
 
     void setupData() {
