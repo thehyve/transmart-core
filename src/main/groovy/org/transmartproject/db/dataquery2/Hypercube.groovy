@@ -3,9 +3,7 @@ package org.transmartproject.db.dataquery2
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
-import com.google.common.collect.ImmutableSet
 import groovy.transform.CompileStatic
-import groovy.transform.TupleConstructor
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.StatelessSessionImpl
 import org.transmartproject.core.IterableResult
