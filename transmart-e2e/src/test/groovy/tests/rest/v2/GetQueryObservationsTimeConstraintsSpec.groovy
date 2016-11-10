@@ -1,11 +1,8 @@
 package tests.rest.v2
 
 import base.RESTSpec
-import groovy.json.JsonBuilder
-import spock.lang.Ignore
+import spock.lang.IgnoreIf
 import spock.lang.Requires
-
-import java.text.SimpleDateFormat
 
 import static config.Config.*
 import static org.hamcrest.Matchers.*
@@ -29,7 +26,7 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
      *  when: "I query observations in this study with startDate after 01-01-2016"
      *  then: "6 observations are returned"
      */
-    @Requires({WARD_EHR_LOADED})
+    @Requires({EHR_LOADED})
     def "query observations based on time constraint after startDate"(){
         given: "Ward-EHR is loaded"
         def date = toDateString("01-01-2016Z")
@@ -39,10 +36,10 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
                         type: Combination,
                         operator: AND,
                         args: [
-                                [type: StudyConstraint, studyId: WARD_EHR_ID],
+                                [type: StudyConstraint, studyId: EHR_ID],
                                 [type: TimeConstraint,
                                  field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
-                                 operator: BEFORE,
+                                 operator: AFTER,
                                  values: [date]]
                         ]
                 ]
@@ -50,8 +47,8 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "6 observations are returned"
-        that responseData, everyItem(hasProperty('conceptCode'))
         that responseData.size(), is(6)
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     /**
@@ -59,7 +56,8 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
      *  when: "I query observations in this study with startDate between 29-3-2016 10:00:00 and 29-3-2016 10:11:00"
      *  then: "2 observations are returned"
      */
-    @Requires({WARD_EHR_LOADED})
+    @Requires({EHR_LOADED})
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //TMPDEV-94 Query language: TimeConstraint BETWEEN operator is not working
     def "query observations based on time constraint between startDates"(){
         given: "Ward-EHR is loaded"
         def date1 = toDateString("29-3-2016 10:00:00Z", "dd-MM-yyyy HH:mm:ssX")
@@ -71,7 +69,7 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: WARD_EHR_ID],
+                        [type: StudyConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
                          field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
                          operator: BETWEEN,
@@ -82,8 +80,8 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "2 observations are returned"
-        that responseData, everyItem(hasProperty('conceptCode'))
         that responseData.size(), is(2)
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     /**
@@ -91,7 +89,8 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
      *  when: "I query observations in this study with startDate before 01-01-2016"
      *  then: "1 observation is returned"
      */
-    @Requires({WARD_EHR_LOADED})
+    @Requires({EHR_LOADED})
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //TMPDEV-95 Observations with no startDate are returned by TimeConstraint
     def "query observations based on time constraint before startDate"(){
         given: "Ward-EHR is loaded"
         def date = toDateString("01-01-2016Z")
@@ -101,7 +100,7 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: WARD_EHR_ID],
+                        [type: StudyConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
                          field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
                          operator: BEFORE,
@@ -112,46 +111,19 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "1 observation is returned"
-        that responseData, everyItem(hasProperty('conceptCode'))
         that responseData.size(), is(1)
-
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     /**
-     *  given: "Ward-EHR is loaded"
-     *  when: "I query observations in this study with no startDate"
-     *  then: "4 observations are returned"
-     */
-    @Requires({WARD_EHR_LOADED})
-    def "query observations based having no startDate"(){
-        given: "Ward-EHR is loaded"
-
-        when: "I query observations in this study with no startDate"
-        def constraintMap = [
-                type: Combination,
-                operator: AND,
-                args: [
-                        [type: StudyConstraint, studyId: WARD_EHR_ID],
-                        [type: NullConstraint,
-                         field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ]]
-                ]
-        ]
-
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
-
-        then: "4 observations are returned"
-        that responseData, everyItem(hasProperty('conceptCode'))
-        that responseData.size(), is(4)
-    }
-
-    /**
-     *  given: "Ward-EHR is loaded"
+     *  given: "EHR is loaded"
      *  when: "I query observations in this study with startDate after 01-01-2016 and an endDate before 01-04-2016"
      *  then: "4 observations are returned"
      */
-    @Requires({WARD_EHR_LOADED})
-    def "query observations based on starDate "(){
-        given: "Ward-EHR is loaded"
+    @Requires({EHR_LOADED})
+    @IgnoreIf({SUPPRESS_UNIMPLEMENTED}) // field endDate is currently not accessible
+    def "query observations based on starDate and endDate"(){
+        given: "EHR is loaded"
         def date1 = toDateString("01-01-2016Z")
         def date2 = toDateString("01-04-2016Z")
 
@@ -160,7 +132,7 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: WARD_EHR_ID],
+                        [type: StudyConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
                          field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
                          operator: AFTER,
@@ -175,8 +147,7 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "4 observations are returned"
-        that responseData, everyItem(hasProperty('conceptCode'))
         that responseData.size(), is(4)
-
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 }

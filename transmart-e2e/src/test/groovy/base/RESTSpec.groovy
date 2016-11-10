@@ -65,7 +65,7 @@ class RESTSpec extends Specification{
             body = requestBody
             headers.Accept = AcceptHeader
             headers.'Content-Type' = 'text/xml'
-            if (oauth && OAUTHNEEDED){
+            if (oauth && OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
@@ -108,7 +108,7 @@ class RESTSpec extends Specification{
             uri.path = path
             uri.query = queryMap
             headers.Accept = AcceptHeader
-            if (OAUTHNEEDED){
+            if (OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
@@ -149,6 +149,10 @@ class RESTSpec extends Specification{
      */
     def toQuery(constraints){
         return [constraint: new JsonBuilder(constraints)]
+    }
+
+    def toJSON(object){
+        return new JsonBuilder(object)
     }
 
     def toDateString(dateString, inputFormat = "dd-MM-yyyyX"){

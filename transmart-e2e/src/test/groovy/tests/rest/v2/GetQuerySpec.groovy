@@ -1,6 +1,7 @@
 package tests.rest.v2
 
 import base.RESTSpec
+import groovy.json.JsonBuilder
 
 import static org.hamcrest.Matchers.everyItem
 import static org.hamcrest.Matchers.hasEntry
@@ -51,7 +52,7 @@ class GetQuerySpec extends RESTSpec{
 
         then: "all observations are returned."
         println(responseData)
-        that responseData.size(), is(952)
+        assert responseData.size() == 1026
     }
 
     /**
@@ -60,17 +61,18 @@ class GetQuerySpec extends RESTSpec{
      */
     def "GET /query/aggregate with ConceptConstraint and min"(){
         when: "I do a GET /query/aggregate with ConceptConstraint and min"
-        def query = [
-                constraint: [
+        def query =
+                [
+                constraint: toJSON([
                         type: ConceptConstraint,
-                        path:"\'\\\\Public Studies\\\\TEST_17_1\\\\Vital Signs\\\\Height CM\\\\\'"
-                ],
+                        path:"\\Public Studies\\TEST_17_1\\Vital Signs\\Height CM\\"
+                ]),
                 type: MIN
         ]
         def responseData = get("query/aggregate", contentTypeForJSON, query)
 
         then: "the minimum value for that concept is returned"
-        that responseData.min, is(163)
+        assert responseData.min == 163.0
     }
 
     /**
@@ -89,7 +91,7 @@ class GetQuerySpec extends RESTSpec{
         def responseData = get("query/aggregate", contentTypeForJSON, query)
 
         then: "the maximum value for that concept is returned"
-        that responseData.max, is(186)
+        assert responseData.max == 186.0
     }
 
     /**
@@ -120,7 +122,7 @@ class GetQuerySpec extends RESTSpec{
      *  then: "I get all observations related to that patient"
      */
     def "/query/observations PatientSetConstraint with one patient"(){
-        def id = 1000384649
+        def id = -62
 
         when: " I Get /query/observations PatientSetConstraint with one patient"
         def query = [
@@ -133,7 +135,7 @@ class GetQuerySpec extends RESTSpec{
         def responseData = get("query/observations", contentTypeForJSON, query)
 
         then: "I get all observations related to that patient"
-        that responseData.size(), is(119)
+        assert responseData.size() == 4
         that responseData, everyItem(
                 hasEntry(is('patient'),
                         hasEntry(is('id'), is(id))
