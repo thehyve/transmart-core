@@ -4,6 +4,7 @@ import grails.transaction.Transactional
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery2.query.Combination
@@ -77,7 +78,6 @@ class QueryService {
 
     /**
      * @description Function for getting a list of observations that are specified by <code>query</code>.
-     * The allowed queryType is VALUES.
      * @param query
      * @param user
      */
@@ -87,6 +87,23 @@ class QueryService {
         )
         DetachedCriteria criteria = builder.buildCriteria(constraint)
         getList(criteria)
+    }
+
+    /**
+     * @description Function for getting a list of patients for which there are observations
+     * that are specified by <code>query</code>.
+     * @param query
+     * @param user
+     */
+    List<org.transmartproject.db.i2b2data.PatientDimension> listPatients(Constraint constraint, User user) {
+        def builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser(user)
+        )
+        DetachedCriteria constraintCriteria = builder.buildCriteria(constraint)
+        DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
+        DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
+        patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
+        getList(patientCriteria)
     }
 
     private List<ConceptConstraint> findConceptConstraint(Constraint constraint){
