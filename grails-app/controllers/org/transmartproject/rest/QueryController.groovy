@@ -88,6 +88,25 @@ class QueryController {
     }
 
     /**
+     * Patients endpoint:
+     * <code>/query/patients?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a list of {@link org.transmartproject.db.i2b2data.PatientDimension} objects for
+     * which there are observations that satisfy the constraint.
+     */
+    def patients() {
+        Constraint constraint = bindConstraint()
+        if (constraint == null) {
+            return
+        }
+        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        def patients = queryService.listPatients(constraint, user)
+        render patients as JSON
+    }
+
+    /**
      * Count endpoint:
      * <code>/query/count?constraint=${constraint}</code>
      *
