@@ -9,6 +9,7 @@ import grails.databinding.BindUsing
 import org.springframework.validation.Errors
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.db.dataquery2.Dimension
+import org.transmartproject.db.i2b2data.Study
 
 /**
  * The data type of a field.
@@ -262,6 +263,11 @@ class StudyConstraint extends Constraint {
 }
 
 @Canonical
+class StudyObjectConstraint extends Constraint {
+    Study study
+}
+
+@Canonical
 class NullConstraint extends Constraint {
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
@@ -447,6 +453,7 @@ class ConstraintFactory {
             TemporalConstraint.class,
             ConceptConstraint.class,
             StudyConstraint.class,
+            StudyObjectConstraint.class,
             NullConstraint.class
     ].collectEntries {
         Class type -> [(type.simpleName.toLowerCase()): type]
@@ -485,7 +492,7 @@ class ConstraintFactory {
         try {
             Field field = DimensionMetadata.getField(metadata.dimension, fieldName)
             log.info "Field data: ${field}"
-            object.putAt(name, field)
+            object[name] = field
             log.info "Object: ${object}"
             return field
         } catch (QueryBuilderException e) {

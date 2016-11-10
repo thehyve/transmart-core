@@ -49,7 +49,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
     // A map that stores the actual dimension elements once they are loaded
     Map<Dimension, List<Object>> dimensionElements = new HashMap()
 
-    Hypercube(ScrollableResults results, List<Dimension> dimensions, String[] aliases,
+    Hypercube(ScrollableResults results, Collection<Dimension> dimensions, String[] aliases,
               Query query, StatelessSessionImpl session) {
         this.results = results
         this.dimensionsIndex = ImmutableMap.copyOf(dimensions.withIndex().collectEntries())
