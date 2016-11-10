@@ -42,6 +42,7 @@ class VisitDimension implements Serializable{
         importDate      column: 'import_date'
         sourcesystemCd  column: 'sourcesystem_cd'
         uploadId        column: 'upload_id'
+        version         false
     }
 
     static constraints = {
