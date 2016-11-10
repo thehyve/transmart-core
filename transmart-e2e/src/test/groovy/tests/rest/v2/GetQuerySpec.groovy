@@ -18,7 +18,7 @@ class GetQuerySpec extends RESTSpec{
 
     /**
      *  when:" I do a Get query/observations with a wrong type."
-     *  then: "then I get a 400 with 'Empty constraint parameter.'"
+     *  then: "then I get a 400 with 'Constraint not supported: BadType.'"
      */
     def "Get /query/observations malformed query"(){
         when:" I do a Get query/observations with a wrong type."
@@ -29,10 +29,10 @@ class GetQuerySpec extends RESTSpec{
         ]
         def responseData = get("query/observations", contentTypeForJSON, query)
 
-        then: "then I get a 400 with 'Empty constraint parameter.'"
+        then: "then I get a 400 with 'Constraint not supported: BadType.'"
         that responseData.httpStatus, is(400)
         that responseData.type, is(INVALIDARGUMENTEXCEPTION)
-        that responseData.message, is(EMPTYCONTSTRAINT)
+        that responseData.message, is('Constraint not supported: BadType.')
     }
 
     /**
@@ -70,7 +70,7 @@ class GetQuerySpec extends RESTSpec{
         def responseData = get("query/aggregate", contentTypeForJSON, query)
 
         then: "the minimum value for that concept is returned"
-        that responseData.MIN, is(163)
+        that responseData.min, is(163)
     }
 
     /**
@@ -89,7 +89,7 @@ class GetQuerySpec extends RESTSpec{
         def responseData = get("query/aggregate", contentTypeForJSON, query)
 
         then: "the maximum value for that concept is returned"
-        that responseData.MAX, is(186)
+        that responseData.max, is(186)
     }
 
     /**
