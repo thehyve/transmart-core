@@ -1,6 +1,7 @@
 package base
 
 import grails.converters.JSON
+import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
@@ -10,6 +11,8 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import spock.lang.Shared
 import spock.lang.Specification
+
+import java.text.SimpleDateFormat
 
 import static config.Config.*
 import static org.hamcrest.Matchers.*
@@ -43,6 +46,18 @@ class RESTSpec extends Specification{
         return oauth2token
     }
 
+    /**
+     *
+     * a convenience method to keep the tests readable by removing as much code as possible
+     *
+     * @param path
+     * @param AcceptHeader
+     * @param queryMap
+     * @param requestBody
+     * @param contentType
+     * @param oauth
+     * @return
+     */
     def post(String path, String AcceptHeader, queryMap, requestBody = null, contentType, oauth = true ){
         http.request(Method.POST, ContentType.TEXT){
             uri.path = path
@@ -80,6 +95,14 @@ class RESTSpec extends Specification{
 
     }
 
+    /**
+     * a convenience method to keep the tests readable by removing as much code as possible
+     *
+     * @param path
+     * @param AcceptHeader
+     * @param queryMap
+     * @return
+     */
     def get(String path, String AcceptHeader, queryMap = null){
         http.request(Method.GET, ContentType.TEXT) { req ->
             uri.path = path
@@ -119,6 +142,21 @@ class RESTSpec extends Specification{
     }
 
     /**
+     * takes a map of constraints and returns a json query
+     *
+     * @param constraints
+     * @return
+     */
+    def toQuery(constraints){
+        return [constraint: new JsonBuilder(constraints)]
+    }
+
+    def toDateString(dateString, inputFormat = "dd-MM-yyyyX"){
+        def date = new SimpleDateFormat(inputFormat).parse(dateString)
+        date.format("yyyy-MM-dd'T'HH:mm:ssX", TimeZone.getTimeZone('Z'))
+    }
+
+    /**
      * Generic matcher for a hal index response, expecting 2 entries:
      * - selfLink
      * - _embedded[embeddedMatcherMap*key:value]
@@ -140,6 +178,8 @@ class RESTSpec extends Specification{
                 ),
         )
     }
+
+
 
     /**
      * Generic matcher for a hal index response, expecting 2 entries:

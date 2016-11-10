@@ -28,8 +28,7 @@ class GetQueryMultipleObservationsSpec extends RESTSpec{
         def id = 1
 
         when: "I get observations for patient 1 for concept HEARTRATE"
-        def query = [
-                constraint: [
+        def constraintMap = [
                         type: Combination,
                         operator: AND,
                         args: [
@@ -37,8 +36,8 @@ class GetQueryMultipleObservationsSpec extends RESTSpec{
                                 [type: ConceptConstraint, path:"\'\\\\Public Studies\\\\Ward-ClinicalTrial\\\\Vitals\\\\HEARTRATE\\\\\'"]
                         ]
                 ]
-        ]
-        def responseData = get("query/observations", contentTypeForJSON, query)
+
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "3 observations are returned"
         that responseData.size(), is(3)
@@ -52,18 +51,17 @@ class GetQueryMultipleObservationsSpec extends RESTSpec{
     @Requires({WARD_EHR_LOADED})
     def "Start time of observations are exposed through REST API"(){
         given: "Ward-EHR is loaded"
-        def id = 1
+        def studyId = "Ward-EHR"
+
         when: "I get all observations of that studie"
-        //study constraint
-        def query = [
-                constraint: [type: PatientSetConstraint, patientSetId: 0, patientIds: [id]]
-        ]
-        def responseData = get("query/observations", contentTypeForJSON, query)
+        def constraintMap = [type: StudyConstraint, studyId: studyId]
+
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "7 observations have a startDate, all formated with a datestring"
-        def withStartDate = responseData.findAll {it.hasProperty('startDate')}
-        that withStartDate.size(), is(7)
-        that withStartDate, everyItem(hasEntry(is('startDate'), matchesPattern(REGEXDATE)))
+        def filteredResponseData = responseData.findAll {it.'startDate' != null}
+        that filteredResponseData.size(), is(7)
+        that filteredResponseData, everyItem(hasEntry(is('startDate'), matchesPattern(REGEXDATE)))
     }
 
     /**
@@ -74,18 +72,16 @@ class GetQueryMultipleObservationsSpec extends RESTSpec{
     @Requires({WARD_EHR_LOADED})
     def "end time of observations are exposed through REST API"(){
         given: "Ward-EHR is loaded"
+        def studyId = "Ward-EHR"
 
         when: "I get all observations of that studie"
-        //study constraint
-        def query = [
-                constraint: [type: PatientSetConstraint, patientSetId: 0, patientIds: [id]]
-        ]
-        def responseData = get("query/observations", contentTypeForJSON, query)
+        def constraintMap = [type: StudyConstraint, studyId: studyId]
+
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "4 observations have a endDate, all formated with a datestring"
-        def filteredResponseData = responseData.findAll {it.hasProperty('endDate')}
+        def filteredResponseData = responseData.findAll {it.'endDate' != null}
         that filteredResponseData.size(), is(4)
         that filteredResponseData, everyItem(hasEntry(is('endDate'), matchesPattern(REGEXDATE)))
     }
-
 }

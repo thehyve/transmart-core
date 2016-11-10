@@ -10,9 +10,9 @@ public interface Operator {
            LIKE ='like',
            CONTAINS = 'contains',
            IN = 'in',
-           BEFORE = '\'<-\'',
-           AFTER = '\'->\'',
-           BETWEEN = '\'<-->\'',
+           BEFORE = '<-',
+           AFTER = '->',
+           BETWEEN = '<-->',
            AND = 'and',
            OR = 'or',
            NOT = 'not',
@@ -56,6 +56,7 @@ public interface constraints {
     Combination = 'Combination',
     TemporalConstraint = 'TemporalConstraint',
     ConceptConstraint = 'ConceptConstraint',
-    NullConstraint = 'NullConstraint'
+    NullConstraint = 'NullConstraint',
+    StudyConstraint = 'StudyConstraint'
 }
 
