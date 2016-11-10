@@ -4,11 +4,15 @@ import com.google.common.collect.HashMultiset
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.hibernate.Session
+import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
+import org.transmartproject.db.dataquery2.query.StudyConstraint
+import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import static org.hamcrest.Matchers.*
 import spock.lang.Ignore
@@ -24,6 +28,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     @Autowired
     MultidimensionalDataResourceService queryResource
 
+    @Autowired
+    SessionFactory sessionFactory
+
     void setupData() {
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
@@ -31,11 +38,37 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         dims = DimensionDescription.dimensionsMap
     }
 
+    @Ignore
+    void devTest() {
+        setupData()
+        sessionFactory.currentSession.flush()
+
+        def studyNames = [clinicalData.longitudinalStudy.studyId, clinicalData.ehrStudy.studyId]
+//        def dims = DimensionDescription.findAll {
+//            studies.studyId in studyNames
+//        }
+        def studies = Study.findAllByStudyIdInList(studyNames)
+        sessionFactory.currentSession.flush()
+        def dims = studies*.dimensions.flatten()*.name as Set
+//        def dims = DimensionDescription.withCriteria {
+//            studies {
+//                inList 'studyId', studyNames
+//            }
+//        }
+        println dims
+
+        expect:
+        dims.size() > 0
+    }
+
+    static private study(String name) {
+        new StudyConstraint(studyId: name)
+    }
 
     void 'test_basic_longitudinal_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.studyId]])
+        def hypercube = queryResource.doQuery('clinical', constraints: [study(clinicalData.longitudinalStudy.studyId)])
         def resultObs = Lists.newArrayList(hypercube)
         def result = resultObs*.value as HashMultiset
 
@@ -79,7 +112,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_basic_sample_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.doQuery(constraints: [study: [clinicalData.sampleStudy.studyId]])
+        def hypercube = queryResource.doQuery('clinical', constraints: [study(clinicalData.sampleStudy.studyId)])
         def resultObs = Lists.newArrayList(hypercube)
         def result = resultObs*.value as HashMultiset
         def hypercubeFacts = hypercube.results.resultSet.result.rows.collect{it[3..it.size()-1]}
@@ -114,7 +147,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_basic_ehr_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.doQuery(constraints: [study: [clinicalData.ehrStudy.studyId]])
+        def hypercube = queryResource.doQuery('clinical', constraints: [study(clinicalData.ehrStudy.studyId)])
         def resultObs = Lists.newArrayList(hypercube)
         def result = resultObs*.value as HashMultiset
         def hypercubeFacts = hypercube.results.resultSet.result.rows.collect{it[3..it.size()-1]}
@@ -155,7 +188,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_all_dimensions_data_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.doQuery(constraints: [study: [clinicalData.multidimsStudy.studyId]])
+        def hypercube = queryResource.doQuery('clinical', constraints: [study(clinicalData.multidimsStudy.studyId)])
         def resultObs = Lists.newArrayList(hypercube)
         def result = resultObs*.value as HashMultiset
         def hypercubeFacts = hypercube.results.resultSet.result.rows.collect{it[3..it.size()-1]}

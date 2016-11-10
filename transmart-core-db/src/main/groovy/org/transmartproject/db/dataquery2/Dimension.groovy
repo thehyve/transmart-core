@@ -189,7 +189,7 @@ class ConceptDimension extends I2b2NullablePKDimension {
 
 @InheritConstructors
 class TrialVisitDimension extends I2b2Dimension {
-    String alias = 'trialVisit'
+    String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
 
     @Override List<Object> doResolveElements(List elementKeys) {
