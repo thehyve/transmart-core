@@ -51,21 +51,23 @@ abstract class Dimension {
     abstract def getElementKey(ProjectionMap result)
 
     List<Object> resolveElements(List elementKeys) {
-        List<Object> results = doResolveElements(elementKeys)
-        int keysSize = elementKeys.size()
-        int resultSize = results.size()
-        if(keysSize == resultSize) return results
+        if(elementKeys != null) {
+            List<Object> results = doResolveElements(elementKeys)
+            int keysSize = elementKeys.size()
+            int resultSize = results.size()
+            if (keysSize == resultSize) return results
 
-        // Check for duplicate keys or data error
-        if(new HashSet(elementKeys).size() != keysSize) {
-            throw new IllegalArgumentException("list of element keys contains duplicates, this is not allowed: " +
-                    "$elementKeys")
-        } else if(resultSize < keysSize) {
-            throw new DataInconsistencyException("Unable to find ${this.class.simpleName} elements for all keys, this" +
-                    " may be a database inconsitency.\nkeys: $elementKeys\nelements: $results")
-        } else { // resultSize > keysSize
-            throw new DataInconsistencyException("Duplicate ${this.class.simpleName} elements found. Elements must " +
-                    "have unique keys. keys: $elementKeys")
+            // Check for duplicate keys or data error
+            if (new HashSet(elementKeys).size() != keysSize) {
+                throw new IllegalArgumentException("list of element keys contains duplicates, this is not allowed: " +
+                        "$elementKeys")
+            } else if (resultSize < keysSize) {
+                throw new DataInconsistencyException("Unable to find ${this.class.simpleName} elements for all keys, this" +
+                        " may be a database inconsitency.\nkeys: $elementKeys\nelements: $results")
+            } else { // resultSize > keysSize
+                throw new DataInconsistencyException("Duplicate ${this.class.simpleName} elements found. Elements must " +
+                        "have unique keys. keys: $elementKeys")
+            }
         }
     }
 
