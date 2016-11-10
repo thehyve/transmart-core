@@ -27,38 +27,12 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
     @Autowired
     MultidimensionalDataResourceService queryResource
-
-    @Autowired
-    SessionFactory sessionFactory
-
+    
     void setupData() {
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
         testData.saveAll()
         dims = DimensionDescription.dimensionsMap
-    }
-
-    @Ignore
-    void devTest() {
-        setupData()
-        sessionFactory.currentSession.flush()
-
-        def studyNames = [clinicalData.longitudinalStudy.studyId, clinicalData.ehrStudy.studyId]
-//        def dims = DimensionDescription.findAll {
-//            studies.studyId in studyNames
-//        }
-        def studies = Study.findAllByStudyIdInList(studyNames)
-        sessionFactory.currentSession.flush()
-        def dims = studies*.dimensions.flatten()*.name as Set
-//        def dims = DimensionDescription.withCriteria {
-//            studies {
-//                inList 'studyId', studyNames
-//            }
-//        }
-        println dims
-
-        expect:
-        dims.size() > 0
     }
 
     static private study(String name) {

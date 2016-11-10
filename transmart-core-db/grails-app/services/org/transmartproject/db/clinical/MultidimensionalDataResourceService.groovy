@@ -12,10 +12,8 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.Hypercube
-import org.transmartproject.db.dataquery2.query.Combination
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.HibernateCriteriaQueryBuilder
-import org.transmartproject.db.dataquery2.query.Operator
 import org.transmartproject.db.dataquery2.query.StudyConstraint
 import org.transmartproject.db.dataquery2.query.StudyObjectConstraint
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -64,7 +62,6 @@ class MultidimensionalDataResourceService {
 
         HibernateCriteriaBuilder q = GormWorkarounds.createCriteriaBuilder(ObservationFact, 'observations', session)
         q.with {
-
             // The main reason to use this projections block is that it clears all the default projections that
             // select all fields.
             projections {
@@ -73,12 +70,6 @@ class MultidimensionalDataResourceService {
                 property 'textValue', 'textValue'
                 property 'numberValue', 'numberValue'
             }
-
-//            trialVisit {
-//                study {
-//                    inList 'studyId', studynames
-//                }
-//            }
         }
 
         Set<Dimension> validDimensions
@@ -87,9 +78,6 @@ class MultidimensionalDataResourceService {
             // This could probably be done more efficiently, but GORM support for many-to-many collections is pretty
             // buggy. And usually the studies and dimensions will be cached in memory.
             validDimensions = studies*.dimensions.flatten()*.dimension
-//            Study.findAll {
-//                studyId in studyNames
-//            }*.dimensions.flatten()*.dimension
 
         } else {
             validDimensions = DimensionDescription.all*.dimension
