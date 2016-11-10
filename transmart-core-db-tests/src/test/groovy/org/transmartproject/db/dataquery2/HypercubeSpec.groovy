@@ -39,11 +39,8 @@ class HypercubeSpec extends Specification {
         map.size() == 3
 
         // map entries, key, value
-        assertThat map, allOf(
-                IsMapContaining.hasEntry('one', "firstValue"),
-                IsMapContaining.hasKey("zero"),
-                IsMapContaining.hasValue("secondValue")
-        )
-
+        map['one'] == "firstValue"
+        "zero" in map.keySet()
+        "secondValue" in map.values()
     }
 }
