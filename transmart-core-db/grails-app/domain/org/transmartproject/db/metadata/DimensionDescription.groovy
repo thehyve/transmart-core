@@ -2,7 +2,7 @@ package org.transmartproject.db.metadata
 
 import com.google.common.collect.ImmutableMap
 import groovy.transform.InheritConstructors
-import org.springframework.dao.DataRetrievalFailureException
+import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.db.dataquery2.ConceptDimension
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.ModifierDimension
@@ -49,6 +49,10 @@ class DimensionDescription {
         packable        nullable: true
     }
 
+    static mapping = {
+        table schema: 'I2B2METADATA'
+    }
+
 
     static ImmutableMap<String,Dimension> dimensionsMap = ImmutableMap.copyOf([
             "study"      : new StudyDimension(MEDIUM, SPARSE, PACKABLE),
@@ -78,11 +82,11 @@ class DimensionDescription {
     void check() {
         if(name == LEGACY_MARKER) return
         if(dimensionsMap.keySet().contains(name) && [modifierCode, size, density, packable].any { it != null }) {
-            throw new DataRetrievalFailureException("Inconsistent data in DimensionDescription: For builtin '$name' " +
-                    "dimension all other fields must be set to NULL")
+            throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: For builtin " +
+                    "'$name' dimension all other fields must be set to NULL")
         } else if(!dimensionsMap.keySet().contains(name) && [modifierCode, size, density, packable].any { it == null }) {
-            throw new DataRetrievalFailureException("Inconsistent data in DimensionDescription: '$name' dimension is " +
-                    "not builtin and some modifier dimension fields are NULL")
+            throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' dimension" +
+                    " is not builtin and some modifier dimension fields are NULL")
         }
     }
 

@@ -5,6 +5,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
@@ -49,12 +50,28 @@ abstract class Dimension {
     @CompileStatic
     abstract def getElementKey(ProjectionMap result)
 
-    /*
-     * This method is assumed to do internal caching. As all implementations call GORM methods, they can rely on the
-     * GORM cache.
-     * Non-packable dimensions must return a List<Object>
-     */
-    abstract List<Object> resolveElements(List elementKeys)
+    List<Object> resolveElements(List elementKeys) {
+        if(elementKeys != null) {
+            List<Object> results = doResolveElements(elementKeys)
+            int keysSize = elementKeys.size()
+            int resultSize = results.size()
+            if (keysSize == resultSize) return results
+
+            // Check for duplicate keys or data error
+            if (new HashSet(elementKeys).size() != keysSize) {
+                throw new IllegalArgumentException("list of element keys contains duplicates, this is not allowed: " +
+                        "$elementKeys")
+            } else if (resultSize < keysSize) {
+                throw new DataInconsistencyException("Unable to find ${this.class.simpleName} elements for all keys, this" +
+                        " may be a database inconsitency.\nkeys: $elementKeys\nelements: $results")
+            } else { // resultSize > keysSize
+                throw new DataInconsistencyException("Duplicate ${this.class.simpleName} elements found. Elements must " +
+                        "have unique keys. keys: $elementKeys")
+            }
+        }
+    }
+
+    abstract List<Object> doResolveElements(List elementKeys)
 
     /* This default implementation should be overridden for efficiency for non-packable dimensions.
      */
@@ -79,8 +96,21 @@ abstract class I2b2Dimension extends Dimension {
         query.criteria.property columnName, alias
     }
 
+    @Override
     def getElementKey(ProjectionMap result) {
         result[alias]
+    }
+}
+
+// Nullable primary key
+@CompileStatic @InheritConstructors
+abstract class I2b2NullablePKDimension extends I2b2Dimension {
+    abstract def getNullValue()
+
+    @Override
+    def getElementKey(ProjectionMap result) {
+        def res = result[alias]
+        res == nullValue ? null : res
     }
 }
 
@@ -92,7 +122,7 @@ abstract class HighDimDimension extends Dimension {
     }
 
     @Override
-    List<Object> resolveElements(List elementKeys) {
+    List<Object> doResolveElements(List elementKeys) {
         throw new NotImplementedException()
     }
 
@@ -115,16 +145,15 @@ class ModifierDimension extends Dimension {
     String name
     String modifierCode
 
-    def selectIDs(Query query) {
+    @Override def selectIDs(Query query) {
         query.params.modifierCodes += modifierCode
     }
 
-    def getElementKey(ProjectionMap result) {
+    @Override def getElementKey(ProjectionMap result) {
         throw new UnsupportedOperationException("ModifierDimension.getElementKey")
     }
 
-    @Override
-    List<Object> resolveElements(List elementKeys) {
+    @Override List<Object> doResolveElements(List elementKeys) {
         return elementKeys
     }
 
@@ -144,22 +173,19 @@ class PatientDimension extends I2b2Dimension {
         query.params.patientSelected = true
     }
 
-    @Override
-    List<Object> resolveElements(List elementKeys) {
+    @Override List<Object> doResolveElements(List elementKeys) {
         org.transmartproject.db.i2b2data.PatientDimension.getAll(elementKeys)
     }
 }
 
 @InheritConstructors
-class ConceptDimension extends I2b2Dimension {
+class ConceptDimension extends I2b2NullablePKDimension {
     String alias = 'conceptCode'
     String columnName = 'conceptCode'
+    String nullValue = '@'
 
-    @Override
-    List<Object> resolveElements(List elementKeys) {
-        elementKeys.collect {
-            org.transmartproject.db.i2b2data.ConceptDimension.findByConceptCode(it)
-        }
+    @Override List<Object> doResolveElements(List elementKeys) {
+        org.transmartproject.db.i2b2data.ConceptDimension.findAllByConceptCodeInList(elementKeys)
     }
 }
 
@@ -168,8 +194,7 @@ class TrialVisitDimension extends I2b2Dimension {
     String alias = 'trialVisit'
     String columnName = 'trialVisit.id'
 
-    @Override
-    List<Object> resolveElements(List elementKeys) {
+    @Override List<Object> doResolveElements(List elementKeys) {
         TrialVisit.getAll(elementKeys)
     }
 }
@@ -187,18 +212,19 @@ class StudyDimension extends I2b2Dimension {
         }
     }
 
-    List<Object> resolveElements(List elementKeys) {
+    @Override List<Object> doResolveElements(List elementKeys) {
         Study.getAll(elementKeys)
     }
 }
 
 
 @InheritConstructors
-class StartTimeDimension extends I2b2Dimension {
+class StartTimeDimension extends I2b2NullablePKDimension {
     String alias = 'startDate'
     String columnName = 'startDate'
+    Date nullValue = new Date(0) // 1-1-1970
 
-    List<Object> resolveElements(List elementKeys) {
+    @Override List<Object> doResolveElements(List elementKeys) {
         elementKeys
     }
 }
@@ -208,7 +234,7 @@ class EndTimeDimension extends I2b2Dimension {
     String alias = 'endDate'
     String columnName = 'endDate'
 
-    List<Object> resolveElements(List elementKeys) {
+    @Override List<Object> doResolveElements(List elementKeys) {
         elementKeys
     }
 }
@@ -218,7 +244,7 @@ class LocationDimension extends I2b2Dimension {
     String alias = 'location'
     String columnName = 'locationCd'
 
-    List<Object> resolveElements(List elementKeys) {
+    @Override List<Object> doResolveElements(List elementKeys) {
         elementKeys
     }
 }
@@ -226,6 +252,7 @@ class LocationDimension extends I2b2Dimension {
 @InheritConstructors
 class VisitDimension extends Dimension {
 
+    @Override
     def selectIDs(Query query) {
         query.criteria.with {
             if(!query.params.patientSelected) {
@@ -236,24 +263,36 @@ class VisitDimension extends Dimension {
         }
     }
 
+    static private BigDecimal minusOne = new BigDecimal(-1)
+
+    @Override @CompileStatic
     def getElementKey(ProjectionMap result) {
-        new Pair(result.encounterNum, result.patient)
+        BigDecimal encounterNum = (BigDecimal) result.encounterNum
+        encounterNum == minusOne ? null : new Pair(encounterNum, result.patient)
     }
 
     @Override
-    List<Object> resolveElements(List elementKeys) {
-        elementKeys.collect {
-            org.transmartproject.db.i2b2data.VisitDimension.get(new org.transmartproject.db.i2b2data.VisitDimension(encounterNum: it.aValue, patient: it.bValue))
+    List<Object> doResolveElements(List elementKeys) {
+        (List<Object>) org.transmartproject.db.i2b2data.VisitDimension.withCriteria {
+            or {
+                elementKeys.each { Pair key ->
+                    and {
+                        eq 'encounterNum', key.aValue
+                        eq 'patient.id', key.bValue
+                    }
+                }
+            }
         }
     }
 }
 
 @InheritConstructors
-class ProviderDimension extends I2b2Dimension {
+class ProviderDimension extends I2b2NullablePKDimension {
     String alias = 'provider'
     String columnName = 'providerId'
+    String nullValue = '@'
 
-    List<Object> resolveElements(List elementKeys) {
+    List<Object> doResolveElements(List elementKeys) {
         elementKeys
     }
 }

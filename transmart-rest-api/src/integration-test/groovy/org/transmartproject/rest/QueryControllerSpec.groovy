@@ -5,32 +5,27 @@ import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
-import org.transmartproject.db.TestData
-import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.rest.marshallers.MarshallerSpec
 
 @Slf4j
 class QueryControllerSpec extends MarshallerSpec {
 
     void 'test JSON (de)serialisation'() {
-        def query = [
-                queryType: 'VALUES',
-                constraint: [
-                        type: 'FieldConstraint',
-                        operator: '=',
-                        field: [
-                                dimension: 'PatientDimension',
-                                fieldName: 'id',
-                                type: 'ID'
-                        ],
-                        value: -101
-                ]
+        def constraint = [
+                type: 'FieldConstraint',
+                operator: '=',
+                field: [
+                        dimension: 'PatientDimension',
+                        fieldName: 'id',
+                        type: 'ID'
+                ],
+                value: -101
         ] as JSON
-        log.info "Query: ${query.toString()}"
+        log.info "Constraint: ${constraint.toString()}"
 
         when:
-        def queryJSON = query.toString(false)
-        def url = "${baseURL}/query/observations?query=${URLEncoder.encode(queryJSON, 'UTF-8')}"
+        def constraintJSON = constraint.toString(false)
+        def url = "${baseURL}/query/observations?constraint=${URLEncoder.encode(constraintJSON, 'UTF-8')}"
         log.info "Request URL: ${url}"
 
         ResponseEntity<Resource> response = getJson(url)
@@ -44,19 +39,16 @@ class QueryControllerSpec extends MarshallerSpec {
 
     void 'test invalid constraint'() {
         // invalid constraint with an operator that is not supported for the value type.
-        def query = [
-                queryType: 'VALUES',
-                constraint: [
-                        type: 'ValueConstraint',
-                        operator: '<',
-                        valueType: 'STRING',
-                        value: 'invalid dummy value'
-                ]
+        def constraint = [
+                type: 'ValueConstraint',
+                operator: '<',
+                valueType: 'STRING',
+                value: 'invalid dummy value'
         ] as JSON
-        log.info "Query: ${query.toString(false)}"
+        log.info "Constraint: ${constraint.toString(false)}"
 
         when:
-        def url = "${baseURL}/query/observations?query=${URLEncoder.encode(query.toString(false), 'UTF-8')}"
+        def url = "${baseURL}/query/observations?constraint=${URLEncoder.encode(constraint.toString(false), 'UTF-8')}"
         log.info "Request URL: ${url}"
 
         ResponseEntity<Resource> response = getJson(url)
@@ -65,23 +57,19 @@ class QueryControllerSpec extends MarshallerSpec {
 
         then:
         response.statusCode.value() == 400
-        result.errors[0].message == 'Invalid constraint of type ValueConstraint'
-        result.errors[0]['rejected-value'].errors.errors[0].message == "Operator [<] not valid for type STRING"
+        result.errors[0].message == "Operator [<] not valid for type STRING"
     }
 
     void 'test invalid JSON'() {
-        def query = [
-                queryType: 'VALUES',
-                constraint: [
-                        type: 'TrueConstraint'
-                ]
+        def constraint = [
+                type: 'TrueConstraint'
         ] as JSON
-        log.info "Query: ${query.toString()}"
+        log.info "Constraint: ${constraint.toString()}"
 
         when:
-        def queryJSON = query.toString(false)[0..-2] // remove last character of the JSON string
-        log.info "Invalid JSON: ${queryJSON}"
-        def url = "${baseURL}/query/observations?query=${URLEncoder.encode(queryJSON, 'UTF-8')}"
+        def constraintJSON = constraint.toString(false)[0..-2] // remove last character of the JSON string
+        log.info "Invalid JSON: ${constraintJSON}"
+        def url = "${baseURL}/query/observations?constraint=${URLEncoder.encode(constraintJSON, 'UTF-8')}"
         log.info "Request URL: ${url}"
 
         ResponseEntity<Resource> response = getJson(url)
@@ -90,7 +78,7 @@ class QueryControllerSpec extends MarshallerSpec {
 
         then:
         response.statusCode.value() == 400
-        result.message == 'Cannot parse query parameter'
+        result.message == 'Cannot parse constraint parameter.'
     }
 
     void 'test getSupportedFields'() {

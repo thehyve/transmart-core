@@ -3,6 +3,8 @@ package org.transmartproject.db.dataquery2
 import grails.transaction.Transactional
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery2.query.Combination
@@ -13,10 +15,10 @@ import org.transmartproject.db.dataquery2.query.FieldConstraint
 import org.transmartproject.db.dataquery2.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.dataquery2.query.InvalidQueryException
 import org.transmartproject.db.dataquery2.query.NullConstraint
-import org.transmartproject.db.dataquery2.query.ObservationQuery
 import org.transmartproject.db.dataquery2.query.Operator
 import org.transmartproject.db.dataquery2.query.QueryBuilder
-import org.transmartproject.db.dataquery2.query.QueryType
+import org.transmartproject.db.dataquery2.query.QueryBuilderException
+import org.transmartproject.db.dataquery2.query.AggregateType
 import org.transmartproject.db.dataquery2.query.Type
 import org.transmartproject.db.dataquery2.query.ValueDimension
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -35,6 +37,26 @@ class QueryService {
     private final Field textValueField = new Field(dimension: ValueDimension, fieldName: 'textValue', type: Type.STRING)
     private final Field numberValueField = new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
 
+    private Number getAggregate(AggregateType aggregateType, DetachedCriteria criteria) {
+        switch (aggregateType) {
+            case AggregateType.MIN:
+                criteria = criteria.setProjection(Projections.min('numberValue'))
+                break
+            case AggregateType.AVERAGE:
+                criteria = criteria.setProjection(Projections.avg('numberValue'))
+                break
+            case AggregateType.MAX:
+                criteria = criteria.setProjection(Projections.max('numberValue'))
+                break
+            case AggregateType.COUNT:
+                criteria = criteria.setProjection(Projections.rowCount())
+                break
+            default:
+                throw new QueryBuilderException("Query type not supported: ${aggregateType}")
+        }
+        aggregateType == AggregateType.COUNT ? (Long)get(criteria) : (Number)get(criteria)
+    }
+
     private Object get(DetachedCriteria criteria) {
         criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult()
     }
@@ -50,52 +72,55 @@ class QueryService {
      * @return true iff an observation fact is found that satisfies <code>constraint</code>.
      */
     private boolean exists(HibernateCriteriaQueryBuilder builder, Constraint constraint) {
-        ObservationQuery query = new ObservationQuery(
-                queryType: QueryType.EXISTS,
-                constraint: constraint
-        )
-        DetachedCriteria criteria = builder.build(query)
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
         (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
     }
 
     /**
      * @description Function for getting a list of observations that are specified by <code>query</code>.
-     * The allowed queryType is VALUES.
      * @param query
      * @param user
      */
-    List<ObservationFact> list(ObservationQuery query, User user) {
-        if (query.queryType != QueryType.VALUES){
-            throw new InvalidQueryException("Expected queryType VALUES, got ${query.queryType}")
-        }
-
+    List<ObservationFact> list(Constraint constraint, User user) {
         def builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
-        DetachedCriteria criteria = builder.build(query)
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
         getList(criteria)
     }
 
+    /**
+     * @description Function for getting a list of patients for which there are observations
+     * that are specified by <code>query</code>.
+     * @param query
+     * @param user
+     */
+    List<org.transmartproject.db.i2b2data.PatientDimension> listPatients(Constraint constraint, User user) {
+        def builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser(user)
+        )
+        DetachedCriteria constraintCriteria = builder.buildCriteria(constraint)
+        DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
+        DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
+        patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
+        getList(patientCriteria)
+    }
+
     private List<ConceptConstraint> findConceptConstraint(Constraint constraint){
-        if (constraint instanceof ConceptConstraint){
+        if (constraint instanceof ConceptConstraint) {
             return [constraint]
-        } else if (constraint instanceof Combination){
-            def result = []
-            constraint.args.each {
-                result.addAll(findConceptConstraint(it))
-            }
-            result
+        } else if (constraint instanceof Combination) {
+            constraint.args.collectMany { findConceptConstraint(it) }
         } else {
             return []
         }
     }
 
-    Long count(ObservationQuery query, User user) {
-        query.queryType = QueryType.COUNT
+    Long count(Constraint constraint, User user) {
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
-        (Long)get(builder.build(query))
+        (Long) get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
     }
 
     /**
@@ -106,33 +131,30 @@ class QueryService {
      * @param query
      * @param user
      */
-    Number aggregate(ObservationQuery query, User user){
+    Number aggregate(AggregateType type, Constraint constraint, User user) {
 
-        if (![QueryType.COUNT, QueryType.MIN, QueryType.AVERAGE, QueryType.MAX].contains(query.queryType)){
-            throw new InvalidQueryException(
-                    "Aggregate requires a query with a queryType of COUNT, MIN, MAX or AVERAGE, got ${query.queryType}"
-            )
+        if (type == AggregateType.NONE) {
+            throw new InvalidQueryException("Aggregate requires a valid aggregate type.")
         }
 
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
-        // check if the constraint from the query has a conceptConstraint
-        // and that it has only 1
-        def conceptConstraint
-        List<ConceptConstraint> conceptConstraintList = findConceptConstraint(query.constraint)
-        switch (conceptConstraintList.size()){
-            case 0:
-                throw new InvalidQueryException('Aggregate requires a conceptConstraint, found 0')
-            case {it > 1}:
-                throw new InvalidQueryException("Aggregate requires just 1 conceptConstraint, found ${conceptConstraintList.size()}".toString())
-            default:
-                conceptConstraint = conceptConstraintList[0]
-        }
+        List<ConceptConstraint> conceptConstraintList = findConceptConstraint(constraint)
+        if (conceptConstraintList.size() == 0) throw new InvalidQueryException('Aggregate requires exactly one ' +
+                'concept constraint, found none.')
+        if (conceptConstraintList.size() > 1) throw new InvalidQueryException("Aggregate requires exactly one concept" +
+                " constraint, found ${conceptConstraintList.size()}.")
+        def conceptConstraint = conceptConstraintList[0]
 
-        // check if that concept exists
-        if (!exists(builder, conceptConstraint)){
-            throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}".toString())
+        // check if the concept exists
+        def concept = org.transmartproject.db.i2b2data.ConceptDimension.findByConceptPath(conceptConstraint.path)
+        if (concept == null) {
+            throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}")
+        }
+        // check if there are any observations for the concept
+        if (!exists(builder, conceptConstraint)) {
+            throw new InvalidQueryException("No observations found for concept path: ${conceptConstraint.path}")
         }
 
         // check if the concept is truly numerical (all textValue are E and all numberValue have a value)
@@ -166,9 +188,8 @@ class QueryService {
         }
 
         // get aggregate value
-        DetachedCriteria queryCriteria = builder.build(query)
-        def result = get(queryCriteria)
-        result
+        DetachedCriteria queryCriteria = builder.buildCriteria(constraint)
+        return getAggregate(type, queryCriteria)
     }
-    
+
 }

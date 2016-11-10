@@ -92,7 +92,9 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
             for(int i=0; i<nDims; i++) {
                 Dimension d = dimensions[i]
                 def dimElementKey = d.getElementKey(result)
-                if(d.packable.packable) {
+                if(dimElementKey == null) {
+                    dimensionElementIdxes[i] = null
+                } else if(d.packable.packable) {
                     IndexedArraySet<Object> elementKeys = dimensionElementKeys[d]
                     int dimElementIdx = elementKeys.indexOf(dimElementKey)
                     if(dimElementIdx == -1) {
@@ -123,16 +125,18 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
         }
     }
 
-    Object dimensionElement(Dimension dim, int idx) {
+    Object dimensionElement(Dimension dim, Integer idx) {
         checkNotPackable(dim)
+        if(idx == null) return null
         if(!_dimensionsLoaded) {
             loadDimensions()
         }
         return dimensionElements[dim][idx]
     }
 
-    Object dimensionElementKey(Dimension dim, int idx) {
+    Object dimensionElementKey(Dimension dim, Integer idx) {
         checkNotPackable(dim)
+        if(idx == null) return null
         dimensionElementKeys[dim][idx]
     }
 
@@ -180,7 +184,7 @@ class HypercubeValue {
 
     def getDimElement(Dimension dim) {
         if(dim.packable.packable) {
-            cube.dimensionElement(dim, (int) dimensionElementIdxes[cube.dimensionsIndex[dim]])
+            cube.dimensionElement(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
         } else {
             dim.resolveElement(dimensionElementIdxes[cube.dimensionsIndex[dim]])
         }
@@ -192,7 +196,11 @@ class HypercubeValue {
     }
 
     def getDimKey(Dimension dim) {
-        cube.dimensionElementKey(dim, (int) dimensionElementIdxes[cube.dimensionsIndex[dim]])
+        if(dim.packable.packable) {
+            cube.dimensionElementKey(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
+        } else {
+            dimensionElementIdxes[cube.dimensionsIndex[dim]]
+        }
     }
 
     Set<Dimension> availableDimensions() {

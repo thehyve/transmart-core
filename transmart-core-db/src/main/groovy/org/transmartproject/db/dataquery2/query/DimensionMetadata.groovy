@@ -52,12 +52,12 @@ class DimensionMetadata {
             [dimensionClass: ModifierDimension.class,   type: DimensionFetchType.MODIFIER,  fieldName: ''],
             [dimensionClass: ValueDimension.class,      type: DimensionFetchType.VALUE,     fieldName: '']
     ].collectEntries {
-        [(((Class<? extends Dimension>)it.dimensionClass).simpleName): new DimensionMetadata(
+        [(((Class) it.dimensionClass).simpleName): new DimensionMetadata(
                 (Class) it.dimensionClass,
                 (DimensionFetchType) it.type,
                 (String) it.fieldName)
         ]
-    } as Map<String, DimensionMetadata>
+    }
 
     static final DimensionMetadata forDimensionClassName(String dimensionClassName) {
         def metadata = dimensionMetadataMap[dimensionClassName]
@@ -91,11 +91,7 @@ class DimensionMetadata {
     }
 
     static final List<Field> getSupportedFields() {
-        def fields = []
-        dimensionMetadataMap.each { name, metadata ->
-            fields.addAll(metadata.fields)
-        }
-        fields
+        dimensionMetadataMap.values().collectMany { it.fields }
     }
 
     DimensionFetchType type
@@ -108,14 +104,6 @@ class DimensionMetadata {
     protected Mapping dimensionMapping
     List<Field> fields = []
     Map<String, Class> fieldTypes = [:]
-
-    protected final List<Field> getMappedFields() {
-        def mappedFields = []
-        dimensionMapping.columns.keySet().each { fieldName ->
-            mappedFields << getMappedField(fieldName)
-        }
-        mappedFields
-    }
 
     protected final Field getMappedField(String fieldName) {
         def field = domainClass.declaredFields.find { !it.synthetic && it.name == fieldName }
@@ -156,7 +144,7 @@ class DimensionMetadata {
                 this.dimensionTableName = "${table.schema}.${table.name}"
                 Identity dimensionId = (Identity) dimensionMapping.identity
                 this.dimensionIdColumn = dimensionMapping.columns[dimensionId.column]?.column
-                this.fields = mappedFields
+                this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
             }
         } else {
             this.domainClass = ObservationFact.class

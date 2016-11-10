@@ -27,5 +27,6 @@ class TrialVisit {
         relTimeUnit     column: 'rel_time_unit_cd'
         relTime         column: 'rel_time_num'
         relTimeLabel    column: 'rel_time_label'
+        version false
     }
 }
