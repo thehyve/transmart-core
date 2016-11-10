@@ -171,12 +171,12 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
             it.conceptCode in clinicalData.multidimsClinicalFacts*.conceptCode
         } as Set
         def expectedPatients = clinicalData.multidimsClinicalFacts*.patient as Set
-        def expectedVisits = clinicalData.multidimsClinicalFacts*.visit as Set
+        def expectedVisits = clinicalData.multidimsClinicalFacts*.visit.findAll() as Set
         def expectedTrialVisits = clinicalData.multidimsClinicalFacts*.trialVisit as Set
         def expectedStartTime = clinicalData.multidimsClinicalFacts*.startDate as Set
         def expectedEndTime = clinicalData.multidimsClinicalFacts*.endDate as Set
         def expectedLocations = clinicalData.multidimsClinicalFacts*.locationCd as Set
-        def expectedProviders = clinicalData.multidimsClinicalFacts*.providerId as Set
+        def expectedProviders = clinicalData.multidimsClinicalFacts*.providerId.findAll{it != '@'} as Set
 
         expect:
 
