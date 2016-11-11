@@ -49,11 +49,12 @@ class Study {
     ]
 
     static mapping = {
-        table               name: 'study', schema: 'I2B2DEMODATA'
+        table               name: 'study', schema: 'i2b2demodata'
         id                  column: 'study_num', type: Long, generator: 'sequence', params: [sequence: 'study_num_seq']
         studyId             column: 'study_id'
         secureObjectToken   column: 'secure_obj_token'
         bioExperimentId     column: 'bio_experiment_id'
+        dimensions  joinTable: [schema: 'i2b2metadata']
         version false
     }
 
