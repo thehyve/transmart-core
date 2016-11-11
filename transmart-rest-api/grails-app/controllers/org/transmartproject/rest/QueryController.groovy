@@ -6,6 +6,8 @@ import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
+import org.transmartproject.db.clinical.MultidimensionalDataResourceService
+import org.transmartproject.db.dataquery2.Hypercube
 import org.transmartproject.db.dataquery2.QueryService
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.ConstraintFactory
@@ -14,10 +16,12 @@ import org.transmartproject.db.dataquery2.query.Field
 import org.transmartproject.db.dataquery2.query.AggregateType
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 
 @Slf4j
 class QueryController {
 
+    @Autowired
     QueryService queryService
 
     @Autowired
@@ -26,7 +30,11 @@ class QueryController {
     @Autowired
     UsersResource usersResource
 
-    def highDimDataService
+    @Autowired
+    MultidimensionalDataSerialisationService multidimensionalDataSerialisationService
+
+    @Autowired
+    MultidimensionalDataResourceService queryResource
 
     def conceptsResourceService
 
@@ -41,9 +49,6 @@ class QueryController {
                 return ConstraintFactory.create(constraintData)
             } catch(Exception e) {
                 throw new InvalidArgumentsException(e.message)
-            }
-            if (constraint == null) {
-                throw new InvalidArgumentsException('Empty constraint parameter.')
             }
         } catch (ConverterException e) {
             throw new InvalidArgumentsException('Cannot parse constraint parameter.')
@@ -85,6 +90,34 @@ class QueryController {
         User user = (User)usersResource.getUserFromUsername(currentUser.username)
         def observations = queryService.list(constraint, user)
         render observations as JSON
+    }
+
+    /**
+     * Hypercube endpoint:
+     * <code>/query/hypercube?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a hypercube representing the observations that satisfy the constraint.
+     */
+    def hypercube() {
+        Constraint constraint = bindConstraint()
+        if (constraint == null) {
+            return
+        }
+        def dataType = 'clinical'
+        def query = [constraint: constraint]
+        Hypercube result = queryResource.doQuery query, dataType
+        OutputStream out = new LazyOutputStreamDecorator(
+                outputStreamProducer: { ->
+                    response.contentType = 'application/json'
+                    response.outputStream
+                })
+        try {
+            multidimensionalDataSerialisationService.writeData(result, "json", out)
+        } finally {
+            out.close()
+        }
     }
 
     /**

@@ -35,6 +35,11 @@ class BootStrap {
         new org.transmartproject.rest.test.TestData().createTestData()
         AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
             .saveAll()
+        // FIXME: include hypercube test data
+        /*
+        def hypercubeTestData = TestData.createHypercubeDefault()
+        hypercubeTestData.saveAll()
+        */
     }
 
 }
