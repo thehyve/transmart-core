@@ -79,11 +79,10 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         }
     }
 
-    @Ignore
     void 'test_basic_sample_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.retrieveData('clinical', constraints: [study(clinicalData.sampleStudy.studyId)])
+        def hypercube = queryResource.doQuery('clinical', constraint: study(clinicalData.sampleStudy.studyId))
         def resultObs = Lists.newArrayList(hypercube).sort()
 
         def result = resultObs*.value as HashMultiset
@@ -91,16 +90,17 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def concepts = hypercube.dimensionElements(dims.concept) as Set
         def patients = hypercube.dimensionElements(dims.patient) as Set
 
-        def expected = clinicalData.sampleClinicalFacts*.value as HashMultiset
+        // FIXME Modifiers not supported yet, check facts with modifierCd == '@'
+        def expected = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == '@'}
+        def expectedValue = expected*.value as HashMultiset
         def expectedConcepts = testData.conceptData.conceptDimensions.findAll {
-            it.conceptCode in clinicalData.sampleClinicalFacts*.conceptCode
+            it.conceptCode in expected*.conceptCode
         } as Set
-        def expectedPatients = clinicalData.sampleClinicalFacts*.patient as Set
+        def expectedPatients = expected*.patient as Set
 
         expect:
-        // FIXME Modifiers not supported yet
-//        hypercube.dimensionElements.size() == clinicalData.sampleStudy.dimensions.size()
-//        result == expected
+        hypercube.dimensionElements.size() == clinicalData.sampleStudy.dimensions.size()
+        result == expectedValue
 
         concepts.size() == expectedConcepts.size()
         concepts == expectedConcepts
