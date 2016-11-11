@@ -12,6 +12,7 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.Hypercube
+import org.transmartproject.db.dataquery2.QueryService
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.dataquery2.query.StudyConstraint
@@ -44,7 +45,7 @@ class MultidimensionalDataResourceService {
     Hypercube doQuery(Map args, String dataType) {
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
-        Collection<Constraint> constraints = args.constraints
+        Constraint constraint = args.constraint
         Set<Dimension> dimensions = args.dimensions as Set // make unique
 
         // These are not yet implemented
@@ -53,8 +54,8 @@ class MultidimensionalDataResourceService {
         def preloadDimensions = args.pack ?: false
 
         // Add any studies that are being selected on
-        Set studies = Study.findAllByStudyIdInList(constraints.findAll { it instanceof StudyConstraint }*.studyId) +
-                constraints.findAll { it instanceof StudyObjectConstraint }*.study as Set
+        Set studies = Study.findAllByStudyIdInList(QueryService.findStudyConstraints(constraint)*.studyId) +
+                QueryService.findStudyObjectConstraints(constraint)*.study as Set
 
         // We need methods from different interfaces that StatelessSessionImpl implements.
         def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
@@ -90,7 +91,7 @@ class MultidimensionalDataResourceService {
         dimensions.each {
             it.selectIDs(query)
         }
-        if (query.params.modifierCodes != ['@']) throw new NotImplementedException("Modifer dimensions are not yet implemented")
+        if (query.params.modifierCodes != ['@']) throw new NotImplementedException("Modifier dimensions are not yet implemented")
 
         q.with {
             inList 'modifierCd', query.params.modifierCodes
@@ -103,7 +104,7 @@ class MultidimensionalDataResourceService {
         HibernateCriteriaQueryBuilder restrictionsBuilder = new HibernateCriteriaQueryBuilder()
         // TODO: check that aliases set by dimensions and by restrictions don't clash
 
-        restrictionsBuilder.applyToCriteria(hibernateCriteria, constraints)
+        restrictionsBuilder.applyToCriteria(hibernateCriteria, [constraint])
 
         ScrollableResults results = query.criteria.instance.scroll(ScrollMode.FORWARD_ONLY)
 
