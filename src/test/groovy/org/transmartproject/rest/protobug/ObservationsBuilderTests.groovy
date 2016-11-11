@@ -8,6 +8,8 @@ import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.HypercubeValue
+import org.transmartproject.db.dataquery2.query.Constraint
+import org.transmartproject.db.dataquery2.query.StudyConstraint
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.TestData
 import org.transmartproject.rest.protobuf.ObservationsSerializer
@@ -23,19 +25,18 @@ import static org.hamcrest.core.IsNull.notNullValue
 @Rollback
 class ObservationsBuilderTests {
 
-
     TestData testData
     ClinicalTestData clinicalData
     Map<String, Dimension> dims
-
-
+    
     @Autowired
     MultidimensionalDataResourceService queryResource
 
     @Test
     public void testSerialization() throws Exception {
         setupData()
-        def mockedCube = queryResource.doQuery(constraints: [study: [clinicalData.longitudinalStudy.studyId]])
+        Constraint constraint = new StudyConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        def mockedCube = queryResource.doQuery([constraint: constraint], 'clinical')
         def builder = new ObservationsSerializer(mockedCube)
         def blob = builder.getDimensionsDefs()
         assertThat(blob, notNullValue())
