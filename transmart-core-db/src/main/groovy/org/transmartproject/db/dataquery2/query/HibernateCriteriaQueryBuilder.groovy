@@ -2,13 +2,16 @@ package org.transmartproject.db.dataquery2.query
 
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
+import org.hibernate.Criteria
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.LikeExpression
 import org.hibernate.criterion.MatchMode
+import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
+import org.hibernate.internal.CriteriaImpl
 import org.transmartproject.db.dataquery2.PatientDimension
 import org.transmartproject.db.dataquery2.StartTimeDimension
 import org.transmartproject.db.i2b2data.ConceptDimension
@@ -316,8 +319,18 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         def trialVisitAlias = getAlias('trialVisit')
         DetachedCriteria subCriteria = DetachedCriteria.forClass(Study, 'study')
         subCriteria.add(Restrictions.eq('study.studyId', constraint.studyId))
-        return Subqueries.propertyIn("${trialVisitAlias}.study", subCriteria.setProjection(Projections.id()))
+                .setProjection(Projections.id())
+        return Subqueries.propertyIn("${trialVisitAlias}.study", subCriteria)
     }
+
+    Criterion build(StudyObjectConstraint constraint){
+        if (constraint.study == null){
+            throw new QueryBuilderException("Study id constraint shouldn't have a null value for ids")
+        }
+        def trialVisitAlias = getAlias('trialVisit')
+        return Restrictions.eq("${trialVisitAlias}.study", constraint.study.id)
+    }
+
 
     Criterion build(NullConstraint constraint){
         String propertyName = getFieldPropertyName(constraint.field)
@@ -412,6 +425,33 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         }
         result.add(criterion)
         result
+    }
+
+    /**
+     * Apply constraints to criteria
+     *
+     * criteria must be a criteria on observation_fact
+     * @param criteria
+     * @param constraint
+     */
+    void applyToCriteria(CriteriaImpl criteria, Collection<Constraint> constraint) {
+        // grab existing aliases.
+        // Note: If projection aliases are reused in the constraints, the alias is assumed to be the same as the
+        // property.
+        // TODO: refactor all of this so we don't need to access privates here
+        aliases = (criteria.projection as ProjectionList).aliases.collectEntries {[it, it]}
+        criteria.subcriteriaList.each { CriteriaImpl.Subcriteria sub ->
+            aliases[sub.path] = sub.alias
+        }
+        def alreadyAddedAliases = aliases.keySet() + ['observation_fact']
+        Criterion criterion = build(new Combination(operator: Operator.AND, args: constraint))
+        this.aliases.each { property, alias ->
+            if(!(property in alreadyAddedAliases)) {
+                criteria.createAlias(property, alias)
+            }
+        }
+        criteria.add(criterion)
+        criteria
     }
 
     void build(Object obj) {
