@@ -7,17 +7,20 @@ import org.transmartproject.db.dataquery2.Hypercube
 import org.transmartproject.rest.protobuf.ObservationsSerializer
 
 @Transactional
-class DataService {
+class MultidimensionalDataSerialisationService {
 
-    @Autowired
-    MultidimensionalDataResourceService queryResource
-
-    def writeData(/*Query can also be just a Map*/query, String format = "json", OutputStream out) {
+    /**
+     * Serialise hypercube data to <code>out</code>.
+     *
+     * @param hypercube the hypercube to serialise.
+     * @param format the output format. Currently only 'json' is supported.
+     * @param out the stream to serialise to.
+     */
+    def writeData(Hypercube hypercube, String format = "json", OutputStream out) {
         if (!format.equalsIgnoreCase("json")) {
             throw new UnsupportedEncodingException("Serialization format ${format} is not supported")
         }
-        Hypercube result = queryResource.doQuery query
-        ObservationsSerializer builder = new ObservationsSerializer(result)
+        ObservationsSerializer builder = new ObservationsSerializer(hypercube)
         builder.writeTo(out, format)
     }
 }

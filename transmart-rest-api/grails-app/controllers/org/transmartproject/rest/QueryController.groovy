@@ -6,6 +6,8 @@ import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
+import org.transmartproject.db.clinical.MultidimensionalDataResourceService
+import org.transmartproject.db.dataquery2.Hypercube
 import org.transmartproject.db.dataquery2.QueryService
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.ConstraintFactory
@@ -19,6 +21,7 @@ import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 @Slf4j
 class QueryController {
 
+    @Autowired
     QueryService queryService
 
     @Autowired
@@ -27,7 +30,11 @@ class QueryController {
     @Autowired
     UsersResource usersResource
 
-    DataService dataService
+    @Autowired
+    MultidimensionalDataSerialisationService multidimensionalDataSerialisationService
+
+    @Autowired
+    MultidimensionalDataResourceService queryResource
 
     def conceptsResourceService
 
@@ -94,14 +101,20 @@ class QueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def hypercube() {
-        def query = [constraints: [study: ["multidimensional study"]]] //arguments["query"]
+        Constraint constraint = bindConstraint()
+        if (constraint == null) {
+            return
+        }
+        def dataType = 'clinical'
+        def query = [constraint: constraint]
+        Hypercube result = queryResource.doQuery query, dataType
         OutputStream out = new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
                     response.contentType = 'application/json'
                     response.outputStream
                 })
         try {
-            dataService.writeData(query, "json", out)
+            multidimensionalDataSerialisationService.writeData(result, "json", out)
         } finally {
             out.close()
         }
