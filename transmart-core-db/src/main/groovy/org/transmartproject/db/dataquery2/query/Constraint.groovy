@@ -206,11 +206,8 @@ class BiomarkerConstraint extends Constraint {
 @Canonical
 class ModifierConstraint extends Constraint {
     String modifierCode
-    @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
-    Operator operator = Operator.NONE
-    Object value
-
-    static constraints = {}
+    String path
+    ValueConstraint values
 }
 
 /**
