@@ -11,29 +11,13 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
-import org.transmartproject.db.dataquery2.query.BiomarkerConstraint
-import org.transmartproject.db.dataquery2.query.Combination
-import org.transmartproject.db.dataquery2.query.ConceptConstraint
-import org.transmartproject.db.dataquery2.query.Constraint
-import org.transmartproject.db.dataquery2.query.Field
-import org.transmartproject.db.dataquery2.query.FieldConstraint
-import org.transmartproject.db.dataquery2.query.HibernateCriteriaQueryBuilder
-import org.transmartproject.db.dataquery2.query.InvalidQueryException
-import org.transmartproject.db.dataquery2.query.NullConstraint
-import org.transmartproject.db.dataquery2.query.Operator
-import org.transmartproject.db.dataquery2.query.QueryBuilder
-import org.transmartproject.db.dataquery2.query.QueryBuilderException
-import org.transmartproject.db.dataquery2.query.AggregateType
-import org.transmartproject.db.dataquery2.query.StudyConstraint
-import org.transmartproject.db.dataquery2.query.StudyObjectConstraint
-import org.transmartproject.db.dataquery2.query.Type
-import org.transmartproject.db.dataquery2.query.ValueDimension
+import org.transmartproject.db.dataquery2.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.User
-import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 
 @Slf4j
 @Transactional
@@ -48,7 +32,8 @@ class QueryService {
 
     private final Field valueTypeField = new Field(dimension: ValueDimension, fieldName: 'valueType', type: Type.STRING)
     private final Field textValueField = new Field(dimension: ValueDimension, fieldName: 'textValue', type: Type.STRING)
-    private final Field numberValueField = new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
+    private
+    final Field numberValueField = new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
 
     private Number getAggregate(AggregateType aggregateType, DetachedCriteria criteria) {
         switch (aggregateType) {
@@ -149,7 +134,7 @@ class QueryService {
         }
     }
 
-    private List<BiomarkerConstraint> findAllBiomarkerConstraints(Constraint constraint){
+    private List<BiomarkerConstraint> findAllBiomarkerConstraints(Constraint constraint) {
         if (constraint instanceof BiomarkerConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -238,12 +223,12 @@ class QueryService {
     TabularResult highDimension(ConceptConstraint conceptConstraint,
                                 BiomarkerConstraint biomarkerConstaint,
                                 Constraint assayConstraint,
-                                String projectionName, User user){
+                                String projectionName, User user) {
 
         //check the existence and access for the conceptConstraint
         //FIXME This doesn't check access rights -> hackable to see all existing concepts if this test passes
         def concept = org.transmartproject.db.i2b2data.ConceptDimension.findByConceptPath(conceptConstraint.path)
-        if(concept == null){
+        if (concept == null) {
             throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}")
         }
 
@@ -257,7 +242,7 @@ class QueryService {
         String markerType = subjectSampleMapping.platform.markerType
 
         //Now we have MARKER_TYPE, but don't know the function to find HDdataTypeResource based on MARKER_TYPE
-        def mapEntry = highDimensionResourceService.dataTypeRegistry.find {dataTypeName, highDimensionDataTypeResourceFactory ->
+        def mapEntry = highDimensionResourceService.dataTypeRegistry.find { dataTypeName, highDimensionDataTypeResourceFactory ->
             def highDimensionDataTypeResource = highDimensionDataTypeResourceFactory()
             highDimensionDataTypeResource.module.platformMarkerTypes.contains(markerType)
         }
@@ -274,15 +259,21 @@ class QueryService {
         //Need to convert the V2 constraints into a patientset and create the PATIENT_ID_LIST_CONSTRAINT
         //or similar appraoch, but seems quite redundant.
         //Check with Hypercube requirements
-        List<AssayConstraint> assayConstraints = [typeResource.createAssayConstraint([concept_key:"\\\\i2b2 main"+conceptConstraint.path],
-                                                                                        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT
-                                                                                    ),
-                                                typeResource.createAssayConstraint([ids:['SUBJ_ID_1']], AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)]
+        def conceptKey = "\\\\i2b2 main" + conceptConstraint.path
+
+        List<org.transmartproject.db.i2b2data.PatientDimension> listPatientDimensions = listPatients(assayConstraint, user)
+        List<AssayConstraint> assayConstraints = [typeResource.createAssayConstraint([concept_key: conceptKey],
+                AssayConstraint.ONTOLOGY_TERM_CONSTRAINT
+        ),
+                                                  typeResource.createAssayConstraint([ids: listPatientDimensions*.inTrialId], AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)]
         //verify the biomarkerConstraint
         //only get GeneSymbol BOGUSRQCD1
         //[typeResource.createDataConstraint(['names':['BOGUSRQCD1']], DataConstraint.GENES_CONSTRAINT)]
 //        List<BiomarkerConstraint> biomakerConstraints = [biomarkerConstaint]
-        List<DataConstraint> dataConstraints = [biomarkerConstaint.constraint]
+        List<DataConstraint> dataConstraints = []
+        if (biomarkerConstaint?.type) {
+            dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.type)
+        }
         //get the data
         TabularResult table = typeResource.retrieveData(assayConstraints, dataConstraints, projection)
         table
