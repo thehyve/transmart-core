@@ -6,7 +6,7 @@ def sql = SqlProducer.createFromEnv()
 System.in.eachLine { String line ->
     def (table, file) = line.split('\t')
 
-    println "Loading ${table}"
+    println "Loading ${table} from ${file}"
     try {
         def csvLoader = new CsvLoader(
                 sql: sql,

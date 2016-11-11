@@ -12,8 +12,14 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.Hypercube
+import org.transmartproject.db.dataquery2.QueryService
+import org.transmartproject.db.dataquery2.query.Constraint
+import org.transmartproject.db.dataquery2.query.HibernateCriteriaQueryBuilder
+import org.transmartproject.db.dataquery2.query.StudyConstraint
+import org.transmartproject.db.dataquery2.query.StudyObjectConstraint
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.util.GormWorkarounds
 
 class MultidimensionalDataResourceService {
@@ -21,19 +27,35 @@ class MultidimensionalDataResourceService {
     @Autowired
     SessionFactory sessionFactory
 
-    static final int NUM_FIXED_PROJECTIONS = 3
+    /**
+     *
+     * @param dataType: The string identifying the data type. "clinical" for clinical data, for high dimensional data
+     * the appropriate identifier string (hdd is not yet implemented).
+     * @param constraints: (nullable) A list of Constraint-s. If null, selects all the data in the database.
+     * @param dimensions: (nullable) A list of Dimension-s to select. Only dimensions valid for the selected studies
+     * will actually be applied. If null, select all available dimensions.
+     *
+     * Not yet implemented:
+     * @param sort
+     * @param pack
+     * @param preloadDimensions
+     *
+     * @return a Hypercube result
+     */
+    Hypercube doQuery(Map args, String dataType) {
+        if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
-    Hypercube doQuery(Map args) {
-        Map constraints = args.constraints
+        Constraint constraint = args.constraint
+        Set<Dimension> dimensions = args.dimensions as Set // make unique
+
+        // These are not yet implemented
         def sort = args.sort
         def pack = args.pack
         def preloadDimensions = args.pack ?: false
 
-        def studynames = constraints?.study
-        if (studynames instanceof String) studynames = [studynames]
-        if(!studynames[0]) {
-            throw new RuntimeException("no study provided")
-        }
+        // Add any studies that are being selected on
+        Set studies = Study.findAllByStudyIdInList(QueryService.findStudyConstraints(constraint)*.studyId) +
+                QueryService.findStudyObjectConstraints(constraint)*.study as Set
 
         // We need methods from different interfaces that StatelessSessionImpl implements.
         def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
@@ -41,7 +63,6 @@ class MultidimensionalDataResourceService {
 
         HibernateCriteriaBuilder q = GormWorkarounds.createCriteriaBuilder(ObservationFact, 'observations', session)
         q.with {
-
             // The main reason to use this projections block is that it clears all the default projections that
             // select all fields.
             projections {
@@ -50,39 +71,45 @@ class MultidimensionalDataResourceService {
                 property 'textValue', 'textValue'
                 property 'numberValue', 'numberValue'
             }
-
-            //instance.resultTransformer = Transformers.ALIAS_TO_ENTITY_MAP
-
-            trialVisit {
-                study {
-                    inList 'studyId', studynames
-                }
-            }
         }
 
-        // This throws a LegacyStudyException for non-17.1 style studies
-        List<Dimension> dimensions = Study.findAll {
-            studyId in studynames
-        }*.dimensions.flatten()*.dimension.unique()
+        Set<Dimension> validDimensions
+        if(studies) {
+            // This throws a LegacyStudyException for non-17.1 style studies
+            // This could probably be done more efficiently, but GORM support for many-to-many collections is pretty
+            // buggy. And usually the studies and dimensions will be cached in memory.
+            validDimensions = studies*.dimensions.flatten()*.dimension
+
+        } else {
+            validDimensions = DimensionDescription.all*.dimension
+        }
+        // only allow valid dimensions
+        dimensions = dimensions?.findAll { it in validDimensions } ?: validDimensions as List
 
         Query query = new Query(q, [modifierCodes: ['@']])
 
         dimensions.each {
             it.selectIDs(query)
         }
-        if (query.params.modifierCodes != ['@']) throw new NotImplementedException("Modifer dimensions are not yet implemented")
+        if (query.params.modifierCodes != ['@']) throw new NotImplementedException("Modifier dimensions are not yet implemented")
 
         q.with {
             inList 'modifierCd', query.params.modifierCodes
-            // todo: order by primary-key-except-modifierCodes
+            // TODO: order by primary-key-except-modifierCodes
         }
 
-        String[] aliases = ((query.criteria.instance as CriteriaImpl).projection as ProjectionList).aliases
+        CriteriaImpl hibernateCriteria = query.criteria.instance
+        String[] aliases = (hibernateCriteria.projection as ProjectionList).aliases
+
+        HibernateCriteriaQueryBuilder restrictionsBuilder = new HibernateCriteriaQueryBuilder()
+        // TODO: check that aliases set by dimensions and by restrictions don't clash
+
+        restrictionsBuilder.applyToCriteria(hibernateCriteria, [constraint])
+
         ScrollableResults results = query.criteria.instance.scroll(ScrollMode.FORWARD_ONLY)
 
         new Hypercube(results, dimensions, aliases, query, session)
         // session will be closed by the Hypercube
-
     }
 
     /*

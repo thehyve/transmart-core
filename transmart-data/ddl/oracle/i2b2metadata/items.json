@@ -23,6 +23,39 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "TRIGGER",
+      "owner" : "I2B2METADATA",
+      "name" : "DIMENSION_DESCRIPTIOMN_ID_TRG"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "DIMENSION_DESCRIPTION"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
+      "name" : "SEQ_DIMENSION_DESCRIPTIOMN_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "DIMENSION_DESCRIPTION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2METADATA",
+      "name" : "FK_9VVV5M5NBXSU2LKBEEFTEVD5J"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "STUDY_DIMENSIONS"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
       "name" : "I2B2"
@@ -193,6 +226,13 @@
     "child" : {
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
+      "name" : "SEQ_DIMENSION_DESCRIPTIOMN_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
       "name" : "SEQ_I2B2_DATA_ID"
     },
     "parents" : [ ]
@@ -210,6 +250,17 @@
       "name" : "SQ_I2B2_TAG_ID"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "STUDY_DIMENSIONS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "DIMENSION_DESCRIPTION"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -291,6 +342,27 @@
       "name" : "CUSTOM_META"
     },
     "file" : "i2b2metadata/custom_meta.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "I2B2METADATA",
+      "name" : "DIMENSION_DESCRIPTIOMN_ID_TRG"
+    },
+    "file" : "i2b2metadata/dimension_description.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "DIMENSION_DESCRIPTION"
+    },
+    "file" : "i2b2metadata/dimension_description.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2METADATA",
+      "name" : "FK_9VVV5M5NBXSU2LKBEEFTEVD5J"
+    },
+    "file" : "i2b2metadata/study_dimensions.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -435,6 +507,13 @@
     "item" : {
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
+      "name" : "SEQ_DIMENSION_DESCRIPTIOMN_ID"
+    },
+    "file" : "i2b2metadata/dimension_description.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2METADATA",
       "name" : "SEQ_I2B2_DATA_ID"
     },
     "file" : "i2b2metadata/_misc.sql"
@@ -452,6 +531,13 @@
       "name" : "SQ_I2B2_TAG_ID"
     },
     "file" : "i2b2metadata/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2METADATA",
+      "name" : "STUDY_DIMENSIONS"
+    },
+    "file" : "i2b2metadata/study_dimensions.sql"
   }, {
     "item" : {
       "type" : "TABLE",
