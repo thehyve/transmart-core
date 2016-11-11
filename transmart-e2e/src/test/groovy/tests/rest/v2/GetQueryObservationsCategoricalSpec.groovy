@@ -16,74 +16,75 @@ import static tests.rest.v2.constraints.*
  *      enabling fetching patients and observations where a categorical variable has a certain value.
  *      E.g., fetching data for patients with value 'female' for 'Sex' or with value 'Unknown' for 'Diagnosis'.
  */
-class GetQueryPatientsCategoricalSpec extends RESTSpec{
+class GetQueryObservationsCategoricalSpec extends RESTSpec{
 
     /**
      *  given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
-     *  when: "I get all patients from the study that have concept Gender"
-     *  then: "no patients are returned"
+     *  when: "I get all observations from the study that have concept Gender"
+     *  then: "no observations are returned"
      */
     @Requires({CATEGORICAL_VALUES_LOADED})
-    def "get patient using old data format new style query"(){
+    def "get observations using old data format new style query"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
 
-        when: "I get all patients from the  study that have concept Gender"
+        when: "I get all observations from the  study that have concept Gender"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"]
 
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
-        then: "no patients are returned"
+        then: "no observations are returned"
         that responseData.size(), is(0)
     }
 
     /**
      *  given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
-     *  when: "I get all patients from the study that have concept Gender\Female"
-     *  then: "1 patient is returned"
+     *  when: "I get all observations from the study that have concept Gender\Female"
+     *  then: "1 observation is returned"
      */
     @Requires({CATEGORICAL_VALUES_LOADED})
-    def "get patient using old data format old style query"(){
+    def "get observations using old data format old style query"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
 
-        when: "I get all patients from the study that have concept Female"
+        when: "I get all observations from the study that have concept Female"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"]
 
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
-        then: "1 patient is returned"
+        then: "1 observation is returned"
         that responseData.size(), is(1)
-        that responseData, everyItem(hasKey('id'))
+        that responseData, everyItem(hasEntry('conceptCode', 'CV:DEM:SEX:F'))
+        that responseData, everyItem(hasEntry('textValue', 'Female'))
     }
 
     /**
      *  given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
-     *  when: "I get all patients from the study that have concept Race"
-     *  then: "2 patients are returned"
+     *  when: "I get all observations from the study that have concept Race"
+     *  then: "2 observations are returned"
      */
     @Requires({CATEGORICAL_VALUES_LOADED})
-    def "get patient using new data format new style query"(){
+    def "get observations using new data format new style query"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
 
-        when: "I get all patients from the study that have concept Race"
+        when: "I get all observations from the study that have concept Race"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"]
 
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
-        then: "3 patients are returned"
+        then: "3 observations are returned"
         that responseData.size(), is(3)
-        that responseData, everyItem(hasKey('id'))
+        that responseData, everyItem(hasEntry('conceptCode', 'CV:DEM:RACE'))
     }
 
     /**
      *  given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
-     *  when: "I get all patients from the study that have concept Race with value Caucasian"
-     *  then: "2 patients are returned"
+     *  when: "I get all observations from the study that have concept Race with value Caucasian"
+     *  then: "2 observations are returned"
      */
     @Requires({CATEGORICAL_VALUES_LOADED})
-    def "get patient using new data format new style query with value"(){
+    def "get observations using new data format new style query with value"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
 
-        when: "I get all patients from the study that have concept Race with value Caucasian"
+        when: "I get all observations from the study that have concept Race with value Caucasian"
         def constraintMap = [
                 type: Combination,
                 operator: AND,
@@ -93,12 +94,12 @@ class GetQueryPatientsCategoricalSpec extends RESTSpec{
                 ]
         ]
 
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
-        then: "2 patients are returned"
+        then: "2 observations are returned"
         that responseData.size(), is(2)
-        that responseData, everyItem(hasKey('id'))
-        that responseData, everyItem(hasEntry('race', 'Caucasian'))
+        that responseData, everyItem(hasEntry('conceptCode', 'CV:DEM:RACE'))
+        that responseData, everyItem(hasEntry('textValue', 'Caucasian'))
     }
 
 }
