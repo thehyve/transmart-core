@@ -3,6 +3,8 @@ package org.transmartproject.db.dataquery2
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.dataquery2.query.Combination
@@ -232,4 +234,16 @@ class QueryServiceSpec extends TransmartSpecification {
 
     }
 
+    void 'test HighDImension function'(){
+        setup:
+        setupData()
+
+        when:
+        ConceptConstraint constraint = new ConceptConstraint(path:'\\\\foo\\study1\\bar\\')
+        String projection = Projection.DEFAULT_REAL_PROJECTION
+        def result = queryService.highDimension(constraint, projection)
+
+        then:
+        result instanceof TabularResult
+    }
 }

@@ -4,16 +4,27 @@ import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.HighDimensionResource
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery2.HypercubeImpl
+import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
+import org.transmartproject.db.dataquery.highdim.mrna.MrnaModule
 import org.transmartproject.db.dataquery2.QueryService
+import org.transmartproject.db.dataquery2.query.BiomarkerConstraint
+import org.transmartproject.db.dataquery2.query.Combination
+import org.transmartproject.db.dataquery2.query.ConceptConstraint
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.ConstraintFactory
 import org.transmartproject.db.dataquery2.query.DimensionMetadata
 import org.transmartproject.db.dataquery2.query.Field
 import org.transmartproject.db.dataquery2.query.AggregateType
+import org.transmartproject.db.dataquery2.query.Operator
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
@@ -37,6 +48,9 @@ class QueryController {
     MultidimensionalDataResourceService queryResource
 
     def conceptsResourceService
+
+    HighDimensionResourceService highDimensionResourceService
+
 
     private Constraint getConstraint() {
         if (!params.constraint) {
@@ -87,7 +101,7 @@ class QueryController {
         if (constraint == null) {
             return
         }
-        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def observations = queryService.list(constraint, user)
         render observations as JSON
     }
@@ -151,7 +165,7 @@ class QueryController {
         if (constraint == null) {
             return
         }
-        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def count = queryService.count(constraint, user)
         def result = [count: count]
         render result as JSON
@@ -182,10 +196,37 @@ class QueryController {
             return
         }
         def aggregateType = AggregateType.forName(params.type)
-        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def aggregatedValue = queryService.aggregate(aggregateType, constraint, user)
         def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
         render result as JSON
+    }
+
+
+    def highDim() {
+
+
+        String projectionName
+        if (params.projection) {
+            projectionName = params.projection
+        } else {
+            projectionName = Projection.LOG_INTENSITY_PROJECTION
+        }
+        HighDimensionDataTypeResource dataTypeResource = highDimensionResourceService.getSubResourceForType('mrna')
+        //Constraint constraint = bindConstraint()
+        Constraint constraint = new Combination(operator:Operator.AND,
+                                                 args: [new ConceptConstraint(path:'\\foo\\study1\\bar\\'),
+                                                        new BiomarkerConstraint(
+                                                                constraint: dataTypeResource.createDataConstraint([names:['BOGUSRQCD1']], DataConstraint.GENES_CONSTRAINT)
+                                                        )])
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+
+        def table = queryService.highDimension(constraint, projectionName, user)
+
+        def result = table.getRows()
+        render result as JSON
+        //def something = [value:1]
+        //render something as JSON
     }
 
     /**
@@ -198,4 +239,5 @@ class QueryController {
         List<Field> fields = DimensionMetadata.supportedFields
         render fields as JSON
     }
+
 }
