@@ -24,7 +24,9 @@ import org.transmartproject.db.dataquery2.query.ConstraintFactory
 import org.transmartproject.db.dataquery2.query.DimensionMetadata
 import org.transmartproject.db.dataquery2.query.Field
 import org.transmartproject.db.dataquery2.query.AggregateType
+import org.transmartproject.db.dataquery2.query.FieldConstraint
 import org.transmartproject.db.dataquery2.query.Operator
+import org.transmartproject.db.dataquery2.query.PatientSetConstraint
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
@@ -214,14 +216,26 @@ class QueryController {
         }
         HighDimensionDataTypeResource dataTypeResource = highDimensionResourceService.getSubResourceForType('mrna')
         //Constraint constraint = bindConstraint()
-        Constraint constraint = new Combination(operator:Operator.AND,
-                                                 args: [new ConceptConstraint(path:'\\foo\\study1\\bar\\'),
-                                                        new BiomarkerConstraint(
-                                                                constraint: dataTypeResource.createDataConstraint([names:['BOGUSRQCD1']], DataConstraint.GENES_CONSTRAINT)
-                                                        )])
+        ConceptConstraint conceptConstraint = new ConceptConstraint(path:'\\foo\\study1\\bar\\')
+        BiomarkerConstraint biomarkerConstraint = new BiomarkerConstraint(
+                                    constraint: dataTypeResource.createDataConstraint(
+                                            [names:['BOGUSRQCD1']], DataConstraint.GENES_CONSTRAINT)
+                                                        )
+        Constraint assayConstraint = new FieldConstraint(
+                operator:Operator.EQUALS,
+                value: '',
+                field: new Field(
+                        dimension: '',
+                        fieldName: '',
+                        type: 'STRING'
+                )
+        )
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        def table = queryService.highDimension(constraint, projectionName, user)
+        def table = queryService.highDimension(conceptConstraint,
+                                                biomarkerConstraint,
+                                                assayConstraint,
+                                                projectionName, user)
 
         def result = table.getRows()
         render result as JSON
