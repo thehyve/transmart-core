@@ -97,7 +97,7 @@ class GetQueryAggregatedTimeseriesSpec extends RESTSpec{
      *  then: "an error is returned"
      */
     @Requires({EHR_LOADED})
-    def "aggregated timeseries missing type"(){
+    def "aggregated missing type"(){
         given: "study EHR is loaded"
 
         when: "for that study I Aggregated the concept Heart Rate without a type"
@@ -115,4 +115,5 @@ class GetQueryAggregatedTimeseriesSpec extends RESTSpec{
         assert responseData.message == 'Type parameter is missing.'
         assert responseData.type == 'InvalidArgumentsException'
     }
+
 }

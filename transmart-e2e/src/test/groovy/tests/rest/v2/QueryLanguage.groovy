@@ -1,12 +1,12 @@
 package tests.rest.v2
 
 public interface Operator {
-    String LESS_THAN = '\'<\'',
-           GREATER_THAN = '\'>\'',
-           EQUALS ='\'=\'',
-           NOT_EQUALS = '\'!=\'',
-           LESS_THAN_OR_EQUALS = '\'<=\'',
-           GREATER_THAN_OR_EQUALS = '\'>=\'',
+    String LESS_THAN = '<',
+           GREATER_THAN = '>',
+           EQUALS ='=',
+           NOT_EQUALS = '!=',
+           LESS_THAN_OR_EQUALS = '<=',
+           GREATER_THAN_OR_EQUALS = '>=',
            LIKE ='like',
            CONTAINS = 'contains',
            IN = 'in',

@@ -2,12 +2,14 @@ package tests.rest.v2
 
 import grails.converters.JSON
 import spock.lang.Ignore
+import spock.lang.IgnoreIf
 
+import static config.Config.*
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import base.RESTSpec
 
-@Ignore("not implemented yet")
+@IgnoreIf({SUPPRESS_UNIMPLEMENTED})
 class GetTreeNodesSpec extends  RESTSpec{
 
 
