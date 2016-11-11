@@ -1,12 +1,20 @@
 package org.transmartproject.db.dataquery2
 
 import grails.transaction.Transactional
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.db.accesscontrol.AccessControlChecks
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
+import org.transmartproject.db.dataquery2.query.BiomarkerConstraint
 import org.transmartproject.db.dataquery2.query.Combination
 import org.transmartproject.db.dataquery2.query.ConceptConstraint
 import org.transmartproject.db.dataquery2.query.Constraint
@@ -25,8 +33,9 @@ import org.transmartproject.db.dataquery2.query.Type
 import org.transmartproject.db.dataquery2.query.ValueDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.User
+import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 
-
+@Slf4j
 @Transactional
 class QueryService {
 
@@ -34,6 +43,8 @@ class QueryService {
     AccessControlChecks accessControlChecks
 
     SessionFactory sessionFactory
+
+    HighDimensionResourceService highDimensionResourceService
 
     private final Field valueTypeField = new Field(dimension: ValueDimension, fieldName: 'valueType', type: Type.STRING)
     private final Field textValueField = new Field(dimension: ValueDimension, fieldName: 'textValue', type: Type.STRING)
@@ -56,7 +67,7 @@ class QueryService {
             default:
                 throw new QueryBuilderException("Query type not supported: ${aggregateType}")
         }
-        aggregateType == AggregateType.COUNT ? (Long)get(criteria) : (Number)get(criteria)
+        aggregateType == AggregateType.COUNT ? (Long) get(criteria) : (Number) get(criteria)
     }
 
     private Object get(DetachedCriteria criteria) {
@@ -138,6 +149,16 @@ class QueryService {
         }
     }
 
+    private List<BiomarkerConstraint> findAllBiomarkerConstraints(Constraint constraint){
+        if (constraint instanceof BiomarkerConstraint) {
+            return [constraint]
+        } else if (constraint instanceof Combination) {
+            constraint.args.collectMany { findAllBiomarkerConstraints(it) }
+        } else {
+            return []
+        }
+    }
+
     Long count(Constraint constraint, User user) {
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
@@ -203,7 +224,7 @@ class QueryService {
                 args: [conceptConstraint, notNumericalCombination]
         )
 
-        if (exists(builder, conceptNotNumericalCombination)){
+        if (exists(builder, conceptNotNumericalCombination)) {
             def message = 'One of the observationFacts had either an empty numerical value or a ' +
                     'textValue with something else then \'E\''
             throw new InvalidQueryException(message)
@@ -212,6 +233,72 @@ class QueryService {
         // get aggregate value
         DetachedCriteria queryCriteria = builder.buildCriteria(constraint)
         return getAggregate(type, queryCriteria)
+    }
+
+    TabularResult highDimension(Constraint constraint, String projectionName, User user){
+
+        //get conceptKey from ConceptConstraint
+        def conceptConstraint
+        List<ConceptConstraint> conceptConstraintList = findConceptConstraints(constraint)
+        switch (conceptConstraintList.size()) {
+            case 0:
+                throw new InvalidQueryException('Aggregate requires exactly one concept constraint, found none.')
+            case { it > 1 }:
+                throw new InvalidQueryException("Aggregate requires exactly one concept constraint, found ${conceptConstraintList.size()}.")
+            default:
+                conceptConstraint = conceptConstraintList[0]
+        }
+
+        //check the existence and access for the conceptConstraint
+        //FIXME This doesn't check access rights -> hackable to see all existing concepts if this test passes
+        def concept = org.transmartproject.db.i2b2data.ConceptDimension.findByConceptPath(conceptConstraint.path)
+        if(concept == null){
+            throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}")
+        }
+
+        //get the dataType based on the ConceptCd
+        //Step 1 get platform from subject_sample table matching the ConceptCd
+        //Step 2 get the Biomaker Type from the DE_GPL_INFO
+        //String dataType
+        def subjectSampleMapping = DeSubjectSampleMapping.find {
+            conceptCode == concept.conceptCode
+        }
+        String markerType = subjectSampleMapping.platform.markerType
+
+        //Now we have MARKER_TYPE, but don't know the function to find HDdataTypeResource based on MARKER_TYPE
+        def mapEntry = highDimensionResourceService.dataTypeRegistry.find {dataTypeName, highDimensionDataTypeResourceFactory ->
+            def highDimensionDataTypeResource = highDimensionDataTypeResourceFactory()
+            highDimensionDataTypeResource.module.platformMarkerTypes.contains(markerType)
+        }
+
+        //Get the Biomarkers from the constraint
+
+        //Get the patientset / Assay determinating constraint
+
+        //now do with the HighDimService was doing
+        //get resourceType
+        HighDimensionDataTypeResource typeResource = mapEntry.value()
+        //verify the projections
+        HDProjection projection = typeResource.createProjection(projectionName)
+        //verify the assayConstraint
+        //why do we need \\\\i2b2 main? -> find logic
+        //filter out SAMPLE_FOR_-302
+        //Current TestData doesn't allow for selection on SampleType, Timepoint etc
+        //Need to convert the V2 constraints into a patientset and create the PATIENT_ID_LIST_CONSTRAINT
+        //or similar appraoch, but seems quite redundant.
+        //Check with Hypercube requirements
+        List<AssayConstraint> assayConstraints = [typeResource.createAssayConstraint([concept_key:"\\\\i2b2 main"+conceptConstraint.path],
+                                                                                        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT
+                                                                                    ),
+                                                typeResource.createAssayConstraint([ids:['SUBJ_ID_1']], AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)]
+        //verify the biomarkerConstraint
+        //only get GeneSymbol BOGUSRQCD1
+        //[typeResource.createDataConstraint(['names':['BOGUSRQCD1']], DataConstraint.GENES_CONSTRAINT)]
+        List<BiomarkerConstraint> biomakerConstraints = findAllBiomarkerConstraints(constraint)
+        List<DataConstraint> dataConstraints = biomakerConstraints.collect { it.constraint}
+        //get the data
+        TabularResult table = typeResource.retrieveData(assayConstraints, dataConstraints, projection)
+        table
     }
 
 }
