@@ -86,6 +86,9 @@ dependencies {
     compile 'org.springframework.security:spring-security-web:3.2.3.RELEASE'
     //compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.11.RELEASE'
 
+    runtime 'com.google.protobuf:protobuf-java:3.1.0'
+    runtime 'com.google.protobuf:protobuf-java-util:3.1.0' // provides  protobuf-to-json serialization
+
     compile "org.swinglabs:pdf-renderer:1.0.5"
     compile 'antlr:antlr:2.7.7'
     compile 'net.sf.opencsv:opencsv:2.3'
