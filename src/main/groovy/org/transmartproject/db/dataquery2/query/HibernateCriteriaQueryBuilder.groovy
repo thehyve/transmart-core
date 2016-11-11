@@ -18,6 +18,7 @@ import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.querytool.QtPatientSetCollection
+import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 
 /**
  * QueryBuilder that produces a {@link DetachedCriteria} object representing
@@ -128,7 +129,6 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * See {@link #build(TemporalConstraint)} for an example.
      */
     Criterion build(ModifierConstraint constraint) {
-        // create subquery with combined constraint for modifier code and value
         throw new NotImplementedException()
     }
 
@@ -290,7 +290,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         else if (constraint.patientSetId != null) {
             DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')
             subCriteria.add(Restrictions.eq("qt_patient_set_collection.id", constraint.patientSetId))
-            
+
             return Subqueries.propertyEq('patient',
                     subCriteria.setProjection(Projections.property("patient")))
         }
@@ -414,10 +414,19 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         aliases = [:]
         def result = builder()
         def trialVisitAlias = getAlias('trialVisit')
-        def criterion = Restrictions.and(
-                build(constraint),
-                Restrictions.in("${trialVisitAlias}.study", getStudies())
-        )
+        def criterion
+        if (checkModifierConstraintExists(constraint)) {
+            criterion = Restrictions.and(
+                    build(constraint),
+                    Restrictions.in("${trialVisitAlias}.study", getStudies())
+            )
+        } else {
+            criterion = Restrictions.and(
+                    build(constraint),
+                    Restrictions.in("${trialVisitAlias}.study", getStudies()),
+                    Restrictions.eq('modifierCd', "@")
+            )
+        }
         aliases.each { property, alias ->
             if (property != 'observation_fact') {
                 result.createAlias(property, alias)
@@ -425,6 +434,11 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         }
         result.add(criterion)
         result
+    }
+
+    private boolean checkModifierConstraintExists(Constraint constraint) {
+        ( ( constraint.class == Combination && constraint.args.any { it.class == ModifierConstraint } )
+                || ( constraint.class == ModifierConstraint ) )
     }
 
     /**
@@ -458,3 +472,4 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         throw new QueryBuilderException("Type not supported: ${obj?.class?.simpleName}")
     }
 }
+
