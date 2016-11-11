@@ -7,6 +7,7 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.dataquery2.query.BiomarkerConstraint
 import org.transmartproject.db.dataquery2.query.Combination
 import org.transmartproject.db.dataquery2.query.ConceptConstraint
 import org.transmartproject.db.dataquery2.query.Constraint
@@ -237,11 +238,12 @@ class QueryServiceSpec extends TransmartSpecification {
     void 'test HighDImension function'(){
         setup:
         setupData()
+        def user = accessLevelTestData.users[0]
+        ConceptConstraint constraint = new ConceptConstraint(path:'\\foo\\study1\\bar\\')
+        String projection = Projection.DEFAULT_REAL_PROJECTION
 
         when:
-        ConceptConstraint constraint = new ConceptConstraint(path:'\\\\foo\\study1\\bar\\')
-        String projection = Projection.DEFAULT_REAL_PROJECTION
-        def result = queryService.highDimension(constraint, projection)
+        def result = queryService.highDimension(constraint, new BiomarkerConstraint(),new TrueConstraint(), projection, user)
 
         then:
         result instanceof TabularResult
