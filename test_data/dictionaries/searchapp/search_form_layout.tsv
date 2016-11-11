@@ -1,0 +1,6 @@
+1	"file"	"displayName"	"Name"	"string"	1	Y
+2	"file"	"fileType"	"File Type"	"string"	2	Y
+3	"file"	"fileSize"	"Size"	"dataSize"	3	Y
+4	"file"	"createDate"	"Created"	"date"	4	Y
+5	"file"	"updateDate"	"Updated"	"date"	5	Y
+6	"file"	"fileDescription"	"Description"	"prestring"	6	Y
