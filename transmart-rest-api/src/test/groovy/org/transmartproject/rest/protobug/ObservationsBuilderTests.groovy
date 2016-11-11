@@ -10,7 +10,6 @@ import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.HypercubeValue
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.TestData
-import org.transmartproject.rest.protobuf.ObservationsProto
 import org.transmartproject.rest.protobuf.ObservationsSerializer
 
 import static org.hamcrest.MatcherAssert.assertThat

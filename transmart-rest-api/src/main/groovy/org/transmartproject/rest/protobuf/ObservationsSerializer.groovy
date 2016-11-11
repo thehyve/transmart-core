@@ -1,31 +1,51 @@
 package org.transmartproject.rest.protobuf
 
-import com.google.common.collect.ImmutableList
 import com.google.protobuf.util.JsonFormat
-import org.apache.commons.lang.StringUtils
+import groovy.util.logging.Slf4j
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.dataquery2.Hypercube
 import org.transmartproject.db.dataquery2.HypercubeValue
+import org.transmartproject.db.dataquery2.query.DimensionMetadata
+
+import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
+import static org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.*
 
 /**
  * Created by piotrzakrzewski on 02/11/2016.
  */
+@Slf4j
 public class ObservationsSerializer {
 
     Hypercube cube
     JsonFormat.Printer jsonPrinter
-    List footerElements = new ArrayList()
+    Map<Dimension, List<Object>> dimensionElements = [:]
+    Map<Dimension, List<FieldDefinition>> dimensionFields = [:]
 
     ObservationsSerializer(Hypercube cube) {
         jsonPrinter = JsonFormat.printer()
         this.cube = cube
     }
 
-    def getDimensionsDefs() {
-        ImmutableList<Dimension> dimensions = cube.getDimensions()
+    static ColumnType getFieldType(Class type) {
+        if (Float.isAssignableFrom(type)) {
+            return ColumnType.DOUBLE
+        } else if (Double.isAssignableFrom(type)) {
+            return ColumnType.DOUBLE
+        } else if (Number.isAssignableFrom(type)) {
+            return ColumnType.INT
+        } else if (Date.isAssignableFrom(type)) {
+            return ColumnType.TIMESTAMP
+        } else if (String.isAssignableFrom(type)) {
+            return ColumnType.STRING
+        } else {
+            // refer to objects by their identifier
+            return ColumnType.INT
+        }
+    }
 
-        def dimensionDeclarations = dimensions.collect() { dim ->
-            def builder = ObservationsProto.DimensionDeclaration.newBuilder()
+    def getDimensionsDefs() {
+        def dimensionDeclarations = cube.dimensions.collect { dim ->
+            def builder = DimensionDeclaration.newBuilder()
             String dimensionName = dim.toString()
             builder.setName(dimensionName)
             if (dim.packable.packable) {
@@ -34,95 +54,201 @@ public class ObservationsSerializer {
             if (dim.density == Dimension.Density.DENSE) {
                 builder.setInline(true)
             }
-            def properties = dim.properties
             def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionName)
-            for (String publicField : publicFacingFields) {
-                def fieldDefBuilder = ObservationsProto.FieldDefinition.newBuilder()
-                fieldDefBuilder.setName(publicField)
-                Class valueType = properties.get(publicField).getClass()
-                Class targetType = HighDimBuilder.decideColumnValueType(valueType)
-                if (targetType.equals(String)) {
-                    fieldDefBuilder.setType(ObservationsProto.FieldDefinition.ColumnType.STRING)
+            def fields = []
+            def metadata = DimensionMetadata.forDimension(dim.class)
+            metadata.fields.each { field ->
+                if (field.fieldName in publicFacingFields) {
+                    Class valueType = metadata.fieldTypes[field.fieldName]
+                    def fieldDef = FieldDefinition.newBuilder()
+                            .setName(field.fieldName)
+                            .setType(getFieldType(valueType))
+                            .build()
+                    fields << fieldDef
+                    builder.addFields(fieldDef)
                 }
-                builder.addFields(fieldDefBuilder)
             }
-            builder
+            dimensionFields[dim] = fields
+            builder.build()
         }
         dimensionDeclarations
     }
 
     def writeHeader(BufferedWriter out, String format = "json") {
-        def dimDefs = getDimensionsDefs()
-        dimDefs.forEach() { dimDef ->
-            jsonPrinter.appendTo(dimDef, out)
-        }
+        def header = Header.newBuilder().addAllDimensionDeclarations(dimensionsDefs)
+        jsonPrinter. appendTo(header, out)
     }
 
     def writeCells(BufferedWriter out) {
         Iterator<HypercubeValue> it = cube.iterator
         while (it.hasNext()) {
             HypercubeValue value = it.next()
-            ObservationsProto.Observation.Builder builder = createCell(value)
-            jsonPrinter.appendTo(builder, out)
+            Observation observation = createCell(value)
+            jsonPrinter.appendTo(observation, out)
         }
     }
 
-    ObservationsProto.Observation.Builder createCell(HypercubeValue value) {
-        ObservationsProto.Observation.Builder builder = ObservationsProto.Observation.newBuilder()
-        builder.stringValue = value.value
+    Observation createCell(HypercubeValue value) {
+        Observation.Builder builder = Observation.newBuilder()
+        if (value.value instanceof Number) {
+            builder.numericValue = value.value
+        } else {
+            builder.stringValue = value.value
+        }
         for (Dimension dim : cube.dimensions) {
             Object dimElement = value.getDimElement(dim)
             if (dim.density == Dimension.Density.SPARSE) {
-                ObservationsProto.DimensionElements.Builder inlineDim = buildSparseCell(dimElement)
-                builder.addInlineDimensions(inlineDim)
+                builder.addInlineDimensions(buildSparseCell(dim, dimElement))
             } else {
-                addDenseCell(builder, dim, dimElement)
+                builder.addDimensionIndexes(determineFooterIndex(dim, dimElement))
             }
         }
-        builder
+        builder.build()
     }
 
-    private void addDenseCell(ObservationsProto.Observation.Builder builder, Dimension dim, Object dimElement) {
-        ObservationsProto.DimensionCell.Builder dimBuilder = ObservationsProto.DimensionCell.newBuilder()
-        int dimIndex = cube.dimensionsIndex.get(dim)
-        dimBuilder.setDimensionIndex(dimIndex)
-        int dimElIndex = determineFooterIndex(dimElement)
-        dimBuilder.setValueIndex(dimElIndex)
-        builder.addDimensions(dimBuilder)
-    }
-
-    private ObservationsProto.DimensionElements.Builder buildSparseCell(Object dimElement) {
-        ObservationsProto.DimensionElements.Builder inlineDimBuilder = ObservationsProto.DimensionElements.newBuilder()
-        Map<String, Object> props = dimElement.getProperties()
-        for (String fieldName : props.keySet()) {
-            ObservationsProto.DimensionElement.Builder dimElementBuilder = ObservationsProto.DimensionElement.newBuilder()
-            String fieldVal = props.get(fieldName)
-            if (StringUtils.isNotEmpty(fieldVal)) {
-                dimElementBuilder.setStringValue(fieldVal)
-                ObservationsProto.DimensionElement msg = dimElementBuilder.build()
-                inlineDimBuilder.putFields(fieldName, msg)
-            }
+    static buildValue(FieldDefinition field, Object value) {
+        def builder = Value.newBuilder()
+        switch (field.type) {
+            case ColumnType.TIMESTAMP:
+                def timestampValue = TimestampValue.newBuilder()
+                if (value == null) {
+                    //
+                } else if (value instanceof Date) {
+                    timestampValue.val = value.time
+                } else {
+                    throw new Exception("Type not supported.")
+                }
+                builder.timestampValue = timestampValue.build()
+                break
+            case ColumnType.DOUBLE:
+                def doubleValue = DoubleValue.newBuilder()
+                if (value instanceof Float) {
+                    doubleValue.val = value.doubleValue()
+                } else if (value instanceof Double) {
+                    doubleValue.val = value.doubleValue()
+                } else {
+                    throw new Exception("Type not supported.")
+                }
+                builder.doubleValue = doubleValue.build()
+                break
+            case ColumnType.INT:
+                def intValue = IntValue.newBuilder()
+                if (value == null) {
+                    //
+                } else if (value instanceof Number) {
+                    intValue.val = value.longValue()
+                } else {
+                    Long id = value.getAt('id') as Long
+                    if (id != null) {
+                        intValue.val = id
+                    }
+                }
+                builder.intValue = intValue.build()
+                break
+            case ColumnType.STRING:
+                def stringValue = StringValue.newBuilder()
+                if (value != null) {
+                    stringValue.val = value.toString()
+                }
+                builder.stringValue = stringValue.build()
+                break
+            default:
+                throw new Exception("Type not supported.")
         }
-        inlineDimBuilder
+        builder.build()
+    }
+
+    static addValue(DimElementField.Builder builder, FieldDefinition field, Object value) {
+        switch (field.type) {
+            case ColumnType.TIMESTAMP:
+                def timestampValue = TimestampValue.newBuilder()
+                if (value == null) {
+                    //
+                } else if (value instanceof Date) {
+                    timestampValue.val = value.time
+                } else {
+                    throw new Exception("Type not supported.")
+                }
+                builder.addTimestampValue timestampValue.build()
+                break
+            case ColumnType.DOUBLE:
+                def doubleValue = DoubleValue.newBuilder()
+                if (value instanceof Float) {
+                    doubleValue.val = value.doubleValue()
+                } else if (value instanceof Double) {
+                    doubleValue.val = value.doubleValue()
+                } else {
+                    throw new Exception("Type not supported.")
+                }
+                builder.addDoubleValue doubleValue.build()
+                break
+            case ColumnType.INT:
+                def intValue = IntValue.newBuilder()
+                if (value == null) {
+                    // skip
+                } else if (value instanceof Number) {
+                    intValue.val = value.longValue()
+                } else {
+                    Long id = value.getAt('id') as Long
+                    if (id != null) {
+                        intValue.val = id
+                    }
+                }
+                builder.addIntValue intValue
+                break
+            case ColumnType.STRING:
+                def stringValue = StringValue.newBuilder()
+                if (value != null) {
+                    stringValue.val = value.toString()
+                }
+                builder.addStringValue stringValue.build()
+                break
+            default:
+                throw new Exception("Type not supported.")
+        }
+        builder.build()
+    }
+
+    private DimensionElement buildSparseCell(Dimension dim, Object dimElement) {
+        def builder = DimensionElement.newBuilder()
+        for (FieldDefinition field: dimensionFields[dim]) {
+            builder.addFields(buildValue(field, dimElement.getAt(field.name)))
+        }
+        builder.build()
     }
 
     def getFooter() {
-        footerElements.collect() { dimElement ->
-            buildSparseCell(dimElement)
+        cube.dimensions.findAll({ it.density != Dimension.Density.SPARSE }).collect { dim ->
+            def fields = dimensionFields[dim] ?: []
+            def elementsBuilder = DimensionElements.newBuilder()
+            fields.each { field ->
+                def elementFieldBuilder = DimElementField.newBuilder()
+                dimensionElements[dim].each { elements ->
+                    elements.each { element ->
+                        addValue(elementFieldBuilder, field, element.getAt(field.name))
+                    }
+                }
+                elementsBuilder.addFields(elementFieldBuilder)
+            }
+            elementsBuilder.build()
         }
     }
 
     def writeFooter(BufferedWriter out) {
-        for (Object dimElement : footerElements) {
-            jsonPrinter.appendTo(buildSparseCell(dimElement), out)
-        }
+        def footer = Footer.newBuilder().addAllDimension(footer)
+        jsonPrinter.appendTo(footer, out)
     }
 
-    int determineFooterIndex(Object dimElements) {
-        if (!footerElements.contains(dimElements)) {
-            footerElements.add(dimElements)
+    int determineFooterIndex(Dimension dim, Object element) {
+        if (dimensionElements[dim] == null) {
+            dimensionElements[dim] = []
         }
-        return footerElements.indexOf(dimElements)
+        int index = dimensionElements[dim].indexOf(element)
+        if (index == -1) {
+            dimensionElements[dim].add(element)
+            index = dimensionElements[dim].indexOf(element)
+        }
+        index
     }
 
     void writeTo(OutputStream out, String format = "json") {
@@ -130,10 +256,9 @@ public class ObservationsSerializer {
         BufferedWriter bufferedWriter = new BufferedWriter(writer)
         writeHeader(bufferedWriter)
         writeCells(bufferedWriter)
-        writeHeader(bufferedWriter)
+        writeFooter(bufferedWriter)
         bufferedWriter.flush()
         bufferedWriter.close()
     }
-
 
 }

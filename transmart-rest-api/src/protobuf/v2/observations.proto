@@ -10,30 +10,31 @@ option java_outer_classname = "ObservationsProto";
 // dimension marked 'packed'), and then one footer.
 
 
-message header { // header is sent without chunking in a one message
-                 repeated dimensionDeclaration dimensionDeclarations = 1;
+message Header { // header is sent without chunking in a one message
+                 repeated DimensionDeclaration dimensionDeclarations = 1;
 }
 
 
-message dimensionDeclaration { // each dimension present in the output is declared with this message
+message DimensionDeclaration { // each dimension present in the output is declared with this message
                                string name = 1;
                                bool isDense = 2; // if true, values of the observation can be packed along
                                                           // this dimension
-                               repeated fieldDefinition fields = 3; // a.k.a dimension elements
+                               repeated FieldDefinition fields = 3; // a.k.a dimension elements
                                bool inline = 4;  // if true the dimension elements will be stored in the
                                                           // observation cell instead of the footer
                                bool packed = 5; // if true, observations are packed along this dimension
-                               dimensionElements elements = 6; // Only used when the dimension elements are
+                               DimensionElements elements = 6; // Only used when the dimension elements are
                                                                         // sent in the header instead of the footer
 } //  TODO: packing along dense dimensions is not yet implemented
 
-message fieldDefinition { // each field (dimension element) has its definition specifying type of its value
+message FieldDefinition { // each field (dimension element) has its definition specifying type of its value
                           // Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
                           // age, gender, race, etc.
                           enum ColumnType {
-                              DOUBLE = 1;
-                              STRING = 2;
-                              INT = 3;
+                              DOUBLE = 0;
+                              STRING = 1;
+                              INT = 2;
+                              TIMESTAMP = 3;
                           }
 
                           string name = 1;
@@ -41,7 +42,7 @@ message fieldDefinition { // each field (dimension element) has its definition s
 }
 
 
-message observation {
+message Observation {
     // This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
     // dimension along which observations are packed, if packing is used) and follows their
     // order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
@@ -49,24 +50,24 @@ message observation {
     repeated int64 dimensionIndexes = 1; // `packed` is the default in proto3
 
     // A single element for each inline dimension, in the order used in the header.
-    repeated dimensionElement inlineDimensions = 2;
+    repeated DimensionElement inlineDimensions = 2;
     oneof value {
         string stringValue = 3;
         double numericValue = 4;
     }
 
     // Set to true on the last observation, the last observation is followed by a footer.
-    bool last = 7 [default=false];
+    bool last = 7; // [default=false];
 }
 
-message packedObservation {
+message PackedObservation {
     // same as in observation
     repeated int64 dimensionIndexes = 1;
     // A dimension element for each observation for each inline dimension
     // The perSample flag indicates if there is one element for each sample, or only one element for each group of
     // samples corresponding to a single element of the packed dimension (e.g. one element per patient even though there
     // can be multiple samples per patient).
-    repeated dimensionElements inlineDimensions = 2;
+    repeated DimensionElements inlineDimensions = 2;
 
     // Only one of these must be set
     // This list are the observation values. If there are multiple samples this list can be longer than the number of
@@ -80,49 +81,80 @@ message packedObservation {
     // samples for that patient).
     repeated int32 numSamples = 5;
 
-    bool last = 7 [default=false];
+    bool last = 7; // [default=false];
+}
+
+// Nullable long value type
+message IntValue {
+    oneof value {
+        sint64 val = 1;
+    }
+}
+
+// Nullable timestamp value type
+message TimestampValue {
+    oneof value {
+        sint64 val = 1;
+    }
+}
+
+// Nullable double value type
+message DoubleValue {
+    oneof value {
+        double val = 1;
+    }
+}
+
+// Nullable string value type
+message StringValue {
+    oneof value {
+        string val = 1;
+    }
 }
 
 // note: singular
-message dimensionElement {
+message DimensionElement {
     // Only one of these can be set. If this dimension element only has one field, use the
     // int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
     // Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
     // nested message for every observation.
-    repeated value fields = 1;
-    sint64 intValue = 2;
-    double doubleValue = 3;
-    string stringValue = 4;
+    repeated Value fields = 1;
+    IntValue intValue = 2;
+    DoubleValue doubleValue = 3;
+    StringValue stringValue = 4;
+    TimestampValue timestampValue = 5;
 }
 
-message value {
+message Value {
     oneof value {
-        string stringValue = 1;
-        double doubleValue = 2;
-        sint64 intValue = 3;
+        StringValue stringValue = 1;
+        DoubleValue doubleValue = 2;
+        IntValue intValue = 3;
+        TimestampValue timestampValue = 4;
     }
 }
 
 
-message footer {
+message Footer {
     // List of dimensions (e.g. patients, concepts, trialVisits, etc)
-    repeated dimensionElements dimension = 1;
+    repeated DimensionElements dimension = 1;
 }
 
 // note: plural
-message dimensionElements { // Multiple dimension elements are stored in a "column oriented" format, with the fields
+message DimensionElements { // Multiple dimension elements are stored in a "column oriented" format, with the fields
                             // as the columns.
 
     // List of dimension elements field values (e.g. values for age, values for gender, etc)
-    repeated dimElementField fields = 1;
+    repeated DimElementField fields = 1;
 
     // only used when this message is embedded in a packedObservations
     bool perSample = 2;
 }
 
-message dimElementField {
+message DimElementField {
     // Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-    repeated string stringValue = 1;  // only One of these must be set! 'oneof' doesn't work for repeated fields.
-    repeated double doubleValue = 2;
-    repeated sint64 intValue = 3;
+    repeated StringValue stringValue = 1;  // only One of these must be set! 'oneof' doesn't work for repeated fields.
+    repeated DoubleValue doubleValue = 2;
+    repeated IntValue intValue = 3;
+    repeated TimestampValue timestampValue = 4;
 }

@@ -14,6 +14,7 @@ import org.transmartproject.db.dataquery2.query.Field
 import org.transmartproject.db.dataquery2.query.AggregateType
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
+import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 
 @Slf4j
 class QueryController {
@@ -26,7 +27,7 @@ class QueryController {
     @Autowired
     UsersResource usersResource
 
-    def highDimDataService
+    DataService dataService
 
     def conceptsResourceService
 
@@ -41,9 +42,6 @@ class QueryController {
                 return ConstraintFactory.create(constraintData)
             } catch(Exception e) {
                 throw new InvalidArgumentsException(e.message)
-            }
-            if (constraint == null) {
-                throw new InvalidArgumentsException('Empty constraint parameter.')
             }
         } catch (ConverterException e) {
             throw new InvalidArgumentsException('Cannot parse constraint parameter.')
@@ -85,6 +83,28 @@ class QueryController {
         User user = (User)usersResource.getUserFromUsername(currentUser.username)
         def observations = queryService.list(constraint, user)
         render observations as JSON
+    }
+
+    /**
+     * Hypercube endpoint:
+     * <code>/query/hypercube?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a hypercube representing the observations that satisfy the constraint.
+     */
+    def hypercube() {
+        def query = [constraints: [study: ["multidimensional study"]]] //arguments["query"]
+        OutputStream out = new LazyOutputStreamDecorator(
+                outputStreamProducer: { ->
+                    response.contentType = 'application/json'
+                    response.outputStream
+                })
+        try {
+            dataService.writeData(query, "json", out)
+        } finally {
+            out.close()
+        }
     }
 
     /**
