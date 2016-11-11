@@ -113,7 +113,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
     }
 
     List<Object> dimensionElements(Dimension dim) {
-        List ret = dim.resolveElements(dimensionElementKeys[dim])
+        List ret = dim.resolveElements(dimensionElementKeys[dim] ?: [])
         dimensionElements[dim] = ret
         return ret
     }

@@ -1,4 +1,9 @@
 --
+-- Name: dimension_description_id_seq; Type: SEQUENCE OWNED BY; Schema: i2b2metadata; Owner: -
+--
+ALTER SEQUENCE dimension_description_id_seq OWNED BY dimension_description.id;
+
+--
 -- Name: seq_concept_code; Type: SEQUENCE; Schema: i2b2metadata; Owner: -
 --
 CREATE SEQUENCE seq_concept_code

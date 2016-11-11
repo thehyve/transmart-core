@@ -25,24 +25,20 @@ import static org.hamcrest.Matchers.*
 
 class IndexedArraySetSpec extends Specification {
 
-    def testSet1
-    def testSet2
-    def testSet3
+    def testSet1 = ImmutableList.of('a', 'b', 'c')
+    def testSet2 = ImmutableList.of('d', 'e')
+    def testSet3 = ImmutableList.of('f', 'g', 'h', 'i')
 
-    def setup() {
-        testSet1 = ImmutableList.builder()
-        testSet1.add('a', 'b', 'c')
 
-        testSet2 = ImmutableList.builder()
-        testSet2.add('d', 'e')
-
-        testSet3 = ImmutableList.builder()
-        testSet3.add('f', 'g', 'h', 'i')
-
+    private boolean verify(IndexedArraySet ias) {
+        Map index = ias.indexMap.clone()
+        def entries = index.entrySet().sort { it.value }
+        if (entries) assert (0..ias.size()-1) as ArrayList == entries*.value
+        assert entries*.key == ias as ArrayList
+        true
     }
 
     def "test if correctly indexed"() {
-        setup()
 
         when:
         IndexedArraySet<String> indexedTestSet = new IndexedArraySet<String>()
@@ -61,6 +57,8 @@ class IndexedArraySetSpec extends Specification {
         indexedTestSet.lastIndexOf(testSet2) == 1
         indexedTestSet.lastIndexOf(testSet3) == 2
 
+        verify(indexedTestSet)
+
         when:
         indexedTestSet.add(1, 'new value')
 
@@ -69,10 +67,11 @@ class IndexedArraySetSpec extends Specification {
         indexedTestSet.indexOf('new value') == 1
         indexedTestSet.indexOf(testSet2) == 2
         indexedTestSet.indexOf(testSet3) == 3
+
+        verify(indexedTestSet)
     }
 
     def "test remove elements"(){
-        setup()
 
         when:
         IndexedArraySet<String> indexedTestSet = new IndexedArraySet<String>()
@@ -88,6 +87,7 @@ class IndexedArraySetSpec extends Specification {
         then:
         indexedTestSet.size() == 3
         !indexedTestSet.contains(testSet1)
+        verify(indexedTestSet)
 
         when:
         indexedTestSet.removeIf{it.equals('xyz')}
@@ -96,10 +96,11 @@ class IndexedArraySetSpec extends Specification {
 
         indexedTestSet.removeAll(testSet2, testSet3)
         indexedTestSet.size() == 0
+
+        verify(indexedTestSet)
     }
 
     def "test retain collection"() {
-        setup()
 
         when:
         IndexedArraySet<String> indexedTestSet = new IndexedArraySet<String>()
@@ -115,10 +116,11 @@ class IndexedArraySetSpec extends Specification {
         indexedTestSet.size() == 2
         indexedTestSet.contains(testSet1)
         indexedTestSet.contains(testSet3)
+
+        verify(indexedTestSet)
     }
 
     def "test replace all"() {
-        setup()
 
         when:
         IndexedArraySet<String> indexedTestSet = new IndexedArraySet<String>()
@@ -126,15 +128,16 @@ class IndexedArraySetSpec extends Specification {
                 'abc',
                 'xyz'
         )
-        indexedTestSet.replaceAll{ it.toString().toUpperCase() }
+        indexedTestSet.replaceAll { it.toString().toUpperCase() }
 
         then:
         indexedTestSet.contains('XYZ')
         indexedTestSet.contains('ABC')
+
+        verify(indexedTestSet)
     }
 
     def "test clone set"(){
-        setup()
 
         when:
         IndexedArraySet<String> indexedTestSet = new IndexedArraySet<String>()
@@ -153,6 +156,8 @@ class IndexedArraySetSpec extends Specification {
         clonedSet.indexOf(testSet1) == 0
         clonedSet.indexOf(testSet2) == 1
         clonedSet.indexOf(testSet3) == 2
+
+        verify(indexedTestSet)
     }
 
     def "test sort elements"(){
@@ -169,10 +174,12 @@ class IndexedArraySetSpec extends Specification {
         indexedTestSet.indexOf('a') == 0
         indexedTestSet.indexOf('ef') == 1
         indexedTestSet.indexOf('bcd') == 2
+
+        verify(indexedTestSet)
     }
 
     def "test clear array set"(){
-        setup()
+
         when:
         IndexedArraySet<String> indexedTestSet = new IndexedArraySet<String>()
         indexedTestSet.addAll(
@@ -186,5 +193,6 @@ class IndexedArraySetSpec extends Specification {
 
         then:
         indexedTestSet.size() == 0
+        verify(indexedTestSet)
     }
 }
