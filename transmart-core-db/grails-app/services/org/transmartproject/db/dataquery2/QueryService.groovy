@@ -235,19 +235,10 @@ class QueryService {
         return getAggregate(type, queryCriteria)
     }
 
-    TabularResult highDimension(Constraint constraint, String projectionName, User user){
-
-        //get conceptKey from ConceptConstraint
-        def conceptConstraint
-        List<ConceptConstraint> conceptConstraintList = findConceptConstraints(constraint)
-        switch (conceptConstraintList.size()) {
-            case 0:
-                throw new InvalidQueryException('Aggregate requires exactly one concept constraint, found none.')
-            case { it > 1 }:
-                throw new InvalidQueryException("Aggregate requires exactly one concept constraint, found ${conceptConstraintList.size()}.")
-            default:
-                conceptConstraint = conceptConstraintList[0]
-        }
+    TabularResult highDimension(ConceptConstraint conceptConstraint,
+                                BiomarkerConstraint biomarkerConstaint,
+                                Constraint assayConstraint,
+                                String projectionName, User user){
 
         //check the existence and access for the conceptConstraint
         //FIXME This doesn't check access rights -> hackable to see all existing concepts if this test passes
@@ -271,10 +262,6 @@ class QueryService {
             highDimensionDataTypeResource.module.platformMarkerTypes.contains(markerType)
         }
 
-        //Get the Biomarkers from the constraint
-
-        //Get the patientset / Assay determinating constraint
-
         //now do with the HighDimService was doing
         //get resourceType
         HighDimensionDataTypeResource typeResource = mapEntry.value()
@@ -294,8 +281,8 @@ class QueryService {
         //verify the biomarkerConstraint
         //only get GeneSymbol BOGUSRQCD1
         //[typeResource.createDataConstraint(['names':['BOGUSRQCD1']], DataConstraint.GENES_CONSTRAINT)]
-        List<BiomarkerConstraint> biomakerConstraints = findAllBiomarkerConstraints(constraint)
-        List<DataConstraint> dataConstraints = biomakerConstraints.collect { it.constraint}
+//        List<BiomarkerConstraint> biomakerConstraints = [biomarkerConstaint]
+        List<DataConstraint> dataConstraints = [biomarkerConstaint.constraint]
         //get the data
         TabularResult table = typeResource.retrieveData(assayConstraints, dataConstraints, projection)
         table
