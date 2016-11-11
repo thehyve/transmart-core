@@ -12,6 +12,7 @@ import static tests.rest.v2.Operator.LESS_THAN
 import static tests.rest.v2.ValueType.DATE
 import static tests.rest.v2.ValueType.NUMERIC
 import static tests.rest.v2.constraints.*
+import static config.Config.*
 
 class ConstraintSpec extends RESTSpec{
 
@@ -150,7 +151,7 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "StudyConstraint.class"(){
-        def constraintMap = [type: StudyConstraint, studyId: "EHR"]
+        def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
         when:
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
