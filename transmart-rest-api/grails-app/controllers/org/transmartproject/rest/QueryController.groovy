@@ -106,8 +106,7 @@ class QueryController {
             return
         }
         def dataType = 'clinical'
-        def query = [constraint: constraint]
-        Hypercube result = queryResource.doQuery query, dataType
+        Hypercube result = queryResource.doQuery(dataType, constraint: constraint)
         OutputStream out = new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
                     response.contentType = 'application/json'
