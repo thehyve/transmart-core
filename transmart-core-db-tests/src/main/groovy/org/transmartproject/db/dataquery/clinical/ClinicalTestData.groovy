@@ -353,8 +353,8 @@ class ClinicalTestData {
         factList << fact
         factList << addModifiersToObservationFact(fact, 1, modifierCd, 'CONNECTIVE TISSUE')
         factList << addModifiersToObservationFact(fact, 2, modifierCd, 'MUSCLE TISSUE')
-
-        extendObservationFactList(factList, startDates, endDates, locations, providers)
+        factList
+        //extendObservationFactList(factList, startDates, endDates, locations, providers)
     }
 
     static List<ObservationFact> createEhrFacts(ConceptDimension concept, List<VisitDimension> visits,
@@ -365,7 +365,6 @@ class ClinicalTestData {
             ehrFacts << createObservationFact(concept.conceptCode, visits[i].patient, visits[i].encounterNum, -45.42,
                     DUMMY_INSTANCE_ID, createTrialVisit('default', 0, null, study))
         }
-
         extendObservationFactList(ehrFacts, startDates, endDates, locations, providers)
     }
 
@@ -374,11 +373,13 @@ class ClinicalTestData {
                                                          List<String> locations, List<String> providers){
 
         def factList = []
+
         factList << createObservationFact(concept[0].conceptCode, visits[0].patient, visits[0].encounterNum, 'HCaucasian', 1, createTrialVisit('day', 5, 'label_1', study))
         factList << createObservationFact(concept[1].conceptCode, visits[1].patient, visits[1].encounterNum, 'not specified', 1, createTrialVisit('week', 1, 'label_2', study))
         factList << createObservationFact(concept[0].conceptCode, visits[2].patient, DUMMY_ENCOUNTER_ID, 77.0, 1, createTrialVisit('month', 1, 'label_3', study))
-
         extendObservationFactList(factList, startDates, endDates, locations, providers)
+
+
     }
 
     static TrialVisit createTrialVisit(String relTimeUnit, int relTime, String relTimeLabel, Study study) {

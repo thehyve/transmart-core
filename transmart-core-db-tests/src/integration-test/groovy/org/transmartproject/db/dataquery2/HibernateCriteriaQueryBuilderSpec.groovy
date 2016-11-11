@@ -23,6 +23,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
     Field patientAgeField
     Field conceptCodeField
     TestData testData
+    TestData hypercubeTestData
 
     SessionFactory sessionFactory
 
@@ -46,6 +47,11 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         testData.i2b2Data.patients[0].age = 70
         testData.i2b2Data.patients[1].age = 31
         testData.saveAll()
+    }
+
+    void setupHypercubeData(){
+        hypercubeTestData = TestData.createHypercubeDefault()
+        hypercubeTestData.saveAll()
     }
 
     void 'test Hibernate subqueries'() {
@@ -109,7 +115,6 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         resultsForPatientSetId.size() == 1
         (resultsForPatientSetId[0] as ObservationFact).patient.id == testData.clinicalData.patients[0].id
     }
-
 
     void 'test CriteriaQueryBuilder with clinical data'() {
         setupData()
@@ -304,4 +309,26 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         foundFact.textValue == null
     }
 
+    void 'test CriteriaQueryBuilder with default modifier code'() {
+        setupHypercubeData()
+        def expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{ it.modifierCd == '@'}
+        assert expectedResults.size() < hypercubeTestData.clinicalData.ehrClinicalFacts.size()
+
+
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: [hypercubeTestData.clinicalData.sampleStudy]
+        )
+        when:
+        def patientIds = hypercubeTestData.clinicalData.sampleClinicalFacts*.patientId
+        PatientSetConstraint subqueryConstraint = new PatientSetConstraint(
+                patientIds: patientIds
+        )
+
+        DetachedCriteria criteria = builder.buildCriteria(subqueryConstraint)
+        List results = getList(criteria)
+
+        then:
+        results.size() == expectedResults.size()
+        results == expectedResults
+    }
 }
