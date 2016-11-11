@@ -9,6 +9,7 @@ import static tests.rest.v2.Operator.AFTER
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.GREATER_THAN
 import static tests.rest.v2.Operator.LESS_THAN
+import static tests.rest.v2.ValueType.DATE
 import static tests.rest.v2.ValueType.NUMERIC
 import static tests.rest.v2.constraints.*
 
@@ -74,7 +75,7 @@ class ConstraintSpec extends RESTSpec{
     def "TimeConstraint.class"(){
         def date = toDateString("01-01-2016Z")
         def constraintMap = [type: TimeConstraint,
-                             field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
+                             field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: DATE ],
                              operator: AFTER,
                              values: [date]]
         when:
