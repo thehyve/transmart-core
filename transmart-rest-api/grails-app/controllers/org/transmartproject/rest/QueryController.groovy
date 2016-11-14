@@ -16,20 +16,11 @@ import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResu
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.dataquery.highdim.mrna.MrnaModule
 import org.transmartproject.db.dataquery2.QueryService
-import org.transmartproject.db.dataquery2.query.BiomarkerConstraint
-import org.transmartproject.db.dataquery2.query.Combination
-import org.transmartproject.db.dataquery2.query.ConceptConstraint
-import org.transmartproject.db.dataquery2.query.Constraint
-import org.transmartproject.db.dataquery2.query.ConstraintFactory
-import org.transmartproject.db.dataquery2.query.DimensionMetadata
-import org.transmartproject.db.dataquery2.query.Field
-import org.transmartproject.db.dataquery2.query.AggregateType
-import org.transmartproject.db.dataquery2.query.FieldConstraint
-import org.transmartproject.db.dataquery2.query.Operator
-import org.transmartproject.db.dataquery2.query.PatientSetConstraint
+import org.transmartproject.db.dataquery2.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
+import org.transmartproject.rest.protobuf.HighDimBuilder
 
 @Slf4j
 class QueryController {
@@ -54,16 +45,19 @@ class QueryController {
     HighDimensionResourceService highDimensionResourceService
 
 
-    private Constraint getConstraint() {
-        if (!params.constraint) {
-            throw new InvalidArgumentsException('Constraint parameter is missing.')
+    private Constraint getConstraint(String constraintParameterName = 'constraint') {
+        if (!params.containsKey(constraintParameterName)) {
+            throw new InvalidArgumentsException("${constraintParameterName} parameter is missing.")
         }
-        String constraintParam = URLDecoder.decode(params.constraint, 'UTF-8')
+        if (!params[constraintParameterName]) {
+            throw new InvalidArgumentsException('Empty constraint parameter.')
+        }
+        String constraintParam = URLDecoder.decode(params[constraintParameterName], 'UTF-8')
         try {
             Map constraintData = JSON.parse(constraintParam) as Map
             try {
                 return ConstraintFactory.create(constraintData)
-            } catch(Exception e) {
+            } catch (Exception e) {
                 throw new InvalidArgumentsException(e.message)
             }
         } catch (ConverterException e) {
@@ -149,7 +143,7 @@ class QueryController {
         if (constraint == null) {
             return
         }
-        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def patients = queryService.listPatients(constraint, user)
         render patients as JSON
     }
@@ -206,42 +200,41 @@ class QueryController {
 
 
     def highDim() {
-
-
-        String projectionName
-        if (params.projection) {
-            projectionName = params.projection
-        } else {
-            projectionName = Projection.LOG_INTENSITY_PROJECTION
+        if (!params.projection) {
+            throw new InvalidArgumentsException('Projection parameter is missing')
         }
-        HighDimensionDataTypeResource dataTypeResource = highDimensionResourceService.getSubResourceForType('mrna')
-        //Constraint constraint = bindConstraint()
-        ConceptConstraint conceptConstraint = new ConceptConstraint(path:'\\foo\\study1\\bar\\')
-        BiomarkerConstraint biomarkerConstraint = new BiomarkerConstraint(
-                                    constraint: dataTypeResource.createDataConstraint(
-                                            [names:['BOGUSRQCD1']], DataConstraint.GENES_CONSTRAINT)
-                                                        )
-        Constraint assayConstraint = new FieldConstraint(
-                operator:Operator.EQUALS,
-                value: '',
-                field: new Field(
-                        dimension: '',
-                        fieldName: '',
-                        type: 'STRING'
-                )
-        )
+
+        String projectionName = params.projection
+
+        ConceptConstraint conceptConstraint = getConstraint('concept_constraint')
+        BiomarkerConstraint biomarkerConstraint = null
+        if (params.biomarker_constraint) {
+            biomarkerConstraint = getConstraint('biomarker_constraint')
+        }
+        Constraint assayConstraint = null
+        if (params.assay_constraint) {
+            assayConstraint = getConstraint('assay_constraint')
+        }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        def table = queryService.highDimension(conceptConstraint,
-                                                biomarkerConstraint,
-                                                assayConstraint,
-                                                projectionName, user)
+        def (projection, table) = queryService.highDimension(conceptConstraint,
+                biomarkerConstraint,
+                assayConstraint,
+                projectionName, user)
 
-        def result = table.getRows()
-        render result as JSON
-        //def something = [value:1]
-        //render something as JSON
+        OutputStream out = new LazyOutputStreamDecorator(
+                outputStreamProducer: { ->
+                    response.contentType = 'application/octet-stream'
+                    response.outputStream
+                })
+        try {
+            HighDimBuilder.write(projection, table, out)
+        } finally {
+            table.close()
+            out.close()
+        }
     }
+
 
     /**
      * Supported fields endpoint:
