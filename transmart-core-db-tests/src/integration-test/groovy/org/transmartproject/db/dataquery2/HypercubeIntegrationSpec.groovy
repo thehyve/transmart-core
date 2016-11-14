@@ -82,7 +82,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_basic_sample_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.doQuery('clinical', constraint: study(clinicalData.sampleStudy.studyId))
+        def hypercube = queryResource.retrieveData('clinical', constraint: study(clinicalData.sampleStudy.studyId))
         def resultObs = Lists.newArrayList(hypercube).sort()
 
         def result = resultObs*.value as HashMultiset
