@@ -8,6 +8,7 @@ import groovy.util.logging.Slf4j
 import grails.databinding.BindUsing
 import org.springframework.validation.Errors
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.multidimensionalquery.MultiDimConstraint
 import org.transmartproject.db.dataquery2.Dimension
 import org.transmartproject.db.i2b2data.Study
 
@@ -187,7 +188,7 @@ class Field implements Validateable {
  * can be created using the constructors of the subclasses or by using the
  * {@link ConstraintFactory}.
  */
-abstract class Constraint implements Validateable {
+abstract class Constraint implements Validateable, MultiDimConstraint {
     String type = this.class.simpleName
 }
 

@@ -10,19 +10,18 @@ import org.hibernate.criterion.ProjectionList
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimensionalquery.MultiDimensionalDataResource
 import org.transmartproject.db.dataquery2.Dimension
-import org.transmartproject.db.dataquery2.Hypercube
+import org.transmartproject.db.dataquery2.HypercubeImpl
 import org.transmartproject.db.dataquery2.QueryService
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.HibernateCriteriaQueryBuilder
-import org.transmartproject.db.dataquery2.query.StudyConstraint
-import org.transmartproject.db.dataquery2.query.StudyObjectConstraint
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.util.GormWorkarounds
 
-class MultidimensionalDataResourceService {
+class MultidimensionalDataResourceService implements MultiDimensionalDataResource {
 
     @Autowired
     SessionFactory sessionFactory
@@ -42,7 +41,7 @@ class MultidimensionalDataResourceService {
      *
      * @return a Hypercube result
      */
-    Hypercube doQuery(Map args, String dataType) {
+    HypercubeImpl retrieveData(Map args, String dataType) {
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint
@@ -108,7 +107,7 @@ class MultidimensionalDataResourceService {
 
         ScrollableResults results = query.criteria.instance.scroll(ScrollMode.FORWARD_ONLY)
 
-        new Hypercube(results, dimensions, aliases, query, session)
+        new HypercubeImpl(results, dimensions, aliases, query, session)
         // session will be closed by the Hypercube
     }
 
