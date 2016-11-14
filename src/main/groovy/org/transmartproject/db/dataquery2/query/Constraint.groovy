@@ -409,6 +409,7 @@ class Combination extends Constraint {
 class TemporalConstraint extends Constraint {
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
+    @BindUsing({ obj, source -> ConstraintFactory.create(source['eventConstraint']) })
     Constraint eventConstraint
 
     static constraints = {
