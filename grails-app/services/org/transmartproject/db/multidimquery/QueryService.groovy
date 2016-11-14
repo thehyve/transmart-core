@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import grails.transaction.Transactional
 import org.hibernate.SessionFactory
@@ -7,22 +7,22 @@ import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.accesscontrol.AccessControlChecks
-import org.transmartproject.db.dataquery2.query.Combination
-import org.transmartproject.db.dataquery2.query.ConceptConstraint
-import org.transmartproject.db.dataquery2.query.Constraint
-import org.transmartproject.db.dataquery2.query.Field
-import org.transmartproject.db.dataquery2.query.FieldConstraint
-import org.transmartproject.db.dataquery2.query.HibernateCriteriaQueryBuilder
-import org.transmartproject.db.dataquery2.query.InvalidQueryException
-import org.transmartproject.db.dataquery2.query.NullConstraint
-import org.transmartproject.db.dataquery2.query.Operator
-import org.transmartproject.db.dataquery2.query.QueryBuilder
-import org.transmartproject.db.dataquery2.query.QueryBuilderException
-import org.transmartproject.db.dataquery2.query.AggregateType
-import org.transmartproject.db.dataquery2.query.StudyConstraint
-import org.transmartproject.db.dataquery2.query.StudyObjectConstraint
-import org.transmartproject.db.dataquery2.query.Type
-import org.transmartproject.db.dataquery2.query.ValueDimension
+import org.transmartproject.db.multidimquery.query.Combination
+import org.transmartproject.db.multidimquery.query.ConceptConstraint
+import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.Field
+import org.transmartproject.db.multidimquery.query.FieldConstraint
+import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
+import org.transmartproject.db.multidimquery.query.InvalidQueryException
+import org.transmartproject.db.multidimquery.query.NullConstraint
+import org.transmartproject.db.multidimquery.query.Operator
+import org.transmartproject.db.multidimquery.query.QueryBuilder
+import org.transmartproject.db.multidimquery.query.QueryBuilderException
+import org.transmartproject.db.multidimquery.query.AggregateType
+import org.transmartproject.db.multidimquery.query.StudyConstraint
+import org.transmartproject.db.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.db.multidimquery.query.Type
+import org.transmartproject.db.multidimquery.query.ValueDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.User
 

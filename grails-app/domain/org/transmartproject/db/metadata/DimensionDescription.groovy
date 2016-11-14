@@ -3,27 +3,27 @@ package org.transmartproject.db.metadata
 import com.google.common.collect.ImmutableMap
 import groovy.transform.InheritConstructors
 import org.transmartproject.core.exceptions.DataInconsistencyException
-import org.transmartproject.core.multidimensionalquery.Dimension
-import org.transmartproject.db.dataquery2.ConceptDimension
-import org.transmartproject.db.dataquery2.DimensionImpl
-import org.transmartproject.db.dataquery2.ModifierDimension
-import org.transmartproject.db.dataquery2.PatientDimension
-import org.transmartproject.db.dataquery2.StartTimeDimension
-import org.transmartproject.db.dataquery2.EndTimeDimension
-import org.transmartproject.db.dataquery2.LocationDimension
-import org.transmartproject.db.dataquery2.StudyDimension
-import org.transmartproject.db.dataquery2.TrialVisitDimension
-import org.transmartproject.db.dataquery2.VisitDimension
-import org.transmartproject.db.dataquery2.ProviderDimension
-import org.transmartproject.db.dataquery2.AssayDimension
-import org.transmartproject.db.dataquery2.BioMarkerDimension
-import org.transmartproject.db.dataquery2.ProjectionDimension
+import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.db.multidimquery.ConceptDimension
+import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.ModifierDimension
+import org.transmartproject.db.multidimquery.PatientDimension
+import org.transmartproject.db.multidimquery.StartTimeDimension
+import org.transmartproject.db.multidimquery.EndTimeDimension
+import org.transmartproject.db.multidimquery.LocationDimension
+import org.transmartproject.db.multidimquery.StudyDimension
+import org.transmartproject.db.multidimquery.TrialVisitDimension
+import org.transmartproject.db.multidimquery.VisitDimension
+import org.transmartproject.db.multidimquery.ProviderDimension
+import org.transmartproject.db.multidimquery.AssayDimension
+import org.transmartproject.db.multidimquery.BioMarkerDimension
+import org.transmartproject.db.multidimquery.ProjectionDimension
 
 import org.transmartproject.db.i2b2data.Study
 
-import static org.transmartproject.core.multidimensionalquery.Dimension.Size.*
-import static org.transmartproject.core.multidimensionalquery.Dimension.Density.*
-import static org.transmartproject.core.multidimensionalquery.Dimension.Packable.*
+import static org.transmartproject.core.multidimquery.Dimension.Size.*
+import static org.transmartproject.core.multidimquery.Dimension.Density.*
+import static org.transmartproject.core.multidimquery.Dimension.Packable.*
 
 class DimensionDescription {
     static final String LEGACY_MARKER = "legacy tabular study marker"

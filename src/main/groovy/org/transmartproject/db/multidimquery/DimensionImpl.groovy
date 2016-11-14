@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import grails.util.Pair
 import groovy.transform.CompileStatic
@@ -6,12 +6,12 @@ import groovy.transform.InheritConstructors
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.exceptions.DataInconsistencyException
-import org.transmartproject.core.multidimensionalquery.Dimension
+import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.TrialVisit
 
-import static org.transmartproject.core.multidimensionalquery.Dimension.*
+import static org.transmartproject.core.multidimquery.Dimension.*
 
 abstract class DimensionImpl implements Dimension {
     // TODO(jan): Which properties on dimensions do we actually need for the hypercube to work?

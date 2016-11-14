@@ -1,8 +1,7 @@
-package org.transmartproject.db.dataquery2.query
+package org.transmartproject.db.multidimquery.query
 
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
-import org.hibernate.Criteria
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.LikeExpression
@@ -12,8 +11,8 @@ import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
-import org.transmartproject.db.dataquery2.PatientDimension
-import org.transmartproject.db.dataquery2.StartTimeDimension
+import org.transmartproject.db.multidimquery.PatientDimension
+import org.transmartproject.db.multidimquery.StartTimeDimension
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
