@@ -240,7 +240,7 @@ class QueryServiceSpec extends TransmartSpecification {
         String projection = Projection.DEFAULT_REAL_PROJECTION
 
         when:
-        def result = queryService.highDimension(constraint, new BiomarkerConstraint(), new TrueConstraint(), projection, user)
+        def (projectionObj, result) = queryService.highDimension(constraint, new BiomarkerConstraint(), new TrueConstraint(), projection, user)
 
         then:
         result instanceof TabularResult
@@ -257,7 +257,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         Constraint assayConstraint = new PatientSetConstraint(patientIds: [testData.i2b2Data.patients[0].id] as Set)
-        def result = queryService.highDimension(constraint, new BiomarkerConstraint(), assayConstraint, projection, user)
+        def (projectionObj, result) = queryService.highDimension(constraint, new BiomarkerConstraint(), assayConstraint, projection, user)
 
         then:
         result instanceof TabularResult
@@ -281,7 +281,7 @@ class QueryServiceSpec extends TransmartSpecification {
                         names: ['BOGUSRQCD1']
                 ]
         )
-        def result = queryService.highDimension(constraint, bioMarkerConstraint, new TrueConstraint(), projection, user)
+        def (projectionObj, result) = queryService.highDimension(constraint, bioMarkerConstraint, new TrueConstraint(), projection, user)
 
         then:
         result instanceof TabularResult
