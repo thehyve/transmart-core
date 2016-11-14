@@ -1,6 +1,7 @@
 package tests.rest.v2
 
 import base.RESTSpec
+import groovy.json.JsonBuilder
 
 import static org.hamcrest.Matchers.everyItem
 import static org.hamcrest.Matchers.hasEntry
@@ -22,12 +23,9 @@ class GetQuerySpec extends RESTSpec{
      */
     def "Get /query/observations malformed query"(){
         when:" I do a Get query/observations with a wrong type."
-        def query = [
-                constraint: [
-                        type: 'BadType',
-                ]
-        ]
-        def responseData = get("query/observations", contentTypeForJSON, query)
+        def constraintMap = [type: 'BadType']
+
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "then I get a 400 with 'Constraint not supported: BadType.'"
         that responseData.httpStatus, is(400)
@@ -41,17 +39,13 @@ class GetQuerySpec extends RESTSpec{
      */
     def "GET /query/observations with TrueConstraint."(){
         when: "I do a GET /query/observations with a TrueConstraint"
-        def query = [
-                constraint: [
-                        type: TrueConstraint,
-                ]
-        ]
-        def responseData = get("query/observations", contentTypeForJSON, query)
+        def constraintMap = [type: TrueConstraint]
 
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "all observations are returned."
         println(responseData)
-        that responseData.size(), is(952)
+        assert responseData.size() == 1026
     }
 
     /**
@@ -60,17 +54,18 @@ class GetQuerySpec extends RESTSpec{
      */
     def "GET /query/aggregate with ConceptConstraint and min"(){
         when: "I do a GET /query/aggregate with ConceptConstraint and min"
-        def query = [
-                constraint: [
+        def query =
+                [
+                constraint: toJSON([
                         type: ConceptConstraint,
-                        path:"\'\\\\Public Studies\\\\TEST_17_1\\\\Vital Signs\\\\Height CM\\\\\'"
-                ],
+                        path:"\\Public Studies\\TEST_17_1\\Vital Signs\\Height CM\\"
+                ]),
                 type: MIN
         ]
         def responseData = get("query/aggregate", contentTypeForJSON, query)
 
         then: "the minimum value for that concept is returned"
-        that responseData.min, is(163)
+        assert responseData.min == 163.0
     }
 
     /**
@@ -80,16 +75,16 @@ class GetQuerySpec extends RESTSpec{
     def "GET /query/aggregate with ConceptConstraint and max"(){
         when: "I do a GET /query/aggregate with ConceptConstraint and max"
         def query = [
-                constraint: [
+                constraint: toJSON([
                         type: ConceptConstraint,
-                        path:"\'\\\\Public Studies\\\\TEST_17_1\\\\Vital Signs\\\\Height CM\\\\\'"
-                ],
+                        path:"\\Public Studies\\TEST_17_1\\Vital Signs\\Height CM\\"
+                ]),
                 type: MAX
         ]
         def responseData = get("query/aggregate", contentTypeForJSON, query)
 
         then: "the maximum value for that concept is returned"
-        that responseData.max, is(186)
+        assert responseData.max == 186.0
     }
 
     /**
@@ -99,17 +94,15 @@ class GetQuerySpec extends RESTSpec{
     def "Get /query/observations AND"(){
 
         when: "I do a GET /query/observations with a ${AND} Combination Constraint"
-        def query = [
-                constraint: [
+        def constraintMap = [
                         type: Combination,
                         operator: AND,
                         args: [
-                         [type: ConceptConstraint, path:"\'\\\\Public Studies\\\\TEST_17_1\\\\Vital Signs\\\\Height CM\\\\\'"],
+                         [type: ConceptConstraint, path:"\\Public Studies\\TEST_17_1\\Vital Signs\\Height CM\\"],
                          [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:176]
                         ]
                 ]
-        ]
-        def responseData = get("query/observations", contentTypeForJSON, query)
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "all results that match the combination of arguments are returned"
         that responseData.size(), is(28)
@@ -120,25 +113,22 @@ class GetQuerySpec extends RESTSpec{
      *  then: "I get all observations related to that patient"
      */
     def "/query/observations PatientSetConstraint with one patient"(){
-        def id = 1000384649
+        def id = -62
 
         when: " I Get /query/observations PatientSetConstraint with one patient"
-        def query = [
-                constraint: [
+        def constraintMap =  [
                         type: PatientSetConstraint,
                         patientSetId: 0,
                         patientIds: [id]
-                ],
-        ]
-        def responseData = get("query/observations", contentTypeForJSON, query)
+                ]
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "I get all observations related to that patient"
-        that responseData.size(), is(119)
+        assert responseData.size() == 4
         that responseData, everyItem(
                 hasEntry(is('patient'),
                         hasEntry(is('id'), is(id))
                 )
         )
     }
-
 }
