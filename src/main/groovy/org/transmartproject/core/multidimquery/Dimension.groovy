@@ -1,4 +1,4 @@
-package org.transmartproject.core.multidimensionalquery
+package org.transmartproject.core.multidimquery
 
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.ontology.Study

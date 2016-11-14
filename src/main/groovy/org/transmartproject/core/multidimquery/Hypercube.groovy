@@ -1,4 +1,4 @@
-package org.transmartproject.core.multidimensionalquery
+package org.transmartproject.core.multidimquery
 
 import com.google.common.collect.ImmutableList
 import org.transmartproject.core.IterableResult
