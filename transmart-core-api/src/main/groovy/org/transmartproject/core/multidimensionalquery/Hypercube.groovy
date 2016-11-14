@@ -1,5 +1,8 @@
 package org.transmartproject.core.multidimensionalquery
 
-interface Hypercube {
+import org.transmartproject.core.IterableResult
+
+interface Hypercube extends IterableResult<HypercubeValue> {
+
 
 }

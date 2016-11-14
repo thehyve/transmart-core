@@ -2,7 +2,7 @@ package org.transmartproject.rest.protobuf
 
 import com.google.protobuf.util.JsonFormat
 import groovy.util.logging.Slf4j
-import org.transmartproject.db.dataquery2.Dimension
+import org.transmartproject.db.dataquery2.DimensionImpl
 import org.transmartproject.db.dataquery2.HypercubeImpl
 import org.transmartproject.db.dataquery2.HypercubeValueImpl
 import org.transmartproject.db.dataquery2.query.DimensionMetadata
@@ -18,8 +18,8 @@ public class ObservationsSerializer {
 
     HypercubeImpl cube
     JsonFormat.Printer jsonPrinter
-    Map<Dimension, List<Object>> dimensionElements = [:]
-    Map<Dimension, List<FieldDefinition>> dimensionFields = [:]
+    Map<DimensionImpl, List<Object>> dimensionElements = [:]
+    Map<DimensionImpl, List<FieldDefinition>> dimensionFields = [:]
 
     ObservationsSerializer(HypercubeImpl cube) {
         jsonPrinter = JsonFormat.printer()
@@ -51,7 +51,7 @@ public class ObservationsSerializer {
             if (dim.packable.packable) {
                 builder.setIsDense(true)
             }
-            if (dim.density == Dimension.Density.DENSE) {
+            if (dim.density == DimensionImpl.Density.DENSE) {
                 builder.setInline(true)
             }
             def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionName)
@@ -95,9 +95,9 @@ public class ObservationsSerializer {
         } else {
             builder.stringValue = value.value
         }
-        for (Dimension dim : cube.dimensions) {
+        for (DimensionImpl dim : cube.dimensions) {
             Object dimElement = value.getDimElement(dim)
-            if (dim.density == Dimension.Density.SPARSE) {
+            if (dim.density == DimensionImpl.Density.SPARSE) {
                 builder.addInlineDimensions(buildSparseCell(dim, dimElement))
             } else {
                 builder.addDimensionIndexes(determineFooterIndex(dim, dimElement))
@@ -209,7 +209,7 @@ public class ObservationsSerializer {
         builder.build()
     }
 
-    private DimensionElement buildSparseCell(Dimension dim, Object dimElement) {
+    private DimensionElement buildSparseCell(DimensionImpl dim, Object dimElement) {
         def builder = DimensionElement.newBuilder()
         for (FieldDefinition field: dimensionFields[dim]) {
             builder.addFields(buildValue(field, dimElement.getAt(field.name)))
@@ -218,7 +218,7 @@ public class ObservationsSerializer {
     }
 
     def getFooter() {
-        cube.dimensions.findAll({ it.density != Dimension.Density.SPARSE }).collect { dim ->
+        cube.dimensions.findAll({ it.density != DimensionImpl.Density.SPARSE }).collect { dim ->
             def fields = dimensionFields[dim] ?: []
             def elementsBuilder = DimensionElements.newBuilder()
             fields.each { field ->
@@ -239,7 +239,7 @@ public class ObservationsSerializer {
         jsonPrinter.appendTo(footer, out)
     }
 
-    int determineFooterIndex(Dimension dim, Object element) {
+    int determineFooterIndex(DimensionImpl dim, Object element) {
         if (dimensionElements[dim] == null) {
             dimensionElements[dim] = []
         }

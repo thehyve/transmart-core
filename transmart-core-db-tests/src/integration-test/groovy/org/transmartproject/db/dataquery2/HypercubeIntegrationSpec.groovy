@@ -19,7 +19,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
     TestData testData
     ClinicalTestData clinicalData
-    Map<String, Dimension> dims
+    Map<String, DimensionImpl> dims
 
     @Autowired
     MultidimensionalDataResourceService queryResource
