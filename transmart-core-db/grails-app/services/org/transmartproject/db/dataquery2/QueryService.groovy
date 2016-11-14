@@ -19,6 +19,8 @@ import org.transmartproject.db.dataquery2.query.Operator
 import org.transmartproject.db.dataquery2.query.QueryBuilder
 import org.transmartproject.db.dataquery2.query.QueryBuilderException
 import org.transmartproject.db.dataquery2.query.AggregateType
+import org.transmartproject.db.dataquery2.query.StudyConstraint
+import org.transmartproject.db.dataquery2.query.StudyObjectConstraint
 import org.transmartproject.db.dataquery2.query.Type
 import org.transmartproject.db.dataquery2.query.ValueDimension
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -106,11 +108,31 @@ class QueryService {
         getList(patientCriteria)
     }
 
-    private List<ConceptConstraint> findConceptConstraint(Constraint constraint){
+    static List<StudyConstraint> findStudyConstraints(Constraint constraint){
+        if (constraint instanceof StudyConstraint) {
+            return [constraint]
+        } else if (constraint instanceof Combination) {
+            constraint.args.collectMany { findStudyConstraints(it) }
+        } else {
+            return []
+        }
+    }
+
+    static List<StudyObjectConstraint> findStudyObjectConstraints(Constraint constraint){
+        if (constraint instanceof StudyObjectConstraint) {
+            return [constraint]
+        } else if (constraint instanceof Combination) {
+            constraint.args.collectMany { findStudyObjectConstraints(it) }
+        } else {
+            return []
+        }
+    }
+
+    static List<ConceptConstraint> findConceptConstraints(Constraint constraint){
         if (constraint instanceof ConceptConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
-            constraint.args.collectMany { findConceptConstraint(it) }
+            constraint.args.collectMany { findConceptConstraints(it) }
         } else {
             return []
         }
@@ -140,7 +162,7 @@ class QueryService {
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
-        List<ConceptConstraint> conceptConstraintList = findConceptConstraint(constraint)
+        List<ConceptConstraint> conceptConstraintList = findConceptConstraints(constraint)
         if (conceptConstraintList.size() == 0) throw new InvalidQueryException('Aggregate requires exactly one ' +
                 'concept constraint, found none.')
         if (conceptConstraintList.size() > 1) throw new InvalidQueryException("Aggregate requires exactly one concept" +

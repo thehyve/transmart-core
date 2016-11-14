@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap
 import groovy.transform.InheritConstructors
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.db.dataquery2.ConceptDimension
-import org.transmartproject.db.dataquery2.Dimension
+import org.transmartproject.db.dataquery2.DimensionImpl
 import org.transmartproject.db.dataquery2.ModifierDimension
 import org.transmartproject.db.dataquery2.PatientDimension
 import org.transmartproject.db.dataquery2.StartTimeDimension
@@ -20,22 +20,22 @@ import org.transmartproject.db.dataquery2.ProjectionDimension
 
 import org.transmartproject.db.i2b2data.Study
 
-import static org.transmartproject.db.dataquery2.Dimension.Density.SPARSE
-import static org.transmartproject.db.dataquery2.Dimension.Density.DENSE
-import static org.transmartproject.db.dataquery2.Dimension.Packable.PACKABLE
-import static org.transmartproject.db.dataquery2.Dimension.Packable.NOT_PACKABLE
-import static org.transmartproject.db.dataquery2.Dimension.Size.LARGE
-import static org.transmartproject.db.dataquery2.Dimension.Size.MEDIUM
-import static org.transmartproject.db.dataquery2.Dimension.Size.SMALL
+import static org.transmartproject.db.dataquery2.DimensionImpl.Density.SPARSE
+import static org.transmartproject.db.dataquery2.DimensionImpl.Density.DENSE
+import static org.transmartproject.db.dataquery2.DimensionImpl.Packable.PACKABLE
+import static org.transmartproject.db.dataquery2.DimensionImpl.Packable.NOT_PACKABLE
+import static org.transmartproject.db.dataquery2.DimensionImpl.Size.LARGE
+import static org.transmartproject.db.dataquery2.DimensionImpl.Size.MEDIUM
+import static org.transmartproject.db.dataquery2.DimensionImpl.Size.SMALL
 
 class DimensionDescription {
     static final String LEGACY_MARKER = "legacy tabular study marker"
 
     String name
     String modifierCode
-    Dimension.Size size
-    Dimension.Density density
-    Dimension.Packable packable
+    DimensionImpl.Size size
+    DimensionImpl.Density density
+    DimensionImpl.Packable packable
 
     static belongsTo = Study
     static hasMany = [
@@ -52,10 +52,12 @@ class DimensionDescription {
     static mapping = {
         table schema: 'i2b2metadata'
         version       false
+
+        size    column: 'size_cd'
     }
 
 
-    static ImmutableMap<String,Dimension> dimensionsMap = ImmutableMap.copyOf([
+    static ImmutableMap<String,DimensionImpl> dimensionsMap = ImmutableMap.copyOf([
             "study"      : new StudyDimension(MEDIUM, SPARSE, PACKABLE),
             "concept"    : new ConceptDimension(MEDIUM, DENSE, PACKABLE),
             "patient"    : new PatientDimension(LARGE, DENSE, PACKABLE),
@@ -91,7 +93,7 @@ class DimensionDescription {
         }
     }
 
-    Dimension getDimension() {
+    DimensionImpl getDimension() {
         if(name == LEGACY_MARKER) {
             throw new LegacyStudyException("This study is loaded according to the pre-TranSMART 17.1 rules. " +
                     "Retrieving 17.1 dimensions is not possible.")

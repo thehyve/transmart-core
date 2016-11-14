@@ -10,12 +10,18 @@ import org.grails.orm.hibernate.cfg.Table
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.transmartproject.db.dataquery2.ConceptDimension
-import org.transmartproject.db.dataquery2.Dimension
+import org.transmartproject.db.dataquery2.DimensionImpl
+import org.transmartproject.db.dataquery2.EndTimeDimension
+import org.transmartproject.db.dataquery2.LocationDimension
 import org.transmartproject.db.dataquery2.ModifierDimension
 import org.transmartproject.db.dataquery2.PatientDimension
+import org.transmartproject.db.dataquery2.ProviderDimension
 import org.transmartproject.db.dataquery2.StartTimeDimension
+import org.transmartproject.db.dataquery2.StudyDimension
 import org.transmartproject.db.dataquery2.TrialVisitDimension
+import org.transmartproject.db.dataquery2.VisitDimension
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.Study
 
 /**
  * Metadata about the fetching method for the dimension.
@@ -28,11 +34,13 @@ enum DimensionFetchType {
     TABLE,
     COLUMN,
     VALUE,
-    MODIFIER
+    MODIFIER,
+    STUDY,
+    VISIT
 }
 
 @InheritConstructors
-abstract class ValueDimension extends Dimension {}
+abstract class ValueDimension extends DimensionImpl {}
 
 /**
  * Contains database mapping metadata for the dimensions.
@@ -47,8 +55,13 @@ class DimensionMetadata {
     protected static final Map<String, DimensionMetadata> dimensionMetadataMap = [
             [dimensionClass: PatientDimension.class,    type: DimensionFetchType.TABLE,     fieldName: 'patient'],
             [dimensionClass: ConceptDimension.class,    type: DimensionFetchType.COLUMN,    fieldName: 'conceptCode'],
+            [dimensionClass: VisitDimension.class,      type: DimensionFetchType.VISIT,     fieldName: ''],
             [dimensionClass: TrialVisitDimension.class, type: DimensionFetchType.TABLE,     fieldName: 'trialVisit'],
+            [dimensionClass: StudyDimension.class,      type: DimensionFetchType.STUDY,     fieldName: ''],
+            [dimensionClass: LocationDimension.class,   type: DimensionFetchType.COLUMN,    fieldName: 'locationCd'],
+            [dimensionClass: ProviderDimension.class,   type: DimensionFetchType.COLUMN,    fieldName: 'providerId'],
             [dimensionClass: StartTimeDimension.class,  type: DimensionFetchType.COLUMN,    fieldName: 'startDate'],
+            [dimensionClass: EndTimeDimension.class,    type: DimensionFetchType.COLUMN,    fieldName: 'endDate'],
             [dimensionClass: ModifierDimension.class,   type: DimensionFetchType.MODIFIER,  fieldName: ''],
             [dimensionClass: ValueDimension.class,      type: DimensionFetchType.VALUE,     fieldName: '']
     ].collectEntries {
@@ -67,7 +80,7 @@ class DimensionMetadata {
         metadata
     }
 
-    static final DimensionMetadata forDimension(Class<? extends Dimension> dimensionClass) {
+    static final DimensionMetadata forDimension(Class<? extends DimensionImpl> dimensionClass) {
         forDimensionClassName(dimensionClass?.simpleName)
     }
 
@@ -81,7 +94,7 @@ class DimensionMetadata {
         columnMetadata.column
     }
 
-    static final Field getField(Class<? extends Dimension> dimensionClass, String fieldName) {
+    static final Field getField(Class<? extends DimensionImpl> dimensionClass, String fieldName) {
         def metadata = forDimension(dimensionClass)
         def field = metadata.fields.find { it.fieldName == fieldName }
         if (field == null) {
@@ -91,11 +104,12 @@ class DimensionMetadata {
     }
 
     static final List<Field> getSupportedFields() {
-        dimensionMetadataMap.values().collectMany { it.fields }
+        dimensionMetadataMap.values().collectMany {
+            (it.type in [DimensionFetchType.STUDY, DimensionFetchType.VISIT]) ? [] as List<Field> : it.fields }
     }
 
     DimensionFetchType type
-    Class<? extends Dimension> dimension
+    Class<? extends DimensionImpl> dimension
     Class domainClass
     String fieldName
     String columnName
@@ -124,7 +138,7 @@ class DimensionMetadata {
         new Field(dimension: this.dimension, type: type, fieldName: field.name)
     }
 
-    DimensionMetadata(Class<? extends Dimension> dimensionClass, DimensionFetchType type, String fieldName) {
+    DimensionMetadata(Class<? extends DimensionImpl> dimensionClass, DimensionFetchType type, String fieldName) {
         log.info "Registering dimension ${dimensionClass.simpleName}..."
         this.dimension = dimensionClass
         this.type = type
@@ -146,6 +160,20 @@ class DimensionMetadata {
                 this.dimensionIdColumn = dimensionMapping.columns[dimensionId.column]?.column
                 this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
             }
+        } else if (type == DimensionFetchType.STUDY) {
+            this.domainClass = Study.class
+            this.dimensionMapping = GrailsDomainBinder.getMapping(Study)
+            Table table = dimensionMapping.table
+            this.dimensionTableName = "${table.schema}.${table.name}"
+            Identity dimensionId = (Identity) dimensionMapping.identity
+            this.dimensionIdColumn = dimensionMapping.columns[dimensionId.column]?.column
+            this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
+        } else if (type == DimensionFetchType.VISIT) {
+                this.domainClass = org.transmartproject.db.i2b2data.VisitDimension.class
+                this.dimensionMapping = GrailsDomainBinder.getMapping(org.transmartproject.db.i2b2data.VisitDimension)
+                Table table = dimensionMapping.table
+                this.dimensionTableName = "${table.schema}.${table.name}"
+                this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
         } else {
             this.domainClass = ObservationFact.class
             this.dimensionMapping = observationFactMapping

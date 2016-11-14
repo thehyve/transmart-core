@@ -6,11 +6,12 @@ import groovy.transform.InheritConstructors
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.exceptions.DataInconsistencyException
+import org.transmartproject.core.multidimensionalquery.Dimension
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
 
-abstract class Dimension {
+abstract class DimensionImpl implements Dimension {
     // TODO(jan): Which properties on dimensions do we actually need for the hypercube to work?
 
     enum Size {
@@ -35,7 +36,7 @@ abstract class Dimension {
     final Density density
     final Packable packable
 
-    Dimension(Size size, Density density, Packable packable) {
+    DimensionImpl(Size size, Density density, Packable packable) {
         this.size = size
         this.density = density
         this.packable = packable
@@ -87,7 +88,7 @@ abstract class Dimension {
 
 @InheritConstructors
 @CompileStatic
-abstract class I2b2Dimension extends Dimension {
+abstract class I2b2Dimension extends DimensionImpl {
     abstract String getAlias()
     abstract String getColumnName()
 
@@ -115,7 +116,7 @@ abstract class I2b2NullablePKDimension extends I2b2Dimension {
 }
 
 @InheritConstructors
-abstract class HighDimDimension extends Dimension {
+abstract class HighDimDimension extends DimensionImpl {
     @Override
     def selectIDs(Query query) {
         throw new NotImplementedException()
@@ -135,7 +136,7 @@ abstract class HighDimDimension extends Dimension {
 
 //TODO: supporting modifier dimensions requires support for sorting, since we need to sort on the full PK except
 // modifierCd in order to ensure that modifier ObservationFacts come next to their observation value
-class ModifierDimension extends Dimension {
+class ModifierDimension extends DimensionImpl {
     ModifierDimension(String name, String modifierCode, Size size, Density density, Packable packable) {
         super(size, density, packable)
         this.name = name
@@ -250,7 +251,7 @@ class LocationDimension extends I2b2Dimension {
 }
 
 @InheritConstructors
-class VisitDimension extends Dimension {
+class VisitDimension extends DimensionImpl {
 
     @Override
     def selectIDs(Query query) {

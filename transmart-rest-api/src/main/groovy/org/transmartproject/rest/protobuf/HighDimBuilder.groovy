@@ -175,8 +175,8 @@ class HighDimBuilder {
                             rowsIterator.peek().find().getClass())
         }
     }
-
-    private static Class decideColumnValueType(Class originalClass) {
+    //TODO: extract to a separate utils class
+    public static Class decideColumnValueType(Class originalClass) {
         if (originalClass in [double, float, long, int, short, byte] || originalClass in Number) {
             return Double
         } else {
