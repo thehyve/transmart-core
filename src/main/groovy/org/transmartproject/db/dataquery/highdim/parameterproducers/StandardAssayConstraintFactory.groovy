@@ -58,8 +58,18 @@ class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory
         } catch (NoSuchResourceException nse) {
             throw new InvalidArgumentsException(nse)
         }
+        //FIXME Assumption that i2b2.full_name always equals corresponding concept_dimension.full_path is wrong
+        new DefaultConceptPathCriteriaConstraint(conceptPath: term.fullName)
+    }
 
-        new DefaultOntologyTermCriteriaConstraint(term: term)
+    @ProducerFor(AssayConstraint.CONCEPT_PATH_CONSTRAINT)
+    AssayConstraint createPathConstraintConstraint(Map<String, Object> params) {
+        if (params.size() != 1) {
+            throw new InvalidArgumentsException("Expected exactly one parameter (concept_path), got $params")
+        }
+
+        def conceptPath = getParam params, 'concept_path', String
+        new DefaultConceptPathCriteriaConstraint(conceptPath: conceptPath)
     }
 
     @ProducerFor(AssayConstraint.PATIENT_SET_CONSTRAINT)
