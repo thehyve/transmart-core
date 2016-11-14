@@ -276,7 +276,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         BiomarkerConstraint bioMarkerConstraint = new BiomarkerConstraint(
-                type: DataConstraint.GENES_CONSTRAINT,
+                biomarkerType: DataConstraint.GENES_CONSTRAINT,
                 params: [
                         names: ['BOGUSRQCD1']
                 ]

@@ -278,8 +278,8 @@ class QueryService {
         //[typeResource.createDataConstraint(['names':['BOGUSRQCD1']], DataConstraint.GENES_CONSTRAINT)]
 //        List<BiomarkerConstraint> biomakerConstraints = [biomarkerConstaint]
         List<DataConstraint> dataConstraints = []
-        if (biomarkerConstaint?.type) {
-            dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.type)
+        if (biomarkerConstaint?.biomarkerType) {
+            dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.biomarkerType)
         }
         //get the data
         TabularResult table = typeResource.retrieveData(assayConstraints, dataConstraints, projection)
