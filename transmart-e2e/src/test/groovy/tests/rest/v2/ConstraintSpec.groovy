@@ -93,6 +93,13 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+
+        when:
+        constraintMap = [type: PatientSetConstraint, patientSetId: 4430334]
+        responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        
+        then:
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "Negation.class"(){
