@@ -19,4 +19,7 @@ interface MultiDimensionalDataResource {
      * @return a Hypercube result
      */
     Hypercube retrieveData(Map args, String dataType)
+
+    Dimension getDimension(String name)
+
 }
