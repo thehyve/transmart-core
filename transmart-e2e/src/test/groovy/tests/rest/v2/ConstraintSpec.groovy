@@ -1,16 +1,21 @@
 package tests.rest.v2
 
 import base.RESTSpec
+import spock.lang.Requires
 
 import static org.hamcrest.Matchers.everyItem
+import static org.hamcrest.Matchers.hasEntry
 import static org.hamcrest.Matchers.hasKey
+import static org.hamcrest.Matchers.is
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AFTER
 import static tests.rest.v2.Operator.AND
+import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.Operator.GREATER_THAN
 import static tests.rest.v2.Operator.LESS_THAN
 import static tests.rest.v2.ValueType.DATE
 import static tests.rest.v2.ValueType.NUMERIC
+import static tests.rest.v2.ValueType.STRING
 import static tests.rest.v2.constraints.*
 import static config.Config.*
 
@@ -47,7 +52,17 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "ModifierConstraint.class"(){
+        def constraintMap = [
+                type: ModifierConstraint, modifierCode: "TNS:SMPL", path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
+        ]
 
+        when:
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+
+        then:
+        that responseData.size(), is(3)
+        that responseData, everyItem(hasEntry('modifierCd', 'TNS:SMPL'))
     }
 
     def "FieldConstraint.class"(){
