@@ -26,15 +26,15 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.i2b2data.ConceptDimension
 
 @Canonical
-class DefaultOntologyTermCriteriaConstraint implements AssayCriteriaConstraint {
+class DefaultConceptPathCriteriaConstraint implements AssayCriteriaConstraint {
 
-    OntologyTerm term
+    String conceptPath
 
     @Override
     void addToCriteria(Criteria criteria) {
         def subCriteria = new DetachedCriteria(ConceptDimension)
                 .property('conceptCode')
-                .eq('conceptPath', this.term.fullName)
+                .eq('conceptPath', conceptPath)
         criteria.in('conceptCode', subCriteria)
     }
 

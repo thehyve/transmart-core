@@ -4,19 +4,23 @@ import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.HighDimensionResource
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery2.HypercubeImpl
+import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
+import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
+import org.transmartproject.db.dataquery.highdim.mrna.MrnaModule
 import org.transmartproject.db.dataquery2.QueryService
-import org.transmartproject.db.dataquery2.query.Constraint
-import org.transmartproject.db.dataquery2.query.ConstraintFactory
-import org.transmartproject.db.dataquery2.query.DimensionMetadata
-import org.transmartproject.db.dataquery2.query.Field
-import org.transmartproject.db.dataquery2.query.AggregateType
+import org.transmartproject.db.dataquery2.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
+import org.transmartproject.rest.protobuf.HighDimBuilder
 
 @Slf4j
 class QueryController {
@@ -38,16 +42,22 @@ class QueryController {
 
     def conceptsResourceService
 
-    private Constraint getConstraint() {
-        if (!params.constraint) {
-            throw new InvalidArgumentsException('Constraint parameter is missing.')
+    HighDimensionResourceService highDimensionResourceService
+
+
+    private Constraint getConstraint(String constraintParameterName = 'constraint') {
+        if (!params.containsKey(constraintParameterName)) {
+            throw new InvalidArgumentsException("${constraintParameterName} parameter is missing.")
         }
-        String constraintParam = URLDecoder.decode(params.constraint, 'UTF-8')
+        if (!params[constraintParameterName]) {
+            throw new InvalidArgumentsException('Empty constraint parameter.')
+        }
+        String constraintParam = URLDecoder.decode(params[constraintParameterName], 'UTF-8')
         try {
             Map constraintData = JSON.parse(constraintParam) as Map
             try {
                 return ConstraintFactory.create(constraintData)
-            } catch(Exception e) {
+            } catch (Exception e) {
                 throw new InvalidArgumentsException(e.message)
             }
         } catch (ConverterException e) {
@@ -87,7 +97,7 @@ class QueryController {
         if (constraint == null) {
             return
         }
-        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def observations = queryService.list(constraint, user)
         render observations as JSON
     }
@@ -133,7 +143,7 @@ class QueryController {
         if (constraint == null) {
             return
         }
-        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def patients = queryService.listPatients(constraint, user)
         render patients as JSON
     }
@@ -151,7 +161,7 @@ class QueryController {
         if (constraint == null) {
             return
         }
-        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def count = queryService.count(constraint, user)
         def result = [count: count]
         render result as JSON
@@ -182,11 +192,49 @@ class QueryController {
             return
         }
         def aggregateType = AggregateType.forName(params.type)
-        User user = (User)usersResource.getUserFromUsername(currentUser.username)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def aggregatedValue = queryService.aggregate(aggregateType, constraint, user)
         def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
         render result as JSON
     }
+
+
+    def highDim() {
+        if (!params.projection) {
+            throw new InvalidArgumentsException('Projection parameter is missing')
+        }
+
+        String projectionName = params.projection
+
+        ConceptConstraint conceptConstraint = getConstraint('concept_constraint')
+        BiomarkerConstraint biomarkerConstraint = null
+        if (params.biomarker_constraint) {
+            biomarkerConstraint = getConstraint('biomarker_constraint')
+        }
+        Constraint assayConstraint = null
+        if (params.assay_constraint) {
+            assayConstraint = getConstraint('assay_constraint')
+        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+
+        def (projection, table) = queryService.highDimension(conceptConstraint,
+                biomarkerConstraint,
+                assayConstraint,
+                projectionName, user)
+
+        OutputStream out = new LazyOutputStreamDecorator(
+                outputStreamProducer: { ->
+                    response.contentType = 'application/octet-stream'
+                    response.outputStream
+                })
+        try {
+            HighDimBuilder.write(projection, table, out)
+        } finally {
+            table.close()
+            out.close()
+        }
+    }
+
 
     /**
      * Supported fields endpoint:
@@ -198,4 +246,5 @@ class QueryController {
         List<Field> fields = DimensionMetadata.supportedFields
         render fields as JSON
     }
+
 }

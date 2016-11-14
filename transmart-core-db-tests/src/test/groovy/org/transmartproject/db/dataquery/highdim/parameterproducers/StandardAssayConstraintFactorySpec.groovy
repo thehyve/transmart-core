@@ -56,9 +56,8 @@ class StandardAssayConstraintFactorySpec extends Specification {
         def result = testee.createOntologyTermConstraint concept_key: conceptKey
 
         expect:
-        result instanceof DefaultOntologyTermCriteriaConstraint
-        result.term instanceof I2b2
-        result.term.fullName == '\\bar\\'
+        result instanceof DefaultConceptPathCriteriaConstraint
+        result.conceptPath == '\\bar\\'
     }
 
     void testCreateOntologyTermBadArguments() {

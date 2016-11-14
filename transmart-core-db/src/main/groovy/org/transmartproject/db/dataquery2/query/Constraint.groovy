@@ -1,17 +1,15 @@
 package org.transmartproject.db.dataquery2.query
 
+import grails.databinding.BindUsing
 import grails.validation.Validateable
 import grails.web.databinding.DataBinder
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import grails.databinding.BindUsing
 import org.springframework.validation.Errors
-import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimensionalquery.MultiDimConstraint
 import org.transmartproject.db.dataquery2.DimensionImpl
 import org.transmartproject.db.i2b2data.Study
-
 /**
  * The data type of a field.
  */
@@ -197,7 +195,8 @@ class TrueConstraint extends Constraint {}
 
 @Canonical
 class BiomarkerConstraint extends Constraint {
-    DataConstraint constraint
+    String biomarkerType
+    Map<String, Object> params
 }
 
 /**
@@ -209,6 +208,10 @@ class ModifierConstraint extends Constraint {
     String modifierCode
     String path
     ValueConstraint values
+
+    static constraints = {
+        values nullable: true
+    }
 }
 
 /**
@@ -406,6 +409,7 @@ class Combination extends Constraint {
 class TemporalConstraint extends Constraint {
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
+    @BindUsing({ obj, source -> ConstraintFactory.create(source['eventConstraint']) })
     Constraint eventConstraint
 
     static constraints = {

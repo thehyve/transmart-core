@@ -100,4 +100,6 @@ class QueryControllerSpec extends MarshallerSpec {
         result instanceof List
     }
 
+
+
 }
