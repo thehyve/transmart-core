@@ -35,6 +35,8 @@ public interface AssayConstraint {
      */
     public final static String ONTOLOGY_TERM_CONSTRAINT = 'ontology_term'
 
+    public final static String CONCEPT_PATH_CONSTRAINT = 'concept_path'
+
     /**
      * Well-known assay constraint for filtering the assays by id. Useful to
      * pair with {@link HighDimensionResource#getSubResourcesAssayMultiMap(List)}.

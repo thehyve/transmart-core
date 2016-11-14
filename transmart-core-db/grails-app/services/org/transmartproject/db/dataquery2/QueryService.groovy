@@ -253,19 +253,13 @@ class QueryService {
         //verify the projections
         HDProjection projection = typeResource.createProjection(projectionName)
         //verify the assayConstraint
-        //why do we need \\\\i2b2 main? -> find logic
-        //filter out SAMPLE_FOR_-302
         //Current TestData doesn't allow for selection on SampleType, Timepoint etc
         //Need to convert the V2 constraints into a patientset and create the PATIENT_ID_LIST_CONSTRAINT
         //or similar appraoch, but seems quite redundant.
         //Check with Hypercube requirements
-        //FIXME
-        def conceptKey = "\\\\i2b2 main" + conceptConstraint.path
-
-
         List<AssayConstraint> assayConstraints = [
-                typeResource.createAssayConstraint([concept_key: conceptKey],
-                        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT
+                typeResource.createAssayConstraint([concept_path: conceptConstraint.path],
+                        AssayConstraint.CONCEPT_PATH_CONSTRAINT
                 )
         ]
         if (assayConstraint) {
@@ -275,8 +269,6 @@ class QueryService {
 
         //verify the biomarkerConstraint
         //only get GeneSymbol BOGUSRQCD1
-        //[typeResource.createDataConstraint(['names':['BOGUSRQCD1']], DataConstraint.GENES_CONSTRAINT)]
-//        List<BiomarkerConstraint> biomakerConstraints = [biomarkerConstaint]
         List<DataConstraint> dataConstraints = []
         if (biomarkerConstaint?.biomarkerType) {
             dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.biomarkerType)
