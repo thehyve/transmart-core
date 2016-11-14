@@ -9,7 +9,7 @@ import grails.databinding.BindUsing
 import org.springframework.validation.Errors
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimensionalquery.MultiDimConstraint
-import org.transmartproject.db.dataquery2.Dimension
+import org.transmartproject.db.dataquery2.DimensionImpl
 import org.transmartproject.db.i2b2data.Study
 
 /**
@@ -167,13 +167,13 @@ enum Operator {
 
 /**
  * Specification of a domain class field using the dimensions defined as
- * subclasses of {@link Dimension} and the field name in the domain class.
+ * subclasses of {@link org.transmartproject.db.dataquery2.DimensionImpl} and the field name in the domain class.
  * The data type ({@link Type}) of the field is also included to allow for
  * early validation (assuming that clients know the data type of a field).
  */
 @Canonical
 class Field implements Validateable {
-    Class<? extends Dimension> dimension
+    Class<? extends DimensionImpl> dimension
     @BindUsing({ obj, source -> Type.forName(source['type']) })
     Type type = Type.NONE
     String fieldName
