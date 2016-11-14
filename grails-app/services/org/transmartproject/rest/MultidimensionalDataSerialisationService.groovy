@@ -1,7 +1,7 @@
 package org.transmartproject.rest
 
 import grails.transaction.Transactional
-import org.transmartproject.db.dataquery2.HypercubeImpl
+import org.transmartproject.db.multidimquery.HypercubeImpl
 import org.transmartproject.rest.protobuf.ObservationsSerializer
 
 @Transactional
