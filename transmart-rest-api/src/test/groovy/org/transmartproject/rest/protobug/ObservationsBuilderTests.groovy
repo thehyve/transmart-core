@@ -6,10 +6,10 @@ import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
-import org.transmartproject.db.dataquery2.DimensionImpl
-import org.transmartproject.db.dataquery2.HypercubeValueImpl
-import org.transmartproject.db.dataquery2.query.Constraint
-import org.transmartproject.db.dataquery2.query.StudyConstraint
+import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.HypercubeValueImpl
+import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.StudyConstraint
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.TestData
 import org.transmartproject.rest.protobuf.ObservationsSerializer

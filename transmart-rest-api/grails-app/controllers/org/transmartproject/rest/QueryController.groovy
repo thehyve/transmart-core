@@ -7,13 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
-import org.transmartproject.db.dataquery2.HypercubeImpl
-import org.transmartproject.db.dataquery2.QueryService
-import org.transmartproject.db.dataquery2.query.Constraint
-import org.transmartproject.db.dataquery2.query.ConstraintFactory
-import org.transmartproject.db.dataquery2.query.DimensionMetadata
-import org.transmartproject.db.dataquery2.query.Field
-import org.transmartproject.db.dataquery2.query.AggregateType
+import org.transmartproject.db.multidimquery.HypercubeImpl
+import org.transmartproject.db.multidimquery.QueryService
+import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.ConstraintFactory
+import org.transmartproject.db.multidimquery.query.DimensionMetadata
+import org.transmartproject.db.multidimquery.query.Field
+import org.transmartproject.db.multidimquery.query.AggregateType
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
@@ -166,7 +166,7 @@ class QueryController {
      *
      * Checks if the supplied constraint contains a concept constraint on top level, because
      * aggregations is only valid for a single concept. If the concept is not found or
-     * no observations are found for the concept, an {@link org.transmartproject.db.dataquery2.query.InvalidQueryException}
+     * no observations are found for the concept, an {@link org.transmartproject.db.multidimquery.query.InvalidQueryException}
      * is thrown.
      * Also, if the concept is not numerical, has null values or values with an operator
      * other than 'E'.
@@ -192,7 +192,7 @@ class QueryController {
      * Supported fields endpoint:
      * <code>/query/supportedFields</code>
      *
-     * @return the list of fields supported by {@link org.transmartproject.db.dataquery2.query.FieldConstraint}.
+     * @return the list of fields supported by {@link org.transmartproject.db.multidimquery.query.FieldConstraint}.
      */
     def supportedFields() {
         List<Field> fields = DimensionMetadata.supportedFields

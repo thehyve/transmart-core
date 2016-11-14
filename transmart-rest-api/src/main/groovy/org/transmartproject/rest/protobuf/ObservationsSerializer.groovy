@@ -2,11 +2,11 @@ package org.transmartproject.rest.protobuf
 
 import com.google.protobuf.util.JsonFormat
 import groovy.util.logging.Slf4j
-import org.transmartproject.core.multidimensionalquery.Dimension
-import org.transmartproject.db.dataquery2.DimensionImpl
-import org.transmartproject.db.dataquery2.HypercubeImpl
-import org.transmartproject.db.dataquery2.HypercubeValueImpl
-import org.transmartproject.db.dataquery2.query.DimensionMetadata
+import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.HypercubeImpl
+import org.transmartproject.db.multidimquery.HypercubeValueImpl
+import org.transmartproject.db.multidimquery.query.DimensionMetadata
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.*

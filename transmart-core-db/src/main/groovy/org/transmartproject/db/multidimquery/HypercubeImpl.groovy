@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList
@@ -7,9 +7,9 @@ import com.google.common.collect.ImmutableSet
 import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.StatelessSessionImpl
-import org.transmartproject.core.multidimensionalquery.Dimension
-import org.transmartproject.core.multidimensionalquery.Hypercube
-import org.transmartproject.core.multidimensionalquery.HypercubeValue
+import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.AbstractOneTimeCallIterable

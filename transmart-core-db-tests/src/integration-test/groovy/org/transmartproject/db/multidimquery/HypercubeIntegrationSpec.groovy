@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.HashMultiset
 import com.google.common.collect.Lists
@@ -9,7 +9,7 @@ import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
-import org.transmartproject.db.dataquery2.query.StudyConstraint
+import org.transmartproject.db.multidimquery.query.StudyConstraint
 import org.transmartproject.db.metadata.DimensionDescription
 import spock.lang.Ignore
 

@@ -1,11 +1,7 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableMap
-import org.hamcrest.collection.IsMapContaining
 import spock.lang.Specification
-
-import static org.hamcrest.Matchers.*
-import static org.junit.Assert.assertThat
 
 class HypercubeSpec extends Specification {
 

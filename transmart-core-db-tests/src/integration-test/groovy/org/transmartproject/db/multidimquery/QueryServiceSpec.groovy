@@ -1,18 +1,18 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
-import org.transmartproject.db.dataquery2.query.Combination
-import org.transmartproject.db.dataquery2.query.ConceptConstraint
-import org.transmartproject.db.dataquery2.query.Constraint
-import org.transmartproject.db.dataquery2.query.ConstraintFactory
-import org.transmartproject.db.dataquery2.query.InvalidQueryException
-import org.transmartproject.db.dataquery2.query.Operator
-import org.transmartproject.db.dataquery2.query.AggregateType
-import org.transmartproject.db.dataquery2.query.TrueConstraint
+import org.transmartproject.db.multidimquery.query.Combination
+import org.transmartproject.db.multidimquery.query.ConceptConstraint
+import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.ConstraintFactory
+import org.transmartproject.db.multidimquery.query.InvalidQueryException
+import org.transmartproject.db.multidimquery.query.Operator
+import org.transmartproject.db.multidimquery.query.AggregateType
+import org.transmartproject.db.multidimquery.query.TrueConstraint
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.AccessLevelTestData
 import org.transmartproject.db.i2b2data.ConceptDimension
