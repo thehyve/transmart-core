@@ -84,7 +84,7 @@ class RESTSpec extends Specification{
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = new JsonSlurper().parse(reader)
+                    def result = JSON.parse(reader)
                     println result
                     return result
                 }
@@ -131,7 +131,7 @@ class RESTSpec extends Specification{
                 if (DEBUG){
                 println "Got response: ${resp.statusLine}"
                 println "Content-Type: ${resp.headers.'Content-Type'}"
-                def result = new JsonSlurper().parse(reader)
+                def result = JSON.parse(reader)
                 println result
                 return result
                 }
