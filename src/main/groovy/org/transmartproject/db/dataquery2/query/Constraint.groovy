@@ -197,7 +197,7 @@ class TrueConstraint extends Constraint {}
 
 @Canonical
 class BiomarkerConstraint extends Constraint {
-    String type
+    String biomarkerType
     Map<String, Object> params
 }
 
