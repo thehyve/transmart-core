@@ -2,9 +2,12 @@ package org.transmartproject.rest.protobuf
 
 import com.google.protobuf.util.JsonFormat
 import groovy.util.logging.Slf4j
+import org.transmartproject.db.dataquery2.AssayDimension
+import org.transmartproject.db.dataquery2.BioMarkerDimension
 import org.transmartproject.db.dataquery2.DimensionImpl
 import org.transmartproject.db.dataquery2.HypercubeImpl
 import org.transmartproject.db.dataquery2.HypercubeValueImpl
+import org.transmartproject.db.dataquery2.ProjectionDimension
 import org.transmartproject.db.dataquery2.query.DimensionMetadata
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
@@ -56,19 +59,30 @@ public class ObservationsSerializer {
             }
             def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionName)
             def fields = []
-            def metadata = DimensionMetadata.forDimension(dim.class)
-            metadata.fields.each { field ->
-                if (field.fieldName in publicFacingFields) {
-                    Class valueType = metadata.fieldTypes[field.fieldName]
-                    def fieldDef = FieldDefinition.newBuilder()
-                            .setName(field.fieldName)
-                            .setType(getFieldType(valueType))
-                            .build()
-                    fields << fieldDef
-                    builder.addFields(fieldDef)
-                }
+            switch(dim.class) {
+                case BioMarkerDimension:
+                    break
+                case AssayDimension:
+                    break
+                case ProjectionDimension:
+                    break
+                default:
+                    def metadata = DimensionMetadata.forDimension(dim.class)
+                    metadata.fields.each { field ->
+                        if (field.fieldName in publicFacingFields) {
+                            Class valueType = metadata.fieldTypes[field.fieldName]
+                            def fieldDef = FieldDefinition.newBuilder()
+                                    .setName(field.fieldName)
+                                    .setType(getFieldType(valueType))
+                                    .build()
+                            fields << fieldDef
+                            builder.addFields(fieldDef)
+                        }
+                    }
+                    break
             }
             dimensionFields[dim] = fields
+
             builder.build()
         }
         dimensionDeclarations
