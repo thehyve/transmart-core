@@ -123,13 +123,28 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     }
 
     /**
-     * FIXME:
      * Creates a subquery to find observations with the same primary key (use <code>id()</code>?)
      * and match certain value constraints.
      * See {@link #build(TemporalConstraint)} for an example.
      */
     Criterion build(ModifierConstraint constraint) {
-        throw new NotImplementedException()
+        def restrictions
+        if (constraint.modifierCode != null) {
+            restrictions = Restrictions.eq('modifierCd', constraint.modifierCode)
+        } else if (constraint.path != null) {
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(ModifierDimensionCoreDb, 'modifier_dimension')
+            subCriteria.add(Restrictions.eq("modifier_dimension.path", constraint.path))
+            restrictions = Subqueries.propertyEq('modifierCd', subCriteria.setProjection(Projections.property("code")))
+        }
+        else {
+            throw new QueryBuilderException("Modifier constraint shouldn't have a null value both for modifier path and code")
+        }
+        def result
+        if(constraint.values != null) {
+            result = Restrictions.and(build(constraint.values), restrictions)
+        } else result = restrictions
+
+        return result
     }
 
     /**
