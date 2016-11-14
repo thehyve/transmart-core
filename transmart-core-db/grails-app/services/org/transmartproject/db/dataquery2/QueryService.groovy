@@ -104,7 +104,7 @@ class QueryService {
         getList(patientCriteria)
     }
 
-    static List<StudyConstraint> findStudyConstraints(Constraint constraint){
+    static List<StudyConstraint> findStudyConstraints(Constraint constraint) {
         if (constraint instanceof StudyConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -114,7 +114,7 @@ class QueryService {
         }
     }
 
-    static List<StudyObjectConstraint> findStudyObjectConstraints(Constraint constraint){
+    static List<StudyObjectConstraint> findStudyObjectConstraints(Constraint constraint) {
         if (constraint instanceof StudyObjectConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -124,7 +124,7 @@ class QueryService {
         }
     }
 
-    static List<ConceptConstraint> findConceptConstraints(Constraint constraint){
+    static List<ConceptConstraint> findConceptConstraints(Constraint constraint) {
         if (constraint instanceof ConceptConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -263,13 +263,14 @@ class QueryService {
         def conceptKey = "\\\\i2b2 main" + conceptConstraint.path
 
 
-        List<AssayConstraint> assayConstraints = []
+        List<AssayConstraint> assayConstraints = [
+                typeResource.createAssayConstraint([concept_key: conceptKey],
+                        AssayConstraint.ONTOLOGY_TERM_CONSTRAINT
+                )
+        ]
         if (assayConstraint) {
             List<org.transmartproject.db.i2b2data.PatientDimension> listPatientDimensions = listPatients(assayConstraint, user)
-            assayConstraint << typeResource.createAssayConstraint([concept_key: conceptKey],
-                    AssayConstraint.ONTOLOGY_TERM_CONSTRAINT
-            )
-            assayConstraint << typeResource.createAssayConstraint([ids: listPatientDimensions*.inTrialId], AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)
+            assayConstraints << typeResource.createAssayConstraint([ids: listPatientDimensions*.inTrialId], AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)
         }
 
         //verify the biomarkerConstraint
