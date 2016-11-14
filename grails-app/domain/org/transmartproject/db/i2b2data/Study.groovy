@@ -1,5 +1,7 @@
 package org.transmartproject.db.i2b2data
 
+import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.metadata.DimensionDescription
 
 /**
@@ -17,7 +19,7 @@ import org.transmartproject.db.metadata.DimensionDescription
  * Metadata is available in the form of a label {@link Study#studyId} and a link to the <code>bio_experiment</code>
  * table in {@link Study#bioExperimentId}.
  */
-class Study {
+class Study implements org.transmartproject.core.ontology.Study {
 
     static final String PUBLIC = 'PUBLIC'
 
@@ -57,5 +59,11 @@ class Study {
         dimensions  joinTable: [schema: 'i2b2metadata']
         version false
     }
+
+    @Override String getId() { studyId }
+
+    //TODO: implement these
+    @Override OntologyTerm getOntologyTerm() { throw new UnsupportedOperationException() }
+    @Override Set<Patient> getPatients() { throw new UnsupportedOperationException() }
 
 }
