@@ -37,9 +37,6 @@ class QueryController {
     @Autowired
     MultidimensionalDataSerialisationService multidimensionalDataSerialisationService
 
-    @Autowired
-    MultidimensionalDataResourceService queryResource
-
     def conceptsResourceService
 
     HighDimensionResourceService highDimensionResourceService
@@ -115,8 +112,8 @@ class QueryController {
         if (constraint == null) {
             return
         }
-        def dataType = 'clinical'
-        HypercubeImpl result = queryResource.retrieveData(dataType, constraint: constraint)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        HypercubeImpl result = queryService.retrieveClinicalData(constraint, user)
         OutputStream out = new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
                     response.contentType = 'application/json'

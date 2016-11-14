@@ -12,12 +12,22 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
+import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.db.accesscontrol.AccessControlChecks
+import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.dataquery2.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.ontology.I2b2
+import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
+import org.transmartproject.db.util.StringUtils
 
 @Slf4j
 @Transactional
@@ -30,10 +40,83 @@ class QueryService {
 
     HighDimensionResourceService highDimensionResourceService
 
+    @Autowired
+    MultidimensionalDataResourceService queryResource
+
+    @Autowired
+    ConceptsResource conceptsResource
+
     private final Field valueTypeField = new Field(dimension: ValueDimension, fieldName: 'valueType', type: Type.STRING)
     private final Field textValueField = new Field(dimension: ValueDimension, fieldName: 'textValue', type: Type.STRING)
-    private
-    final Field numberValueField = new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
+    private final Field numberValueField =
+            new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
+
+    private boolean checkConceptPathAccess(String conceptPath, User user) {
+        if (conceptPath == null || conceptPath.empty) {
+            throw new AccessDeniedException("Empty concept path.")
+        }
+        Collection<OntologyTerm> nodes = I2b2.findAll {
+            dimensionTableName =~ 'concept_dimension'
+            columnName         =~ 'concept_path'
+            operator           =~ 'like'
+            dimensionCode      =~ StringUtils.asLikeLiteral(conceptPath)
+        }
+        if (nodes.empty) {
+            throw new AccessDeniedException("Access denied to concept path: ${conceptPath}")
+        }
+        boolean allowed = false
+        nodes.each { OntologyTerm node ->
+            try {
+                OntologyTerm term = conceptsResource.getByKey(node.key)
+                if (accessControlChecks.existsDimensionStudyForUser(user, term.study.id)) {
+                    allowed = true
+                }
+            } catch (NoSuchResourceException e) {
+                //
+            }
+        }
+        allowed
+    }
+
+    private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
+        if (constraint instanceof TrueConstraint
+            || constraint instanceof ModifierConstraint
+            || constraint instanceof FieldConstraint
+            || constraint instanceof ValueConstraint
+            || constraint instanceof TimeConstraint
+            || constraint instanceof NullConstraint) {
+            //
+        } else if (constraint instanceof Negation) {
+            checkAccess(constraint.arg, user)
+        } else if (constraint instanceof Combination) {
+            constraint.args.each { checkAccess(it, user) }
+        } else if (constraint instanceof TemporalConstraint) {
+            checkAccess(constraint.eventConstraint, user)
+        } else if (constraint instanceof BioMarkerDimension) {
+            throw new InvalidQueryException("Not supported yet: ${constraint?.class?.simpleName}.")
+        } else if (constraint instanceof PatientSetConstraint) {
+            if (constraint.patientSetId) {
+                QueryResult queryResult = QtQueryResultInstance.findById(constraint.patientSetId)
+                if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+                    throw new AccessDeniedException("Access denied to patient set: ${constraint.patientSetId}")
+                }
+            }
+        } else if (constraint instanceof ConceptConstraint) {
+            if (!checkConceptPathAccess(constraint.path, user)) {
+                throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
+            }
+        } else if (constraint instanceof StudyConstraint) {
+            if (!accessControlChecks.existsDimensionStudyForUser(user, constraint.studyId)) {
+                throw new AccessDeniedException("Access denied to study: ${constraint.studyId}")
+            }
+        } else if (constraint instanceof StudyObjectConstraint) {
+            if (!accessControlChecks.existsDimensionStudyForUser(user, constraint.study?.studyId)) {
+                throw new AccessDeniedException("Access denied to study: ${constraint.study?.studyId}")
+            }
+        } else {
+            throw new InvalidQueryException("Unknown constraint type: ${constraint?.class?.simpleName}.")
+        }
+    }
 
     private Number getAggregate(AggregateType aggregateType, DetachedCriteria criteria) {
         switch (aggregateType) {
@@ -80,6 +163,7 @@ class QueryService {
      * @param user
      */
     List<ObservationFact> list(Constraint constraint, User user) {
+        checkAccess(constraint, user)
         def builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
@@ -94,6 +178,7 @@ class QueryService {
      * @param user
      */
     List<org.transmartproject.db.i2b2data.PatientDimension> listPatients(Constraint constraint, User user) {
+        checkAccess(constraint, user)
         def builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
@@ -145,6 +230,7 @@ class QueryService {
     }
 
     Long count(Constraint constraint, User user) {
+        checkAccess(constraint, user)
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
@@ -160,7 +246,7 @@ class QueryService {
      * @param user
      */
     Number aggregate(AggregateType type, Constraint constraint, User user) {
-
+        checkAccess(constraint, user)
         if (type == AggregateType.NONE) {
             throw new InvalidQueryException("Aggregate requires a valid aggregate type.")
         }
@@ -224,6 +310,13 @@ class QueryService {
                       BiomarkerConstraint biomarkerConstaint,
                       Constraint assayConstraint,
                       String projectionName, User user) {
+        if (!conceptConstraint) {
+            throw new InvalidQueryException("No concept constraint provided.")
+        }
+        checkAccess(conceptConstraint, user)
+        if (assayConstraint) {
+            checkAccess(assayConstraint, user)
+        }
 
         //check the existence and access for the conceptConstraint
         //FIXME This doesn't check access rights -> hackable to see all existing concepts if this test passes
@@ -276,6 +369,13 @@ class QueryService {
         //get the data
         TabularResult table = typeResource.retrieveData(assayConstraints, dataConstraints, projection)
         [projection, table]
+    }
+
+    HypercubeImpl retrieveClinicalData(Constraint constraint, User user) {
+        checkAccess(constraint, user)
+        def dataType = 'clinical'
+        def accessibleStudies = accessControlChecks.getDimensionStudiesForUser(user)
+        queryResource.retrieveData(dataType, accessibleStudies, constraint: constraint)
     }
 
 }

@@ -38,7 +38,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_basic_longitudinal_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.retrieveData('clinical', constraint: study(clinicalData.longitudinalStudy.studyId))
+        def hypercube = queryResource.retrieveData('clinical',
+                constraint: study(clinicalData.longitudinalStudy.studyId),
+                [clinicalData.longitudinalStudy])
         def resultObs = Lists.newArrayList(hypercube).sort()
 
         def result = resultObs*.value as HashMultiset
@@ -82,7 +84,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_basic_sample_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.retrieveData('clinical', constraint: study(clinicalData.sampleStudy.studyId))
+        def hypercube = queryResource.retrieveData('clinical',
+                constraint: study(clinicalData.sampleStudy.studyId),
+                [clinicalData.sampleStudy])
         def resultObs = Lists.newArrayList(hypercube).sort()
 
         def result = resultObs*.value as HashMultiset
@@ -117,7 +121,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_basic_ehr_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.retrieveData('clinical', constraint: study(clinicalData.ehrStudy.studyId))
+        def hypercube = queryResource.retrieveData('clinical',
+                constraint: study(clinicalData.ehrStudy.studyId),
+                [clinicalData.ehrStudy])
         def resultObs = Lists.newArrayList(hypercube).sort()
 
         def result = resultObs*.value as HashMultiset
@@ -155,7 +161,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_all_dimensions_data_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.retrieveData('clinical', constraint: study(clinicalData.multidimsStudy.studyId))
+        def hypercube = queryResource.retrieveData('clinical',
+                constraint: study(clinicalData.multidimsStudy.studyId),
+                [clinicalData.multidimsStudy])
         def resultObs = Lists.newArrayList(hypercube).sort()
 
         def result = resultObs*.value as HashMultiset

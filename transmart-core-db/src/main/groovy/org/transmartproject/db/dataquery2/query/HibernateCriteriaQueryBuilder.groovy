@@ -468,11 +468,16 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         // property.
         // TODO: refactor all of this so we don't need to access privates here
         aliases = (criteria.projection as ProjectionList).aliases.collectEntries {[it, it]}
+        aliases['observation_fact'] = criteria.alias
         criteria.subcriteriaList.each { CriteriaImpl.Subcriteria sub ->
             aliases[sub.path] = sub.alias
         }
         def alreadyAddedAliases = aliases.keySet() + ['observation_fact']
-        Criterion criterion = build(new Combination(operator: Operator.AND, args: constraint))
+        def trialVisitAlias = getAlias('trialVisit')
+        Criterion criterion = Restrictions.and(
+                build(new Combination(operator: Operator.AND, args: constraint)),
+                Restrictions.in("${trialVisitAlias}.study", getStudies())
+        )
         this.aliases.each { property, alias ->
             if(!(property in alreadyAddedAliases)) {
                 criteria.createAlias(property, alias)
