@@ -7,6 +7,7 @@ import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.StatelessSessionImpl
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.multidimensionalquery.Hypercube
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
@@ -16,7 +17,8 @@ import org.transmartproject.db.util.IndexedArraySet
  *
  */
 @CompileStatic
-class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements IterableResult<HypercubeValue> {
+class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> implements Hypercube,
+        IterableResult<HypercubeValueImpl> {
     /*
      * The data representation:
      *
@@ -47,7 +49,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
     // A map that stores the actual dimension elements once they are loaded
     Map<Dimension, List<Object>> dimensionElements = new HashMap()
 
-    Hypercube(ScrollableResults results, Collection<Dimension> dimensions, String[] aliases,
+    HypercubeImpl(ScrollableResults results, Collection<Dimension> dimensions, String[] aliases,
               Query query, StatelessSessionImpl session) {
         this.results = results
         this.dimensionsIndex = ImmutableMap.copyOf(dimensions.withIndex().collectEntries())
@@ -69,8 +71,8 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
     }
 
     // TODO: support modifier dimensions
-    class ResultIterator extends AbstractIterator<HypercubeValue> {
-        HypercubeValue computeNext() {
+    class ResultIterator extends AbstractIterator<HypercubeValueImpl> {
+        HypercubeValueImpl computeNext() {
             if (!results.next()) {
                 if(autoLoadDimensions) loadDimensions()
                 return endOfData()
@@ -106,7 +108,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
             }
 
             // TODO: implement text and numeric values
-            new HypercubeValue(Hypercube.this, dimensionElementIdxes, value)
+            new HypercubeValueImpl(HypercubeImpl.this, dimensionElementIdxes, value)
         }
     }
 
@@ -151,7 +153,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
 
     // dimensionsLoaded is a boolean property that indicates if all dimension elements have been loaded already.
     // Normally it is only true once the result has been fully iterated over, or if preloadDimensions == true in
-    // doQuery.
+    // retrieveData.
     private boolean _dimensionsLoaded = false
     boolean getDimensionsLoaded() { return _dimensionsLoaded }
 
@@ -162,15 +164,15 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
 }
 
 @CompileStatic
-class HypercubeValue {
+class HypercubeValueImpl {
     // Not all dimensions apply to all values, and the set of dimensions is extensible using modifiers.
     // We can either use a Map or methodMissing().
-    private final Hypercube cube
+    private final HypercubeImpl cube
     // dimension
     private final Object[] dimensionElementIdxes
     final def value
 
-    HypercubeValue(Hypercube cube, Object[] dimensionElementIdxes, def value) {
+    HypercubeValueImpl(HypercubeImpl cube, Object[] dimensionElementIdxes, def value) {
         this.cube = cube
         this.dimensionElementIdxes = dimensionElementIdxes
         this.value = value

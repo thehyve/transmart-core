@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
-import org.transmartproject.db.dataquery2.Hypercube
+import org.transmartproject.db.dataquery2.HypercubeImpl
 import org.transmartproject.db.dataquery2.QueryService
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.ConstraintFactory
@@ -106,7 +106,7 @@ class QueryController {
             return
         }
         def dataType = 'clinical'
-        Hypercube result = queryResource.doQuery(dataType, constraint: constraint)
+        HypercubeImpl result = queryResource.retrieveData(dataType, constraint: constraint)
         OutputStream out = new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
                     response.contentType = 'application/json'
