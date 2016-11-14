@@ -7,6 +7,10 @@ dependsOn = [
         ],
         'i2b2demodata.observation_fact'     : [
                 'i2b2demodata.trial_visit_dimension',
+        ],
+        'searchapp.search_role_auth_user'   : [
+                'searchapp.search_auth_user',
+                'searchapp.search_role',
         ]
 ]
 
