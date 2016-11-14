@@ -3,8 +3,8 @@ package org.transmartproject.rest.protobuf
 import com.google.protobuf.util.JsonFormat
 import groovy.util.logging.Slf4j
 import org.transmartproject.db.dataquery2.Dimension
-import org.transmartproject.db.dataquery2.Hypercube
-import org.transmartproject.db.dataquery2.HypercubeValue
+import org.transmartproject.db.dataquery2.HypercubeImpl
+import org.transmartproject.db.dataquery2.HypercubeValueImpl
 import org.transmartproject.db.dataquery2.query.DimensionMetadata
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
@@ -16,12 +16,12 @@ import static org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDe
 @Slf4j
 public class ObservationsSerializer {
 
-    Hypercube cube
+    HypercubeImpl cube
     JsonFormat.Printer jsonPrinter
     Map<Dimension, List<Object>> dimensionElements = [:]
     Map<Dimension, List<FieldDefinition>> dimensionFields = [:]
 
-    ObservationsSerializer(Hypercube cube) {
+    ObservationsSerializer(HypercubeImpl cube) {
         jsonPrinter = JsonFormat.printer()
         this.cube = cube
     }
@@ -80,15 +80,15 @@ public class ObservationsSerializer {
     }
 
     def writeCells(BufferedWriter out) {
-        Iterator<HypercubeValue> it = cube.iterator
+        Iterator<HypercubeValueImpl> it = cube.iterator
         while (it.hasNext()) {
-            HypercubeValue value = it.next()
+            HypercubeValueImpl value = it.next()
             Observation observation = createCell(value)
             jsonPrinter.appendTo(observation, out)
         }
     }
 
-    Observation createCell(HypercubeValue value) {
+    Observation createCell(HypercubeValueImpl value) {
         Observation.Builder builder = Observation.newBuilder()
         if (value.value instanceof Number) {
             builder.numericValue = value.value

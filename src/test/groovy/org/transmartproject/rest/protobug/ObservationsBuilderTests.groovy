@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.dataquery2.Dimension
-import org.transmartproject.db.dataquery2.HypercubeValue
+import org.transmartproject.db.dataquery2.HypercubeValueImpl
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.StudyConstraint
 import org.transmartproject.db.metadata.DimensionDescription
@@ -36,14 +36,14 @@ class ObservationsBuilderTests {
     public void testSerialization() throws Exception {
         setupData()
         Constraint constraint = new StudyConstraint(studyId: clinicalData.longitudinalStudy.studyId)
-        def mockedCube = queryResource.doQuery('clinical', constraint: constraint)
+        def mockedCube = queryResource.retrieveData('clinical', constraint: constraint)
         def builder = new ObservationsSerializer(mockedCube)
         def blob = builder.getDimensionsDefs()
         assertThat(blob, notNullValue())
-        Iterator<HypercubeValue> it = mockedCube.iterator
+        Iterator<HypercubeValueImpl> it = mockedCube.iterator
         def cellMsgs = []
         while (it.hasNext()) {
-            HypercubeValue value = it.next()
+            HypercubeValueImpl value = it.next()
             cellMsgs.add(builder.createCell(value))
         }
         assertThat(cellMsgs, notNullValue())
