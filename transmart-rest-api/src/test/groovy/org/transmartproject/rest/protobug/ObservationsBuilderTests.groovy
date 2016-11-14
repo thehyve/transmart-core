@@ -6,7 +6,7 @@ import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
-import org.transmartproject.db.dataquery2.Dimension
+import org.transmartproject.db.dataquery2.DimensionImpl
 import org.transmartproject.db.dataquery2.HypercubeValueImpl
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.StudyConstraint
@@ -27,7 +27,7 @@ class ObservationsBuilderTests {
 
     TestData testData
     ClinicalTestData clinicalData
-    Map<String, Dimension> dims
+    Map<String, DimensionImpl> dims
     
     @Autowired
     MultidimensionalDataResourceService queryResource

@@ -11,7 +11,7 @@ import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimensionalquery.MultiDimensionalDataResource
-import org.transmartproject.db.dataquery2.Dimension
+import org.transmartproject.db.dataquery2.DimensionImpl
 import org.transmartproject.db.dataquery2.HypercubeImpl
 import org.transmartproject.db.dataquery2.QueryService
 import org.transmartproject.db.dataquery2.query.Constraint
@@ -45,7 +45,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint
-        Set<Dimension> dimensions = args.dimensions as Set // make unique
+        Set<DimensionImpl> dimensions = args.dimensions as Set // make unique
 
         // These are not yet implemented
         def sort = args.sort
@@ -72,7 +72,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             }
         }
 
-        Set<Dimension> validDimensions
+        Set<DimensionImpl> validDimensions
         if(studies) {
             // This throws a LegacyStudyException for non-17.1 style studies
             // This could probably be done more efficiently, but GORM support for many-to-many collections is pretty
