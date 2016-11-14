@@ -12,7 +12,7 @@ import static config.Config.*
 /**
  *
  *  TMPREQ-10
- *  aggregated timeseries/samples values:
+ *  The REST API should support quering for the following aggregated values for numerical data:
  *      minimum
  *      maximum
  *      average
