@@ -220,10 +220,10 @@ class QueryService {
         return getAggregate(type, queryCriteria)
     }
 
-    TabularResult highDimension(ConceptConstraint conceptConstraint,
-                                BiomarkerConstraint biomarkerConstaint,
-                                Constraint assayConstraint,
-                                String projectionName, User user) {
+    def highDimension(ConceptConstraint conceptConstraint,
+                      BiomarkerConstraint biomarkerConstaint,
+                      Constraint assayConstraint,
+                      String projectionName, User user) {
 
         //check the existence and access for the conceptConstraint
         //FIXME This doesn't check access rights -> hackable to see all existing concepts if this test passes
@@ -259,13 +259,19 @@ class QueryService {
         //Need to convert the V2 constraints into a patientset and create the PATIENT_ID_LIST_CONSTRAINT
         //or similar appraoch, but seems quite redundant.
         //Check with Hypercube requirements
+        //FIXME
         def conceptKey = "\\\\i2b2 main" + conceptConstraint.path
 
-        List<org.transmartproject.db.i2b2data.PatientDimension> listPatientDimensions = listPatients(assayConstraint, user)
-        List<AssayConstraint> assayConstraints = [typeResource.createAssayConstraint([concept_key: conceptKey],
-                AssayConstraint.ONTOLOGY_TERM_CONSTRAINT
-        ),
-                                                  typeResource.createAssayConstraint([ids: listPatientDimensions*.inTrialId], AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)]
+
+        List<AssayConstraint> assayConstraints = []
+        if (assayConstraint) {
+            List<org.transmartproject.db.i2b2data.PatientDimension> listPatientDimensions = listPatients(assayConstraint, user)
+            assayConstraint << typeResource.createAssayConstraint([concept_key: conceptKey],
+                    AssayConstraint.ONTOLOGY_TERM_CONSTRAINT
+            )
+            assayConstraint << typeResource.createAssayConstraint([ids: listPatientDimensions*.inTrialId], AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)
+        }
+
         //verify the biomarkerConstraint
         //only get GeneSymbol BOGUSRQCD1
         //[typeResource.createDataConstraint(['names':['BOGUSRQCD1']], DataConstraint.GENES_CONSTRAINT)]
@@ -276,7 +282,7 @@ class QueryService {
         }
         //get the data
         TabularResult table = typeResource.retrieveData(assayConstraints, dataConstraints, projection)
-        table
+        [projection, table]
     }
 
 }
