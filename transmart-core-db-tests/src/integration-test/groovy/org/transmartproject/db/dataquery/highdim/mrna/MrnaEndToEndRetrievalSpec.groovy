@@ -172,6 +172,7 @@ class MrnaEndToEndRetrievalSpec extends TransmartSpecification {
         expect:
         that(mrnaResource.supportedAssayConstraints, containsInAnyOrder(
                 AssayConstraint.ONTOLOGY_TERM_CONSTRAINT,
+                AssayConstraint.CONCEPT_PATH_CONSTRAINT,
                 AssayConstraint.PATIENT_SET_CONSTRAINT,
                 AssayConstraint.TRIAL_NAME_CONSTRAINT,
                 AssayConstraint.ASSAY_ID_LIST_CONSTRAINT,
