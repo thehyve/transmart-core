@@ -3,9 +3,8 @@ package org.transmartproject.rest.protobuf
 import com.google.protobuf.util.JsonFormat
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.HypercubeImpl
-import org.transmartproject.db.multidimquery.HypercubeValueImpl
+import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
@@ -17,12 +16,12 @@ import static org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDe
 @Slf4j
 public class ObservationsSerializer {
 
-    HypercubeImpl cube
+    Hypercube cube
     JsonFormat.Printer jsonPrinter
-    Map<DimensionImpl, List<Object>> dimensionElements = [:]
-    Map<DimensionImpl, List<FieldDefinition>> dimensionFields = [:]
+    Map<Dimension, List<Object>> dimensionElements = [:]
+    Map<Dimension, List<FieldDefinition>> dimensionFields = [:]
 
-    ObservationsSerializer(HypercubeImpl cube) {
+    ObservationsSerializer(Hypercube cube) {
         jsonPrinter = JsonFormat.printer()
         this.cube = cube
     }
@@ -81,24 +80,23 @@ public class ObservationsSerializer {
     }
 
     def writeCells(BufferedWriter out) {
-        Iterator<HypercubeValueImpl> it = cube.iterator
-        while (it.hasNext()) {
-            HypercubeValueImpl value = it.next()
+        HypercubeValue value
+        for(Iterator<HypercubeValue> it = cube.iterator(); it.hasNext(); value = it.next()) {
             Observation observation = createCell(value)
             jsonPrinter.appendTo(observation, out)
         }
     }
 
-    Observation createCell(HypercubeValueImpl value) {
+    Observation createCell(HypercubeValue value) {
         Observation.Builder builder = Observation.newBuilder()
         if (value.value instanceof Number) {
             builder.numericValue = value.value
         } else {
             builder.stringValue = value.value
         }
-        for (DimensionImpl dim : cube.dimensions) {
-            Object dimElement = value.getDimElement(dim)
-            if (dim.density == DimensionImpl.Density.SPARSE) {
+        for (Dimension dim : cube.dimensions) {
+            Object dimElement = value.getAt(dim)
+            if (dim.density == Dimension.Density.SPARSE) {
                 builder.addInlineDimensions(buildSparseCell(dim, dimElement))
             } else {
                 builder.addDimensionIndexes(determineFooterIndex(dim, dimElement))
@@ -210,7 +208,7 @@ public class ObservationsSerializer {
         builder.build()
     }
 
-    private DimensionElement buildSparseCell(DimensionImpl dim, Object dimElement) {
+    private DimensionElement buildSparseCell(Dimension dim, Object dimElement) {
         def builder = DimensionElement.newBuilder()
         for (FieldDefinition field: dimensionFields[dim]) {
             builder.addFields(buildValue(field, dimElement.getAt(field.name)))
@@ -219,7 +217,7 @@ public class ObservationsSerializer {
     }
 
     def getFooter() {
-        cube.dimensions.findAll({ it.density != DimensionImpl.Density.SPARSE }).collect { dim ->
+        cube.dimensions.findAll({ it.density != Dimension.Density.SPARSE }).collect { dim ->
             def fields = dimensionFields[dim] ?: []
             def elementsBuilder = DimensionElements.newBuilder()
             fields.each { field ->
@@ -240,7 +238,7 @@ public class ObservationsSerializer {
         jsonPrinter.appendTo(footer, out)
     }
 
-    int determineFooterIndex(DimensionImpl dim, Object element) {
+    int determineFooterIndex(Dimension dim, Object element) {
         if (dimensionElements[dim] == null) {
             dimensionElements[dim] = []
         }

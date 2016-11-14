@@ -6,8 +6,8 @@ import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.clinical.MultidimensionalDataResourceService
-import org.transmartproject.db.multidimquery.HypercubeImpl
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.ConstraintFactory
@@ -34,7 +34,7 @@ class QueryController {
     MultidimensionalDataSerialisationService multidimensionalDataSerialisationService
 
     @Autowired
-    MultidimensionalDataResourceService queryResource
+    MultiDimensionalDataResource queryResource
 
     def conceptsResourceService
 
@@ -106,7 +106,7 @@ class QueryController {
             return
         }
         def dataType = 'clinical'
-        HypercubeImpl result = queryResource.retrieveData(dataType, constraint: constraint)
+        Hypercube result = queryResource.retrieveData(dataType, constraint: constraint)
         OutputStream out = new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
                     response.contentType = 'application/json'
