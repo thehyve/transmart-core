@@ -204,8 +204,8 @@ class HypercubeValueImpl implements HypercubeValue {
         }
     }
 
-    ImmutableSet<Dimension> availableDimensions() {
-        cube.dimensionsIndex.keySet()
+    ImmutableList<DimensionImpl> getAvailableDimensions() {
+        cube.dimensions
     }
 }
 

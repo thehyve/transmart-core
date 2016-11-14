@@ -1,5 +1,6 @@
 package org.transmartproject.core.multidimquery
 
+import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 
 interface HypercubeValue {
@@ -12,6 +13,6 @@ interface HypercubeValue {
 
     def getDimKey(Dimension dim)
 
-    ImmutableSet<Dimension> availableDimensions()
+    ImmutableList<Dimension> getAvailableDimensions()
 
 }
