@@ -311,21 +311,82 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
     void 'test CriteriaQueryBuilder with default modifier code'() {
         setupHypercubeData()
-        def expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{ it.modifierCd == '@'}
-        assert expectedResults.size() < hypercubeTestData.clinicalData.ehrClinicalFacts.size()
-
-
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: [hypercubeTestData.clinicalData.sampleStudy]
         )
+
         when:
         def patientIds = hypercubeTestData.clinicalData.sampleClinicalFacts*.patientId
         PatientSetConstraint subqueryConstraint = new PatientSetConstraint(
                 patientIds: patientIds
         )
+        def expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{ it.modifierCd == '@'}
+        assert expectedResults.size() < hypercubeTestData.clinicalData.ehrClinicalFacts.size()
 
         DetachedCriteria criteria = builder.buildCriteria(subqueryConstraint)
         List results = getList(criteria)
+
+        then:
+        results.size() == expectedResults.size()
+        results == expectedResults
+    }
+
+    void 'test CriteriaQueryBuilder with modifier constraints'() {
+        setupHypercubeData()
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: [hypercubeTestData.clinicalData.sampleStudy]
+        )
+
+        // test modifierCode + textValue.equals
+        when:
+        ValueConstraint valueConstraint = new ValueConstraint()
+        valueConstraint.valueType = Type.STRING
+        valueConstraint.operator = Operator.EQUALS
+        valueConstraint.value = 'CONNECTIVE TISSUE'
+        ModifierConstraint subqueryConstraint = new ModifierConstraint(
+                modifierCode: 'TEST:TISSUETYPE',
+                values: valueConstraint
+        )
+        def expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{
+            it.modifierCd == 'TEST:TISSUETYPE' && it.textValue == 'CONNECTIVE TISSUE'
+        }
+        DetachedCriteria criteria = builder.buildCriteria(subqueryConstraint)
+        List results = getList(criteria)
+
+        then:
+        results.size() == expectedResults.size()
+        results == expectedResults
+
+        // test modifierPath subquery(modifierDimensions) + numericalValue.greaterThan
+        when:
+        valueConstraint = new ValueConstraint()
+        valueConstraint.valueType = Type.NUMERIC
+        valueConstraint.operator = Operator.GREATER_THAN
+        valueConstraint.value = 325
+        subqueryConstraint = new ModifierConstraint(
+                path: hypercubeTestData.clinicalData.modifierDimensions[0].path,
+                values: valueConstraint
+        )
+        expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{
+            it.modifierCd == 'TEST:DOSE' && it.numberValue > 325
+        }
+        criteria = builder.buildCriteria(subqueryConstraint)
+        results = getList(criteria)
+
+        then:
+        results.size() == expectedResults.size()
+        results == expectedResults
+
+        // test modifierPath subquery(modifierDimensions) without value constraint(optional)
+        when:
+        subqueryConstraint = new ModifierConstraint(
+                path: hypercubeTestData.clinicalData.modifierDimensions[0].path,
+        )
+        expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{
+            it.modifierCd == 'TEST:DOSE'
+        }
+        criteria = builder.buildCriteria(subqueryConstraint)
+        results = getList(criteria)
 
         then:
         results.size() == expectedResults.size()

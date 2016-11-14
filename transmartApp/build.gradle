@@ -15,6 +15,8 @@ buildscript {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.8.2"
         classpath "org.grails.plugins:hibernate4:5.0.10"
+        classpath "com.google.protobuf:protobuf-java:3.1.0"
+        classpath "com.google.protobuf:protobuf-java-util:3.1.0"
     }
 }
 
@@ -85,9 +87,6 @@ dependencies {
     compile 'org.springframework.security:spring-security-ldap:3.2.3.RELEASE'
     compile 'org.springframework.security:spring-security-web:3.2.3.RELEASE'
     //compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.11.RELEASE'
-
-    runtime 'com.google.protobuf:protobuf-java:3.1.0'
-    runtime 'com.google.protobuf:protobuf-java-util:3.1.0' // provides  protobuf-to-json serialization
 
     compile "org.swinglabs:pdf-renderer:1.0.5"
     compile 'antlr:antlr:2.7.7'
