@@ -1,7 +1,7 @@
 package org.transmartproject.rest
 
 import grails.transaction.Transactional
-import org.transmartproject.db.multidimquery.HypercubeImpl
+import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.rest.protobuf.ObservationsSerializer
 
 @Transactional
@@ -14,7 +14,7 @@ class MultidimensionalDataSerialisationService {
      * @param format the output format. Currently only 'json' is supported.
      * @param out the stream to serialise to.
      */
-    def writeData(HypercubeImpl hypercube, String format = "json", OutputStream out) {
+    def writeData(Hypercube hypercube, String format = "json", OutputStream out) {
         if (!format.equalsIgnoreCase("json")) {
             throw new UnsupportedEncodingException("Serialization format ${format} is not supported")
         }

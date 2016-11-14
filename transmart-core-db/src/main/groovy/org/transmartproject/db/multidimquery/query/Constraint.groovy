@@ -8,6 +8,7 @@ import groovy.util.logging.Slf4j
 import grails.databinding.BindUsing
 import org.springframework.validation.Errors
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.i2b2data.Study
@@ -173,7 +174,7 @@ enum Operator {
  */
 @Canonical
 class Field implements Validateable {
-    Class<? extends DimensionImpl> dimension
+    Class<? extends Dimension> dimension
     @BindUsing({ obj, source -> Type.forName(source['type']) })
     Type type = Type.NONE
     String fieldName
