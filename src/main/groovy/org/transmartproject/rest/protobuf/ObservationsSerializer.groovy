@@ -2,6 +2,7 @@ package org.transmartproject.rest.protobuf
 
 import com.google.protobuf.util.JsonFormat
 import groovy.util.logging.Slf4j
+import org.transmartproject.core.multidimensionalquery.Dimension
 import org.transmartproject.db.dataquery2.DimensionImpl
 import org.transmartproject.db.dataquery2.HypercubeImpl
 import org.transmartproject.db.dataquery2.HypercubeValueImpl
@@ -51,7 +52,7 @@ public class ObservationsSerializer {
             if (dim.packable.packable) {
                 builder.setIsDense(true)
             }
-            if (dim.density == DimensionImpl.Density.DENSE) {
+            if (dim.density == Dimension.Density.DENSE) {
                 builder.setInline(true)
             }
             def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionName)
