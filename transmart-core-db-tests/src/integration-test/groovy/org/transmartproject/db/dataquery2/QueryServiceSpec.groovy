@@ -25,8 +25,7 @@ class QueryServiceSpec extends TransmartSpecification {
     AccessLevelTestData accessLevelTestData
 
     void setupData() {
-        testData = new TestData().createDefault()
-        //FIXME
+        testData = new TestData().createDefault(); int i = 1
         testData.mrnaData.patients = testData.i2b2Data.patients
 
         testData.i2b2Data.patients[0].age = 70
@@ -240,12 +239,13 @@ class QueryServiceSpec extends TransmartSpecification {
         String projection = Projection.DEFAULT_REAL_PROJECTION
 
         when:
-        def (projectionObj, result) = queryService.highDimension(constraint, new BiomarkerConstraint(), new TrueConstraint(), projection, user)
+        def (projectionObj, result) = queryService.highDimension(constraint, null, null, projection, user)
 
         then:
+        projectionObj instanceof Projection
         result instanceof TabularResult
         result.rows.size() == 3
-        result.indicesList.size() == 2
+        result.indicesList.size() == 3
     }
 
     void 'get hd data for selected patients'() {
@@ -257,16 +257,15 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         Constraint assayConstraint = new PatientSetConstraint(patientIds: [testData.i2b2Data.patients[0].id] as Set)
-        def (projectionObj, result) = queryService.highDimension(constraint, new BiomarkerConstraint(), assayConstraint, projection, user)
+        def (projectionObj, result) = queryService.highDimension(constraint, null, assayConstraint, projection, user)
 
         then:
+        projectionObj instanceof Projection
         result instanceof TabularResult
         result.rows.size() == 3
         result.indicesList.size() == 1
     }
 
-    //FIXME
-    @Ignore
     void 'get hd data for selected biomarkers'() {
         setup:
         setupData()
@@ -281,9 +280,10 @@ class QueryServiceSpec extends TransmartSpecification {
                         names: ['BOGUSRQCD1']
                 ]
         )
-        def (projectionObj, result) = queryService.highDimension(constraint, bioMarkerConstraint, new TrueConstraint(), projection, user)
+        def (projectionObj, result) = queryService.highDimension(constraint, bioMarkerConstraint, null, projection, user)
 
         then:
+        projectionObj instanceof Projection
         result instanceof TabularResult
         result.rows.size() == 1
         result.indicesList.size() == 3
