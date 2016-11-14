@@ -201,6 +201,31 @@ class AccessControlChecks {
         query.list()
     }
 
+    /* Study is included if the user has ANY kind of access */
+    boolean existsDimensionStudyForUser(User user, String studyIdString) {
+        if (user.admin) {
+            return true
+        }
+
+        if (studyIdString == null || studyIdString.empty) {
+            return false
+        }
+
+        DetachedCriteria query = org.transmartproject.db.i2b2data.Study.where {
+            studyId == studyIdString
+            (secureObjectToken == org.transmartproject.db.i2b2data.Study.PUBLIC) ||
+                    (secureObjectToken in SecuredObject.where {
+                        def so = SecuredObject
+                        dataType == 'BIO_CLINICAL_TRIAL'
+                        exists SecuredObjectAccessView.where {
+                            user == user
+                            securedObject.id == so.id
+                        }.id()
+                    }.bioDataUniqueId)
+        }
+        query.find() != null
+    }
+
     boolean canPerform(User user,
                        ProtectedOperation operation,
                        QueryDefinition definition) {
