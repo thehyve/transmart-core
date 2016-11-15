@@ -51,7 +51,8 @@ grails.mime.types = [html         : [
                      ],
                      form         : 'application/x-www-form-urlencoded',
                      multipartForm: 'multipart/form-data',
-                     jnlp         : 'application/x-java-jnlp-file'
+                     jnlp         : 'application/x-java-jnlp-file',
+                     protobuf     : 'application/x-protobuf',
 ]
 // The default codec used to encode data with ${}
 grails.views.javascript.library="jquery"

@@ -4,23 +4,17 @@ import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
-import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
-import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery2.HypercubeImpl
-import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
-import org.transmartproject.db.dataquery.highdim.mrna.MrnaModule
 import org.transmartproject.db.dataquery2.QueryService
 import org.transmartproject.db.dataquery2.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 import org.transmartproject.rest.protobuf.HighDimBuilder
+import org.transmartproject.rest.protobuf.ObservationsSerializer
 
 @Slf4j
 class QueryController {
@@ -108,22 +102,38 @@ class QueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def hypercube() {
+        ObservationsSerializer.Format format = ObservationsSerializer.Format.NONE
+        withFormat {
+            json {
+                format = ObservationsSerializer.Format.JSON
+            }
+            protobuf {
+                format = ObservationsSerializer.Format.PROTOBUF
+            }
+        }
+        if (format == ObservationsSerializer.Format.NONE) {
+            throw new InvalidArgumentsException("Format not supported.")
+        }
+
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         HypercubeImpl result = queryService.retrieveClinicalData(constraint, user)
+
+        log.info "Writing to format: ${format}"
         OutputStream out = new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
-                    response.contentType = 'application/json'
+                    response.contentType = format.toString()
                     response.outputStream
                 })
         try {
-            multidimensionalDataSerialisationService.writeData(result, "json", out)
+            multidimensionalDataSerialisationService.serialise(result, format, out)
         } finally {
             out.close()
         }
+        return false
     }
 
     /**
