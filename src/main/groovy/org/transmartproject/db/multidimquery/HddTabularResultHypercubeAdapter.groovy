@@ -2,11 +2,9 @@ package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableSet
-import com.google.common.collect.Iterators
-import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
+import groovy.transform.TailRecursive
 import groovy.transform.TupleConstructor
 import org.springframework.context.annotation.Lazy
 import org.transmartproject.core.dataquery.DataColumn
@@ -21,10 +19,11 @@ import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
 import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
 @CompileStatic
-class HddTabularResultHypercubeAdapter implements Hypercube {
+class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<HypercubeValue> implements Hypercube {
     private static Object typeError(cell) {
         throw new RuntimeException("HDD value $cell is not a Double and is not a Map, this projection is not" +
                 " implemented in HddTabularResultHypercubeAdapter")
@@ -36,21 +35,18 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
     static Dimension projectionDim = DimensionDescription.dimensionsMap.projection
 
     TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ? /* depends on projection */>> table
-    PeekingIterator<? extends DataRow<AssayColumn, ?>> iterator
+    private TabularResultAdapterIterator iterator
 
     // Either an IndexedArraySet or an ImmutableList
-    @Lazy List<String> projectionFields = {
-        def cellvalue = iterator.peek().find {it != null}
-        if (cellvalue == null) throw new RuntimeException("empty HDD row found, this should not happen")
-        if(cellvalue instanceof Double) {
-            return (List) null
-        } else if(cellvalue instanceof Map) {
-            return new IndexedArraySet<String>(((Map<String,?>) cellvalue).keySet())
-        } else (List) typeError(cellvalue)
-    }()
+    private List<String> _projectionFields = null
+    List<String> getProjectionFields() {
+        if(_projectionFields != null) return _projectionFields
+        getIterator().hasNext() // sets _projectionFields as a side effect
+        _projectionFields
+    }
 
-    @Lazy ImmutableList<Dimension> dimensions = {
-        if(projectionFields == null) {
+    @Lazy final ImmutableList<Dimension> dimensions = {
+        if(!projectionFields) {
             ImmutableList.of(biomarkerDim, assayDim, patientDim)
         } else {
             ImmutableList.of(biomarkerDim, assayDim, patientDim, projectionDim)
@@ -63,7 +59,6 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
 
     HddTabularResultHypercubeAdapter(TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ?>> tabularResult) {
         table = tabularResult
-        iterator = Iterators.peekingIterator(table.iterator())
         assays = (ImmutableList) ImmutableList.copyOf(table.getIndicesList())
         patients = (ImmutableList) ImmutableList.copyOf(assays*.patient)
     }
@@ -96,23 +91,28 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
     }
 
 
-    @Override Iterator<HypercubeValue> iterator() {
-        new TabularResultAdapterIterator()
+    @Override Iterator<HypercubeValue> getIterator() {
+        iterator == null ? (iterator = new TabularResultAdapterIterator()) : iterator
     }
 
     class TabularResultAdapterIterator extends AbstractIterator<HypercubeValue> {
-        Iterator<? extends DataRow<AssayColumn, ?>> tabularIter = table.getRows()
-        List<HypercubeValue> nextObjs = []
-        Iterator<HypercubeValue> nextIter = nextObjs.iterator()
+        private Iterator<? extends DataRow<AssayColumn, ?>> tabularIter = table.getRows()
+        private List<HypercubeValue> nextVals = []
+        private Iterator<HypercubeValue> nextIter = nextVals.iterator()
+        TabularResultAdapterIterator() {
+            if(_projectionFields == null) _projectionFields = new IndexedArraySet<String>()
+        }
+
+        @TailRecursive
         HypercubeValue computeNext() {
             if(nextIter.hasNext()) {
                 return nextIter.next()
             }
-            nextObjs.clear()
+            nextVals.clear()
             nextIter = null
 
             if(!tabularIter.hasNext()) {
-                if(projectionFields) projectionFields = ImmutableList.copyOf(projectionFields)
+                _projectionFields = ImmutableList.copyOf(_projectionFields)
                 biomarkers = ImmutableList.copyOf(biomarkers)
                 return endOfData()
             }
@@ -128,7 +128,7 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
                 def value = row[i]
 
                 if(value instanceof Double) {
-                    nextObjs.add(new TabularResultAdapterValue(
+                    nextVals.add(new TabularResultAdapterValue(
                             dimensions, value, bm, assay, null,
                             biomarkerIdx, i, -1
                     ))
@@ -136,10 +136,10 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
                     Map<String, Object> mapValue = (Map<String,Object>) value
                     Map.Entry<String, Object> entry
                     for(Iterator<Map.Entry> it = mapValue.iterator(); it.hasNext(); entry = it.next()) {
-                        projectionFields.add(entry.key)
-                        nextObjs.add(new TabularResultAdapterValue(
+                        _projectionFields.add(entry.key)
+                        nextVals.add(new TabularResultAdapterValue(
                                 dimensions, entry.value, bm, assay, entry.key,
-                                biomarkerIdx, i, projectionFields.indexOf(entry.key)
+                                biomarkerIdx, i, _projectionFields.indexOf(entry.key)
                         ))
                     }
                 } else {
@@ -147,8 +147,7 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
                 }
             }
 
-            // This could in theory stackoverflow if there are lots of empty rows in the tabular result, but that
-            // should not happen
+            nextIter = nextVals.iterator()
             return computeNext()
         }
     }
@@ -188,7 +187,7 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
 
         def getDimKey(Dimension dim) {
             if(dim == biomarkerDim) return biomarker.bioMarker ?: biomarker.label
-            if(dim == assayDim) return assay.id
+            if(dim == assayDim) return assay.sampleCode
             if(dim == patientDim) return patient.inTrialId
             if(dim == projectionDim && projectionKey) return projectionKey
             dimError(dim)
@@ -202,7 +201,7 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
     }
 
 
-    boolean dimensionsLoaded = true
+    boolean getDimensionsLoaded() { true }
 
     void loadDimensions() { /*no-op*/ }
 
