@@ -147,13 +147,13 @@ class ConstraintSpec extends RESTSpec{
 
     def "TemporalConstraint.class"(){
         def constraintMap = [
-                [type: TemporalConstraint,
+                type: TemporalConstraint,
                  operator: AFTER,
                  eventConstraint: [
                          type: ValueConstraint,
                          valueType: NUMERIC,
                          operator: LESS_THAN,
-                         value: 60]
+                         value: 60
                 ]
         ]
         when:
