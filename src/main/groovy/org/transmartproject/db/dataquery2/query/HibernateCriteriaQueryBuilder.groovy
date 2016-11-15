@@ -314,9 +314,9 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         }
         else if (constraint.patientSetId != null) {
             DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')
-            subCriteria.add(Restrictions.eq("qt_patient_set_collection.id", constraint.patientSetId))
+            subCriteria.add(Restrictions.eq('resultInstance.id', constraint.patientSetId))
 
-            return Subqueries.propertyEq('patient',
+            return Subqueries.propertyIn('patient',
                     subCriteria.setProjection(Projections.property("patient")))
         }
         else {
