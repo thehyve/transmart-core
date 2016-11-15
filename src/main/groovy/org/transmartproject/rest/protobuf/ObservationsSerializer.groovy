@@ -1,7 +1,8 @@
 package org.transmartproject.rest.protobuf
 
-import com.google.protobuf.util.JsonFormat
+import com.google.protobuf.Message
 import groovy.util.logging.Slf4j
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery2.AssayDimension
 import org.transmartproject.db.dataquery2.BioMarkerDimension
 import org.transmartproject.db.dataquery2.DimensionImpl
@@ -10,6 +11,7 @@ import org.transmartproject.db.dataquery2.HypercubeValueImpl
 import org.transmartproject.db.dataquery2.ProjectionDimension
 import org.transmartproject.db.dataquery2.query.DimensionMetadata
 
+import static com.google.protobuf.util.JsonFormat.*
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.*
 
@@ -19,14 +21,81 @@ import static org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDe
 @Slf4j
 public class ObservationsSerializer {
 
-    HypercubeImpl cube
-    JsonFormat.Printer jsonPrinter
-    Map<DimensionImpl, List<Object>> dimensionElements = [:]
-    Map<DimensionImpl, List<FieldDefinition>> dimensionFields = [:]
+    enum Format {
+        JSON('application/json'),
+        PROTOBUF('application/x-protobuf'),
+        NONE('none')
 
-    ObservationsSerializer(HypercubeImpl cube) {
-        jsonPrinter = JsonFormat.printer()
+        private String format
+
+        Format(String format) {
+            this.format = format
+        }
+
+        private static final Map<String, Format> mapping = Format.values().collectEntries {
+            [(it.format): it]
+        }
+
+        public static Format from(String format) {
+            if (mapping.containsKey(format)) {
+                return mapping[format]
+            } else {
+                throw new Exception("Unknown format: ${format}")
+            }
+        }
+
+        public String toString() {
+            format
+        }
+    }
+
+    protected HypercubeImpl cube
+    protected Printer jsonPrinter
+    protected Writer writer
+    protected Format format
+
+    protected Map<DimensionImpl, List<Object>> dimensionElements = [:]
+    protected Map<DimensionImpl, List<FieldDefinition>> dimensionFields = [:]
+
+    ObservationsSerializer(HypercubeImpl cube, Format format) {
         this.cube = cube
+        if (format == Format.NONE) {
+            throw new InvalidArgumentsException("No format selected.")
+        } else if (format == Format.JSON) {
+            jsonPrinter = printer()
+        }
+        this.format = format
+    }
+
+    protected boolean first = true
+
+    protected void begin(OutputStream out) {
+        first = true
+        if (format == Format.JSON) {
+            writer = new PrintWriter(new BufferedOutputStream(out))
+            writer.print('[')
+        }
+    }
+
+    protected void writeMessage(OutputStream out, Message message) {
+        if (format == Format.JSON) {
+            if (!first) {
+                writer.print(', ')
+            }
+            jsonPrinter.appendTo(message, writer)
+        } else {
+            message.writeTo(out)
+        }
+        if (first) {
+            first = false
+        }
+    }
+
+    protected void end(OutputStream out) {
+        if (format == Format.JSON) {
+            writer.print(']')
+            writer.flush()
+        }
     }
 
     static ColumnType getFieldType(Class type) {
@@ -46,7 +115,7 @@ public class ObservationsSerializer {
         }
     }
 
-    def getDimensionsDefs() {
+    protected getDimensionsDefs() {
         def dimensionDeclarations = cube.dimensions.collect { dim ->
             def builder = DimensionDeclaration.newBuilder()
             String dimensionName = dim.toString()
@@ -88,21 +157,21 @@ public class ObservationsSerializer {
         dimensionDeclarations
     }
 
-    def writeHeader(BufferedWriter out, String format = "json") {
-        def header = Header.newBuilder().addAllDimensionDeclarations(dimensionsDefs)
-        jsonPrinter. appendTo(header, out)
+    protected Header buildHeader() {
+        Header.newBuilder().addAllDimensionDeclarations(dimensionsDefs).build()
     }
 
-    def writeCells(BufferedWriter out) {
+    protected void writeCells(OutputStream out) {
         Iterator<HypercubeValueImpl> it = cube.iterator
         while (it.hasNext()) {
             HypercubeValueImpl value = it.next()
-            Observation observation = createCell(value)
-            jsonPrinter.appendTo(observation, out)
+            def cell = createCell(value)
+            cell.last = !it.hasNext()
+            writeMessage(out, cell.build())
         }
     }
 
-    Observation createCell(HypercubeValueImpl value) {
+    protected Observation.Builder createCell(HypercubeValueImpl value) {
         Observation.Builder builder = Observation.newBuilder()
         if (value.value instanceof Number) {
             builder.numericValue = value.value
@@ -117,7 +186,7 @@ public class ObservationsSerializer {
                 builder.addDimensionIndexes(determineFooterIndex(dim, dimElement))
             }
         }
-        builder.build()
+        builder
     }
 
     static buildValue(FieldDefinition field, Object value) {
@@ -223,7 +292,7 @@ public class ObservationsSerializer {
         builder.build()
     }
 
-    private DimensionElement buildSparseCell(DimensionImpl dim, Object dimElement) {
+    protected DimensionElement buildSparseCell(DimensionImpl dim, Object dimElement) {
         def builder = DimensionElement.newBuilder()
         for (FieldDefinition field: dimensionFields[dim]) {
             builder.addFields(buildValue(field, dimElement.getAt(field.name)))
@@ -231,7 +300,7 @@ public class ObservationsSerializer {
         builder.build()
     }
 
-    def getFooter() {
+    protected getFooter() {
         cube.dimensions.findAll({ it.density != DimensionImpl.Density.SPARSE }).collect { dim ->
             def fields = dimensionFields[dim] ?: []
             def elementsBuilder = DimensionElements.newBuilder()
@@ -248,12 +317,11 @@ public class ObservationsSerializer {
         }
     }
 
-    def writeFooter(BufferedWriter out) {
-        def footer = Footer.newBuilder().addAllDimension(footer)
-        jsonPrinter.appendTo(footer, out)
+    protected Footer buildFooter() {
+        Footer.newBuilder().addAllDimension(footer).build()
     }
 
-    int determineFooterIndex(DimensionImpl dim, Object element) {
+    protected int determineFooterIndex(DimensionImpl dim, Object element) {
         if (dimensionElements[dim] == null) {
             dimensionElements[dim] = []
         }
@@ -265,14 +333,12 @@ public class ObservationsSerializer {
         index
     }
 
-    void writeTo(OutputStream out, String format = "json") {
-        Writer writer = new OutputStreamWriter(out)
-        BufferedWriter bufferedWriter = new BufferedWriter(writer)
-        writeHeader(bufferedWriter)
-        writeCells(bufferedWriter)
-        writeFooter(bufferedWriter)
-        bufferedWriter.flush()
-        bufferedWriter.close()
+    void write(OutputStream out) {
+        begin(out)
+        writeMessage(out, buildHeader())
+        writeCells(out)
+        writeMessage(out, buildFooter())
+        end(out)
     }
 
 }
