@@ -43,6 +43,7 @@ class ObservationsBuilderTests {
         builder.write(out)
         out.flush()
         Collection result = new JsonSlurper().parse(out.toByteArray())
+        def dimElementsSize = result.last()['dimension'].size()
 
         assertThat result.size(), is(14)
         assertThat result, contains(
@@ -61,6 +62,12 @@ class ObservationsBuilderTests {
                 hasKey('dimensionIndexes'),
                 hasKey('dimension')
         )
+        assertThat result.first()['dimensionDeclarations'], hasSize(mockedCube.dimensions.size())
+        assertThat result.first()['dimensionDeclarations']['name'],
+                containsInAnyOrder(mockedCube.dimensions.collect{it.toString()}.toArray()
+                )
+        assertThat result['dimension'].findAll(), everyItem(hasSize(dimElementsSize))
+        assertThat result['dimensionIndexes'].findAll(), everyItem(hasSize(dimElementsSize))
     }
 
     @Test
@@ -75,6 +82,7 @@ class ObservationsBuilderTests {
         out.flush()
 
         assertThat out.toByteArray(), not(empty())
+        assertThat mockedCube.dimensions.each{out.toString().contains(it.toString())}, hasSize(mockedCube.dimensions.size())
     }
 
     void setupData() {
