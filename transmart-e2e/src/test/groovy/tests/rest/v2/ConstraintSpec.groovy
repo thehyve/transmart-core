@@ -110,7 +110,7 @@ class ConstraintSpec extends RESTSpec{
         that responseData, everyItem(hasKey('conceptCode'))
 
         when:
-        constraintMap = [type: PatientSetConstraint, patientSetId: 4430334]
+        constraintMap = [type: PatientSetConstraint, patientSetId: 28731]
         responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
         
         then:
