@@ -18,6 +18,9 @@ class Config {
     public static final String CLINICAL_TRIAL_ID = 'CLINICAL_TRIAL'
     public static final String CATEGORICAL_VALUES_ID = 'CATEGORICAL_VALUES'
     public static final String TUMOR_NORMAL_SAMPLES_ID = 'TUMOR_NORMAL_SAMPLES'
+    public static final String SHARED_CONCEPTS_A_ID = 'SHARED_CONCEPTS_STUDY_A'
+    public static final String SHARED_CONCEPTS_B_ID = 'SHARED_CONCEPTS_STUDY_B'
+    public static final String SHARED_CONCEPTS_RESTRICTED_ID = 'SHARED_CONCEPTS_STUDY_C_PRIV'
 
     //settings
     public static final boolean OAUTH_NEEDED = true
@@ -30,4 +33,6 @@ class Config {
     public static final boolean CLINICAL_TRIAL_LOADED = true
     public static final boolean CATEGORICAL_VALUES_LOADED = true
     public static final boolean TUMOR_NORMAL_SAMPLES_LOADED = true
+    public static final boolean SHARED_CONCEPTS_LOADED = true
+    public static final boolean SHARED_CONCEPTS_RESTRICTED_LOADED = true
 }
