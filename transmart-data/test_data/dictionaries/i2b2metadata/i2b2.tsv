@@ -1,4 +1,5 @@
 "0"	"\Public Studies\"	"Public Studies"	"N"	"FA "		"1341006"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\"		"\Public Studies\"	"@"	"2016-11-09 13:44:06.773"	"2016-11-09 13:44:06.773"	"2016-11-09 13:44:06.773"						"496251"
+"0"	"\Private Studies\"	"Private Studies"	"N"	"FA "		"1341006"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Private Studies\"		"\Private Studies\"	"@"	"2016-11-09 13:44:06.773"	"2016-11-09 13:44:06.773"	"2016-11-09 13:44:06.773"						"496251"
 "1"	"\Vital Signs\Heart Rate\"	"Heart Rate"	"N"	"LA "		"VSIGN:HR"	"<ValueMetadata>
   <Version>3.02</Version>
   <CreationDateTime>Wed Nov 09 13:44:06 CET 2016</CreationDateTime>
