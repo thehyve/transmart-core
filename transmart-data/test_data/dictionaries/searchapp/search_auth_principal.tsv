@@ -4,3 +4,5 @@
 "701145587"	"USER"	"2012-02-21 00:00:00"	"Demo"	"2012-02-28 00:00:00"	"tranSMART Demo"	"tmuser"	"1"
 "-1"	"GROUP"	"2012-02-21 00:00:00"	"EVERYONE GROUP"	"2012-02-21 00:00:00"	"EVERYONE GROUP"	"EVERYONEGROUP"	"1"
 "12345"	"USER"	"2012-02-28 00:00:00"	"guest account"	"2012-02-28 00:00:00"	"Guest"		"1"
+"-1000"	"USER"	"2016-02-28 00:00:00"	"test public user account #1"	"2016-02-28 00:00:00"	"test-public-user-1"		"1"
+"-1001"	"USER"	"2016-02-28 00:00:00"	"test public user account #2"	"2016-02-28 00:00:00"	"test-public-user-2"		"1"
