@@ -25,11 +25,10 @@ import jobs.misc.AnalysisQuartzJobAdapter
 import org.grails.web.converters.exceptions.ConverterException
 import org.grails.web.json.JSONElement
 import org.quartz.JobBuilder
-import org.quartz.JobDataMap
 import org.quartz.JobDetail
+import org.quartz.Scheduler
 import org.quartz.SimpleTrigger
 import org.quartz.TriggerBuilder
-import org.quartz.core.QuartzScheduler
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 import static jobs.misc.AnalysisQuartzJobAdapter.*
@@ -57,7 +56,7 @@ class RModulesController {
     def RModulesService
     GrailsApplication grailsApplication
     def jobResultsService
-    QuartzScheduler quartzScheduler
+    Scheduler quartzScheduler
 
     /**
      * Method called that will cancel a running job
