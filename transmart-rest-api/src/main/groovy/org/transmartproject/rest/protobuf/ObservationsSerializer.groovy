@@ -84,7 +84,7 @@ public class ObservationsSerializer {
             }
             jsonPrinter.appendTo(message, writer)
         } else {
-            message.writeTo(out)
+            message.writeDelimitedTo(out)
         }
         if (first) {
             first = false
@@ -95,6 +95,8 @@ public class ObservationsSerializer {
         if (format == Format.JSON) {
             writer.print(']')
             writer.flush()
+        } else {
+            out.flush()
         }
     }
 
