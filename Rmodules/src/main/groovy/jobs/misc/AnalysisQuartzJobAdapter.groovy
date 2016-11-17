@@ -110,9 +110,8 @@ class AnalysisQuartzJobAdapter implements Job {
         job.setStatusList = { List<String> statusList ->
             jobResultsService[job.name]["StatusList"] = statusList
         }
-
-        job.topTemporaryDirectory = new File(Holders.config.RModules.tempFolderDirectory)
-        job.scriptsDirectory = new File(Holders.config.RModules.pluginScriptDirectory)
+        job.topTemporaryDirectory = new File (Holders.config.RModules.tempFolderDirectory.toString())
+        //job.scriptsDirectory = new File (Holders.config.RModules.pluginScriptDirectory.toString())
 
         job.studyName = i2b2ExportHelperService.
                 findStudyAccessions([jobDataMap.result_instance_id1])
