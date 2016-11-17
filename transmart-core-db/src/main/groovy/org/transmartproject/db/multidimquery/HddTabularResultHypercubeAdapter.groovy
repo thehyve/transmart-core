@@ -6,7 +6,6 @@ import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 import groovy.transform.TailRecursive
 import groovy.transform.TupleConstructor
-import org.springframework.context.annotation.Lazy
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
@@ -45,13 +44,11 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         _projectionFields
     }
 
-    @Lazy final ImmutableList<Dimension> dimensions = {
-        if(!projectionFields) {
-            ImmutableList.of(biomarkerDim, assayDim, patientDim)
-        } else {
-            ImmutableList.of(biomarkerDim, assayDim, patientDim, projectionDim)
-        }
-    }()
+    @Lazy ImmutableList<Dimension> dimensions = (
+        !projectionFields
+            ? ImmutableList.of(biomarkerDim, assayDim, patientDim)
+            : ImmutableList.of(biomarkerDim, assayDim, patientDim, projectionDim)
+    )
 
     ImmutableList<Assay> assays
     ImmutableList<Patient> patients
@@ -123,13 +120,15 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
             int biomarkerIdx = biomarkers.size()
             biomarkers << bm
 
-            for(int i = 0; i < assays.size(); i++) {
+            // assays.size() compiles to GroovyDefaultMethods.size(Iterable) :(
+            for(int i = 0; i < ((List)assays).size(); i++) {
                 Assay assay = assays[i]
                 def value = row[i]
 
                 if(value instanceof Double) {
                     nextVals.add(new TabularResultAdapterValue(
-                            dimensions, value, bm, assay, null,
+                            // The type checker doesn't like a plain 'dimensions', no idea why
+                            getDimensions(), value, bm, assay, null,
                             biomarkerIdx, i, -1
                     ))
                 } else if(value instanceof Map) {
@@ -138,7 +137,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                     for(Iterator<Map.Entry> it = mapValue.iterator(); it.hasNext(); entry = it.next()) {
                         _projectionFields.add(entry.key)
                         nextVals.add(new TabularResultAdapterValue(
-                                dimensions, entry.value, bm, assay, entry.key,
+                                getDimensions(), entry.value, bm, assay, entry.key,
                                 biomarkerIdx, i, _projectionFields.indexOf(entry.key)
                         ))
                     }
@@ -201,9 +200,11 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     }
 
 
-    boolean getDimensionsLoaded() { true }
-
     void loadDimensions() { /*no-op*/ }
+    void preloadDimensions() { throw new UnsupportedOperationException() }
+    final boolean dimensionsPreloadable = false
+    final boolean dimensionsPreloaded = false
+    boolean autoloadDimensions = true
 
     void close() {
         table.close()
