@@ -129,7 +129,7 @@ class ClinicalTestData {
         def sampleClinicalFacts = createSampleFacts(conceptDims[5], patients, sampleStudy, observationStartDates, observationEndDates,
                 locations, providers)
 
-        def ehrStudy = StudyTestData.createStudy "ehr study", ["patient", "concept", "study", "visit"] // todo: "visit"
+        def ehrStudy = StudyTestData.createStudy "ehr study", ["patient", "concept", "study", "visit"]
         def ehrClinicalFacts = createEhrFacts(conceptDims[6], visits[0..2], ehrStudy, observationStartDates, observationEndDates,
                 locations, providers)
 

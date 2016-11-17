@@ -3,19 +3,16 @@ package org.transmartproject.db.dataquery2
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
-import org.transmartproject.db.dataquery2.query.Combination
-import org.transmartproject.db.dataquery2.query.ConceptConstraint
-import org.transmartproject.db.dataquery2.query.Constraint
-import org.transmartproject.db.dataquery2.query.ConstraintFactory
-import org.transmartproject.db.dataquery2.query.InvalidQueryException
-import org.transmartproject.db.dataquery2.query.Operator
-import org.transmartproject.db.dataquery2.query.AggregateType
-import org.transmartproject.db.dataquery2.query.TrueConstraint
+import org.transmartproject.db.dataquery2.query.*
+import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.AccessLevelTestData
-import org.transmartproject.db.i2b2data.ConceptDimension
+import spock.lang.Ignore
 
 @Rollback
 @Integration
@@ -28,7 +25,9 @@ class QueryServiceSpec extends TransmartSpecification {
     AccessLevelTestData accessLevelTestData
 
     void setupData() {
-        testData = new TestData().createDefault()
+        testData = new TestData().createDefault(); int i = 1
+        testData.mrnaData.patients = testData.i2b2Data.patients
+
         testData.i2b2Data.patients[0].age = 70
         testData.i2b2Data.patients[1].age = 31
         testData.i2b2Data.patients[2].age = 18
@@ -37,7 +36,7 @@ class QueryServiceSpec extends TransmartSpecification {
         accessLevelTestData.saveAll()
     }
 
-    Constraint createQueryForConcept(ObservationFact observationFact){
+    Constraint createQueryForConcept(ObservationFact observationFact) {
         def conceptCode = observationFact.conceptCode
         def conceptDimension = ConceptDimension.find {
             conceptCode == conceptCode
@@ -45,12 +44,12 @@ class QueryServiceSpec extends TransmartSpecification {
         new ConceptConstraint(path: conceptDimension.conceptPath)
     }
 
-    ObservationFact createFactForExistingConcept(){
+    ObservationFact createFactForExistingConcept() {
         def clinicalTestdata = testData.clinicalData
-        def fact = clinicalTestdata.facts.find { it.valueType=='N'}
-        def conceptDimension = testData.conceptData.conceptDimensions.find{ it.conceptCode ==fact.conceptCode}
+        def fact = clinicalTestdata.facts.find { it.valueType == 'N' }
+        def conceptDimension = testData.conceptData.conceptDimensions.find { it.conceptCode == fact.conceptCode }
         def patientsWithConcept = clinicalTestdata.facts.collect {
-            if(it.conceptCode == conceptDimension.conceptCode){
+            if (it.conceptCode == conceptDimension.conceptCode) {
                 it.patient
             }
         }
@@ -81,20 +80,20 @@ class QueryServiceSpec extends TransmartSpecification {
         setupData()
 
         Constraint constraint = ConstraintFactory.create([
-                type: 'Combination',
+                type    : 'Combination',
                 operator: 'and',
-                args: [
+                args    : [
                         [
-                                type: 'ValueConstraint',
+                                type     : 'ValueConstraint',
                                 valueType: 'NUMERIC',
-                                operator: '>',
-                                value: 1
+                                operator : '>',
+                                value    : 1
                         ],
                         [
-                                type: 'FieldConstraint',
-                                field: [dimension: 'PatientDimension', fieldName: 'sourcesystemCd'],
+                                type    : 'FieldConstraint',
+                                field   : [dimension: 'PatientDimension', fieldName: 'sourcesystemCd'],
                                 operator: 'contains',
-                                value: 'SUBJ_ID_2'
+                                value   : 'SUBJ_ID_2'
                         ]
                 ]
         ])
@@ -116,7 +115,7 @@ class QueryServiceSpec extends TransmartSpecification {
         result[0].patient.sourcesystemCd.contains('SUBJ_ID_2')
     }
 
-    void "test for max, min, average aggregate"(){
+    void "test for max, min, average aggregate"() {
         setupData()
 
         ObservationFact observationFact = createFactForExistingConcept()
@@ -145,14 +144,14 @@ class QueryServiceSpec extends TransmartSpecification {
         result == 30 //(10+50) / 2
     }
 
-    void "test for check if aggregate returns error when any numerical value is null"(){
+    void "test for check if aggregate returns error when any numerical value is null"() {
         setupData()
 
         def observationFact = createFactForExistingConcept()
 
         observationFact.numberValue = null
-        observationFact.textValue='E'
-        observationFact.valueType='N'
+        observationFact.textValue = 'E'
+        observationFact.valueType = 'N'
         testData.clinicalData.facts << observationFact
         testData.saveAll()
 
@@ -165,7 +164,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
     }
 
-    void "test for check if aggregate returns error when any textValue is other then E"(){
+    void "test for check if aggregate returns error when any textValue is other then E"() {
         setupData()
 
         def observationFact = createFactForExistingConcept()
@@ -187,8 +186,8 @@ class QueryServiceSpec extends TransmartSpecification {
         setupData()
 
         def user = accessLevelTestData.users[0]
-        def fact = testData.clinicalData.facts.find { it.valueType=='N'}
-        def conceptDimension = testData.conceptData.conceptDimensions.find{ it.conceptCode ==fact.conceptCode}
+        def fact = testData.clinicalData.facts.find { it.valueType == 'N' }
+        def conceptDimension = testData.conceptData.conceptDimensions.find { it.conceptCode == fact.conceptCode }
 
         when:
         def constraint = new TrueConstraint()
@@ -200,16 +199,16 @@ class QueryServiceSpec extends TransmartSpecification {
         when:
         constraint = new Combination(
                 operator: Operator.AND,
-                args:[
+                args: [
                         new TrueConstraint(),
                         new ConceptConstraint(
                                 path: conceptDimension.conceptPath
                         ),
                         new Combination(
                                 operator: Operator.AND,
-                                args:[
+                                args: [
                                         new ConceptConstraint(
-                                                path:conceptDimension.conceptPath
+                                                path: conceptDimension.conceptPath
                                         ),
                                         new TrueConstraint()
                                 ]
@@ -223,13 +222,71 @@ class QueryServiceSpec extends TransmartSpecification {
         thrown(InvalidQueryException)
 
         when:
-        def firstConceptConstraint = constraint.args.find{ it.class == ConceptConstraint}
+        def firstConceptConstraint = constraint.args.find { it.class == ConceptConstraint }
         constraint.args = constraint.args - firstConceptConstraint
         def result = queryService.aggregate(AggregateType.MAX, constraint, user)
 
         then:
         result == 10
 
+    }
+
+    void 'get whole hd data for single node'() {
+        setup:
+        setupData()
+        def user = accessLevelTestData.users[0]
+        ConceptConstraint constraint = new ConceptConstraint(path: '\\foo\\study1\\bar\\')
+        String projection = Projection.DEFAULT_REAL_PROJECTION
+
+        when:
+        def (projectionObj, result) = queryService.highDimension(constraint, null, null, projection, user)
+
+        then:
+        projectionObj instanceof Projection
+        result instanceof TabularResult
+        result.rows.size() == 3
+        result.indicesList.size() == 3
+    }
+
+    void 'get hd data for selected patients'() {
+        setup:
+        setupData()
+        def user = accessLevelTestData.users[0]
+        ConceptConstraint constraint = new ConceptConstraint(path: '\\foo\\study1\\bar\\')
+        String projection = Projection.DEFAULT_REAL_PROJECTION
+
+        when:
+        Constraint assayConstraint = new PatientSetConstraint(patientIds: [testData.i2b2Data.patients[0].id] as Set)
+        def (projectionObj, result) = queryService.highDimension(constraint, null, assayConstraint, projection, user)
+
+        then:
+        projectionObj instanceof Projection
+        result instanceof TabularResult
+        result.rows.size() == 3
+        result.indicesList.size() == 1
+    }
+
+    void 'get hd data for selected biomarkers'() {
+        setup:
+        setupData()
+        def user = accessLevelTestData.users[0]
+        ConceptConstraint constraint = new ConceptConstraint(path: '\\foo\\study1\\bar\\')
+        String projection = Projection.DEFAULT_REAL_PROJECTION
+
+        when:
+        BiomarkerConstraint bioMarkerConstraint = new BiomarkerConstraint(
+                biomarkerType: DataConstraint.GENES_CONSTRAINT,
+                params: [
+                        names: ['BOGUSRQCD1']
+                ]
+        )
+        def (projectionObj, result) = queryService.highDimension(constraint, bioMarkerConstraint, null, projection, user)
+
+        then:
+        projectionObj instanceof Projection
+        result instanceof TabularResult
+        result.rows.size() == 1
+        result.indicesList.size() == 3
     }
 
 }

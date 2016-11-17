@@ -14,6 +14,7 @@ import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.dataquery2.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import spock.lang.Ignore
 
 @Slf4j
 @Rollback
@@ -104,7 +105,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         (resultsForPatientId[0] as ObservationFact).patient.id == patientIds[0]
 
         when:
-        def patientSetId = this.testData.clinicalData.patientsQueryMaster.queryInstances[0].queryResults[0].patientSet[0].id
+        def patientSetId = this.testData.clinicalData.patientsQueryMaster.queryInstances[0].id
         subqueryConstraint = new PatientSetConstraint(
                 patientSetId: patientSetId
         )
@@ -112,8 +113,9 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         List resultsForPatientSetId = getList(criteriaForPatientSetId)
 
         then:
-        resultsForPatientSetId.size() == 1
+        resultsForPatientSetId.size() == 2
         (resultsForPatientSetId[0] as ObservationFact).patient.id == testData.clinicalData.patients[0].id
+        (resultsForPatientSetId[1] as ObservationFact).patient.id == testData.clinicalData.patients[1].id
     }
 
     void 'test CriteriaQueryBuilder with clinical data'() {
@@ -347,8 +349,19 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
                 modifierCode: 'TEST:TISSUETYPE',
                 values: valueConstraint
         )
-        def expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{
+        def modifierFacts = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{
             it.modifierCd == 'TEST:TISSUETYPE' && it.textValue == 'CONNECTIVE TISSUE'
+        }
+        def expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll { fact ->
+            fact.modifierCd == '@' &&
+            modifierFacts.find { modifier ->
+                fact.encounterNum == modifier.encounterNum
+                fact.patient == modifier.patient
+                fact.conceptCode == modifier.conceptCode
+                fact.providerId == modifier.providerId
+                fact.startDate == modifier.startDate
+                fact.instanceNum == modifier.instanceNum
+            }
         }
         DetachedCriteria criteria = builder.buildCriteria(subqueryConstraint)
         List results = getList(criteria)
@@ -367,8 +380,19 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
                 path: hypercubeTestData.clinicalData.modifierDimensions[0].path,
                 values: valueConstraint
         )
-        expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{
+        modifierFacts = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{
             it.modifierCd == 'TEST:DOSE' && it.numberValue > 325
+        }
+        expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll { fact ->
+            fact.modifierCd == '@' &&
+            modifierFacts.find { modifier ->
+                fact.encounterNum == modifier.encounterNum
+                fact.patient == modifier.patient
+                fact.conceptCode == modifier.conceptCode
+                fact.providerId == modifier.providerId
+                fact.startDate == modifier.startDate
+                fact.instanceNum == modifier.instanceNum
+            }
         }
         criteria = builder.buildCriteria(subqueryConstraint)
         results = getList(criteria)
@@ -382,8 +406,19 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         subqueryConstraint = new ModifierConstraint(
                 path: hypercubeTestData.clinicalData.modifierDimensions[0].path,
         )
-        expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{
+        modifierFacts = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll{
             it.modifierCd == 'TEST:DOSE'
+        }
+        expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll { fact ->
+            fact.modifierCd == '@' &&
+            modifierFacts.find { modifier ->
+                fact.encounterNum == modifier.encounterNum
+                fact.patient == modifier.patient
+                fact.conceptCode == modifier.conceptCode
+                fact.providerId == modifier.providerId
+                fact.startDate == modifier.startDate
+                fact.instanceNum == modifier.instanceNum
+            }
         }
         criteria = builder.buildCriteria(subqueryConstraint)
         results = getList(criteria)

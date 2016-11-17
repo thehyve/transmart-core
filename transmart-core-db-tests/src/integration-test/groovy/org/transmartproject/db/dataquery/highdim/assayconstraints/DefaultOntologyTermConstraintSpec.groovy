@@ -44,8 +44,8 @@ class DefaultOntologyTermConstraintSpec extends TransmartSpecification {
     void testBasic() {
         setupData()
         List<Assay> assays = new AssayQuery([
-                new DefaultOntologyTermCriteriaConstraint(
-                        term: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar')
+                new DefaultConceptPathCriteriaConstraint(
+                        conceptPath: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar').fullName
                 )
         ]).list()
 
@@ -65,8 +65,8 @@ class DefaultOntologyTermConstraintSpec extends TransmartSpecification {
         List<Assay> assays = new AssayQuery([
                 new DisjunctionAssayCriteriaConstraint(constraints: [
                         new DefaultTrialNameCriteriaConstraint(trialName: 'bad name'),
-                        new DefaultOntologyTermCriteriaConstraint(
-                                term: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar')
+                        new DefaultConceptPathCriteriaConstraint(
+                                conceptPath: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar').fullName
                         )])]).list()
 
         expect:

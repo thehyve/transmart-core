@@ -8,17 +8,14 @@ import org.transmartproject.rest.protobuf.ObservationsSerializer
 class MultidimensionalDataSerialisationService {
 
     /**
-     * Serialise hypercube data to <code>out</code>.
+     * Serialises hypercube data to <code>out</code>.
      *
      * @param hypercube the hypercube to serialise.
-     * @param format the output format. Currently only 'json' is supported.
+     * @param format the output format. Supports JSON and PROTOBUF.
      * @param out the stream to serialise to.
      */
-    def writeData(HypercubeImpl hypercube, String format = "json", OutputStream out) {
-        if (!format.equalsIgnoreCase("json")) {
-            throw new UnsupportedEncodingException("Serialization format ${format} is not supported")
-        }
-        ObservationsSerializer builder = new ObservationsSerializer(hypercube)
-        builder.writeTo(out, format)
+    void serialise(HypercubeImpl hypercube, ObservationsSerializer.Format format, OutputStream out) {
+        ObservationsSerializer builder = new ObservationsSerializer(hypercube, format)
+        builder.write(out)
     }
 }
