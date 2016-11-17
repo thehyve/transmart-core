@@ -49,7 +49,8 @@ Brief description of the plugin.
         // TODO Implement additions to web.xml (optional), this event occurs before
     }
 
-    def doWithSpring = {
+    @Override
+    Closure doWithSpring() {{->
         xmlns context: 'http://www.springframework.org/schema/context'
 
         context.'component-scan'('base-package': 'jobs') {
@@ -79,7 +80,8 @@ Brief description of the plugin.
         application.config.grails.resources.adhoc.excludes =
                 ['/analysisFiles/**', '/images/analysisFiles/**'] +
                         (curExcludes ?: [])
-    }
+    }}
+
 
     def doWithDynamicMethods = { ctx ->
         // TODO Implement registering dynamic methods to classes (optional)
