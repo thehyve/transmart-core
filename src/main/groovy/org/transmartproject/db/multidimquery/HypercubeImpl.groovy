@@ -32,7 +32,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
 
     //def sort
     //def pack
-    boolean autoLoadDimensions = true
+    boolean autoloadDimensions = true
     private ScrollableResults results
     final ImmutableMap<String,Integer> aliases
     Query query
@@ -49,6 +49,9 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
 
     // A map that stores the actual dimension elements once they are loaded
     Map<Dimension, List<Object>> dimensionElements = new HashMap()
+
+    // false if there may be dimension element keys for which the values are not loaded
+    private boolean _dimensionsLoaded = false
 
     HypercubeImpl(ScrollableResults results, Collection<DimensionImpl> dimensions, String[] aliases,
                   Query query, StatelessSessionImpl session) {
@@ -75,7 +78,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     class ResultIterator extends AbstractIterator<HypercubeValueImpl> {
         HypercubeValueImpl computeNext() {
             if (!results.next()) {
-                if(autoLoadDimensions) loadDimensions()
+                if(autoloadDimensions) loadDimensions()
                 return endOfData()
             }
             _dimensionsLoaded = false
@@ -108,7 +111,6 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
                 }
             }
 
-            // TODO: implement text and numeric values
             new HypercubeValueImpl(HypercubeImpl.this, dimensionElementIdxes, value)
         }
     }
@@ -141,6 +143,12 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         dimensionElementKeys[dim][idx]
     }
 
+    final boolean dimensionsPreloadable = false // for now, still to be implemented
+    final boolean dimensionsPreloaded = false
+    void preloadDimensions() {
+        throw new UnsupportedOperationException()
+    }
+
     void loadDimensions() {
         // This could be more efficient if we track which dimensions are already loaded and up to date, but as we
         // expect dimensions will only be loaded all at once once all values have been retrieved that doesn't seem
@@ -151,12 +159,6 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         }
         _dimensionsLoaded = true
     }
-
-    // dimensionsLoaded is a boolean property that indicates if all dimension elements have been loaded already.
-    // Normally it is only true once the result has been fully iterated over, or if preloadDimensions == true in
-    // retrieveData.
-    private boolean _dimensionsLoaded = false
-    boolean getDimensionsLoaded() { return _dimensionsLoaded }
 
     void close() {
         results.close()
