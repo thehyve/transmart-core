@@ -20,9 +20,11 @@ class PatientSetResourceTests extends ResourceSpec {
 </ns3:query_definition>
 '''
 
+    public static final String VERSION = "v1"
+
     void testSave() {
         when:
-        def response = post('/patient_sets') {
+        def response = post("/$VERSION/patient_sets") {
             header 'Accept', contentTypeForHAL
             contentType MimeType.XML.name
             xml QUERY_DEFINITION
@@ -35,7 +37,7 @@ class PatientSetResourceTests extends ResourceSpec {
                 status: 'FINISHED',
                 id: isA(Number),
                 username: 'user_-301',)
-        that response.json, hasSelfLink('/patient_sets/' + response.json['id'])
+        that response.json, hasSelfLink(VERSION+'/patient_sets/' + response.json['id'])
         that response.json, hasEntry(is('_embedded'),
                 hasEntry(is('patients'),
                         contains(allOf(
@@ -43,12 +45,12 @@ class PatientSetResourceTests extends ResourceSpec {
                                         id: -101,
                                         trial: 'STUDY_ID_1',
                                         inTrialId: 'SUBJ_ID_1',),
-                                hasSelfLink('/studies/study_id_1/subjects/-101')))))
+                                hasSelfLink(VERSION+'/studies/study_id_1/subjects/-101')))))
     }
 
     void testSaveAndLoad() {
         when:
-        def response1 = post('/patient_sets') {
+        def response1 = post("/$VERSION/patient_sets") {
             header 'Accept', contentTypeForHAL
             contentType MimeType.XML.name
             xml QUERY_DEFINITION
@@ -58,7 +60,7 @@ class PatientSetResourceTests extends ResourceSpec {
         response1.status == 201
 
         when:
-        def response2 = get '/patient_sets/' + response1.json['id'], {
+        def response2 = get "/$VERSION/patient_sets/" + response1.json['id'], {
             header 'Accept', contentTypeForHAL
         }
 

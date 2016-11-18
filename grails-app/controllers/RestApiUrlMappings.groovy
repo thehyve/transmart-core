@@ -28,60 +28,67 @@ class RestApiUrlMappings {
     // grails url-mappings-report can come handy here...
 
     static mappings = {
-        '/studies'(controller: 'study', method: 'GET', resources: 'study', includes: ['index', 'show'])
 
-        '/studies'(resources: 'study', method: 'GET') {
-            '/subjects'(controller: 'subject', resources: 'subject', includes: ['index', 'show'])
+        group "/v2", {
+
+            "/query/$action?"(method: 'GET', controller: 'query')
         }
 
-        "/studies/$studyId/concepts"(
-                controller: 'concept', action: 'index'
-        )
+        group "/v1", {
 
-        "/studies/$studyId/concepts/$id**"(
-                controller: 'concept', action: 'show', method: 'GET'
-        ) {
-            constraints {
-                // this mapping has fewer wildcards than .../highdim/<type>
-                // so it will have precedence. Add constraint so it doesn't match
-                id validator: { !(it ==~ '.+/highdim(?:/[^/]+)?') }
+            '/studies'(controller: 'study', method: 'GET', resources: 'study', includes: ['index', 'show'])
+
+            '/studies'(resources: 'study', method: 'GET') {
+                '/subjects'(controller: 'subject', resources: 'subject', includes: ['index', 'show'])
+            }
+
+            "/studies/$studyId/concepts"(
+                    controller: 'concept', action: 'index'
+            )
+
+            "/studies/$studyId/concepts/$conceptId**/subjects"(
+                    controller: 'subject', action: 'indexByConcept'
+            )
+
+            "/studies/$studyId/concepts/$conceptId**/observations"(
+                    controller: 'observation', action: 'indexByConcept'
+            )
+
+            "/studies/$studyId/concepts/$conceptId**/highdim"(
+                    controller: 'highDim', action: 'index', method: 'GET'
+            )
+
+            "/studies/$studyId/concepts/$conceptId**/highdim/$dataType"(
+                    controller: 'highDim', action: 'download', method: 'GET'
+            )
+
+            '/studies'(resources: 'study', method: 'GET') {
+                '/observations'(controller: 'observation', resources: 'observation', includes: ['index'])
+            }
+
+            '/studies'(resources: 'study', method: 'GET') {
+                '/subjects'(resources: 'subject', method: 'GET') {
+                    '/observations'(controller: 'observation', action: 'indexBySubject')
+                }
+            }
+
+            '/patient_sets'(resources: 'patientSet', include: ['index', 'show', 'save'])
+
+            '/observations'(method: 'GET', controller: 'observation', action: 'indexStandalone')
+            '/observations2'(method: 'GET', controller: 'observation', action: 'observations2')
+
+            '/businessException/index'(controller: 'businessException', action: 'index')
+
+            "/studies/$studyId/concepts/$id**"(
+                    controller: 'concept', action: 'show', method: 'GET'
+            ) {
+                constraints {
+                    // this mapping has fewer wildcards than .../highdim/<type>
+                    // so it will have precedence. Add constraint so it doesn't match
+                    id validator: { !(it ==~ '.+/highdim(?:/[^/]+)?') }
+                }
             }
         }
-
-        "/studies/$studyId/concepts/$conceptId**/subjects"(
-                controller: 'subject', action: 'indexByConcept'
-        )
-
-        "/studies/$studyId/concepts/$conceptId**/observations"(
-                controller: 'observation', action: 'indexByConcept'
-        )
-
-        "/studies/$studyId/concepts/$conceptId**/highdim"(
-                controller: 'highDim', action: 'index', method: 'GET'
-        )
-
-        "/studies/$studyId/concepts/$conceptId**/highdim/$dataType"(
-                controller: 'highDim', action: 'download', method: 'GET'
-        )
-
-        '/studies'(resources: 'study', method: 'GET') {
-            '/observations'(controller: 'observation', resources: 'observation', includes: ['index'])
-        }
-
-        '/studies'(resources: 'study', method: 'GET') {
-            '/subjects'(resources: 'subject', method: 'GET') {
-                '/observations'(controller: 'observation', action:'indexBySubject')
-            }
-        }
-
-        '/patient_sets'(resources: 'patientSet',  include:['index', 'show', 'save'])
-
-        '/observations'(method: 'GET', controller: 'observation', action: 'indexStandalone')
-        '/observations2'(method: 'GET', controller: 'observation', action: 'observations2')
-
-        '/businessException/index'(controller: 'businessException', action: 'index')
-
-        "/query/$action?"(method: 'GET', controller: 'query')
 
     }
 }
