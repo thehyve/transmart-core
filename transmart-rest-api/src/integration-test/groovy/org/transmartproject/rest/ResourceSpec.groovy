@@ -65,6 +65,7 @@ abstract class ResourceSpec extends Specification {
 
     def contentTypeForHAL = 'application/hal+json'
     def contentTypeForJSON = 'application/json'
+    def version = 'v1'
 
     RestBuilder rest = new RestBuilder()
 

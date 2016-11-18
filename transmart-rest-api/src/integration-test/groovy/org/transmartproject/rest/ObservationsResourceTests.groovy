@@ -34,6 +34,7 @@ class ObservationsResourceTests extends ResourceSpec {
 
     def studyId = 'STUDY_ID_1'
     def label = "\\foo\\study1\\bar\\"
+    public static final String VERSION = "v1"
 
     def study1BarExpectedObservations = [
             [
@@ -54,7 +55,7 @@ class ObservationsResourceTests extends ResourceSpec {
     ]
 
     void testListAllObservationsForStudy() {
-        def response = get("/studies/${studyId}/observations")
+        def response = get("/$VERSION/studies/${studyId}/observations")
 
         when:
         response.status == 200
@@ -67,7 +68,7 @@ class ObservationsResourceTests extends ResourceSpec {
         def subjectId = -101
 
         when:
-        def response = get("/studies/${studyId}/subjects/${subjectId}/observations")
+        def response = get("/$VERSION/studies/${studyId}/subjects/${subjectId}/observations")
 
         then:
         response.status == 200
@@ -95,7 +96,7 @@ class ObservationsResourceTests extends ResourceSpec {
         def conceptId = 'bar'
 
         when:
-        def response = get("/studies/${studyId}/concepts/${conceptId}/observations")
+        def response = get("/$VERSION/studies/${studyId}/concepts/${conceptId}/observations")
 
         then:
         response.status == 200
@@ -104,7 +105,7 @@ class ObservationsResourceTests extends ResourceSpec {
 
     void testVariablesAreNormalized() {
         when:
-        def response = get("/studies/study_id_2/concepts/sex/observations")
+        def response = get("/$VERSION/studies/study_id_2/concepts/sex/observations")
 
         then:
         response.status == 200
@@ -120,7 +121,7 @@ class ObservationsResourceTests extends ResourceSpec {
 
     void testIndexStandalonePatientSet() {
         when:
-        def response = get('/observations?patient_sets={patient_sets}&concept_paths={concept_paths}') {
+        def response = get("/$VERSION/observations?patient_sets={patient_sets}&concept_paths={concept_paths}") {
             urlVariables patient_sets: '1', concept_paths: '\\foo\\study1\\bar\\'
         }
 
@@ -131,7 +132,7 @@ class ObservationsResourceTests extends ResourceSpec {
 
     void testIndexStandalone() {
         when:
-        def response = get('/observations?patients={patients}&concept_paths={concept_paths}') {
+        def response = get("/$VERSION/observations?patients={patients}&concept_paths={concept_paths}") {
             urlVariables patients: -101, concept_paths: '\\foo\\study1\\bar\\'
         }
 
@@ -144,7 +145,7 @@ class ObservationsResourceTests extends ResourceSpec {
 
     void testIndexStandaloneDefaultIsNormalizedLeaves() {
         when:
-        def response = get(('/observations' +
+        def response = get(("/$VERSION/observations" +
                 '?patients=-201' +
                 '&patients=-202' +
                 '&concept_paths=\\foo\\study2\\sex\\'))
@@ -166,7 +167,7 @@ class ObservationsResourceTests extends ResourceSpec {
     void testIndexStandaloneDifferentVariableType() {
         def conceptPath = '\\foo\\study2\\sex\\'
         when:
-        def response = get(('/observations?variable_type=terminal_concept_variable' +
+        def response = get(("/$VERSION/observations?variable_type=terminal_concept_variable" +
                 '&patients=-201' +
                 '&patients=-202' +
                 '&concept_paths=' + conceptPath))
@@ -179,7 +180,7 @@ class ObservationsResourceTests extends ResourceSpec {
 
     void testHalStandalone() {
         when:
-        def response = get('/observations?patients={patients}&concept_paths={concept_paths}') {
+        def response = get("/$VERSION/observations?patients={patients}&concept_paths={concept_paths}") {
             header 'Accept', contentTypeForHAL
             urlVariables patients: -101, concept_paths: '\\foo\\study1\\bar\\'
         }
