@@ -27,7 +27,7 @@ class ObservationSelector {
      * @param cellIndex
      * @param dimansion
      * @param fieldName
-     * @param valueType
+     * @param valueType Double, String, Int, Timestamp
      * @return
      */
     def select(cellIndex, dimansion, fieldName, valueType) {
