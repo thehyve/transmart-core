@@ -31,7 +31,13 @@ class ObservationSelector {
      * @return
      */
     def select(cellIndex, dimansion, fieldName, valueType) {
-        int dimensionDeclarationIndex = notInlined.indexOf(dimansion)
+        int dimensionDeclarationIndex = -1
+        if (notInlined.contains(dimansion)){
+            dimensionDeclarationIndex = notInlined.indexOf(dimansion)
+        } else if (inlined.contains(dimansion)) {
+            dimensionDeclarationIndex = inlined.indexOf(dimansion)
+        }
+        assert dimensionDeclarationIndex != -1, 'dimansion could not be found in header'
 
         int fieldsIndex
 
@@ -46,8 +52,12 @@ class ObservationSelector {
             }
         }
 
-        int dimensionIndexes = protoMessage.cells.get(cellIndex).getDimensionIndexes(dimensionDeclarationIndex)
+        if (inlined.contains(dimansion)){
+            return protoMessage.cells.get(cellIndex).getInlineDimensions(dimensionDeclarationIndex).getFields(fieldsIndex).invokeMethod("get${valueType}Value", null).val
+        }
 
+        //nonInline
+        int dimensionIndexes = protoMessage.cells.get(cellIndex).getDimensionIndexes(dimensionDeclarationIndex)
         return protoMessage.footer.getDimension(dimensionDeclarationIndex).getFields(fieldsIndex).invokeMethod("get${valueType}Value",dimensionIndexes).'val'
     }
 
