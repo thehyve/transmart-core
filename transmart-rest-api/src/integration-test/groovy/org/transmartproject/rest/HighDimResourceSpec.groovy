@@ -37,6 +37,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 class HighDimResourceSpec extends ResourceSpec {
 
+    public static final String VERSION = "v1"
     def expectedMrnaAssays = [-402, -401]*.toLong() //groovy autoconverts to BigInteger, and we have to force Long here
     def expectedMrnaRowLabels = ["1553513_at", "1553510_s_at", "1553506_at"]
 
@@ -52,13 +53,13 @@ class HighDimResourceSpec extends ResourceSpec {
                                         'disjunction', 'pathways', 'proteins',]
 
     Map<String, String> indexUrlMap = [
-            mrna: "/studies/study_id_1/concepts/bar/highdim",
-            acgh: "/studies/study_id_2/concepts/study1/highdim",
+            mrna: "$VERSION/studies/study_id_1/concepts/bar/highdim",
+            acgh: "$VERSION/studies/study_id_2/concepts/study1/highdim",
     ]
 
     void testSummaryAsJson() {
         when:
-        def response = get indexUrlMap['mrna'], {
+        def response = get '/'+indexUrlMap['mrna'], {
             header 'Accept', contentTypeForJSON
         }
 
@@ -84,7 +85,7 @@ class HighDimResourceSpec extends ResourceSpec {
         ]
 
         when:
-        def response = get url, {
+        def response = get '/'+url, {
             header 'Accept', contentTypeForHAL
         }
 
@@ -233,7 +234,7 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     private HighDimResult getAsHighDim(String url) {
-        InputStream is = getAsInputStream(url)
+        InputStream is = getAsInputStream('/'+url)
         HighDimResult result = new HighDimResult()
 
         try {

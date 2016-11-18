@@ -6,7 +6,8 @@ import com.google.common.collect.ImmutableMap
 import groovy.transform.CompileStatic
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.StatelessSessionImpl
-import org.transmartproject.core.IterableResult
+import org.transmartproject.core.multidimensionalquery.Hypercube
+import org.transmartproject.core.multidimensionalquery.HypercubeValue
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
@@ -16,7 +17,7 @@ import org.transmartproject.db.util.IndexedArraySet
  *
  */
 @CompileStatic
-class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements IterableResult<HypercubeValue> {
+class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> implements Hypercube {
     /*
      * The data representation:
      *
@@ -36,19 +37,19 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
 
     // ImmutableMap guarantees the same iteration order as the input, and can in fact be converted efficently to an
     // ImmutableList<Entry>.
-    final ImmutableMap<Dimension,Integer> dimensionsIndex
-    final ImmutableList<Dimension> dimensions
+    final ImmutableMap<DimensionImpl,Integer> dimensionsIndex
+    final ImmutableList<DimensionImpl> dimensions
 
     // Map from Dimension -> dimension element keys
     // The IndexedArraySet provides efficient O(1) indexOf/contains operations
     // Only used for packable dimensions
-    final Map<Dimension,IndexedArraySet<Object>> dimensionElementKeys
+    final Map<DimensionImpl,IndexedArraySet<Object>> dimensionElementKeys
 
     // A map that stores the actual dimension elements once they are loaded
-    Map<Dimension, List<Object>> dimensionElements = new HashMap()
+    Map<DimensionImpl, List<Object>> dimensionElements = new HashMap()
 
-    Hypercube(ScrollableResults results, Collection<Dimension> dimensions, String[] aliases,
-              Query query, StatelessSessionImpl session) {
+    HypercubeImpl(ScrollableResults results, Collection<DimensionImpl> dimensions, String[] aliases,
+                  Query query, StatelessSessionImpl session) {
         this.results = results
         this.dimensionsIndex = ImmutableMap.copyOf(dimensions.withIndex().collectEntries())
         // The Guava immutable collections do this efficiently, the same underlying array of entries is used.
@@ -69,8 +70,8 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
     }
 
     // TODO: support modifier dimensions
-    class ResultIterator extends AbstractIterator<HypercubeValue> {
-        HypercubeValue computeNext() {
+    class ResultIterator extends AbstractIterator<HypercubeValueImpl> {
+        HypercubeValueImpl computeNext() {
             if (!results.next()) {
                 if(autoLoadDimensions) loadDimensions()
                 return endOfData()
@@ -88,7 +89,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
             // Save keys of dimension elements
             // Closures are not called statically afaik, even with @CompileStatic; use a plain old loop
             for(int i=0; i<nDims; i++) {
-                Dimension d = dimensions[i]
+                DimensionImpl d = dimensions[i]
                 def dimElementKey = d.getElementKey(result)
                 if(dimElementKey == null) {
                     dimensionElementIdxes[i] = null
@@ -106,24 +107,24 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
             }
 
             // TODO: implement text and numeric values
-            new HypercubeValue(Hypercube.this, dimensionElementIdxes, value)
+            new HypercubeValueImpl(HypercubeImpl.this, dimensionElementIdxes, value)
         }
     }
 
-    List<Object> dimensionElements(Dimension dim) {
+    List<Object> dimensionElements(DimensionImpl dim) {
         List ret = dim.resolveElements(dimensionElementKeys[dim] ?: [])
         dimensionElements[dim] = ret
         return ret
     }
 
-    static protected void checkNotPackable(Dimension dim) {
+    static protected void checkNotPackable(DimensionImpl dim) {
         if(!dim.packable.packable) {
             throw new UnsupportedOperationException("Cannot get dimension element for unpackable dimension "+
                     dim.class.simpleName)
         }
     }
 
-    Object dimensionElement(Dimension dim, Integer idx) {
+    Object dimensionElement(DimensionImpl dim, Integer idx) {
         checkNotPackable(dim)
         if(idx == null) return null
         if(!_dimensionsLoaded) {
@@ -132,7 +133,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
         return dimensionElements[dim][idx]
     }
 
-    Object dimensionElementKey(Dimension dim, Integer idx) {
+    Object dimensionElementKey(DimensionImpl dim, Integer idx) {
         checkNotPackable(dim)
         if(idx == null) return null
         dimensionElementKeys[dim][idx]
@@ -151,7 +152,7 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
 
     // dimensionsLoaded is a boolean property that indicates if all dimension elements have been loaded already.
     // Normally it is only true once the result has been fully iterated over, or if preloadDimensions == true in
-    // doQuery.
+    // retrieveData.
     private boolean _dimensionsLoaded = false
     boolean getDimensionsLoaded() { return _dimensionsLoaded }
 
@@ -162,25 +163,25 @@ class Hypercube extends AbstractOneTimeCallIterable<HypercubeValue> implements I
 }
 
 @CompileStatic
-class HypercubeValue {
+class HypercubeValueImpl implements HypercubeValue {
     // Not all dimensions apply to all values, and the set of dimensions is extensible using modifiers.
     // We can either use a Map or methodMissing().
-    private final Hypercube cube
+    private final HypercubeImpl cube
     // dimension
     private final Object[] dimensionElementIdxes
     final def value
 
-    HypercubeValue(Hypercube cube, Object[] dimensionElementIdxes, def value) {
+    HypercubeValueImpl(HypercubeImpl cube, Object[] dimensionElementIdxes, def value) {
         this.cube = cube
         this.dimensionElementIdxes = dimensionElementIdxes
         this.value = value
     }
 
-    def getAt(Dimension dim) {
+    def getAt(DimensionImpl dim) {
         getDimElement(dim)
     }
 
-    def getDimElement(Dimension dim) {
+    def getDimElement(DimensionImpl dim) {
         if(dim.packable.packable) {
             cube.dimensionElement(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
         } else {
@@ -188,12 +189,12 @@ class HypercubeValue {
         }
     }
 
-    int getDimElementIndex(Dimension dim) {
+    int getDimElementIndex(DimensionImpl dim) {
         cube.checkNotPackable(dim)
         (int) dimensionElementIdxes[cube.dimensionsIndex[dim]]
     }
 
-    def getDimKey(Dimension dim) {
+    def getDimKey(DimensionImpl dim) {
         if(dim.packable.packable) {
             cube.dimensionElementKey(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
         } else {
@@ -201,7 +202,7 @@ class HypercubeValue {
         }
     }
 
-    Set<Dimension> availableDimensions() {
+    Set<DimensionImpl> availableDimensions() {
         cube.dimensionsIndex.keySet()
     }
 }

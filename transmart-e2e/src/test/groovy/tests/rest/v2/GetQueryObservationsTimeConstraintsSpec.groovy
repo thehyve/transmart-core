@@ -1,89 +1,153 @@
 package tests.rest.v2
 
 import base.RESTSpec
-import spock.lang.Ignore
+import spock.lang.IgnoreIf
+import spock.lang.Requires
 
+import static config.Config.*
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AFTER
+import static tests.rest.v2.Operator.AND
+import static tests.rest.v2.Operator.BEFORE
+import static tests.rest.v2.Operator.BETWEEN
 import static tests.rest.v2.constraints.*
 
 /**
- * TMPREQ-11 Extend the REST API with timeseries data capabilities.
+ * TMPREQ-10
+ *  The REST API should support querying observations based on a combination of:
+ *      start time
+ *      end time
  */
 class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
 
-    def REGEXDATE = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"
+    /**
+     *  given: "Ward-EHR is loaded"
+     *  when: "I query observations in this study with startDate after 01-01-2016"
+     *  then: "6 observations are returned"
+     */
+    @Requires({EHR_LOADED})
+    def "query observations based on time constraint after startDate"(){
+        given: "Ward-EHR is loaded"
+        def date = toDateString("01-01-2016Z")
+
+        when: "I query observations in this study with startDate after 01-01-2016"
+        def constraintMap = [
+                        type: Combination,
+                        operator: AND,
+                        args: [
+                                [type: StudyConstraint, studyId: EHR_ID],
+                                [type: TimeConstraint,
+                                 field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
+                                 operator: AFTER,
+                                 values: [date]]
+                        ]
+                ]
+
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+
+        then: "6 observations are returned"
+        that responseData.size(), is(6)
+        that responseData, everyItem(hasKey('conceptCode'))
+    }
 
     /**
-     *  when: 'I query all observations in the database'
-     *  then: "Every observation has an entry with key 'startDate'"
+     *  given: "Ward-EHR is loaded"
+     *  when: "I query observations in this study with startDate between 29-3-2016 10:00:00 and 29-3-2016 10:11:00"
+     *  then: "2 observations are returned"
      */
-    def "observations must have a start time"(){
-        when: 'I query all observations in the database'
-        def query = [
-                constraint: [
-                        type: TrueConstraint,
+    @Requires({EHR_LOADED})
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //TMPDEV-94 Query language: TimeConstraint BETWEEN operator is not working
+    def "query observations based on time constraint between startDates"(){
+        given: "Ward-EHR is loaded"
+        def date1 = toDateString("29-3-2016 10:00:00Z", "dd-MM-yyyy HH:mm:ssX")
+        def date2 = toDateString("29-3-2016 10:11:00Z", "dd-MM-yyyy HH:mm:ssX")
+
+
+        when: "I query observations in this study with startDate between 29-3-2016 10:00:00 and 29-3-2016 10:11:00"
+        def constraintMap = [
+                type: Combination,
+                operator: AND,
+                args: [
+                        [type: StudyConstraint, studyId: EHR_ID],
+                        [type: TimeConstraint,
+                         field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
+                         operator: BETWEEN,
+                         values: [date1, date2]]
                 ]
         ]
-        def responseData = get("query/observations", contentTypeForJSON, query)
 
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
-        then: "Every observation has an entry with key 'startDate' that is not null"
-        that responseData, everyItem(hasEntry(is('startDate'), matchesPattern(REGEXDATE)))
+        then: "2 observations are returned"
+        that responseData.size(), is(2)
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     /**
-     *  when: 'I query all observations in the database'
-     *  then: "Every observation has an entry with key 'endDate' that is a valid date sting or null"
+     *  given: "Ward-EHR is loaded"
+     *  when: "I query observations in this study with startDate before 01-01-2016"
+     *  then: "1 observation is returned"
      */
-    def "observations must have a end time"(){
-        when: 'I query all observations in the database'
-        def query = [
-                constraint: [
-                        type: TrueConstraint,
-                ]
-        ]
-        def responseData = get("query/observations", contentTypeForJSON, query)
+    @Requires({EHR_LOADED})
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //TMPDEV-95 Observations with no startDate are returned by TimeConstraint
+    def "query observations based on time constraint before startDate"(){
+        given: "Ward-EHR is loaded"
+        def date = toDateString("01-01-2016Z")
 
-        then: "Every observation has an entry with key 'endDate' that is a valid date sting or null"
-        that responseData, everyItem(hasEntry(is('endDate'), anyOf(nullValue(), matchesPattern(REGEXDATE))))
-    }
-
-    @Ignore
-    def "Get /query/observations by startDate"(){
-        when:
-        def query = [
-                constraint: [
-                        type: TimeConstraint,
-                        field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
-                        operator: AFTER,
-                        values: ['2016-04-19']
+        when: "I query observations in this study with startDate before 01-01-2016"
+        def constraintMap = [
+                type: Combination,
+                operator: AND,
+                args: [
+                        [type: StudyConstraint, studyId: EHR_ID],
+                        [type: TimeConstraint,
+                         field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
+                         operator: BEFORE,
+                         values: date]
                 ]
         ]
 
-        def responseData = get("query/observations", contentTypeForJSON, query)
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
-
-        then:
-        that responseData.size(), is(952)
+        then: "1 observation is returned"
+        that responseData.size(), is(1)
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
-    @Ignore
-    def "Get /query/observations by "(){
-        when:
-        def query = [
-                constraint: [
-                        type: NullConstraint,
-                        field: [dimension: 'StartTimeDimension', fieldName: 'endDate', type: 'DATE' ]
+    /**
+     *  given: "EHR is loaded"
+     *  when: "I query observations in this study with startDate after 01-01-2016 and an endDate before 01-04-2016"
+     *  then: "4 observations are returned"
+     */
+    @Requires({EHR_LOADED})
+    @IgnoreIf({SUPPRESS_UNIMPLEMENTED}) // field endDate is currently not accessible
+    def "query observations based on starDate and endDate"(){
+        given: "EHR is loaded"
+        def date1 = toDateString("01-01-2016Z")
+        def date2 = toDateString("01-04-2016Z")
+
+        when: "I query observations in this study with startDate after 01-01-2016 and an endDate before 01-04-2016"
+        def constraintMap = [
+                type: Combination,
+                operator: AND,
+                args: [
+                        [type: StudyConstraint, studyId: EHR_ID],
+                        [type: TimeConstraint,
+                         field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
+                         operator: AFTER,
+                         values: date1],
+                        [type: TimeConstraint,
+                         field: [dimension: 'EndTimeDimension', fieldName: 'endDate', type: 'DATE' ],
+                         operator: BEFORE,
+                         values: date2]
                 ]
         ]
 
-        def responseData = get("query/observations", contentTypeForJSON, query)
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
-
-        then:
-        that responseData.size(), is(952)
+        then: "4 observations are returned"
+        that responseData.size(), is(4)
+        that responseData, everyItem(hasKey('conceptCode'))
     }
-
 }

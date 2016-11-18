@@ -24,7 +24,9 @@ import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.i2b2data.*
+import org.transmartproject.db.ontology.AcrossTrialsTestData
 import org.transmartproject.db.ontology.I2b2
+import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 import org.transmartproject.db.querytool.QtQueryMaster
 
 import java.math.RoundingMode
@@ -49,6 +51,7 @@ class ClinicalTestData {
     List<ObservationFact>   ehrClinicalFacts
     Study                   multidimsStudy
     List<ObservationFact>   multidimsClinicalFacts
+    List<ModifierDimensionCoreDb> modifierDimensions
 
     @Lazy
     QtQueryMaster patientsQueryMaster = createQueryResult patients
@@ -126,9 +129,12 @@ class ClinicalTestData {
         def sampleClinicalFacts = createSampleFacts(conceptDims[5], patients, sampleStudy, observationStartDates, observationEndDates,
                 locations, providers)
 
-        def ehrStudy = StudyTestData.createStudy "ehr study", ["patient", "concept", "study", "visit"] // todo: "visit"
+        def ehrStudy = StudyTestData.createStudy "ehr study", ["patient", "concept", "study", "visit"]
         def ehrClinicalFacts = createEhrFacts(conceptDims[6], visits[0..2], ehrStudy, observationStartDates, observationEndDates,
                 locations, providers)
+
+        def modifierDimensions = AcrossTrialsTestData.createModifier(path: '\\Public Studies\\Medications\\Doses\\',
+                code:'TEST:DOSE', nodeType: 'F')
 
         new ClinicalTestData(
                 patients: patients,
@@ -141,7 +147,8 @@ class ClinicalTestData {
                 ehrStudy: ehrStudy,
                 ehrClinicalFacts: ehrClinicalFacts,
                 multidimsStudy:multidimsStudy,
-                multidimsClinicalFacts: multidimsClinicalFacts
+                multidimsClinicalFacts: multidimsClinicalFacts,
+                modifierDimensions: [modifierDimensions.get(0)]
         )
     }
 
@@ -353,6 +360,9 @@ class ClinicalTestData {
         factList << fact
         factList << addModifiersToObservationFact(fact, 1, modifierCd, 'CONNECTIVE TISSUE')
         factList << addModifiersToObservationFact(fact, 2, modifierCd, 'MUSCLE TISSUE')
+        factList << addModifiersToObservationFact(fact, 1, 'TEST:DOSE', 325)
+        factList << addModifiersToObservationFact(fact, 2, 'TEST:DOSE', 630)
+        factList << addModifiersToObservationFact(fact, 1, 'TEST:FREQ', 'FREQ')
         factList
         //extendObservationFactList(factList, startDates, endDates, locations, providers)
     }
@@ -378,8 +388,6 @@ class ClinicalTestData {
         factList << createObservationFact(concept[1].conceptCode, visits[1].patient, visits[1].encounterNum, 'not specified', 1, createTrialVisit('week', 1, 'label_2', study))
         factList << createObservationFact(concept[0].conceptCode, visits[2].patient, DUMMY_ENCOUNTER_ID, 77.0, 1, createTrialVisit('month', 1, 'label_3', study))
         extendObservationFactList(factList, startDates, endDates, locations, providers)
-
-
     }
 
     static TrialVisit createTrialVisit(String relTimeUnit, int relTime, String relTimeLabel, Study study) {
@@ -428,6 +436,7 @@ class ClinicalTestData {
         TestDataHelper.save longitudinalClinicalFacts
         TestDataHelper.save ehrClinicalFacts
         TestDataHelper.save multidimsClinicalFacts
+        TestDataHelper.save modifierDimensions
     }
 
 }

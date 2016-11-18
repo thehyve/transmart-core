@@ -11,12 +11,13 @@ import static spock.util.matcher.HamcrestSupport.that
 
 class ObservationMarshallerSpec extends MarshallerSpec {
 
+    public static final String VERSION = "v1"
     def patients = -101
     def concept_paths = '\\foo\\study1\\bar\\'
 
     void basicTest() {
         when:
-        def url = "${baseURL}/observations?patients=${patients}&concept_paths=${concept_paths}".toString()
+        def url = "${baseURL}/$VERSION/observations?patients=${patients}&concept_paths=${concept_paths}".toString()
         ResponseEntity<Resource> response = getJson(url)
         String content = response.body.inputStream.readLines().join('\n')
         def result = new JsonSlurper().parseText(content)
@@ -32,7 +33,7 @@ class ObservationMarshallerSpec extends MarshallerSpec {
 
     void testHal() {
         when:
-        def url = "${baseURL}/observations?patients=${patients}&concept_paths=${concept_paths}".toString()
+        def url = "${baseURL}/$VERSION/observations?patients=${patients}&concept_paths=${concept_paths}".toString()
         ResponseEntity<Resource> response = getHal(url)
         String content = response.body.inputStream.readLines().join('\n')
         def result = new JsonSlurper().parseText(content)

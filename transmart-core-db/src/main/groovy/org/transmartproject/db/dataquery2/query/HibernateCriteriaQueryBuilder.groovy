@@ -123,13 +123,38 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     }
 
     /**
-     * FIXME:
      * Creates a subquery to find observations with the same primary key (use <code>id()</code>?)
      * and match certain value constraints.
-     * See {@link #build(TemporalConstraint)} for an example.
      */
     Criterion build(ModifierConstraint constraint) {
-        throw new NotImplementedException()
+        def observationFactAlias = getAlias('observation_fact')
+        def modifierCriterion
+        if (constraint.modifierCode != null) {
+            modifierCriterion = Restrictions.eq('modifierCd', constraint.modifierCode)
+        } else if (constraint.path != null) {
+            String modifierAlias = 'modifier_dimension'
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(ModifierDimensionCoreDb, modifierAlias)
+            subCriteria.add(Restrictions.eq("${modifierAlias}.path", constraint.path))
+            modifierCriterion = Subqueries.propertyEq('modifierCd', subCriteria.setProjection(Projections.property("code")))
+        }
+        else {
+            throw new QueryBuilderException("Modifier constraint shouldn't have a null value both for modifier path and code")
+        }
+        def valueConstraint = constraint.values ?: new TrueConstraint()
+        QueryBuilder subQueryBuilder = new HibernateCriteriaQueryBuilder(
+                aliasSuffixes: aliasSuffixes,
+                studies: studies
+        )
+        DetachedCriteria subQuery = subQueryBuilder.buildCriteria(valueConstraint, modifierCriterion)
+                .add(Restrictions.eqProperty('encounterNum',    "${observationFactAlias}.encounterNum"))
+                .add(Restrictions.eqProperty('patient',         "${observationFactAlias}.patient"))
+                .add(Restrictions.eqProperty('conceptCode',     "${observationFactAlias}.conceptCode"))
+                .add(Restrictions.eqProperty('providerId',      "${observationFactAlias}.providerId"))
+                .add(Restrictions.eqProperty('startDate',       "${observationFactAlias}.startDate"))
+                .add(Restrictions.eqProperty('instanceNum',     "${observationFactAlias}.instanceNum"))
+
+        subQuery = subQuery.setProjection(Projections.id())
+        Subqueries.exists(subQuery)
     }
 
     /**
@@ -289,9 +314,9 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         }
         else if (constraint.patientSetId != null) {
             DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')
-            subCriteria.add(Restrictions.eq("qt_patient_set_collection.id", constraint.patientSetId))
+            subCriteria.add(Restrictions.eq('resultInstance.id', constraint.patientSetId))
 
-            return Subqueries.propertyEq('patient',
+            return Subqueries.propertyIn('patient',
                     subCriteria.setProjection(Projections.property("patient")))
         }
         else {
@@ -403,6 +428,8 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         throw new QueryBuilderException("Constraint type not supported: ${constraint.class}.")
     }
 
+    private final Criterion defaultModifierCriterion = Restrictions.eq('modifierCd', '@')
+
     /**
      * Builds a DetachedCriteria object representing the query for observation facts that satisfy
      * the constraint.
@@ -410,23 +437,15 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @param constraint
      * @return
      */
-    DetachedCriteria buildCriteria(Constraint constraint) {
+    DetachedCriteria buildCriteria(Constraint constraint, Criterion modifierCriterion = defaultModifierCriterion) {
         aliases = [:]
         def result = builder()
         def trialVisitAlias = getAlias('trialVisit')
-        def criterion
-        if (checkModifierConstraintExists(constraint)) {
-            criterion = Restrictions.and(
-                    build(constraint),
-                    Restrictions.in("${trialVisitAlias}.study", getStudies())
-            )
-        } else {
-            criterion = Restrictions.and(
-                    build(constraint),
-                    Restrictions.in("${trialVisitAlias}.study", getStudies()),
-                    Restrictions.eq('modifierCd', "@")
-            )
-        }
+        def criterion = Restrictions.and(
+                build(constraint),
+                Restrictions.in("${trialVisitAlias}.study", getStudies()),
+                modifierCriterion
+        )
         aliases.each { property, alias ->
             if (property != 'observation_fact') {
                 result.createAlias(property, alias)
@@ -434,11 +453,6 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         }
         result.add(criterion)
         result
-    }
-
-    private boolean checkModifierConstraintExists(Constraint constraint) {
-        ( ( constraint.class == Combination && constraint.args.any { it.class == ModifierConstraint } )
-                || ( constraint.class == ModifierConstraint ) )
     }
 
     /**
@@ -454,11 +468,16 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         // property.
         // TODO: refactor all of this so we don't need to access privates here
         aliases = (criteria.projection as ProjectionList).aliases.collectEntries {[it, it]}
+        aliases['observation_fact'] = criteria.alias
         criteria.subcriteriaList.each { CriteriaImpl.Subcriteria sub ->
             aliases[sub.path] = sub.alias
         }
         def alreadyAddedAliases = aliases.keySet() + ['observation_fact']
-        Criterion criterion = build(new Combination(operator: Operator.AND, args: constraint))
+        def trialVisitAlias = getAlias('trialVisit')
+        Criterion criterion = Restrictions.and(
+                build(new Combination(operator: Operator.AND, args: constraint)),
+                Restrictions.in("${trialVisitAlias}.study", getStudies())
+        )
         this.aliases.each { property, alias ->
             if(!(property in alreadyAddedAliases)) {
                 criteria.createAlias(property, alias)

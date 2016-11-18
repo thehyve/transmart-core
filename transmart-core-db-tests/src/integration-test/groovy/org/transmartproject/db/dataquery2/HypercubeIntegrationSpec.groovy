@@ -4,17 +4,13 @@ import com.google.common.collect.HashMultiset
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.hibernate.Session
-import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.dataquery2.query.StudyConstraint
-import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
-import static org.hamcrest.Matchers.*
 import spock.lang.Ignore
 
 @Integration
@@ -23,7 +19,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
     TestData testData
     ClinicalTestData clinicalData
-    Map<String, Dimension> dims
+    Map<String, DimensionImpl> dims
 
     @Autowired
     MultidimensionalDataResourceService queryResource
@@ -42,7 +38,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_basic_longitudinal_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.doQuery('clinical', constraint: study(clinicalData.longitudinalStudy.studyId))
+        def hypercube = queryResource.retrieveData('clinical',
+                constraint: study(clinicalData.longitudinalStudy.studyId),
+                [clinicalData.longitudinalStudy])
         def resultObs = Lists.newArrayList(hypercube).sort()
 
         def result = resultObs*.value as HashMultiset
@@ -83,11 +81,12 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         }
     }
 
-    @Ignore
     void 'test_basic_sample_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.doQuery('clinical', constraints: [study(clinicalData.sampleStudy.studyId)])
+        def hypercube = queryResource.retrieveData('clinical',
+                constraint: study(clinicalData.sampleStudy.studyId),
+                [clinicalData.sampleStudy])
         def resultObs = Lists.newArrayList(hypercube).sort()
 
         def result = resultObs*.value as HashMultiset
@@ -95,16 +94,17 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def concepts = hypercube.dimensionElements(dims.concept) as Set
         def patients = hypercube.dimensionElements(dims.patient) as Set
 
-        def expected = clinicalData.sampleClinicalFacts*.value as HashMultiset
+        // FIXME Modifiers not supported yet, check facts with modifierCd == '@'
+        def expected = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == '@'}
+        def expectedValue = expected*.value as HashMultiset
         def expectedConcepts = testData.conceptData.conceptDimensions.findAll {
-            it.conceptCode in clinicalData.sampleClinicalFacts*.conceptCode
+            it.conceptCode in expected*.conceptCode
         } as Set
-        def expectedPatients = clinicalData.sampleClinicalFacts*.patient as Set
+        def expectedPatients = expected*.patient as Set
 
         expect:
-        // FIXME Modifiers not supported yet
-//        hypercube.dimensionElements.size() == clinicalData.sampleStudy.dimensions.size()
-//        result == expected
+        hypercube.dimensionElements.size() == clinicalData.sampleStudy.dimensions.size()
+        result == expectedValue
 
         concepts.size() == expectedConcepts.size()
         concepts == expectedConcepts
@@ -121,7 +121,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_basic_ehr_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.doQuery('clinical', constraint: study(clinicalData.ehrStudy.studyId))
+        def hypercube = queryResource.retrieveData('clinical',
+                constraint: study(clinicalData.ehrStudy.studyId),
+                [clinicalData.ehrStudy])
         def resultObs = Lists.newArrayList(hypercube).sort()
 
         def result = resultObs*.value as HashMultiset
@@ -159,7 +161,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void 'test_all_dimensions_data_retrieval'() {
         setupData()
 
-        def hypercube = queryResource.doQuery('clinical', constraint: study(clinicalData.multidimsStudy.studyId))
+        def hypercube = queryResource.retrieveData('clinical',
+                constraint: study(clinicalData.multidimsStudy.studyId),
+                [clinicalData.multidimsStudy])
         def resultObs = Lists.newArrayList(hypercube).sort()
 
         def result = resultObs*.value as HashMultiset

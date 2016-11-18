@@ -1,6 +1,7 @@
 package base
 
 import grails.converters.JSON
+import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
@@ -10,6 +11,8 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import spock.lang.Shared
 import spock.lang.Specification
+
+import java.text.SimpleDateFormat
 
 import static config.Config.*
 import static org.hamcrest.Matchers.*
@@ -43,6 +46,18 @@ class RESTSpec extends Specification{
         return oauth2token
     }
 
+    /**
+     *
+     * a convenience method to keep the tests readable by removing as much code as possible
+     *
+     * @param path
+     * @param AcceptHeader
+     * @param queryMap
+     * @param requestBody
+     * @param contentType
+     * @param oauth
+     * @return
+     */
     def post(String path, String AcceptHeader, queryMap, requestBody = null, contentType, oauth = true ){
         http.request(Method.POST, ContentType.TEXT){
             uri.path = path
@@ -50,7 +65,7 @@ class RESTSpec extends Specification{
             body = requestBody
             headers.Accept = AcceptHeader
             headers.'Content-Type' = 'text/xml'
-            if (oauth && OAUTHNEEDED){
+            if (oauth && OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
@@ -69,7 +84,7 @@ class RESTSpec extends Specification{
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = new JsonSlurper().parse(reader)
+                    def result = JSON.parse(reader)
                     println result
                     return result
                 }
@@ -80,12 +95,20 @@ class RESTSpec extends Specification{
 
     }
 
+    /**
+     * a convenience method to keep the tests readable by removing as much code as possible
+     *
+     * @param path
+     * @param AcceptHeader
+     * @param queryMap
+     * @return
+     */
     def get(String path, String AcceptHeader, queryMap = null){
         http.request(Method.GET, ContentType.TEXT) { req ->
             uri.path = path
             uri.query = queryMap
             headers.Accept = AcceptHeader
-            if (OAUTHNEEDED){
+            if (OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
@@ -108,7 +131,7 @@ class RESTSpec extends Specification{
                 if (DEBUG){
                 println "Got response: ${resp.statusLine}"
                 println "Content-Type: ${resp.headers.'Content-Type'}"
-                def result = new JsonSlurper().parse(reader)
+                def result = JSON.parse(reader)
                 println result
                 return result
                 }
@@ -116,6 +139,25 @@ class RESTSpec extends Specification{
                 return JSON.parse(reader)
             }
         }
+    }
+
+    /**
+     * takes a map of constraints and returns a json query
+     *
+     * @param constraints
+     * @return
+     */
+    def toQuery(constraints){
+        return [constraint: new JsonBuilder(constraints)]
+    }
+
+    def toJSON(object){
+        return new JsonBuilder(object)
+    }
+
+    def toDateString(dateString, inputFormat = "dd-MM-yyyyX"){
+        def date = new SimpleDateFormat(inputFormat).parse(dateString)
+        date.format("yyyy-MM-dd'T'HH:mm:ssX", TimeZone.getTimeZone('Z'))
     }
 
     /**
@@ -140,6 +182,8 @@ class RESTSpec extends Specification{
                 ),
         )
     }
+
+
 
     /**
      * Generic matcher for a hal index response, expecting 2 entries:

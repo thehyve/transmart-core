@@ -34,6 +34,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 class StudyMarshallerSpec extends MarshallerSpec {
 
+    public static final String VERSION = "v1"
     public static final String STUDY_ID = 'STUDY_ID_1'
     public static final String ONTOLOGY_TERM_NAME = 'study1'
     public static final String ONTOLOGY_KEY = '\\\\i2b2 main\\foo\\study1\\'
@@ -41,7 +42,7 @@ class StudyMarshallerSpec extends MarshallerSpec {
 
     void basicTest() {
         when:
-        def url = "${baseURL}/studies/${STUDY_ID}?key=${ONTOLOGY_KEY}".toString()
+        def url = "${baseURL}/${VERSION}/studies/${STUDY_ID}?key=${ONTOLOGY_KEY}".toString()
         ResponseEntity<Resource> response = getJson(url)
         String content = response.body.inputStream.readLines().join('\n')
         def result = new JsonSlurper().parseText(content)
@@ -60,7 +61,7 @@ class StudyMarshallerSpec extends MarshallerSpec {
 
     void testHal() {
         when:
-        def url = "${baseURL}/studies/${STUDY_ID}?key=${ONTOLOGY_KEY}".toString()
+        def url = "${baseURL}/${VERSION}/studies/${STUDY_ID}?key=${ONTOLOGY_KEY}".toString()
         ResponseEntity<Resource> response = getHal(url)
         String content = response.body.inputStream.readLines().join('\n')
         def result = new JsonSlurper().parseText(content)
@@ -72,12 +73,12 @@ class StudyMarshallerSpec extends MarshallerSpec {
                 hasEntry('id', STUDY_ID),
                 hasEntry(is('_links'),
                         hasEntry(is('self'),
-                                hasEntry('href', "/studies/${STUDY_ID.toLowerCase()}".toString()))),
+                                hasEntry('href', "${VERSION}/studies/${STUDY_ID.toLowerCase()}".toString()))),
                 hasEntry(is('_embedded'),
                         hasEntry(is('ontologyTerm'), allOf(
                                 hasEntry(is('_links'),
                                         hasEntry(is('self'),
-                                                hasEntry('href', "/studies/${STUDY_ID.toLowerCase()}/concepts/ROOT".toString()))),
+                                                hasEntry('href', "${VERSION}/studies/${STUDY_ID.toLowerCase()}/concepts/ROOT".toString()))),
                                 hasEntry('name', ONTOLOGY_TERM_NAME),
                                 hasEntry('fullName', ONTOLOGY_FULL_NAME),
                                 hasEntry('key', ONTOLOGY_KEY),

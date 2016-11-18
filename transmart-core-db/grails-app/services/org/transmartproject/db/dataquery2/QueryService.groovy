@@ -1,32 +1,35 @@
 package org.transmartproject.db.dataquery2
 
 import grails.transaction.Transactional
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
+import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.db.accesscontrol.AccessControlChecks
-import org.transmartproject.db.dataquery2.query.Combination
-import org.transmartproject.db.dataquery2.query.ConceptConstraint
-import org.transmartproject.db.dataquery2.query.Constraint
-import org.transmartproject.db.dataquery2.query.Field
-import org.transmartproject.db.dataquery2.query.FieldConstraint
-import org.transmartproject.db.dataquery2.query.HibernateCriteriaQueryBuilder
-import org.transmartproject.db.dataquery2.query.InvalidQueryException
-import org.transmartproject.db.dataquery2.query.NullConstraint
-import org.transmartproject.db.dataquery2.query.Operator
-import org.transmartproject.db.dataquery2.query.QueryBuilder
-import org.transmartproject.db.dataquery2.query.QueryBuilderException
-import org.transmartproject.db.dataquery2.query.AggregateType
-import org.transmartproject.db.dataquery2.query.StudyConstraint
-import org.transmartproject.db.dataquery2.query.StudyObjectConstraint
-import org.transmartproject.db.dataquery2.query.Type
-import org.transmartproject.db.dataquery2.query.ValueDimension
+import org.transmartproject.db.clinical.MultidimensionalDataResourceService
+import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
+import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
+import org.transmartproject.db.dataquery2.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.ontology.I2b2
+import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
+import org.transmartproject.db.util.StringUtils
 
-
+@Slf4j
 @Transactional
 class QueryService {
 
@@ -35,9 +38,85 @@ class QueryService {
 
     SessionFactory sessionFactory
 
+    HighDimensionResourceService highDimensionResourceService
+
+    @Autowired
+    MultidimensionalDataResourceService queryResource
+
+    @Autowired
+    ConceptsResource conceptsResource
+
     private final Field valueTypeField = new Field(dimension: ValueDimension, fieldName: 'valueType', type: Type.STRING)
     private final Field textValueField = new Field(dimension: ValueDimension, fieldName: 'textValue', type: Type.STRING)
-    private final Field numberValueField = new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
+    private final Field numberValueField =
+            new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
+
+    private boolean checkConceptPathAccess(String conceptPath, User user) {
+        if (conceptPath == null || conceptPath.empty) {
+            throw new AccessDeniedException("Empty concept path.")
+        }
+        Collection<OntologyTerm> nodes = I2b2.findAll {
+            dimensionTableName =~ 'concept_dimension'
+            columnName         =~ 'concept_path'
+            operator           =~ 'like'
+            dimensionCode      =~ StringUtils.asLikeLiteral(conceptPath)
+        }
+        if (nodes.empty) {
+            throw new AccessDeniedException("Access denied to concept path: ${conceptPath}")
+        }
+        boolean allowed = false
+        nodes.each { OntologyTerm node ->
+            try {
+                OntologyTerm term = conceptsResource.getByKey(node.key)
+                if (accessControlChecks.existsDimensionStudyForUser(user, term.study.id)) {
+                    allowed = true
+                }
+            } catch (NoSuchResourceException e) {
+                //
+            }
+        }
+        allowed
+    }
+
+    private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
+        if (constraint instanceof TrueConstraint
+            || constraint instanceof ModifierConstraint
+            || constraint instanceof FieldConstraint
+            || constraint instanceof ValueConstraint
+            || constraint instanceof TimeConstraint
+            || constraint instanceof NullConstraint) {
+            //
+        } else if (constraint instanceof Negation) {
+            checkAccess(constraint.arg, user)
+        } else if (constraint instanceof Combination) {
+            constraint.args.each { checkAccess(it, user) }
+        } else if (constraint instanceof TemporalConstraint) {
+            checkAccess(constraint.eventConstraint, user)
+        } else if (constraint instanceof BioMarkerDimension) {
+            throw new InvalidQueryException("Not supported yet: ${constraint?.class?.simpleName}.")
+        } else if (constraint instanceof PatientSetConstraint) {
+            if (constraint.patientSetId) {
+                QueryResult queryResult = QtQueryResultInstance.findById(constraint.patientSetId)
+                if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+                    throw new AccessDeniedException("Access denied to patient set: ${constraint.patientSetId}")
+                }
+            }
+        } else if (constraint instanceof ConceptConstraint) {
+            if (!checkConceptPathAccess(constraint.path, user)) {
+                throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
+            }
+        } else if (constraint instanceof StudyConstraint) {
+            if (!accessControlChecks.existsDimensionStudyForUser(user, constraint.studyId)) {
+                throw new AccessDeniedException("Access denied to study: ${constraint.studyId}")
+            }
+        } else if (constraint instanceof StudyObjectConstraint) {
+            if (!accessControlChecks.existsDimensionStudyForUser(user, constraint.study?.studyId)) {
+                throw new AccessDeniedException("Access denied to study: ${constraint.study?.studyId}")
+            }
+        } else {
+            throw new InvalidQueryException("Unknown constraint type: ${constraint?.class?.simpleName}.")
+        }
+    }
 
     private Number getAggregate(AggregateType aggregateType, DetachedCriteria criteria) {
         switch (aggregateType) {
@@ -56,7 +135,7 @@ class QueryService {
             default:
                 throw new QueryBuilderException("Query type not supported: ${aggregateType}")
         }
-        aggregateType == AggregateType.COUNT ? (Long)get(criteria) : (Number)get(criteria)
+        aggregateType == AggregateType.COUNT ? (Long) get(criteria) : (Number) get(criteria)
     }
 
     private Object get(DetachedCriteria criteria) {
@@ -84,6 +163,7 @@ class QueryService {
      * @param user
      */
     List<ObservationFact> list(Constraint constraint, User user) {
+        checkAccess(constraint, user)
         def builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
@@ -98,6 +178,7 @@ class QueryService {
      * @param user
      */
     List<org.transmartproject.db.i2b2data.PatientDimension> listPatients(Constraint constraint, User user) {
+        checkAccess(constraint, user)
         def builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
@@ -108,7 +189,7 @@ class QueryService {
         getList(patientCriteria)
     }
 
-    static List<StudyConstraint> findStudyConstraints(Constraint constraint){
+    static List<StudyConstraint> findStudyConstraints(Constraint constraint) {
         if (constraint instanceof StudyConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -118,7 +199,7 @@ class QueryService {
         }
     }
 
-    static List<StudyObjectConstraint> findStudyObjectConstraints(Constraint constraint){
+    static List<StudyObjectConstraint> findStudyObjectConstraints(Constraint constraint) {
         if (constraint instanceof StudyObjectConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -128,7 +209,7 @@ class QueryService {
         }
     }
 
-    static List<ConceptConstraint> findConceptConstraints(Constraint constraint){
+    static List<ConceptConstraint> findConceptConstraints(Constraint constraint) {
         if (constraint instanceof ConceptConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
@@ -138,7 +219,18 @@ class QueryService {
         }
     }
 
+    private List<BiomarkerConstraint> findAllBiomarkerConstraints(Constraint constraint) {
+        if (constraint instanceof BiomarkerConstraint) {
+            return [constraint]
+        } else if (constraint instanceof Combination) {
+            constraint.args.collectMany { findAllBiomarkerConstraints(it) }
+        } else {
+            return []
+        }
+    }
+
     Long count(Constraint constraint, User user) {
+        checkAccess(constraint, user)
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
@@ -154,7 +246,7 @@ class QueryService {
      * @param user
      */
     Number aggregate(AggregateType type, Constraint constraint, User user) {
-
+        checkAccess(constraint, user)
         if (type == AggregateType.NONE) {
             throw new InvalidQueryException("Aggregate requires a valid aggregate type.")
         }
@@ -203,7 +295,7 @@ class QueryService {
                 args: [conceptConstraint, notNumericalCombination]
         )
 
-        if (exists(builder, conceptNotNumericalCombination)){
+        if (exists(builder, conceptNotNumericalCombination)) {
             def message = 'One of the observationFacts had either an empty numerical value or a ' +
                     'textValue with something else then \'E\''
             throw new InvalidQueryException(message)
@@ -212,6 +304,78 @@ class QueryService {
         // get aggregate value
         DetachedCriteria queryCriteria = builder.buildCriteria(constraint)
         return getAggregate(type, queryCriteria)
+    }
+
+    def highDimension(ConceptConstraint conceptConstraint,
+                      BiomarkerConstraint biomarkerConstaint,
+                      Constraint assayConstraint,
+                      String projectionName, User user) {
+        if (!conceptConstraint) {
+            throw new InvalidQueryException("No concept constraint provided.")
+        }
+        checkAccess(conceptConstraint, user)
+        if (assayConstraint) {
+            checkAccess(assayConstraint, user)
+        }
+
+        //check the existence and access for the conceptConstraint
+        //FIXME This doesn't check access rights -> hackable to see all existing concepts if this test passes
+        def concept = org.transmartproject.db.i2b2data.ConceptDimension.findByConceptPath(conceptConstraint.path)
+        if (concept == null) {
+            throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}")
+        }
+
+        //get the dataType based on the ConceptCd
+        //Step 1 get platform from subject_sample table matching the ConceptCd
+        //Step 2 get the Biomaker Type from the DE_GPL_INFO
+        //String dataType
+        def subjectSampleMapping = DeSubjectSampleMapping.find {
+            conceptCode == concept.conceptCode
+        }
+        String markerType = subjectSampleMapping.platform.markerType
+
+        //Now we have MARKER_TYPE, but don't know the function to find HDdataTypeResource based on MARKER_TYPE
+        def mapEntry = highDimensionResourceService.dataTypeRegistry.find { dataTypeName, highDimensionDataTypeResourceFactory ->
+            def highDimensionDataTypeResource = highDimensionDataTypeResourceFactory()
+            highDimensionDataTypeResource.module.platformMarkerTypes.contains(markerType)
+        }
+
+        //now do with the HighDimService was doing
+        //get resourceType
+        HighDimensionDataTypeResource typeResource = mapEntry.value()
+        //verify the projections
+        HDProjection projection = typeResource.createProjection(projectionName)
+        //verify the assayConstraint
+        //Current TestData doesn't allow for selection on SampleType, Timepoint etc
+        //Need to convert the V2 constraints into a patientset and create the PATIENT_ID_LIST_CONSTRAINT
+        //or similar appraoch, but seems quite redundant.
+        //Check with Hypercube requirements
+        List<AssayConstraint> assayConstraints = [
+                typeResource.createAssayConstraint([concept_path: conceptConstraint.path],
+                        AssayConstraint.CONCEPT_PATH_CONSTRAINT
+                )
+        ]
+        if (assayConstraint) {
+            List<org.transmartproject.db.i2b2data.PatientDimension> listPatientDimensions = listPatients(assayConstraint, user)
+            assayConstraints << typeResource.createAssayConstraint([ids: listPatientDimensions*.inTrialId], AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)
+        }
+
+        //verify the biomarkerConstraint
+        //only get GeneSymbol BOGUSRQCD1
+        List<DataConstraint> dataConstraints = []
+        if (biomarkerConstaint?.biomarkerType) {
+            dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.biomarkerType)
+        }
+        //get the data
+        TabularResult table = typeResource.retrieveData(assayConstraints, dataConstraints, projection)
+        [projection, table]
+    }
+
+    HypercubeImpl retrieveClinicalData(Constraint constraint, User user) {
+        checkAccess(constraint, user)
+        def dataType = 'clinical'
+        def accessibleStudies = accessControlChecks.getDimensionStudiesForUser(user)
+        queryResource.retrieveData(dataType, accessibleStudies, constraint: constraint)
     }
 
 }

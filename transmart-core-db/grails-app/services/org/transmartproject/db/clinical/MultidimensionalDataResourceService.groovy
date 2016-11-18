@@ -10,25 +10,24 @@ import org.hibernate.criterion.ProjectionList
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.db.dataquery2.Dimension
-import org.transmartproject.db.dataquery2.Hypercube
+import org.transmartproject.core.multidimensionalquery.MultiDimensionalDataResource
+import org.transmartproject.db.dataquery2.DimensionImpl
+import org.transmartproject.db.dataquery2.HypercubeImpl
 import org.transmartproject.db.dataquery2.QueryService
 import org.transmartproject.db.dataquery2.query.Constraint
 import org.transmartproject.db.dataquery2.query.HibernateCriteriaQueryBuilder
-import org.transmartproject.db.dataquery2.query.StudyConstraint
-import org.transmartproject.db.dataquery2.query.StudyObjectConstraint
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.util.GormWorkarounds
 
-class MultidimensionalDataResourceService {
+class MultidimensionalDataResourceService implements MultiDimensionalDataResource<Study> {
 
     @Autowired
     SessionFactory sessionFactory
 
     /**
-     *
+     * @param accessibleStudies: The studies the current user has access to.
      * @param dataType: The string identifying the data type. "clinical" for clinical data, for high dimensional data
      * the appropriate identifier string (hdd is not yet implemented).
      * @param constraints: (nullable) A list of Constraint-s. If null, selects all the data in the database.
@@ -42,11 +41,11 @@ class MultidimensionalDataResourceService {
      *
      * @return a Hypercube result
      */
-    Hypercube doQuery(Map args, String dataType) {
+    HypercubeImpl retrieveData(Map args, String dataType, Collection<Study> accessibleStudies) {
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint
-        Set<Dimension> dimensions = args.dimensions as Set // make unique
+        Set<DimensionImpl> dimensions = args.dimensions as Set // make unique
 
         // These are not yet implemented
         def sort = args.sort
@@ -54,14 +53,15 @@ class MultidimensionalDataResourceService {
         def preloadDimensions = args.pack ?: false
 
         // Add any studies that are being selected on
-        Set studies = Study.findAllByStudyIdInList(QueryService.findStudyConstraints(constraint)*.studyId) +
+        def studyIds = QueryService.findStudyConstraints(constraint)*.studyId
+        Set studies = (studyIds.empty ? [] : Study.findAllByStudyIdInList(studyIds)) +
                 QueryService.findStudyObjectConstraints(constraint)*.study as Set
 
         // We need methods from different interfaces that StatelessSessionImpl implements.
         def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
         session.connection().autoCommit = false
 
-        HibernateCriteriaBuilder q = GormWorkarounds.createCriteriaBuilder(ObservationFact, 'observations', session)
+        HibernateCriteriaBuilder q = GormWorkarounds.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
         q.with {
             // The main reason to use this projections block is that it clears all the default projections that
             // select all fields.
@@ -73,7 +73,7 @@ class MultidimensionalDataResourceService {
             }
         }
 
-        Set<Dimension> validDimensions
+        Set<DimensionImpl> validDimensions
         if(studies) {
             // This throws a LegacyStudyException for non-17.1 style studies
             // This could probably be done more efficiently, but GORM support for many-to-many collections is pretty
@@ -81,7 +81,7 @@ class MultidimensionalDataResourceService {
             validDimensions = studies*.dimensions.flatten()*.dimension
 
         } else {
-            validDimensions = DimensionDescription.all*.dimension
+            validDimensions = Study.findAll()*.dimensions.flatten()*.dimension
         }
         // only allow valid dimensions
         dimensions = dimensions?.findAll { it in validDimensions } ?: validDimensions as List
@@ -101,14 +101,16 @@ class MultidimensionalDataResourceService {
         CriteriaImpl hibernateCriteria = query.criteria.instance
         String[] aliases = (hibernateCriteria.projection as ProjectionList).aliases
 
-        HibernateCriteriaQueryBuilder restrictionsBuilder = new HibernateCriteriaQueryBuilder()
+        HibernateCriteriaQueryBuilder restrictionsBuilder = new HibernateCriteriaQueryBuilder(
+                studies: accessibleStudies
+        )
         // TODO: check that aliases set by dimensions and by restrictions don't clash
 
         restrictionsBuilder.applyToCriteria(hibernateCriteria, [constraint])
 
         ScrollableResults results = query.criteria.instance.scroll(ScrollMode.FORWARD_ONLY)
 
-        new Hypercube(results, dimensions, aliases, query, session)
+        new HypercubeImpl(results, dimensions, aliases, query, session)
         // session will be closed by the Hypercube
     }
 
