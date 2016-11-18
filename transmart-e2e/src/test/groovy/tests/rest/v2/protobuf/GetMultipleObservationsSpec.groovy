@@ -9,10 +9,17 @@ import static tests.rest.v2.constraints.*
 
 class GetMultipleObservationsSpec extends RESTSpec{
 
-    def "proto test"(){
+    /**
+     *  given: "study EHR is loaded"
+     *  when: "for 2 patients I request the concept Heart Rate"
+     *  then: "6 obsevations are returned"
+     *
+     * @return
+     */
+    def "get MultipleObservations per user"(){
         given: "study EHR is loaded"
 
-        when: "for that study I Aggregated the concept Heart Rate with type max"
+        when: "for 2 patients I request the concept Heart Rate"
         def constraintMap = [
                 type: Combination,
                 operator: AND,
@@ -24,9 +31,14 @@ class GetMultipleObservationsSpec extends RESTSpec{
 
         ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
 
-        then: "the number 102 is returned"
+        then: "6 obsevations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
 
-        assert selector.selectStringValue(0, "ConceptDimension", "conceptCode").equals('EHR:VSIGN:HR')
+        assert selector.cellCount == 6
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it, "PatientDimension", "age", 'Int') == (it < 3 ? 30 : 52)
+            assert selector.select(it) == [80.0, 59.0, 60.0, 102.0, 56.0, 78.0].get(it)
+        }
     }
 }
