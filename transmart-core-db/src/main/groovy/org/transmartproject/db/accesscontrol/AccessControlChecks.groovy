@@ -69,24 +69,13 @@ class AccessControlChecks {
 
     boolean canPerform(User user,
                        ProtectedOperation protectedOperation,
-                       Study study) {
+                       I2b2Secure secure) {
 
         if (user.admin) {
             /* administrators bypass all the checks */
             log.debug "Bypassing check for $protectedOperation on " +
                     "$study for user $this because he is an " +
                     "administrator"
-            return true
-        }
-
-        /* Get the study's "token" */
-        I2b2Secure secure =
-                I2b2Secure.findByFullName study.ontologyTerm.fullName
-        if (!secure) {
-            log.warn "Could not find object '${study.ontologyTerm.fullName}' " +
-                    "in i2b2_secure; allowing access"
-            // must be true for backwards compatibility reasons
-            // see I2b2HelperService::getAccess
             return true
         }
 
@@ -131,6 +120,23 @@ class AccessControlChecks {
                     "only ${results as Set}; denying access")
             false
         }
+    }
+
+    boolean canPerform(User user,
+                       ProtectedOperation protectedOperation,
+                       Study study) {
+        /* Get the study's "token" */
+        I2b2Secure secure =
+                I2b2Secure.findByFullName study.ontologyTerm.fullName
+        if (!secure) {
+            log.warn "Could not find object '${study.ontologyTerm.fullName}' " +
+                    "in i2b2_secure; allowing access"
+            // must be true for backwards compatibility reasons
+            // see I2b2HelperService::getAccess
+            return true
+        }
+
+        canPerform(user, protectedOperation, secure)
     }
 
     /* Study is included if the user has ANY kind of access */
