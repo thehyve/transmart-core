@@ -2,13 +2,14 @@ package base
 
 import grails.converters.JSON
 import groovy.json.JsonBuilder
-import groovy.json.JsonSlurper
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
 import org.grails.web.json.JSONObject
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
+import protobuf.ObservationsProto
+import protobuf.ObservationsMessageProto
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -17,13 +18,11 @@ import java.text.SimpleDateFormat
 import static config.Config.*
 import static org.hamcrest.Matchers.*
 
-/**
- * Created by barteldklasens on 10/24/16.
- */
 class RESTSpec extends Specification{
 
     def contentTypeForHAL = 'application/hal+json'
     def contentTypeForJSON = 'application/json'
+    def contentTypeForProtobuf = 'application/x-protobuf'
 
     @Shared
     private String oauth2token
@@ -70,6 +69,7 @@ class RESTSpec extends Specification{
             }
 
             response.success = { resp, reader ->
+                assert resp.statusLine.statusCode in 200..<400
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
@@ -81,6 +81,7 @@ class RESTSpec extends Specification{
             }
 
             response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode >= 400
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
@@ -112,9 +113,9 @@ class RESTSpec extends Specification{
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
+            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
             response.success = { resp, reader ->
-                assert resp.statusLine.statusCode >= 200
-                assert resp.statusLine.statusCode < 400
+                assert resp.statusLine.statusCode in 200..<400
                 assert resp.headers.'Content-Type'.contains(AcceptHeader)
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
@@ -132,7 +133,6 @@ class RESTSpec extends Specification{
                 println "Got response: ${resp.statusLine}"
                 println "Content-Type: ${resp.headers.'Content-Type'}"
                 def result = JSON.parse(reader)
-                println result
                 return result
                 }
 
@@ -158,6 +158,67 @@ class RESTSpec extends Specification{
     def toDateString(dateString, inputFormat = "dd-MM-yyyyX"){
         def date = new SimpleDateFormat(inputFormat).parse(dateString)
         date.format("yyyy-MM-dd'T'HH:mm:ssX", TimeZone.getTimeZone('Z'))
+    }
+
+    /**
+     * a convenience method to keep the tests readable by removing as much code as possible
+     *
+     * @param path
+     * @param queryMap
+     * @return
+     */
+    def getProtobuf(String path, queryMap = null){
+        http.request(Method.GET, ContentType.ANY) { req ->
+            uri.path = path
+            uri.query = queryMap
+            headers.Accept = contentTypeForProtobuf
+            if (OAUTH_NEEDED){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
+            response.success = { resp ->
+                assert resp.statusLine.statusCode in 200..<400
+                assert resp.headers.'Content-Type'.contains(contentTypeForProtobuf)
+                if (DEBUG){
+                    println "Got response: ${resp.statusLine}"
+                    println "Content-Type: ${resp.headers.'Content-Type'}"
+                    def result = parseProto(resp.entity.content)
+                    return result
+                }
+
+                return parseProto(resp.entity.content)
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode >= 400
+                if (DEBUG){
+                    println "Got response: ${resp.statusLine}"
+                    println "Content-Type: ${resp.headers.'Content-Type'}"
+                    def result = parseProto(resp.entity.content)
+                    return result
+                }
+
+                return parseProto(resp.entity.content)
+            }
+        }
+    }
+
+    def parseProto(s_in){
+        def header = ObservationsProto.Header.parseDelimitedFrom(s_in)
+        def cells = []
+        int count = 0
+        while(true) {
+            count++
+            def cell = ObservationsProto.Observation.parseDelimitedFrom(s_in)
+            cells << cell
+            if (cell.last) {
+                break
+            }
+        }
+        def footer = ObservationsProto.Footer.parseDelimitedFrom(s_in)
+
+        return new ObservationsMessageProto(header, cells, footer)
     }
 
     /**
