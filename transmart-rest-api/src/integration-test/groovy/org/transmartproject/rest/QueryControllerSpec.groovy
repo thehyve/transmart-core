@@ -10,6 +10,8 @@ import org.transmartproject.rest.marshallers.MarshallerSpec
 @Slf4j
 class QueryControllerSpec extends MarshallerSpec {
 
+    public static final String VERSION = "v2"
+
     void 'test JSON (de)serialisation'() {
         def constraint = [
                 type: 'FieldConstraint',
@@ -25,9 +27,8 @@ class QueryControllerSpec extends MarshallerSpec {
 
         when:
         def constraintJSON = constraint.toString(false)
-        def url = "${baseURL}/query/observations?constraint=${URLEncoder.encode(constraintJSON, 'UTF-8')}"
+        def url = "${baseURL}/$VERSION/query/observations?constraint=${URLEncoder.encode(constraintJSON, 'UTF-8')}"
         log.info "Request URL: ${url}"
-
         ResponseEntity<Resource> response = getJson(url)
         String content = response.body.inputStream.readLines().join('\n')
         def result = new JsonSlurper().parseText(content)
@@ -48,7 +49,7 @@ class QueryControllerSpec extends MarshallerSpec {
         log.info "Constraint: ${constraint.toString(false)}"
 
         when:
-        def url = "${baseURL}/query/observations?constraint=${URLEncoder.encode(constraint.toString(false), 'UTF-8')}"
+        def url = "${baseURL}/$VERSION/query/observations?constraint=${URLEncoder.encode(constraint.toString(false), 'UTF-8')}"
         log.info "Request URL: ${url}"
 
         ResponseEntity<Resource> response = getJson(url)
@@ -69,7 +70,7 @@ class QueryControllerSpec extends MarshallerSpec {
         when:
         def constraintJSON = constraint.toString(false)[0..-2] // remove last character of the JSON string
         log.info "Invalid JSON: ${constraintJSON}"
-        def url = "${baseURL}/query/observations?constraint=${URLEncoder.encode(constraintJSON, 'UTF-8')}"
+        def url = "${baseURL}/$VERSION/query/observations?constraint=${URLEncoder.encode(constraintJSON, 'UTF-8')}"
         log.info "Request URL: ${url}"
 
         ResponseEntity<Resource> response = getJson(url)
@@ -77,13 +78,13 @@ class QueryControllerSpec extends MarshallerSpec {
         def result = new JsonSlurper().parseText(content)
 
         then:
-        response.statusCode.value() == 400
+        response.statusCode.value() == 404
         result.message == 'Cannot parse constraint parameter.'
     }
 
     void 'test getSupportedFields'() {
         when:
-        def url = "${baseURL}/query/supportedFields"
+        def url = "${baseURL}/$VERSION/query/supportedFields"
         ResponseEntity<Resource> response = getJson(url)
 
         String content = response.body.inputStream.readLines().join('\n')
