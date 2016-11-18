@@ -22,16 +22,16 @@ import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperat
 class QueriesResourceAuthorizationDecorator
         implements QueriesResource, AuthorizationDecorator<QueriesResource> {
 
-    @Resource(name = CurrentUserBeanProxyFactory.BEAN_BAME)
-    User user
+    @Resource
+    User currentUserBean
 
     @Autowired
     QueriesResource delegate
 
     @Override
     QueryResult runQuery(QueryDefinition definition) throws InvalidRequestException {
-        if (!user.canPerform(BUILD_COHORT, definition)) {
-            throw new AccessDeniedException("Denied ${user.username} access " +
+        if (!currentUserBean.canPerform(BUILD_COHORT, definition)) {
+            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
                     "for building cohort based on $definition")
         }
 
@@ -40,12 +40,12 @@ class QueriesResourceAuthorizationDecorator
 
     @Override
     QueryResult runQuery(QueryDefinition definition, String username) throws InvalidRequestException {
-        if (!user.canPerform(BUILD_COHORT, definition)) {
-            throw new AccessDeniedException("Denied ${user.username} access " +
+        if (!currentUserBean.canPerform(BUILD_COHORT, definition)) {
+            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
                     "for building cohort based on $definition")
         }
-        if (username != user.username) {
-            throw new AccessDeniedException("Denied ${user.username} access " +
+        if (username != currentUserBean.username) {
+            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
                     "to building a cohort in name of ${username}")
         }
 
@@ -56,8 +56,8 @@ class QueriesResourceAuthorizationDecorator
     QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
         def res = delegate.getQueryResultFromId id
 
-        if (!user.canPerform(READ, res)) {
-            throw new AccessDeniedException("Denied ${user.username} access " +
+        if (!currentUserBean.canPerform(READ, res)) {
+            throw new AccessDeniedException("Denied ${currentUserBean.username} access " +
                     "to query result with id $id")
         }
 

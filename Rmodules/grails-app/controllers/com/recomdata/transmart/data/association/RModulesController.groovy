@@ -25,6 +25,7 @@ import jobs.misc.AnalysisQuartzJobAdapter
 import org.grails.web.converters.exceptions.ConverterException
 import org.grails.web.json.JSONElement
 import org.quartz.JobBuilder
+import org.quartz.JobDataMap
 import org.quartz.JobDetail
 import org.quartz.Scheduler
 import org.quartz.SimpleTrigger
@@ -171,9 +172,9 @@ class RModulesController {
         params.put(PARAM_USER_PARAMETERS, userParams)
         params.put(PARAM_USER_IN_CONTEXT, currentUserBean.targetSource.target)
 
-        JobDetail jobDetail   = JobBuilder.newJob(AnalysisQuartzJobAdapter)
+        JobDetail jobDetail = JobBuilder.newJob(AnalysisQuartzJobAdapter)
             .withIdentity(params.jobName, params.jobType)
-            .setJobData(params)
+            .setJobData(new JobDataMap(params))
             .build()
         SimpleTrigger trigger = TriggerBuilder.newTrigger()
             .startNow()

@@ -45,10 +45,6 @@ Brief description of the plugin.
     // URL to the plugin's documentation
     def documentation = "http://grails.org/plugin/rmodules"
 
-    def doWithWebDescriptor = { xml ->
-        // TODO Implement additions to web.xml (optional), this event occurs before
-    }
-
     @Override
     Closure doWithSpring() {{->
         xmlns context: 'http://www.springframework.org/schema/context'
@@ -68,7 +64,7 @@ Brief description of the plugin.
         jobName(String) { bean ->
             bean.scope = 'job'
         }
-        "${AnalysisQuartzJobAdapter.BEAN_USER_IN_CONTEXT}"(User) { bean ->
+        currentUserJobScoped(User) { bean ->
             bean.scope = 'job'
         }
 
@@ -83,11 +79,13 @@ Brief description of the plugin.
     }}
 
 
-    def doWithDynamicMethods = { ctx ->
+    @Override
+    void doWithDynamicMethods() {
         // TODO Implement registering dynamic methods to classes (optional)
     }
 
-    def doWithApplicationContext = { applicationContext ->
+    @Override
+    void doWithApplicationContext() {
         // currentUserBean is a tranSMART bean
         def currentUserBean = applicationContext.getBean('&currentUserBean')
         if (!currentUserBean) {
@@ -101,13 +99,15 @@ Brief description of the plugin.
         currentUserBean.registerBeanToTry(AnalysisQuartzJobAdapter.BEAN_USER_IN_CONTEXT)
     }
 
-    def onChange = { event ->
+    @Override
+    void onChange(Map<String, Object> event) {
         // TODO Implement code that is executed when any artefact that this plugin is
         // watching is modified and reloaded. The event contains: event.source,
         // event.application, event.manager, event.ctx, and event.plugin.
     }
 
-    def onConfigChange = { event ->
+    @Override
+    void onConfigChange(Map<String, Object> event) {
         // TODO Implement code that is executed when the project configuration changes.
         // The event is the same as for 'onChange'.
     }
