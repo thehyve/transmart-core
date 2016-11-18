@@ -1,0 +1,2 @@
+pg_dump -a -t amapp.am_tag_association -t amapp.am_tag_item -t amapp.am_data_uid -t amapp.am_tag_value -t amapp.am_tag_template -t biomart.bio_assay_analysis -t biomart.bio_assay_platform -t biomart.bio_compound -t biomart.bio_concept_code -t biomart.bio_data_uid -t biomart.bio_disease -t biomart.bio_experiment -t biomart.bio_marker -t biomart.bio_observation -t fmapp.fm_data_uid -t fmapp.fm_folder -t fmapp.fm_folder_association -t fmapp.fm_file -t fmapp.fm_folder_file_association
+
