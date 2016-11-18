@@ -49,19 +49,19 @@ class ConceptsResourceTests extends ResourceSpec {
     //The full concept path, starting after the studyId
     def conceptId = partialConceptName
 
-    def conceptListUrl = VERSION+"/studies/${studyId}/concepts"
-    def conceptUrl = VERSION+"/studies/${studyId}/concepts/${conceptId}"
-    def rootConceptUrl = VERSION+"/studies/${studyId}/concepts/ROOT"
+    def conceptListUrl = VERSION + "/studies/${studyId}/concepts"
+    def conceptUrl = VERSION + "/studies/${studyId}/concepts/${conceptId}"
+    def rootConceptUrl = VERSION + "/studies/${studyId}/concepts/ROOT"
 
     def longConceptName = 'with some$characters_'
     def longConceptPath = "\\foo\\study2\\long path\\$longConceptName\\"
     def longConceptKey = "\\\\i2b2 main$longConceptPath"
-    def longConceptUrl = VERSION+'/studies/study_id_2/concepts/long%20path/with%20some%24characters_'
+    def longConceptUrl = VERSION + '/studies/study_id_2/concepts/long%20path/with%20some%24characters_'
 
-    def sexConceptUrl = VERSION+'/studies/study_id_2/concepts/sex'
-    def femaleConceptUrl = VERSION+'/studies/study_id_2/concepts/sex/female'
+    def sexConceptUrl = VERSION + '/studies/study_id_2/concepts/sex'
+    def femaleConceptUrl = VERSION + '/studies/study_id_2/concepts/sex/female'
 
-    def study2ConceptListUrl = VERSION+'/studies/study_id_2/concepts'
+    def study2ConceptListUrl = VERSION + '/studies/study_id_2/concepts'
 
     def study1RootConceptTags = [
             "1 name 1": "1 description 1",
@@ -70,7 +70,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testIndexAsJson() {
         when:
-        def response = get "/"+conceptListUrl, {
+        def response = get "/" + conceptListUrl, {
             header 'Accept', contentTypeForJSON
         }
 
@@ -83,7 +83,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testIndexAsHal() {
         when:
-        def response = get "/"+conceptListUrl, {
+        def response = get "/" + conceptListUrl, {
             header 'Accept', contentTypeForHAL
         }
 
@@ -101,7 +101,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testShowAsJson() {
         when:
-        def response = get "/"+conceptUrl, {
+        def response = get "/" + conceptUrl, {
             header 'Accept', contentTypeForJSON
         }
 
@@ -112,7 +112,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testShowAsHal() {
         when:
-        def response = get "/"+conceptUrl, {
+        def response = get "/" + conceptUrl, {
             header 'Accept', contentTypeForHAL
         }
 
@@ -123,7 +123,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testShowRootConceptAsJson() {
         when:
-        def response = get "/"+rootConceptUrl, {
+        def response = get "/" + rootConceptUrl, {
             header 'Accept', contentTypeForJSON
         }
 
@@ -134,7 +134,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testShowRootConceptAsHal() {
         when:
-        def response = get "/"+rootConceptUrl, {
+        def response = get "/" + rootConceptUrl, {
             header 'Accept', contentTypeForHAL
         }
 
@@ -145,7 +145,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testPathOfLongConcept() {
         when:
-        def response = get "/"+study2ConceptListUrl, {
+        def response = get "/" + study2ConceptListUrl, {
             header 'Accept', contentTypeForHAL
         }
 
@@ -159,7 +159,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testCanHitLongConcept() {
         when:
-        def response = get "/"+longConceptUrl, {
+        def response = get "/" + longConceptUrl, {
             header 'Accept', contentTypeForHAL
         }
 
@@ -175,7 +175,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testNavigableConceptRoot() {
         when:
-        def response = get "/"+rootConceptUrl, {
+        def response = get "/" + rootConceptUrl, {
             header 'Accept', contentTypeForHAL
         }
 
@@ -186,7 +186,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testNavigableConceptLeaf() {
         when:
-        def response = get "/"+conceptUrl, {
+        def response = get "/" + conceptUrl, {
             header 'Accept', contentTypeForHAL
         }
 
@@ -197,7 +197,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testMetadataTagsAsJson() {
         when:
-        def response = get "/"+rootConceptUrl, {
+        def response = get "/" + rootConceptUrl, {
             header 'Accept', contentTypeForJSON
         }
 
@@ -208,7 +208,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testMetadataTagsAsHal() {
         when:
-        def response = get "/"+rootConceptUrl, {
+        def response = get "/" + rootConceptUrl, {
             header 'Accept', contentTypeForHAL
         }
 
@@ -223,7 +223,7 @@ class ConceptsResourceTests extends ResourceSpec {
         // term is the same as the one studyLoadingService.study.ot returns
         // See OntologyTermWrapper
         when:
-        def response = get "/"+rootConceptUrl, {
+        def response = get "/" + rootConceptUrl, {
             header 'Accept', contentTypeForJSON
         }
 
@@ -234,7 +234,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testDataTypeHighDimensional() {
         when:
-        def response = get "/"+conceptUrl, {
+        def response = get "/" + conceptUrl, {
             header 'Accept', contentTypeForJSON
         } //study 1/bar
 
@@ -245,7 +245,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testDataTypeNumeric() {
         when:
-        def response = get "/"+longConceptUrl, {
+        def response = get "/" + longConceptUrl, {
             header 'Accept', contentTypeForJSON
         }
 
@@ -256,7 +256,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testDataTypeCategoricalOption() {
         when:
-        def response = get "/"+femaleConceptUrl, {
+        def response = get "/" + femaleConceptUrl, {
             header 'Accept', contentTypeForJSON
         }
 
@@ -267,7 +267,7 @@ class ConceptsResourceTests extends ResourceSpec {
 
     void testDataTypeUnknown() {
         when:
-        def response = get "/"+sexConceptUrl, {
+        def response = get "/" + sexConceptUrl, {
             header 'Accept', contentTypeForJSON
         }
 
