@@ -74,6 +74,7 @@ grails {
         compile project(':transmart-core-db')
         compile project(':folder-management-plugin')
         compile project(':grails-cache-ehcache')// "org.grails.plugins:cache-ehcache:1.0.5"
+        provided "org.grails:grails-plugin-validation"
     }
 }
 

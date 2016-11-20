@@ -1,7 +1,6 @@
 package org.transmartproject.search
 
 import grails.converters.JSON
-import grails.validation.Validateable
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.SolrDocumentList
@@ -20,6 +19,7 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.search.indexing.FacetsIndexingService
 import org.transmartproject.search.indexing.FacetsQueryingService
 import org.transmartproject.search.indexing.TermCount
+import grails.validation.Validateable
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -322,8 +322,7 @@ class FacetsSearchController {
     }
 }
 
-@Validateable
-class AutoCompleteCommand {
+class AutoCompleteCommand implements Validateable {
     String requiredField
     String category
     String term
@@ -335,8 +334,7 @@ class AutoCompleteCommand {
     }
 }
 
-@Validateable
-class FieldTerms {
+class FieldTerms implements Validateable {
     String operator
     List<SearchTerm> searchTerms = []
 
@@ -345,8 +343,7 @@ class FieldTerms {
     }
 }
 
-@Validateable
-class GetFacetsCommand {
+class GetFacetsCommand implements Validateable {
     String requiredField
     String operator
     @BindUsing({ obj, source ->
@@ -369,8 +366,7 @@ class GetFacetsCommand {
     }
 }
 
-@Validateable
-class SearchTerm {
+class SearchTerm implements Validateable{
     String literalTerm
     String luceneTerm
 }
