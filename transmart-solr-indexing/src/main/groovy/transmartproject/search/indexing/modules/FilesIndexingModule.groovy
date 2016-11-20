@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet
 import grails.util.Holders
 import groovy.util.logging.Log4j
 import org.springframework.stereotype.Component
-import org.transmartproject.browse.fm.FmFile
+import fm.FmFile
 import org.transmartproject.search.indexing.*
 
 import static org.transmartproject.search.indexing.FacetsFieldImpl.create as createFF
