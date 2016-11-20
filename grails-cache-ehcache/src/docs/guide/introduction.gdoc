@@ -1,0 +1,1 @@
+The Grails Cache Ehcache plugin extends the [Cache|http://grails.org/plugin/cache] plugin and uses [Ehcache|http://ehcache.org/] as the storage provider for cached content. It replaces the core plugin's @grailsCacheManager@ bean with one that uses an Ehcache backend.

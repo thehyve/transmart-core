@@ -3,4 +3,6 @@ include 'transmart-core-db', 'transmart-core-db-tests', 'transmart-core-api', 't
         'transmart-rest-api',
         'transmart-data',
         'transmart-batch',
-        'transmart-gwas-plugin'
+        'transmart-gwas-plugin',
+        'transmart-solr-indexing',
+        'grails-cache-ehcache'

@@ -1,0 +1,3 @@
+Although this plugin uses a different backing store than the core plugin, its usage is the same. You annotate service methods, controller action methods, and taglib closures with the three caching annotations, and configure caches in @Config.groovy@ and/or \*CacheConfig.groovy artifacts in @grails-app/conf@. See the [core plugin docs|http://grails-plugins.github.com/grails-cache/] for general usage information.
+
+Ehcache supports many configuration options and most are available in the cache DSL, including support for distributed caching. See the DSL section for details.
