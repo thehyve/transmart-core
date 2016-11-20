@@ -12,7 +12,7 @@ buildscript {
     }
 }
 
-version "0.1"
+version "17.1"
 group "transmart.solr.indexing"
 
 apply plugin:"eclipse"
@@ -58,7 +58,25 @@ dependencies {
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+
+    // plugin specific deps
+    compile "org.apache.solr:solr-solrj:4.5.1"
+
+
+    // gradle sub-projects
+    testRuntime project(':transmart-core-db-tests')
 }
+
+grails {
+    exploded = true
+    plugins {
+        compile project(':biomart-domain')
+        compile project(':transmart-core-db')
+        compile project(':folder-management-plugin')
+        compile project(':grails-cache-ehcache')// "org.grails.plugins:cache-ehcache:1.0.5"
+    }
+}
+
 grailsPublish {
     // TODO: Provide values here
     user = 'user'
