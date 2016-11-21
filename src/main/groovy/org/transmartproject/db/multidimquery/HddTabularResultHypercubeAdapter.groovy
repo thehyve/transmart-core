@@ -13,6 +13,7 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -64,15 +65,14 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         if(dim == assayDim) return assays
         else if(dim == patientDim) return patients
         else if(dim == biomarkerDim) return biomarkers
-        else if(dim == projectionDim && projectionFields != null) {
+        else if(dim == projectionDim && projectionFields) {
             return ImmutableList.copyOf(projectionFields)
-        } else return null
+        } else throw new InvalidArgumentsException("$dim is not present in this hypercube or is inlined")
     }
 
     ImmutableList<? extends Object> dimensionElements(Dimension dim) {
-        List<? extends Object> elements = _dimensionElems(dim)
         // ImmutableList.copyOf is smart about not making copies of immutable lists
-        elements == null ? null : ImmutableList.copyOf(elements)
+        ImmutableList.copyOf(_dimensionElems(dim))
     }
 
     Object dimensionElement(Dimension dim, Integer idx) {
@@ -134,7 +134,9 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                 } else if(value instanceof Map) {
                     Map<String, Object> mapValue = (Map<String,Object>) value
                     Map.Entry<String, Object> entry
-                    for(Iterator<Map.Entry> it = mapValue.iterator(); it.hasNext(); entry = it.next()) {
+                    Iterator<Map.Entry> it = mapValue.entrySet().iterator()
+                    while(it.hasNext()) {
+                        entry = it.next()
                         _projectionFields.add(entry.key)
                         nextVals.add(new TabularResultAdapterValue(
                                 getDimensions(), entry.value, bm, assay, entry.key,
