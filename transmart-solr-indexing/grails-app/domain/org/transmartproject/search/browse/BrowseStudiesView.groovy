@@ -19,7 +19,7 @@ class BrowseStudiesView implements Serializable {
     String studyObjective
     String organism
     String studyPhase
-
+/*
     static mapping = {
         table schema: 'biomart_user'
         id composite: ['identifier']
@@ -44,5 +44,5 @@ class BrowseStudiesView implements Serializable {
         studyObjective nullable: true
         organism       nullable: true
         studyPhase     nullable: true
-    }
+    }*/
 }

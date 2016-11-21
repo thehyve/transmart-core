@@ -15,7 +15,7 @@ class BrowseAssaysView implements Serializable {
     String gene
     String mirna
     String biomarkerType
-
+/*
     static mapping = {
         table schema: 'biomart_user'
         id composite: ['identifier']
@@ -36,5 +36,5 @@ class BrowseAssaysView implements Serializable {
         gene            nullable: true
         mirna           nullable: true
         biomarkerType   nullable: true
-    }
+    }*/
 }

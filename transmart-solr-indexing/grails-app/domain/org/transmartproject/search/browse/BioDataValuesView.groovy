@@ -8,7 +8,7 @@ class BioDataValuesView implements Serializable {
     String uniqueId
     String name
     String description
-
+/*
     static mapping = {
         table schema: 'biomart_user'
         id composite: ['uniqueId']
@@ -16,10 +16,10 @@ class BioDataValuesView implements Serializable {
 
         id insert: false, update: false
     }
-
+/*
     static constraints = {
         uniqueId    nullable: true, maxSize: 300
         name        nullable: true
         description nullable: true
-    }
+    }*/
 }

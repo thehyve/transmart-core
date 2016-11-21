@@ -12,7 +12,7 @@ class BrowseAnalysesView implements Serializable {
     String platformName
     String vendor
     String technology
-
+/*
     static mapping = {
         table schema: 'biomart_user'
         id composite: ['identifier']
@@ -30,5 +30,5 @@ class BrowseAnalysesView implements Serializable {
         platformName    nullable: true
         vendor          nullable: true
         technology      nullable: true
-    }
+    }*/
 }

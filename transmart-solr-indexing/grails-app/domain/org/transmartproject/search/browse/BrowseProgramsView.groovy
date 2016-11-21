@@ -15,7 +15,7 @@ class BrowseProgramsView implements Serializable {
     String therapeuticDomain
     String institution
     String target
-
+/*
     static mapping = {
         table schema: 'biomart_user'
         id composite: ['identifier']
@@ -36,5 +36,5 @@ class BrowseProgramsView implements Serializable {
         therapeuticDomain nullable: true
         institution nullable: true
         target nullable: true
-    }
+    }*/
 }

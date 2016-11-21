@@ -6,7 +6,7 @@ class FolderStudyMappingView implements Serializable {
     String uniqueId
     String conceptPath
     Boolean root
-
+/*
     static mapping = {
         table schema: 'biomart_user', name: 'folder_study_mapping'
         id composite: ['folderId']
@@ -18,5 +18,5 @@ class FolderStudyMappingView implements Serializable {
     static constraints = {
         uniqueId       maxSize: 300
         conceptPath    maxSize: 700
-    }
+    }*/
 }
