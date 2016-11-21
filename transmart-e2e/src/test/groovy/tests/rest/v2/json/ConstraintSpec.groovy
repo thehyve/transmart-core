@@ -82,14 +82,10 @@ class ConstraintSpec extends RESTSpec{
     def "ValueConstraint.class"(){
         def constraintMap = [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:176]
         when:
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert selector.select(it) > 176
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "TimeConstraint.class"(){
@@ -137,13 +133,10 @@ class ConstraintSpec extends RESTSpec{
                 arg: [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
         ]
         when:
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "Combination.class"(){
@@ -178,14 +171,10 @@ class ConstraintSpec extends RESTSpec{
                 ]
         ]
         when:
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "ConceptConstraint.class"(){
