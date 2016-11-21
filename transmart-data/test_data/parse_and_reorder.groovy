@@ -11,6 +11,11 @@ dependsOn = [
         'searchapp.search_role_auth_user'   : [
                 'searchapp.search_auth_user',
                 'searchapp.search_role',
+        ],
+        'searchapp.search_auth_sec_object_access'   : [
+                'searchapp.search_auth_principal',
+                'searchapp.search_sec_access_level',
+                'searchapp.search_secure_object',
         ]
 ]
 
