@@ -69,24 +69,13 @@ class AccessControlChecks {
 
     boolean canPerform(User user,
                        ProtectedOperation protectedOperation,
-                       Study study) {
+                       I2b2Secure secure) {
 
         if (user.admin) {
             /* administrators bypass all the checks */
             log.debug "Bypassing check for $protectedOperation on " +
-                    "$study for user $this because he is an " +
+                    "${secure} for user ${this} because she is an " +
                     "administrator"
-            return true
-        }
-
-        /* Get the study's "token" */
-        I2b2Secure secure =
-                I2b2Secure.findByFullName study.ontologyTerm.fullName
-        if (!secure) {
-            log.warn "Could not find object '${study.ontologyTerm.fullName}' " +
-                    "in i2b2_secure; allowing access"
-            // must be true for backwards compatibility reasons
-            // see I2b2HelperService::getAccess
             return true
         }
 
@@ -131,6 +120,57 @@ class AccessControlChecks {
                     "only ${results as Set}; denying access")
             false
         }
+    }
+
+    /**
+     * Checks if a {@link org.transmartproject.db.i2b2data.Study} (in the i2b2demodata schema)
+     * exists to which the user has access.
+     * Access is checked based on the {@link org.transmartproject.db.i2b2data.Study#secureObjectToken}
+     * field.
+     * This is the <code>/v2</code> way of checking study based access.
+     *
+     * @param user the user to check access for.
+     * @param protectedOperation is ignored.
+     * @param study the study object that is referred to from the trial visit dimension.
+     * @return true iff a study exists that the user has access to.
+     */
+    boolean canPerform(User user,
+                       ProtectedOperation protectedOperation,
+                       org.transmartproject.db.i2b2data.Study study) {
+        existsDimensionStudyForUser(user, study?.studyId)
+    }
+
+    /**
+     * Checks if a {@link I2b2Secure} node, representing the study, exists to which the user has access.
+     * Access is granted if such a node does not exist.
+     * If the node exists, access is checked based on the {@link I2b2Secure#secureObjectToken}
+     * field.
+     * Warning: this is the <code>/v1</code> way of checking study based access, do not use for
+     * <code>/v2</code> code!
+     *
+     * @param user the user to check access for.
+     * @param protectedOperation is ignored.
+     * @param study the core API study object representing the study.
+     * @return true iff
+     * - a study node does not exist in I2b2Secure
+     * - or a study node exists in I2b2Secure that the user has access to.
+     */
+    @Deprecated
+    boolean canPerform(User user,
+                       ProtectedOperation protectedOperation,
+                       Study study) {
+        /* Get the study's "token" */
+        I2b2Secure secure =
+                I2b2Secure.findByFullName study.ontologyTerm.fullName
+        if (!secure) {
+            log.warn "Could not find object '${study.ontologyTerm.fullName}' " +
+                    "in i2b2_secure; allowing access"
+            // must be true for backwards compatibility reasons
+            // see I2b2HelperService::getAccess
+            return true
+        }
+
+        canPerform(user, protectedOperation, secure)
     }
 
     /* Study is included if the user has ANY kind of access */
@@ -203,12 +243,12 @@ class AccessControlChecks {
 
     /* Study is included if the user has ANY kind of access */
     boolean existsDimensionStudyForUser(User user, String studyIdString) {
-        if (user.admin) {
-            return true
-        }
-
         if (studyIdString == null || studyIdString.empty) {
             return false
+        }
+
+        if (user.admin) {
+            return true
         }
 
         DetachedCriteria query = org.transmartproject.db.i2b2data.Study.where {
