@@ -3,9 +3,11 @@ package tests.rest.v2.protobuf
 import base.RESTSpec
 import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
+import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.CATEGORICAL_VALUES_LOADED
+import static config.Config.SUPPRESS_KNOWN_BUGS
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.ValueType.STRING
@@ -24,6 +26,7 @@ class GetCategoricalVariablesSpec extends RESTSpec{
      *  then: "no observations are returned"
      */
     @Requires({CATEGORICAL_VALUES_LOADED})
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-127 protobuf serialization, empty concepts do not return an empty result.
     def "get observations using old data format new style query"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
 

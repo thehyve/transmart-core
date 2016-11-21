@@ -1,14 +1,11 @@
 package tests.rest.v2
 
 import base.RESTSpec
-import spock.lang.IgnoreIf
 import spock.lang.Requires
 
-import static config.Config.CLINICAL_TRIAL_LOADED
 import static config.Config.EHR_ID
 import static config.Config.EHR_LOADED
 import static config.Config.REGEXDATE
-import static config.Config.SUPPRESS_KNOWN_BUGS
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AND
@@ -25,10 +22,9 @@ class GetQueryMultipleObservationsSpec extends RESTSpec{
      *  When: "I get observations for patient 1 for concept HEARTRATE"
      *  Then: "3 observations are returned"
      */
-    @Requires({CLINICAL_TRIAL_LOADED})
+    @Requires({EHR_LOADED})
     def "Multiple observations are possible per combination of concept and patient"(){
         given: "Ward-ClinicalTrial is loaded"
-        def id = 1
 
         when: "I get observations for patient 1 for concept HEARTRATE"
         def constraintMap = [
@@ -55,10 +51,9 @@ class GetQueryMultipleObservationsSpec extends RESTSpec{
     @Requires({EHR_LOADED})
     def "Start time of observations are exposed through REST API"(){
         given: "EHR is loaded"
-        def studyId = "EHR"
 
         when: "I get all observations of that studie"
-        def constraintMap = [type: StudyConstraint, studyId: studyId]
+        def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
 
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
@@ -77,10 +72,9 @@ class GetQueryMultipleObservationsSpec extends RESTSpec{
     @Requires({EHR_LOADED})
     def "end time of observations are exposed through REST API"(){
         given: "EHR is loaded"
-        def studyId = "EHR"
 
         when: "I get all observations of that studie"
-        def constraintMap = [type: StudyConstraint, studyId: studyId]
+        def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
 
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 

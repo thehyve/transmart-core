@@ -62,7 +62,7 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData.size(), is(3)
-        that responseData, everyItem(hasEntry('modifierCd', 'TNS:SMPL'))
+        that responseData, everyItem(hasEntry('conceptCode', 'TNS:LAB:CELLCNT'))
     }
 
     def "FieldConstraint.class"(){
@@ -182,7 +182,7 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "NullConstraint.class"(){
-        def constraintMap = [type: TrueConstraint]
+        def constraintMap = [type: NullConstraint]
 
         when:
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
