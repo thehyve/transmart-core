@@ -87,7 +87,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
             def value = ObservationFact.observationFactValue(
                     (String) result.valueType, (String) result.textValue, (BigDecimal) result.numberValue)
 
-            int nDims = dimensions.size()
+            int nDims = ((List) dimensions).size()
             // actually this array only contains indexes for packable dimensions, for nonpackable ones it contains the
             // element keys directly
             Object[] dimensionElementIdxes = new Object[nDims]
@@ -233,13 +233,16 @@ class ProjectionMap extends AbstractMap<String,Object> {
         tuple[idx]
     }
 
+    /** Default method to support all other Map methods in AbstractMap. Not very efficient, but we don't make use of
+     *  them here */
     @Override Set<Map.Entry<String,Object>> entrySet() {
-        (Set) mapping.collect(new HashSet()) { new AbstractMap.SimpleImmutableEntry(it.key, tuple[it.value]) } as Set
+        ((Set) mapping.collect(new HashSet()) { new AbstractMap.SimpleImmutableEntry(it.key, tuple[it.value]) }).asImmutable()
     }
 
     @Override Object put(String key, Object val) { throw new UnsupportedOperationException() }
     @Override int size() { mapping.size() }
     @Override boolean containsKey(key) { mapping.containsKey(key) }
-    @Override Set<String> keySet() { mapping.keySet() }
+    @Override Set<String> keySet() { mapping.keySet().asImmutable() }
+    @Override List<Object> values() { ImmutableList.copyOf(tuple) }
 }
 
