@@ -1,0 +1,10 @@
+---
+version: '2'
+services:
+    postgres:
+        build: ./sample-db
+        ports: ['25432:5432']
+    solr:
+        build: ./solr
+        ports: ['8983:8983']
+        depends_on: ['postgres']
