@@ -38,16 +38,18 @@ import static spock.util.matcher.HamcrestSupport.that
 
 class PatientMarshallerSpec extends MarshallerSpec {
 
+    public static final String VERSION = "v1"
+
     void basicTest() {
         when:
-        def url = "${baseURL}/studies/${TestData.TRIAL}/subjects/${TestData.ID}".toString()
+        def url = "${baseURL}/${VERSION}/studies/${TestData.TRIAL}/subjects/${TestData.ID}".toString()
         ResponseEntity<Resource> response = getJson(url)
         String content = response.body.inputStream.readLines().join('\n')
         def result = new JsonSlurper().parseText(content)
 
         then:
         response.statusCode.value() == 200
-        response.headers.getFirst('Content-Type').split(';')[0]  == 'application/json'
+        response.headers.getFirst('Content-Type').split(';')[0] == 'application/json'
         that result as Map, allOf(
                 hasEntry('id', TestData.ID as Integer),
                 hasEntry('trial', TestData.TRIAL),
@@ -70,14 +72,14 @@ class PatientMarshallerSpec extends MarshallerSpec {
 
     void testHal() {
         when:
-        def url = "${baseURL}/studies/${TestData.TRIAL}/subjects/${TestData.ID}".toString()
+        def url = "${baseURL}/${VERSION}/studies/${TestData.TRIAL}/subjects/${TestData.ID}".toString()
         ResponseEntity<Resource> response = getHal(url)
         String content = response.body.inputStream.readLines().join('\n')
         def result = new JsonSlurper().parseText(content)
 
         then:
         response.statusCode.value() == 200
-        response.headers.getFirst('Content-Type').split(';')[0]  == 'application/hal+json'
+        response.headers.getFirst('Content-Type').split(';')[0] == 'application/hal+json'
         that result as Map, allOf(
                 hasEntry('age', TestData.AGE as Integer),
                 hasEntry('race', TestData.RACE),
@@ -85,7 +87,10 @@ class PatientMarshallerSpec extends MarshallerSpec {
                 // do not test the rest
                 hasEntry(is('_links'),
                         hasEntry(is('self'),
-                                hasEntry('href', "/studies/${TestData.TRIAL_LC}/subjects/${TestData.ID}".toString()))))
+                                hasEntry('href', "$VERSION/studies/${TestData.TRIAL_LC}/subjects/${TestData.ID}".toString())
+                        )
+                )
+        )
     }
 
 }
