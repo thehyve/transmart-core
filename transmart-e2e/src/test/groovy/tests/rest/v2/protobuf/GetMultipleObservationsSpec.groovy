@@ -68,8 +68,8 @@ class GetMultipleObservationsSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             if (selector.select(it, 'StartTimeDimension', 'startDate', 'Timestamp') != '1970-01-01T00:00:00Z'){validStartDate++}
             that selector.select(it, 'StartTimeDimension', 'startDate', 'Timestamp'), matchesPattern(REGEXDATE)
-            assert (selector.select(0, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
-                    selector.select(0, "ConceptDimension", "conceptCode", 'String') == 'EHR:DEM:AGE')
+            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
+                    selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:DEM:AGE')
         }
         assert validStartDate == 7
     }
@@ -95,7 +95,7 @@ class GetMultipleObservationsSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             if (selector.select(it, 'EndTimeDimension', 'endDate', 'Timestamp') != null){nonNUllEndDate++}
             that selector.select(it, 'EndTimeDimension', 'endDate', 'Timestamp'), matchesPattern(REGEXDATE)
-            assert selector.select(0, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR'
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR'
         }
         assert nonNUllEndDate == 4
     }
