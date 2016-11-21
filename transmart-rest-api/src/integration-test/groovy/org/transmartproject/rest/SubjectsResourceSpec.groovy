@@ -30,22 +30,23 @@ import static spock.util.matcher.HamcrestSupport.that
 
 class SubjectsResourceSpec extends ResourceSpec {
 
+    public static final String VERSION = 'v1'
     def study = 'study_id_1'
     def defaultTrial = study.toUpperCase()
     def subjectId = -101
     def UNKNOWN = 'UNKOWN' // funny typo here
     def concept = 'bar'
 
-    def subjectsPerConceptUrl = "/studies/${study}/concepts/${concept}/subjects"
-    def subjectsPerStudyUrl = "/studies/${study}/subjects"
+    def subjectsPerConceptUrl = "${VERSION}/studies/${study}/concepts/${concept}/subjects"
+    def subjectsPerStudyUrl = "${VERSION}/studies/${study}/subjects"
 
-    def subjectUrl = "/studies/${study}/subjects/${subjectId}"
-    def subjectUrl2 = "/studies/${study}/subjects/-102"
-    def subjectUrl3 = "/studies/${study}/subjects/-103"
+    def subjectUrl = "${VERSION}/studies/${study}/subjects/${subjectId}"
+    def subjectUrl2 = "${VERSION}/studies/${study}/subjects/-102"
+    def subjectUrl3 = "${VERSION}/studies/${study}/subjects/-103"
 
     void testShowAsJson() {
         when:
-        def response = get subjectUrl, {
+        def response = get "/"+subjectUrl, {
             header 'Accept', contentTypeForJSON
         }
         then:
@@ -55,7 +56,7 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testShowAsHal() {
         when:
-        def response = get subjectUrl, {
+        def response = get "/"+subjectUrl, {
             header 'Accept', contentTypeForHAL
         }
         then:
@@ -65,7 +66,7 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testIndexPerStudyAsJson() {
         when:
-        def response = get subjectsPerStudyUrl, {
+        def response = get "/"+subjectsPerStudyUrl, {
             header 'Accept', contentTypeForJSON
         }
         then:
@@ -82,7 +83,7 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testIndexPerStudyAsHal() {
         when:
-        def response = get subjectsPerStudyUrl, {
+        def response = get "/"+subjectsPerStudyUrl, {
             header 'Accept', contentTypeForHAL
         }
         response.status == 200
@@ -101,7 +102,7 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testIndexPerConceptAsJson() {
         when:
-        def response = get subjectsPerConceptUrl, {
+        def response = get "/"+subjectsPerConceptUrl, {
             header 'Accept', contentTypeForJSON
         }
         then:
@@ -115,7 +116,7 @@ class SubjectsResourceSpec extends ResourceSpec {
 
     void testIndexPerConceptAsHal() {
         when:
-        def response = get subjectsPerConceptUrl, {
+        def response = get "/"+subjectsPerConceptUrl, {
             header 'Accept', contentTypeForHAL
         }
         then:
@@ -129,18 +130,18 @@ class SubjectsResourceSpec extends ResourceSpec {
                 )
     }
 
-    //TODO controllers do not get decoded version of url when run from functional tests
-    def subjectsPerLongConceptUrl = '/studies/study_id_2/concepts/long path/with some$characters_/subjects'
+    //TODO controllers do not get decoded VERSION of url when run from functional tests
+    def subjectsPerLongConceptUrl = VERSION+'/studies/study_id_2/concepts/long path/with some$characters_/subjects'
 
     void testSubjectsIndexOnLongConcept() {
         when:
-        def response = get subjectsPerLongConceptUrl, {
+        def response = get "/"+subjectsPerLongConceptUrl, {
             header 'Accept', contentTypeForHAL
         }
         then:
         response.status == 200
         that response.json, is(halIndexResponse(
-                '/studies/study_id_2/concepts/long%20path/with%20some%24characters_/subjects',
+                VERSION+'/studies/study_id_2/concepts/long%20path/with%20some%24characters_/subjects',
                 [subjects: any(List)]
         ))
     }
@@ -192,12 +193,12 @@ class SubjectsResourceSpec extends ResourceSpec {
         def studyName = 'STUDY_NOT_EXIST'
 
         when:
-        def response = get("/studies/${studyName}/subjects")
+        def response = get("/$VERSION/studies/${studyName}/subjects")
 
         then:
         response.status == 404
-        response.json.httpStatus == 404
-        response.json.type == 'NoSuchResourceException'
+        response.json.status == 404
+        response.json.exception == 'org.transmartproject.core.exceptions.NoSuchResourceException'
         response.json.message == "No study with id '${studyName}' was found"
     }
 
@@ -205,12 +206,12 @@ class SubjectsResourceSpec extends ResourceSpec {
         def patientNum = -9999
 
         when:
-        def response = get("/studies/${study}/subjects/${patientNum}")
+        def response = get("/$VERSION/studies/${study}/subjects/${patientNum}")
 
         then:
         response.status == 404
-        response.json.httpStatus == 404
-        response.json.type == 'NoSuchResourceException'
+        response.json.status == 404
+        response.json.exception == 'org.transmartproject.core.exceptions.NoSuchResourceException'
         response.json.message == "No patient with number ${patientNum}"
     }
 }

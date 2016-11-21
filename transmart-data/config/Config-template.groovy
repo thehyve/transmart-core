@@ -431,9 +431,10 @@ grails { plugin { springsecurity {
                         '-rememberMeAuthenticationFilter',
                         '-exceptionTranslationFilter',
                 ].join(','),
-                '/studies/**': securedResourcesFilters,
-                '/observations/**': securedResourcesFilters,
-                '/patient_sets/**': securedResourcesFilters,
+                '/v1/studies/**': securedResourcesFilters,
+                '/v1/observations/**': securedResourcesFilters,
+                '/v1/patient_sets/**': securedResourcesFilters,
+                '/v2/query/**' : securedResourcesFilters,
                 '/oauth/inspectToken': securedResourcesFilters,
                 '/**': [
                         'JOINED_FILTERS',
@@ -464,7 +465,7 @@ grails { plugin { springsecurity {
                         authorities: ['ROLE_CLIENT'],
                         scopes: ['read', 'write'],
                         authorizedGrantTypes: ['authorization_code', 'refresh_token'],
-                        redirectUris: [(transmartURL - ~'\\/$') + '/oauth/verify'],
+                        redirectUris: [(transmartURL - ~'\\/$') + '/v1/oauth/verify'],
                     ],
                     [
                         clientId: 'glowingbear-js',
