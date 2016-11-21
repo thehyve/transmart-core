@@ -1,5 +1,6 @@
 package org.transmartproject.db.i2b2data
 
+import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.db.metadata.DimensionDescription
 
 /**
@@ -17,7 +18,7 @@ import org.transmartproject.db.metadata.DimensionDescription
  * Metadata is available in the form of a label {@link Study#studyId} and a link to the <code>bio_experiment</code>
  * table in {@link Study#bioExperimentId}.
  */
-class Study {
+class Study implements ProtectedResource {
 
     static final String PUBLIC = 'PUBLIC'
 

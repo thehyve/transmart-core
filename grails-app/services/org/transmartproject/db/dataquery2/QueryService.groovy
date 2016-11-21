@@ -22,6 +22,7 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.dataquery2.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
@@ -95,11 +96,12 @@ class QueryService {
                 throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
             }
         } else if (constraint instanceof StudyConstraint) {
-            if (!accessControlChecks.existsDimensionStudyForUser(user, constraint.studyId)) {
+            def study = Study.findByStudyId(constraint.studyId)
+            if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
                 throw new AccessDeniedException("Access denied to study: ${constraint.studyId}")
             }
         } else if (constraint instanceof StudyObjectConstraint) {
-            if (!accessControlChecks.existsDimensionStudyForUser(user, constraint.study?.studyId)) {
+            if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, constraint.study)) {
                 throw new AccessDeniedException("Access denied to study: ${constraint.study?.studyId}")
             }
         } else {
