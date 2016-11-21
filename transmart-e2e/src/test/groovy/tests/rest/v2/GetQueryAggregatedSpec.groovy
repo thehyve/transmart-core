@@ -17,7 +17,7 @@ import static config.Config.*
  *      maximum
  *      average
  */
-class GetQueryAggregatedTimeseriesSpec extends RESTSpec{
+class GetQueryAggregatedSpec extends RESTSpec{
 
     /**
      *  given: "study EHR is loaded"
