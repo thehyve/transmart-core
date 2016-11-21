@@ -1,22 +1,21 @@
-package tests.rest.v2
+package tests.rest.v2.protobuf
 
 import base.RESTSpec
+import protobuf.ObservationsMessageProto
+import selectors.protobuf.ObservationSelector
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 
-import static config.Config.SUPPRESS_KNOWN_BUGS
-import static config.Config.SUPPRESS_UNIMPLEMENTED
-import static config.Config.TUMOR_NORMAL_SAMPLES_LOADED
+import static config.Config.*
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.ValueType.NUMERIC
 import static tests.rest.v2.ValueType.STRING
-import static tests.rest.v2.constraints.ConceptConstraint
 import static tests.rest.v2.constraints.ModifierConstraint
 import static tests.rest.v2.constraints.ValueConstraint
 
-class GetQueryObservationsSamplesSpec extends RESTSpec{
+class GetObservationsSamplesSpec extends RESTSpec{
 
     /**
      *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
@@ -24,7 +23,6 @@ class GetQueryObservationsSamplesSpec extends RESTSpec{
      *  then: "3 observations are returned, all have a cellcount"
      */
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
-//    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //TMPDEV-97 ModifierConstraint returns modifier observations with null values
     def "get observations related to a modifier"(){
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
 
@@ -34,15 +32,16 @@ class GetQueryObservationsSamplesSpec extends RESTSpec{
                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
         ]
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
 
         then: "3 observations are returned, all have a cellcount"
-        that responseData.size(), is(3)
-        that responseData, everyItem(allOf(
-                hasEntry('modifierCd', 'TNS:SMPL'),
-                hasEntry('conceptCode', 'TNS:LAB:CELLCNT'),
-                not(hasEntry('numberValue', null))
-        ))
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        assert selector.cellCount == 3
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('TNS:LAB:CELLCNT')
+            assert selector.select(it) != null
+        }
     }
 
     /**
@@ -51,7 +50,7 @@ class GetQueryObservationsSamplesSpec extends RESTSpec{
      *  then: "3 observations are returned with concept codes: CELLCNT, .., ..."
      */
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS || SUPPRESS_UNIMPLEMENTED}) //TMPDEV-97 ModifierConstraint returns modifier observations with null values. no test set with multiple concepts per sample.
+    @IgnoreIf({SUPPRESS_UNIMPLEMENTED}) //no test data with multiple concepts linked to a modifier
     def "get observations related to a"(){
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
 
@@ -61,23 +60,16 @@ class GetQueryObservationsSamplesSpec extends RESTSpec{
                 values: [type: ValueConstraint, valueType: NUMERIC, operator: EQUALS, value: 10]
         ]
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
 
         then: "3 observations are returned, all have a cellcount"
-        that responseData.size(), is(3)
-        that responseData, allOf(
-                hasItem(
-                        hasEntry('conceptCode', 'TNS:LAB:CELLCNT'),
-                        not(hasEntry('numberValue', null))
-                ),
-                hasItem(
-                        hasEntry('conceptCode', '...'),
-                        not(hasEntry('numberValue', null))
-                ),
-                hasItem(
-                        hasEntry('conceptCode', '...'),
-                        not(hasEntry('numberValue', null))
-                )
-        )
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        assert selector.cellCount == 3
+        (0..<selector.cellCount).each {
+            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('TNS:LAB:CELLCNT') ||
+                    selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('....'))
+            assert selector.select(it) != null
+        }
     }
 }
