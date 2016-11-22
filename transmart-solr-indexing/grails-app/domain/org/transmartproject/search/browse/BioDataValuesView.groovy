@@ -15,11 +15,11 @@ class BioDataValuesView implements Serializable {
         version false
 
         id insert: false, update: false
-    }
-/*
+    }*/
+
     static constraints = {
         uniqueId    nullable: true, maxSize: 300
         name        nullable: true
         description nullable: true
-    }*/
+    }
 }

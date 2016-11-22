@@ -28,7 +28,7 @@ class BrowseStudiesView implements Serializable {
         id         insert: false, update: false
         identifier column: 'id'
     }
-
+*/
     static constraints = {
         identifier     nullable: true, maxSize: 300
         title          nullable: true, maxSize: 1000
@@ -44,5 +44,5 @@ class BrowseStudiesView implements Serializable {
         studyObjective nullable: true
         organism       nullable: true
         studyPhase     nullable: true
-    }*/
+    }
 }

@@ -14,9 +14,9 @@ class FolderStudyMappingView implements Serializable {
         conceptPath column: 'c_fullname'
         version false
     }
-
+*/
     static constraints = {
         uniqueId       maxSize: 300
         conceptPath    maxSize: 700
-    }*/
+    }
 }

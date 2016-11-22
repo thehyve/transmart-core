@@ -21,7 +21,7 @@ class BrowseAnalysesView implements Serializable {
         id         insert: false, update: false
         identifier column: 'id'
     }
-
+*/
     static constraints = {
         identifier      nullable: true, maxSize: 300
         title           nullable: true, maxSize: 500
@@ -30,5 +30,5 @@ class BrowseAnalysesView implements Serializable {
         platformName    nullable: true
         vendor          nullable: true
         technology      nullable: true
-    }*/
+    }
 }

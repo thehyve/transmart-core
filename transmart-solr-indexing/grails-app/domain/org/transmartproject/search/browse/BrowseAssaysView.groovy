@@ -24,7 +24,7 @@ class BrowseAssaysView implements Serializable {
         id         insert: false, update: false
         identifier column: 'id'
     }
-
+*/
     static constraints = {
         identifier      nullable: true, maxSize: 300
         title           nullable: true, maxSize: 1000
@@ -36,5 +36,5 @@ class BrowseAssaysView implements Serializable {
         gene            nullable: true
         mirna           nullable: true
         biomarkerType   nullable: true
-    }*/
+    }
 }
