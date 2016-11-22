@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList

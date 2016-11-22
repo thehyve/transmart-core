@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2.query
+package org.transmartproject.db.multidimquery.query
 
 import grails.databinding.BindUsing
 import grails.validation.Validateable
@@ -8,7 +8,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.validation.Errors
 import org.transmartproject.core.multidimensionalquery.MultiDimConstraint
-import org.transmartproject.db.dataquery2.DimensionImpl
+import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.i2b2data.Study
 /**
  * The data type of a field.
@@ -165,7 +165,7 @@ enum Operator {
 
 /**
  * Specification of a domain class field using the dimensions defined as
- * subclasses of {@link org.transmartproject.db.dataquery2.DimensionImpl} and the field name in the domain class.
+ * subclasses of {@link org.transmartproject.db.multidimquery.DimensionImpl} and the field name in the domain class.
  * The data type ({@link Type}) of the field is also included to allow for
  * early validation (assuming that clients know the data type of a field).
  */
