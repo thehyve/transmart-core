@@ -29,6 +29,8 @@ class RestApiUrlMappings {
 
     static mappings = {
 
+        '/businessException/index'(controller: 'businessException', action: 'index')
+
         group "/v2", {
 
             "/query/$action?"(method: 'GET', controller: 'query')
@@ -76,8 +78,6 @@ class RestApiUrlMappings {
 
             '/observations'(method: 'GET', controller: 'observation', action: 'indexStandalone')
             '/observations2'(method: 'GET', controller: 'observation', action: 'observations2')
-
-            '/businessException/index'(controller: 'businessException', action: 'index')
 
             "/studies/$studyId/concepts/$id**"(
                     controller: 'concept', action: 'show', method: 'GET'
