@@ -13,6 +13,7 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedOperation
@@ -362,7 +363,7 @@ class QueryService {
         [projection, table]
     }
 
-    HypercubeImpl retrieveClinicalData(Constraint constraint, User user) {
+    Hypercube retrieveClinicalData(Constraint constraint, User user) {
         checkAccess(constraint, user)
         def dataType = 'clinical'
         def accessibleStudies = accessControlChecks.getDimensionStudiesForUser(user)
