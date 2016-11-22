@@ -1,19 +1,15 @@
 package org.transmartproject.search.indexing
 
 import com.google.common.collect.Sets
-import grails.test.mixin.TestMixin
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 import org.transmartproject.search.indexing.modules.*
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.search.indexing.FacetsDocumentMatcher.documentWithFields
 import static org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
-import static org.transmartproject.search.indexing.modules.FilesIndexingModule.FILE_DOC_TYPE
 
-@TestMixin(RuleBasedIntegrationTestMixin)
 class BrowseIndexingModulesTests {
 
     @Autowired

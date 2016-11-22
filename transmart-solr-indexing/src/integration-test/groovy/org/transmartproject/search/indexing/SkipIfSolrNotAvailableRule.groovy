@@ -28,7 +28,7 @@ class SkipIfSolrNotAvailableRule implements TestRule {
             Holders.applicationContext.getBean(SolrFacetsCore).ping()
             cachedResult = true
             base
-        } catch (IOException|SolrException ioe) {
+        } catch (Exception ioe) {
             cachedResult = ioe
             new Statement() {
                 @Override

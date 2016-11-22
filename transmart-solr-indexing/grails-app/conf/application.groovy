@@ -8,12 +8,18 @@ com.recomdata.FmFolderService.filestoreDirectory = (new File(System.getenv('HOME
 //grails.plugin.reveng.includeTables = ['folder_study_mapping']
 //grails.plugin.reveng.defaultSchema = 'biomart_user'
 
+beans {
+    cacheManager {
+        shared = true
+    }
+}
 
 hibernate {
     cache.use_second_level_cache = true
     cache.use_query_cache = false
 //    cache.region.factory_class = 'net.sf.ehcache.hibernate.EhCacheRegionFactory' // Hibernate 3
-    cache.region.factory_class = 'org.hibernate.cache.ehcache.EhCacheRegionFactory' // Hibernate 4
+    //cache.region.factory_class = 'org.hibernate.cache.SingletonEhCacheRegionFactory' // Hibernate 4
+    cache.region.factory_class = 'grails.plugin.cache.ehcache.hibernate.BeanEhcacheRegionFactory4'
     singleSession = true // configure OSIV singleSession mode
 }
 

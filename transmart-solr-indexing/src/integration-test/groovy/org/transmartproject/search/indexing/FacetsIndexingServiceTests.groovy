@@ -1,6 +1,7 @@
 package org.transmartproject.search.indexing
 
 import com.google.common.collect.ImmutableMultimap
+import grails.test.mixin.TestFor
 import grails.test.mixin.TestMixin
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.common.SolrInputDocument
@@ -9,13 +10,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_NAME_CONCEPT_PATH
 import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_NAME_FOLDER_ID
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_NAME_ID
 
-@TestMixin(RuleBasedIntegrationTestMixin)
 class FacetsIndexingServiceTests {
 
     public static final int NUMBER_OF_FOLDERS = 13

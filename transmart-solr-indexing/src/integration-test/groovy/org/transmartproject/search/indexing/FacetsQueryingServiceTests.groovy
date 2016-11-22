@@ -1,16 +1,13 @@
 package org.transmartproject.search.indexing
 
-import grails.test.mixin.TestMixin
+import grails.test.mixin.TestFor
 import grails.util.Holders
-import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
-@TestMixin(RuleBasedIntegrationTestMixin)
 class FacetsQueryingServiceTests {
 
     @Autowired
