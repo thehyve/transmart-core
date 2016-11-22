@@ -1,5 +1,6 @@
 package org.transmartproject.db.multidimquery
 
+import com.google.common.collect.ImmutableList
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -7,7 +8,6 @@ import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
 import org.transmartproject.db.dataquery.MockTabularResult
@@ -23,11 +23,26 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
     List<Patient> patients
     List<Assay> assays
     List<String> biomarkers
-    List<Double> doubleValues
+    List values = []
+    List getCubeValues() {
+        values.collect {
+            if(it instanceof Double) return it
+            if(it instanceof Map) return it.values()
+            throw new RuntimeException()
+        }.flatten()
+    }
 
-    private def val(int i) {doubleValues[i]}
+    // Why isn't this method in the default groovy methods?
+    static Iterator repeat(start=null, Closure block) {
+        [hasNext: {true},
+         next: {
+             start = block.call(start)
+         }] as Iterator
+    }
 
-    void setupData() {
+    private def val(Iterator v) {def next = v.next(); values << next; next}
+
+    void setupData(values) {
 
         patients = [-42, -43, -44].collect { inTrialId ->
             [getInTrialId: {inTrialId as String}] as Patient
@@ -37,14 +52,14 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         }
 
         biomarkers = "marker1 marker2 marker3 marker4".split()
-        doubleValues = (Math.PI..(Math.PI+(biomarkers.size()*assays.size()-1)))
 
-        int i = 0
+        def v = values
+
         def rows = biomarkers.collect {
             new BioMockRow<Double>(
                     bioMarker: "bio"+it,
                     label: it,
-                    cells: [val(i++), val(i++), val(i++)],
+                    cells: [val(v), val(v), val(v)],
                     columns: assays,
             )
         }
@@ -80,34 +95,34 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
 
     void testDoubles() {
         setup:
-        setupData()
+        setupData(repeat(Math.PI) {++it})
 
         HddTabularResultHypercubeAdapter cube = new HddTabularResultHypercubeAdapter(mockTabular)
         List<HypercubeValue> values = cube.toList()
 
         expect:
 
-        values*.value == doubleValues
+        values*.value == this.cubeValues
         cube.dimensions as List == "biomarker assay patient".split().collect { DimensionDescription.dimensionsMap[it] }
         cube.dimensionElements(patientDim) == patients
         (0..2).each {
-            cube.dimensionElement(assayDim, it) == assays[it]
+            assert cube.dimensionElement(assayDim, it) == assays[it]
         }
         (0..2).each {
-            cube.dimensionElementKey(patientDim, it) == patients[it].inTrialId
-            cube.dimensionElementKey(assayDim, it) == assays[it].sampleCode
+            assert cube.dimensionElementKey(patientDim, it) == patients[it].inTrialId
+            assert cube.dimensionElementKey(assayDim, it) == assays[it].sampleCode
         }
         cube.dimensionsPreloadable == false
         cube.dimensionsPreloaded == false
         [cube.dimensionElements(biomarkerDim), biomarkers].transpose().each { BioMarker actual, String expectedLabel ->
-            actual.label == expectedLabel
-            actual.bioMarker == "bio$expectedLabel".toString()
+            assert actual.label == expectedLabel
+            assert actual.bioMarker == "bio$expectedLabel".toString()
         }
 
         (0..2).each {
-            values[it][patientDim] == patients[it]
-            values[it][assayDim] == assays[it]
-            values[it][biomarkerDim].label == biomarkers[it]
+            assert values[it][patientDim] == patients[it]
+            assert values[it][assayDim] == assays[it]
+            assert values[it][biomarkerDim].label == biomarkers[0]
         }
 
         when:
@@ -122,7 +137,72 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         then:
         thrown InvalidArgumentsException
 
-        // todo: test that missing dimensions fail
+        cleanup:
+        this.values.clear()
+    }
+
+    void testAllDataProjection() {
+        setup:
+        setupData(repeat([
+                value: Math.PI,
+                logValue: Math.log(Math.PI),
+                extra: "foo",
+        ]) { Map it ->
+            Map m = it.clone()
+            m.value++
+            m.logValue = Math.log(m.value)
+            m
+        })
+
+        def projectionKeys = ImmutableList.copyOf "value logValue extra".split()
+
+        HddTabularResultHypercubeAdapter cube = new HddTabularResultHypercubeAdapter(mockTabular)
+        List<HypercubeValue> values = cube.toList()
+
+        expect:
+
+        values*.value == this.cubeValues
+        cube.dimensions as List == "biomarker assay patient projection".split().collect {
+            DimensionDescription.dimensionsMap[it] }
+        cube.dimensionElements(patientDim) == patients
+        cube.dimensionElements(projectionDim) == projectionKeys
+        (0..2).each {
+            assert cube.dimensionElement(assayDim, it) == assays[it]
+            assert cube.dimensionElement(projectionDim, it) == projectionKeys[it]
+        }
+        (0..2).each {
+            assert cube.dimensionElementKey(patientDim, it) == patients[it].inTrialId
+            assert cube.dimensionElementKey(assayDim, it) == assays[it].sampleCode
+            assert cube.dimensionElementKey(projectionDim, it) == projectionKeys[it]
+        }
+        cube.dimensionsPreloadable == false
+        cube.dimensionsPreloaded == false
+        [cube.dimensionElements(biomarkerDim), biomarkers].transpose().each { BioMarker actual, String expectedLabel ->
+            assert actual.label == expectedLabel
+            assert actual.bioMarker == "bio$expectedLabel".toString()
+        }
+
+        (0..2).each {
+            assert values[it*projectionKeys.size()][patientDim] == patients[it]
+            assert values[it*projectionKeys.size()][assayDim] == assays[it]
+            assert values[it][biomarkerDim].label == biomarkers[0]
+            assert values[it][projectionDim] == projectionKeys[it]
+
+            // this one is a bit brittle, but the iteration order of the map values is fixed.
+            assert values[it].getDimElementIndex(projectionDim) == it
+        }
+
+        values[5].availableDimensions == cube.dimensions
+
+        when:
+        cube.dimensionElement(DimensionDescription.dimensionsMap.concept, 1)
+
+        then:
+        thrown InvalidArgumentsException
+
+
+        cleanup:
+        this.values.clear()
     }
 
 }
