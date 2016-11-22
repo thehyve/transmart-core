@@ -1313,7 +1313,7 @@ function setupOntTree(id_in, title_in) {
     
     ontTree.on('beforecollapsenode', function (node, deep, anim) {
         Ext.Ajax.request({
-            url: removeNodeDseURL + "?node=" + node.id,
+            url: removeNodeDseURL + "?node=" + encodeURIComponent(node.id),
             method: 'POST',
             success: function (result, request) {
             },
@@ -1337,7 +1337,7 @@ function setupOntTree(id_in, title_in) {
 
         if (expand) {
             Ext.Ajax.request({
-                url: addNodeDseURL + "?node=" + node.id,
+                url: addNodeDseURL + "?node=" + encodeURIComponent(node.id),
                 method: 'POST',
                 success: function (result, request) {
                 },
