@@ -30,6 +30,8 @@ ext {
 repositories {
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
+    maven { url 'https://repo.transmartfoundation.org/content/repositories/public/' }
+    maven { url 'https://repo.thehyve.nl/content/groups/public/' }
 }
 
 dependencyManagement {
