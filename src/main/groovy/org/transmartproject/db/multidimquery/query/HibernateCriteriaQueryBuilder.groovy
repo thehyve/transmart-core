@@ -4,7 +4,6 @@ import groovy.util.logging.Slf4j
 import org.apache.commons.lang.NotImplementedException
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.LikeExpression
 import org.hibernate.criterion.MatchMode
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
@@ -18,6 +17,7 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
+import org.transmartproject.db.util.StringUtils
 
 /**
  * QueryBuilder that produces a {@link DetachedCriteria} object representing
@@ -258,13 +258,12 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
                 return Restrictions.between(propertyName, values[0], values[1])
             case Operator.CONTAINS:
                 if (constraint.field.type == Type.STRING) {
-                    def value = constraint.value.toString().replaceAll('%','\\%')
-                    return new LikeExpression(propertyName, value, MatchMode.ANYWHERE, '\\' as char, false){}
+                    StringUtils.like(propertyName, constraint.value.toString(), MatchMode.ANYWHERE)
                 } else {
                     return Restrictions.in(propertyName, constraint.value)
                 }
             case Operator.LIKE:
-                return new LikeExpression(propertyName, constraint.value.toString(), MatchMode.EXACT, '\\' as char, false){}
+                StringUtils.like(propertyName, constraint.value.toString(), MatchMode.EXACT)
             case Operator.IN:
                 return Restrictions.in(propertyName, constraint.value)
             default:
