@@ -1,4 +1,4 @@
-package tests.rest.v2
+package tests.rest.v2.observations
 
 import base.RESTSpec
 import spock.lang.IgnoreIf

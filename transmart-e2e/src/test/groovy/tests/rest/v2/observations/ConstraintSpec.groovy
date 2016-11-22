@@ -1,4 +1,4 @@
-package tests.rest.v2
+package tests.rest.v2.observations
 
 import base.RESTSpec
 import spock.lang.Requires
@@ -73,7 +73,7 @@ class ConstraintSpec extends RESTSpec{
                              operator: LESS_THAN,
                              value:100]
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get("query/hypercube", contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))

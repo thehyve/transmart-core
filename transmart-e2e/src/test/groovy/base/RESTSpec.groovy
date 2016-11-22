@@ -25,24 +25,38 @@ class RESTSpec extends Specification{
     def contentTypeForProtobuf = 'application/x-protobuf'
 
     @Shared
-    private String oauth2token
+    private HashMap<String, String> oauth2token = [:]
+
     @Shared
     private http = new HTTPBuilder(BASE_URL)
 
-    def oauth2Authenticate(){
-        def json = post('oauth/token', contentTypeForJSON, ['grant_type': 'password', 'client_id': 'glowingbear-js', 'client_secret': '', 'username': GOOD_USERNAME, 'password': GOOD_PASSWORD], null, ContentType.TEXT, false)
+    private user
 
-        if (DEBUG){
-            println "Authenticate: username=${GOOD_USERNAME} password=${GOOD_PASSWORD} token=${json.access_token}"
-        }
-        oauth2token = json.access_token
+    def setup(){
+        setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
+        println('set user')
     }
 
-    def getToken(){
-        if (oauth2token == null){
-            oauth2Authenticate()
+    def setUser(username, password){
+        user = ['username' : username,
+                'password' : password]
+    }
+
+    def oauth2Authenticate(userCredentials){
+        def json = post('oauth/token', contentTypeForJSON, ['grant_type': 'password', 'client_id': 'glowingbear-js', 'client_secret': '', 'username': userCredentials.'username', 'password': userCredentials.'password'], null, false)
+
+        if (DEBUG){
+            println "Authenticate: username=${userCredentials.'username'} password=${userCredentials.'password'} token=${json.access_token}"
         }
-        return oauth2token
+
+        oauth2token.put(userCredentials.username, json.access_token)
+    }
+
+    def getToken(User = user){
+        if (oauth2token.get(user.'username') == null){
+            oauth2Authenticate(user)
+        }
+        return oauth2token.get(user.'username')
     }
 
     /**
@@ -57,7 +71,7 @@ class RESTSpec extends Specification{
      * @param oauth
      * @return
      */
-    def post(String path, String AcceptHeader, queryMap, requestBody = null, contentType, oauth = true ){
+    def post(String path, String AcceptHeader, queryMap, requestBody = null, oauth = true ){
         http.request(Method.POST, ContentType.TEXT){
             uri.path = path
             uri.query = queryMap
@@ -168,7 +182,7 @@ class RESTSpec extends Specification{
      * @return
      */
     def getProtobuf(String path, queryMap = null){
-        http.request(Method.GET, ContentType.ANY) { req ->
+        http.request(Method.GET, ContentType.TEXT) { req ->
             uri.path = path
             uri.query = queryMap
             headers.Accept = contentTypeForProtobuf
@@ -195,11 +209,11 @@ class RESTSpec extends Specification{
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = parseProto(resp.entity.content)
+                    def result = JSON.parse(reader)
                     return result
                 }
 
-                return parseProto(resp.entity.content)
+                return JSON.parse(reader)
             }
         }
     }

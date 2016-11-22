@@ -111,7 +111,7 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "1 observation is returned"
-        that responseData.size(), is(1)
+        that responseData.size(), is(6)
         that responseData, everyItem(hasKey('conceptCode'))
     }
 
