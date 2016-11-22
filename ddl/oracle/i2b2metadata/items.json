@@ -643,7 +643,7 @@
         "owner": "I2B2METADATA",
         "name": "I2B2_TAG_OPTIONS_ID_SEQ"
       },
-      "file": "i2b2metadata/_misc.sql"
+      "file": "i2b2metadata/i2b2_tag_options.sql"
     },
     {
       "item": {
@@ -667,7 +667,7 @@
         "owner": "I2B2METADATA",
         "name": "I2B2_TAG_TYPES_TAG_TYPE_ID_SEQ"
       },
-      "file": "i2b2metadata/_misc.sql"
+      "file": "i2b2metadata/i2b2_tag_options.sql"
     },
     {
       "item": {
@@ -836,6 +836,22 @@
         "name": "TRG_I2B2_TAG_ID"
       },
       "file": "i2b2metadata/i2b2_tags.sql"
+    },
+    {
+      "item": {
+        "type": "TRIGGER",
+        "owner": "I2B2METADATA",
+        "name": "TRG_I2B2_TAG_OPTIONS_ID"
+      },
+      "file": "i2b2metadata/i2b2_tag_options.sql"
+    },
+    {
+      "item": {
+        "type": "TRIGGER",
+        "owner": "I2B2METADATA",
+        "name": "TRG_I2B2_TAG_TYPES_ID"
+      },
+      "file": "i2b2metadata/i2b2_tag_types.sql"
     },
     {
       "item": {
