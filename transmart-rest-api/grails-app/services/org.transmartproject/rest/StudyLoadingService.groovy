@@ -116,7 +116,7 @@ class StudyLoadingService {
             }
         }
         studyId = studyId.toLowerCase(Locale.ENGLISH).encodeAsURL()
-        "/studies/$studyId/concepts/$pathPart"
+        "/v1/studies/$studyId/concepts/$pathPart"
     }
 
 }
