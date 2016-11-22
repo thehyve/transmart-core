@@ -3,13 +3,13 @@ package org.transmartproject.rest.protobuf
 import com.google.protobuf.Message
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.db.dataquery2.AssayDimension
-import org.transmartproject.db.dataquery2.BioMarkerDimension
-import org.transmartproject.db.dataquery2.DimensionImpl
-import org.transmartproject.db.dataquery2.HypercubeImpl
-import org.transmartproject.db.dataquery2.HypercubeValueImpl
-import org.transmartproject.db.dataquery2.ProjectionDimension
-import org.transmartproject.db.dataquery2.query.DimensionMetadata
+import org.transmartproject.db.multidimquery.AssayDimension
+import org.transmartproject.db.multidimquery.BioMarkerDimension
+import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.HypercubeImpl
+import org.transmartproject.db.multidimquery.HypercubeValueImpl
+import org.transmartproject.db.multidimquery.ProjectionDimension
+import org.transmartproject.db.multidimquery.query.DimensionMetadata
 
 import static com.google.protobuf.util.JsonFormat.*
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*

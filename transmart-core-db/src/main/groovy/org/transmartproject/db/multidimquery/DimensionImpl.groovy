@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import grails.util.Pair
 import groovy.transform.CompileStatic

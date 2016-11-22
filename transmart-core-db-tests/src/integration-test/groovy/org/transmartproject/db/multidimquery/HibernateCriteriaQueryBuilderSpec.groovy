@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import grails.converters.JSON
 import grails.test.mixin.integration.Integration
@@ -11,10 +11,9 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
-import org.transmartproject.db.dataquery2.query.*
+import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
-import spock.lang.Ignore
 
 @Slf4j
 @Rollback

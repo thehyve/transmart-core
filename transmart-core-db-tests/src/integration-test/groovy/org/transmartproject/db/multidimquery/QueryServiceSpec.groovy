@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
@@ -8,11 +8,10 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
-import org.transmartproject.db.dataquery2.query.*
+import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.AccessLevelTestData
-import spock.lang.Ignore
 
 @Rollback
 @Integration

@@ -11,14 +11,13 @@ import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimensionalquery.MultiDimensionalDataResource
-import org.transmartproject.db.dataquery2.DimensionImpl
-import org.transmartproject.db.dataquery2.HypercubeImpl
-import org.transmartproject.db.dataquery2.QueryService
-import org.transmartproject.db.dataquery2.query.Constraint
-import org.transmartproject.db.dataquery2.query.HibernateCriteriaQueryBuilder
+import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.HypercubeImpl
+import org.transmartproject.db.multidimquery.QueryService
+import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.util.GormWorkarounds
 
 class MultidimensionalDataResourceService implements MultiDimensionalDataResource<Study> {
