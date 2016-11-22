@@ -26,6 +26,7 @@
 package org.transmartproject.rest.marshallers
 
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.OntologyTermType
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
@@ -53,17 +54,17 @@ class OntologyTermWrapper {
         HIGH_DIMENSIONAL in delegate.visualAttributes
     }
 
-    ApiOntologyTermType getApiOntologyTermType() {
+    OntologyTermType getOntologyTermType() {
         if (highDim) {
-            ApiOntologyTermType.HIGH_DIMENSIONAL
+            OntologyTermType.HIGH_DIMENSIONAL
         } else if (root) {
-            ApiOntologyTermType.STUDY
+            OntologyTermType.STUDY
         } else if (delegate.metadata?.okToUseValues) {
-            ApiOntologyTermType.NUMERIC
+            OntologyTermType.NUMERIC
         } else if (LEAF in delegate.visualAttributes) {
-            ApiOntologyTermType.CATEGORICAL_OPTION
+            OntologyTermType.CATEGORICAL_OPTION
         } else {
-            ApiOntologyTermType.UNKNOWN
+            OntologyTermType.UNKNOWN
         }
     }
 }
