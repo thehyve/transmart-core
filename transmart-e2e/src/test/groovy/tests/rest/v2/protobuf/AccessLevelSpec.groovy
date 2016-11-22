@@ -52,4 +52,26 @@ class AccessLevelSpec extends RESTSpec{
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('SCSCP:DEM:AGE')
         }
     }
+
+    /**
+     *  given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
+     *  when: "I try to get a concept from that study"
+     *  then: "I get the observations"
+     */
+    def "unrestricted access admin"(){
+        given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
+        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
+
+        when: "I try to get a concept from that study"
+        def constraintMap = [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]
+        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+
+        then: "I get the observations"
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        assert selector.cellCount == 2
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('SCSCP:DEM:AGE')
+        }
+    }
 }

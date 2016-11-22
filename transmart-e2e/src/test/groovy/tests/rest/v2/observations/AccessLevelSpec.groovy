@@ -46,4 +46,22 @@ class AccessLevelSpec extends RESTSpec{
         that responseData, everyItem(hasKey('conceptCode'))
         that responseData, everyItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID))
     }
+
+    /**
+     *  given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
+     *  when: "I try to get a concept from that study"
+     *  then: "I get the observations"
+     */
+    def "unrestricted access admin"(){
+        given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
+        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
+
+        when: "I try to get a concept from that study"
+        def constraintMap = [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+
+        then: "I get the observations"
+        that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, everyItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID))
+    }
 }
