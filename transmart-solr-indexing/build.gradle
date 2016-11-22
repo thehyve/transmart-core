@@ -61,7 +61,10 @@ dependencies {
 
     // plugin specific deps
     compile "org.apache.solr:solr-solrj:4.5.1"
-
+    compile ("org.grails.plugins:cache-ehcache:3.0.0.BUILD-SNAPSHOT") {
+        exclude group:'net.sf.ehcache'
+    }
+    compile "net.sf.ehcache:ehcache:2.4.3"
 
     // gradle sub-projects
     testRuntime project(':transmart-core-db-tests')
@@ -73,7 +76,6 @@ grails {
         compile project(':biomart-domain')
         compile project(':transmart-core-db')
         compile project(':folder-management-plugin')
-        compile project(':grails-cache-ehcache')// "org.grails.plugins:cache-ehcache:1.0.5"
         provided "org.grails:grails-plugin-validation"
     }
 }
