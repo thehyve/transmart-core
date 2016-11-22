@@ -46,7 +46,7 @@ class PatientSerializationHelper extends AbstractHalOrJsonSerializationHelper<Pa
         def studyName = patient.trial.toLowerCase(Locale.ENGLISH).encodeAsURL()
 
         //TODO add more relationships (for instance, the parent study)
-        [new Link(RELATIONSHIP_SELF, "/studies/$studyName/subjects/$patient.id")]
+        [new Link(RELATIONSHIP_SELF, "/v1/studies/$studyName/subjects/$patient.id")]
     }
 
     @Override

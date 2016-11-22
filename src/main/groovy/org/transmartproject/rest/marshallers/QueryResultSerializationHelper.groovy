@@ -15,7 +15,7 @@ class QueryResultSerializationHelper extends AbstractHalOrJsonSerializationHelpe
 
     @Override
     Collection<Link> getLinks(QueryResult queryResult) {
-        [new Link(RELATIONSHIP_SELF, "/patient_sets/${queryResult.id}")]
+        [new Link(RELATIONSHIP_SELF, "/v1/patient_sets/${queryResult.id}")]
     }
 
     @Override
