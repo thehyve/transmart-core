@@ -1,4 +1,4 @@
-package org.transmartproject.core.multidimensionalquery
+package org.transmartproject.core.multidimquery
 
 interface MultiDimensionalDataResource<S> {
 
@@ -18,4 +18,7 @@ interface MultiDimensionalDataResource<S> {
      * @return a Hypercube result
      */
     Hypercube retrieveData(Map args, String dataType, Collection<S> accessibleStudies)
+
+    Dimension getDimension(String name)
+
 }

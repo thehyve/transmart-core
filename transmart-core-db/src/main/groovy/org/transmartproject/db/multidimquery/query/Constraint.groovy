@@ -7,8 +7,8 @@ import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.validation.Errors
-import org.transmartproject.core.multidimensionalquery.MultiDimConstraint
-import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.i2b2data.Study
 /**
  * The data type of a field.
@@ -171,7 +171,7 @@ enum Operator {
  */
 @Canonical
 class Field implements Validateable {
-    Class<? extends DimensionImpl> dimension
+    Class<? extends Dimension> dimension
     @BindUsing({ obj, source -> Type.forName(source['type']) })
     Type type = Type.NONE
     String fieldName

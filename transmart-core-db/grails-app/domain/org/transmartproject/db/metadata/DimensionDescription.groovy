@@ -3,6 +3,7 @@ package org.transmartproject.db.metadata
 import com.google.common.collect.ImmutableMap
 import groovy.transform.InheritConstructors
 import org.transmartproject.core.exceptions.DataInconsistencyException
+import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.db.multidimquery.ConceptDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.ModifierDimension
@@ -20,22 +21,18 @@ import org.transmartproject.db.multidimquery.ProjectionDimension
 
 import org.transmartproject.db.i2b2data.Study
 
-import static org.transmartproject.db.multidimquery.DimensionImpl.Density.SPARSE
-import static org.transmartproject.db.multidimquery.DimensionImpl.Density.DENSE
-import static org.transmartproject.db.multidimquery.DimensionImpl.Packable.PACKABLE
-import static org.transmartproject.db.multidimquery.DimensionImpl.Packable.NOT_PACKABLE
-import static org.transmartproject.db.multidimquery.DimensionImpl.Size.LARGE
-import static org.transmartproject.db.multidimquery.DimensionImpl.Size.MEDIUM
-import static org.transmartproject.db.multidimquery.DimensionImpl.Size.SMALL
+import static org.transmartproject.core.multidimquery.Dimension.Size.*
+import static org.transmartproject.core.multidimquery.Dimension.Density.*
+import static org.transmartproject.core.multidimquery.Dimension.Packable.*
 
 class DimensionDescription {
     static final String LEGACY_MARKER = "legacy tabular study marker"
 
     String name
     String modifierCode
-    DimensionImpl.Size size
-    DimensionImpl.Density density
-    DimensionImpl.Packable packable
+    Dimension.Size size
+    Dimension.Density density
+    Dimension.Packable packable
 
     static belongsTo = Study
     static hasMany = [
