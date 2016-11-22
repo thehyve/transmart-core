@@ -1,5 +1,6 @@
 package org.transmartproject.db.multidimquery
 
+import grails.plugin.cache.Cacheable
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
@@ -227,6 +228,11 @@ class QueryService {
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
         (Long) get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
+    }
+
+    @Cacheable('org.transmartproject.db.dataquery2.QueryService')
+    Long cachedCountForConcept(String path, User user) {
+        count(new ConceptConstraint(path: path), user)
     }
 
     /**
