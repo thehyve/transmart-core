@@ -6,7 +6,7 @@ import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.multidimquery.HypercubeImpl
+import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.*
@@ -120,7 +120,7 @@ class QueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        HypercubeImpl result = queryService.retrieveClinicalData(constraint, user)
+        Hypercube result = queryService.retrieveClinicalData(constraint, user)
 
         log.info "Writing to format: ${format}"
         OutputStream out = new LazyOutputStreamDecorator(

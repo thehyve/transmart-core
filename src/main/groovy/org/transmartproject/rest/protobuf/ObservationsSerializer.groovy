@@ -5,10 +5,10 @@ import groovy.util.logging.Slf4j
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.multidimquery.AssayDimension
 import org.transmartproject.db.multidimquery.BioMarkerDimension
-import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.HypercubeImpl
-import org.transmartproject.db.multidimquery.HypercubeValueImpl
 import org.transmartproject.db.multidimquery.ProjectionDimension
+import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
 
 import static com.google.protobuf.util.JsonFormat.*
@@ -49,15 +49,15 @@ public class ObservationsSerializer {
         }
     }
 
-    protected HypercubeImpl cube
+    protected Hypercube cube
     protected Printer jsonPrinter
     protected Writer writer
     protected Format format
 
-    protected Map<DimensionImpl, List<Object>> dimensionElements = [:]
-    protected Map<DimensionImpl, List<FieldDefinition>> dimensionFields = [:]
+    protected Map<Dimension, List<Object>> dimensionElements = [:]
+    protected Map<Dimension, List<FieldDefinition>> dimensionFields = [:]
 
-    ObservationsSerializer(HypercubeImpl cube, Format format) {
+    ObservationsSerializer(Hypercube cube, Format format) {
         this.cube = cube
         if (format == Format.NONE) {
             throw new InvalidArgumentsException("No format selected.")
@@ -125,7 +125,7 @@ public class ObservationsSerializer {
             if (dim.packable.packable) {
                 builder.setIsDense(true)
             }
-            if (dim.density == DimensionImpl.Density.DENSE) {
+            if (dim.density == Dimension.Density.DENSE) {
                 builder.setInline(true)
             }
             def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionName)
@@ -164,25 +164,25 @@ public class ObservationsSerializer {
     }
 
     protected void writeCells(OutputStream out) {
-        Iterator<HypercubeValueImpl> it = cube.iterator
+        Iterator<HypercubeValue> it = cube.iterator
         while (it.hasNext()) {
-            HypercubeValueImpl value = it.next()
+            HypercubeValue value = it.next()
             def cell = createCell(value)
             cell.last = !it.hasNext()
             writeMessage(out, cell.build())
         }
     }
 
-    protected Observation.Builder createCell(HypercubeValueImpl value) {
+    protected Observation.Builder createCell(HypercubeValue value) {
         Observation.Builder builder = Observation.newBuilder()
         if (value.value instanceof Number) {
             builder.numericValue = value.value
         } else {
             builder.stringValue = value.value
         }
-        for (DimensionImpl dim : cube.dimensions) {
-            Object dimElement = value.getDimElement(dim)
-            if (dim.density == DimensionImpl.Density.SPARSE) {
+        for (Dimension dim : cube.dimensions) {
+            Object dimElement = value.getAt(dim)
+            if (dim.density == Dimension.Density.SPARSE) {
                 builder.addInlineDimensions(buildSparseCell(dim, dimElement))
             } else {
                 builder.addDimensionIndexes(determineFooterIndex(dim, dimElement))
@@ -294,7 +294,7 @@ public class ObservationsSerializer {
         builder.build()
     }
 
-    protected DimensionElement buildSparseCell(DimensionImpl dim, Object dimElement) {
+    protected DimensionElement buildSparseCell(Dimension dim, Object dimElement) {
         def builder = DimensionElement.newBuilder()
         for (FieldDefinition field: dimensionFields[dim]) {
             builder.addFields(buildValue(field, dimElement.getAt(field.name)))
@@ -303,7 +303,7 @@ public class ObservationsSerializer {
     }
 
     protected getFooter() {
-        cube.dimensions.findAll({ it.density != DimensionImpl.Density.SPARSE }).collect { dim ->
+        cube.dimensions.findAll({ it.density != Dimension.Density.SPARSE }).collect { dim ->
             def fields = dimensionFields[dim] ?: []
             def elementsBuilder = DimensionElements.newBuilder()
             fields.each { field ->
@@ -323,7 +323,7 @@ public class ObservationsSerializer {
         Footer.newBuilder().addAllDimension(footer).build()
     }
 
-    protected int determineFooterIndex(DimensionImpl dim, Object element) {
+    protected int determineFooterIndex(Dimension dim, Object element) {
         if (dimensionElements[dim] == null) {
             dimensionElements[dim] = []
         }
