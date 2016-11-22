@@ -258,12 +258,12 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
                 return Restrictions.between(propertyName, values[0], values[1])
             case Operator.CONTAINS:
                 if (constraint.field.type == Type.STRING) {
-                    StringUtils.like(propertyName, constraint.value.toString(), MatchMode.ANYWHERE)
+                    return StringUtils.like(propertyName, constraint.value.toString(), MatchMode.ANYWHERE)
                 } else {
                     return Restrictions.in(propertyName, constraint.value)
                 }
             case Operator.LIKE:
-                StringUtils.like(propertyName, constraint.value.toString(), MatchMode.EXACT)
+                return StringUtils.like(propertyName, constraint.value.toString(), MatchMode.EXACT)
             case Operator.IN:
                 return Restrictions.in(propertyName, constraint.value)
             default:

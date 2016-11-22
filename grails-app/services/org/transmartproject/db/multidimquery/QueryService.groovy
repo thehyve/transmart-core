@@ -25,10 +25,8 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
-import org.transmartproject.db.util.StringUtils
 
 @Slf4j
 @Transactional
@@ -52,28 +50,9 @@ class QueryService {
     private final Field numberValueField =
             new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
 
-    private boolean checkConceptPathAccess(String conceptPath, User user) {
-        if (conceptPath == null || conceptPath.empty) {
-            throw new AccessDeniedException("Empty concept path.")
-        }
-        //TODO This query does not cover many cases. e.g concept_dimension.concept_cd in (...)
-        //It seem like only right approach would be to evaluate sql behind i2b2 node!
-        // Which would be very performance inefficient.
-        List<I2b2Secure> nodes = I2b2Secure.findAll {
-            dimensionTableName =~ 'concept_dimension'
-            columnName         =~ 'concept_path'
-            operator           =~ 'like'
-            dimensionCode      =~ StringUtils.asLikeLiteral(conceptPath)
-        }
-        nodes.any { I2b2Secure node ->
-            accessControlChecks.canPerform(user, ProtectedOperation.WellKnownOperations.READ, node)
-        }
-    }
-
     private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
         if (constraint instanceof TrueConstraint
             || constraint instanceof ModifierConstraint
-            || constraint instanceof FieldConstraint
             || constraint instanceof ValueConstraint
             || constraint instanceof TimeConstraint
             || constraint instanceof NullConstraint) {
@@ -93,8 +72,18 @@ class QueryService {
                     throw new AccessDeniedException("Access denied to patient set: ${constraint.patientSetId}")
                 }
             }
+        } else if (constraint instanceof FieldConstraint) {
+            if (constraint.field.dimension == ConceptDimension) {
+                throw new AccessDeniedException("Access denied. Concept dimension not allowed in field constraints. Use a ConceptConstraint instead.")
+            } else if (constraint.field.dimension == StudyDimension) {
+                throw new AccessDeniedException("Access denied. Study dimension not allowed in field constraints. Use a StudyConstraint instead.")
+            } else if (constraint.field.dimension == TrialVisitDimension) {
+                if (constraint.field.fieldName == 'study') {
+                    throw new AccessDeniedException("Access denied. Field 'study' of trial visit dimension not allowed in field constraints. Use a StudyConstraint instead.")
+                }
+            }
         } else if (constraint instanceof ConceptConstraint) {
-            if (!checkConceptPathAccess(constraint.path, user)) {
+            if (!accessControlChecks.checkConceptAccess(user, conceptPath: constraint.path)) {
                 throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
             }
         } else if (constraint instanceof StudyConstraint) {
@@ -164,6 +153,19 @@ class QueryService {
         getList(criteria)
     }
 
+    Long count(Constraint constraint, User user) {
+        checkAccess(constraint, user)
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser(user)
+        )
+        (Long) get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
+    }
+
+    @Cacheable('org.transmartproject.db.dataquery2.QueryService')
+    Long cachedCountForConcept(String path, User user) {
+        count(new ConceptConstraint(path: path), user)
+    }
+
     /**
      * @description Function for getting a list of patients for which there are observations
      * that are specified by <code>query</code>.
@@ -180,6 +182,23 @@ class QueryService {
         DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
         patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
         getList(patientCriteria)
+    }
+
+    Long patientCount(Constraint constraint, User user) {
+        checkAccess(constraint, user)
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser(user)
+        )
+        DetachedCriteria constraintCriteria = builder.buildCriteria(constraint)
+        DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
+        DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
+        patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
+        (Long) get(patientCriteria.setProjection(Projections.rowCount()))
+    }
+
+    @Cacheable('org.transmartproject.db.dataquery2.QueryService')
+    Long cachedPatientCountForConcept(String path, User user) {
+        patientCount(new ConceptConstraint(path: path), user)
     }
 
     static List<StudyConstraint> findStudyConstraints(Constraint constraint) {
@@ -220,19 +239,6 @@ class QueryService {
         } else {
             return []
         }
-    }
-
-    Long count(Constraint constraint, User user) {
-        checkAccess(constraint, user)
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: accessControlChecks.getDimensionStudiesForUser(user)
-        )
-        (Long) get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
-    }
-
-    @Cacheable('org.transmartproject.db.dataquery2.QueryService')
-    Long cachedCountForConcept(String path, User user) {
-        count(new ConceptConstraint(path: path), user)
     }
 
     /**
