@@ -4,6 +4,11 @@ import base.RESTSpec
 import spock.lang.Requires
 
 import static config.Config.CLINICAL_TRIAL_LOADED
+import static config.Config.EHR_ID
+import static config.Config.SHARED_CONCEPTS_RESTRICTED_ID
+import static config.Config.SHARED_CONCEPTS_RESTRICTED_LOADED
+import static config.Config.UNRESTRICTED_PASSWORD
+import static config.Config.UNRESTRICTED_USERNAME
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AND
@@ -16,7 +21,7 @@ import static tests.rest.v2.constraints.*
  *      The REST API should support querying patients based on observations:
  *          certain constraints are valid for any or for all observations for the patient. E.g, all observations of high blood pressure occur after supply of drug X.
  */
-class GetQueryPatientsSpec extends RESTSpec{
+class GetPatientsSpec extends RESTSpec{
 
     /**
      *  given: "study CLINICAL_TRIAL is loaded"
@@ -72,6 +77,46 @@ class GetQueryPatientsSpec extends RESTSpec{
         then: "2 patients are returned"
         that responseData.size(), is(2)
         that responseData, everyItem(hasKey('id'))
+    }
+
+    /**
+     *  given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
+     *  when: "I try to get the patients from that study"
+     *  then: "I get an access error"
+     */
+    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
+    def "get pratients restricted"(){
+        given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
+
+        when: "I try to get the patients from that study"
+        def constraintMap = [type: StudyConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
+        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+
+        then: "I get an access error"
+        assert responseData.httpStatus == 403
+        assert responseData.type == 'AccessDeniedException'
+        assert responseData.message == "Access denied to study: ${SHARED_CONCEPTS_RESTRICTED_ID}"
+    }
+
+    /**
+     *  given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
+     *  when: "I try to get the patients from that study"
+     *  then: "I get all patients"
+     */
+    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
+    def "get pratients unrestricted"(){
+        given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
+        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
+
+        when: "I try to get the patients from that study"
+        def constraintMap = [type: StudyConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
+        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+
+        then: "I get all patients"
+        that responseData.size(), is(2)
+        that responseData, contains(
+                hasEntry('id', -69),
+                hasEntry('id', -59))
     }
 
 }

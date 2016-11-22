@@ -17,7 +17,7 @@ import static config.Config.*
  *      maximum
  *      average
  */
-class GetQueryAggregatedTimeseriesSpec extends RESTSpec{
+class GetAggregatedSpec extends RESTSpec{
 
     /**
      *  given: "study EHR is loaded"
@@ -114,6 +114,53 @@ class GetQueryAggregatedTimeseriesSpec extends RESTSpec{
         assert responseData.httpStatus == 400
         assert responseData.message == 'Type parameter is missing.'
         assert responseData.type == 'InvalidArgumentsException'
+    }
+
+    /**
+     *  given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
+     *  when: "for that study I Aggregated the concept Heart Rate with type average"
+     *  then: "I get an access error"
+     */
+    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
+    def "restricted aggregated average"(){
+        given: "study EHR is loaded"
+        def conceptPath = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
+
+        when: "for that study I Aggregated the concept Heart Rate with type average"
+        def query = [
+                constraint: toJSON([type: ConceptConstraint, path: conceptPath]),
+                type: AVERAGE
+        ]
+
+        def responseData = get("query/aggregate", contentTypeForJSON, query)
+
+        then: "I get an access error"
+        assert responseData.httpStatus == 403
+        assert responseData.type == 'AccessDeniedException'
+        assert responseData.message == "Access denied to concept path: ${conceptPath}"
+    }
+
+    /**
+     *  given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
+     *  when: "for that study I Aggregated the concept Heart Rate with type average"
+     *  then: "I get an access error"
+     */
+    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
+    def "unrestricted aggregated average"(){
+        given: "study EHR is loaded"
+        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
+        def conceptPath = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
+
+        when: "for that study I Aggregated the concept Heart Rate with type average"
+        def query = [
+                constraint: toJSON([type: ConceptConstraint, path: conceptPath]),
+                type: AVERAGE
+        ]
+
+        def responseData = get("query/aggregate", contentTypeForJSON, query)
+
+        then: "the number 34.5 is returned"
+        assert responseData.average == 34.5
     }
 
 }

@@ -1,6 +1,8 @@
-package tests.rest.v2
+package tests.rest.v2.protobuf
 
 import base.RESTSpec
+import protobuf.ObservationsMessageProto
+import selectors.protobuf.ObservationSelector
 import spock.lang.Requires
 
 import static config.Config.*
@@ -18,7 +20,7 @@ import static tests.rest.v2.constraints.*
  *      It should be possible to link observations from multiple concepts to the same relative timepoint. At least per study, preferably global.
  *      Relative timepoints should be able to have a linked value and unit, representing their place on the relative timescale compared to other relative timepoints with the same unit.
  */
-class GetQueryObservationsRelativeTimepointsSpec extends RESTSpec{
+class GetRelativeTimepointsSpec extends RESTSpec{
 
     /**
      *  given: "study CLINICAL_TRIAL is loaded"
@@ -44,11 +46,15 @@ class GetQueryObservationsRelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
 
         then: "4 observations are returned"
-        that responseData.size(), is(4)
-        that responseData, everyItem(hasKey('conceptCode'))
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        assert selector.cellCount == 4
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CT:VSIGN:HR')
+        }
     }
 
     /**
@@ -91,11 +97,22 @@ class GetQueryObservationsRelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        def responseData1 = get("query/observations", contentTypeForJSON, toQuery(constraintMap1))
-        def responseData2 = get("query/observations", contentTypeForJSON, toQuery(constraintMap2))
+        ObservationsMessageProto responseData1 = getProtobuf("query/hypercube", toQuery(constraintMap1))
+        ObservationsMessageProto responseData2 = getProtobuf("query/hypercube", toQuery(constraintMap2))
 
         then: "both sets of observations are the same"
-        that responseData1, is(responseData2)
+        ObservationSelector selector1 = new ObservationSelector(responseData1)
+        ObservationSelector selector2 = new ObservationSelector(responseData2)
+
+        assert selector1.cellCount == selector2.cellCount
+        assert selector1.inlined.size() ==  selector2.inlined.size()
+        assert selector1.inlined.containsAll(selector2.inlined)
+        assert selector1.notInlined.size() ==  selector2.notInlined.size()
+        assert selector1.notInlined.containsAll(selector2.notInlined)
+
+        (0..<selector1.cellCount).each {
+            assert selector1.select(it) == selector2.select(it)
+        }
     }
 
     /**
@@ -122,11 +139,16 @@ class GetQueryObservationsRelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
 
         then: "multiple concepts are returned"
-        that responseData, hasItem(hasEntry('conceptCode', 'EHR:DEM:AGE'))
-        that responseData, hasItem(hasEntry('conceptCode', 'EHR:VSIGN:HR'))
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        HashSet concepts = []
+        (0..<selector.cellCount).each {
+            concepts.add(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+        }
+        assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR')
     }
 
     /**
@@ -146,12 +168,17 @@ class GetQueryObservationsRelativeTimepointsSpec extends RESTSpec{
                              operator: EQUALS,
                              value:'General']
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
 
         then: "multiple concepts are returned"
-        that responseData, hasItem(hasEntry('conceptCode', 'EHR:DEM:AGE'))
-        that responseData, hasItem(hasEntry('conceptCode', 'EHR:VSIGN:HR'))
-        that responseData, hasItem(hasEntry('conceptCode', 'CT:DEM:AGE'))
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        HashSet concepts = []
+        (0..<selector.cellCount).each {
+            concepts.add(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+        }
+
+        assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR', 'CT:DEM:AGE')
     }
 
     /**
@@ -194,10 +221,21 @@ class GetQueryObservationsRelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        def responseData1 = get("query/observations", contentTypeForJSON, toQuery(constraintMap1))
-        def responseData2 = get("query/observations", contentTypeForJSON, toQuery(constraintMap2))
+        ObservationsMessageProto responseData1 = getProtobuf("query/hypercube", toQuery(constraintMap1))
+        ObservationsMessageProto responseData2 = getProtobuf("query/hypercube", toQuery(constraintMap2))
 
         then: "both sets of observations are the same"
-        that responseData1, is(responseData2)
+        ObservationSelector selector1 = new ObservationSelector(responseData1)
+        ObservationSelector selector2 = new ObservationSelector(responseData2)
+
+        assert selector1.cellCount == selector2.cellCount
+        assert selector1.inlined.size() ==  selector2.inlined.size()
+        assert selector1.inlined.containsAll(selector2.inlined)
+        assert selector1.notInlined.size() ==  selector2.notInlined.size()
+        assert selector1.notInlined.containsAll(selector2.notInlined)
+
+        (0..<selector1.cellCount).each {
+            assert selector1.select(it) == selector2.select(it)
+        }
     }
 }
