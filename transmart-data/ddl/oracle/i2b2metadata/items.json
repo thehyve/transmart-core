@@ -52,7 +52,7 @@
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
-      "name" : "STUDY_DIMENSIONS"
+      "name" : "STUDY_DIMENSIONDESCRIPTIONS"
     } ]
   }, {
     "child" : {
@@ -254,7 +254,7 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
-      "name" : "STUDY_DIMENSIONS"
+      "name" : "STUDY_DIMENSIONDESCRIPTIONS"
     },
     "parents" : [ {
       "type" : "TABLE",
@@ -362,7 +362,7 @@
       "owner" : "I2B2METADATA",
       "name" : "FK_9VVV5M5NBXSU2LKBEEFTEVD5J"
     },
-    "file" : "i2b2metadata/study_dimensions.sql"
+    "file" : "i2b2metadata/study_dimensiondescriptions.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -535,9 +535,9 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
-      "name" : "STUDY_DIMENSIONS"
+      "name" : "STUDY_DIMENSIONDESCRIPTIONS"
     },
-    "file" : "i2b2metadata/study_dimensions.sql"
+    "file" : "i2b2metadata/study_dimensiondescriptions.sql"
   }, {
     "item" : {
       "type" : "TABLE",
