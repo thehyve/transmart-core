@@ -33,7 +33,12 @@ class RestApiUrlMappings {
 
         group "/v2", {
 
-            "/query/$action?"(method: 'GET', controller: 'query')
+            "/query/$action?"(method: 'GET', controller: 'query') {
+                apiVersion = 'v2'
+            }
+            "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
+                apiVersion = 'v2'
+            }
         }
 
         group "/v1", {
