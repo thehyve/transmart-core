@@ -25,8 +25,8 @@ class StudyTestData {
      * @param dimensions
      * @return
      */
-    static Study createStudy(String name, Iterable dimensions) {
-        def study = new Study(studyId: name, secureObjectToken: "EXP:${name}")
+    static Study createStudy(String name, Iterable dimensions, boolean isPublic = false) {
+        def study = new Study(studyId: name, secureObjectToken: isPublic ? Study.PUBLIC : "EXP:${name}")
         dimensions.each {
             if(it instanceof DimensionDescription) {
                 study.addToDimensionDescriptions(it)
