@@ -1,6 +1,5 @@
 language: groovy
 
-<<<<<<< HEAD
 jdk:
   - oraclejdk8
 php:

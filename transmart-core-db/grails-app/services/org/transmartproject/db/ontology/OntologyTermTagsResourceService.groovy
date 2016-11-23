@@ -15,7 +15,6 @@ class OntologyTermTagsResourceService implements OntologyTermTagsResource {
             return [:]
         }
 
-        def orderedTags = I2b2Tag.createCriteria().list 
         /**
          * The query for tags is split into two separate queries, to make sure
          * that tags associated with tag types (through the 'option' field)
