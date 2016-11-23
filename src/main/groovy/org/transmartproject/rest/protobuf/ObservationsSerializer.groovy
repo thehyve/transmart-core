@@ -3,12 +3,15 @@ package org.transmartproject.rest.protobuf
 import com.google.protobuf.Message
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.db.multidimquery.AssayDimension
-import org.transmartproject.db.multidimquery.BioMarkerDimension
-import org.transmartproject.db.multidimquery.ProjectionDimension
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.db.multidimquery.AssayDimension
+import org.transmartproject.db.multidimquery.BioMarkerDimension
+import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.HypercubeImpl
+import org.transmartproject.db.multidimquery.HypercubeValueImpl
+import org.transmartproject.db.multidimquery.ProjectionDimension
+import org.transmartproject.db.multidimquery.StudyDimension
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
 
 import static com.google.protobuf.util.JsonFormat.*
@@ -164,7 +167,6 @@ public class ObservationsSerializer {
                     break
             }
             dimensionFields[dim] = fields
-
             builder.build()
         }
         dimensionDeclarations
@@ -431,7 +433,8 @@ public class ObservationsSerializer {
     protected DimensionElement buildSparseCell(Dimension dim, Object dimElement) {
         def builder = DimensionElement.newBuilder()
         for (FieldDefinition field: dimensionFields[dim]) {
-            builder.addFields(buildValue(field, dimElement.getAt(field.name)))
+            if(dim.class == StudyDimension) builder.addFields(buildValue(field, dimElement[field.name]))
+            else builder.addFields(buildValue(field, dimElement))
         }
         builder.build()
     }
