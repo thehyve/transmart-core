@@ -13,6 +13,8 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.HypercubeImpl
 import org.transmartproject.db.multidimquery.QueryService
@@ -22,7 +24,7 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.util.GormWorkarounds
 
-class MultidimensionalDataResourceService implements MultiDimensionalDataResource<Study> {
+class MultidimensionalDataResourceService implements MultiDimensionalDataResource {
 
     @Autowired
     SessionFactory sessionFactory
@@ -46,7 +48,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      *
      * @return a Hypercube result
      */
-    HypercubeImpl retrieveData(Map args, String dataType, Collection<Study> accessibleStudies) {
+    HypercubeImpl retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies) {
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint
