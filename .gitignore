@@ -6,3 +6,13 @@ out
 */build/
 /build/
 *.iml
+
+Thumbs.db
+.DS_Store
+build/
+classes/
+*.ipr
+*.iws
+.project
+.settings
+.classpath
