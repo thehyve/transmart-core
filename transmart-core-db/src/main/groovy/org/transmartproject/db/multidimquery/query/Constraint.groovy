@@ -211,6 +211,16 @@ class ModifierConstraint extends Constraint {
 
     static constraints = {
         values nullable: true
+        modifierCode nullable: true
+        path nullable: true
+        modifierCode(validator: {val, obj->
+            if( (!val && !obj.path) || (val && obj.path) ) {
+                errors.rejectValue(
+                        'args',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "Combination contains invalid constraints.")
+            }
+        })
     }
 }
 
@@ -346,6 +356,19 @@ class TimeConstraint extends Constraint {
 class PatientSetConstraint extends Constraint {
     Long patientSetId
     Set<Long> patientIds
+
+    static constraints = {
+        patientSetId nullable: true
+        patientIds nullable: true
+        patientSetId(validator: {val, obj->
+            if( (!val && !obj.patientIds) || (val && obj.patientIds) ) {
+                errors.rejectValue(
+                        'args',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "Combination contains invalid constraints.")
+            }
+        })
+    }
 }
 
 /**
