@@ -57,7 +57,14 @@ public class ObservationsSerializer {
     protected Map<Dimension, List<Object>> dimensionElements = [:]
     protected Map<Dimension, List<FieldDefinition>> dimensionFields = [:]
 
-    ObservationsSerializer(Hypercube cube, Format format) {
+    protected List<Map<DimensionImpl, List<Object>>> inlineDimElements = new ArrayList<Map>()
+    protected List<Map<DimensionImpl, Boolean>> packedDimFlagMap = new ArrayList<Map>()
+
+    protected List<List<Long>> footerIndexes = []
+    protected List<List<Object>> observationValues = []
+
+    ObservationsSerializer(HypercubeImpl cube, Format format) {
+
         this.cube = cube
         if (format == Format.NONE) {
             throw new InvalidArgumentsException("No format selected.")
@@ -118,6 +125,7 @@ public class ObservationsSerializer {
     }
 
     protected getDimensionsDefs() {
+        setupPackedValues()
         def dimensionDeclarations = cube.dimensions.collect { dim ->
             def builder = DimensionDeclaration.newBuilder()
             String dimensionName = dim.toString()
@@ -125,8 +133,11 @@ public class ObservationsSerializer {
             if (dim.packable.packable) {
                 builder.setIsDense(true)
             }
-            if (dim.density == Dimension.Density.DENSE) {
+            if (dim.density == DimensionImpl.Density.SPARSE) {
                 builder.setInline(true)
+            }
+            if (packedDimFlagMap.any{it[dim]}) {
+                builder.setPacked(true)
             }
             def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionName)
             def fields = []
@@ -159,37 +170,158 @@ public class ObservationsSerializer {
         dimensionDeclarations
     }
 
+    protected void setupPackedValues() {
+
+        def sparsePackableDims = cube.dimensions.findAll { dim ->
+            dim.density == DimensionImpl.Density.SPARSE && dim.packable.packable
+        }
+
+        Iterator<HypercubeValueImpl> it = cube.iterator
+        while (it.hasNext()) {
+            HypercubeValueImpl value = it.next()
+            def dimIndexes = new ArrayList()
+            extendListsForAnotherCubeValue()
+            // determine DENSE dimensions footer indexes
+            cube.dimensions.each { dim ->
+                if (dim.density == DimensionImpl.Density.DENSE) {
+                    Object dimElement = value.getDimElement(dim)
+                    dimIndexes << determineFooterIndex(dim, dimElement)
+                }
+            }
+
+            if (!observationValues.size()) {
+                // if it is first cube element, add to list, without checking
+                observationValues.add([value.value])
+                cube.dimensions.each { dim ->
+                    if (dim.density == DimensionImpl.Density.SPARSE) {
+                        inlineDimElements[0][dim] = [value.getDimElement(dim)]
+                    }
+                }
+            } else {
+                // compare cube element with elements already added to list
+                if(!compareAndPackIfPossible(dimIndexes, value, sparsePackableDims)){
+                    addNotPackedElement(value, observationValues.size())
+                }
+            }
+            footerIndexes << dimIndexes
+        }
+    }
+
+    protected boolean compareAndPackIfPossible(List<Long> dimIndexes, HypercubeValueImpl value, List<DimensionImpl> sparsePackableDims) {
+        footerIndexes.eachWithIndex { item, idx ->
+            // compare types of values
+            if (value.value.getClass() == observationValues[idx][0].getClass()) {
+                // compare DENSE dimensions values via dimension elements indexes
+                def diffDenseDimsNumber = countDifferentDenseDims(item, dimIndexes)
+                // compare SPARSE dimensions values
+                def diffSparseDims = getDifferentSparseDims(idx, value, sparsePackableDims)
+
+                if (diffDenseDimsNumber == 0 && diffSparseDims.size() == 1) {
+                    // values that differ in only one SPARSE dimension and have the same type can be packed
+                    def differentDim = diffSparseDims.first()
+                    packInlineDimsValues(idx, value, differentDim)
+                    packedDimFlagMap[idx][differentDim] = true
+                    observationValues[idx].add(value.value)
+                    return true
+                } else if (diffDenseDimsNumber == 1 && diffSparseDims.size() == 0) {
+                    // values that differ in only one DENSE dimension and have the same type can be packed
+                    def differentDim
+                    item.eachWithIndex { elem, elemIdx ->
+                        if (elem != dimIndexes[elemIdx]) {
+                            differentDim = (new ArrayList<DimensionImpl>(dimensionElements*.key)).get(elemIdx)
+                        }
+                    }
+                    packInlineDimsValues(idx, value)
+                    packedDimFlagMap[idx][differentDim] = true
+                    observationValues[idx].add(value.value)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    protected void packInlineDimsValues(int idx, HypercubeValueImpl value, DimensionImpl excludedDim = null) {
+        cube.dimensions.each { dim ->
+            if (dim.density == DimensionImpl.Density.SPARSE && dim != excludedDim) {
+                inlineDimElements[idx][dim].add(value.getDimElement(dim))
+                packedDimFlagMap[idx][dim] = true
+            }
+        }
+    }
+
+    protected ArrayList getDifferentSparseDims(int idx, HypercubeValueImpl value, List<DimensionImpl> sparsePackableDims) {
+        def diffSparseDim = sparsePackableDims.findAll { dim ->
+            value.getDimElement(dim) != inlineDimElements[idx][dim].first()
+        }
+        diffSparseDim
+    }
+
+    protected int countDifferentDenseDims(List<Long> item, List<Long> dimIndexes) {
+        def diffDenseDimValue = dimIndexes - item.intersect(dimIndexes)
+        diffDenseDimValue.size()
+    }
+
+    protected void addNotPackedElement(HypercubeValueImpl value, int idx) {
+        cube.dimensions.each { dim ->
+            if (dim.density == DimensionImpl.Density.SPARSE){
+                inlineDimElements[idx][dim] = [value.getDimElement(dim)]
+            }
+            packedDimFlagMap[idx][dim] = false
+        }
+        observationValues.add([value.value])
+    }
+
+    private void extendListsForAnotherCubeValue() {
+        inlineDimElements.add(cube.dimensions.findAll{it.density == DimensionImpl.Density.SPARSE}.collectEntries(new HashMap()) { [it, new ArrayList<Object>()] })
+        packedDimFlagMap.add(cube.dimensions.collectEntries(new HashMap()) { [it, false] })
+    }
+
     protected Header buildHeader() {
         Header.newBuilder().addAllDimensionDeclarations(dimensionsDefs).build()
     }
 
     protected void writeCells(OutputStream out) {
-        Iterator<HypercubeValue> it = cube.iterator
-        while (it.hasNext()) {
-            HypercubeValue value = it.next()
-            def cell = createCell(value)
-            cell.last = !it.hasNext()
+        observationValues.eachWithIndex{ value, idx ->
+            def cell
+            if (value.size() == 1) cell = createSingleCell(value.first(), idx)
+            else cell = createPackedCell(value, idx)
+            cell.last = (idx == (observationValues.size() - 1))
             writeMessage(out, cell.build())
         }
     }
 
-    protected Observation.Builder createCell(HypercubeValue value) {
+    protected Observation.Builder createSingleCell(Object value, int valIndex) {
         Observation.Builder builder = Observation.newBuilder()
-        if (value.value != null) {
-            if (value.value instanceof Number) {
-                builder.numericValue = value.value as Double
+
+        if (value != null) {
+            if (value instanceof Number) {
+                builder.numericValue = value as Double
             } else {
-                builder.stringValue = value.value
+                builder.stringValue = value
             }
         }
-        for (Dimension dim : cube.dimensions) {
-            Object dimElement = value.getAt(dim)
-            if (dim.density == Dimension.Density.SPARSE) {
-                builder.addInlineDimensions(buildSparseCell(dim, dimElement))
-            } else {
-                builder.addDimensionIndexes(determineFooterIndex(dim, dimElement))
-            }
+        inlineDimElements[valIndex].each {
+            builder.addInlineDimensions(buildSparseCell(it.key, it.value.first()))
         }
+        builder.addAllDimensionIndexes(footerIndexes[valIndex])
+        builder
+    }
+
+    protected PackedObservation.Builder createPackedCell(List<Object> values, int valIndex, int numSamples = 1) {
+        PackedObservation.Builder builder = PackedObservation.newBuilder()
+        if (values.every { it instanceof Number }) {
+            builder.addAllNumericValues(values)
+        } else {
+            builder.addAllStringValues(values)
+        }
+
+        inlineDimElements[valIndex].each { key, val ->
+            builder.addInlineDimensions(buildDimensionElements(val, key))
+            // TODO add support for multiple samples/timestamps
+            builder.addNumSamples(numSamples)
+        }
+        builder.addAllDimensionIndexes(footerIndexes[valIndex])
         builder
     }
 
@@ -304,20 +436,26 @@ public class ObservationsSerializer {
         builder.build()
     }
 
+    protected DimensionElements buildDimensionElements(List<DimElementField> fields, DimensionImpl dim,
+                                                       boolean perSample = false) {
+        def elementsBuilder = DimensionElements.newBuilder()
+        fields.each { field ->
+            def elementFieldBuilder = DimElementField.newBuilder()
+            dimensionElements[dim].each { elements ->
+                elements.each { element ->
+                    addValue(elementFieldBuilder, field, element.getAt(field.name))
+                }
+            }
+            elementsBuilder.addFields(elementFieldBuilder)
+            elementsBuilder.setPerSample(perSample)
+        }
+        elementsBuilder.build()
+    }
+
     protected getFooter() {
         cube.dimensions.findAll({ it.density != Dimension.Density.SPARSE }).collect { dim ->
             def fields = dimensionFields[dim] ?: []
-            def elementsBuilder = DimensionElements.newBuilder()
-            fields.each { field ->
-                def elementFieldBuilder = DimElementField.newBuilder()
-                dimensionElements[dim].each { elements ->
-                    elements.each { element ->
-                        addValue(elementFieldBuilder, field, element.getAt(field.name))
-                    }
-                }
-                elementsBuilder.addFields(elementFieldBuilder)
-            }
-            elementsBuilder.build()
+            buildDimensionElements(fields, dim)
         }
     }
 
@@ -325,11 +463,11 @@ public class ObservationsSerializer {
         Footer.newBuilder().addAllDimension(footer).build()
     }
 
-    protected int determineFooterIndex(Dimension dim, Object element) {
+    protected Long determineFooterIndex(DimensionImpl dim, Object element) {
         if (dimensionElements[dim] == null) {
             dimensionElements[dim] = []
         }
-        int index = dimensionElements[dim].indexOf(element)
+        long index = dimensionElements[dim].indexOf(element)
         if (index == -1) {
             dimensionElements[dim].add(element)
             index = dimensionElements[dim].indexOf(element)
