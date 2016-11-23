@@ -4,3 +4,16 @@
 /vars
 /vars-*
 /private-feeds
+/contexts/
+/contrib/
+/dist/
+/etc/
+/lib/
+/logs/
+/resources/
+/solr/
+/solr-*.tgz
+/solr-*/
+/solr-webapp/
+/webapps/
+/start.jar

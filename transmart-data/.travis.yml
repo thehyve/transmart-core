@@ -31,3 +31,4 @@ before_script:
     - echo $(groovy --version)
 
 script: ./travis-test $TEST_SUITE
+
