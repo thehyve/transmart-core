@@ -1,6 +1,8 @@
 package org.transmartproject.core.multidimquery
 
-interface MultiDimensionalDataResource<S> {
+import org.transmartproject.core.ontology.MDStudy
+
+interface MultiDimensionalDataResource {
 
     /**
      * @param accessibleStudies: The studies the current user has access to.
@@ -17,7 +19,7 @@ interface MultiDimensionalDataResource<S> {
      *
      * @return a Hypercube result
      */
-    Hypercube retrieveData(Map args, String dataType, Collection<S> accessibleStudies)
+    Hypercube retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies)
 
     Dimension getDimension(String name)
 
