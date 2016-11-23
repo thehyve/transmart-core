@@ -13,11 +13,11 @@ class SerializableProperties {
     public static final Set<String> CONCEPT = ["conceptPath", "conceptCode"]
     public static final Set<String> STUDY = ["studyId", "bioExperimentId", "secureObjectToken"]
     public static final Set<String> TRIAL_VISIT = ["relTimeUnit", "relTime", "relTimeLabel", "study"]
-    public static final Set<String> START_DATE = ["time"]
-    public static final Set<String> END_DATE = ["time"]
-    public static final Set<String> VISIT = ["patient", "encounterNum"]
-    public static final Set<String> LOCATION = ["location"]
-    public static final Set<String> PROVIDER = ["provider"]
+    public static final Set<String> START_DATE = ["startDate"]
+    public static final Set<String> END_DATE = ["endDate"]
+    public static final Set<String> VISIT = ["patient", "activeStatus", "startDate", "endDate", "inoutCd", "locationCd"]
+    public static final Set<String> LOCATION = ["locationCd"]
+    //public static final Set<String> PROVIDER = ["providerId"]
 
 
     public static final Map<String, Set<String>> SERIALIZABLES = [
@@ -29,7 +29,8 @@ class SerializableProperties {
             "StudyDimension": STUDY,
             "VisitDimension": VISIT,
             "LocationDimension": LOCATION,
-            "ProviderDimension": PROVIDER
+            //"ProviderDimension": PROVIDER
     ]
     // TODO: fill in the rest of the serializable fields for all other dimensions
+    // TODO: decide which fields from each dimension are important
 }
