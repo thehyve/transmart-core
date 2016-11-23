@@ -63,6 +63,41 @@ class ObservationsBuilderTests extends Specification {
         that result['dimensionIndexes'].findAll(), everyItem(hasSize(dimElementsSize))
     }
 
+    public void testPackedDimsSerialization() {
+        setupData()
+        Constraint constraint = new StudyConstraint(studyId: clinicalData.multidimsStudy.studyId)
+        def mockedCube = queryResource.retrieveData('clinical', [clinicalData.multidimsStudy], constraint: constraint)
+        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON)
+
+        when:
+        def out = new ByteArrayOutputStream()
+        builder.write(out)
+        out.flush()
+        Collection result = new JsonSlurper().parse(out.toByteArray())
+        def dimElementsSize = result.last()['dimension'].size()
+        def dimensionDeclaration = result.first()['dimensionDeclarations']
+
+        then:
+        result.size() == 14
+        that result, everyItem(anyOf(
+                hasKey('dimensionDeclarations'),
+                hasKey('dimensionIndexes'),
+                hasKey('dimension')
+        ))
+        // declarations for all dimensions exist
+        that dimensionDeclaration, hasSize(mockedCube.dimensions.size())
+        that dimensionDeclaration['name'],
+                containsInAnyOrder(mockedCube.dimensions.collect{it.toString()}.toArray()
+                )
+        // at least one declaration of packed dimension exists
+        that dimensionDeclaration['packed'], hasItem(true)
+        that result['stringValues'], hasSize(greaterThan(1))
+
+        // indexes for all dense dimensions (dimension elements) exist
+        that result['dimension'].findAll(), everyItem(hasSize(dimElementsSize))
+        that result['dimensionIndexes'].findAll(), everyItem(hasSize(dimElementsSize))
+    }
+
     public void testProtobufSerialization() {
         setupData()
         Constraint constraint = new StudyConstraint(studyId: clinicalData.longitudinalStudy.studyId)
