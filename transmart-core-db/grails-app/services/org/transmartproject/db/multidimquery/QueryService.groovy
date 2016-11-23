@@ -397,6 +397,7 @@ class QueryService {
         return getAggregate(type, queryCriteria)
     }
 
+    //TODO No need to have both concept constraint and assay constraint
     def highDimension(ConceptConstraint conceptConstraint,
                       BiomarkerConstraint biomarkerConstaint,
                       Constraint assayConstraint,
@@ -407,6 +408,19 @@ class QueryService {
         checkAccess(conceptConstraint, user)
         if (assayConstraint) {
             checkAccess(assayConstraint, user)
+        }
+
+        List<AssayConstraint> oldAssayConstraints = [
+                highDimensionResourceService.createAssayConstraint([concept_path: conceptConstraint.path],
+                        AssayConstraint.CONCEPT_PATH_CONSTRAINT
+                )
+        ]
+
+        if (assayConstraint) {
+            //TODO User hypercube instead
+            List<ObservationFact> observations = list(assayConstraint, user)
+            List assayIds = observations.findAll { it.modifierCd == '@' }*.numberValue
+            oldAssayConstraints << highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
         }
 
         //check the existence and access for the conceptConstraint
@@ -441,15 +455,6 @@ class QueryService {
         //Need to convert the V2 constraints into a patientset and create the PATIENT_ID_LIST_CONSTRAINT
         //or similar appraoch, but seems quite redundant.
         //Check with Hypercube requirements
-        List<AssayConstraint> assayConstraints = [
-                typeResource.createAssayConstraint([concept_path: conceptConstraint.path],
-                        AssayConstraint.CONCEPT_PATH_CONSTRAINT
-                )
-        ]
-        if (assayConstraint) {
-            List<org.transmartproject.db.i2b2data.PatientDimension> listPatientDimensions = listPatients(assayConstraint, user)
-            assayConstraints << typeResource.createAssayConstraint([ids: listPatientDimensions*.inTrialId], AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)
-        }
 
         //verify the biomarkerConstraint
         //only get GeneSymbol BOGUSRQCD1
@@ -458,7 +463,7 @@ class QueryService {
             dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.biomarkerType)
         }
         //get the data
-        TabularResult table = typeResource.retrieveData(assayConstraints, dataConstraints, projection)
+        TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
         [projection, table]
     }
 
