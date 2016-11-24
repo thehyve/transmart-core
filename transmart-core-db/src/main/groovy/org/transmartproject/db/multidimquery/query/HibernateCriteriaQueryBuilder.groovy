@@ -306,8 +306,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * Creates a criteria object for a patient set by conversion to a field constraint for the patient id field.
      */
     Criterion build(PatientSetConstraint constraint) {
-
-        if (constraint.patientIds != null) {
+        if (constraint.patientIds != null && !constraint.patientIds.empty) {
             build(new FieldConstraint(field: patientIdField, operator: Operator.IN, value: constraint.patientIds))
         }
         else if (constraint.patientSetId != null) {
@@ -320,7 +319,6 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         else {
             throw new QueryBuilderException("Constraint value not specified: ${constraint.class}")
         }
-
     }
 
     Criterion build(ConceptConstraint constraint){
