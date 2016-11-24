@@ -88,7 +88,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             validDimensions = ImmutableSet.copyOf((Set<DimensionImpl>) studies*.dimensions.flatten())
 
         } else {
-            validDimensions = ImmutableSet.copyOf DimensionDescription.all*.dimension
+            validDimensions = ImmutableSet.copyOf((Set<DimensionImpl>) Study.findAll()*.dimensions.flatten())
         }
         // only allow valid dimensions
         dimensions = (Set<DimensionImpl>) dimensions?.findAll { it in validDimensions } ?: validDimensions
