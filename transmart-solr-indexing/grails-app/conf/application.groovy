@@ -75,3 +75,84 @@ grails.cache.config = {
 }
 grails.plugin.springsecurity.active = false
 
+
+
+grails.mime.types = [
+        all          : '*/*',
+        atom         : 'application/atom+xml',
+        css          : 'text/css',
+        csv          : 'text/csv',
+        form         : 'application/x-www-form-urlencoded',
+        html         : ['text/html', 'application/xhtml+xml'],
+        js           : 'text/javascript',
+        json         : ['application/json', 'text/json'],
+        multipartForm: 'multipart/form-data',
+        rss          : 'application/rss+xml',
+        text         : 'text/plain',
+        hal          : ['application/hal+json', 'application/hal+xml'],
+        xml          : ['text/xml', 'application/xml'],
+        protobuf     : 'application/x-protobuf',
+]
+
+grails.mime.use.accept.header = true
+
+// Legacy setting for codec used to encode data with ${}
+grails.views.default.codec = "html"
+
+grails.controllers.defaultScope = 'singleton' //default is prototype
+
+// GSP settings
+grails {
+    views {
+        gsp {
+            encoding = 'UTF-8'
+            htmlcodec = 'xml' // use xml escaping instead of HTML4 escaping
+            codecs {
+                expression = 'html' // escapes values inside ${}
+                scriptlet = 'html' // escapes output from scriptlets in GSPs
+                taglib = 'none' // escapes output from taglibs
+                staticparts = 'none'
+                // escapes output from static template parts
+            }
+        }
+        // escapes all not-encoded output at final stage of outputting
+        filteringCodecForContentType {
+            //'text/html' = 'html'
+        }
+    }
+}
+
+grails.converters.encoding = "UTF-8"
+// scaffolding templates configuration
+grails.scaffolding.templates.domainSuffix = 'Instance'
+
+// Set to false to use the new Grails 1.2 JSONBuilder in the render method
+grails.json.legacy.builder = false
+// enabled native2ascii conversion of i18n properties files
+grails.enable.native2ascii = true
+// packages to include in Spring bean scanning
+grails.spring.bean.packages = []
+// whether to disable processing of multi part requests
+grails.web.disable.multipart = true
+
+
+
+environments {
+    test {
+        grails.dbconsole.enabled = true
+    }
+}
+
+grails.converters.json.pretty.print = true
+
+grails.mime.disable.accept.header.userAgents = false
+
+environments {
+    production {
+        grails.converters.json.pretty.print = false
+    }
+}
+
+
+
+
