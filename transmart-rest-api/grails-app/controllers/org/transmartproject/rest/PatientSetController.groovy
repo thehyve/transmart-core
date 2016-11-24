@@ -32,7 +32,7 @@ class PatientSetController {
     /**
      * Not yet supported in core-api.
      *
-     * GET /patient_sets
+     * GET /v1/patient_sets
      */
     def index() {
         throw new NoSuchResourceException('Listing previously created ' +
@@ -42,7 +42,7 @@ class PatientSetController {
     /**
      * Show details of a patient set
      *
-     * GET /patient_sets/<result_instance_id>
+     * GET /v1/patient_sets/<result_instance_id>
      */
     def show(Long id) {
         QueryResult queryResult = queriesResource.getQueryResultFromId(id)
@@ -55,7 +55,7 @@ class PatientSetController {
     /**
      * Create a new patient set.
      *
-     * POST /patient_sets
+     * POST /v1/patient_sets
      */
     def save() {
         if (!request.contentType) {
