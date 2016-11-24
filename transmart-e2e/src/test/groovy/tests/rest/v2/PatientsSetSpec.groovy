@@ -33,7 +33,7 @@ class PatientsSetSpec extends RESTSpec {
 
         then: "I get a patientset with 2 patients"
         assert  responseData.id != null
-        assert get(PATH_HYPERCUBE, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 2
+        assert get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 2
     }
 
     /**
@@ -51,7 +51,7 @@ class PatientsSetSpec extends RESTSpec {
 
         then: "the set has patients from several studies"
         assert  responseData.id != null
-        assert get(PATH_HYPERCUBE, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 4
+        assert get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 4
     }
 
     /**
@@ -69,7 +69,7 @@ class PatientsSetSpec extends RESTSpec {
 
         then: "the set has patients from the studies I have access to"
         assert  responseData.id != null
-        assert get(PATH_HYPERCUBE, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 4
+        assert get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 4
     }
 
     /**
@@ -88,7 +88,7 @@ class PatientsSetSpec extends RESTSpec {
 
         then: "the set has patients from all studies with the shared concept"
         assert  responseData.id != null
-        assert get(PATH_HYPERCUBE, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 6
+        assert get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 6
     }
 
     /**
@@ -105,7 +105,7 @@ class PatientsSetSpec extends RESTSpec {
         def constraintMap = [type: ConceptConstraint, path:"\\Vital Signs\\Heart Rate\\"]
         def setID = post(PATH_PATIENT_SET, contentTypeForJSON, toQuery(constraintMap))
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
-        def responseData =  get(PATH_HYPERCUBE, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: setID.id]))
+        def responseData =  get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: setID.id]))
 
         then: "I get a access error"
         assert responseData.httpStatus == 403
