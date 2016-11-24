@@ -42,7 +42,7 @@ class SubjectController {
     PatientsResource    patientsResourceService
     ConceptsResource    conceptsResourceService
 
-    /** GET request on /studies/XXX/subjects/
+    /** GET request on /v1/studies/XXX/subjects/
      *  This will return the list of subjects for certain study,
      *  where each subject will be rendered in its short format
     */
@@ -51,7 +51,7 @@ class SubjectController {
         respond wrapSubjects(patients, selfLinkForStudy())
     }
 
-    /** GET request on /studies/XXX/subjects/${id}
+    /** GET request on /v1/studies/XXX/subjects/${id}
      *  This returns the single subject for certain study.
      *
      *  @param id The is for which to return Data information.
@@ -68,7 +68,7 @@ class SubjectController {
         respond patient
     }
 
-    /** GET request on /studies/XXX/concepts/YYY/subjects
+    /** GET request on /v1/studies/XXX/concepts/YYY/subjects
      *
      * @return list of subjects for study XXX and Data YYY
      */
@@ -85,12 +85,12 @@ class SubjectController {
     }
 
     private def selfLinkForStudy() {
-        "/studies/${studyLoadingServiceProxy.studyLowercase}/subjects"
+        "/v1/studies/${studyLoadingServiceProxy.studyLowercase}/subjects"
     }
 
     private def selfLinkForConcept(OntologyTerm term) {
         use (OntologyTermCategory) {
-            "/studies/${studyLoadingServiceProxy.studyLowercase}/concepts/" +
+            "/v1/studies/${studyLoadingServiceProxy.studyLowercase}/concepts/" +
                     term.encodeAsURLPart(studyLoadingServiceProxy.study) +
             '/subjects'
         }

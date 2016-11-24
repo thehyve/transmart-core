@@ -42,7 +42,7 @@ class PatientMarshallerSpec extends MarshallerSpec {
 
     void basicTest() {
         when:
-        def url = "${baseURL}/${VERSION}/studies/${TestData.TRIAL}/subjects/${TestData.ID}".toString()
+        def url = "${baseURL}/${VERSION}/studies/${TestData.TRIAL}/subjects/${TestData.ID}"
         ResponseEntity<Resource> response = getJson(url)
         String content = response.body.inputStream.readLines().join('\n')
         def result = new JsonSlurper().parseText(content)
@@ -72,7 +72,7 @@ class PatientMarshallerSpec extends MarshallerSpec {
 
     void testHal() {
         when:
-        def url = "${baseURL}/${VERSION}/studies/${TestData.TRIAL}/subjects/${TestData.ID}".toString()
+        def url = "${baseURL}/${VERSION}/studies/${TestData.TRIAL}/subjects/${TestData.ID}"
         ResponseEntity<Resource> response = getHal(url)
         String content = response.body.inputStream.readLines().join('\n')
         def result = new JsonSlurper().parseText(content)
@@ -87,7 +87,7 @@ class PatientMarshallerSpec extends MarshallerSpec {
                 // do not test the rest
                 hasEntry(is('_links'),
                         hasEntry(is('self'),
-                                hasEntry('href', "$VERSION/studies/${TestData.TRIAL_LC}/subjects/${TestData.ID}".toString())
+                                hasEntry(is('href'), is("/${VERSION}/studies/${TestData.TRIAL_LC}/subjects/${TestData.ID}".toString()))
                         )
                 )
         )

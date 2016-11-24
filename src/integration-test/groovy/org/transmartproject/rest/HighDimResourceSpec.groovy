@@ -53,13 +53,13 @@ class HighDimResourceSpec extends ResourceSpec {
                                         'disjunction', 'pathways', 'proteins',]
 
     Map<String, String> indexUrlMap = [
-            mrna: "$VERSION/studies/study_id_1/concepts/bar/highdim",
-            acgh: "$VERSION/studies/study_id_2/concepts/study1/highdim",
+            mrna: "/$VERSION/studies/study_id_1/concepts/bar/highdim",
+            acgh: "/$VERSION/studies/study_id_2/concepts/study1/highdim",
     ]
 
     void testSummaryAsJson() {
         when:
-        def response = get '/'+indexUrlMap['mrna'], {
+        def response = get indexUrlMap['mrna'], {
             header 'Accept', contentTypeForJSON
         }
 
@@ -85,7 +85,7 @@ class HighDimResourceSpec extends ResourceSpec {
         ]
 
         when:
-        def response = get '/'+url, {
+        def response = get url, {
             header 'Accept', contentTypeForHAL
         }
 
@@ -234,7 +234,7 @@ class HighDimResourceSpec extends ResourceSpec {
     }
 
     private HighDimResult getAsHighDim(String url) {
-        InputStream is = getAsInputStream('/'+url)
+        InputStream is = getAsInputStream(url)
         HighDimResult result = new HighDimResult()
 
         try {
