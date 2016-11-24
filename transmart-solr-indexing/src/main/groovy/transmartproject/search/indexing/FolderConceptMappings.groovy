@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing
+package transmartproject.search.indexing
 
 import grails.plugin.cache.ehcache.GrailsEhcacheCacheManager
 import net.sf.ehcache.Ehcache
@@ -6,7 +6,7 @@ import net.sf.ehcache.loader.CacheLoader
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptFullName
-import org.transmartproject.search.browse.FolderStudyMappingView
+import transmartproject.search.browse.FolderStudyMappingView
 
 @Component
 class FolderConceptMappings {

@@ -1,4 +1,4 @@
-package org.transmartproject.search
+package transmartproject.search
 
 import grails.converters.JSON
 import org.apache.solr.client.solrj.SolrQuery
@@ -16,15 +16,15 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.search.indexing.FacetsIndexingService
-import org.transmartproject.search.indexing.FacetsQueryingService
-import org.transmartproject.search.indexing.TermCount
+import transmartproject.search.indexing.FacetsIndexingService
+import transmartproject.search.indexing.FacetsQueryingService
+import transmartproject.search.indexing.TermCount
 import grails.validation.Validateable
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-import static org.transmartproject.search.indexing.FacetsIndexingService.*
+import static transmartproject.search.indexing.FacetsIndexingService.*
 
 class FacetsSearchController {
 

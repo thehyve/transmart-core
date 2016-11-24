@@ -1,14 +1,13 @@
-package org.transmartproject.search.indexing
+package transmartproject.search.indexing
 
 import com.google.common.collect.Sets
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.search.indexing.modules.*
+import transmartproject.search.indexing.modules.*
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
-import static org.transmartproject.search.indexing.FacetsDocumentMatcher.documentWithFields
-import static org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
+import static FacetsDocumentMatcher.documentWithFields
 
 class BrowseIndexingModulesTests {
 

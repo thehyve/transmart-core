@@ -1,12 +1,14 @@
-package org.transmartproject.search.indexing
+package transmartproject.search.indexing
 
-import grails.test.mixin.TestFor
 import grails.util.Holders
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.springframework.beans.factory.annotation.Autowired
+import transmartproject.search.indexing.FacetsIndexingService
+import transmartproject.search.indexing.FacetsQueryingService
+import transmartproject.search.indexing.TermCount
 
 class FacetsQueryingServiceTests {
 

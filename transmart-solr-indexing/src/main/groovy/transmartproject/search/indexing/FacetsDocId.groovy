@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing
+package transmartproject.search.indexing
 
 import groovy.transform.EqualsAndHashCode
 

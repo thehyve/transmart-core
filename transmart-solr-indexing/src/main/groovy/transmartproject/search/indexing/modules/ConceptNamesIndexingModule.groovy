@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing.modules
+package transmartproject.search.indexing.modules
 
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.HashMultimap
@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.core.ontology.*
-import org.transmartproject.search.indexing.*
+import transmartproject.search.indexing.*
 
-import static org.transmartproject.search.indexing.FacetsIndexingService.*
+import static transmartproject.search.indexing.FacetsIndexingService.*
 
 @Component
 class ConceptNamesIndexingModule implements FacetsIndexingModule {

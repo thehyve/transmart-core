@@ -1,4 +1,7 @@
-package org.transmartproject.search.indexing
+package transmartproject.search.indexing
+
+import transmartproject.search.indexing.FacetsIndexingService
+import transmartproject.search.indexing.FacetsQueryingService
 
 class IndexingController {
 

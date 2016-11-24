@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing
+package transmartproject.search.indexing
 
 import grails.util.Holders
 import groovy.util.logging.Log4j
@@ -7,6 +7,7 @@ import org.junit.internal.AssumptionViolatedException
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
+import transmartproject.search.indexing.SolrFacetsCore
 
 /**
  * Rule skipping the tests if solr is not available.

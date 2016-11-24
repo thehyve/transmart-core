@@ -1,4 +1,4 @@
-package org.transmartproject.search
+package transmartproject.search
 
 import grails.test.mixin.TestFor
 import grails.test.mixin.integration.Integration
@@ -8,7 +8,7 @@ import grails.util.Holders
 import groovy.util.logging.Slf4j
 import org.junit.Before
 import org.junit.BeforeClass
-import org.transmartproject.search.indexing.FacetsIndexingService
+import transmartproject.search.indexing.FacetsIndexingService
 import spock.lang.Specification
 
 

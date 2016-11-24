@@ -1,12 +1,10 @@
-package org.transmartproject.search.indexing.modules
+package transmartproject.search.indexing.modules
 
 import org.springframework.stereotype.Component
-import org.transmartproject.search.browse.BrowseAnalysesView
-import org.transmartproject.search.indexing.FacetsDocument
-import org.transmartproject.search.indexing.FacetsIndexingService
+import transmartproject.search.browse.BrowseAnalysesView
+import transmartproject.search.indexing.FacetsDocument
 
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_SUBTYPE
+import static transmartproject.search.indexing.FacetsIndexingService.FIELD_SUBTYPE
 
 /**
  * Gets documents from biomart_user.browse_analyses_view

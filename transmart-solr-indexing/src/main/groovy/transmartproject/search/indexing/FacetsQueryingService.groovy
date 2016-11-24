@@ -1,12 +1,10 @@
-package org.transmartproject.search.indexing
+package transmartproject.search.indexing
 
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Sets
 import grails.plugin.cache.ehcache.GrailsEhcacheCacheManager
 import groovy.util.logging.Log4j
-import net.sf.ehcache.CacheException
 import net.sf.ehcache.Ehcache
-import net.sf.ehcache.Status
 import net.sf.ehcache.loader.CacheLoader
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.request.LukeRequest
@@ -16,12 +14,10 @@ import org.apache.solr.common.luke.FieldFlag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.Ordered
 import org.springframework.stereotype.Component
-import org.transmartproject.core.concept.ConceptFullName
-import org.transmartproject.search.browse.FolderStudyMappingView
-import org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule
+import transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule
 
 import static org.apache.solr.client.solrj.response.LukeResponse.FieldInfo.parseFlags
-import static org.transmartproject.search.indexing.FacetsFieldImpl.getDefaultDisplayName
+import static transmartproject.search.indexing.FacetsFieldImpl.getDefaultDisplayName
 
 @Component
 @Log4j

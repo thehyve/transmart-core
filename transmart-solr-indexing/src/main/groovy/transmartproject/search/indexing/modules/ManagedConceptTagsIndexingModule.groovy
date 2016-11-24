@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing.modules
+package transmartproject.search.indexing.modules
 
 import com.google.common.collect.BiMap
 import com.google.common.collect.ImmutableBiMap
@@ -8,13 +8,12 @@ import org.hibernate.SQLQuery
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import org.transmartproject.search.browse.FolderStudyMappingView
-import org.transmartproject.search.indexing.*
+import transmartproject.search.indexing.*
 
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_CONCEPT_PATH
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
-import static org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
-import static org.transmartproject.search.indexing.modules.ConceptNamesIndexingModule.CONCEPT_DOC_TYPE
+import static transmartproject.search.indexing.FacetsIndexingService.FIELD_CONCEPT_PATH
+import static transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
+import static transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
+import static transmartproject.search.indexing.modules.ConceptNamesIndexingModule.CONCEPT_DOC_TYPE
 
 @Log4j
 @Component

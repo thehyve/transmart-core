@@ -1,18 +1,19 @@
-package org.transmartproject.search.indexing
+package transmartproject.search.indexing
 
 import com.google.common.collect.ImmutableMultimap
-import grails.test.mixin.TestFor
-import grails.test.mixin.TestMixin
 import org.apache.solr.client.solrj.SolrQuery
-import org.apache.solr.common.SolrInputDocument
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.springframework.beans.factory.annotation.Autowired
+import transmartproject.search.indexing.FacetsDocId
+import transmartproject.search.indexing.FacetsDocument
+import transmartproject.search.indexing.FacetsIndexingService
+import transmartproject.search.indexing.SolrFacetsCore
 
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_NAME_CONCEPT_PATH
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_NAME_FOLDER_ID
+import static transmartproject.search.indexing.FacetsIndexingService.FIELD_NAME_CONCEPT_PATH
+import static transmartproject.search.indexing.FacetsIndexingService.FIELD_NAME_FOLDER_ID
 
 class FacetsIndexingServiceTests {
 

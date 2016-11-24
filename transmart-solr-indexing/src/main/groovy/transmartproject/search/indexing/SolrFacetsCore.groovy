@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing
+package transmartproject.search.indexing
 
 import groovy.util.logging.Log4j
 import org.apache.solr.client.solrj.SolrServer

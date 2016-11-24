@@ -1,9 +1,9 @@
-package org.transmartproject.search.browse
+package transmartproject.search.browse
 
 import groovy.transform.EqualsAndHashCode
 
 @EqualsAndHashCode
-class BrowseAssaysView implements Serializable {
+class BrowseAnalysesView implements Serializable {
 
     String identifier
     String title
@@ -12,9 +12,6 @@ class BrowseAssaysView implements Serializable {
     String platformName
     String vendor
     String technology
-    String gene
-    String mirna
-    String biomarkerType
 /*
     static mapping = {
         table schema: 'biomart_user'
@@ -27,14 +24,11 @@ class BrowseAssaysView implements Serializable {
 */
     static constraints = {
         identifier      nullable: true, maxSize: 300
-        title           nullable: true, maxSize: 1000
-        description     nullable: true, maxSize: 2000
+        title           nullable: true, maxSize: 500
+        description     nullable: true, maxSize: 4000
         measurementType nullable: true
         platformName    nullable: true
         vendor          nullable: true
         technology      nullable: true
-        gene            nullable: true
-        mirna           nullable: true
-        biomarkerType   nullable: true
     }
 }

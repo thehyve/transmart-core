@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing.modules
+package transmartproject.search.indexing.modules
 
 import annotation.AmTagAssociation
 import annotation.AmTagItem
@@ -7,13 +7,13 @@ import org.hibernate.SQLQuery
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import org.transmartproject.search.indexing.*
+import transmartproject.search.indexing.*
 
 import java.util.regex.Pattern
 
 import static AbstractFacetsIndexingFolderModule.FIELD_SUBTYPE
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
-import static org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
+import static transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
+import static transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
 
 /**
  * Indexes tag values. Each tag item has its own field in the index.

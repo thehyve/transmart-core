@@ -1,10 +1,10 @@
-package org.transmartproject.search.indexing
+package transmartproject.search.indexing
 
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.Multimap
 import groovy.transform.ToString
-import org.transmartproject.search.browse.BioDataValuesView
+import transmartproject.search.browse.BioDataValuesView
 
 @ToString
 class FacetsDocument implements Comparable<FacetsDocument> {

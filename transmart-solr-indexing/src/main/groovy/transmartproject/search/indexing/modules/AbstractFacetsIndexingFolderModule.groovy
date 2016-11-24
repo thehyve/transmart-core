@@ -1,17 +1,15 @@
-package org.transmartproject.search.indexing.modules
+package transmartproject.search.indexing.modules
 
 import com.google.common.base.Objects
-import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.ImmutableSet
-import com.google.common.collect.Iterators
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.search.browse.BioDataValuesView
-import org.transmartproject.search.indexing.*
+import transmartproject.search.browse.BioDataValuesView
+import transmartproject.search.indexing.*
 
-import static org.transmartproject.search.indexing.FacetsFieldImpl.create
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_CONCEPT_PATH
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
+import static transmartproject.search.indexing.FacetsFieldImpl.create
+import static transmartproject.search.indexing.FacetsIndexingService.FIELD_CONCEPT_PATH
+import static transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
 
 /**
  * base class for browse folder indexers

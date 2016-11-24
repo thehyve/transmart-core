@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing.modules
+package transmartproject.search.indexing.modules
 
 import com.google.common.collect.ImmutableSet
 import org.springframework.beans.factory.annotation.Autowired
@@ -8,14 +8,14 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.search.browse.FolderStudyMappingView
-import org.transmartproject.search.indexing.*
+import transmartproject.search.browse.FolderStudyMappingView
+import transmartproject.search.indexing.*
 
-import static org.transmartproject.search.indexing.FacetsFieldImpl.create as createFF
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_CONCEPT_PATH
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
-import static org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
-import static org.transmartproject.search.indexing.modules.ConceptNamesIndexingModule.CONCEPT_DOC_TYPE
+import static transmartproject.search.indexing.FacetsFieldImpl.create as createFF
+import static transmartproject.search.indexing.FacetsIndexingService.FIELD_CONCEPT_PATH
+import static transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
+import static transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
+import static transmartproject.search.indexing.modules.ConceptNamesIndexingModule.CONCEPT_DOC_TYPE
 
 /**
  * Indexes data types under FOLDER: (if there is a folder link to the study)

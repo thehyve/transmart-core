@@ -1,14 +1,14 @@
-package org.transmartproject.search.indexing.modules
+package transmartproject.search.indexing.modules
 
 import com.google.common.collect.ImmutableSet
 import grails.util.Holders
 import groovy.util.logging.Log4j
 import org.springframework.stereotype.Component
 import fm.FmFile
-import org.transmartproject.search.indexing.*
+import transmartproject.search.indexing.*
 
-import static org.transmartproject.search.indexing.FacetsFieldImpl.create as createFF
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
+import static transmartproject.search.indexing.FacetsFieldImpl.create as createFF
+import static transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
 
 /**
  * Indexes file contents.
