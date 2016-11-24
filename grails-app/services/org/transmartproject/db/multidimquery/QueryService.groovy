@@ -2,6 +2,7 @@ package org.transmartproject.db.multidimquery
 
 import grails.plugin.cache.Cacheable
 import grails.transaction.Transactional
+import grails.util.Holders
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
@@ -14,9 +15,11 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
@@ -25,6 +28,9 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.querytool.QtPatientSetCollection
+import org.transmartproject.db.querytool.QtQueryInstance
+import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 
@@ -146,6 +152,7 @@ class QueryService {
      */
     List<ObservationFact> list(Constraint constraint, User user) {
         checkAccess(constraint, user)
+        log.info "Studies: ${accessControlChecks.getDimensionStudiesForUser(user)*.studyId}"
         def builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
@@ -182,6 +189,86 @@ class QueryService {
         DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
         patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
         getList(patientCriteria)
+    }
+
+    /**
+     * @description Function for creating a patient set consisting of patients for which there are observations
+     * that are specified by <code>query</code>.
+     * @param query
+     * @param user
+     */
+    QueryResult createPatientSet(String name, Constraint constraint, User user) {
+        List patients = listPatients(constraint, user)
+
+        // 1. Populate qt_query_master
+        def queryMaster = new QtQueryMaster(
+                name           : name,
+                userId         : user.username,
+                groupId        : Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
+                createDate     : new Date(),
+                generatedSql   : null,
+                requestXml     : "",
+                i2b2RequestXml : null,
+        )
+
+        // 2. Populate qt_query_instance
+        def queryInstance = new QtQueryInstance(
+                userId       : user.username,
+                groupId      : Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
+                startDate    : new Date(),
+                statusTypeId : QueryStatus.PROCESSING.id,
+                queryMaster  : queryMaster,
+        )
+        queryMaster.addToQueryInstances(queryInstance)
+
+        // 3. Populate qt_query_result_instance
+        def resultInstance = new QtQueryResultInstance(
+                statusTypeId  : QueryStatus.PROCESSING.id,
+                startDate     : new Date(),
+                queryInstance : queryInstance
+        )
+        queryInstance.addToQueryResults(resultInstance)
+
+        // 4. Save the three objects
+        if (!queryMaster.validate()) {
+            throw new InvalidRequestException('Could not create a valid ' +
+                    'QtQueryMaster: ' + queryMaster.errors)
+        }
+        if (queryMaster.save() == null) {
+            throw new RuntimeException('Failure saving QtQueryMaster')
+        }
+
+        patients.each { patient ->
+            def entry = new QtPatientSetCollection(
+                    resultInstance: resultInstance,
+                    patient: patient
+            )
+            resultInstance.addToPatientSet(entry)
+        }
+
+        def newResultInstance = resultInstance.save()
+        if (!newResultInstance) {
+            throw new RuntimeException('Failure saving patient set. Errors: ' +
+                    resultInstance.errors)
+        }
+
+        // 7. Update result instance and query instance
+        resultInstance.setSize = resultInstance.realSetSize = patients.size()
+        resultInstance.description = "Patient set for \"${name}\""
+        resultInstance.endDate = new Date()
+        resultInstance.statusTypeId = QueryStatus.FINISHED.id
+
+        queryInstance.endDate = new Date()
+        queryInstance.statusTypeId = QueryStatus.COMPLETED.id
+
+        newResultInstance = resultInstance.save()
+        if (!newResultInstance) {
+            throw new RuntimeException('Failure saving resultInstance after ' +
+                    'successfully building patient set. Errors: ' +
+                    resultInstance.errors)
+        }
+
+        resultInstance
     }
 
     Long patientCount(Constraint constraint, User user) {
