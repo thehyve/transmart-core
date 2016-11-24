@@ -25,7 +25,7 @@
     "child" : {
       "type" : "TRIGGER",
       "owner" : "I2B2METADATA",
-      "name" : "DIMENSION_DESCRIPTIOMN_ID_TRG"
+      "name" : "DIMENSION_DESCRIPTION_ID_TRG"
     },
     "parents" : [ {
       "type" : "TABLE",
@@ -34,7 +34,7 @@
     }, {
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
-      "name" : "SEQ_DIMENSION_DESCRIPTIOMN_ID"
+      "name" : "SEQ_DIMENSION_DESCRIPTION_ID"
     } ]
   }, {
     "child" : {
@@ -52,7 +52,7 @@
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
-      "name" : "STUDY_DIMENSIONDESCRIPTIONS"
+      "name" : "STUDY_DIMENSION_DESCRIPTIONS"
     } ]
   }, {
     "child" : {
