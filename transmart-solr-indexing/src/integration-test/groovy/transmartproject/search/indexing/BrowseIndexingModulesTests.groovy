@@ -1,15 +1,20 @@
 package transmartproject.search.indexing
 
 import com.google.common.collect.Sets
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
+import spock.lang.Specification
 import transmartproject.search.indexing.modules.*
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 import static FacetsDocumentMatcher.documentWithFields
 
-class BrowseIndexingModulesTests {
+@Rollback
+@Integration
+class BrowseIndexingModulesTests extends Specification {
 
     @Autowired
     BrowseAssaysIndexingModule browseAssaysIndexingModule
@@ -29,12 +34,19 @@ class BrowseIndexingModulesTests {
     @Autowired
     FilesIndexingModule filesIndexingModule
 
-    @Test
+
+    def "testTest"() {
+        expect:"that smt works for a change"
+        true == true
+    }
+
     void testAssays() {
         def docs = browseAssaysIndexingModule
                 .collectDocumentsWithIds(Sets.newHashSet(browseAssaysIndexingModule.fetchAllIds(FOLDER_DOC_TYPE)))
-
-        assert docs.size() == 1
+        when:
+        docs
+        then:
+        docs.size() == 1
         assertThat docs, contains(
                 documentWithFields('FOLDER:1992449',
                         ['title_t', 'GSE8581 Assay'],
@@ -85,25 +97,25 @@ class BrowseIndexingModulesTests {
     void testOneStudy() {
         def doc = browseStudiesIndexingModule.collectDocumentsWithIds([new FacetsDocId('FOLDER:1992454')] as Set)
         assertThat doc.first(), is(documentWithFields('FOLDER:1992454',
-                ['title_t'          , 'Cell-line']                           ,
-                ['description_t'    , 'Cell-line']                           ,
-                ['design_s'         , 'Observational']                       ,
-                ['TEXT'             , 'Observational']                       ,
-                ['biomarker_type_s' , 'Efficacy biomarker']                  ,
-                ['TEXT'             , 'Efficacy biomarker']                  ,
-                ['access_type_s'    , 'Consortium']                          ,
-                ['TEXT'             , 'Consortium']                          ,
-                ['accession_s'      , 'Cell-line']                           ,
-                ['country_s'        , 'NETHERLANDS']                         ,
-                ['TEXT'             , 'NETHERLANDS']                         ,
-                ['disease_s'        , 'Colonic Neoplasms']                   ,
-                ['disease_s'        , 'Prostatic Neoplasms']                 ,
+                ['title_t', 'Cell-line'],
+                ['description_t', 'Cell-line'],
+                ['design_s', 'Observational'],
+                ['TEXT', 'Observational'],
+                ['biomarker_type_s', 'Efficacy biomarker'],
+                ['TEXT', 'Efficacy biomarker'],
+                ['access_type_s', 'Consortium'],
+                ['TEXT', 'Consortium'],
+                ['accession_s', 'Cell-line'],
+                ['country_s', 'NETHERLANDS'],
+                ['TEXT', 'NETHERLANDS'],
+                ['disease_s', 'Colonic Neoplasms'],
+                ['disease_s', 'Prostatic Neoplasms'],
                 ['study_objective_s', 'Discover targets/biological contexts'],
-                ['TEXT'             , 'Discover targets/biological contexts'],
-                ['species_s'        , 'Homo Sapiens']                        ,
-                ['TEXT'             , 'Homo sapiens']                        ,
-                ['study_phase_s'    , 'Not applicable']                      ,
-                ['TEXT'             , 'Not applicable']                      ,
+                ['TEXT', 'Discover targets/biological contexts'],
+                ['species_s', 'Homo Sapiens'],
+                ['TEXT', 'Homo sapiens'],
+                ['study_phase_s', 'Not applicable'],
+                ['TEXT', 'Not applicable'],
         ))
     }
 
@@ -111,11 +123,11 @@ class BrowseIndexingModulesTests {
     void testOneProgram() {
         def doc = browseProgramsIndexingModule.collectDocumentsWithIds([new FacetsDocId('FOLDER:1992447')] as Set)
         assertThat doc.first(), is(documentWithFields('FOLDER:1992447',
-                ['title_t'             , 'Public Studies'],
-                ['description_t'       , 'Public Studies'],
-                ['disease_s'           , 'Ego']           ,
-                ['therapeutic_domain_s', 'Other']         ,
-                ['TEXT'                , 'Other']         ,
+                ['title_t', 'Public Studies'],
+                ['description_t', 'Public Studies'],
+                ['disease_s', 'Ego'],
+                ['therapeutic_domain_s', 'Other'],
+                ['TEXT', 'Other'],
         ))
     }
 
