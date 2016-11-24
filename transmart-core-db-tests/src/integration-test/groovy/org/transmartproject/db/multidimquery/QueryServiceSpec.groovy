@@ -135,6 +135,46 @@ class QueryServiceSpec extends TransmartSpecification {
         result[0].patient.sourcesystemCd.contains('SUBJ_ID_2')
     }
 
+    void "test patient query and patient set creation"() {
+        setupHypercubeData()
+
+        Constraint constraint = ConstraintFactory.create([
+                type    : 'Combination',
+                operator: 'or',
+                args    : [
+                        [ type: 'ConceptConstraint', path: '\\foo\\concept 2\\' ],
+                        [ type: 'ConceptConstraint', path: '\\foo\\concept 3\\' ]
+                ]
+        ])
+
+        when: "I query for all observations and patients for a constraint"
+        def observations = queryService.list(constraint, accessLevelTestData.users[0])
+        def patients = queryService.listPatients(constraint, accessLevelTestData.users[0])
+
+        then: "I get the expected number of observations and patients"
+        observations.size() == 5
+        patients.size() == 3
+
+        then: "I set of patients matches the patients associated with the observations"
+        observations*.patient.unique().sort() == patients.sort()
+
+        when: "I build a patient set based on the constraint"
+        def patientSet = queryService.createPatientSet("Test set", constraint, accessLevelTestData.users[0])
+
+        then: "I get a patient set id"
+        patientSet != null
+        patientSet.id != null
+
+        when: "I query for patients based on the patient set id"
+        Constraint patientSetConstraint = ConstraintFactory.create(
+                [ type: 'PatientSetConstraint', patientSetId: patientSet.id ]
+        )
+        def patients2 = queryService.listPatients(patientSetConstraint, accessLevelTestData.users[0])
+
+        then: "I get the same set of patient as before"
+        patients.sort() == patients2.sort()
+    }
+
     void "test for max, min, average aggregate"() {
         setupData()
 

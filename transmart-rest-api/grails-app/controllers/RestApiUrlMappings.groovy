@@ -36,6 +36,9 @@ class RestApiUrlMappings {
             "/query/$action?"(method: 'GET', controller: 'query') {
                 apiVersion = 'v2'
             }
+            "/patient_set"(method: 'POST', controller: 'query', action: 'patientSet') {
+                apiVersion = 'v2'
+            }
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
                 apiVersion = 'v2'
             }
