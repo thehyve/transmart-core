@@ -211,16 +211,20 @@ class ModifierConstraint extends Constraint {
 
     static constraints = {
         values nullable: true
-        modifierCode nullable: true
         path nullable: true
-        modifierCode(validator: {val, obj->
-            if( (!val && !obj.path) || (val && obj.path) ) {
+        modifierCode nullable: true, validator: {val, obj->
+            if (!val && !obj.path) {
                 errors.rejectValue(
-                        'args',
+                        'modifierCode',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Combination contains invalid constraints.")
+                        "Modifier constraint requires path or modifierCode. Got none.")
+            } else if (val && obj.path) {
+                errors.rejectValue(
+                        'modifierCode',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "Modifier constraint requires path or modifierCode. Got both.")
             }
-        })
+        }
     }
 }
 
@@ -358,16 +362,20 @@ class PatientSetConstraint extends Constraint {
     Set<Long> patientIds
 
     static constraints = {
-        patientSetId nullable: true
         patientIds nullable: true
-        patientSetId(validator: {val, obj->
-            if( (!val && !obj.patientIds) || (val && obj.patientIds) ) {
+        patientSetId nullable: true, validator: {val, obj->
+            if (!val && !obj.patientIds) {
                 errors.rejectValue(
-                        'args',
+                        'patientSetId',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Combination contains invalid constraints.")
+                        "Patient set constraint requires patientSetId or patientIds. Got none.")
+            } else if (val && obj.patientIds) {
+                errors.rejectValue(
+                        'patientSetId',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "Patient set constraint requires patientSetId or patientIds. Got both.")
             }
-        })
+        }
     }
 }
 
