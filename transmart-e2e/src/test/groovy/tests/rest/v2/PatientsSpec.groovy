@@ -109,7 +109,7 @@ class PatientsSpec extends RESTSpec{
 
         then: "I get all patients"
         that responseData.size(), is(2)
-        that responseData, contains(
+        that responseData, hasItems(
                 hasEntry('id', -69),
                 hasEntry('id', -59))
     }

@@ -157,12 +157,12 @@ class ConstraintSpec extends RESTSpec{
     def "TemporalConstraint.class"(){
         def constraintMap = [
                 type: TemporalConstraint,
-                 operator: AFTER,
-                 eventConstraint: [
-                         type: ValueConstraint,
-                         valueType: NUMERIC,
-                         operator: LESS_THAN,
-                         value: 60
+                operator: AFTER,
+                eventConstraint: [
+                        type: ValueConstraint,
+                        valueType: NUMERIC,
+                        operator: LESS_THAN,
+                        value: 60
                 ]
         ]
         when:
@@ -191,7 +191,10 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "NullConstraint.class"(){
-        def constraintMap = [type: NullConstraint]
+        def constraintMap = [
+                type: NullConstraint,
+                field: [dimension: 'EndTimeDimension', fieldName: 'endDate', type: DATE ]
+        ]
 
         when:
         def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))

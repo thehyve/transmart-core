@@ -29,11 +29,12 @@ class PatientsSetSpec extends RESTSpec {
                         [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:30]
                 ]
         ]
-        def responseData = post(PATH_PATIENT_SET, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON(constraintMap))
 
         then: "I get a patientset with 2 patients"
         assert  responseData.id != null
-        assert get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 2
+        def patients = get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientSetId: responseData.id]))
+        assert patients.size() == 2
     }
 
     /**
@@ -47,11 +48,11 @@ class PatientsSetSpec extends RESTSpec {
 
         when: "I make a patient set with a shared concept"
         def constraintMap = [type: ConceptConstraint, path:"\\Vital Signs\\Heart Rate\\"]
-        def responseData = post(PATH_PATIENT_SET, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON(constraintMap))
 
         then: "the set has patients from several studies"
         assert  responseData.id != null
-        assert get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 4
+        assert get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientSetId: responseData.id])).size() == 4
     }
 
     /**
@@ -65,11 +66,11 @@ class PatientsSetSpec extends RESTSpec {
 
         when: "I make a patient set with a shared concept"
         def constraintMap = [type: ConceptConstraint, path:"\\Vital Signs\\Heart Rate\\"]
-        def responseData = post(PATH_PATIENT_SET, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON(constraintMap))
 
         then: "the set has patients from the studies I have access to"
         assert  responseData.id != null
-        assert get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 4
+        assert get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientSetId: responseData.id])).size() == 4
     }
 
     /**
@@ -84,11 +85,11 @@ class PatientsSetSpec extends RESTSpec {
 
         when: "I make a patient set with a shared concept"
         def constraintMap = [type: ConceptConstraint, path:"\\Vital Signs\\Heart Rate\\"]
-        def responseData = post(PATH_PATIENT_SET, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON(constraintMap))
 
         then: "the set has patients from all studies with the shared concept"
         assert  responseData.id != null
-        assert get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: responseData.id])).size() == 6
+        assert get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientSetId: responseData.id])).size() == 6
     }
 
     /**
@@ -103,12 +104,13 @@ class PatientsSetSpec extends RESTSpec {
         when: "When I use a patient set that contains patients that I do not have access to"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
         def constraintMap = [type: ConceptConstraint, path:"\\Vital Signs\\Heart Rate\\"]
-        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, toQuery(constraintMap))
+        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON(constraintMap))
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
-        def responseData =  get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientIds: setID.id]))
+        def responseData =  get(PATH_PATIENTS, contentTypeForJSON, toQuery([type: PatientSetConstraint, patientSetId: setID.id]))
 
         then: "I get a access error"
         assert responseData.httpStatus == 403
         assert responseData.type == 'AccessDeniedException'
+        assert responseData.message == "Access denied to patient set: ${setID.id}"
     }
 }

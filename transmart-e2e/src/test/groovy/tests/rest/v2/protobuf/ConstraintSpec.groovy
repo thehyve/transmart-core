@@ -5,6 +5,8 @@ import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
 
 import static config.Config.EHR_ID
+import static config.Config.PATH_HYPERCUBE
+import static config.Config.PATH_PATIENT_SET
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.*
@@ -139,7 +141,8 @@ class ConstraintSpec extends RESTSpec{
         }
 
         when:
-        constraintMap = [type: PatientSetConstraint, patientSetId: 28731]
+        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON([type: PatientSetConstraint, patientIds: -62]))
+        constraintMap = [type: PatientSetConstraint, patientSetId: setID.id]
         responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
         selector = new ObservationSelector(responseData)
 
@@ -187,12 +190,12 @@ class ConstraintSpec extends RESTSpec{
     def "TemporalConstraint.class"(){
         def constraintMap = [
                 type: TemporalConstraint,
-                 operator: AFTER,
-                 eventConstraint: [
-                         type: ValueConstraint,
-                         valueType: NUMERIC,
-                         operator: LESS_THAN,
-                         value: 60
+                operator: AFTER,
+                eventConstraint: [
+                        type: ValueConstraint,
+                        valueType: NUMERIC,
+                        operator: LESS_THAN,
+                        value: 60
                 ]
         ]
         when:
@@ -233,7 +236,10 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "NullConstraint.class"(){
-        def constraintMap = [type: NullConstraint]
+        def constraintMap = [
+                type: NullConstraint,
+                field: [dimension: 'EndTimeDimension', fieldName: 'endDate', type: DATE ]
+        ]
 
         when:
         ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))

@@ -34,7 +34,6 @@ class RESTSpec extends Specification{
 
     def setup(){
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
-        println('set user')
     }
 
     def setUser(username, password){
@@ -71,27 +70,28 @@ class RESTSpec extends Specification{
      * @param oauth
      * @return
      */
-    def post(String path, String AcceptHeader, queryMap, requestBody = null, oauth = true ){
-        http.request(Method.POST, ContentType.TEXT){
+    def post(String path, String AcceptHeader, queryMap, requestBody = null, oauth = true){
+        http.request(Method.POST, ContentType.JSON){
             uri.path = path
             uri.query = queryMap
             body = requestBody
             headers.Accept = AcceptHeader
-            headers.'Content-Type' = 'text/xml'
             if (oauth && OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
+            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
             response.success = { resp, reader ->
                 assert resp.statusLine.statusCode in 200..<400
+                assert resp.headers.'Content-Type'.contains(AcceptHeader) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
-                    JSONObject result = JSON.parse(reader)
+                    def result = reader
                     println result
                     return result
                 }
-                return JSON.parse(reader)
+                return reader
             }
 
             response.failure = { resp, reader ->
@@ -99,12 +99,12 @@ class RESTSpec extends Specification{
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = JSON.parse(reader)
+                    def result = reader
                     println result
                     return result
                 }
 
-                return JSON.parse(reader)
+                return reader
             }
         }
 
@@ -119,7 +119,7 @@ class RESTSpec extends Specification{
      * @return
      */
     def get(String path, String AcceptHeader, queryMap = null){
-        http.request(Method.GET, ContentType.TEXT) { req ->
+        http.request(Method.GET, ContentType.JSON) { req ->
             uri.path = path
             uri.query = queryMap
             headers.Accept = AcceptHeader
@@ -130,15 +130,15 @@ class RESTSpec extends Specification{
             println(URLDecoder.decode(uri.toString(), 'UTF-8'))
             response.success = { resp, reader ->
                 assert resp.statusLine.statusCode in 200..<400
-                assert resp.headers.'Content-Type'.contains(AcceptHeader)
+                assert resp.headers.'Content-Type'.contains(AcceptHeader) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = JSON.parse(reader)
+                    def result = reader
                     println result
                     return result
                 }
-                return JSON.parse(reader)
+                return reader
             }
 
             response.failure = { resp, reader ->
@@ -146,11 +146,12 @@ class RESTSpec extends Specification{
                 if (DEBUG){
                 println "Got response: ${resp.statusLine}"
                 println "Content-Type: ${resp.headers.'Content-Type'}"
-                def result = JSON.parse(reader)
+                def result = reader
+                println result
                 return result
                 }
 
-                return JSON.parse(reader)
+                return reader
             }
         }
     }
@@ -166,7 +167,7 @@ class RESTSpec extends Specification{
     }
 
     def toJSON(object){
-        return new JsonBuilder(object)
+        return new JsonBuilder(object).toString()
     }
 
     def toDateString(dateString, inputFormat = "dd-MM-yyyyX"){
@@ -182,7 +183,7 @@ class RESTSpec extends Specification{
      * @return
      */
     def getProtobuf(String path, queryMap = null){
-        http.request(Method.GET, ContentType.TEXT) { req ->
+        http.request(Method.GET, ContentType.JSON) { req ->
             uri.path = path
             uri.query = queryMap
             headers.Accept = contentTypeForProtobuf
@@ -208,11 +209,11 @@ class RESTSpec extends Specification{
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = JSON.parse(reader)
+                    def result = reader
+                    println result
                     return result
                 }
-
-                return JSON.parse(reader)
+                return reader
             }
         }
     }

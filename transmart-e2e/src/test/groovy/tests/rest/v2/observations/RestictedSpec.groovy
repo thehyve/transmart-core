@@ -4,6 +4,7 @@ import base.RESTSpec
 import spock.lang.Requires
 
 import static config.Config.EHR_ID
+import static config.Config.PATH_PATIENT_SET
 import static config.Config.SHARED_CONCEPTS_RESTRICTED_ID
 import static config.Config.SHARED_CONCEPTS_RESTRICTED_LOADED
 import static org.hamcrest.Matchers.*
@@ -89,7 +90,7 @@ class RestictedSpec extends RESTSpec{
     }
 
     def "PatientSetConstraint.class"(){
-        def constraintMap = [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
+        def constraintMap = [type: PatientSetConstraint, patientIds: -62]
         when:
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
@@ -98,7 +99,8 @@ class RestictedSpec extends RESTSpec{
         that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
 
         when:
-        constraintMap = [type: PatientSetConstraint, patientSetId: 4430334]
+        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON([type: PatientSetConstraint, patientIds: -62]))
+        constraintMap = [type: PatientSetConstraint, patientSetId: setID.id]
         responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then:
@@ -138,13 +140,13 @@ class RestictedSpec extends RESTSpec{
 
     def "TemporalConstraint.class"(){
         def constraintMap = [
-                [type: TemporalConstraint,
-                 operator: AFTER,
-                 eventConstraint: [
-                         type: ValueConstraint,
-                         valueType: NUMERIC,
-                         operator: LESS_THAN,
-                         value: 60]
+                type: TemporalConstraint,
+                operator: AFTER,
+                eventConstraint: [
+                        type: ValueConstraint,
+                        valueType: NUMERIC,
+                        operator: LESS_THAN,
+                        value: 60
                 ]
         ]
         when:
@@ -176,13 +178,17 @@ class RestictedSpec extends RESTSpec{
     }
 
     def "NullConstraint.class"(){
-        def constraintMap = [type: TrueConstraint]
+        def constraintMap = [
+                type: NullConstraint,
+                field: [dimension: 'EndTimeDimension', fieldName: 'endDate', type: DATE ]
+        ]
 
         when:
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, everyItem(hasEntry('endDate', null))
         that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 }
