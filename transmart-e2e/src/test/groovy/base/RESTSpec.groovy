@@ -2,13 +2,14 @@ package base
 
 import grails.converters.JSON
 import groovy.json.JsonBuilder
-import groovy.json.JsonSlurper
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
 import org.grails.web.json.JSONObject
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
+import protobuf.ObservationsProto
+import protobuf.ObservationsMessageProto
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -17,33 +18,45 @@ import java.text.SimpleDateFormat
 import static config.Config.*
 import static org.hamcrest.Matchers.*
 
-/**
- * Created by barteldklasens on 10/24/16.
- */
 class RESTSpec extends Specification{
 
     def contentTypeForHAL = 'application/hal+json'
     def contentTypeForJSON = 'application/json'
+    def contentTypeForProtobuf = 'application/x-protobuf'
 
     @Shared
-    private String oauth2token
+    private HashMap<String, String> oauth2token = [:]
+
     @Shared
     private http = new HTTPBuilder(BASE_URL)
 
-    def oauth2Authenticate(){
-        def json = post('oauth/token', contentTypeForJSON, ['grant_type': 'password', 'client_id': 'glowingbear-js', 'client_secret': '', 'username': GOOD_USERNAME, 'password': GOOD_PASSWORD], null, ContentType.TEXT, false)
+    private user
 
-        if (DEBUG){
-            println "Authenticate: username=${GOOD_USERNAME} password=${GOOD_PASSWORD} token=${json.access_token}"
-        }
-        oauth2token = json.access_token
+    def setup(){
+        setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
+        println('set user')
     }
 
-    def getToken(){
-        if (oauth2token == null){
-            oauth2Authenticate()
+    def setUser(username, password){
+        user = ['username' : username,
+                'password' : password]
+    }
+
+    def oauth2Authenticate(userCredentials){
+        def json = post('oauth/token', contentTypeForJSON, ['grant_type': 'password', 'client_id': 'glowingbear-js', 'client_secret': '', 'username': userCredentials.'username', 'password': userCredentials.'password'], null, false)
+
+        if (DEBUG){
+            println "Authenticate: username=${userCredentials.'username'} password=${userCredentials.'password'} token=${json.access_token}"
         }
-        return oauth2token
+
+        oauth2token.put(userCredentials.username, json.access_token)
+    }
+
+    def getToken(User = user){
+        if (oauth2token.get(user.'username') == null){
+            oauth2Authenticate(user)
+        }
+        return oauth2token.get(user.'username')
     }
 
     /**
@@ -58,7 +71,7 @@ class RESTSpec extends Specification{
      * @param oauth
      * @return
      */
-    def post(String path, String AcceptHeader, queryMap, requestBody = null, contentType, oauth = true ){
+    def post(String path, String AcceptHeader, queryMap, requestBody = null, oauth = true ){
         http.request(Method.POST, ContentType.TEXT){
             uri.path = path
             uri.query = queryMap
@@ -70,6 +83,7 @@ class RESTSpec extends Specification{
             }
 
             response.success = { resp, reader ->
+                assert resp.statusLine.statusCode in 200..<400
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
@@ -81,6 +95,7 @@ class RESTSpec extends Specification{
             }
 
             response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode >= 400
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
@@ -112,9 +127,9 @@ class RESTSpec extends Specification{
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
+            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
             response.success = { resp, reader ->
-                assert resp.statusLine.statusCode >= 200
-                assert resp.statusLine.statusCode < 400
+                assert resp.statusLine.statusCode in 200..<400
                 assert resp.headers.'Content-Type'.contains(AcceptHeader)
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
@@ -132,7 +147,6 @@ class RESTSpec extends Specification{
                 println "Got response: ${resp.statusLine}"
                 println "Content-Type: ${resp.headers.'Content-Type'}"
                 def result = JSON.parse(reader)
-                println result
                 return result
                 }
 
@@ -158,6 +172,73 @@ class RESTSpec extends Specification{
     def toDateString(dateString, inputFormat = "dd-MM-yyyyX"){
         def date = new SimpleDateFormat(inputFormat).parse(dateString)
         date.format("yyyy-MM-dd'T'HH:mm:ssX", TimeZone.getTimeZone('Z'))
+    }
+
+    /**
+     * a convenience method to keep the tests readable by removing as much code as possible
+     *
+     * @param path
+     * @param queryMap
+     * @return
+     */
+    def getProtobuf(String path, queryMap = null){
+        http.request(Method.GET, ContentType.TEXT) { req ->
+            uri.path = path
+            uri.query = queryMap
+            headers.Accept = contentTypeForProtobuf
+            if (OAUTH_NEEDED){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
+            response.success = { resp ->
+                assert resp.statusLine.statusCode in 200..<400
+                assert resp.headers.'Content-Type'.contains(contentTypeForProtobuf)
+                if (DEBUG){
+                    println "Got response: ${resp.statusLine}"
+                    println "Content-Type: ${resp.headers.'Content-Type'}"
+                    def result = parseProto(resp.entity.content)
+                    return result
+                }
+
+                return parseProto(resp.entity.content)
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode >= 400
+                if (DEBUG){
+                    println "Got response: ${resp.statusLine}"
+                    println "Content-Type: ${resp.headers.'Content-Type'}"
+                    def result = JSON.parse(reader)
+                    return result
+                }
+
+                return JSON.parse(reader)
+            }
+        }
+    }
+
+    def parseProto(s_in){
+        def header = ObservationsProto.Header.parseDelimitedFrom(s_in)
+        if (DEBUG){println('proto header = ' + header)}
+        def cells = []
+        int count = 0
+        while(true) {
+            count++
+            def cell = ObservationsProto.Observation.parseDelimitedFrom(s_in)
+            if (cell == null){
+                break
+            }
+            cells << cell
+            if (cell.last) {
+                break
+            }
+        }
+        if (DEBUG){println('proto cells = ' + cells)}
+        def footer = ObservationsProto.Footer.parseDelimitedFrom(s_in)
+        if (DEBUG){println('proto footer = ' + footer)}
+
+        return new ObservationsMessageProto(header, cells, footer)
     }
 
     /**

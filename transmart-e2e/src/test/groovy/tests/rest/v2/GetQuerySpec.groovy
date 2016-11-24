@@ -45,7 +45,7 @@ class GetQuerySpec extends RESTSpec{
 
         then: "all observations are returned."
         println(responseData)
-        assert responseData.size() == 1026
+        assert responseData.size() > 1000
     }
 
     /**

@@ -6,7 +6,8 @@ CREATE TABLE i2b2_tags (
     path character varying(400) NOT NULL,
     tag character varying(1000),
     tag_type character varying(400) NOT NULL,
-    tags_idx integer NOT NULL
+    tags_idx integer NOT NULL,
+    tag_option_id integer
 );
 
 --
@@ -36,6 +37,12 @@ SET default_with_oids = false;
 -- Name: trg_i2b2_tag_id; Type: TRIGGER; Schema: i2b2metadata; Owner: -
 --
 CREATE TRIGGER trg_i2b2_tag_id BEFORE INSERT ON i2b2_tags FOR EACH ROW EXECUTE PROCEDURE tf_trg_i2b2_tag_id();
+
+--
+-- Name: i2b2_tags_option_id_fk; Type: FK CONSTRAINT; Schema: i2b2metadata; Owner: -
+--
+ALTER TABLE ONLY i2b2_tags
+    ADD CONSTRAINT i2b2_tags_option_id_fk FOREIGN KEY (tag_option_id) REFERENCES i2b2_tag_options(tag_option_id) ON DELETE SET NULL;
 
 --
 -- Name: seq_i2b2_data_id; Type: SEQUENCE; Schema: i2b2metadata; Owner: -

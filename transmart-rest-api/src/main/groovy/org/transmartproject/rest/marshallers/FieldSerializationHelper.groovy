@@ -1,6 +1,6 @@
 package org.transmartproject.rest.marshallers
 
-import org.transmartproject.db.dataquery2.query.Field
+import org.transmartproject.db.multidimquery.query.Field
 
 class FieldSerializationHelper extends AbstractHalOrJsonSerializationHelper<Field> {
 
