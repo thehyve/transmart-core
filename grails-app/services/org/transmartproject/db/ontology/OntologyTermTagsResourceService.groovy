@@ -43,7 +43,7 @@ class OntologyTermTagsResourceService implements OntologyTermTagsResource {
                 or {
                     ontologyTerms.each { OntologyTerm term ->
                         if (includeDescendantsTags) {
-                            like 'ontologyTermFullName', (term.fullName.asLikeLiteral() + '%')
+                            like 'ontologyTermFullName', (term.fullName.replaceAll(/[\\%_]/, '\\\\$0') + '%')
                         } else {
                             eq 'ontologyTermFullName', term.fullName
                         }
