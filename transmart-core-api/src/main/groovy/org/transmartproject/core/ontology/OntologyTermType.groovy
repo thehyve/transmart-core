@@ -1,9 +1,9 @@
-package org.transmartproject.rest.marshallers
+package org.transmartproject.core.ontology
 
 /**
- * Values for the type key on the onotlogy term response.
+ * Values for the type key on the ontology term response.
  */
-enum ApiOntologyTermType {
+enum OntologyTermType {
     STUDY,
     HIGH_DIMENSIONAL,
     NUMERIC,

@@ -41,7 +41,7 @@ class StudySerializationHelper extends AbstractHalOrJsonSerializationHelper<Stud
 
     @Override
     Collection<Link> getLinks(Study study) {
-        [new Link(RELATIONSHIP_SELF, '/studies/' +
+        [new Link(RELATIONSHIP_SELF, '/v1/studies/' +
                 study.id.toLowerCase(Locale.ENGLISH).encodeAsURL())]
     }
 

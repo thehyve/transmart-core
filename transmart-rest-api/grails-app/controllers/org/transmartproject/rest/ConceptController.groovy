@@ -39,7 +39,7 @@ class ConceptController {
     StudyLoadingService studyLoadingServiceProxy
     ConceptsResource conceptsResourceService
 
-    /** GET request on /studies/XXX/concepts/
+    /** GET request on /v1/studies/XXX/concepts/
      *  This will return the list of concepts, where each concept will be rendered in its short format
     */
     def index() {
@@ -48,7 +48,7 @@ class ConceptController {
         respond wrapConcepts(conceptWrappers)
     }
 
-    /** GET request on /studies/XXX/concepts/${id}
+    /** GET request on /v1/studies/XXX/concepts/${id}
      *  This returns the single requested entity.
      *
      *  @param id The id for which to return study information.
@@ -72,7 +72,7 @@ class ConceptController {
                 componentType: OntologyTermWrapper,
                 links: [
                         new Link(grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF,
-                                "/studies/${studyLoadingServiceProxy.studyLowercase}/concepts"
+                                "/v1/studies/${studyLoadingServiceProxy.studyLowercase}/concepts"
                         )
                 ]
         )

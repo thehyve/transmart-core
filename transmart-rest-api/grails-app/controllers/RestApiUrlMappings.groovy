@@ -29,9 +29,19 @@ class RestApiUrlMappings {
 
     static mappings = {
 
+        '/businessException/index'(controller: 'businessException', action: 'index')
+
         group "/v2", {
 
-            "/query/$action?"(method: 'GET', controller: 'query')
+            "/query/$action?"(method: 'GET', controller: 'query') {
+                apiVersion = 'v2'
+            }
+            "/patient_set"(method: 'POST', controller: 'query', action: 'patientSet') {
+                apiVersion = 'v2'
+            }
+            "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
+                apiVersion = 'v2'
+            }
         }
 
         group "/v1", {
@@ -76,8 +86,6 @@ class RestApiUrlMappings {
 
             '/observations'(method: 'GET', controller: 'observation', action: 'indexStandalone')
             '/observations2'(method: 'GET', controller: 'observation', action: 'observations2')
-
-            '/businessException/index'(controller: 'businessException', action: 'index')
 
             "/studies/$studyId/concepts/$id**"(
                     controller: 'concept', action: 'show', method: 'GET'

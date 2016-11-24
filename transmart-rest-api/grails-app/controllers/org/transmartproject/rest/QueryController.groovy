@@ -1,10 +1,13 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
+import grails.web.mime.MimeType
 import groovy.util.logging.Slf4j
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
@@ -18,6 +21,8 @@ import org.transmartproject.rest.protobuf.ObservationsSerializer
 
 @Slf4j
 class QueryController {
+
+    static responseFormats = ['json', 'hal', 'protobuf']
 
     @Autowired
     QueryService queryService
@@ -36,16 +41,9 @@ class QueryController {
     HighDimensionResourceService highDimensionResourceService
 
 
-    private Constraint getConstraint(String constraintParameterName = 'constraint') {
-        if (!params.containsKey(constraintParameterName)) {
-            throw new InvalidArgumentsException("${constraintParameterName} parameter is missing.")
-        }
-        if (!params[constraintParameterName]) {
-            throw new InvalidArgumentsException('Empty constraint parameter.')
-        }
-        String constraintParam = URLDecoder.decode(params[constraintParameterName], 'UTF-8')
+    private Constraint parseConstraint(String constraintText) {
         try {
-            Map constraintData = JSON.parse(constraintParam) as Map
+            Map constraintData = JSON.parse(constraintText) as Map
             try {
                 return ConstraintFactory.create(constraintData)
             } catch (Exception e) {
@@ -54,6 +52,17 @@ class QueryController {
         } catch (ConverterException e) {
             throw new InvalidArgumentsException('Cannot parse constraint parameter.')
         }
+    }
+
+    private Constraint getConstraint(String constraintParameterName = 'constraint') {
+        if (!params.containsKey(constraintParameterName)) {
+            throw new InvalidArgumentsException("${constraintParameterName} parameter is missing.")
+        }
+        if (!params[constraintParameterName]) {
+            throw new InvalidArgumentsException('Empty constraint parameter.')
+        }
+        String constraintParam = URLDecoder.decode(params[constraintParameterName], 'UTF-8')
+        parseConstraint(constraintParam)
     }
 
     private Constraint bindConstraint() {
@@ -153,6 +162,34 @@ class QueryController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def patients = queryService.listPatients(constraint, user)
         render patients as JSON
+    }
+
+    /**
+     * Patient set endpoint:
+     * <code>POST /v2/patient_set?constraint=${constraint}</code>
+     *
+     * Creates a patient set ({@link QueryResult}) based the {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a map with key 'id' and the id of the resulting {@link QueryResult} as value.
+     */
+    def patientSet() {
+        if (!request.contentType) {
+            throw new InvalidRequestException('No content type provided')
+        }
+        MimeType mimeType = new MimeType(request.contentType)
+        if (mimeType != MimeType.JSON) {
+            throw new InvalidRequestException("Content type should be " +
+                    "${MimeType.JSON.name}; got ${mimeType}.")
+        }
+        Constraint constraint = parseConstraint(request.reader.lines().iterator().join(''))
+        if (constraint == null) {
+            return
+        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        QueryResult patientSet = queryService.createPatientSet("test set", constraint, user)
+        def result = [id: patientSet.id] as Map
+        response.status = 201
+        render result as JSON
     }
 
     /**

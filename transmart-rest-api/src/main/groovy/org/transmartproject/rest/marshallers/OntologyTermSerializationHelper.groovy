@@ -103,7 +103,7 @@ class OntologyTermSerializationHelper extends AbstractHalOrJsonSerializationHelp
                     name:     term.name,
                     key:      term.key,
                     fullName: term.fullName,
-                    type:     obj.apiOntologyTermType.name(),
+                    type:     obj.ontologyTermType.name(),
             ]
 
         Map<OntologyTerm, List<OntologyTermTag>> map = tagsResource.getTags([term] as Set, false)
