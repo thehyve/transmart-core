@@ -27,9 +27,9 @@ import org.grails.web.json.JSONElement
 import org.quartz.JobBuilder
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
+import org.quartz.Scheduler
 import org.quartz.SimpleTrigger
 import org.quartz.TriggerBuilder
-import org.quartz.core.QuartzScheduler
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 import static jobs.misc.AnalysisQuartzJobAdapter.*
@@ -57,7 +57,7 @@ class RModulesController {
     def RModulesService
     GrailsApplication grailsApplication
     def jobResultsService
-    QuartzScheduler quartzScheduler
+    Scheduler quartzScheduler
 
     /**
      * Method called that will cancel a running job
@@ -172,9 +172,9 @@ class RModulesController {
         params.put(PARAM_USER_PARAMETERS, userParams)
         params.put(PARAM_USER_IN_CONTEXT, currentUserBean.targetSource.target)
 
-        JobDetail jobDetail   = JobBuilder.newJob(AnalysisQuartzJobAdapter)
+        JobDetail jobDetail = JobBuilder.newJob(AnalysisQuartzJobAdapter)
             .withIdentity(params.jobName, params.jobType)
-            .setJobData(params)
+            .setJobData(new JobDataMap(params))
             .build()
         SimpleTrigger trigger = TriggerBuilder.newTrigger()
             .startNow()

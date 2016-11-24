@@ -21,8 +21,8 @@ import grails.transaction.Transactional
 import org.grails.web.json.JSONObject
 import org.quartz.JobBuilder
 import org.quartz.JobDataMap
+import org.quartz.Scheduler
 import org.quartz.TriggerBuilder
-import org.quartz.core.QuartzScheduler
 
 @Transactional
 class RModulesService {
@@ -41,7 +41,7 @@ class RModulesService {
 	/**
 	* quartzScheduler is available from the Quartz grails-plugin
 	*/
-    QuartzScheduler quartzScheduler
+    Scheduler quartzScheduler
 	def jobResultsService
 	def asyncJobService
 	def grailsApplication

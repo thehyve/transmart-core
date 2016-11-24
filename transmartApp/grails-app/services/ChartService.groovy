@@ -28,8 +28,6 @@ class ChartService {
 
     def i2b2HelperService
 
-    def public keyCache = []
-
     def getSubsetsFromRequest(params) {
 
         // We retrieve the result instance ids from the client

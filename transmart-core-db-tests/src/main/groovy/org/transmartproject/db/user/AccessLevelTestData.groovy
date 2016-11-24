@@ -94,6 +94,10 @@ class AccessLevelTestData {
             } else {
                 i2b2sec.secureObjectToken = i2b2.cComment.replace('trial', 'EXP')
             }
+            i2b2sec.dimensionTableName = 'concept_dimension'
+            i2b2sec.columnName = 'concept_path'
+            i2b2sec.operator = 'like'
+            i2b2sec.dimensionCode = i2b2sec.fullName
             i2b2sec
         }
     }()
