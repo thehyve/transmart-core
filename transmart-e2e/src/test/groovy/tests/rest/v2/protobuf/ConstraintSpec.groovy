@@ -110,7 +110,7 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "PatientSetConstraint.class"(){
-        def constraintMap = [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
+        def constraintMap = [type: PatientSetConstraint, patientIds: -62]
         when:
         ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
 
@@ -121,7 +121,7 @@ class ConstraintSpec extends RESTSpec{
         }
 
         when:
-        constraintMap = [type: PatientSetConstraint, patientSetId: 28731]
+        constraintMap = [type: PatientSetConstraint, patientSetId: 28714]
         responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
         selector = new ObservationSelector(responseData)
 
