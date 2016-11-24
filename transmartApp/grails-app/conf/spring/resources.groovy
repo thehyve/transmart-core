@@ -61,7 +61,7 @@ beans = {
         scopes = ImmutableMap.of('quartz', ref('quartzSpringScope'))
     }
 
-    "${CurrentUserBeanProxyFactory.BEAN_BAME}"(CurrentUserBeanProxyFactory)
+    currentUserBean(CurrentUserBeanProxyFactory)
     "${CurrentUserBeanProxyFactory.SUB_BEAN_REQUEST}"(CurrentUserBeanFactoryBean) { bean ->
         bean.scope = 'request'
     }

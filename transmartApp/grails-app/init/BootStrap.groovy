@@ -38,7 +38,7 @@ class BootStrap {
                     "to detect compile errors. Other errors can be detected " +
                     "with a breakpoing on the catch block in ConfigurationHelper::mergeInLocations().\n" +
                     "Alternatively, you can change the console logging settings by editing " +
-                    "\$GRAILS_HOME/scripts/log4j.properties, adding a proper appender and log " +
+                    "\$GRAILS_HOME/scripts/log4j.properties, adding abecause it does not reside in the file system proper appender and log " +
                     "org.codehaus.groovy.grails.commons.cfg.ConfigurationHelper at level WARN")
             throw new GrailsConfigurationException("Configuration magic setting not found")
         }
@@ -60,12 +60,14 @@ class BootStrap {
 
         /* rScriptDirectory */
         val = c.com.recomdata.transmart.data.export.rScriptDirectory
+
         if (val) {
             logger.warn("com.recomdata.transmart.data.export.rScriptDirectory " +
                     "should not be explicitly set, value '$val' ignored")
         }
 
         def ctx = grailsApplication.getMainContext()
+
         try { // find location of data export R scripts
             def tsAppRScriptsDir
             if (Environment.current == Environment.PRODUCTION) {
@@ -73,12 +75,12 @@ class BootStrap {
             } else {
                 tsAppRScriptsDir = new File("src/main/resources/dataExportRScripts")
             }
+
             if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
-                if (!tsAppRScriptsDir || !tsAppRScriptsDir.isDirectory()) {
-                    throw new RuntimeException('Could not determine proper for ' +
-                            'com.recomdata.transmart.data.export.rScriptDirectory')
-                }
+                throw new RuntimeException('Could not determine proper for ' +
+                        'com.recomdata.transmart.data.export.rScriptDirectory')
             }
+
             c.com.recomdata.transmart.data.export.rScriptDirectory = tsAppRScriptsDir.canonicalPath
             logger.info("com.recomdata.transmart.data.export.rScriptDirectory = " +
                     "${c.com.recomdata.transmart.data.export.rScriptDirectory}")
@@ -87,13 +89,24 @@ class BootStrap {
         }
 
         try { // find location of R scripts of RModules
-            def f = ctx.getResource('WEB-INF/Rscripts').getFile()
-            if (!f || !f.isDirectory()) {
-                f = ctx.getResource('classpath:Rscripts').getFile()
+
+            def rmoduleScriptDir
+
+            if (Environment.current == Environment.PRODUCTION) {
+                rmoduleScriptDir = ctx.getResource('WEB-INF/Rscripts').getFile()
+            } else {
+                rmoduleScriptDir = new File('../Rmodules/src/main/resources/Rscripts')
             }
-            c.RModules.pluginScriptDirectory = f.absolutePath
+
+            if (!rmoduleScriptDir || !rmoduleScriptDir.isDirectory()) {
+                throw new RuntimeException('Could not determine proper for ' +
+                        'Rscript directory')
+            }
+
+            c.RModules.pluginScriptDirectory = rmoduleScriptDir.absolutePath
             logger.info("RModules.pluginScriptDirectory = " +
                     "${c.RModules.pluginScriptDirectory}")
+
         } catch(Exception e) {
             logger.warn "No location found for RModules.pluginScriptDirectory: ${e.message}"
         }
@@ -118,5 +131,6 @@ class BootStrap {
 
 
     def destroy = {
+
     }
 }

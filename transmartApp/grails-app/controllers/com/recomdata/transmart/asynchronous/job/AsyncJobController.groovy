@@ -6,7 +6,7 @@ import grails.converters.JSON
 import org.json.JSONObject;
 
 class AsyncJobController {
-    def quartzScheduler
+
     def springSecurityService
     def i2b2HelperService
     def jobResultsService
