@@ -52,7 +52,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint
-        Set<DimensionImpl> dimensions = args.dimension ? ImmutableSet.copyOf(args.dimensions) : ImmutableSet.of() // make unique
+        Set<DimensionImpl> dimensions = ImmutableSet.copyOf(args.dimensions ?: []) // make unique
 
         // These are not yet implemented
         def sort = args.sort
