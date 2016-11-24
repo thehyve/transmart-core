@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2.query
+package org.transmartproject.db.multidimquery.query
 
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
@@ -9,17 +9,18 @@ import org.grails.orm.hibernate.cfg.PropertyConfig
 import org.grails.orm.hibernate.cfg.Table
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.transmartproject.db.dataquery2.ConceptDimension
-import org.transmartproject.db.dataquery2.DimensionImpl
-import org.transmartproject.db.dataquery2.EndTimeDimension
-import org.transmartproject.db.dataquery2.LocationDimension
-import org.transmartproject.db.dataquery2.ModifierDimension
-import org.transmartproject.db.dataquery2.PatientDimension
-import org.transmartproject.db.dataquery2.ProviderDimension
-import org.transmartproject.db.dataquery2.StartTimeDimension
-import org.transmartproject.db.dataquery2.StudyDimension
-import org.transmartproject.db.dataquery2.TrialVisitDimension
-import org.transmartproject.db.dataquery2.VisitDimension
+import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.db.multidimquery.ConceptDimension
+import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.EndTimeDimension
+import org.transmartproject.db.multidimquery.LocationDimension
+import org.transmartproject.db.multidimquery.ModifierDimension
+import org.transmartproject.db.multidimquery.PatientDimension
+import org.transmartproject.db.multidimquery.ProviderDimension
+import org.transmartproject.db.multidimquery.StartTimeDimension
+import org.transmartproject.db.multidimquery.StudyDimension
+import org.transmartproject.db.multidimquery.TrialVisitDimension
+import org.transmartproject.db.multidimquery.VisitDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 
@@ -80,7 +81,7 @@ class DimensionMetadata {
         metadata
     }
 
-    static final DimensionMetadata forDimension(Class<? extends DimensionImpl> dimensionClass) {
+    static final DimensionMetadata forDimension(Class<? extends Dimension> dimensionClass) {
         forDimensionClassName(dimensionClass?.simpleName)
     }
 
@@ -94,7 +95,7 @@ class DimensionMetadata {
         columnMetadata.column
     }
 
-    static final Field getField(Class<? extends DimensionImpl> dimensionClass, String fieldName) {
+    static final Field getField(Class<? extends Dimension> dimensionClass, String fieldName) {
         def metadata = forDimension(dimensionClass)
         def field = metadata.fields.find { it.fieldName == fieldName }
         if (field == null) {
@@ -109,7 +110,7 @@ class DimensionMetadata {
     }
 
     DimensionFetchType type
-    Class<? extends DimensionImpl> dimension
+    Class<? extends Dimension> dimension
     Class domainClass
     String fieldName
     String columnName
@@ -138,7 +139,7 @@ class DimensionMetadata {
         new Field(dimension: this.dimension, type: type, fieldName: field.name)
     }
 
-    DimensionMetadata(Class<? extends DimensionImpl> dimensionClass, DimensionFetchType type, String fieldName) {
+    DimensionMetadata(Class<? extends Dimension> dimensionClass, DimensionFetchType type, String fieldName) {
         log.info "Registering dimension ${dimensionClass.simpleName}..."
         this.dimension = dimensionClass
         this.type = type

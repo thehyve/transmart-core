@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import grails.util.Pair
 import groovy.transform.CompileStatic
@@ -6,31 +6,15 @@ import groovy.transform.InheritConstructors
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.exceptions.DataInconsistencyException
-import org.transmartproject.core.multidimensionalquery.Dimension
+import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.clinical.Query
-import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
+
+import static org.transmartproject.core.multidimquery.Dimension.*
 
 abstract class DimensionImpl implements Dimension {
     // TODO(jan): Which properties on dimensions do we actually need for the hypercube to work?
-
-    enum Size {
-        SMALL,
-        MEDIUM,
-        LARGE
-    }
-
-    enum Density {
-        DENSE,
-        SPARSE
-    }
-
-    enum Packable {
-        PACKABLE(packable: true),
-        NOT_PACKABLE(packable: false);
-
-        boolean packable
-    }
 
     final Size size
     final Density density
@@ -42,7 +26,7 @@ abstract class DimensionImpl implements Dimension {
         this.packable = packable
     }
 
-    IterableResult<Object> getElements(Study[] studies) {
+    @Override IterableResult<Object> getElements(Collection<Study> studies) {
         throw new NotImplementedException()
     }
 
@@ -214,7 +198,7 @@ class StudyDimension extends I2b2Dimension {
     }
 
     @Override List<Object> doResolveElements(List elementKeys) {
-        Study.getAll(elementKeys)
+        org.transmartproject.db.i2b2data.Study.getAll(elementKeys)
     }
 }
 

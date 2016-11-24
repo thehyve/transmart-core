@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2.query
+package org.transmartproject.db.multidimquery.query
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j

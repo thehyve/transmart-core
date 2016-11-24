@@ -1,4 +1,4 @@
-package org.transmartproject.db.dataquery2
+package org.transmartproject.db.multidimquery
 
 import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
@@ -13,18 +13,18 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.ontology.ConceptsResource
-import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
-import org.transmartproject.db.dataquery2.query.*
+import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.ontology.I2b2
+import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 import org.transmartproject.db.util.StringUtils
@@ -55,27 +55,18 @@ class QueryService {
         if (conceptPath == null || conceptPath.empty) {
             throw new AccessDeniedException("Empty concept path.")
         }
-        Collection<OntologyTerm> nodes = I2b2.findAll {
+        //TODO This query does not cover many cases. e.g concept_dimension.concept_cd in (...)
+        //It seem like only right approach would be to evaluate sql behind i2b2 node!
+        // Which would be very performance inefficient.
+        List<I2b2Secure> nodes = I2b2Secure.findAll {
             dimensionTableName =~ 'concept_dimension'
             columnName         =~ 'concept_path'
             operator           =~ 'like'
             dimensionCode      =~ StringUtils.asLikeLiteral(conceptPath)
         }
-        if (nodes.empty) {
-            throw new AccessDeniedException("Access denied to concept path: ${conceptPath}")
+        nodes.any { I2b2Secure node ->
+            accessControlChecks.canPerform(user, ProtectedOperation.WellKnownOperations.READ, node)
         }
-        boolean allowed = false
-        nodes.each { OntologyTerm node ->
-            try {
-                OntologyTerm term = conceptsResource.getByKey(node.key)
-                if (accessControlChecks.existsDimensionStudyForUser(user, term.study.id)) {
-                    allowed = true
-                }
-            } catch (NoSuchResourceException e) {
-                //
-            }
-        }
-        allowed
     }
 
     private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
@@ -106,11 +97,12 @@ class QueryService {
                 throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
             }
         } else if (constraint instanceof StudyConstraint) {
-            if (!accessControlChecks.existsDimensionStudyForUser(user, constraint.studyId)) {
+            def study = Study.findByStudyId(constraint.studyId)
+            if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
                 throw new AccessDeniedException("Access denied to study: ${constraint.studyId}")
             }
         } else if (constraint instanceof StudyObjectConstraint) {
-            if (!accessControlChecks.existsDimensionStudyForUser(user, constraint.study?.studyId)) {
+            if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, constraint.study)) {
                 throw new AccessDeniedException("Access denied to study: ${constraint.study?.studyId}")
             }
         } else {
@@ -371,7 +363,7 @@ class QueryService {
         [projection, table]
     }
 
-    HypercubeImpl retrieveClinicalData(Constraint constraint, User user) {
+    Hypercube retrieveClinicalData(Constraint constraint, User user) {
         checkAccess(constraint, user)
         def dataType = 'clinical'
         def accessibleStudies = accessControlChecks.getDimensionStudiesForUser(user)
