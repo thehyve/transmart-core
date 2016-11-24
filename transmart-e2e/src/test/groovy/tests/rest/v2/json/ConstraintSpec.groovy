@@ -1,10 +1,9 @@
-package tests.rest.v2.protobuf
+package tests.rest.v2.json
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
 
 import static config.Config.EHR_ID
+import static config.Config.PATH_HYPERCUBE
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.*
@@ -32,14 +31,14 @@ class ConstraintSpec extends RESTSpec{
     def final EMPTYCONTSTRAINT = "Empty constraint parameter."
 
     /**
-     *  when:" I do a Get with a wrong type."
+     *  when:" I do a Get query/observations with a wrong type."
      *  then: "then I get a 400 with 'Constraint not supported: BadType.'"
      */
     def "Get /query/observations malformed query"(){
         when:" I do a Get query/observations with a wrong type."
         def constraintMap = [type: 'BadType']
 
-        def responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "then I get a 400 with 'Constraint not supported: BadType.'"
         that responseData.httpStatus, is(400)
@@ -51,13 +50,10 @@ class ConstraintSpec extends RESTSpec{
         def constraintMap = [type: TrueConstraint]
 
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String')
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "BiomarkerConstraint.class"(){
@@ -71,13 +67,11 @@ class ConstraintSpec extends RESTSpec{
         ]
 
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'TNS:LAB:CELLCNT'
-        }
+        that responseData.size(), is(3)
+        that responseData, everyItem(hasEntry('conceptCode', 'TNS:LAB:CELLCNT'))
     }
 
     def "FieldConstraint.class"(){
@@ -88,26 +82,19 @@ class ConstraintSpec extends RESTSpec{
                              operator: LESS_THAN,
                              value:100]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get("query/hypercube", contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "PatientDimension", "age", 'Int') < 100
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "ValueConstraint.class"(){
         def constraintMap = [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:176]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert selector.select(it) > 176
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "TimeConstraint.class"(){
@@ -117,36 +104,26 @@ class ConstraintSpec extends RESTSpec{
                              operator: AFTER,
                              values: [date]]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') != ''
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "PatientSetConstraint.class"(){
         def constraintMap = [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') != ''
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
 
         when:
         constraintMap = [type: PatientSetConstraint, patientSetId: 28731]
-        responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
-        selector = new ObservationSelector(responseData)
-
+        responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        
         then:
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') != ''
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "Negation.class"(){
@@ -155,13 +132,10 @@ class ConstraintSpec extends RESTSpec{
                 arg: [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
         ]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "Combination.class"(){
@@ -174,14 +148,10 @@ class ConstraintSpec extends RESTSpec{
                 ]
         ]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "TemporalConstraint.class"(){
@@ -196,54 +166,38 @@ class ConstraintSpec extends RESTSpec{
                 ]
         ]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "ConceptConstraint.class"(){
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "StudyConstraint.class"(){
         def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "StudyDimension", "studyId", 'String').equals('EHR')
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     def "NullConstraint.class"(){
         def constraintMap = [type: NullConstraint]
 
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "StudyDimension", "studyId", 'String').equals('EHR')
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
 }

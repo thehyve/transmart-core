@@ -1,13 +1,12 @@
-package tests.rest.v2.protobuf
+package tests.rest.v2.json
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
-import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.CATEGORICAL_VALUES_LOADED
-import static config.Config.SUPPRESS_KNOWN_BUGS
+import static config.Config.PATH_HYPERCUBE
+import static org.hamcrest.Matchers.*
+import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.ValueType.STRING
@@ -26,19 +25,16 @@ class CategoricalVariablesSpec extends RESTSpec{
      *  then: "no observations are returned"
      */
     @Requires({CATEGORICAL_VALUES_LOADED})
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-127 protobuf serialization, empty concepts do not return an empty result.
     def "get observations using old data format new style query"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
 
         when: "I get all observations from the  study that have concept Gender"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "no observations are returned"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        assert selector.cellCount == 0
+        that responseData.size(), is(0)
     }
 
     /**
@@ -53,14 +49,12 @@ class CategoricalVariablesSpec extends RESTSpec{
         when: "I get all observations from the study that have concept Female"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "1 observation is returned"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        assert selector.cellCount == 1
-        assert (selector.select(0, "ConceptDimension", "conceptCode", 'String') == 'CV:DEM:SEX:F')
-        assert selector.select(0) == 'Female'
+        that responseData.size(), is(1)
+        that responseData, everyItem(hasEntry('conceptCode', 'CV:DEM:SEX:F'))
+        that responseData, everyItem(hasEntry('textValue', 'Female'))
     }
 
     /**
@@ -75,15 +69,11 @@ class CategoricalVariablesSpec extends RESTSpec{
         when: "I get all observations from the study that have concept Race"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "3 observations are returned"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        assert selector.cellCount == 3
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CV:DEM:RACE')
-        }
+        that responseData.size(), is(3)
+        that responseData, everyItem(hasEntry('conceptCode', 'CV:DEM:RACE'))
     }
 
     /**
@@ -105,16 +95,12 @@ class CategoricalVariablesSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "2 observations are returned"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        assert selector.cellCount == 2
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CV:DEM:RACE')
-            assert selector.select(it) == 'Caucasian'
-        }
+        that responseData.size(), is(2)
+        that responseData, everyItem(hasEntry('conceptCode', 'CV:DEM:RACE'))
+        that responseData, everyItem(hasEntry('textValue', 'Caucasian'))
     }
 
 }

@@ -1,8 +1,6 @@
-package tests.rest.v2.protobuf
+package tests.rest.v2.json
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 
@@ -23,6 +21,7 @@ class SamplesSpec extends RESTSpec{
      *  then: "3 observations are returned, all have a cellcount"
      */
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
+//    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //TMPDEV-97 ModifierConstraint returns modifier observations with null values
     def "get observations related to a modifier"(){
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
 
@@ -32,16 +31,14 @@ class SamplesSpec extends RESTSpec{
                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "3 observations are returned, all have a cellcount"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        assert selector.cellCount == 3
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('TNS:LAB:CELLCNT')
-            assert selector.select(it) != null
-        }
+        that responseData.size(), is(3)
+        that responseData, everyItem(allOf(
+                hasEntry('conceptCode', 'TNS:LAB:CELLCNT'),
+                not(hasEntry('numberValue', null))
+        ))
     }
 
     /**
@@ -50,7 +47,7 @@ class SamplesSpec extends RESTSpec{
      *  then: "3 observations are returned with concept codes: CELLCNT, .., ..."
      */
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
-    @IgnoreIf({SUPPRESS_UNIMPLEMENTED}) //no test data with multiple concepts linked to a modifier
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS || SUPPRESS_UNIMPLEMENTED}) //TMPDEV-97 ModifierConstraint returns modifier observations with null values. no test set with multiple concepts per sample.
     def "get observations related to a"(){
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
 
@@ -60,16 +57,23 @@ class SamplesSpec extends RESTSpec{
                 values: [type: ValueConstraint, valueType: NUMERIC, operator: EQUALS, value: 10]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "3 observations are returned, all have a cellcount"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        assert selector.cellCount == 3
-        (0..<selector.cellCount).each {
-            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('TNS:LAB:CELLCNT') ||
-                    selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('....'))
-            assert selector.select(it) != null
-        }
+        that responseData.size(), is(3)
+        that responseData, allOf(
+                hasItem(
+                        hasEntry('conceptCode', 'TNS:LAB:CELLCNT'),
+                        not(hasEntry('numberValue', null))
+                ),
+                hasItem(
+                        hasEntry('conceptCode', '...'),
+                        not(hasEntry('numberValue', null))
+                ),
+                hasItem(
+                        hasEntry('conceptCode', '...'),
+                        not(hasEntry('numberValue', null))
+                )
+        )
     }
 }

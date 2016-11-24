@@ -2,8 +2,8 @@ package config
 
 class Config {
     //Constants
-//    public static final String BASE_URL = 'http://localhost:8080/'
-    public static final String BASE_URL = 'http://transmart-pro-test.thehyve.net/transmart/'
+    public static final String BASE_URL = 'http://localhost:8080/'
+//    public static final String BASE_URL = 'http://transmart-pro-test.thehyve.net/transmart/'
     public static final String BAD_USERNAME = 'bad username'
     public static final String BAD_PASSWORD = 'bad password'
     public static final String DEFAULT_USERNAME = 'test-public-user-1'
@@ -13,6 +13,11 @@ class Config {
     public static final String ADMIN_USERNAME = 'admin'
     public static final String ADMIN_PASSWORD = 'admin'
 
+    public static final String PATH_HYPERCUBE = "query/hypercube"
+    public static final String PATH_AGGREGATE = "query/aggregate"
+    public static final String PATH_PATIENTS = "query/patients"
+    public static final String PATH_TREE_NODES = "/v2/tree_nodes"
+    public static final String PATH_PATIENT_SET = "/v2/patient_set"
     public static final String REGEXDATE = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"
 
     //study ids

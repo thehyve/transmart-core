@@ -37,7 +37,7 @@ class AggregatedSpec extends RESTSpec{
                 type: MAX
         ]
 
-        def responseData = get("query/aggregate", contentTypeForJSON, query)
+        def responseData = get(PATH_AGGREGATE, contentTypeForJSON, query)
 
         then: "the number 102 is returned"
         assert responseData.max == 102.0
@@ -61,7 +61,7 @@ class AggregatedSpec extends RESTSpec{
                 type: MIN
         ]
 
-        def responseData = get("query/aggregate", contentTypeForJSON, query)
+        def responseData = get(PATH_AGGREGATE, contentTypeForJSON, query)
 
         then: "the number 56.0 is returned"
         assert responseData.min == 56.0
@@ -85,7 +85,7 @@ class AggregatedSpec extends RESTSpec{
                 type: AVERAGE
         ]
 
-        def responseData = get("query/aggregate", contentTypeForJSON, query)
+        def responseData = get(PATH_AGGREGATE, contentTypeForJSON, query)
 
         then: "the number 74.77777777777777 is returned"
         assert responseData.average == 74.77777777777777
@@ -108,7 +108,7 @@ class AggregatedSpec extends RESTSpec{
                 ])
         ]
 
-        def responseData = get("query/aggregate", contentTypeForJSON, query)
+        def responseData = get(PATH_AGGREGATE, contentTypeForJSON, query)
 
         then: "an error is returned"
         assert responseData.httpStatus == 400
@@ -132,7 +132,7 @@ class AggregatedSpec extends RESTSpec{
                 type: AVERAGE
         ]
 
-        def responseData = get("query/aggregate", contentTypeForJSON, query)
+        def responseData = get(PATH_AGGREGATE, contentTypeForJSON, query)
 
         then: "I get an access error"
         assert responseData.httpStatus == 403
@@ -157,7 +157,7 @@ class AggregatedSpec extends RESTSpec{
                 type: AVERAGE
         ]
 
-        def responseData = get("query/aggregate", contentTypeForJSON, query)
+        def responseData = get(PATH_AGGREGATE, contentTypeForJSON, query)
 
         then: "the number 34.5 is returned"
         assert responseData.average == 34.5

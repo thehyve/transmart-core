@@ -1,8 +1,6 @@
-package tests.rest.v2.protobuf
+package tests.rest.v2.json
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
 import spock.lang.Requires
 
 import static config.Config.*
@@ -46,15 +44,11 @@ class RelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "4 observations are returned"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        assert selector.cellCount == 4
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CT:VSIGN:HR')
-        }
+        that responseData.size(), is(4)
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     /**
@@ -97,22 +91,11 @@ class RelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData1 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap1))
-        ObservationsMessageProto responseData2 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap2))
+        def responseData1 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap1))
+        def responseData2 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap2))
 
         then: "both sets of observations are the same"
-        ObservationSelector selector1 = new ObservationSelector(responseData1)
-        ObservationSelector selector2 = new ObservationSelector(responseData2)
-
-        assert selector1.cellCount == selector2.cellCount
-        assert selector1.inlined.size() ==  selector2.inlined.size()
-        assert selector1.inlined.containsAll(selector2.inlined)
-        assert selector1.notInlined.size() ==  selector2.notInlined.size()
-        assert selector1.notInlined.containsAll(selector2.notInlined)
-
-        (0..<selector1.cellCount).each {
-            assert selector1.select(it) == selector2.select(it)
-        }
+        that responseData1, is(responseData2)
     }
 
     /**
@@ -139,16 +122,11 @@ class RelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "multiple concepts are returned"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        HashSet concepts = []
-        (0..<selector.cellCount).each {
-            concepts.add(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
-        }
-        assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR')
+        that responseData, hasItem(hasEntry('conceptCode', 'EHR:DEM:AGE'))
+        that responseData, hasItem(hasEntry('conceptCode', 'EHR:VSIGN:HR'))
     }
 
     /**
@@ -168,17 +146,12 @@ class RelativeTimepointsSpec extends RESTSpec{
                              operator: EQUALS,
                              value:'General']
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "multiple concepts are returned"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        HashSet concepts = []
-        (0..<selector.cellCount).each {
-            concepts.add(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
-        }
-
-        assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR', 'CT:DEM:AGE')
+        that responseData, hasItem(hasEntry('conceptCode', 'EHR:DEM:AGE'))
+        that responseData, hasItem(hasEntry('conceptCode', 'EHR:VSIGN:HR'))
+        that responseData, hasItem(hasEntry('conceptCode', 'CT:DEM:AGE'))
     }
 
     /**
@@ -221,21 +194,10 @@ class RelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData1 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap1))
-        ObservationsMessageProto responseData2 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap2))
+        def responseData1 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap1))
+        def responseData2 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap2))
 
         then: "both sets of observations are the same"
-        ObservationSelector selector1 = new ObservationSelector(responseData1)
-        ObservationSelector selector2 = new ObservationSelector(responseData2)
-
-        assert selector1.cellCount == selector2.cellCount
-        assert selector1.inlined.size() ==  selector2.inlined.size()
-        assert selector1.inlined.containsAll(selector2.inlined)
-        assert selector1.notInlined.size() ==  selector2.notInlined.size()
-        assert selector1.notInlined.containsAll(selector2.notInlined)
-
-        (0..<selector1.cellCount).each {
-            assert selector1.select(it) == selector2.select(it)
-        }
+        that responseData1, is(responseData2)
     }
 }

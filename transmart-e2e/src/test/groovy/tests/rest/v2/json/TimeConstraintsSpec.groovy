@@ -1,8 +1,6 @@
-package tests.rest.v2.protobuf
+package tests.rest.v2.json
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 
@@ -18,7 +16,7 @@ import static tests.rest.v2.constraints.*
  *      start time
  *      end time
  */
-class TimeConstraintSpec extends RESTSpec{
+class TimeConstraintsSpec extends RESTSpec{
 
     /**
      *  given: "Ward-EHR is loaded"
@@ -43,16 +41,11 @@ class TimeConstraintSpec extends RESTSpec{
                         ]
                 ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "6 observations are returned"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        assert selector.cellCount == 6
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-            assert selector.select(it) != null
-        }
+        that responseData.size(), is(6)
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     /**
@@ -81,16 +74,11 @@ class TimeConstraintSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "2 observations are returned"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        assert selector.cellCount == 2
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-            assert selector.select(it) != null
-        }
+        that responseData.size(), is(2)
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     /**
@@ -116,17 +104,11 @@ class TimeConstraintSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "1 observation is returned"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        assert selector.cellCount == 6
-        (0..<selector.cellCount).each {
-            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR') ||
-                    selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:DEM:AGE'))
-            assert selector.select(it) != null
-        }
+        that responseData.size(), is(6)
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 
     /**
@@ -157,15 +139,10 @@ class TimeConstraintSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "4 observations are returned"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        assert selector.cellCount == 5
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-            assert selector.select(it) != null
-        }
+        that responseData.size(), is(5)
+        that responseData, everyItem(hasKey('conceptCode'))
     }
 }
