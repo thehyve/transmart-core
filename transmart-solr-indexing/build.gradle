@@ -100,3 +100,10 @@ grailsPublish {
 assets {
     packagePlugin = true
 }
+
+configure(integrationTest) {
+    //Remove cache-ehcache plugin when running integration test due to https://github.com/grails-plugins/grails-cache-ehcache/issues/27. Remove when issue is fixed
+    classpath = classpath.filter{ File file ->
+        !file.name.startsWith( "cache-ehcache-" )
+    }
+}
