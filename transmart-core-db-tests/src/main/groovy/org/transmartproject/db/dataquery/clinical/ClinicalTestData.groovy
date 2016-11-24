@@ -117,7 +117,7 @@ class ClinicalTestData {
         def facts = createTabularFacts(conceptDims, patients)
 
         def multidimsStudy = StudyTestData.createStudy "multidimensional study", ["patient", "concept", "study", "visit", "trial visit",
-                                                               "start time", "end time", "location", "provider"]
+                                                               "start time", "end time", "location", "provider"], true
         def multidimsClinicalFacts = createMultidimensionalFacts(conceptDims[5..6], visits[3..5], multidimsStudy, observationStartDates, observationEndDates,
                 locations, providers)
 

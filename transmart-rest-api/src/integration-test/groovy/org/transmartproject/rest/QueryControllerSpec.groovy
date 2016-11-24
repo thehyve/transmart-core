@@ -78,7 +78,7 @@ class QueryControllerSpec extends MarshallerSpec {
         def result = new JsonSlurper().parseText(content)
 
         then:
-        response.statusCode.value() == 404
+        response.statusCode.value() == 400
         result.message == 'Cannot parse constraint parameter.'
     }
 

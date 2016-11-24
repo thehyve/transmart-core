@@ -53,7 +53,8 @@ grails.mime.types = [
         multipartForm: 'multipart/form-data',
         rss          : 'application/rss+xml',
         text         : 'text/plain',
-        hal          : ['application/hal+json', 'application/hal+xml'],
+        hal          : 'application/hal+json',
+        halxml       : 'application/hal+xml',
         xml          : ['text/xml', 'application/xml'],
         protobuf     : 'application/x-protobuf',
 ]

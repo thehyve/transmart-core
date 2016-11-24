@@ -53,7 +53,7 @@ class ObservationController {
     ConceptsResource conceptsResourceService
     QueriesResource queriesResourceService
 
-    /** GET request on /studies/XXX/observations/
+    /** GET request on /v1/studies/XXX/observations/
      *  This will return the list of observations for study XXX
      */
     def index() {
@@ -70,7 +70,7 @@ class ObservationController {
     }
 
     /**
-     * GET /observations
+     * GET /v1/observations
      * Not bound to a study.
      *
      * Parameters: patient_sets  => list of result instance ids or
@@ -154,7 +154,7 @@ class ObservationController {
         }
     }
 
-    /** GET request on /studies/XXX/concepts/YYY/observations/
+    /** GET request on /v1/studies/XXX/concepts/YYY/observations/
      *  This will return the list of observations for study XXX and concept YYY
      */
     def indexByConcept() {
@@ -169,7 +169,7 @@ class ObservationController {
         }
     }
 
-    /** GET request on /studies/XXX/subjects/YYY/observations/
+    /** GET request on /v1/studies/XXX/subjects/YYY/observations/
      *  This will return the list of observations for study XXX and subject YYY
      */
     def indexBySubject() {

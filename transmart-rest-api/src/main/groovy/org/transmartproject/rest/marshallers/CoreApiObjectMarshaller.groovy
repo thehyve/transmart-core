@@ -35,7 +35,7 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
 
     public static final String LINKS_ATTRIBUTE = '_links'
     public static final String EMBEDDED_ATTRIBUTE = '_embedded'
-    public static final String VERSION = 'v1'
+
     HalOrJsonSerializationHelper serializationHelper
 
     Class<?> getTargetType() {
@@ -83,7 +83,7 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
     }
 
     private Map<String, Object> convertLink(Link link) {
-        def res = [(HREF_ATTRIBUTE): "$VERSION" + link.href]
+        def res = [(HREF_ATTRIBUTE): link.href]
         if (link.hreflang) {
             res[HREFLANG_ATTRIBUTE] = link.hreflang
         }

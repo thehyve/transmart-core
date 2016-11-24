@@ -37,7 +37,7 @@ class PatientSetResourceTests extends ResourceSpec {
                 status: 'FINISHED',
                 id: isA(Number),
                 username: 'user_-301',)
-        that response.json, hasSelfLink(VERSION+'/patient_sets/' + response.json['id'])
+        that response.json, hasSelfLink("/${VERSION}/patient_sets/${response.json['id']}")
         that response.json, hasEntry(is('_embedded'),
                 hasEntry(is('patients'),
                         contains(allOf(
@@ -45,7 +45,7 @@ class PatientSetResourceTests extends ResourceSpec {
                                         id: -101,
                                         trial: 'STUDY_ID_1',
                                         inTrialId: 'SUBJ_ID_1',),
-                                hasSelfLink(VERSION+'/studies/study_id_1/subjects/-101')))))
+                                hasSelfLink("/${VERSION}/studies/study_id_1/subjects/-101")))))
     }
 
     void testSaveAndLoad() {

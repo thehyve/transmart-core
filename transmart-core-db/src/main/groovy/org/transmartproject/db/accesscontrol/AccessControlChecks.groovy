@@ -23,8 +23,13 @@ import grails.gorm.DetachedCriteria
 import groovy.util.logging.Slf4j
 import org.hibernate.Session
 import org.hibernate.SessionFactory
+import org.hibernate.criterion.MatchMode
+import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Restrictions
+import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.StudiesResource
@@ -35,8 +40,10 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.concept.ConceptKey
+import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User
+import org.transmartproject.db.util.StringUtils
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 
@@ -264,6 +271,67 @@ class AccessControlChecks {
                     }.bioDataUniqueId)
         }
         query.find() != null
+    }
+
+    private boolean exists(org.hibernate.criterion.DetachedCriteria criteria) {
+        (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
+    }
+
+    /**
+     * Checks if a concept exists with the provided concept path or concept code
+     * that is being referred to from a node {@link I2b2Secure} table that the user
+     * has access to.
+     * Only one of conceptPath or conceptCode should be provided.
+     *
+     * Example:
+     * <code>checkConceptAccess(conceptPath: '\foo\bar\', user)</code>
+     *
+     * TODO:
+     * This query does not cover many cases, e.g., where {@link I2b2Secure} points
+     * to concepts using concept_cd, uses other operators than 'like' or uses prefixes
+     * instead of exact matches.
+     *
+     * @param args the map that should contain either a conceptCode or a conceptPath entry.
+     * @param user the user to check access for.
+     * @return true iff an entry in {@link I2b2Secure} exists that the user has access to
+     * and that refers to a concept in the concept dimension with the provided conceptPath
+     * or conceptCode.
+     * @throws AccessDeniedException iff none or both of conceptCode and conceptPath are provided.
+     */
+    public boolean checkConceptAccess(Map args, User user) {
+        def conceptPath = args.conceptPath as String
+        def conceptCode = conceptPath ? null : args.conceptCode as String
+        if (conceptPath == null || conceptPath.empty) {
+            if (conceptCode == null || conceptCode.empty) {
+                throw new AccessDeniedException("Either concept path or concept code is required.")
+            }
+        } else if (conceptCode != null && !conceptCode.empty) {
+            throw new AccessDeniedException("Got both concept path and concept code. Only one is allowed.")
+        }
+
+        if (user.admin) {
+            return true
+        }
+
+        Collection<org.transmartproject.db.i2b2data.Study> studies = getDimensionStudiesForUser(user)
+        List<String> tokens = [org.transmartproject.db.i2b2data.Study.PUBLIC] + studies*.secureObjectToken
+
+        org.hibernate.criterion.DetachedCriteria conceptCriteria =
+                org.hibernate.criterion.DetachedCriteria.forClass(ConceptDimension)
+        if (conceptPath) {
+            conceptCriteria = conceptCriteria.add(StringUtils.like('conceptPath', conceptPath, MatchMode.EXACT))
+        } else {
+            conceptCriteria = conceptCriteria.add(StringUtils.like('conceptCode', conceptCode, MatchMode.EXACT))
+        }
+        conceptCriteria = conceptCriteria.setProjection(Projections.property('conceptPath'))
+
+        org.hibernate.criterion.DetachedCriteria criteria = org.hibernate.criterion.DetachedCriteria.forClass(I2b2Secure)
+                .add(Restrictions.in('secureObjectToken', tokens))
+                .add(Restrictions.ilike('dimensionTableName', 'concept_dimension'))
+                .add(Restrictions.ilike('columnName', 'concept_path'))
+                .add(Restrictions.ilike('operator', 'like'))
+                .add(Subqueries.propertyIn('dimensionCode', conceptCriteria))
+        exists(criteria)
     }
 
     boolean canPerform(User user,

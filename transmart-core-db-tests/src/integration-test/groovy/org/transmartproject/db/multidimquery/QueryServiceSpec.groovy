@@ -8,10 +8,13 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.AccessLevelTestData
+
+import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 @Rollback
 @Integration
@@ -22,6 +25,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
     TestData testData
     AccessLevelTestData accessLevelTestData
+    TestData hypercubeTestData
 
     void setupData() {
         testData = new TestData().createDefault(); int i = 1
@@ -31,8 +35,26 @@ class QueryServiceSpec extends TransmartSpecification {
         testData.i2b2Data.patients[1].age = 31
         testData.i2b2Data.patients[2].age = 18
         accessLevelTestData = new AccessLevelTestData().createWithAlternativeConceptData(testData.conceptData)
+        accessLevelTestData.i2b2Secures.each {
+            if (it.secureObjectToken == 'EXP:PUBLIC') {
+                it.secureObjectToken = Study.PUBLIC
+            }
+        }
         testData.saveAll()
         accessLevelTestData.saveAll()
+    }
+
+    void setupHypercubeData(){
+        hypercubeTestData = TestData.createHypercubeDefault()
+        hypercubeTestData.saveAll()
+
+        accessLevelTestData = new AccessLevelTestData()
+        save accessLevelTestData.accessLevels
+        save accessLevelTestData.roles
+        save accessLevelTestData.groups
+        save accessLevelTestData.users
+        accessLevelTestData.users[0].addToRoles(accessLevelTestData.roles.find { it.authority == 'ROLE_ADMIN' })
+        accessLevelTestData.users[1].addToGroups(accessLevelTestData.groups.find { it.category == 'group_-201' })
     }
 
     Constraint createQueryForConcept(ObservationFact observationFact) {
@@ -72,11 +94,11 @@ class QueryServiceSpec extends TransmartSpecification {
         def result = queryService.list(constraint, accessLevelTestData.users[0])
 
         then:
-        result.size() == 4
+        result.size() == testData.clinicalData.facts.size()
     }
 
     void "test query for values > 1 and subject id 2"() {
-        setupData()
+        setupHypercubeData()
 
         Constraint constraint = ConstraintFactory.create([
                 type    : 'Combination',
@@ -108,10 +130,49 @@ class QueryServiceSpec extends TransmartSpecification {
 
         then:
         result.size() == observations.size()
-        result.size() == 1
         result[0].valueType == ObservationFact.TYPE_NUMBER
         result[0].numberValue > 1
         result[0].patient.sourcesystemCd.contains('SUBJ_ID_2')
+    }
+
+    void "test patient query and patient set creation"() {
+        setupHypercubeData()
+
+        Constraint constraint = ConstraintFactory.create([
+                type    : 'Combination',
+                operator: 'or',
+                args    : [
+                        [ type: 'ConceptConstraint', path: '\\foo\\concept 2\\' ],
+                        [ type: 'ConceptConstraint', path: '\\foo\\concept 3\\' ]
+                ]
+        ])
+
+        when: "I query for all observations and patients for a constraint"
+        def observations = queryService.list(constraint, accessLevelTestData.users[0])
+        def patients = queryService.listPatients(constraint, accessLevelTestData.users[0])
+
+        then: "I get the expected number of observations and patients"
+        observations.size() == 5
+        patients.size() == 3
+
+        then: "I set of patients matches the patients associated with the observations"
+        observations*.patient.unique().sort() == patients.sort()
+
+        when: "I build a patient set based on the constraint"
+        def patientSet = queryService.createPatientSet("Test set", constraint, accessLevelTestData.users[0])
+
+        then: "I get a patient set id"
+        patientSet != null
+        patientSet.id != null
+
+        when: "I query for patients based on the patient set id"
+        Constraint patientSetConstraint = ConstraintFactory.create(
+                [ type: 'PatientSetConstraint', patientSetId: patientSet.id ]
+        )
+        def patients2 = queryService.listPatients(patientSetConstraint, accessLevelTestData.users[0])
+
+        then: "I get the same set of patient as before"
+        patients.sort() == patients2.sort()
     }
 
     void "test for max, min, average aggregate"() {
@@ -141,6 +202,36 @@ class QueryServiceSpec extends TransmartSpecification {
 
         then:
         result == 30 //(10+50) / 2
+    }
+
+    void "test observation count and patient count"() {
+        setupData()
+        ObservationFact of1 = createFactForExistingConcept()
+        of1.numberValue = 50
+        testData.clinicalData.facts << of1
+        testData.saveAll()
+        def query = createQueryForConcept(of1)
+
+        when:
+        def count1 = queryService.count(query, accessLevelTestData.users[0])
+        def patientCount1 = queryService.patientCount(query, accessLevelTestData.users[0])
+
+        then:
+        count1 == 2L
+        patientCount1 == 2L
+
+        when:
+        ObservationFact of2 = createFactForExistingConcept()
+        of2.numberValue = 51
+        of2.patient = of1.patient
+        testData.clinicalData.facts << of2
+        testData.saveAll()
+        def count2 = queryService.count(query, accessLevelTestData.users[0])
+        def patientCount2 = queryService.patientCount(query, accessLevelTestData.users[0])
+
+        then:
+        count2 == count1 + 1
+        patientCount2 == patientCount1
     }
 
     void "test for check if aggregate returns error when any numerical value is null"() {
