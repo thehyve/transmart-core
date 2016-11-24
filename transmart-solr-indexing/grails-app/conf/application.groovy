@@ -28,7 +28,7 @@ environments {
     test {
         dataSource {
             driverClassName = 'org.postgresql.Driver'
-            url = 'jdbc:postgresql://localhost:5432/transmart'
+            url = 'jdbc:postgresql://localhost:25432/transmart'
             username = 'biomart_user'
             password = 'biomart_user'
             dbCreate = 'none'
