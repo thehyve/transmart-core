@@ -15,7 +15,7 @@ import static tests.rest.v2.constraints.*
  *  TMPREQ-9
  *      Multiple observations
  */
-class GetQueryMultipleObservationsSpec extends RESTSpec{
+class MultipleObservationsSpec extends RESTSpec{
 
     /**
      *  Given: "ClinicalTrial is loaded"

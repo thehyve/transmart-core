@@ -15,7 +15,7 @@ import static tests.rest.v2.ValueType.STRING
 import static tests.rest.v2.constraints.ModifierConstraint
 import static tests.rest.v2.constraints.ValueConstraint
 
-class GetSamplesSpec extends RESTSpec{
+class SamplesSpec extends RESTSpec{
 
     /**
      *  given: "study TUMOR_NORMAL_SAMPLES is loaded"

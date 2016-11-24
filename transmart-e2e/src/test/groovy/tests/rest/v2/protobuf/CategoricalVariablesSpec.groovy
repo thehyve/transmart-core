@@ -18,7 +18,7 @@ import static tests.rest.v2.constraints.*
  *      enabling fetching patients and observations where a categorical variable has a certain value.
  *      E.g., fetching data for patients with value 'female' for 'Sex' or with value 'Unknown' for 'Diagnosis'.
  */
-class GetCategoricalVariablesSpec extends RESTSpec{
+class CategoricalVariablesSpec extends RESTSpec{
 
     /**
      *  given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"

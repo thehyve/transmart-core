@@ -1,6 +1,7 @@
 package tests.rest.v2.observations
 
 import base.RESTSpec
+import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.*
@@ -34,6 +35,7 @@ class AccessLevelSpec extends RESTSpec{
      *  when: "I try to get a concept from that study"
      *  then: "I get the observations"
      */
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-133 normal user with access rights, cannot access private concept paths
     def "unrestricted access"(){
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)

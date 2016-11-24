@@ -1,4 +1,4 @@
-package tests.rest.v2
+package tests.rest.v2.observations
 
 import base.RESTSpec
 import spock.lang.Requires
@@ -17,7 +17,7 @@ import static tests.rest.v2.constraints.*
  *  Checks if every constraint respects access rules
  */
 @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
-class GetQueryRestictedSpec extends RESTSpec{
+class RestictedSpec extends RESTSpec{
 
     def "TrueConstraint.class"(){
         def constraintMap = [type: TrueConstraint]
@@ -45,7 +45,7 @@ class GetQueryRestictedSpec extends RESTSpec{
 
         then:
         that responseData.size(), is(3)
-        that responseData, everyItem(hasEntry('modifierCd', 'TNS:SMPL'))
+        that responseData, everyItem(hasEntry('modifierCd', '@'))
         that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 

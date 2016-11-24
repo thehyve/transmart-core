@@ -20,7 +20,7 @@ import static tests.rest.v2.constraints.*
  *      It should be possible to link observations from multiple concepts to the same relative timepoint. At least per study, preferably global.
  *      Relative timepoints should be able to have a linked value and unit, representing their place on the relative timescale compared to other relative timepoints with the same unit.
  */
-class GetRelativeTimepointsSpec extends RESTSpec{
+class RelativeTimepointsSpec extends RESTSpec{
 
     /**
      *  given: "study CLINICAL_TRIAL is loaded"

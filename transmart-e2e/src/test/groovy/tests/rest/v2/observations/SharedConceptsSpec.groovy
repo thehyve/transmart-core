@@ -11,7 +11,7 @@ import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.constraints.*
 
 @Requires({SHARED_CONCEPTS_LOADED})
-class GetSharedConceptsSpec extends RESTSpec {
+class SharedConceptsSpec extends RESTSpec {
 
     /**
      *  given: "studies STUDIENAME and STUDIENAME are loaded and both use shared Consept ids"

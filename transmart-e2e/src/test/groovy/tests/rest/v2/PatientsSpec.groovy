@@ -21,7 +21,7 @@ import static tests.rest.v2.constraints.*
  *      The REST API should support querying patients based on observations:
  *          certain constraints are valid for any or for all observations for the patient. E.g, all observations of high blood pressure occur after supply of drug X.
  */
-class GetPatientsSpec extends RESTSpec{
+class PatientsSpec extends RESTSpec{
 
     /**
      *  given: "study CLINICAL_TRIAL is loaded"

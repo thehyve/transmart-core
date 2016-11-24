@@ -36,6 +36,24 @@ class ConstraintSpec extends RESTSpec{
      StudyConstraint.class,
      NullConstraint.class
      */
+    def final INVALIDARGUMENTEXCEPTION = "InvalidArgumentsException"
+    def final EMPTYCONTSTRAINT = "Empty constraint parameter."
+
+    /**
+     *  when:" I do a Get query/observations with a wrong type."
+     *  then: "then I get a 400 with 'Constraint not supported: BadType.'"
+     */
+    def "Get /query/observations malformed query"(){
+        when:" I do a Get query/observations with a wrong type."
+        def constraintMap = [type: 'BadType']
+
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+
+        then: "then I get a 400 with 'Constraint not supported: BadType.'"
+        that responseData.httpStatus, is(400)
+        that responseData.type, is(INVALIDARGUMENTEXCEPTION)
+        that responseData.message, is('Constraint not supported: BadType.')
+    }
 
     def "TrueConstraint.class"(){
         def constraintMap = [type: TrueConstraint]

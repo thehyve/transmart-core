@@ -17,7 +17,7 @@ import static config.Config.*
  *      maximum
  *      average
  */
-class GetAggregatedSpec extends RESTSpec{
+class AggregatedSpec extends RESTSpec{
 
     /**
      *  given: "study EHR is loaded"

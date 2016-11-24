@@ -1,4 +1,4 @@
-package tests.rest.v2
+package tests.rest.v2.observations
 
 import base.RESTSpec
 import spock.lang.IgnoreIf
@@ -19,7 +19,7 @@ import static tests.rest.v2.constraints.*
  *      start time
  *      end time
  */
-class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
+class TimeConstraintsSpec extends RESTSpec{
 
     /**
      *  given: "Ward-EHR is loaded"
@@ -90,7 +90,6 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
      *  then: "1 observation is returned"
      */
     @Requires({EHR_LOADED})
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //TMPDEV-95 Observations with no startDate are returned by TimeConstraint
     def "query observations based on time constraint before startDate"(){
         given: "Ward-EHR is loaded"
         def date = toDateString("01-01-2016Z")
@@ -121,11 +120,10 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
      *  then: "4 observations are returned"
      */
     @Requires({EHR_LOADED})
-    @IgnoreIf({SUPPRESS_UNIMPLEMENTED}) // field endDate is currently not accessible
     def "query observations based on starDate and endDate"(){
         given: "EHR is loaded"
         def date1 = toDateString("01-01-2016Z")
-        def date2 = toDateString("01-04-2016Z")
+        def date2 = toDateString("04-04-2016Z")
 
         when: "I query observations in this study with startDate after 01-01-2016 and an endDate before 01-04-2016"
         def constraintMap = [
@@ -147,7 +145,7 @@ class GetQueryObservationsTimeConstraintsSpec extends RESTSpec{
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then: "4 observations are returned"
-        that responseData.size(), is(4)
+        that responseData.size(), is(5)
         that responseData, everyItem(hasKey('conceptCode'))
     }
 }

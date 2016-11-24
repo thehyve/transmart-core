@@ -16,7 +16,7 @@ import static tests.rest.v2.constraints.ConceptConstraint
 import static tests.rest.v2.constraints.ModifierConstraint
 import static tests.rest.v2.constraints.ValueConstraint
 
-class GetQueryObservationsSamplesSpec extends RESTSpec{
+class SamplesSpec extends RESTSpec{
 
     /**
      *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
@@ -39,7 +39,6 @@ class GetQueryObservationsSamplesSpec extends RESTSpec{
         then: "3 observations are returned, all have a cellcount"
         that responseData.size(), is(3)
         that responseData, everyItem(allOf(
-                hasEntry('modifierCd', 'TNS:SMPL'),
                 hasEntry('conceptCode', 'TNS:LAB:CELLCNT'),
                 not(hasEntry('numberValue', null))
         ))

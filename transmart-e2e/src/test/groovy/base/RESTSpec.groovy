@@ -193,14 +193,13 @@ class RESTSpec extends Specification{
             println(URLDecoder.decode(uri.toString(), 'UTF-8'))
             response.success = { resp ->
                 assert resp.statusLine.statusCode in 200..<400
-                assert resp.headers.'Content-Type'.contains(contentTypeForProtobuf)
+                assert resp.headers.'Content-Type'.contains(contentTypeForProtobuf) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
                 if (DEBUG){
                     println "Got response: ${resp.statusLine}"
                     println "Content-Type: ${resp.headers.'Content-Type'}"
                     def result = parseProto(resp.entity.content)
                     return result
                 }
-
                 return parseProto(resp.entity.content)
             }
 

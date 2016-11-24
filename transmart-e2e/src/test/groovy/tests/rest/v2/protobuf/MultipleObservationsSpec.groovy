@@ -13,7 +13,7 @@ import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.constraints.*
 
 @Requires({EHR_LOADED})
-class GetMultipleObservationsSpec extends RESTSpec{
+class MultipleObservationsSpec extends RESTSpec{
 
     /**
      *  Given: "ClinicalTrial is loaded"
