@@ -4,10 +4,11 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
-import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
 import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.Operator
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.user.User
 import spock.lang.Specification
@@ -20,57 +21,64 @@ class QueryServiceSpec extends Specification {
     QueryService queryService
 
     void 'get whole hd data for single node'() {
-        setup:
         User user = User.findByUsername('test-public-user-1')
-        ConceptConstraint constraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
-        String projection = Projection.DEFAULT_REAL_PROJECTION
+        ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
         when:
-        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(constraint, null, null, projection, user)
+        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(user, conceptConstraint)
 
         then:
-        hypercube.iterator.toList().size() == 18
+        hypercube.iterator.toList().size() == hypercube.biomarkers.size() * hypercube.assays.size() *
+                hypercube.dimensionElements(HddTabularResultHypercubeAdapter.projectionDim).size()
         hypercube.biomarkers.size() == 3
         hypercube.assays.size() == 6
     }
 
     void 'get hd data for selected patients'() {
-        setup:
         User user = User.findByUsername('test-public-user-1')
-        ConceptConstraint constraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
-        String projection = Projection.DEFAULT_REAL_PROJECTION
+        ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
         def malesIn26 = org.transmartproject.db.i2b2data.PatientDimension.find {
             sourcesystemCd == 'CLINICAL_TRIAL_HIGHDIM:1'
         }
-        when:
         Constraint assayConstraint = new PatientSetConstraint(patientIds: malesIn26*.id)
-        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(constraint, null, assayConstraint, projection, user)
+        Constraint combinationConstraint = new Combination(
+                operator: Operator.AND,
+                args: [
+                        conceptConstraint,
+                        assayConstraint
+                ]
+        )
+
+        when:
+        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(user, combinationConstraint)
 
         then:
-        hypercube.iterator.toList().size() == 6
+        hypercube.iterator.toList().size() == hypercube.biomarkers.size() * hypercube.assays.size() *
+                hypercube.dimensionElements(HddTabularResultHypercubeAdapter.projectionDim).size()
         hypercube.biomarkers.size() == 3
         hypercube.assays.size() == 2
     }
 
     void 'get hd data for selected biomarkers'() {
-        setup:
         def user = User.findByUsername('test-public-user-1')
-        ConceptConstraint constraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
-        String projection = Projection.DEFAULT_REAL_PROJECTION
-
-        when:
+        ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
         BiomarkerConstraint bioMarkerConstraint = new BiomarkerConstraint(
                 biomarkerType: DataConstraint.GENES_CONSTRAINT,
                 params: [
                         names: ['TP53']
                 ]
         )
-        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(constraint, bioMarkerConstraint, null, projection, user)
+
+        when:
+        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(user, conceptConstraint, bioMarkerConstraint)
 
         then:
-        hypercube.iterator.toList().size() == 12
+        println hypercube.iterator.toList().size() == hypercube.biomarkers.size() * hypercube.assays.size() *
+                hypercube.dimensionElements(HddTabularResultHypercubeAdapter.projectionDim).size()
         hypercube.biomarkers.size() == 2
         hypercube.assays.size() == 6
     }
+
+    //TODO More tests
 
 }

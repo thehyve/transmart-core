@@ -111,15 +111,7 @@ class QueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def hypercube() {
-        ObservationsSerializer.Format format = ObservationsSerializer.Format.NONE
-        withFormat {
-            json {
-                format = ObservationsSerializer.Format.JSON
-            }
-            protobuf {
-                format = ObservationsSerializer.Format.PROTOBUF
-            }
-        }
+        ObservationsSerializer.Format format = getContentFormat()
         if (format == ObservationsSerializer.Format.NONE) {
             throw new InvalidArgumentsException("Format not supported.")
         }
@@ -242,9 +234,9 @@ class QueryController {
         render result as JSON
     }
 
-
-    def highDim() {
+    ObservationsSerializer.Format getContentFormat() {
         ObservationsSerializer.Format format = ObservationsSerializer.Format.NONE
+
         withFormat {
             json {
                 format = ObservationsSerializer.Format.JSON
@@ -253,32 +245,26 @@ class QueryController {
                 format = ObservationsSerializer.Format.PROTOBUF
             }
         }
-        if (format == ObservationsSerializer.Format.NONE) {
-            throw new InvalidArgumentsException("Format not supported.")
-        }
 
-        if (!params.projection) {
-            throw new InvalidArgumentsException('Projection parameter is missing')
-        }
+        format
+    }
 
-        String projectionName = params.projection
+    def highDim() {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        Constraint assayConstraint = getConstraint('assay_constraint')
 
-        ConceptConstraint conceptConstraint = getConstraint('concept_constraint')
         BiomarkerConstraint biomarkerConstraint = null
         if (params.biomarker_constraint) {
-            biomarkerConstraint = getConstraint('biomarker_constraint')
+            Constraint constraint = getConstraint('biomarker_constraint')
+            assert constraint instanceof BiomarkerConstraint
+            biomarkerConstraint = constraint
         }
-        Constraint assayConstraint = null
-        if (params.assay_constraint) {
-            assayConstraint = getConstraint('assay_constraint')
-        }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(conceptConstraint,
+        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(user, assayConstraint,
                 biomarkerConstraint,
-                assayConstraint,
-                projectionName, user)
+                params.projection)
 
+        ObservationsSerializer.Format format = getContentFormat()
         OutputStream out = new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
                     response.contentType = format.toString()
