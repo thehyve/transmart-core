@@ -9,7 +9,6 @@ import org.transmartproject.db.multidimquery.query.Type
 import org.transmartproject.db.multidimquery.query.FieldConstraint
 import spock.lang.Specification
 
-@Integration
 @TestMixin(ControllerUnitTestMixin)
 class QuerySpec extends Specification {
 
