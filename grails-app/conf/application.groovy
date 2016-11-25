@@ -23,40 +23,24 @@ hibernate {
 
 // environment specific settings
 environments {
-    test {
+    test_postgresql {
         dataSource {
-            driverClassName = "org.h2.Driver"
-            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM './h2_init.sql'"
-            username = "sa"
-            password = ""
-
-            logSql    = true
+            url = 'jdbc:postgresql://localhost:5432/transmart_test'
+            driverClassName = 'org.postgresql.Driver'
+            username = 'tm_cz'
+            password = 'tm_cz'
+            logSql = true
             formatSql = true
-
-            dbCreate = "update"
-            pooled = true
-
-            properties {
-                // these small values make it easier to find leaks
-                maxActive = 3
-                minIdle = 1
-                maxIdle = 1
-            }
         }
     }
-    development {
+    test_oracle {
         dataSource {
+            url = 'jdbc:postgresql://localhost:5432/transmart_test'
             driverClassName = 'org.postgresql.Driver'
-            url             = 'jdbc:postgresql://localhost:5433/transmart'
-            dialect         = 'org.hibernate.dialect.PostgreSQLDialect'
-
-//            driverClassName = 'oracle.jdbc.driver.OracleDriver'
-//            url             = 'jdbc:oracle:thin:@localhost:11521:CI'
-//            dialect         = 'org.hibernate.dialect.Oracle10gDialect'
-
-            username        = 'biomart_user'
-            password        = 'biomart_user'
-            dbCreate        = 'none'
+            username = 'tm_cz'
+            password = 'tm_cz'
+            logSql = true
+            formatSql = true
         }
     }
 }
