@@ -226,7 +226,7 @@
     "child" : {
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
-      "name" : "SEQ_DIMENSION_DESCRIPTIOMN_ID"
+      "name" : "SEQ_DIMENSION_DESCRIPTION_ID"
     },
     "parents" : [ ]
   }, {
@@ -254,7 +254,7 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
-      "name" : "STUDY_DIMENSIONDESCRIPTIONS"
+      "name" : "STUDY_DIMENSION_DESCRIPTIONS"
     },
     "parents" : [ {
       "type" : "TABLE",
@@ -346,7 +346,7 @@
     "item" : {
       "type" : "TRIGGER",
       "owner" : "I2B2METADATA",
-      "name" : "DIMENSION_DESCRIPTIOMN_ID_TRG"
+      "name" : "DIMENSION_DESCRIPTION_ID_TRG"
     },
     "file" : "i2b2metadata/dimension_description.sql"
   }, {
@@ -362,7 +362,7 @@
       "owner" : "I2B2METADATA",
       "name" : "FK_9VVV5M5NBXSU2LKBEEFTEVD5J"
     },
-    "file" : "i2b2metadata/study_dimensiondescriptions.sql"
+    "file" : "i2b2metadata/study_dimension_descriptions.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -507,7 +507,7 @@
     "item" : {
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
-      "name" : "SEQ_DIMENSION_DESCRIPTIOMN_ID"
+      "name" : "SEQ_DIMENSION_DESCRIPTION_ID"
     },
     "file" : "i2b2metadata/dimension_description.sql"
   }, {
@@ -535,9 +535,9 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "I2B2METADATA",
-      "name" : "STUDY_DIMENSIONDESCRIPTIONS"
+      "name" : "STUDY_DIMENSION_DESCRIPTIONS"
     },
-    "file" : "i2b2metadata/study_dimensiondescriptions.sql"
+    "file" : "i2b2metadata/study_dimension_descriptions.sql"
   }, {
     "item" : {
       "type" : "TABLE",
