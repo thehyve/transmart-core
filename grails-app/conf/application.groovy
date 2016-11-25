@@ -25,7 +25,7 @@ hibernate {
 environments {
     test_postgresql {
         dataSource {
-            url = 'jdbc:postgresql://localhost:5432/transmart_test'
+            url = 'jdbc:postgresql://localhost:5432/transmart'
             driverClassName = 'org.postgresql.Driver'
             username = 'tm_cz'
             password = 'tm_cz'
@@ -35,8 +35,8 @@ environments {
     }
     test_oracle {
         dataSource {
-            url = 'jdbc:postgresql://localhost:5432/transmart_test'
-            driverClassName = 'org.postgresql.Driver'
+            url = 'jdbc:oracle:thin:@localhost:1521:ORCL'
+            driverClassName = 'oracle.jdbc.driver.OracleDriver'
             username = 'tm_cz'
             password = 'tm_cz'
             logSql = true
