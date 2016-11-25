@@ -7,6 +7,7 @@ import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.CATEGORICAL_VALUES_LOADED
+import static config.Config.PATH_HYPERCUBE
 import static config.Config.SUPPRESS_KNOWN_BUGS
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.EQUALS

@@ -67,16 +67,30 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "ModifierConstraint.class"(){
+        when:
         def constraintMap = [
-                type: ModifierConstraint, modifierCode: "TNS:SMPL", path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
         ]
-
-        when:
         ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationSelector selector = new ObservationSelector(responseData)
 
         then:
-        ObservationSelector selector = new ObservationSelector(responseData)
+        selector.cellCount == 3
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'TNS:LAB:CELLCNT'
+        }
+
+        when:
+        constraintMap = [
+                type: ModifierConstraint, modifierCode: "TNS:SMPL",
+                values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
+        ]
+        responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        selector = new ObservationSelector(responseData)
+
+        then:
+        selector.cellCount == 3
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'TNS:LAB:CELLCNT'
         }
@@ -130,7 +144,10 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "PatientSetConstraint.class"(){
-        def constraintMap = [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
+        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON([type: PatientSetConstraint, patientIds: -62]))
+        def constraintMap = [type: PatientSetConstraint, patientSetId: setID.id]
+
+
         when:
         ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
@@ -141,8 +158,7 @@ class ConstraintSpec extends RESTSpec{
         }
 
         when:
-        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON([type: PatientSetConstraint, patientIds: -62]))
-        constraintMap = [type: PatientSetConstraint, patientSetId: setID.id]
+        constraintMap = [type: PatientSetConstraint, patientIds: -62]
         responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
         selector = new ObservationSelector(responseData)
 
@@ -155,7 +171,7 @@ class ConstraintSpec extends RESTSpec{
     def "Negation.class"(){
         def constraintMap = [
                 type: Negation,
-                arg: [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
+                arg: [type: PatientSetConstraint, patientIds: [-62, -52, -42]]
         ]
         when:
         ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
@@ -163,7 +179,7 @@ class ConstraintSpec extends RESTSpec{
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert !selector.select(it, "StudyDimension", "studyId", 'String').equals('EHR')
         }
     }
 
@@ -247,9 +263,11 @@ class ConstraintSpec extends RESTSpec{
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
 
+        HashSet conceptCodes= []
         (0..<selector.cellCount).each {
-            assert selector.select(it, "StudyDimension", "studyId", 'String').equals('EHR')
+            conceptCodes.add(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
         }
+        conceptCodes.containsAll(['CV:DEM:SEX:M', 'CV:DEM:SEX:F', 'CV:DEM:RACE', 'CV:DEM:AGE'])
     }
 
 }

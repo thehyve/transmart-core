@@ -70,13 +70,23 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "ModifierConstraint.class"(){
+        when:
         def constraintMap = [
-                type: ModifierConstraint, modifierCode: "TNS:SMPL", path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
         ]
+        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+
+        then:
+        that responseData.size(), is(3)
+        that responseData, everyItem(hasEntry('conceptCode', 'TNS:LAB:CELLCNT'))
 
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        constraintMap = [
+                type: ModifierConstraint, modifierCode: "TNS:SMPL",
+                values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
+        ]
+        responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData.size(), is(3)
@@ -120,7 +130,9 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "PatientSetConstraint.class"(){
-        def constraintMap = [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
+        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON([type: PatientSetConstraint, patientIds: -62]))
+        def constraintMap = [type: PatientSetConstraint, patientSetId: setID.id]
+
         when:
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
@@ -128,7 +140,7 @@ class ConstraintSpec extends RESTSpec{
         that responseData, everyItem(hasKey('conceptCode'))
 
         when:
-        constraintMap = [type: PatientSetConstraint, patientSetId: 28731]
+        constraintMap = [type: PatientSetConstraint, patientIds: -62]
         responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
         
         then:
@@ -138,7 +150,7 @@ class ConstraintSpec extends RESTSpec{
     def "Negation.class"(){
         def constraintMap = [
                 type: Negation,
-                arg: [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
+                arg: [type: PatientSetConstraint, patientIds: -62]
         ]
         when:
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
@@ -152,7 +164,7 @@ class ConstraintSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: PatientSetConstraint, patientSetId: 0, patientIds: -62],
+                        [type: PatientSetConstraint, patientIds: -62],
                         [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                 ]
         ]
