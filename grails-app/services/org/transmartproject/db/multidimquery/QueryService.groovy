@@ -74,7 +74,7 @@ class QueryService {
         } else if (constraint instanceof PatientSetConstraint) {
             if (constraint.patientSetId) {
                 QueryResult queryResult = QtQueryResultInstance.findById(constraint.patientSetId)
-                if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+                if (queryResult == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
                     throw new AccessDeniedException("Access denied to patient set: ${constraint.patientSetId}")
                 }
             }
