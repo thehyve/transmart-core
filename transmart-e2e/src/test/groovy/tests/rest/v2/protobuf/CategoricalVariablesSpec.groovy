@@ -1,11 +1,13 @@
-package tests.rest.v2.observations
+package tests.rest.v2.protobuf
 
 import base.RESTSpec
+import protobuf.ObservationsMessageProto
+import selectors.protobuf.ObservationSelector
+import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.CATEGORICAL_VALUES_LOADED
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
+import static config.Config.SUPPRESS_KNOWN_BUGS
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.ValueType.STRING
@@ -16,7 +18,7 @@ import static tests.rest.v2.constraints.*
  *      enabling fetching patients and observations where a categorical variable has a certain value.
  *      E.g., fetching data for patients with value 'female' for 'Sex' or with value 'Unknown' for 'Diagnosis'.
  */
-class GetQueryObservationsCategoricalSpec extends RESTSpec{
+class CategoricalVariablesSpec extends RESTSpec{
 
     /**
      *  given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
@@ -24,16 +26,19 @@ class GetQueryObservationsCategoricalSpec extends RESTSpec{
      *  then: "no observations are returned"
      */
     @Requires({CATEGORICAL_VALUES_LOADED})
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-127 protobuf serialization, empty concepts do not return an empty result.
     def "get observations using old data format new style query"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
 
         when: "I get all observations from the  study that have concept Gender"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"]
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "no observations are returned"
-        that responseData.size(), is(0)
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        assert selector.cellCount == 0
     }
 
     /**
@@ -48,12 +53,14 @@ class GetQueryObservationsCategoricalSpec extends RESTSpec{
         when: "I get all observations from the study that have concept Female"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"]
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "1 observation is returned"
-        that responseData.size(), is(1)
-        that responseData, everyItem(hasEntry('conceptCode', 'CV:DEM:SEX:F'))
-        that responseData, everyItem(hasEntry('textValue', 'Female'))
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        assert selector.cellCount == 1
+        assert (selector.select(0, "ConceptDimension", "conceptCode", 'String') == 'CV:DEM:SEX:F')
+        assert selector.select(0) == 'Female'
     }
 
     /**
@@ -68,11 +75,15 @@ class GetQueryObservationsCategoricalSpec extends RESTSpec{
         when: "I get all observations from the study that have concept Race"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"]
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "3 observations are returned"
-        that responseData.size(), is(3)
-        that responseData, everyItem(hasEntry('conceptCode', 'CV:DEM:RACE'))
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        assert selector.cellCount == 3
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CV:DEM:RACE')
+        }
     }
 
     /**
@@ -94,12 +105,16 @@ class GetQueryObservationsCategoricalSpec extends RESTSpec{
                 ]
         ]
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "2 observations are returned"
-        that responseData.size(), is(2)
-        that responseData, everyItem(hasEntry('conceptCode', 'CV:DEM:RACE'))
-        that responseData, everyItem(hasEntry('textValue', 'Caucasian'))
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        assert selector.cellCount == 2
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CV:DEM:RACE')
+            assert selector.select(it) == 'Caucasian'
+        }
     }
 
 }

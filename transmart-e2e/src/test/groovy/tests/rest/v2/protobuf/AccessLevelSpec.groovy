@@ -3,6 +3,7 @@ package tests.rest.v2.protobuf
 import base.RESTSpec
 import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
+import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.*
@@ -23,7 +24,7 @@ class AccessLevelSpec extends RESTSpec{
 
         when: "I try to get a concept from that study"
         def constraintMap = [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]
-        def responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        def responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "I get an access error"
         assert responseData.httpStatus == 403
@@ -36,13 +37,14 @@ class AccessLevelSpec extends RESTSpec{
      *  when: "I try to get a concept from that study"
      *  then: "I get the observations"
      */
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-133 normal user with access rights, cannot access private concept paths
     def "unrestricted access"(){
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I try to get a concept from that study"
         def constraintMap = [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "I get the observations"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -64,7 +66,7 @@ class AccessLevelSpec extends RESTSpec{
 
         when: "I try to get a concept from that study"
         def constraintMap = [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "I get the observations"
         ObservationSelector selector = new ObservationSelector(responseData)

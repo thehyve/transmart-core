@@ -4,6 +4,7 @@ import base.RESTSpec
 import spock.lang.Requires
 
 import static config.Config.CATEGORICAL_VALUES_LOADED
+import static config.Config.PATH_PATIENTS
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AND
@@ -16,7 +17,7 @@ import static tests.rest.v2.constraints.*
  *      enabling fetching patients and observations where a categorical variable has a certain value.
  *      E.g., fetching data for patients with value 'female' for 'Sex' or with value 'Unknown' for 'Diagnosis'.
  */
-class GetQueryPatientsCategoricalSpec extends RESTSpec{
+class PatientsCategoricalSpec extends RESTSpec{
 
     /**
      *  given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
@@ -30,7 +31,7 @@ class GetQueryPatientsCategoricalSpec extends RESTSpec{
         when: "I get all patients from the  study that have concept Gender"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"]
 
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "no patients are returned"
         that responseData.size(), is(0)
@@ -48,7 +49,7 @@ class GetQueryPatientsCategoricalSpec extends RESTSpec{
         when: "I get all patients from the study that have concept Female"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"]
 
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "1 patient is returned"
         that responseData.size(), is(1)
@@ -67,7 +68,7 @@ class GetQueryPatientsCategoricalSpec extends RESTSpec{
         when: "I get all patients from the study that have concept Race"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"]
 
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "3 patients are returned"
         that responseData.size(), is(3)
@@ -93,7 +94,7 @@ class GetQueryPatientsCategoricalSpec extends RESTSpec{
                 ]
         ]
 
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "2 patients are returned"
         that responseData.size(), is(2)

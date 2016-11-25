@@ -1,29 +1,26 @@
-package tests.rest.v2
+package tests.rest.v2.json
 
 import base.RESTSpec
 import spock.lang.Requires
 
-import static config.Config.EHR_ID
-import static config.Config.SHARED_CONCEPTS_RESTRICTED_ID
-import static config.Config.SHARED_CONCEPTS_RESTRICTED_LOADED
+import static config.Config.*
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.*
 import static tests.rest.v2.ValueType.*
 import static tests.rest.v2.constraints.*
 
-
 /**
  *  Checks if every constraint respects access rules
  */
 @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
-class GetQueryRestictedSpec extends RESTSpec{
+class RestictedSpec extends RESTSpec{
 
     def "TrueConstraint.class"(){
         def constraintMap = [type: TrueConstraint]
 
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
@@ -41,11 +38,11 @@ class GetQueryRestictedSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData.size(), is(3)
-        that responseData, everyItem(hasEntry('modifierCd', 'TNS:SMPL'))
+        that responseData, everyItem(hasEntry('modifierCd', '@'))
         that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
@@ -57,7 +54,7 @@ class GetQueryRestictedSpec extends RESTSpec{
                              operator: LESS_THAN,
                              value:100]
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
@@ -67,7 +64,7 @@ class GetQueryRestictedSpec extends RESTSpec{
     def "ValueConstraint.class"(){
         def constraintMap = [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:176]
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
@@ -81,7 +78,7 @@ class GetQueryRestictedSpec extends RESTSpec{
                              operator: AFTER,
                              values: [date]]
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
@@ -91,7 +88,7 @@ class GetQueryRestictedSpec extends RESTSpec{
     def "PatientSetConstraint.class"(){
         def constraintMap = [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
@@ -99,7 +96,7 @@ class GetQueryRestictedSpec extends RESTSpec{
 
         when:
         constraintMap = [type: PatientSetConstraint, patientSetId: 4430334]
-        responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
@@ -112,7 +109,7 @@ class GetQueryRestictedSpec extends RESTSpec{
                 arg: [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
         ]
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
@@ -129,7 +126,7 @@ class GetQueryRestictedSpec extends RESTSpec{
                 ]
         ]
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
@@ -148,7 +145,7 @@ class GetQueryRestictedSpec extends RESTSpec{
                 ]
         ]
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
@@ -158,7 +155,7 @@ class GetQueryRestictedSpec extends RESTSpec{
     def "ConceptConstraint.class"(){
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
@@ -168,7 +165,7 @@ class GetQueryRestictedSpec extends RESTSpec{
     def "StudyConstraint.class"(){
         def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
@@ -179,7 +176,7 @@ class GetQueryRestictedSpec extends RESTSpec{
         def constraintMap = [type: TrueConstraint]
 
         when:
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))

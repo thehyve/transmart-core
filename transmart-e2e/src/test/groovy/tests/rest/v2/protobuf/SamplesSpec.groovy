@@ -15,7 +15,7 @@ import static tests.rest.v2.ValueType.STRING
 import static tests.rest.v2.constraints.ModifierConstraint
 import static tests.rest.v2.constraints.ValueConstraint
 
-class GetSamplesSpec extends RESTSpec{
+class SamplesSpec extends RESTSpec{
 
     /**
      *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
@@ -32,7 +32,7 @@ class GetSamplesSpec extends RESTSpec{
                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "3 observations are returned, all have a cellcount"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -60,7 +60,7 @@ class GetSamplesSpec extends RESTSpec{
                 values: [type: ValueConstraint, valueType: NUMERIC, operator: EQUALS, value: 10]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "3 observations are returned, all have a cellcount"
         ObservationSelector selector = new ObservationSelector(responseData)

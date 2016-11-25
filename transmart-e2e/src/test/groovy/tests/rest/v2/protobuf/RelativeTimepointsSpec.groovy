@@ -20,7 +20,7 @@ import static tests.rest.v2.constraints.*
  *      It should be possible to link observations from multiple concepts to the same relative timepoint. At least per study, preferably global.
  *      Relative timepoints should be able to have a linked value and unit, representing their place on the relative timescale compared to other relative timepoints with the same unit.
  */
-class GetRelativeTimepointsSpec extends RESTSpec{
+class RelativeTimepointsSpec extends RESTSpec{
 
     /**
      *  given: "study CLINICAL_TRIAL is loaded"
@@ -46,7 +46,7 @@ class GetRelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "4 observations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -97,8 +97,8 @@ class GetRelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData1 = getProtobuf("query/hypercube", toQuery(constraintMap1))
-        ObservationsMessageProto responseData2 = getProtobuf("query/hypercube", toQuery(constraintMap2))
+        ObservationsMessageProto responseData1 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap1))
+        ObservationsMessageProto responseData2 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap2))
 
         then: "both sets of observations are the same"
         ObservationSelector selector1 = new ObservationSelector(responseData1)
@@ -139,7 +139,7 @@ class GetRelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "multiple concepts are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -168,7 +168,7 @@ class GetRelativeTimepointsSpec extends RESTSpec{
                              operator: EQUALS,
                              value:'General']
 
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "multiple concepts are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -221,8 +221,8 @@ class GetRelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData1 = getProtobuf("query/hypercube", toQuery(constraintMap1))
-        ObservationsMessageProto responseData2 = getProtobuf("query/hypercube", toQuery(constraintMap2))
+        ObservationsMessageProto responseData1 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap1))
+        ObservationsMessageProto responseData2 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap2))
 
         then: "both sets of observations are the same"
         ObservationSelector selector1 = new ObservationSelector(responseData1)

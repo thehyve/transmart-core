@@ -13,7 +13,7 @@ import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.constraints.*
 
 @Requires({EHR_LOADED})
-class GetMultipleObservationsSpec extends RESTSpec{
+class MultipleObservationsSpec extends RESTSpec{
 
     /**
      *  Given: "ClinicalTrial is loaded"
@@ -33,7 +33,7 @@ class GetMultipleObservationsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "3 observations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -58,7 +58,7 @@ class GetMultipleObservationsSpec extends RESTSpec{
         when: "I get all observations of that studie"
         def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
 
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "7 observations have a valid startDate, all formated with a datestring"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -86,7 +86,7 @@ class GetMultipleObservationsSpec extends RESTSpec{
         when: "I get all observations of that studie"
         def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
 
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "4 observations have a nonNUll endDate, all formated with a datestring"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -120,7 +120,7 @@ class GetMultipleObservationsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf("query/hypercube", toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
 
         then: "6 obsevations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)

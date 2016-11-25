@@ -1,11 +1,10 @@
-package tests.rest.v2.observations
+package tests.rest.v2.json
 
 import base.RESTSpec
+import org.hamcrest.Matchers
 import spock.lang.Requires
 
-import static config.Config.EHR_ID
-import static config.Config.EHR_LOADED
-import static config.Config.REGEXDATE
+import static config.Config.*
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AND
@@ -15,7 +14,7 @@ import static tests.rest.v2.constraints.*
  *  TMPREQ-9
  *      Multiple observations
  */
-class GetQueryMultipleObservationsSpec extends RESTSpec{
+class MultipleObservationsSpec extends RESTSpec{
 
     /**
      *  Given: "ClinicalTrial is loaded"
@@ -36,7 +35,7 @@ class GetQueryMultipleObservationsSpec extends RESTSpec{
                 ]
         ]
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "3 observations are returned"
         that responseData.size(), is(3)
@@ -55,13 +54,13 @@ class GetQueryMultipleObservationsSpec extends RESTSpec{
         when: "I get all observations of that studie"
         def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "7 observations have a startDate, all formated with a datestring"
         def filteredResponseData = responseData.findAll {it.'startDate' != '1970-01-01T00:00:00Z'}
         that filteredResponseData.size(), is(7)
         that responseData, everyItem(hasKey('conceptCode'))
-        that filteredResponseData, everyItem(hasEntry(is('startDate'), matchesPattern(REGEXDATE)))
+        that filteredResponseData, everyItem(Matchers.hasEntry(is('startDate'), matchesPattern(REGEXDATE)))
     }
 
     /**
@@ -76,12 +75,12 @@ class GetQueryMultipleObservationsSpec extends RESTSpec{
         when: "I get all observations of that studie"
         def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
 
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "4 observations have a endDate, all formated with a datestring"
         def filteredResponseData = responseData.findAll {it.'endDate' != null}
         that filteredResponseData.size(), is(4)
         that responseData, everyItem(hasKey('conceptCode'))
-        that filteredResponseData, everyItem(hasEntry(is('endDate'), matchesPattern(REGEXDATE)))
+        that filteredResponseData, everyItem(Matchers.hasEntry(is('endDate'), matchesPattern(REGEXDATE)))
     }
 }

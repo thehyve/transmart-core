@@ -3,12 +3,7 @@ package tests.rest.v2
 import base.RESTSpec
 import spock.lang.Requires
 
-import static config.Config.CLINICAL_TRIAL_LOADED
-import static config.Config.EHR_ID
-import static config.Config.SHARED_CONCEPTS_RESTRICTED_ID
-import static config.Config.SHARED_CONCEPTS_RESTRICTED_LOADED
-import static config.Config.UNRESTRICTED_PASSWORD
-import static config.Config.UNRESTRICTED_USERNAME
+import static config.Config.*
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AND
@@ -21,7 +16,7 @@ import static tests.rest.v2.constraints.*
  *      The REST API should support querying patients based on observations:
  *          certain constraints are valid for any or for all observations for the patient. E.g, all observations of high blood pressure occur after supply of drug X.
  */
-class GetPatientsSpec extends RESTSpec{
+class PatientsSpec extends RESTSpec{
 
     /**
      *  given: "study CLINICAL_TRIAL is loaded"
@@ -41,7 +36,7 @@ class GetPatientsSpec extends RESTSpec{
                         [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:80]
                 ]
         ]
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "2 patients are returned"
         that responseData.size(), is(2)
@@ -72,7 +67,7 @@ class GetPatientsSpec extends RESTSpec{
                          value:7]
                 ]
         ]
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "2 patients are returned"
         that responseData.size(), is(2)
@@ -90,7 +85,7 @@ class GetPatientsSpec extends RESTSpec{
 
         when: "I try to get the patients from that study"
         def constraintMap = [type: StudyConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "I get an access error"
         assert responseData.httpStatus == 403
@@ -110,11 +105,11 @@ class GetPatientsSpec extends RESTSpec{
 
         when: "I try to get the patients from that study"
         def constraintMap = [type: StudyConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
-        def responseData = get("query/patients", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "I get all patients"
         that responseData.size(), is(2)
-        that responseData, contains(
+        that responseData, hasItems(
                 hasEntry('id', -69),
                 hasEntry('id', -59))
     }

@@ -1,8 +1,6 @@
-package tests.rest.v2.protobuf
+package tests.rest.v2.json
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
 import spock.lang.Requires
 
 import static config.Config.*
@@ -12,7 +10,7 @@ import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.constraints.*
 
 @Requires({SHARED_CONCEPTS_LOADED})
-class GetSharedConceptsSpec extends RESTSpec {
+class SharedConceptsSpec extends RESTSpec {
 
     /**
      *  given: "studies STUDIENAME and STUDIENAME are loaded and both use shared Consept ids"
@@ -25,17 +23,12 @@ class GetSharedConceptsSpec extends RESTSpec {
         when: "I get observaties using this shared Consept id"
         def constraintMap = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "observations are returned from both Studies"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert (selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_A_ID) ||
-                    selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_B_ID))
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('VSIGN:HR')
-            assert selector.select(it) != null
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_A_ID))
+        that responseData, hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_B_ID))
     }
 
     /**
@@ -56,16 +49,12 @@ class GetSharedConceptsSpec extends RESTSpec {
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "observations are returned from only that Studies"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_A_ID)
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('VSIGN:HR')
-            assert selector.select(it) != null
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, everyItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_A_ID))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_B_ID)))
     }
 
     /**
@@ -80,18 +69,13 @@ class GetSharedConceptsSpec extends RESTSpec {
         when: "I get observaties using this shared Consept id"
         def constraintMap = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "observations are returned from both public Studies but not the restricted study"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
-        (0..<selector.cellCount).each {
-            assert (selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_A_ID) ||
-                    selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_B_ID))
-            assert !selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_RESTRICTED_ID)
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('VSIGN:HR')
-            assert selector.select(it) != null
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_A_ID))
+        that responseData, hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_B_ID))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     /**
@@ -107,16 +91,12 @@ class GetSharedConceptsSpec extends RESTSpec {
         when: "I get observaties using this shared Consept id"
         def constraintMap = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then: "observations are returned from both public Studies but not the restricted study"
-        ObservationSelector selector = new ObservationSelector(responseData)
-        (0..<selector.cellCount).each {
-            assert (selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_A_ID) ||
-                    selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_B_ID) ||
-                    selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_RESTRICTED_ID))
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('VSIGN:HR')
-            assert selector.select(it) != null
-        }
+        that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_A_ID))
+        that responseData, hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_B_ID))
+        that responseData, hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID))
     }
 }

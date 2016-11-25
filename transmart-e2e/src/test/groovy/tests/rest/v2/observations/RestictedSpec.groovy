@@ -3,57 +3,22 @@ package tests.rest.v2.observations
 import base.RESTSpec
 import spock.lang.Requires
 
-import static org.hamcrest.Matchers.everyItem
-import static org.hamcrest.Matchers.hasEntry
-import static org.hamcrest.Matchers.hasKey
-import static org.hamcrest.Matchers.is
+import static config.Config.EHR_ID
+import static config.Config.PATH_PATIENT_SET
+import static config.Config.SHARED_CONCEPTS_RESTRICTED_ID
+import static config.Config.SHARED_CONCEPTS_RESTRICTED_LOADED
+import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
-import static tests.rest.v2.Operator.AFTER
-import static tests.rest.v2.Operator.AND
-import static tests.rest.v2.Operator.EQUALS
-import static tests.rest.v2.Operator.GREATER_THAN
-import static tests.rest.v2.Operator.LESS_THAN
-import static tests.rest.v2.ValueType.DATE
-import static tests.rest.v2.ValueType.NUMERIC
-import static tests.rest.v2.ValueType.STRING
+import static tests.rest.v2.Operator.*
+import static tests.rest.v2.ValueType.*
 import static tests.rest.v2.constraints.*
-import static config.Config.*
 
-class ConstraintSpec extends RESTSpec{
 
-    /**
-     * TrueConstraint.class,
-     BiomarkerConstraint.class,
-     ModifierConstraint.class,
-     FieldConstraint.class,
-     ValueConstraint.class,
-     TimeConstraint.class,
-     PatientSetConstraint.class,
-     Negation.class,
-     Combination.class,
-     TemporalConstraint.class,
-     ConceptConstraint.class,
-     StudyConstraint.class,
-     NullConstraint.class
-     */
-    def final INVALIDARGUMENTEXCEPTION = "InvalidArgumentsException"
-    def final EMPTYCONTSTRAINT = "Empty constraint parameter."
-
-    /**
-     *  when:" I do a Get query/observations with a wrong type."
-     *  then: "then I get a 400 with 'Constraint not supported: BadType.'"
-     */
-    def "Get /query/observations malformed query"(){
-        when:" I do a Get query/observations with a wrong type."
-        def constraintMap = [type: 'BadType']
-
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
-
-        then: "then I get a 400 with 'Constraint not supported: BadType.'"
-        that responseData.httpStatus, is(400)
-        that responseData.type, is(INVALIDARGUMENTEXCEPTION)
-        that responseData.message, is('Constraint not supported: BadType.')
-    }
+/**
+ *  Checks if every constraint respects access rules
+ */
+@Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
+class RestictedSpec extends RESTSpec{
 
     def "TrueConstraint.class"(){
         def constraintMap = [type: TrueConstraint]
@@ -63,6 +28,7 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     def "BiomarkerConstraint.class"(){
@@ -80,7 +46,8 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData.size(), is(3)
-        that responseData, everyItem(hasEntry('conceptCode', 'TNS:LAB:CELLCNT'))
+        that responseData, everyItem(hasEntry('modifierCd', '@'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     def "FieldConstraint.class"(){
@@ -95,6 +62,7 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     def "ValueConstraint.class"(){
@@ -104,6 +72,7 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     def "TimeConstraint.class"(){
@@ -117,22 +86,26 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     def "PatientSetConstraint.class"(){
-        def constraintMap = [type: PatientSetConstraint, patientSetId: 0, patientIds: -62]
+        def constraintMap = [type: PatientSetConstraint, patientIds: -62]
         when:
         def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
 
         when:
-        constraintMap = [type: PatientSetConstraint, patientSetId: 28731]
+        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON([type: PatientSetConstraint, patientIds: -62]))
+        constraintMap = [type: PatientSetConstraint, patientSetId: setID.id]
         responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
-        
+
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     def "Negation.class"(){
@@ -145,6 +118,7 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     def "Combination.class"(){
@@ -161,6 +135,7 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     def "TemporalConstraint.class"(){
@@ -168,10 +143,10 @@ class ConstraintSpec extends RESTSpec{
                 type: TemporalConstraint,
                 operator: AFTER,
                 eventConstraint: [
-                         type: ValueConstraint,
-                         valueType: NUMERIC,
-                         operator: LESS_THAN,
-                         value: 60
+                        type: ValueConstraint,
+                        valueType: NUMERIC,
+                        operator: LESS_THAN,
+                        value: 60
                 ]
         ]
         when:
@@ -179,6 +154,7 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     def "ConceptConstraint.class"(){
@@ -188,6 +164,7 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     def "StudyConstraint.class"(){
@@ -197,6 +174,7 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         that responseData, everyItem(hasKey('conceptCode'))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
 
     def "NullConstraint.class"(){
@@ -211,6 +189,6 @@ class ConstraintSpec extends RESTSpec{
         then:
         that responseData, everyItem(hasKey('conceptCode'))
         that responseData, everyItem(hasEntry('endDate', null))
+        that responseData, not(hasItem(hasEntry('sourcesystemCd', SHARED_CONCEPTS_RESTRICTED_ID)))
     }
-
 }
