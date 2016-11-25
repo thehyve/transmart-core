@@ -15,8 +15,11 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.multidimquery.AssayDimension
+import org.transmartproject.db.multidimquery.BioMarkerDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.HypercubeImpl
+import org.transmartproject.db.multidimquery.ProjectionDimension
 import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
@@ -81,6 +84,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
 
         Set<DimensionImpl> validDimensions
+
+        //TODO Remove after adding all the dimension, added to prevent e2e tests failing
+        def notImplementedDimensions = [AssayDimension, BioMarkerDimension, ProjectionDimension]
         if(studies) {
             // This throws a LegacyStudyException for non-17.1 style studies
             // This could probably be done more efficiently, but GORM support for many-to-many collections is pretty
@@ -88,7 +94,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             validDimensions = ImmutableSet.copyOf((Set<DimensionImpl>) studies*.dimensions.flatten())
 
         } else {
-            validDimensions = ImmutableSet.copyOf((Set<DimensionImpl>) Study.findAll()*.dimensions.flatten())
+            validDimensions = ImmutableSet.copyOf DimensionDescription.all*.dimension.findAll{
+                !(it.class in notImplementedDimensions)
+            }
         }
         // only allow valid dimensions
         dimensions = (Set<DimensionImpl>) dimensions?.findAll { it in validDimensions } ?: validDimensions
