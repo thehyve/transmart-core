@@ -12,7 +12,7 @@ import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.constraints.*
 
 @Requires({SHARED_CONCEPTS_LOADED})
-class GetSharedConceptsSpec extends RESTSpec {
+class SharedConceptsSpec extends RESTSpec {
 
     /**
      *  given: "studies STUDIENAME and STUDIENAME are loaded and both use shared Consept ids"
@@ -39,12 +39,12 @@ class GetSharedConceptsSpec extends RESTSpec {
     }
 
     /**
-     *  given: "studies STUDIENAME and STUDIENAME are loaded and both use shared Consept ids"
+     *  given: "studies SHARED_CONCEPTS_A and SHARED_CONCEPTS_B are loaded and both use shared Consept ids"
      *  when: "I get observaties of one study using this shared Consept id"
      *  then: "observations are returned from only that Studies"
      */
     def "get shared concept single study"(){
-        given: "studies STUDIENAME and STUDIENAME are loaded and both use shared Consept ids"
+        given: "studies SHARED_CONCEPTS_A and SHARED_CONCEPTS_B are loaded and both use shared Consept ids"
 
         when: "I get observaties of one study using this shared Consept id"
         def constraintMap = [

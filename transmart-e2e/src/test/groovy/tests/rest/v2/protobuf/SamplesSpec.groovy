@@ -28,7 +28,7 @@ class SamplesSpec extends RESTSpec{
 
         when: "I get all observations related to a modifier 'Sample type' with value 'Tumor'"
         def constraintMap = [
-                type: ModifierConstraint, modifierCode: "TNS:SMPL", path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
         ]
 
@@ -56,7 +56,7 @@ class SamplesSpec extends RESTSpec{
 
         when: "I get all observations related to a modifier 'Sample ID' with value 'id'"
         def constraintMap = [
-                type: ModifierConstraint, modifierCode: "TNS:SMPL", path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample ID\\",
+                type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample ID\\",
                 values: [type: ValueConstraint, valueType: NUMERIC, operator: EQUALS, value: 10]
         ]
 

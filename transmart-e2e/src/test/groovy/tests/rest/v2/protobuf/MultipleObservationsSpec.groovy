@@ -28,7 +28,7 @@ class MultipleObservationsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: PatientSetConstraint, patientSetId: 0, patientIds: -62],
+                        [type: PatientSetConstraint, patientIds: -62],
                         [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                 ]
         ]
@@ -42,7 +42,7 @@ class MultipleObservationsSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it, "PatientDimension", "age", 'Int') == 30
-            assert selector.select(it) == [80.0, 59.0, 60.0].get(it)
+            assert selector.select(it) == [60.0, 59.0, 80.0].get(it)
         }
     }
 
@@ -115,7 +115,7 @@ class MultipleObservationsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: PatientSetConstraint, patientSetId: 0, patientIds: [-62,-42]],
+                        [type: PatientSetConstraint, patientIds: [-62,-42]],
                         [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                 ]
         ]
@@ -129,7 +129,7 @@ class MultipleObservationsSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it, "PatientDimension", "age", 'Int') == (it < 3 ? 30 : 52)
-            assert selector.select(it) == [80.0, 59.0, 60.0, 102.0, 56.0, 78.0].get(it)
+            assert selector.select(it) == [60.0, 59.0, 80.0, 78.0, 56.0, 102.0].get(it)
         }
     }
 }
