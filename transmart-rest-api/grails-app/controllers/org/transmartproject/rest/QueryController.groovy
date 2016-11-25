@@ -11,12 +11,12 @@ import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
+import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
 import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
-import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.ObservationsSerializer
 
 @Slf4j
@@ -244,6 +244,19 @@ class QueryController {
 
 
     def highDim() {
+        ObservationsSerializer.Format format = ObservationsSerializer.Format.NONE
+        withFormat {
+            json {
+                format = ObservationsSerializer.Format.JSON
+            }
+            protobuf {
+                format = ObservationsSerializer.Format.PROTOBUF
+            }
+        }
+        if (format == ObservationsSerializer.Format.NONE) {
+            throw new InvalidArgumentsException("Format not supported.")
+        }
+
         if (!params.projection) {
             throw new InvalidArgumentsException('Projection parameter is missing')
         }
@@ -261,20 +274,20 @@ class QueryController {
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        def (projection, table) = queryService.highDimension(conceptConstraint,
+        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(conceptConstraint,
                 biomarkerConstraint,
                 assayConstraint,
                 projectionName, user)
 
         OutputStream out = new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
-                    response.contentType = 'application/octet-stream'
+                    response.contentType = format.toString()
                     response.outputStream
                 })
         try {
-            HighDimBuilder.write(projection, table, out)
+            multidimensionalDataSerialisationService.serialise(hypercube, format, out)
         } finally {
-            table.close()
+            hypercube.close()
             out.close()
         }
     }
