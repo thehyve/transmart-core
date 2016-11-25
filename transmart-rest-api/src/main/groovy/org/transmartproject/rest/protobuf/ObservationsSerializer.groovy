@@ -1,5 +1,6 @@
 package org.transmartproject.rest.protobuf
 
+import com.google.protobuf.Empty
 import com.google.protobuf.Message
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -110,6 +111,13 @@ public class ObservationsSerializer {
         }
     }
 
+    void writeEmptyMessage(OutputStream out) {
+        if (format == Format.PROTOBUF) {
+            Empty builder = new Empty()
+            builder.writeDelimitedTo(out)
+        }
+    }
+
     static ColumnType getFieldType(Class type) {
         if (Float.isAssignableFrom(type)) {
             return ColumnType.DOUBLE
@@ -128,7 +136,6 @@ public class ObservationsSerializer {
     }
 
     protected getDimensionsDefs() {
-        setupPackedValues()
         def dimensionDeclarations = cube.dimensions.collect { dim ->
             def builder = DimensionDeclaration.newBuilder()
             String dimensionName = dim.toString()
@@ -172,12 +179,13 @@ public class ObservationsSerializer {
         dimensionDeclarations
     }
 
-    protected void setupPackedValues() {
+    protected boolean setupPackedValues() {
+
+        if(!cube.dimensionElements.any()) return false
 
         def sparsePackableDims = cube.dimensions.findAll { dim ->
             dim.density == Dimension.Density.SPARSE && dim.packable.packable
         }
-
         Iterator<HypercubeValueImpl> it = cube.iterator
         while (it.hasNext()) {
             HypercubeValueImpl value = it.next()
@@ -207,6 +215,7 @@ public class ObservationsSerializer {
             }
             footerIndexes << dimIndexes
         }
+        true
     }
 
     protected boolean compareAndPackIfPossible(List<Long> dimIndexes, HypercubeValueImpl value, List<DimensionImpl> sparsePackableDims) {
@@ -478,11 +487,16 @@ public class ObservationsSerializer {
         index
     }
 
+
     void write(OutputStream out) {
         begin(out)
-        writeMessage(out, buildHeader())
-        writeCells(out)
-        writeMessage(out, buildFooter())
+        if (setupPackedValues()) {
+            writeMessage(out, buildHeader())
+            writeCells(out)
+            writeMessage(out, buildFooter())
+        } else {
+            writeEmptyMessage(out)
+        }
         end(out)
     }
 
