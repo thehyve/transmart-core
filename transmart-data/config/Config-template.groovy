@@ -396,6 +396,7 @@ grails { plugin { springsecurity {
                 '/v1/studies/**': securedResourcesFilters,
                 '/v1/observations/**': securedResourcesFilters,
                 '/v2/query/**': securedResourcesFilters,
+                '/v2/tree_nodes/**': securedResourcesFilters,
                 '/v1/patient_sets/**': securedResourcesFilters,
                 '/oauth/inspectToken': securedResourcesFilters,
                 '/transmart-rest-api-version': 'none',
