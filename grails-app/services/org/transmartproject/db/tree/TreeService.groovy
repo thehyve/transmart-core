@@ -57,7 +57,7 @@ class TreeService {
             levelNodes.each { I2b2Secure currentNode ->
                 def children = lowerBranches.findAll { TreeNode branch ->
                     branch.fullName.startsWith(currentNode.fullName)
-                }
+                }.sort { it.name }
                 if (children.empty) {
                     children = null
                 }
@@ -134,15 +134,22 @@ class TreeService {
         depth = depth ?: 0
         includeCounts = includeCounts ?: Boolean.FALSE
         includeTags = includeTags ?: Boolean.FALSE
-        Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user)
-        List<String> tokens = [Study.PUBLIC] + studies*.secureObjectToken
+
+        List<String> tokens = [Study.PUBLIC]
+        if (!user.admin) {
+            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user)
+            tokens += studies*.secureObjectToken
+        }
 
         int toplevel = -1
         String prefix = ROOT
         if (rootKey != ROOT) {
             DetachedCriteria criteria = DetachedCriteria.forClass(I2b2Secure)
                     .add(like('fullName', rootKey))
-                    .add(Restrictions.in('secureObjectToken', tokens))
+            if (!user.admin) {
+                criteria = criteria.add(Restrictions.in('secureObjectToken', tokens))
+            }
+
             def root = criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult() as I2b2Secure
             if (!root) {
                 throw new AccessDeniedException("Access denied to path: ${rootKey}")
@@ -154,7 +161,9 @@ class TreeService {
         DetachedCriteria criteria = DetachedCriteria.forClass(I2b2Secure)
                 .add(startsWith('fullName', prefix))
                 .add(Restrictions.ge('level', toplevel))
-                .add(Restrictions.in('secureObjectToken', tokens))
+        if (!user.admin) {
+            criteria = criteria.add(Restrictions.in('secureObjectToken', tokens))
+        }
         if (depth > 0) {
             criteria.add(Restrictions.lt('level', toplevel + depth))
         }
