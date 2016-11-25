@@ -138,6 +138,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         thrown InvalidArgumentsException
 
         cleanup:
+        cube.close()
         this.values.clear()
     }
 
@@ -202,6 +203,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
 
 
         cleanup:
+        cube.close()
         this.values.clear()
     }
 
