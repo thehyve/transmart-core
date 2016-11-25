@@ -136,7 +136,7 @@ public class ObservationsSerializer {
             if (dim.packable.packable) {
                 builder.setIsDense(true)
             }
-            if (dim.density == DimensionImpl.Density.SPARSE) {
+            if (dim.density == Dimension.Density.SPARSE) {
                 builder.setInline(true)
             }
             if (packedDimFlagMap.any{it[dim]}) {
@@ -175,7 +175,7 @@ public class ObservationsSerializer {
     protected void setupPackedValues() {
 
         def sparsePackableDims = cube.dimensions.findAll { dim ->
-            dim.density == DimensionImpl.Density.SPARSE && dim.packable.packable
+            dim.density == Dimension.Density.SPARSE && dim.packable.packable
         }
 
         Iterator<HypercubeValueImpl> it = cube.iterator
@@ -185,7 +185,7 @@ public class ObservationsSerializer {
             extendListsForAnotherCubeValue()
             // determine DENSE dimensions footer indexes
             cube.dimensions.each { dim ->
-                if (dim.density == DimensionImpl.Density.DENSE) {
+                if (dim.density == Dimension.Density.DENSE) {
                     Object dimElement = value.getDimElement(dim)
                     dimIndexes << determineFooterIndex(dim, dimElement)
                 }
@@ -195,7 +195,7 @@ public class ObservationsSerializer {
                 // if it is first cube element, add to list, without checking
                 observationValues.add([value.value])
                 cube.dimensions.each { dim ->
-                    if (dim.density == DimensionImpl.Density.SPARSE) {
+                    if (dim.density == Dimension.Density.SPARSE) {
                         inlineDimElements[0][dim] = [value.getDimElement(dim)]
                     }
                 }
@@ -245,7 +245,7 @@ public class ObservationsSerializer {
 
     protected void packInlineDimsValues(int idx, HypercubeValueImpl value, DimensionImpl excludedDim = null) {
         cube.dimensions.each { dim ->
-            if (dim.density == DimensionImpl.Density.SPARSE && dim != excludedDim) {
+            if (dim.density == Dimension.Density.SPARSE && dim != excludedDim) {
                 inlineDimElements[idx][dim].add(value.getDimElement(dim))
                 packedDimFlagMap[idx][dim] = true
             }
@@ -266,7 +266,7 @@ public class ObservationsSerializer {
 
     protected void addNotPackedElement(HypercubeValueImpl value, int idx) {
         cube.dimensions.each { dim ->
-            if (dim.density == DimensionImpl.Density.SPARSE){
+            if (dim.density == Dimension.Density.SPARSE){
                 inlineDimElements[idx][dim] = [value.getDimElement(dim)]
             }
             packedDimFlagMap[idx][dim] = false
@@ -275,7 +275,7 @@ public class ObservationsSerializer {
     }
 
     private void extendListsForAnotherCubeValue() {
-        inlineDimElements.add(cube.dimensions.findAll{it.density == DimensionImpl.Density.SPARSE}.collectEntries(new HashMap()) { [it, new ArrayList<Object>()] })
+        inlineDimElements.add(cube.dimensions.findAll{it.density == Dimension.Density.SPARSE}.collectEntries(new HashMap()) { [it, new ArrayList<Object>()] })
         packedDimFlagMap.add(cube.dimensions.collectEntries(new HashMap()) { [it, false] })
     }
 
