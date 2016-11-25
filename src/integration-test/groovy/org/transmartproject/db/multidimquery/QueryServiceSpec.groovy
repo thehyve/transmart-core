@@ -3,7 +3,6 @@ package org.transmartproject.db.multidimquery
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
@@ -27,13 +26,12 @@ class QueryServiceSpec extends Specification {
         String projection = Projection.DEFAULT_REAL_PROJECTION
 
         when:
-        def (projectionObj, result) = queryService.highDimension(constraint, null, null, projection, user)
+        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(constraint, null, null, projection, user)
 
         then:
-        projectionObj instanceof Projection
-        result instanceof TabularResult
-        result.rows.size() == 3
-        result.indicesList.size() == 6
+        hypercube.iterator.toList().size() == 18
+        hypercube.biomarkers.size() == 3
+        hypercube.assays.size() == 6
     }
 
     void 'get hd data for selected patients'() {
@@ -46,13 +44,12 @@ class QueryServiceSpec extends Specification {
         }
         when:
         Constraint assayConstraint = new PatientSetConstraint(patientIds: malesIn26*.id)
-        def (projectionObj, result) = queryService.highDimension(constraint, null, assayConstraint, projection, user)
+        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(constraint, null, assayConstraint, projection, user)
 
         then:
-        projectionObj instanceof Projection
-        result instanceof TabularResult
-        result.rows.size() == 3
-        result.indicesList.size() == 2
+        hypercube.iterator.toList().size() == 6
+        hypercube.biomarkers.size() == 3
+        hypercube.assays.size() == 2
     }
 
     void 'get hd data for selected biomarkers'() {
@@ -68,13 +65,12 @@ class QueryServiceSpec extends Specification {
                         names: ['TP53']
                 ]
         )
-        def (projectionObj, result) = queryService.highDimension(constraint, bioMarkerConstraint, null, projection, user)
+        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(constraint, bioMarkerConstraint, null, projection, user)
 
         then:
-        projectionObj instanceof Projection
-        result instanceof TabularResult
-        result.rows.size() == 2
-        result.indicesList.size() == 6
+        hypercube.iterator.toList().size() == 12
+        hypercube.biomarkers.size() == 2
+        hypercube.assays.size() == 6
     }
 
 }

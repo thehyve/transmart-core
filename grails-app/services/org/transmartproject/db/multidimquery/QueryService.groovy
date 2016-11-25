@@ -398,7 +398,7 @@ class QueryService {
     }
 
     //TODO No need to have both concept constraint and assay constraint
-    def highDimension(ConceptConstraint conceptConstraint,
+    HddTabularResultHypercubeAdapter highDimension(ConceptConstraint conceptConstraint,
                       BiomarkerConstraint biomarkerConstaint,
                       Constraint assayConstraint,
                       String projectionName, User user) {
@@ -464,7 +464,7 @@ class QueryService {
         }
         //get the data
         TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
-        [projection, table]
+        new HddTabularResultHypercubeAdapter(table)
     }
 
     Hypercube retrieveClinicalData(Constraint constraint, User user) {
