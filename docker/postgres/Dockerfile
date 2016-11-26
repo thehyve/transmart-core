@@ -1,4 +1,4 @@
-FROM postgres:9.5
+FROM postgres:9.5 # 9.6 not supported by transmart-data
 
 MAINTAINER "Piotr Zakrzewski" <piotr@thehyve.nl>
 ENV DEBIAN_FRONTEND=noninteractive
@@ -10,16 +10,13 @@ RUN echo "deb http://ftp.de.debian.org/debian jessie-backports main" >> /etc/apt
  && apt-get update && apt-get install -y openjdk-8-jdk
 RUN curl -s "https://get.sdkman.io" | bash && \
  source "/root/.sdkman/bin/sdkman-init.sh" && \
- sdk install groovy && sdk use groovy
+ sdk install groovy && sdk use groovy # groovy is needed for uploading test data
 
-ENV BRANCH master
+ENV BRANCH master # change this to use a different branch of transmart-upgrade
 
 RUN git clone -b $BRANCH --depth 1 https://github.com/thehyve/transmart-upgrade.git /tmp/transmart-upgrade
 
 ENV POSTGRES_PASSWORD ''
-#RUN adduser --disabled-password --gecos '' transmart && \
-#adduser transmart sudo && \
-#echo "transmart ALL=NOPASSWD: ALL" > /etc/sudoers.d/myOverrides
 
 RUN ln -snf /root/.sdkman/candidates/groovy/current/bin/groovy /bin/groovy
 RUN echo "cd /tmp/transmart-upgrade/transmart-data && \
