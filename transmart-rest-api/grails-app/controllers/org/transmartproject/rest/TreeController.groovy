@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.tree.TreeNode
+import org.transmartproject.db.tree.TreeService
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
@@ -22,7 +23,7 @@ class TreeController {
     @Autowired
     UsersResource usersResource
 
-    def treeService
+    TreeService treeService
 
     /**
      * Tree nodes endpoint:
