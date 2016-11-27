@@ -13,6 +13,7 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
@@ -57,6 +58,9 @@ class QueryService {
             new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
 
     private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
+        assert 'user is required', user
+        assert 'constraint is required', constraint
+
         if (constraint instanceof TrueConstraint
             || constraint instanceof ModifierConstraint
             || constraint instanceof ValueConstraint
@@ -397,69 +401,40 @@ class QueryService {
         return getAggregate(type, queryCriteria)
     }
 
-    def highDimension(ConceptConstraint conceptConstraint,
-                      BiomarkerConstraint biomarkerConstaint,
-                      Constraint assayConstraint,
-                      String projectionName, User user) {
-        if (!conceptConstraint) {
-            throw new InvalidQueryException("No concept constraint provided.")
-        }
-        checkAccess(conceptConstraint, user)
-        if (assayConstraint) {
-            checkAccess(assayConstraint, user)
-        }
+    HddTabularResultHypercubeAdapter highDimension(User user,
+                                                   Constraint assayConstraint,
+                                                   BiomarkerConstraint biomarkerConstaint = new BiomarkerConstraint(),
+                                                   String projectionName = Projection.ALL_DATA_PROJECTION) {
+        checkAccess(assayConstraint, user)
 
-        //check the existence and access for the conceptConstraint
-        //FIXME This doesn't check access rights -> hackable to see all existing concepts if this test passes
-        def concept = org.transmartproject.db.i2b2data.ConceptDimension.findByConceptPath(conceptConstraint.path)
-        if (concept == null) {
-            throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}")
-        }
+        //TODO Use hypercube?
+        List<ObservationFact> observations = list(assayConstraint, user)
+        List assayIds = observations
+                .findAll { it.modifierCd == '@' }
+                .collect { it.numberValue.toLong() }
+        //TODO if asssayIds.empty
+        AssayConstraint oldAssayConstraint = highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
 
-        //get the dataType based on the ConceptCd
-        //Step 1 get platform from subject_sample table matching the ConceptCd
-        //Step 2 get the Biomaker Type from the DE_GPL_INFO
-        //String dataType
+        //TODO Detect type by only first assay?
         def subjectSampleMapping = DeSubjectSampleMapping.find {
-            conceptCode == concept.conceptCode
+            id in assayIds
         }
         String markerType = subjectSampleMapping.platform.markerType
-
-        //Now we have MARKER_TYPE, but don't know the function to find HDdataTypeResource based on MARKER_TYPE
+        //TODO Implement such method on old core api level
         def mapEntry = highDimensionResourceService.dataTypeRegistry.find { dataTypeName, highDimensionDataTypeResourceFactory ->
             def highDimensionDataTypeResource = highDimensionDataTypeResourceFactory()
             highDimensionDataTypeResource.module.platformMarkerTypes.contains(markerType)
         }
 
-        //now do with the HighDimService was doing
-        //get resourceType
         HighDimensionDataTypeResource typeResource = mapEntry.value()
-        //verify the projections
-        HDProjection projection = typeResource.createProjection(projectionName)
-        //verify the assayConstraint
-        //Current TestData doesn't allow for selection on SampleType, Timepoint etc
-        //Need to convert the V2 constraints into a patientset and create the PATIENT_ID_LIST_CONSTRAINT
-        //or similar appraoch, but seems quite redundant.
-        //Check with Hypercube requirements
-        List<AssayConstraint> assayConstraints = [
-                typeResource.createAssayConstraint([concept_path: conceptConstraint.path],
-                        AssayConstraint.CONCEPT_PATH_CONSTRAINT
-                )
-        ]
-        if (assayConstraint) {
-            List<org.transmartproject.db.i2b2data.PatientDimension> listPatientDimensions = listPatients(assayConstraint, user)
-            assayConstraints << typeResource.createAssayConstraint([ids: listPatientDimensions*.inTrialId], AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)
-        }
+        HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)
 
-        //verify the biomarkerConstraint
-        //only get GeneSymbol BOGUSRQCD1
         List<DataConstraint> dataConstraints = []
         if (biomarkerConstaint?.biomarkerType) {
             dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.biomarkerType)
         }
-        //get the data
-        TabularResult table = typeResource.retrieveData(assayConstraints, dataConstraints, projection)
-        [projection, table]
+        TabularResult table = typeResource.retrieveData([oldAssayConstraint], dataConstraints, projection)
+        new HddTabularResultHypercubeAdapter(table)
     }
 
     Hypercube retrieveClinicalData(Constraint constraint, User user) {

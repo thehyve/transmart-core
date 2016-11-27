@@ -3,9 +3,6 @@ package org.transmartproject.db.multidimquery
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
-import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.i2b2data.Study
@@ -28,7 +25,7 @@ class QueryServiceSpec extends TransmartSpecification {
     TestData hypercubeTestData
 
     void setupData() {
-        testData = new TestData().createDefault(); int i = 1
+        testData = new TestData().createDefault()
         testData.mrnaData.patients = testData.i2b2Data.patients
 
         testData.i2b2Data.patients[0].age = 70
@@ -319,64 +316,6 @@ class QueryServiceSpec extends TransmartSpecification {
         then:
         result == 10
 
-    }
-
-    void 'get whole hd data for single node'() {
-        setup:
-        setupData()
-        def user = accessLevelTestData.users[0]
-        ConceptConstraint constraint = new ConceptConstraint(path: '\\foo\\study1\\bar\\')
-        String projection = Projection.DEFAULT_REAL_PROJECTION
-
-        when:
-        def (projectionObj, result) = queryService.highDimension(constraint, null, null, projection, user)
-
-        then:
-        projectionObj instanceof Projection
-        result instanceof TabularResult
-        result.rows.size() == 3
-        result.indicesList.size() == 3
-    }
-
-    void 'get hd data for selected patients'() {
-        setup:
-        setupData()
-        def user = accessLevelTestData.users[0]
-        ConceptConstraint constraint = new ConceptConstraint(path: '\\foo\\study1\\bar\\')
-        String projection = Projection.DEFAULT_REAL_PROJECTION
-
-        when:
-        Constraint assayConstraint = new PatientSetConstraint(patientIds: [testData.i2b2Data.patients[0].id] as Set)
-        def (projectionObj, result) = queryService.highDimension(constraint, null, assayConstraint, projection, user)
-
-        then:
-        projectionObj instanceof Projection
-        result instanceof TabularResult
-        result.rows.size() == 3
-        result.indicesList.size() == 1
-    }
-
-    void 'get hd data for selected biomarkers'() {
-        setup:
-        setupData()
-        def user = accessLevelTestData.users[0]
-        ConceptConstraint constraint = new ConceptConstraint(path: '\\foo\\study1\\bar\\')
-        String projection = Projection.DEFAULT_REAL_PROJECTION
-
-        when:
-        BiomarkerConstraint bioMarkerConstraint = new BiomarkerConstraint(
-                biomarkerType: DataConstraint.GENES_CONSTRAINT,
-                params: [
-                        names: ['BOGUSRQCD1']
-                ]
-        )
-        def (projectionObj, result) = queryService.highDimension(constraint, bioMarkerConstraint, null, projection, user)
-
-        then:
-        projectionObj instanceof Projection
-        result instanceof TabularResult
-        result.rows.size() == 1
-        result.indicesList.size() == 3
     }
 
 }
