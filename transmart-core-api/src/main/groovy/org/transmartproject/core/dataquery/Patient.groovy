@@ -33,7 +33,7 @@ public interface Patient {
 
     /**
      * The sex of the subject. Cannot be null. If the sex is not known,
-     * {@link Sex#UNKOWN} is returned.
+     * {@link Sex#UNKNOWN} is returned.
      *
      * @return sex of the subject
      */
