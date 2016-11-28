@@ -34,10 +34,14 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     static Dimension patientDim = DimensionDescription.dimensionsMap.patient
     static Dimension projectionDim = DimensionDescription.dimensionsMap.projection
 
-    TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ? /* depends on projection */>> table
+    private TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ? /* depends on projection */>> table
     private TabularResultAdapterIterator iterator
 
-    // Either an IndexedArraySet or an ImmutableList
+    /**
+     * Either an IndexedArraySet or an ImmutableList
+     * projectionFields is collected dynamically, but as all tabular cells should contain the same projection fields
+     * reading just the first tabular result cell is sufficient. If the HDD tabular result
+     */
     private List<String> _projectionFields = null
     List<String> getProjectionFields() {
         if(_projectionFields != null) return _projectionFields
@@ -51,9 +55,9 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
             : ImmutableList.of(biomarkerDim, assayDim, patientDim, projectionDim)
     )
 
-    ImmutableList<Assay> assays
-    ImmutableList<Patient> patients
-    List<BioMarker> biomarkers = [] // replaced by an ImmutableList once we have finished iterating
+    protected ImmutableList<Assay> assays
+    protected ImmutableList<Patient> patients
+    protected List<BioMarker> biomarkers = [] // replaced by an ImmutableList once we have finished iterating
 
     HddTabularResultHypercubeAdapter(TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ?>> tabularResult) {
         table = tabularResult
