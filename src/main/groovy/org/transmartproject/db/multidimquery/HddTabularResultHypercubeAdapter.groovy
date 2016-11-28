@@ -212,6 +212,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     final boolean dimensionsPreloaded = false
     boolean autoloadDimensions = true
 
+    @Override
     void close() {
         table.close()
     }
