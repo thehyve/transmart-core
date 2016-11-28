@@ -43,6 +43,8 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     final Field patientIdField = new Field(dimension: PatientDimension, fieldName: 'id', type: Type.ID)
     final Field startTimeField = new Field(dimension: StartTimeDimension, fieldName: 'startDate', type: Type.DATE)
 
+    public static final Date DUMMY_START_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
+
     protected Map<String, Integer> aliasSuffixes = [:]
     Map<String, String> aliases = [:]
     Collection<Study> studies = null
@@ -278,6 +280,13 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     Criterion build(TimeConstraint constraint) {
         switch(constraint.operator) {
             case Operator.BEFORE:
+                return Restrictions.and(
+                        Restrictions.ne('startDate', DUMMY_START_DATE),
+                        build(new FieldConstraint(
+                                field: startTimeField,
+                                operator: constraint.operator,
+                                value: constraint.values[0]
+                )))
             case Operator.AFTER:
                 return build(new FieldConstraint(
                         field: startTimeField,
