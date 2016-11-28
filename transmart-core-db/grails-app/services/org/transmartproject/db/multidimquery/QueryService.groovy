@@ -10,6 +10,7 @@ import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
@@ -401,10 +402,10 @@ class QueryService {
         return getAggregate(type, queryCriteria)
     }
 
-    HddTabularResultHypercubeAdapter highDimension(User user,
-                                                   Constraint assayConstraint,
-                                                   BiomarkerConstraint biomarkerConstaint = new BiomarkerConstraint(),
-                                                   String projectionName = Projection.ALL_DATA_PROJECTION) {
+    Hypercube highDimension(User user,
+                            Constraint assayConstraint,
+                            BiomarkerConstraint biomarkerConstaint = new BiomarkerConstraint(),
+                            String projectionName = Projection.ALL_DATA_PROJECTION) {
         checkAccess(assayConstraint, user)
 
         //TODO Use hypercube?
@@ -413,27 +414,25 @@ class QueryService {
                 .findAll { it.modifierCd == '@' }
                 .collect { it.numberValue.toLong() }
         //TODO if asssayIds.empty
-        AssayConstraint oldAssayConstraint = highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+        List<AssayConstraint> oldAssayConstraints = [
+                highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+        ]
 
-        //TODO Detect type by only first assay?
-        def subjectSampleMapping = DeSubjectSampleMapping.find {
-            id in assayIds
+        Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
+                highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
+        //TODO assaysByType is empty
+        if (assaysByType.size() > 1) {
+            throw new IllegalStateException("Expected only one high dimensional data type. Got ${assaysByType.keySet()*.dataTypeName}")
         }
-        String markerType = subjectSampleMapping.platform.markerType
-        //TODO Implement such method on old core api level
-        def mapEntry = highDimensionResourceService.dataTypeRegistry.find { dataTypeName, highDimensionDataTypeResourceFactory ->
-            def highDimensionDataTypeResource = highDimensionDataTypeResourceFactory()
-            highDimensionDataTypeResource.module.platformMarkerTypes.contains(markerType)
-        }
-
-        HighDimensionDataTypeResource typeResource = mapEntry.value()
+        //TODO The data type is the same, but platform is different
+        HighDimensionDataTypeResource typeResource = assaysByType.keySet().first()
         HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)
 
         List<DataConstraint> dataConstraints = []
         if (biomarkerConstaint?.biomarkerType) {
             dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.biomarkerType)
         }
-        TabularResult table = typeResource.retrieveData([oldAssayConstraint], dataConstraints, projection)
+        TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
         new HddTabularResultHypercubeAdapter(table)
     }
 

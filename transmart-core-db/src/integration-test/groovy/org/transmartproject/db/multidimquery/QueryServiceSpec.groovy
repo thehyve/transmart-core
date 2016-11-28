@@ -4,6 +4,9 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
@@ -20,18 +23,24 @@ class QueryServiceSpec extends Specification {
     @Autowired
     QueryService queryService
 
+    Dimension assayDim = DimensionDescription.dimensionsMap.assay
+    Dimension biomarkerDim = DimensionDescription.dimensionsMap.biomarker
+    Dimension projectionDim = DimensionDescription.dimensionsMap.projection
+
     void 'get whole hd data for single node'() {
         User user = User.findByUsername('test-public-user-1')
         ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
         when:
-        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(user, conceptConstraint)
+        Hypercube hypercube = queryService.highDimension(user, conceptConstraint)
 
         then:
-        hypercube.iterator.toList().size() == hypercube.biomarkers.size() * hypercube.assays.size() *
-                hypercube.dimensionElements(HddTabularResultHypercubeAdapter.projectionDim).size()
-        hypercube.biomarkers.size() == 3
-        hypercube.assays.size() == 6
+        hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
+                hypercube.dimensionElements(assayDim).size() *
+                hypercube.dimensionElements(projectionDim).size()
+        hypercube.dimensionElements(biomarkerDim).size() == 3
+        hypercube.dimensionElements(assayDim).size() == 6
+        hypercube.dimensionElements(projectionDim).size() == 10
     }
 
     void 'get hd data for selected patients'() {
@@ -50,13 +59,15 @@ class QueryServiceSpec extends Specification {
         )
 
         when:
-        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(user, combinationConstraint)
+        Hypercube hypercube = queryService.highDimension(user, combinationConstraint)
 
         then:
-        hypercube.iterator.toList().size() == hypercube.biomarkers.size() * hypercube.assays.size() *
-                hypercube.dimensionElements(HddTabularResultHypercubeAdapter.projectionDim).size()
-        hypercube.biomarkers.size() == 3
-        hypercube.assays.size() == 2
+        hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
+                hypercube.dimensionElements(assayDim).size() *
+                hypercube.dimensionElements(projectionDim).size()
+        hypercube.dimensionElements(biomarkerDim).size() == 3
+        hypercube.dimensionElements(assayDim).size() == 2
+        hypercube.dimensionElements(projectionDim).size() == 10
     }
 
     void 'get hd data for selected biomarkers'() {
@@ -70,15 +81,18 @@ class QueryServiceSpec extends Specification {
         )
 
         when:
-        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(user, conceptConstraint, bioMarkerConstraint)
+        Hypercube hypercube = queryService.highDimension(user, conceptConstraint, bioMarkerConstraint)
 
         then:
-        println hypercube.iterator.toList().size() == hypercube.biomarkers.size() * hypercube.assays.size() *
-                hypercube.dimensionElements(HddTabularResultHypercubeAdapter.projectionDim).size()
-        hypercube.biomarkers.size() == 2
-        hypercube.assays.size() == 6
+        hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
+                hypercube.dimensionElements(assayDim).size() *
+                hypercube.dimensionElements(projectionDim).size()
+        hypercube.dimensionElements(biomarkerDim).size() == 2
+        hypercube.dimensionElements(assayDim).size() == 6
+        hypercube.dimensionElements(projectionDim).size() == 10
     }
 
-    //TODO More tests
-
+    //TODO check accessibility of the probe level information
+    //TODO test time constraint
+    //TODO test sample constraint
 }
