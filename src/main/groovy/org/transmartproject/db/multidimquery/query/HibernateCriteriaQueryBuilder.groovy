@@ -231,7 +231,8 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         if (!constraint.operator.supportsType(constraint.field.type)) {
             throw new QueryBuilderException("Field type ${constraint.field.type} not supported for operator '${constraint.operator.symbol}'.")
         }
-        if (!constraint.field.type.supportsValue(constraint.value)) {
+        if ((!(constraint.operator in [Operator.BETWEEN, Operator.IN]) && !constraint.field.type.supportsValue(constraint.value))
+                || (constraint.operator in [Operator.BETWEEN, Operator.IN] && !constraint.field.type.supportsValue(constraint.value.first()))) {
             throw new QueryBuilderException("Value of class ${constraint.value?.class?.simpleName} not supported for field type '${constraint.field.type}'.")
         }
         constraint.value = convertValue(constraint.field, constraint.value)
