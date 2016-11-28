@@ -175,10 +175,12 @@ public class ObservationsSerializer {
 
     protected Observation.Builder createCell(HypercubeValue value) {
         Observation.Builder builder = Observation.newBuilder()
-        if (value.value instanceof Number) {
-            builder.numericValue = value.value
-        } else {
-            builder.stringValue = value.value
+        if (value.value != null) {
+            if (value.value instanceof Number) {
+                builder.numericValue = value.value as Double
+            } else {
+                builder.stringValue = value.value
+            }
         }
         for (Dimension dim : cube.dimensions) {
             Object dimElement = value.getAt(dim)
