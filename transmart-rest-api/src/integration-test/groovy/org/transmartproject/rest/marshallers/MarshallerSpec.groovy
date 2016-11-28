@@ -38,6 +38,17 @@ class MarshallerSpec extends Specification {
     @Value('${local.server.port}')
     Integer serverPort
 
+    ResponseEntity<Resource> postJson(url, object) {
+        HttpHeaders headers = new HttpHeaders()
+        headers.set(HttpHeaders.ACCEPT, 'application/json')
+        headers.set(HttpHeaders.CONTENT_TYPE, 'application/json')
+        HttpEntity requestEntity = new HttpEntity(object, headers)
+        ResponseEntity<Resource> response = restTemplate.exchange(
+                url, HttpMethod.POST, requestEntity,
+                new ParameterizedTypeReference<Resource>() {})
+        response
+    }
+
     ResponseEntity<Resource> getJson(url) {
         HttpHeaders headers = new HttpHeaders()
         headers.set(HttpHeaders.ACCEPT, 'application/json')

@@ -2,6 +2,7 @@ package org.transmartproject.rest.misc
 
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.SpringSecurityUtils
+import grails.util.Environment
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
@@ -33,7 +34,12 @@ class CurrentUser implements User {
                 !SpringSecurityUtils.securityConfig.active) {
             log.warn "Spring security service not available or inactive, " +
                     "returning dummy user administrator"
-            return new DummyAdministrator()
+            if (Environment.current == Environment.DEVELOPMENT) {
+                return new DummyDevAdministrator()
+            } else if (Environment.current == Environment.TEST) {
+                return new DummyTestAdministrator()
+            }
+            return null
         }
 
         if (!springSecurityService.isLoggedIn()) {
@@ -78,7 +84,7 @@ class CurrentUser implements User {
         "CurrentUser(${delegate.toString()})"
     }
 
-    static class DummyAdministrator implements User {
+    static class DummyTestAdministrator implements User {
 
         /* These correspond to the properties of the default transmart
          * administrator user */
@@ -91,4 +97,19 @@ class CurrentUser implements User {
             true
         }
     }
+
+    static class DummyDevAdministrator implements User {
+
+        /* These correspond to the properties of the default transmart
+         * administrator user */
+        final Long id = 1
+        final String username = 'admin'
+        final String realName = 'Sys Admin'
+
+        @Override
+        boolean canPerform(ProtectedOperation operation, ProtectedResource protectedResource) {
+            true
+        }
+    }
+
 }

@@ -255,7 +255,7 @@ class AccessControlChecks {
         }
 
         if (user.admin) {
-            return true
+            return org.transmartproject.db.i2b2data.Study.findByStudyId(studyIdString) != null
         }
 
         DetachedCriteria query = org.transmartproject.db.i2b2data.Study.where {

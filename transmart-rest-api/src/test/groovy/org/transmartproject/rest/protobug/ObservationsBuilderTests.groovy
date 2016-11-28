@@ -74,7 +74,6 @@ class ObservationsBuilderTests extends Specification {
         builder.write(s_out)
         s_out.flush()
         def data = s_out.toByteArray()
-        log.info "OUTPUT: ${s_out.toString()}"
 
         then:
         data != null
