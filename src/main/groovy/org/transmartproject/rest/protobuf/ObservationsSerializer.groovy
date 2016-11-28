@@ -181,8 +181,6 @@ public class ObservationsSerializer {
 
     protected boolean setupPackedValues() {
 
-        if(!cube.dimensionElements.any()) return false
-
         def sparsePackableDims = cube.dimensions.findAll { dim ->
             dim.density == Dimension.Density.SPARSE && dim.packable.packable
         }
@@ -215,7 +213,8 @@ public class ObservationsSerializer {
             }
             footerIndexes << dimIndexes
         }
-        true
+        if(!observationValues.any()) return false
+        else return true
     }
 
     protected boolean compareAndPackIfPossible(List<Long> dimIndexes, HypercubeValueImpl value, List<DimensionImpl> sparsePackableDims) {
