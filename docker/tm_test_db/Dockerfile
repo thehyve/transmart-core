@@ -14,12 +14,12 @@ RUN curl -s "https://get.sdkman.io" | bash && \
  sdk install groovy && sdk use groovy
 # groovy is needed for uploading test data
 
-ENV BRANCH master
+ENV BRANCH solr
 # change this to use a different branch of transmart-upgrade
 
 RUN git clone -b $BRANCH --depth 1 https://github.com/thehyve/transmart-upgrade.git /tmp/transmart-upgrade
 
-ENV POSTGRES_PASSWORD ''
+ENV POSTGRES_PASSWORD 'postgres'
 
 RUN ln -snf /root/.sdkman/candidates/groovy/current/bin/groovy /bin/groovy
 RUN echo "cd /tmp/transmart-upgrade/transmart-data && \

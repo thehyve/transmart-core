@@ -1,6 +1,6 @@
 
 com.rwg.solr.scheme = 'http'
-com.rwg.solr.host   = 'localhost:8983'
+com.rwg.solr.host   = 'localhost:6000'
 com.rwg.solr.facets.path = 'solr/facets/'
 com.recomdata.FmFolderService.filestoreDirectory = (new File(System.getenv('HOME'), '.grails/transmart-filestore')).absolutePath
 
@@ -28,7 +28,7 @@ environments {
     test {
         dataSource {
             driverClassName = 'org.postgresql.Driver'
-            url = 'jdbc:postgresql://localhost:5432/transmart'
+            url = 'jdbc:postgresql://localhost:6000/transmart'
             username = 'biomart_user'
             password = 'biomart_user'
             dbCreate = 'none'
