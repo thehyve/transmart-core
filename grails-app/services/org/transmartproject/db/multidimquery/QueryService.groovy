@@ -25,7 +25,6 @@ import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
-import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
