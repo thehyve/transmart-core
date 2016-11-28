@@ -96,9 +96,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         private Iterator<? extends DataRow<AssayColumn, ?>> tabularIter = table.getRows()
         private List<HypercubeValue> nextVals = []
         private Iterator<HypercubeValue> nextIter = nextVals.iterator()
-        TabularResultAdapterIterator() {
-            if(_projectionFields == null) _projectionFields = new IndexedArraySet<String>()
-        }
 
         @TailRecursive
         HypercubeValue computeNext() {
@@ -107,6 +104,9 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
             }
             nextVals.clear()
             nextIter = null
+
+            // Initialize _projectionFields
+            if(_projectionFields == null) _projectionFields = new IndexedArraySet<String>()
 
             if(!tabularIter.hasNext()) {
                 _projectionFields = ImmutableList.copyOf(_projectionFields)
@@ -120,7 +120,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
             int biomarkerIdx = biomarkers.size()
             biomarkers << bm
 
-            // assays.size() compiles to GroovyDefaultMethods.size(Iterable) :(
+            // assays.size() compiles to GroovyDefaultMethods.size(Iterable) on Groovy 2.4.7 :(
             for(int i = 0; i < ((List)assays).size(); i++) {
                 Assay assay = assays[i]
                 def value = row[i]
