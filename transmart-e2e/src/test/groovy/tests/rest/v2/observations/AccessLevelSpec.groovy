@@ -1,6 +1,7 @@
 package tests.rest.v2.observations
 
 import base.RESTSpec
+import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.*

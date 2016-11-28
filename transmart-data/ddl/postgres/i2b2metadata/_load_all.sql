@@ -11,7 +11,7 @@
 \i i2b2metadata/ont_db_lookup.sql
 \i i2b2metadata/ont_process_status.sql
 \i i2b2metadata/schemes.sql
-\i i2b2metadata/study_dimensions.sql
+\i i2b2metadata/study_dimension_descriptions.sql
 \i i2b2metadata/table_access.sql
 \i i2b2metadata/tmp_secure_token.sql
 \i i2b2metadata/_misc.sql

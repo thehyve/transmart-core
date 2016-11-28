@@ -1,6 +1,8 @@
 package org.transmartproject.db.multidimquery
 
+import grails.plugin.cache.Cacheable
 import grails.transaction.Transactional
+import grails.util.Holders
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
@@ -11,11 +13,14 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
@@ -24,10 +29,11 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.ontology.I2b2Secure
+import org.transmartproject.db.querytool.QtPatientSetCollection
+import org.transmartproject.db.querytool.QtQueryInstance
+import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
-import org.transmartproject.db.util.StringUtils
 
 @Slf4j
 @Transactional
@@ -51,28 +57,12 @@ class QueryService {
     private final Field numberValueField =
             new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
 
-    private boolean checkConceptPathAccess(String conceptPath, User user) {
-        if (conceptPath == null || conceptPath.empty) {
-            throw new AccessDeniedException("Empty concept path.")
-        }
-        //TODO This query does not cover many cases. e.g concept_dimension.concept_cd in (...)
-        //It seem like only right approach would be to evaluate sql behind i2b2 node!
-        // Which would be very performance inefficient.
-        List<I2b2Secure> nodes = I2b2Secure.findAll {
-            dimensionTableName =~ 'concept_dimension'
-            columnName         =~ 'concept_path'
-            operator           =~ 'like'
-            dimensionCode      =~ StringUtils.asLikeLiteral(conceptPath)
-        }
-        nodes.any { I2b2Secure node ->
-            accessControlChecks.canPerform(user, ProtectedOperation.WellKnownOperations.READ, node)
-        }
-    }
-
     private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
+        assert 'user is required', user
+        assert 'constraint is required', constraint
+
         if (constraint instanceof TrueConstraint
             || constraint instanceof ModifierConstraint
-            || constraint instanceof FieldConstraint
             || constraint instanceof ValueConstraint
             || constraint instanceof TimeConstraint
             || constraint instanceof NullConstraint) {
@@ -88,12 +78,22 @@ class QueryService {
         } else if (constraint instanceof PatientSetConstraint) {
             if (constraint.patientSetId) {
                 QueryResult queryResult = QtQueryResultInstance.findById(constraint.patientSetId)
-                if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+                if (queryResult == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
                     throw new AccessDeniedException("Access denied to patient set: ${constraint.patientSetId}")
                 }
             }
+        } else if (constraint instanceof FieldConstraint) {
+            if (constraint.field.dimension == ConceptDimension) {
+                throw new AccessDeniedException("Access denied. Concept dimension not allowed in field constraints. Use a ConceptConstraint instead.")
+            } else if (constraint.field.dimension == StudyDimension) {
+                throw new AccessDeniedException("Access denied. Study dimension not allowed in field constraints. Use a StudyConstraint instead.")
+            } else if (constraint.field.dimension == TrialVisitDimension) {
+                if (constraint.field.fieldName == 'study') {
+                    throw new AccessDeniedException("Access denied. Field 'study' of trial visit dimension not allowed in field constraints. Use a StudyConstraint instead.")
+                }
+            }
         } else if (constraint instanceof ConceptConstraint) {
-            if (!checkConceptPathAccess(constraint.path, user)) {
+            if (!accessControlChecks.checkConceptAccess(user, conceptPath: constraint.path)) {
                 throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
             }
         } else if (constraint instanceof StudyConstraint) {
@@ -156,11 +156,25 @@ class QueryService {
      */
     List<ObservationFact> list(Constraint constraint, User user) {
         checkAccess(constraint, user)
+        log.info "Studies: ${accessControlChecks.getDimensionStudiesForUser(user)*.studyId}"
         def builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
         DetachedCriteria criteria = builder.buildCriteria(constraint)
         getList(criteria)
+    }
+
+    Long count(Constraint constraint, User user) {
+        checkAccess(constraint, user)
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser(user)
+        )
+        (Long) get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
+    }
+
+    @Cacheable('org.transmartproject.db.dataquery2.QueryService')
+    Long cachedCountForConcept(String path, User user) {
+        count(new ConceptConstraint(path: path), user)
     }
 
     /**
@@ -179,6 +193,103 @@ class QueryService {
         DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
         patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
         getList(patientCriteria)
+    }
+
+    /**
+     * @description Function for creating a patient set consisting of patients for which there are observations
+     * that are specified by <code>query</code>.
+     * @param query
+     * @param user
+     */
+    QueryResult createPatientSet(String name, Constraint constraint, User user) {
+        List patients = listPatients(constraint, user)
+
+        // 1. Populate qt_query_master
+        def queryMaster = new QtQueryMaster(
+                name           : name,
+                userId         : user.username,
+                groupId        : Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
+                createDate     : new Date(),
+                generatedSql   : null,
+                requestXml     : "",
+                i2b2RequestXml : null,
+        )
+
+        // 2. Populate qt_query_instance
+        def queryInstance = new QtQueryInstance(
+                userId       : user.username,
+                groupId      : Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
+                startDate    : new Date(),
+                statusTypeId : QueryStatus.PROCESSING.id,
+                queryMaster  : queryMaster,
+        )
+        queryMaster.addToQueryInstances(queryInstance)
+
+        // 3. Populate qt_query_result_instance
+        def resultInstance = new QtQueryResultInstance(
+                statusTypeId  : QueryStatus.PROCESSING.id,
+                startDate     : new Date(),
+                queryInstance : queryInstance
+        )
+        queryInstance.addToQueryResults(resultInstance)
+
+        // 4. Save the three objects
+        if (!queryMaster.validate()) {
+            throw new InvalidRequestException('Could not create a valid ' +
+                    'QtQueryMaster: ' + queryMaster.errors)
+        }
+        if (queryMaster.save() == null) {
+            throw new RuntimeException('Failure saving QtQueryMaster')
+        }
+
+        patients.each { patient ->
+            def entry = new QtPatientSetCollection(
+                    resultInstance: resultInstance,
+                    patient: patient
+            )
+            resultInstance.addToPatientSet(entry)
+        }
+
+        def newResultInstance = resultInstance.save()
+        if (!newResultInstance) {
+            throw new RuntimeException('Failure saving patient set. Errors: ' +
+                    resultInstance.errors)
+        }
+
+        // 7. Update result instance and query instance
+        resultInstance.setSize = resultInstance.realSetSize = patients.size()
+        resultInstance.description = "Patient set for \"${name}\""
+        resultInstance.endDate = new Date()
+        resultInstance.statusTypeId = QueryStatus.FINISHED.id
+
+        queryInstance.endDate = new Date()
+        queryInstance.statusTypeId = QueryStatus.COMPLETED.id
+
+        newResultInstance = resultInstance.save()
+        if (!newResultInstance) {
+            throw new RuntimeException('Failure saving resultInstance after ' +
+                    'successfully building patient set. Errors: ' +
+                    resultInstance.errors)
+        }
+
+        resultInstance
+    }
+
+    Long patientCount(Constraint constraint, User user) {
+        checkAccess(constraint, user)
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser(user)
+        )
+        DetachedCriteria constraintCriteria = builder.buildCriteria(constraint)
+        DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
+        DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
+        patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
+        (Long) get(patientCriteria.setProjection(Projections.rowCount()))
+    }
+
+    @Cacheable('org.transmartproject.db.dataquery2.QueryService')
+    Long cachedPatientCountForConcept(String path, User user) {
+        patientCount(new ConceptConstraint(path: path), user)
     }
 
     static List<StudyConstraint> findStudyConstraints(Constraint constraint) {
@@ -219,14 +330,6 @@ class QueryService {
         } else {
             return []
         }
-    }
-
-    Long count(Constraint constraint, User user) {
-        checkAccess(constraint, user)
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: accessControlChecks.getDimensionStudiesForUser(user)
-        )
-        (Long) get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
     }
 
     /**
@@ -298,69 +401,40 @@ class QueryService {
         return getAggregate(type, queryCriteria)
     }
 
-    def highDimension(ConceptConstraint conceptConstraint,
-                      BiomarkerConstraint biomarkerConstaint,
-                      Constraint assayConstraint,
-                      String projectionName, User user) {
-        if (!conceptConstraint) {
-            throw new InvalidQueryException("No concept constraint provided.")
-        }
-        checkAccess(conceptConstraint, user)
-        if (assayConstraint) {
-            checkAccess(assayConstraint, user)
-        }
+    HddTabularResultHypercubeAdapter highDimension(User user,
+                                                   Constraint assayConstraint,
+                                                   BiomarkerConstraint biomarkerConstaint = new BiomarkerConstraint(),
+                                                   String projectionName = Projection.ALL_DATA_PROJECTION) {
+        checkAccess(assayConstraint, user)
 
-        //check the existence and access for the conceptConstraint
-        //FIXME This doesn't check access rights -> hackable to see all existing concepts if this test passes
-        def concept = org.transmartproject.db.i2b2data.ConceptDimension.findByConceptPath(conceptConstraint.path)
-        if (concept == null) {
-            throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}")
-        }
+        //TODO Use hypercube?
+        List<ObservationFact> observations = list(assayConstraint, user)
+        List assayIds = observations
+                .findAll { it.modifierCd == '@' }
+                .collect { it.numberValue.toLong() }
+        //TODO if asssayIds.empty
+        AssayConstraint oldAssayConstraint = highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
 
-        //get the dataType based on the ConceptCd
-        //Step 1 get platform from subject_sample table matching the ConceptCd
-        //Step 2 get the Biomaker Type from the DE_GPL_INFO
-        //String dataType
+        //TODO Detect type by only first assay?
         def subjectSampleMapping = DeSubjectSampleMapping.find {
-            conceptCode == concept.conceptCode
+            id in assayIds
         }
         String markerType = subjectSampleMapping.platform.markerType
-
-        //Now we have MARKER_TYPE, but don't know the function to find HDdataTypeResource based on MARKER_TYPE
+        //TODO Implement such method on old core api level
         def mapEntry = highDimensionResourceService.dataTypeRegistry.find { dataTypeName, highDimensionDataTypeResourceFactory ->
             def highDimensionDataTypeResource = highDimensionDataTypeResourceFactory()
             highDimensionDataTypeResource.module.platformMarkerTypes.contains(markerType)
         }
 
-        //now do with the HighDimService was doing
-        //get resourceType
         HighDimensionDataTypeResource typeResource = mapEntry.value()
-        //verify the projections
-        HDProjection projection = typeResource.createProjection(projectionName)
-        //verify the assayConstraint
-        //Current TestData doesn't allow for selection on SampleType, Timepoint etc
-        //Need to convert the V2 constraints into a patientset and create the PATIENT_ID_LIST_CONSTRAINT
-        //or similar appraoch, but seems quite redundant.
-        //Check with Hypercube requirements
-        List<AssayConstraint> assayConstraints = [
-                typeResource.createAssayConstraint([concept_path: conceptConstraint.path],
-                        AssayConstraint.CONCEPT_PATH_CONSTRAINT
-                )
-        ]
-        if (assayConstraint) {
-            List<org.transmartproject.db.i2b2data.PatientDimension> listPatientDimensions = listPatients(assayConstraint, user)
-            assayConstraints << typeResource.createAssayConstraint([ids: listPatientDimensions*.inTrialId], AssayConstraint.PATIENT_ID_LIST_CONSTRAINT)
-        }
+        HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)
 
-        //verify the biomarkerConstraint
-        //only get GeneSymbol BOGUSRQCD1
         List<DataConstraint> dataConstraints = []
         if (biomarkerConstaint?.biomarkerType) {
             dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.biomarkerType)
         }
-        //get the data
-        TabularResult table = typeResource.retrieveData(assayConstraints, dataConstraints, projection)
-        [projection, table]
+        TabularResult table = typeResource.retrieveData([oldAssayConstraint], dataConstraints, projection)
+        new HddTabularResultHypercubeAdapter(table)
     }
 
     Hypercube retrieveClinicalData(Constraint constraint, User user) {
