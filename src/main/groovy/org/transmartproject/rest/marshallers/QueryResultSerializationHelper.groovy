@@ -20,9 +20,13 @@ class QueryResultSerializationHelper extends AbstractHalOrJsonSerializationHelpe
 
     @Override
     Map<String, Object> convertToMap(QueryResultWrapper object) {
-        def excludes = (object.embedPatients ? [] : ['patients']) as Set
-        def map = getPropertySubsetForSuperType(object.queryResult, QueryResult, excludes)
+        def map = getPropertySubsetForSuperType(object.queryResult, QueryResult, ['patients'] as Set)
         map.status = map.status.name()
+        if (object.embedPatients) {
+            map.patients = object.queryResult.patients.collect {
+                new PatientWrapper(apiVersion: object.apiVersion, patient: it)
+            }
+        }
 
         map
     }

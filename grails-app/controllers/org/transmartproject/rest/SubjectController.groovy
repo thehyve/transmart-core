@@ -100,6 +100,7 @@ class SubjectController {
     private def wrapSubjects(Collection<Patient> source, String selfLink) {
 
         new ContainerResponseWrapper(
+                key: 'subjects',
                 container: source.collect { new PatientWrapper(apiVersion: 'v1', patient: it) },
                 componentType: PatientWrapper,
                 links: [
