@@ -30,7 +30,7 @@ import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 
 class ObservationWrapper {
     def value
-    Patient subject
+    PatientWrapper subject
     String label
 }
 

@@ -38,6 +38,7 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.rest.marshallers.ObservationWrapper
+import org.transmartproject.rest.marshallers.PatientWrapper
 import org.transmartproject.rest.misc.ComponentIndicatingContainer
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
@@ -249,7 +250,7 @@ class ObservationController {
                             complexCellIterator.next()
 
                     return new ObservationWrapper(
-                            subject: currentRow.patient,
+                            subject: new PatientWrapper(apiVersion: 'v1', patient: currentRow.patient),
                             label: entry.key.label,
                             value: entry.value)
                 } else {
@@ -274,7 +275,7 @@ class ObservationController {
                 computeNext()
             } else {
                 new ObservationWrapper(
-                        subject: currentRow.patient,
+                        subject: new PatientWrapper(apiVersion: 'v1', patient: currentRow.patient),
                         label: currentVar.label,
                         value: value)
             }
