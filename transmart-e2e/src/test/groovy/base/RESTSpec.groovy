@@ -10,6 +10,7 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import protobuf.ObservationsProto
 import protobuf.ObservationsMessageProto
+import selectors.protobuf.ObservationsMessageJson
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -24,8 +25,7 @@ class RESTSpec extends Specification{
     def contentTypeForJSON = 'application/json'
     def contentTypeForProtobuf = 'application/x-protobuf'
 
-    @Shared
-    private HashMap<String, String> oauth2token = [:]
+    private static HashMap<String, String> oauth2token = [:]
 
     @Shared
     private http = new HTTPBuilder(BASE_URL)
@@ -216,6 +216,13 @@ class RESTSpec extends Specification{
                 return reader
             }
         }
+    }
+
+    def parseHypercube(jsonHypercube){
+        def header = jsonHypercube[0]
+        def cells = jsonHypercube[1..jsonHypercube.size()-2]
+        def footer = jsonHypercube.last()
+        return new ObservationsMessageJson(header, cells, footer)
     }
 
     def parseProto(s_in){
