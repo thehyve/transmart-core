@@ -1,4 +1,4 @@
-<% import org.codehaus.groovy.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor as Events %>
+<% import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor as Events %>
 <%=packageName%>
 <html>
 <head>
