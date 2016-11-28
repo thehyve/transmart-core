@@ -260,7 +260,7 @@ class QueryController {
             biomarkerConstraint = constraint
         }
 
-        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(user, assayConstraint,
+        Hypercube hypercube = queryService.highDimension(user, assayConstraint,
                 biomarkerConstraint,
                 params.projection)
 
