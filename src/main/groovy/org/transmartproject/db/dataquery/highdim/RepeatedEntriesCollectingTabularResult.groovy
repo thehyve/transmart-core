@@ -27,7 +27,7 @@ import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.TabularResult
 
 @CompileStatic
-class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> {
+class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> implements TabularResult<DataColumn, T> {
 
     @Delegate
     TabularResult<DataColumn, T> tabularResult
@@ -62,10 +62,14 @@ class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> {
             }
 
             collected.add((T) sourceIterator.next())
-            while (sourceIterator.hasNext() &&
-                    collectBy.call(sourceIterator.peek()) != null &&
-                    collectBy.call(sourceIterator.peek()) == collectBy.call(collected[0])) {
-                collected.add((T) sourceIterator.next())
+            def compareValue = collectBy.call(collected[0])
+            while (sourceIterator.hasNext()) {
+                def element = collectBy.call(sourceIterator.peek())
+                if(element != null && element == compareValue) {
+                    collected.add((T) sourceIterator.next())
+                } else {
+                    break
+                }
             }
 
             (T) resultItem.call(collected)
