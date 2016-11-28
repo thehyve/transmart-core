@@ -34,7 +34,6 @@ class SubjectsResourceSpec extends ResourceSpec {
     def study = 'study_id_1'
     def defaultTrial = study.toUpperCase()
     def subjectId = -101
-    def UNKNOWN = 'UNKOWN' // funny typo here
     def concept = 'bar'
 
     def subjectsPerConceptUrl = "/${VERSION}/studies/${study}/concepts/${concept}/subjects"
@@ -167,7 +166,7 @@ class SubjectsResourceSpec extends ResourceSpec {
                        String inTrialId = 'SUBJ_ID_1') {
         allOf(
                 hasEntry('id', id),
-                hasEntry('sex', UNKNOWN),
+                hasEntry('sex', 'UNKNOWN'),
                 hasEntry('trial', trial),
                 hasEntry('inTrialId', inTrialId),
                 hasEntry('religion', null),
