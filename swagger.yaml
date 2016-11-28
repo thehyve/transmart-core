@@ -1,0 +1,303 @@
+# Example YAML to get you started quickly.
+# Be aware that YAML has indentation based scoping.
+# Code completion support is available so start typing for available options.
+swagger: '2.0'
+
+# This is your document metadata
+info:
+  version: "17.1.0"
+  title: Transmart
+
+# Describe your paths here
+paths:
+  # This is a path endpoint. Change it.
+  /v1/studies:
+    # This is a HTTP operation
+    get:
+      # Describe this verb here. Note: you can use markdown
+      description: |
+        Gets all `Study` objects.
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response
+          # A schema describing your response object.
+          # Use JSON Schema format
+          schema:
+            title: StudiesResponse
+            type: object
+            items:
+              title: StudyArray
+              type: array
+              items:
+                title: study
+                type: object
+                properties:
+                  name:
+                    type: string
+                  single:
+                    type: boolean
+  /v1/studies/{studyid}:
+    # This is a HTTP operation
+    get:
+      # Describe this verb here. Note: you can use markdown
+      description: |
+        Gets all `Study` objects.
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response
+          # A schema describing your response object.
+          # Use JSON Schema format
+          schema:
+            title: StudiesResponse
+            type: object
+            items:
+              title: StudyArray
+              type: array
+              items:
+                title: study
+                type: object
+                properties:
+                  name:
+                    type: string
+                  single:
+                    type: boolean
+      parameters:
+        -
+          name: studyid
+          in: path
+          description: username to fetch
+          required: true
+          type: string
+  /v1/studies/{studyid}/concepts:
+    # This is a HTTP operation
+    get:
+      # Describe this verb here. Note: you can use markdown
+      parameters:
+              -
+                name: studyid
+                in: path
+                description: Study ID of the study for which concepts will be fetched
+                required: true
+                type: string
+      description: |
+        Gets all `Study` objects.
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response
+          # A schema describing your response object.
+          # Use JSON Schema format
+          schema:
+            title: ConceptsResponse
+            type: object
+            items:
+              title: ConceptArray
+              type: array
+              items:
+                title: study
+                type: object
+                properties:
+                  name:
+                    type: string
+                  single:
+                    type: boolean
+  /v1/studies/{studyid}/concepts/{conceptPath}:
+    # This is a HTTP operation
+    get:
+      # Describe this verb here. Note: you can use markdown
+      parameters:
+              -
+                name: studyid
+                in: path
+                description: Study ID of the study for which concepts will be fetched
+                required: true
+                type: string
+              -
+                name: conceptPath
+                in: path
+                description: Concept path for which info will be fetched
+                required: true
+                type: string
+      description: |
+        Gets all `Study` objects.
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response
+          # A schema describing your response object.
+          # Use JSON Schema format
+          schema:
+            title: ConceptsResponse
+            type: object
+            items:
+              title: ConceptArray
+              type: array
+              items:
+                title: study
+                type: object
+                properties:
+                  name:
+                    type: string
+                  single:
+                    type: boolean
+  /v1/studies/{studyid}/subjects:
+    # This is a HTTP operation
+    get:
+      # Describe this verb here. Note: you can use markdown
+      parameters:
+              -
+                name: studyid
+                in: path
+                description: Study ID of the study for which concepts will be fetched
+                required: true
+                type: string
+      description: |
+        Gets all `Study` objects.
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response
+          # A schema describing your response object.
+          # Use JSON Schema format
+          schema:
+            title: ConceptsResponse
+            type: object
+            items:
+              title: ConceptArray
+              type: array
+              items:
+                title: study
+                type: object
+                properties:
+                  name:
+                    type: string
+                  single:
+                    type: boolean
+  /v1/studies/{studyid}/subjects/{subjectid}:
+    # This is a HTTP operation
+    get:
+      # Describe this verb here. Note: you can use markdown
+      parameters:
+              -
+                name: studyid
+                in: path
+                description: Study ID of the study for which concepts will be fetched
+                required: true
+                type: string
+              -
+                name: subjectid
+                in: path
+                description: Subject ID of the subject which will be fetched
+                required: true
+                type: string
+      description: |
+        Gets all `Study` objects.
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response
+          # A schema describing your response object.
+          # Use JSON Schema format
+          schema:
+            title: ConceptsResponse
+            type: object
+            items:
+              title: ConceptArray
+              type: array
+              items:
+                title: study
+                type: object
+                properties:
+                  name:
+                    type: string
+                  single:
+                    type: boolean
+  /v1/studies/{studyid}/concepts/{conceptPath}/subjects:
+    # This is a HTTP operation
+    get:
+      # Describe this verb here. Note: you can use markdown
+      parameters:
+              -
+                name: studyid
+                in: path
+                description: Study ID of the study for which concepts will be fetched
+                required: true
+                type: string
+              -
+                name: conceptPath
+                in: path
+                description: Concept path for which info will be fetched
+                required: true
+                type: string
+      description: |
+        Gets all `Study` objects.
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response
+          # A schema describing your response object.
+          # Use JSON Schema format
+          schema:
+            title: ConceptsResponse
+            type: object
+            items:
+              title: ConceptArray
+              type: array
+              items:
+                title: study
+                type: object
+                properties:
+                  name:
+                    type: string
+                  single:
+                    type: boolean
+  /v1/studies/{studyid}/observations:
+    # This is a HTTP operation
+    get:
+      # Describe this verb here. Note: you can use markdown
+      parameters:
+              -
+                name: studyid
+                in: path
+                description: Study ID of the study for which concepts will be fetched
+                required: true
+                type: string
+      description: |
+        Gets all `Study` objects.
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response
+          # A schema describing your response object.
+          # Use JSON Schema format
+          schema:
+            title: ConceptsResponse
+            type: object
+            items:
+              title: ConceptArray
+              type: array
+              items:
+                title: study
+                type: object
+                properties:
+                  name:
+                    type: string
+                  single:
+                    type: boolean
+  /v1/observations:
+  /v1/studies/{studyId}/concepts/{conceptPath}/observations:
+  /v1/patient_sets:
+    post:
+  /v1/patient_sets/{resultInstanceId}:
+    get:
+  /v1/studies/{studyId}/concepts/{conceptPath}/highdim:

@@ -1,0 +1,333 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "17.1.0",
+        "title": "Transmart"
+    },
+    "paths": {
+        "/v1/studies": {
+            "get": {
+                "description": "Gets all `Study` objects.\n",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "title": "StudiesResponse",
+                            "type": "object",
+                            "items": {
+                                "title": "StudyArray",
+                                "type": "array",
+                                "items": {
+                                    "title": "study",
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "single": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/studies/{studyid}": {
+            "get": {
+                "description": "Gets all `Study` objects.\n",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "title": "StudiesResponse",
+                            "type": "object",
+                            "items": {
+                                "title": "StudyArray",
+                                "type": "array",
+                                "items": {
+                                    "title": "study",
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "single": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "studyid",
+                        "in": "path",
+                        "description": "username to fetch",
+                        "required": true,
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/v1/studies/{studyid}/concepts": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "studyid",
+                        "in": "path",
+                        "description": "Study ID of the study for which concepts will be fetched",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "description": "Gets all `Study` objects.\n",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "title": "ConceptsResponse",
+                            "type": "object",
+                            "items": {
+                                "title": "ConceptArray",
+                                "type": "array",
+                                "items": {
+                                    "title": "study",
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "single": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/studies/{studyid}/concepts/{conceptPath}": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "studyid",
+                        "in": "path",
+                        "description": "Study ID of the study for which concepts will be fetched",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "conceptPath",
+                        "in": "path",
+                        "description": "Concept path for which info will be fetched",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "description": "Gets all `Study` objects.\n",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "title": "ConceptsResponse",
+                            "type": "object",
+                            "items": {
+                                "title": "ConceptArray",
+                                "type": "array",
+                                "items": {
+                                    "title": "study",
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "single": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/studies/{studyid}/subjects": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "studyid",
+                        "in": "path",
+                        "description": "Study ID of the study for which concepts will be fetched",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "description": "Gets all `Study` objects.\n",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "title": "ConceptsResponse",
+                            "type": "object",
+                            "items": {
+                                "title": "ConceptArray",
+                                "type": "array",
+                                "items": {
+                                    "title": "study",
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "single": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/studies/{studyid}/subjects/{subjectid}": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "studyid",
+                        "in": "path",
+                        "description": "Study ID of the study for which concepts will be fetched",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subjectid",
+                        "in": "path",
+                        "description": "Subject ID of the subject which will be fetched",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "description": "Gets all `Study` objects.\n",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "title": "ConceptsResponse",
+                            "type": "object",
+                            "items": {
+                                "title": "ConceptArray",
+                                "type": "array",
+                                "items": {
+                                    "title": "study",
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "single": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/studies/{studyid}/concepts/{conceptPath}/subjects": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "studyid",
+                        "in": "path",
+                        "description": "Study ID of the study for which concepts will be fetched",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "conceptPath",
+                        "in": "path",
+                        "description": "Concept path for which info will be fetched",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "description": "Gets all `Study` objects.\n",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "title": "ConceptsResponse",
+                            "type": "object",
+                            "items": {
+                                "title": "ConceptArray",
+                                "type": "array",
+                                "items": {
+                                    "title": "study",
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "single": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/studies/{studyid}/observations": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "studyid",
+                        "in": "path",
+                        "description": "Study ID of the study for which concepts will be fetched",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "description": "Gets all `Study` objects.\n",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "title": "ConceptsResponse",
+                            "type": "object",
+                            "items": {
+                                "title": "ConceptArray",
+                                "type": "array",
+                                "items": {
+                                    "title": "study",
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "single": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
