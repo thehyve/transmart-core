@@ -24,6 +24,7 @@ interface QueryResult extends ProtectedResource {
      * @return the textual description of the query.
      */
     public String getDescription()
+
     /**
      * The size of the set, or -1 if there was an error.
      *
