@@ -45,7 +45,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
+    //compile "org.springframework.boot:spring-boot-starter-actuator"
     compile "org.springframework.boot:spring-boot-starter-tomcat"
     compile "org.grails:grails-dependencies"
     compile "org.grails:grails-web-boot"
@@ -63,10 +63,8 @@ dependencies {
 
     // plugin specific deps
     compile "org.apache.solr:solr-solrj:4.5.1"
-    compile ("org.grails.plugins:cache-ehcache:3.0.0.BUILD-SNAPSHOT") {
-        exclude group:'net.sf.ehcache'
-    }
-    compile "net.sf.ehcache:ehcache:2.4.3"
+    compile "org.springframework.boot:spring-boot-starter-cache"
+    compile group: 'net.sf.ehcache', name: 'ehcache-core', version: '2.6.11'
 
     // gradle sub-projects
     testRuntime project(':transmart-core-db-tests')
@@ -101,9 +99,9 @@ assets {
     packagePlugin = true
 }
 
-configure(integrationTest) {
+/*configure(integrationTest) {
     //Remove cache-ehcache plugin when running integration test due to https://github.com/grails-plugins/grails-cache-ehcache/issues/27. Remove when issue is fixed
     classpath = classpath.filter{ File file ->
         !file.name.startsWith( "cache-ehcache-" )
     }
-}
+}*/
