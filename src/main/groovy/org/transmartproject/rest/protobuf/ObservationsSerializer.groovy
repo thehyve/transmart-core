@@ -303,7 +303,6 @@ public class ObservationsSerializer {
 
     protected Observation.Builder createSingleCell(Object value, int valIndex) {
         Observation.Builder builder = Observation.newBuilder()
-
         if (value != null) {
             if (value instanceof Number) {
                 builder.numericValue = value as Double
@@ -321,7 +320,7 @@ public class ObservationsSerializer {
     protected PackedObservation.Builder createPackedCell(List<Object> values, int valIndex, int numSamples = 1) {
         PackedObservation.Builder builder = PackedObservation.newBuilder()
         if (values.every { it instanceof Number }) {
-            builder.addAllNumericValues(values)
+            builder.addAllNumericValues(values.collect{(double)it})
         } else {
             builder.addAllStringValues(values)
         }
