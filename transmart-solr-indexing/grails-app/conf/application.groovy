@@ -1,9 +1,10 @@
 
 com.rwg.solr.scheme = 'http'
-com.rwg.solr.host   = 'localhost:6000'
+com.rwg.solr.host   = 'localhost:8983'
 com.rwg.solr.facets.path = 'solr/facets/'
 com.recomdata.FmFolderService.filestoreDirectory = (new File(System.getenv('HOME'), '.grails/transmart-filestore')).absolutePath
 
+//grails.spring.bean.packages = "transmartproject.search"
 //grails.plugin.reveng.packageName = 'org.transmartproject.search.browse'
 //grails.plugin.reveng.includeTables = ['folder_study_mapping']
 //grails.plugin.reveng.defaultSchema = 'biomart_user'
@@ -28,7 +29,7 @@ environments {
     test {
         dataSource {
             driverClassName = 'org.postgresql.Driver'
-            url = 'jdbc:postgresql://localhost:6000/transmart'
+            url = 'jdbc:postgresql://localhost:25432/postgres'
             username = 'biomart_user'
             password = 'biomart_user'
             dbCreate = 'none'
