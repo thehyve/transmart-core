@@ -9,16 +9,15 @@ class BrowseFoldersView implements Serializable {
     String title
     String description
     String fileType
-/*
+
     static mapping = {
         table schema: 'biomart_user'
-        id composite: ['identifier']
+        //id composite: ['identifier']
         version false
 
-        id         insert: false, update: false
-        identifier column: 'id'
+        //id         insert: false, update: false
+        //identifier column: 'id'
     }
-*/
     static constraints = {
         identifier  nullable: true, maxSize: 300
         title       nullable: true, maxSize: 1000

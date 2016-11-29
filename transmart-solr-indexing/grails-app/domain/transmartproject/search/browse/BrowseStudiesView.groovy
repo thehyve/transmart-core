@@ -19,16 +19,16 @@ class BrowseStudiesView implements Serializable {
     String studyObjective
     String organism
     String studyPhase
-/*
+
     static mapping = {
         table schema: 'biomart_user'
-        id composite: ['identifier']
+//        id composite: ['identifier']
         version false
 
-        id         insert: false, update: false
-        identifier column: 'id'
+  //      id         insert: false, update: false
+    //    identifier column: 'id'
     }
-*/
+
     static constraints = {
         identifier     nullable: true, maxSize: 300
         title          nullable: true, maxSize: 1000
