@@ -9,7 +9,7 @@ import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.StudyConstraint
+import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.TestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
@@ -37,7 +37,7 @@ class ObservationsBuilderTests extends Specification {
 
     public void testJsonSerialization() {
         setupData()
-        Constraint constraint = new StudyConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
         def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON)
 
@@ -65,7 +65,7 @@ class ObservationsBuilderTests extends Specification {
 
     public void testProtobufSerialization() {
         setupData()
-        Constraint constraint = new StudyConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
         def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.PROTOBUF)
 
