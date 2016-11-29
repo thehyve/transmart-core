@@ -237,12 +237,7 @@ public class ObservationsSerializer {
         }
     }
 
-    protected void writeCells(OutputStream out) {
-        Iterator<HypercubeValue> it = cube.iterator()
-        if (!it.hasNext()) {
-            writeEmptyMessage(out)
-            return
-        }
+    protected void writeCells(OutputStream out, Iterator<HypercubeValue> it) {
         while (it.hasNext()) {
             HypercubeValue value = it.next()
             if (packingEnabled) {
@@ -489,9 +484,15 @@ public class ObservationsSerializer {
 
     void write(OutputStream out) {
         begin(out)
-        writeMessage(out, buildHeader())
-        writeCells(out)
-        writeMessage(out, buildFooter())
+        Iterator<HypercubeValue> iterator = cube.iterator()
+        if (!iterator.hasNext()) {
+            writeEmptyMessage(out)
+        }
+        else {
+            writeMessage(out, buildHeader())
+            writeCells(out, iterator)
+            writeMessage(out, buildFooter())
+        }
         end(out)
     }
 

@@ -17,7 +17,7 @@ class SerializableProperties {
     public static final Set<String> END_DATE = ["endDate"]
     public static final Set<String> VISIT = ["patient", "activeStatus", "startDate", "endDate", "inoutCd", "locationCd"]
     public static final Set<String> LOCATION = ["locationCd"]
-    //public static final Set<String> PROVIDER = ["providerId"]
+    public static final Set<String> PROVIDER = ["providerId"]
 
 
     public static final Map<String, Set<String>> SERIALIZABLES = [
@@ -29,7 +29,7 @@ class SerializableProperties {
             "StudyDimension": STUDY,
             "VisitDimension": VISIT,
             "LocationDimension": LOCATION,
-            //"ProviderDimension": PROVIDER
+            "ProviderDimension": PROVIDER
     ]
     // TODO: fill in the rest of the serializable fields for all other dimensions
     // TODO: decide which fields from each dimension are important
