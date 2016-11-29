@@ -22,6 +22,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+import grails.util.Environment
 import groovy.util.logging.Slf4j
 import org.transmartproject.db.TestData
 import org.transmartproject.db.user.AccessLevelTestData
@@ -30,16 +32,14 @@ import org.transmartproject.db.user.AccessLevelTestData
 class BootStrap {
 
     def init = { servletContext ->
-        def testData = TestData.createDefault()
-        testData.saveAll()
-        new org.transmartproject.rest.test.TestData().createTestData()
-        AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
-            .saveAll()
-        // FIXME: include hypercube test data
-        /*
-        def hypercubeTestData = TestData.createHypercubeDefault()
-        hypercubeTestData.saveAll()
-        */
+        if (Environment.current == Environment.TEST) {
+            log.info "Setting up test data..."
+            def testData = TestData.createDefault()
+            testData.saveAll()
+            new org.transmartproject.rest.test.TestData().createTestData()
+            AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
+                    .saveAll()
+        }
     }
 
 }
