@@ -53,22 +53,21 @@ class DimensionDescription {
         size    column: 'size_cd'
     }
 
-
     static ImmutableMap<String,DimensionImpl> dimensionsMap = ImmutableMap.copyOf([
-            "study"      : new StudyDimension(MEDIUM, SPARSE, PACKABLE),
-            "concept"    : new ConceptDimension(MEDIUM, DENSE, PACKABLE),
+            "study"      : new StudyDimension(MEDIUM, DENSE, PACKABLE),
+            "concept"    : new ConceptDimension(MEDIUM, DENSE, NOT_PACKABLE),
             "patient"    : new PatientDimension(LARGE, DENSE, PACKABLE),
             "visit"      : new VisitDimension(SMALL, DENSE, PACKABLE),
             "start time" : new StartTimeDimension(LARGE, SPARSE, NOT_PACKABLE),
             "end time"   : new EndTimeDimension(LARGE, SPARSE, NOT_PACKABLE),
             "location"   : new LocationDimension(MEDIUM, SPARSE, NOT_PACKABLE),
             "trial visit": new TrialVisitDimension(MEDIUM, DENSE, PACKABLE),
-            "provider"   : new ProviderDimension(SMALL, DENSE, PACKABLE),
+            "provider"   : new ProviderDimension(SMALL, SPARSE, NOT_PACKABLE),
 //            "sample": new SampleDimension(SMALL, DENSE, NOT_PACKABLE),
 
             "biomarker" : new BioMarkerDimension(LARGE, DENSE, PACKABLE),
             "assay"     : new AssayDimension(LARGE, DENSE, PACKABLE),
-            "projection": new ProjectionDimension(SMALL, DENSE, PACKABLE),
+            "projection": new ProjectionDimension(SMALL, DENSE, NOT_PACKABLE),
     ])
 
     boolean isLegacyTabular() {
