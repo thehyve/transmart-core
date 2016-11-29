@@ -60,6 +60,9 @@ public class MarshallersRegistrar implements FactoryBean {
     @Autowired
     EnumMarshaller enumMarshaller
 
+    @Autowired
+    TreeNodeMarshaller treeNodeMarshaller
+
     String packageName
 
     void scanForClasses() {
@@ -114,6 +117,7 @@ public class MarshallersRegistrar implements FactoryBean {
     private void registerMiscMarshallers() {
         JSON.registerObjectMarshaller iteratorMarshaller, DEFAULT_PRIORITY - 10
         JSON.registerObjectMarshaller enumMarshaller
+        JSON.registerObjectMarshaller treeNodeMarshaller
     }
 
     @Override

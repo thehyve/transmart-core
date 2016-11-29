@@ -13,8 +13,13 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.multidimquery.AssayDimension
+import org.transmartproject.db.multidimquery.BioMarkerDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.HypercubeImpl
+import org.transmartproject.db.multidimquery.ProjectionDimension
 import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
@@ -22,7 +27,7 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.util.GormWorkarounds
 
-class MultidimensionalDataResourceService implements MultiDimensionalDataResource<Study> {
+class MultidimensionalDataResourceService implements MultiDimensionalDataResource {
 
     @Autowired
     SessionFactory sessionFactory
@@ -46,11 +51,11 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      *
      * @return a Hypercube result
      */
-    HypercubeImpl retrieveData(Map args, String dataType, Collection<Study> accessibleStudies) {
+    HypercubeImpl retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies) {
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint
-        Set<DimensionImpl> dimensions = args.dimension ? ImmutableSet.copyOf(args.dimensions) : ImmutableSet.of() // make unique
+        Set<DimensionImpl> dimensions = ImmutableSet.copyOf(args.dimensions ?: []) // make unique
 
         // These are not yet implemented
         def sort = args.sort
@@ -79,14 +84,19 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
 
         Set<DimensionImpl> validDimensions
+
+        //TODO Remove after adding all the dimension, added to prevent e2e tests failing
+        def notImplementedDimensions = [AssayDimension, BioMarkerDimension, ProjectionDimension]
         if(studies) {
             // This throws a LegacyStudyException for non-17.1 style studies
             // This could probably be done more efficiently, but GORM support for many-to-many collections is pretty
             // buggy. And usually the studies and dimensions will be cached in memory.
-            validDimensions = ImmutableSet.copyOf studies*.dimensions.flatten()*.dimension
+            validDimensions = ImmutableSet.copyOf((Set<DimensionImpl>) studies*.dimensions.flatten())
 
         } else {
-            validDimensions = ImmutableSet.copyOf DimensionDescription.all*.dimension
+            validDimensions = ImmutableSet.copyOf DimensionDescription.all*.dimension.findAll{
+                !(it.class in notImplementedDimensions)
+            }
         }
         // only allow valid dimensions
         dimensions = (Set<DimensionImpl>) dimensions?.findAll { it in validDimensions } ?: validDimensions

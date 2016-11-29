@@ -32,11 +32,11 @@ class StudiesResourceSpec extends ResourceSpec {
 
     public static final String VERSION = "v1"
     def childLinkHrefPath = '_embedded.ontologyTerm._links.children[0].href'
-    def expectedChildLinkHrefValue = VERSION + '/studies/study_id_1/concepts/bar'
+    def expectedChildLinkHrefValue = "/${VERSION}/studies/study_id_1/concepts/bar"
 
     void testListAllStudies() {
         when:
-        def response = get("/$VERSION/studies")
+        def response = get("/${VERSION}/studies")
         then:
         response.status == 200
         that response.json, hasEntry(is('studies'), contains(
@@ -75,11 +75,11 @@ class StudiesResourceSpec extends ResourceSpec {
 
         then:
         response.status == 200
-        that response.json, halIndexResponse(VERSION+'/studies', ['studies':
+        that response.json, halIndexResponse("/${VERSION}/studies", ['studies':
                                                              contains(
                                                                      allOf(
                                                                              hasEntry('id', 'STUDY_ID_1'),
-                                                                             halIndexResponse(VERSION+'/studies/study_id_1', ['ontologyTerm':
+                                                                             halIndexResponse("/${VERSION}/studies/study_id_1", ['ontologyTerm':
                                                                                                                               allOf(
                                                                                                                                       hasEntry('name', 'study1'),
                                                                                                                                       hasEntry('fullName', '\\foo\\study1\\'),
@@ -89,7 +89,7 @@ class StudiesResourceSpec extends ResourceSpec {
                                                                      ),
                                                                      allOf(
                                                                              hasEntry('id', 'STUDY_ID_2'),
-                                                                             halIndexResponse(VERSION+'/studies/study_id_2', ['ontologyTerm':
+                                                                             halIndexResponse("/${VERSION}/studies/study_id_2", ['ontologyTerm':
                                                                                                                               allOf(
                                                                                                                                       hasEntry('name', 'study2'),
                                                                                                                                       hasEntry('fullName', '\\foo\\study2\\'),
@@ -99,7 +99,7 @@ class StudiesResourceSpec extends ResourceSpec {
                                                                      ),
                                                                      allOf(
                                                                              hasEntry('id', 'STUDY_ID_3'),
-                                                                             halIndexResponse(VERSION+'/studies/study_id_3', ['ontologyTerm':
+                                                                             halIndexResponse("/${VERSION}/studies/study_id_3", ['ontologyTerm':
                                                                                                                               allOf(
                                                                                                                                       hasEntry('name', 'study3'),
                                                                                                                                       hasEntry('fullName', '\\foo\\study3\\'),
@@ -140,7 +140,7 @@ class StudiesResourceSpec extends ResourceSpec {
         response.status == 200
         that response.json, allOf(
                 hasEntry('id', 'STUDY_ID_1'),
-                halIndexResponse("$VERSION/studies/${studyId}".toLowerCase(), [
+                halIndexResponse("/$VERSION/studies/${studyId}".toLowerCase(), [
                         'ontologyTerm': allOf(
                                 hasEntry('name', 'study1'),
                                 hasEntry('fullName', '\\foo\\study1\\'),
@@ -160,7 +160,7 @@ class StudiesResourceSpec extends ResourceSpec {
 
         then:
         response.status == 200
-        that response.json, JsonMatcher.matching(path, is(expectedChildLinkHrefValue))
+        that response.json, JsonMatcher.matching(path, is(expectedChildLinkHrefValue.toString()))
     }
 
     void testGetStudyChildLink() {
@@ -171,7 +171,7 @@ class StudiesResourceSpec extends ResourceSpec {
 
         then:
         response.status == 200
-        that response.json, JsonMatcher.matching(childLinkHrefPath, is(expectedChildLinkHrefValue))
+        that response.json, JsonMatcher.matching(childLinkHrefPath, is(expectedChildLinkHrefValue.toString()))
     }
 
 
@@ -180,11 +180,11 @@ class StudiesResourceSpec extends ResourceSpec {
 
         when:
         def response = get("/$VERSION/studies/${studyName}")
-        response.status == 404
 
         then:
-        response.json.status == 404
-        response.json.exception == 'org.transmartproject.core.exceptions.NoSuchResourceException'
+        response.status == 404
+        response.json.httpStatus == 404
+        response.json.type == 'NoSuchResourceException'
         response.json.message == "No study with id '${studyName}' was found"
     }
 

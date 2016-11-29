@@ -41,14 +41,14 @@ class StudyController {
     @Resource
     StudiesResource studiesResourceService
 
-    /** GET request on /studies/
+    /** GET request on /v1/studies/
      *  This will return the list of studies, where each study will be rendered in its short format
     */
     def index() {
         respond wrapStudies(studiesResourceService.studySet)
     }
 
-    /** GET request on /studies/${id}
+    /** GET request on /v1/studies/${id}
      *  This returns the single study by name.
      *
      *  @param name the name of the study
@@ -62,7 +62,7 @@ class StudyController {
         (
             container: source,
             componentType: Study,
-            links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/studies") ]
+            links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/v1/studies") ]
         )
     }
     

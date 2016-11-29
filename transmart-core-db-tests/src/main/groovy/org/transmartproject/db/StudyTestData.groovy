@@ -15,7 +15,7 @@ class StudyTestData {
                 studyId: "Default tabular study",
                 secureObjectToken: 'EXP:Default tabular study'
         )
-        study.addToDimensions(legacyDimension)
+        study.addToDimensionDescriptions(legacyDimension)
         study
     }
 
@@ -25,19 +25,19 @@ class StudyTestData {
      * @param dimensions
      * @return
      */
-    static Study createStudy(String name, Iterable dimensions) {
-        def study = new Study(studyId: name, secureObjectToken: "EXP:${name}")
+    static Study createStudy(String name, Iterable dimensions, boolean isPublic = false) {
+        def study = new Study(studyId: name, secureObjectToken: isPublic ? Study.PUBLIC : "EXP:${name}")
         dimensions.each {
             if(it instanceof DimensionDescription) {
-                study.addToDimensions(it)
+                study.addToDimensionDescriptions(it)
             } else if(it instanceof String) {
                 def candidates = DimensionDescription.findAllByName(it)
                 if(!candidates) {
                     assert DimensionDescription.dimensionsMap.containsKey(it), "Unknown dimension name '$it', " +
                             "modifier dimensions as string are not supported in createStudy()"
-                    study.addToDimensions(new DimensionDescription(name: it))
+                    study.addToDimensionDescriptions(new DimensionDescription(name: it))
                 } else if(candidates.size() == 1) {
-                    study.addToDimensions(candidates[0])
+                    study.addToDimensionDescriptions(candidates[0])
                 } else {
                     assert false, "Multiple DimensionDescriptions with the same name found: '$it'"
                 }

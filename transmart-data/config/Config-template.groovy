@@ -72,47 +72,6 @@ environments { production {
     }
 } }
 
-/* {{{ Log4J Configuration */
-log4j = {
-    environments {
-        development {
-            root {
-                info 'stdout'
-            }
-
-            // for a less verbose startup & shutdown
-            warn  'org.codehaus.groovy.grails.commons.spring'
-            warn  'org.codehaus.groovy.grails.orm.hibernate.cfg'
-            warn  'org.codehaus.groovy.grails.domain.GrailsDomainClassCleaner'
-
-            debug 'org.transmartproject'
-            debug 'com.recomdata'
-            debug 'grails.app.services.com.recomdata'
-            debug 'grails.app.services.org.transmartproject'
-            debug 'grails.app.controllers.com.recomdata'
-            debug 'grails.app.controllers.org.transmartproject'
-            debug 'grails.app.domain.com.recomdata'
-            debug 'grails.app.domain.org.transmartproject'
-            // debug 'org.springframework.security'
-            // (very verbose) debug  'org.grails.plugin.resource'
-        }
-
-        production {
-            def logDirectory = "${catalinaBase}/logs".toString()
-            appenders {
-                rollingFile(name: 'transmart',
-                            file: "${logDirectory}/transmart.log",
-                            layout: pattern(conversionPattern: '%d{dd-MM-yyyy HH:mm:ss,SSS} %5p %c{1} - %m%n'),
-                            maxFileSize: '100MB')
-            }
-            root {
-                warn 'transmart'
-            }
-        }
-    }
-}
-/* }}} */
-
 /* {{{ Faceted Search Configuration */
 environments {
     development {
@@ -130,7 +89,7 @@ environments {
 /* }}} */
 
 /* {{{ Data Upload Configuration - see GWAS plugin Data Upload page */
-// This is the value that will appear in the To: entry of the e-mail popup 
+// This is the value that will appear in the To: entry of the e-mail popup
 // that is displayed when the user clicks the Email administrator button,
 // on the GWAS plugin Data Upload page
 com.recomdata.dataUpload.adminEmail = 'No data upload adminEmail value set - contact site administrator'
@@ -150,7 +109,7 @@ com.recomdata.contactUs = "transmart-discuss@googlegroups.com"
 com.recomdata.adminEmail = "transmart-discuss@googlegroups.com"
 
 // application title
-com.recomdata.appTitle = "tranSMART v" + org.transmart.originalConfigBinding.appVersion
+com.recomdata.appTitle = "tranSMART v" + grails.util.Metadata.current.getApplicationVersion()
 
 // Location of the help pages. Should be an absolute URL.
 // Currently, these are distribution with transmart,
@@ -285,13 +244,13 @@ com.recomdata.dataUpload.appTitle="Upload data to tranSMART"
 com.recomdata.dataUpload.stageScript="run_analysis_stage"
 
 // Directory path of com.recomdata.dataUpload.stageScript
-def gwasEtlDirectory = new File(System.getenv('HOME'), '.grails/transmart-gwasetl')
+def gwasEtlDirectory = new File(System.getProperty("user.home"), '.grails/transmart-gwasetl')
 
 // Directory to hold GWAS file uploads
-def gwasUploadsDirectory = new File(System.getenv('HOME'), '.grails/transmart-datauploads')
+def gwasUploadsDirectory = new File(System.getProperty("user.home"), '.grails/transmart-datauploads')
 
 // Directory to preload with template files with names <type>-template.txt
-def gwasTemplatesDirectory = new File(System.getenv('HOME'), '.grails/transmart-templates')
+def gwasTemplatesDirectory = new File(System.getProperty("user.home"), '.grails/transmart-templates')
 
 com.recomdata.dataUpload.templates.dir = gwasTemplatesDirectory.absolutePath
 com.recomdata.dataUpload.uploads.dir = gwasUploadsDirectory.absolutePath
@@ -361,40 +320,43 @@ grails { plugin { springsecurity {
     } else {
         securityConfigType = 'InterceptUrlMap'
         def oauthEndpoints = [
-              '/oauth/authorize.dispatch': ["isFullyAuthenticated() and (request.getMethod().equals('GET') or request.getMethod().equals('POST'))"],
-              '/oauth/token.dispatch':     ["isFullyAuthenticated() and request.getMethod().equals('POST')"],
+              [pattern: '/oauth/authorize.dispatch', access: ["isFullyAuthenticated() and (request.getMethod().equals('GET') or request.getMethod().equals('POST'))"]],
+              [pattern: '/oauth/token.dispatch', access: ["isFullyAuthenticated() and request.getMethod().equals('POST')"]],
         ]
 
         // This looks dangerous and it possibly is (would need to check), but
         // reflects the instructions I got from the developer.
         def gwavaMappings = [
-             '/gwasWeb/**'                : ['IS_AUTHENTICATED_ANONYMOUSLY'],
+            [pattern: '/gwasWeb/**', access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
         ]
 
         interceptUrlMap = [
-            '/login/**'                   : ['IS_AUTHENTICATED_ANONYMOUSLY'],
-            '/css/**'                     : ['IS_AUTHENTICATED_ANONYMOUSLY'],
-            '/js/**'                      : ['IS_AUTHENTICATED_ANONYMOUSLY'],
-            '/grails-errorhandler'        : ['IS_AUTHENTICATED_ANONYMOUSLY'],
-            '/images/analysisFiles/**'    : ['IS_AUTHENTICATED_REMEMBERED'],
-            '/images/**'                  : ['IS_AUTHENTICATED_ANONYMOUSLY'],
-            '/static/**'                  : ['IS_AUTHENTICATED_ANONYMOUSLY'],
-            '/search/loadAJAX**'          : ['IS_AUTHENTICATED_ANONYMOUSLY'],
-            '/analysis/getGenePatternFile': ['IS_AUTHENTICATED_ANONYMOUSLY'],
-            '/analysis/getTestFile'       : ['IS_AUTHENTICATED_ANONYMOUSLY'],
-            '/requestmap/**'              : ['ROLE_ADMIN'],
-            '/role/**'                    : ['ROLE_ADMIN'],
-            '/authUser/**'                : ['ROLE_ADMIN'],
-            '/secureObject/**'            : ['ROLE_ADMIN'],
-            '/accessLog/**'               : ['ROLE_ADMIN'],
-            '/authUserSecureAccess/**'    : ['ROLE_ADMIN'],
-            '/secureObjectPath/**'        : ['ROLE_ADMIN'],
-            '/userGroup/**'               : ['ROLE_ADMIN'],
-            '/secureObjectAccess/**'      : ['ROLE_ADMIN'],
-            '/oauthAdmin/**'              : ['ROLE_ADMIN'],
-            *                             : (oauthEnabled ?  oauthEndpoints : [:]),
-            *                             : (gwavaEnabled ?  gwavaMappings : [:]),
-            '/**'                         : ['IS_AUTHENTICATED_REMEMBERED'], // must be last
+            [pattern: '/login/**',         access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+            [pattern: '/css/**',                     access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+            [pattern: '/js/**',                      access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+            [pattern: '/assets/**',                  access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+            [pattern: '/grails-errorhandler',        access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+            [pattern: '/images/analysisFiles/**',    access: ['IS_AUTHENTICATED_REMEMBERED']],
+            [pattern: '/images/**',                  access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+            [pattern: '/static/**',                  access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+            [pattern: '/search/loadAJAX**',          access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+            [pattern: '/analysis/getGenePatternFile',access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+            [pattern: '/analysis/getTestFile',       access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+            [pattern: '/requestmap/**',              access: ['ROLE_ADMIN']],
+            [pattern: '/role/**',                    access: ['ROLE_ADMIN']],
+            [pattern: '/authUser/**',                access: ['ROLE_ADMIN']],
+            [pattern: '/secureObject/**',            access: ['ROLE_ADMIN']],
+            [pattern: '/accessLog/**',               access: ['ROLE_ADMIN']],
+            [pattern: '/authUserSecureAccess/**',    access: ['ROLE_ADMIN']],
+            [pattern: '/secureObjectPath/**',        access: ['ROLE_ADMIN']],
+            [pattern: '/userGroup/**',               access: ['ROLE_ADMIN']],
+            [pattern: '/secureObjectAccess/**',      access: ['ROLE_ADMIN']],
+            [pattern: '/oauthAdmin/**', access: ['ROLE_ADMIN']]
+        ] +
+        (oauthEnabled ?  oauthEndpoints : []) +
+        (gwavaEnabled ?  gwavaMappings : []) +
+        [
+            [pattern: '/**',                         access: ['IS_AUTHENTICATED_REMEMBERED']], // must be last
         ]
         rejectIfNoRule = true
     }
@@ -433,9 +395,11 @@ grails { plugin { springsecurity {
                 ].join(','),
                 '/v1/studies/**': securedResourcesFilters,
                 '/v1/observations/**': securedResourcesFilters,
+                '/v2/query/**': securedResourcesFilters,
+                '/v2/tree_nodes/**': securedResourcesFilters,
                 '/v1/patient_sets/**': securedResourcesFilters,
-                '/v2/query/**' : securedResourcesFilters,
                 '/oauth/inspectToken': securedResourcesFilters,
+                '/transmart-rest-api-version': 'none',
                 '/**': [
                         'JOINED_FILTERS',
                         '-statelessSecurityContextPersistenceFilter',
@@ -444,7 +408,9 @@ grails { plugin { springsecurity {
                         '-basicAuthenticationFilter',
                         '-oauth2ExceptionTranslationFilter'
                 ].join(','),
-        ]
+        ].collect { k, v ->
+            [pattern: k, filters: v]
+        }
 
         grails.exceptionresolver.params.exclude = ['password', 'client_secret']
 
@@ -626,7 +592,7 @@ com.rwg.solr.update.path = '/solr/browse/dataimport/'
 com.recomdata.solr.baseURL = "${com.rwg.solr.scheme}://${com.rwg.solr.host}" +
                              "${new File(com.rwg.solr.browse.path).parent}"
 
-def fileStoreDirectory = new File(System.getenv('HOME'), '.grails/transmart-filestore')
+def fileStoreDirectory = new File(System.getProperty("user.home"), '.grails/transmart-filestore')
 def fileImportDirectory = new File(System.getProperty("java.io.tmpdir"), 'transmart-fileimport')
 com.recomdata.FmFolderService.filestoreDirectory = fileStoreDirectory.absolutePath
 com.recomdata.FmFolderService.importDirectory = fileImportDirectory.absolutePath

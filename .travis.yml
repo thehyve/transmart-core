@@ -6,8 +6,8 @@ php:
   - 5.6
 env:
   - TERM=dumb; DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
-  - TERM=dumb; DIR=transmart-data; INSTALL="createVars setupPostgresTest"
   - TERM=dumb; DIR=transmart-rest-api; TEST=check
+  - TERM=dumb; DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST="-Dgrails.env=test_postgresql check"
   - TERM=dumb; DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=capsule; TEST="test functionalTest"
 
 addons:

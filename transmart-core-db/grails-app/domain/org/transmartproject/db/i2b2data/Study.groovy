@@ -1,9 +1,11 @@
 package org.transmartproject.db.i2b2data
 
+import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.users.ProtectedResource
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.multidimquery.DimensionImpl
 
 /**
  * Domain class that represents the link between a study and observation data
@@ -20,7 +22,7 @@ import org.transmartproject.db.metadata.DimensionDescription
  * Metadata is available in the form of a label {@link Study#studyId} and a link to the <code>bio_experiment</code>
  * table in {@link Study#bioExperimentId}.
  */
-class Study implements ProtectedResource /*, org.transmartproject.core.ontology.Study*/ {
+class Study implements MDStudy {
 
     static final String PUBLIC = 'PUBLIC'
 
@@ -48,7 +50,7 @@ class Study implements ProtectedResource /*, org.transmartproject.core.ontology.
 
     static hasMany = [
         trialVisits: TrialVisit,
-        dimensions: DimensionDescription,
+        dimensionDescriptions: DimensionDescription,
     ]
 
     static mapping = {
@@ -57,15 +59,16 @@ class Study implements ProtectedResource /*, org.transmartproject.core.ontology.
         studyId             column: 'study_id'
         secureObjectToken   column: 'secure_obj_token'
         bioExperimentId     column: 'bio_experiment_id'
-        dimensions  joinTable: [schema: 'i2b2metadata']
+        dimensionDescriptions joinTable: [schema: 'i2b2metadata']
         version false
     }
 
-    // TODO: oops, clash with id property
-    //@Override String getId() { studyId }
+    String getName() {
+        studyId
+    }
 
-    //TODO: implement these
-    //@Override OntologyTerm getOntologyTerm() { throw new UnsupportedOperationException() }
-    //@Override Set<Patient> getPatients() { throw new UnsupportedOperationException() }
+    Collection<DimensionImpl> getDimensions() {
+        dimensionDescriptions*.dimension
+    }
 
 }

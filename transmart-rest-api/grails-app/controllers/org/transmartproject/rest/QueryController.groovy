@@ -1,23 +1,28 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
+import grails.web.mime.MimeType
 import groovy.util.logging.Slf4j
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
+import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
 import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
-import org.transmartproject.rest.protobuf.HighDimBuilder
 import org.transmartproject.rest.protobuf.ObservationsSerializer
 
 @Slf4j
 class QueryController {
+
+    static responseFormats = ['json', 'hal', 'protobuf']
 
     @Autowired
     QueryService queryService
@@ -36,16 +41,9 @@ class QueryController {
     HighDimensionResourceService highDimensionResourceService
 
 
-    private Constraint getConstraint(String constraintParameterName = 'constraint') {
-        if (!params.containsKey(constraintParameterName)) {
-            throw new InvalidArgumentsException("${constraintParameterName} parameter is missing.")
-        }
-        if (!params[constraintParameterName]) {
-            throw new InvalidArgumentsException('Empty constraint parameter.')
-        }
-        String constraintParam = URLDecoder.decode(params[constraintParameterName], 'UTF-8')
+    private Constraint parseConstraint(String constraintText) {
         try {
-            Map constraintData = JSON.parse(constraintParam) as Map
+            Map constraintData = JSON.parse(constraintText) as Map
             try {
                 return ConstraintFactory.create(constraintData)
             } catch (Exception e) {
@@ -54,6 +52,17 @@ class QueryController {
         } catch (ConverterException e) {
             throw new InvalidArgumentsException('Cannot parse constraint parameter.')
         }
+    }
+
+    private Constraint getConstraint(String constraintParameterName = 'constraint') {
+        if (!params.containsKey(constraintParameterName)) {
+            throw new InvalidArgumentsException("${constraintParameterName} parameter is missing.")
+        }
+        if (!params[constraintParameterName]) {
+            throw new InvalidArgumentsException('Empty constraint parameter.')
+        }
+        String constraintParam = URLDecoder.decode(params[constraintParameterName], 'UTF-8')
+        parseConstraint(constraintParam)
     }
 
     private Constraint bindConstraint() {
@@ -102,15 +111,7 @@ class QueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def hypercube() {
-        ObservationsSerializer.Format format = ObservationsSerializer.Format.NONE
-        withFormat {
-            json {
-                format = ObservationsSerializer.Format.JSON
-            }
-            protobuf {
-                format = ObservationsSerializer.Format.PROTOBUF
-            }
-        }
+        ObservationsSerializer.Format format = getContentFormat()
         if (format == ObservationsSerializer.Format.NONE) {
             throw new InvalidArgumentsException("Format not supported.")
         }
@@ -153,6 +154,34 @@ class QueryController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def patients = queryService.listPatients(constraint, user)
         render patients as JSON
+    }
+
+    /**
+     * Patient set endpoint:
+     * <code>POST /v2/patient_set?constraint=${constraint}</code>
+     *
+     * Creates a patient set ({@link QueryResult}) based the {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a map with key 'id' and the id of the resulting {@link QueryResult} as value.
+     */
+    def patientSet() {
+        if (!request.contentType) {
+            throw new InvalidRequestException('No content type provided')
+        }
+        MimeType mimeType = new MimeType(request.contentType)
+        if (mimeType != MimeType.JSON) {
+            throw new InvalidRequestException("Content type should be " +
+                    "${MimeType.JSON.name}; got ${mimeType}.")
+        }
+        Constraint constraint = parseConstraint(request.reader.lines().iterator().join(''))
+        if (constraint == null) {
+            return
+        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        QueryResult patientSet = queryService.createPatientSet("test set", constraint, user)
+        def result = [id: patientSet.id] as Map
+        response.status = 201
+        render result as JSON
     }
 
     /**
@@ -205,39 +234,46 @@ class QueryController {
         render result as JSON
     }
 
+    ObservationsSerializer.Format getContentFormat() {
+        ObservationsSerializer.Format format = ObservationsSerializer.Format.NONE
+
+        withFormat {
+            json {
+                format = ObservationsSerializer.Format.JSON
+            }
+            protobuf {
+                format = ObservationsSerializer.Format.PROTOBUF
+            }
+        }
+
+        format
+    }
 
     def highDim() {
-        if (!params.projection) {
-            throw new InvalidArgumentsException('Projection parameter is missing')
-        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        Constraint assayConstraint = getConstraint('assay_constraint')
 
-        String projectionName = params.projection
-
-        ConceptConstraint conceptConstraint = getConstraint('concept_constraint')
         BiomarkerConstraint biomarkerConstraint = null
         if (params.biomarker_constraint) {
-            biomarkerConstraint = getConstraint('biomarker_constraint')
+            Constraint constraint = getConstraint('biomarker_constraint')
+            assert constraint instanceof BiomarkerConstraint
+            biomarkerConstraint = constraint
         }
-        Constraint assayConstraint = null
-        if (params.assay_constraint) {
-            assayConstraint = getConstraint('assay_constraint')
-        }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        def (projection, table) = queryService.highDimension(conceptConstraint,
+        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(user, assayConstraint,
                 biomarkerConstraint,
-                assayConstraint,
-                projectionName, user)
+                params.projection)
 
+        ObservationsSerializer.Format format = getContentFormat()
         OutputStream out = new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
-                    response.contentType = 'application/octet-stream'
+                    response.contentType = format.toString()
                     response.outputStream
                 })
         try {
-            HighDimBuilder.write(projection, table, out)
+            multidimensionalDataSerialisationService.serialise(hypercube, format, out)
         } finally {
-            table.close()
+            hypercube.close()
             out.close()
         }
     }

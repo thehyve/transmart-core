@@ -32,7 +32,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
 
     //def sort
     //def pack
-    boolean autoLoadDimensions = true
+    boolean autoloadDimensions = true
     private ScrollableResults results
     final ImmutableMap<String,Integer> aliases
     Query query
@@ -49,6 +49,9 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
 
     // A map that stores the actual dimension elements once they are loaded
     Map<Dimension, List<Object>> dimensionElements = new HashMap()
+
+    // false if there may be dimension element keys for which the values are not loaded
+    private boolean _dimensionsLoaded = false
 
     HypercubeImpl(ScrollableResults results, Collection<DimensionImpl> dimensions, String[] aliases,
                   Query query, StatelessSessionImpl session) {
@@ -75,7 +78,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     class ResultIterator extends AbstractIterator<HypercubeValueImpl> {
         HypercubeValueImpl computeNext() {
             if (!results.next()) {
-                if(autoLoadDimensions) loadDimensions()
+                if(autoloadDimensions) loadDimensions()
                 return endOfData()
             }
             _dimensionsLoaded = false
@@ -84,7 +87,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
             def value = ObservationFact.observationFactValue(
                     (String) result.valueType, (String) result.textValue, (BigDecimal) result.numberValue)
 
-            int nDims = dimensions.size()
+            int nDims = ((List) dimensions).size()
             // actually this array only contains indexes for packable dimensions, for nonpackable ones it contains the
             // element keys directly
             Object[] dimensionElementIdxes = new Object[nDims]
@@ -108,7 +111,6 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
                 }
             }
 
-            // TODO: implement text and numeric values
             new HypercubeValueImpl(HypercubeImpl.this, dimensionElementIdxes, value)
         }
     }
@@ -141,6 +143,12 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         dimensionElementKeys[dim][idx]
     }
 
+    final boolean dimensionsPreloadable = false // for now, still to be implemented
+    final boolean dimensionsPreloaded = false
+    void preloadDimensions() {
+        throw new UnsupportedOperationException()
+    }
+
     void loadDimensions() {
         // This could be more efficient if we track which dimensions are already loaded and up to date, but as we
         // expect dimensions will only be loaded all at once once all values have been retrieved that doesn't seem
@@ -151,12 +159,6 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         }
         _dimensionsLoaded = true
     }
-
-    // dimensionsLoaded is a boolean property that indicates if all dimension elements have been loaded already.
-    // Normally it is only true once the result has been fully iterated over, or if preloadDimensions == true in
-    // retrieveData.
-    private boolean _dimensionsLoaded = false
-    boolean getDimensionsLoaded() { return _dimensionsLoaded }
 
     void close() {
         results.close()
@@ -204,8 +206,8 @@ class HypercubeValueImpl implements HypercubeValue {
         }
     }
 
-    ImmutableSet<Dimension> availableDimensions() {
-        cube.dimensionsIndex.keySet()
+    ImmutableList<DimensionImpl> getAvailableDimensions() {
+        cube.dimensions
     }
 }
 
@@ -231,13 +233,16 @@ class ProjectionMap extends AbstractMap<String,Object> {
         tuple[idx]
     }
 
+    /** Default method to support all other Map methods in AbstractMap. Not very efficient, but we don't make use of
+     *  them here */
     @Override Set<Map.Entry<String,Object>> entrySet() {
-        (Set) mapping.collect(new HashSet()) { new AbstractMap.SimpleImmutableEntry(it.key, tuple[it.value]) } as Set
+        ((Set) mapping.collect(new HashSet()) { new AbstractMap.SimpleImmutableEntry(it.key, tuple[it.value]) }).asImmutable()
     }
 
     @Override Object put(String key, Object val) { throw new UnsupportedOperationException() }
     @Override int size() { mapping.size() }
     @Override boolean containsKey(key) { mapping.containsKey(key) }
-    @Override Set<String> keySet() { mapping.keySet() }
+    @Override Set<String> keySet() { mapping.keySet().asImmutable() }
+    @Override List<Object> values() { ImmutableList.copyOf(tuple) }
 }
 
