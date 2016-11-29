@@ -22,10 +22,10 @@ class FacetsSearchControllerTests extends Specification  {
         a
     }
 
-    /*
+
     FacetsSearchController facetsSearchController
 
-   /* @BeforeClass
+    @BeforeClass
     static void beforeClass() {
         Holders.applicationContext.getBean(FacetsIndexingService).clearIndex()
         Holders.applicationContext.getBean(FacetsIndexingService).fullIndex()
@@ -90,5 +90,5 @@ class FacetsSearchControllerTests extends Specification  {
         facetsSearchController.getFacetResults(command)
 
         assert facetsSearchController.response.json.numFound == 2
-    }*/
+    }
 }
