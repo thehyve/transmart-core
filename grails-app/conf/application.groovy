@@ -23,6 +23,16 @@ hibernate {
 
 // environment specific settings
 environments {
+    test {
+        dataSource {
+            url = 'jdbc:postgresql://localhost:5433/transmart'
+            driverClassName = 'org.postgresql.Driver'
+            username = 'tm_cz'
+            password = 'tm_cz'
+            logSql = true
+            formatSql = true
+        }
+    }
     test_postgresql {
         dataSource {
             url = 'jdbc:postgresql://localhost:5432/transmart'
