@@ -9,7 +9,7 @@ import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
-import org.transmartproject.db.multidimquery.query.StudyConstraint
+import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.metadata.DimensionDescription
 
 @Integration
@@ -31,7 +31,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     }
 
     static private study(String name) {
-        new StudyConstraint(studyId: name)
+        new StudyNameConstraint(studyId: name)
     }
 
     void 'test_basic_longitudinal_retrieval'() {
