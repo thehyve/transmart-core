@@ -77,7 +77,7 @@ dependencies {
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
     testCompile "org.grails:grails-plugin-testing"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    testCompile group: 'org.grails', name: 'grails-datastore-rest-client', version: '5.0.12.RELEASE'
+    //testCompile group: 'org.grails', name: 'grails-datastore-rest-client', version: '5.0.12.RELEASE'
 
     compile 'org.grails.plugins:spring-security-core:3.1.1'
     compile project(':transmart-core-api')

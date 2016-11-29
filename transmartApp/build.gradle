@@ -14,7 +14,7 @@ buildscript {
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.8.2"
-        classpath "org.grails.plugins:hibernate4:5.0.10"
+        classpath "org.grails.plugins:hibernate5:6.0.4"
         classpath "com.google.protobuf:protobuf-java:3.1.0"
         classpath "com.google.protobuf:protobuf-java-util:3.1.0"
     }
@@ -73,7 +73,7 @@ dependencies {
     compile "org.grails:grails-web-boot"
     compile "org.grails.plugins:cache"
     compile "org.grails.plugins:scaffolding"
-    compile "org.grails.plugins:hibernate4:5.0.10"
+    compile "org.grails.plugins:hibernate5"
     compile 'org.grails.plugins:spring-security-core:3.1.1'
     compile 'org.grails.plugins:spring-security-oauth2-provider:3.0.0-RC2'
 
@@ -124,22 +124,22 @@ dependencies {
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails:grails-test"
     testCompile "org.grails.plugins:geb"
-    testCompile "org.grails.plugins:hibernate4:5.0.10"
+    testCompile "org.grails.plugins:hibernate5"
     testCompile 'org.gmock:gmock:0.9.0-r435-hyve2'
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     testRuntime 'junit:junit:4.11'
     testRuntime 'org.hamcrest:hamcrest-core:1.3'
     testRuntime 'org.hamcrest:hamcrest-library:1.3'
+
+    //FIXME: this block was in grails.plugins, make sure that the assets keep working
+    compile project(':Rmodules')
+    compile project(':transmart-gwas-plugin')
+    compile project(':folder-management-plugin')
 }
 
 grails {
     exploded = true
-    plugins {
-        compile project(':Rmodules')
-        compile project(':transmart-gwas-plugin')
-        compile project(':folder-management-plugin')
-    }
 }
 
 assets {
