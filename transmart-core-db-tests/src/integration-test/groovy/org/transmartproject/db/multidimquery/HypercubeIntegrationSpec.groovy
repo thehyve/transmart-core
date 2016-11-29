@@ -70,13 +70,13 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         trialVisits == expectedVisits
 
         for (int i = 0; i < resultObs.size(); i++) {
-            resultObs[i].getAt(dims.concept).conceptCode == clinicalData.multidimsClinicalFacts[i].conceptCode
-            resultObs[i].getAt(dims.patient).id == clinicalData.multidimsClinicalFacts[i].patient.id
+            resultObs[i].getAt(dims.concept).conceptCode == clinicalData.longitudinalClinicalFacts[i].conceptCode
+            resultObs[i].getAt(dims.patient).id == clinicalData.longitudinalClinicalFacts[i].patient.id
             def iTrialVisit = resultObs[i].getAt(dims.'trial visit')
-            iTrialVisit.id == clinicalData.multidimsClinicalFacts[i].trialVisit.id
-            iTrialVisit.relTime == clinicalData.multidimsClinicalFacts[i].trialVisit.relTime
-            iTrialVisit.relTimeLabel == clinicalData.multidimsClinicalFacts[i].trialVisit.relTimeLabel
-            iTrialVisit.relTimeUnit == clinicalData.multidimsClinicalFacts[i].trialVisit.relTimeUnit
+            iTrialVisit.id == clinicalData.longitudinalClinicalFacts[i].trialVisit.id
+            iTrialVisit.relTime == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTime
+            iTrialVisit.relTimeLabel == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTimeLabel
+            iTrialVisit.relTimeUnit == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTimeUnit
         }
     }
 
@@ -112,8 +112,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         patients == expectedPatients
 
         for (int i = 0; i < resultObs.size(); i++) {
-            resultObs[i].getAt(dims.concept).conceptCode == clinicalData.multidimsClinicalFacts[i].conceptCode
-            resultObs[i].getAt(dims.patient).id == clinicalData.multidimsClinicalFacts[i].patient.id
+            resultObs[i].getAt(dims.concept).conceptCode == clinicalData.sampleClinicalFacts[i].conceptCode
+            resultObs[i].getAt(dims.patient).id == clinicalData.sampleClinicalFacts[i].patient.id
         }
     }
 
@@ -152,8 +152,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         visits == expectedVisits
 
         for (int i = 0; i < resultObs.size(); i++) {
-            resultObs[i].getAt(dims.concept).conceptCode == clinicalData.multidimsClinicalFacts[i].conceptCode
-            resultObs[i].getAt(dims.patient).id == clinicalData.multidimsClinicalFacts[i].patient.id
+            resultObs[i].getAt(dims.concept).conceptCode == clinicalData.ehrClinicalFacts[i].conceptCode
+            resultObs[i].getAt(dims.patient).id == clinicalData.ehrClinicalFacts[i].patient.id
         }
     }
 
