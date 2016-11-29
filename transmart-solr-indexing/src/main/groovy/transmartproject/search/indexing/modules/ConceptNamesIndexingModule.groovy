@@ -4,10 +4,10 @@ import com.google.common.collect.AbstractIterator
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Multimap
-import grails.plugin.cache.ehcache.GrailsEhcacheCacheManager
 import net.sf.ehcache.Ehcache
 import net.sf.ehcache.loader.CacheLoader
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.CacheManager
 import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.core.ontology.*
@@ -29,10 +29,10 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
     private static final String ALL_CATEGORIES_KEY = 'all_categories'
 
     @Autowired
-    private GrailsEhcacheCacheManager grailsCacheManager
+    private CacheManager cacheManager
 
     private Ehcache getEhcache() {
-        grailsCacheManager.getCache(FOLDER_CONCEPT_MAPPINGS_CACHE).nativeCache
+        cacheManager.getCache(FOLDER_CONCEPT_MAPPINGS_CACHE).nativeCache
     }
 
     @Autowired

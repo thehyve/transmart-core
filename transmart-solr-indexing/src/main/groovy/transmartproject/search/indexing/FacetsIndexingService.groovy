@@ -3,7 +3,6 @@ package transmartproject.search.indexing
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Lists
 import com.google.common.collect.Multimap
-import com.google.common.collect.Sets
 import grails.util.Holders
 import groovy.util.logging.Log4j
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest
@@ -17,7 +16,6 @@ import org.springframework.core.Ordered
 import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptFullName
 
-import static transmartproject.search.indexing.FacetsFieldImpl.create
 import static transmartproject.search.indexing.FacetsFieldImpl.create
 
 @Component
