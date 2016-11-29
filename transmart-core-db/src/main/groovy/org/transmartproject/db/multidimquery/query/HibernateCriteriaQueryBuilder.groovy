@@ -43,7 +43,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     final Field patientIdField = new Field(dimension: PatientDimension, fieldName: 'id', type: Type.ID)
     final Field startTimeField = new Field(dimension: StartTimeDimension, fieldName: 'startDate', type: Type.DATE)
 
-    public static final Date DUMMY_START_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
+    public static final Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
 
     protected Map<String, Integer> aliasSuffixes = [:]
     Map<String, String> aliases = [:]
@@ -278,30 +278,38 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * Creates a criteria object for the time constraint by conversion to a field constraint for the start time field.
      */
     Criterion build(TimeConstraint constraint) {
+        Criterion timeCriterion
         switch(constraint.operator) {
             case Operator.BEFORE:
-                return Restrictions.and(
-                        Restrictions.ne('startDate', DUMMY_START_DATE),
-                        build(new FieldConstraint(
+                timeCriterion = build(new FieldConstraint(
                                 field: startTimeField,
                                 operator: constraint.operator,
                                 value: constraint.values[0]
-                )))
+                ))
+                break
             case Operator.AFTER:
-                return build(new FieldConstraint(
+                timeCriterion = build(new FieldConstraint(
                         field: startTimeField,
                         operator: constraint.operator,
                         value: constraint.values[0]
                 ))
+                break
             case Operator.BETWEEN:
-                return build(new FieldConstraint(
+                timeCriterion = build(new FieldConstraint(
                         field: startTimeField,
                         operator: constraint.operator,
                         value: constraint.values
                 ))
+                break
             default:
                 throw new QueryBuilderException("Operator '${constraint.operator.symbol}' not supported.")
         }
+        def propertyName = getFieldPropertyName(constraint.field)
+        Restrictions.and(
+                Restrictions.isNotNull(propertyName),
+                Restrictions.ne(propertyName, EMPTY_DATE),
+                timeCriterion
+        )
     }
 
     /**
