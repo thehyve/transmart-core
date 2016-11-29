@@ -66,7 +66,7 @@ class DimensionMetadata {
             [dimensionClass: ModifierDimension.class,   type: DimensionFetchType.MODIFIER,  fieldName: ''],
             [dimensionClass: ValueDimension.class,      type: DimensionFetchType.VALUE,     fieldName: '']
     ].collectEntries {
-        [(((Class) it.dimensionClass).simpleName): new DimensionMetadata(
+        [(((Class) it.dimensionClass).simpleName.toLowerCase()): new DimensionMetadata(
                 (Class) it.dimensionClass,
                 (DimensionFetchType) it.type,
                 (String) it.fieldName)
@@ -74,7 +74,7 @@ class DimensionMetadata {
     }
 
     static final DimensionMetadata forDimensionClassName(String dimensionClassName) {
-        def metadata = dimensionMetadataMap[dimensionClassName]
+        def metadata = dimensionMetadataMap[dimensionClassName.toLowerCase()]
         if (metadata == null) {
             throw new QueryBuilderException("Dimension class not found: ${dimensionClassName}")
         }
