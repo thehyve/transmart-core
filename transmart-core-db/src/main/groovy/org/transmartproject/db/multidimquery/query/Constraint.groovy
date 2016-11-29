@@ -339,7 +339,7 @@ class TimeConstraint extends Constraint {
     List<Date> values
 
     static constraints = {
-        values validator: { List values, obj ->
+        values nullable: false, validator: { List values, obj ->
             switch (obj.operator) {
                 case Operator.BEFORE:
                 case Operator.AFTER:
@@ -348,7 +348,7 @@ class TimeConstraint extends Constraint {
                     return (values.size() == 2)
             }
         }
-        operator validator: { Operator op -> op.supportsType(Type.DATE) }
+        operator validator: { Operator op -> op != Operator.NONE && op.supportsType(Type.DATE) }
         field validator: { Field field -> field.type == Type.DATE }
     }
 }
