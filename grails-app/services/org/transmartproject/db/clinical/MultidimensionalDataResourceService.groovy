@@ -63,7 +63,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def preloadDimensions = args.pack ?: false
 
         // Add any studies that are being selected on
-        def studyIds = QueryService.findStudyConstraints(constraint)*.studyId
+        def studyIds = QueryService.findStudyNameConstraints(constraint)*.studyId
         Set studies = (studyIds.empty ? [] : Study.findAllByStudyIdInList(studyIds)) +
                 QueryService.findStudyObjectConstraints(constraint)*.study as Set
 

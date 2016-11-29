@@ -333,7 +333,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         return Subqueries.propertyEq('conceptCode', subCriteria.setProjection(Projections.property('conceptCode')))
     }
 
-    Criterion build(StudyConstraint constraint){
+    Criterion build(StudyNameConstraint constraint){
         if (constraint.studyId == null){
             throw new QueryBuilderException("Study constraint shouldn't have a null value for studyId")
         }
