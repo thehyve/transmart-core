@@ -19,6 +19,13 @@ interface QueryResult extends ProtectedResource {
     public Long getId()
 
     /**
+     * A description of the query, set by the creator.
+     *
+     * @return the textual description of the query.
+     */
+    public String getDescription()
+
+    /**
      * The size of the set, or -1 if there was an error.
      *
      * @return the size of the set

@@ -18,6 +18,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.QueryResult
@@ -34,6 +35,8 @@ import org.transmartproject.db.querytool.QtQueryInstance
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
+
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 
 @Slf4j
 @Transactional
@@ -98,11 +101,11 @@ class QueryService {
             }
         } else if (constraint instanceof StudyConstraint) {
             def study = Study.findByStudyId(constraint.studyId)
-            if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
+            if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
                 throw new AccessDeniedException("Access denied to study: ${constraint.studyId}")
             }
         } else if (constraint instanceof StudyObjectConstraint) {
-            if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, constraint.study)) {
+            if (constraint.study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, constraint.study)) {
                 throw new AccessDeniedException("Access denied to study: ${constraint.study?.studyId}")
             }
         } else {
@@ -273,6 +276,17 @@ class QueryService {
         }
 
         resultInstance
+    }
+
+    QueryResult findPatientSet(Long patientSetId, User user) {
+        QueryResult queryResult = QtQueryResultInstance.findById(patientSetId)
+        if (queryResult == null) {
+            throw new NoSuchResourceException("Patient set not found with id ${patientSetId}.")
+        }
+        if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+            throw new AccessDeniedException("Access denied to patient set with id ${patientSetId}.")
+        }
+        queryResult
     }
 
     Long patientCount(Constraint constraint, User user) {

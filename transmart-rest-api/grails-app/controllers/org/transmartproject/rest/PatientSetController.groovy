@@ -8,6 +8,7 @@ import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryDefinitionXmlConverter
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.rest.marshallers.QueryResultWrapper
 import org.transmartproject.rest.misc.CurrentUser
 
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
@@ -49,7 +50,11 @@ class PatientSetController {
 
         currentUser.checkAccess(READ, queryResult)
 
-        respond queryResult
+        respond new QueryResultWrapper(
+                apiVersion: 'v1',
+                queryResult: queryResult,
+                embedPatients: true
+        )
     }
 
     /**
@@ -73,7 +78,11 @@ class PatientSetController {
 
         currentUser.checkAccess(BUILD_COHORT, queryDefinition)
 
-        respond queriesResource.runQuery(queryDefinition, currentUser.username),
-                [status: 201]
+        respond new QueryResultWrapper(
+                apiVersion: 'v1',
+                queryResult: queriesResource.runQuery(queryDefinition, currentUser.username),
+                embedPatients: true
+        ),
+        [status: 201]
     }
 }
