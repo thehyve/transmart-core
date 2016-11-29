@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.PatientDimension
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.StudyConstraint
 import org.transmartproject.db.metadata.DimensionDescription
@@ -67,7 +68,8 @@ class ObservationsBuilderTests extends Specification {
         setupData()
         Constraint constraint = new StudyConstraint(studyId: clinicalData.multidimsStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.multidimsStudy], constraint: constraint)
-        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON)
+        def patientDimension = DimensionDescription.dimensionsMap.patient
+        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON, patientDimension)
 
         when:
         def out = new ByteArrayOutputStream()
@@ -75,7 +77,9 @@ class ObservationsBuilderTests extends Specification {
         out.flush()
         Collection result = new JsonSlurper().parse(out.toByteArray())
         def dimElementsSize = result.last()['dimension'].size()
-        def dimensionDeclaration = result.first()['dimensionDeclarations']
+        def dimensionDeclarations = result.first()['dimensionDeclarations']
+        def notPackedDimensions = dimensionDeclarations.findAll {it.inline && !it.packed }
+        def notPackedDimensionsSize = notPackedDimensions.size()
 
         then:
         result.size() == 14
@@ -85,17 +89,17 @@ class ObservationsBuilderTests extends Specification {
                 hasKey('dimension')
         ))
         // declarations for all dimensions exist
-        that dimensionDeclaration, hasSize(mockedCube.dimensions.size())
-        that dimensionDeclaration['name'],
+        that dimensionDeclarations, hasSize(mockedCube.dimensions.size())
+        that dimensionDeclarations['name'],
                 containsInAnyOrder(mockedCube.dimensions.collect{it.toString()}.toArray()
                 )
         // at least one declaration of packed dimension exists
-        that dimensionDeclaration['packed'], hasItem(true)
+        that dimensionDeclarations['packed'], hasItem(true)
         that result['stringValues'], hasSize(greaterThan(1))
 
         // indexes for all dense dimensions (dimension elements) exist
         that result['dimension'].findAll(), everyItem(hasSize(dimElementsSize))
-        that result['dimensionIndexes'].findAll(), everyItem(hasSize(dimElementsSize))
+        that result['dimensionIndexes'].findAll(), everyItem(hasSize(notPackedDimensionsSize))
     }
 
     public void testProtobufSerialization() {
