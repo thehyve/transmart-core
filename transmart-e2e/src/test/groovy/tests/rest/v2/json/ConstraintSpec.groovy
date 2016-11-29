@@ -108,7 +108,7 @@ class ConstraintSpec extends RESTSpec{
                              operator: LESS_THAN,
                              value:100]
         when:
-        def responseData = get("query/hypercube", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))

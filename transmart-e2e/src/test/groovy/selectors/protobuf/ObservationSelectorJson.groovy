@@ -10,7 +10,7 @@ class ObservationSelectorJson {
         this.hyperCubeMessage = hyperCubeMessage
         this.cellCount = hyperCubeMessage.cells.size()
         hyperCubeMessage.header.'dimensionDeclarations'.each
-                {it -> if(!it.inline){ //FIXME: this is a temporary fix for: TMPDEV-124 protobuf sterilization, meaning of inline:true is false
+                {it -> if(it.inline){ //FIXME: this is a temporary fix for: TMPDEV-124 protobuf sterilization, meaning of inline:true is false
                     inlined.add(it.name)
                 } else {
                     notInlined.add(it.name)
@@ -45,8 +45,18 @@ class ObservationSelectorJson {
 
         //nonInline
         int dimensionIndexes = hyperCubeMessage.cells[cellIndex].dimensionIndexes[dimensionDeclarationIndex] as int
-        return hyperCubeMessage.footer.dimension[dimensionDeclarationIndex].fields[fieldsIndex]."${valueType.toLowerCase()}Value"[dimensionIndexes].'val'
+        def result = hyperCubeMessage.footer.dimension[dimensionDeclarationIndex].fields[fieldsIndex]."${valueType.toLowerCase()}Value"[dimensionIndexes].'val'
 
+        switch (valueType){
+            case 'String':
+                return result as String
+            case 'Int':
+                return result as int
+            case 'Double':
+                return result as double
+            case 'Timestamp':
+                return result as Date
+        }
     }
 
     /**

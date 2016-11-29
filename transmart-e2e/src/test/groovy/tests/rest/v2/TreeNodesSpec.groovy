@@ -23,8 +23,8 @@ class TreeNodesSpec extends  RESTSpec{
         def responseData = get(PATH_TREE_NODES, contentTypeForJSON)
 
         then: "only nodes from SHARED_CONCEPTS_A are returned"
-        def studyA = getRootNodeByName(responseData, SHARED_CONCEPTS_A_ID)
-        def studyC = getRootNodeByName(responseData, SHARED_CONCEPTS_RESTRICTED_ID)
+        def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
+        def studyC = getNodeByName(getRootNodeByName(responseData, 'Private Studies'), SHARED_CONCEPTS_RESTRICTED_ID)
 
         assert getChildrenAtributes(studyA, 'name').containsAll([SHARED_CONCEPTS_A_ID, 'Vital Signs', 'Heart Rate', 'Demography', 'Age'])
         assert getChildrenAtributes(studyC, 'name').containsAll([SHARED_CONCEPTS_RESTRICTED_ID, 'Vital Signs', 'Heart Rate', 'Demography', 'Age'])
@@ -45,8 +45,8 @@ class TreeNodesSpec extends  RESTSpec{
         def responseData = get(PATH_TREE_NODES, contentTypeForJSON)
 
         then: "only nodes from SHARED_CONCEPTS_A are returned"
-        def studyA = getRootNodeByName(responseData, SHARED_CONCEPTS_A_ID)
-        def studyC = getRootNodeByName(responseData, SHARED_CONCEPTS_RESTRICTED_ID)
+        def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
+        def studyC = getNodeByName(getRootNodeByName(responseData, 'Private Studies'), SHARED_CONCEPTS_RESTRICTED_ID)
 
         assert getChildrenAtributes(studyA, 'name').containsAll([SHARED_CONCEPTS_A_ID, 'Vital Signs', 'Heart Rate', 'Demography', 'Age'])
         assert studyC == null
@@ -79,8 +79,8 @@ class TreeNodesSpec extends  RESTSpec{
      *  then: "then concept nodes have observationCount and patientCount"
      */
     @Requires({SHARED_CONCEPTS_LOADED})
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-144 tree_nodes, shared concepts cause access error when requesting counts=true
-                                    //FIXME: TMPDEV-145 tree_nodes, shared concepts counts are 0
+//    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-144 tree_nodes, shared concepts cause access error when requesting counts=true
+//                                    //FIXME: TMPDEV-145 tree_nodes, shared concepts counts are 0
     def "nodes with flag counts true"(){
         given: "Study SHARED_CONCEPTS is loaded"
 
@@ -89,7 +89,7 @@ class TreeNodesSpec extends  RESTSpec{
         def responseData = get(PATH_TREE_NODES, contentTypeForJSON, queryMap)
 
         then: "then concept nodes have observationCount and patientCount"
-        def studyA = getRootNodeByName(responseData, SHARED_CONCEPTS_A_ID)
+        def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
 
         assert getNodeByName(studyA, "Heart Rate").observationCount == 3
         assert getNodeByName(studyA, "Heart Rate").patientCount == 2
