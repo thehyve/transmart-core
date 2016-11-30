@@ -53,5 +53,7 @@ class HypercubeSpec extends Specification {
         map.entrySet().iterator().next() == new SimpleEntry("zero", "zeroValue")
 
         !("firstValue" in map)
+
+        map == map.toMutable()
     }
 }
