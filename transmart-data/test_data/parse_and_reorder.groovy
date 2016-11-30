@@ -16,6 +16,17 @@ dependsOn = [
                 'searchapp.search_auth_principal',
                 'searchapp.search_sec_access_level',
                 'searchapp.search_secure_object',
+        ],
+        'i2b2demodata.qt_query_instance' : [
+                'i2b2demodata.qt_query_master',
+                'i2b2demodata.qt_query_status_type',
+        ],
+        'i2b2demodata.qt_query_result_instance' : [
+                'i2b2demodata.qt_query_instance',
+                'i2b2demodata.qt_query_result_type',
+        ],
+        'i2b2demodata.qt_patient_set_collection' : [
+                'i2b2demodata.qt_query_result_instance',
         ]
 ]
 
