@@ -217,8 +217,8 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         @Override Map<String,Object> next() {
             Map<String,ProjectionMap> group = nextGroup()
 
-            Map<String,Object> result = new HashMap(group['@'] ?:
-                    [valueType: ObservationFact.TYPE_TEXT, textValue: null])
+            Map result = group['@']?.toMutable() ?:
+                    [valueType: ObservationFact.TYPE_TEXT, textValue: null]
 
             for(int i=0; i<modifierDimensions.size(); i++) {
                 ModifierDimension dim = modifierDimensions[i]
@@ -345,6 +345,16 @@ class ProjectionMap extends AbstractMap<String,Object> {
     @Override boolean containsKey(key) { mapping.containsKey(key) }
     @Override Set<String> keySet() { mapping.keySet() }
     @Override List<Object> values() { ImmutableList.copyOf(tuple) }
+
+    HashMap<String,Object> toMutable() {
+        HashMap<String,Object> map = new HashMap()
+        List<Map.Entry<String,Integer>> mappingEntries = mapping.entrySet().asList()
+        for(int i=0; i<mappingEntries.size(); i++) {
+            Map.Entry<String,Integer> entry = mappingEntries[i]
+            map.put(entry.key, tuple[entry.value])
+        }
+        map
+    }
 
     class Entries extends AbstractSet<Map.Entry<String,Object>> {
         Set<Map.Entry<String,Integer>> mappingEntries = mapping.entrySet()
