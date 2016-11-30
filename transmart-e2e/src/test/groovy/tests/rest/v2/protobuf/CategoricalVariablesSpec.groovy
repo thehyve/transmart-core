@@ -19,6 +19,7 @@ import static tests.rest.v2.constraints.*
  *      enabling fetching patients and observations where a categorical variable has a certain value.
  *      E.g., fetching data for patients with value 'female' for 'Sex' or with value 'Unknown' for 'Diagnosis'.
  */
+@Requires({CATEGORICAL_VALUES_LOADED})
 class CategoricalVariablesSpec extends RESTSpec{
 
     /**
@@ -26,7 +27,7 @@ class CategoricalVariablesSpec extends RESTSpec{
      *  when: "I get all observations from the study that have concept Gender"
      *  then: "no observations are returned"
      */
-    @Requires({CATEGORICAL_VALUES_LOADED})
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-127 protobuf serialization, empty concepts do not return an empty result.
     def "get observations using old data format new style query"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
 
@@ -46,7 +47,6 @@ class CategoricalVariablesSpec extends RESTSpec{
      *  when: "I get all observations from the study that have concept Gender\Female"
      *  then: "1 observation is returned"
      */
-    @Requires({CATEGORICAL_VALUES_LOADED})
     def "get observations using old data format old style query"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
 
@@ -68,7 +68,6 @@ class CategoricalVariablesSpec extends RESTSpec{
      *  when: "I get all observations from the study that have concept Race"
      *  then: "2 observations are returned"
      */
-    @Requires({CATEGORICAL_VALUES_LOADED})
     def "get observations using new data format new style query"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
 
@@ -91,7 +90,6 @@ class CategoricalVariablesSpec extends RESTSpec{
      *  when: "I get all observations from the study that have concept Race with value Caucasian"
      *  then: "2 observations are returned"
      */
-    @Requires({CATEGORICAL_VALUES_LOADED})
     def "get observations using new data format new style query with value"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
 

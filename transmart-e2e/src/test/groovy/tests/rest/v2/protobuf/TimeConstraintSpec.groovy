@@ -120,10 +120,9 @@ class TimeConstraintSpec extends RESTSpec{
         then: "1 observation is returned"
         ObservationSelector selector = new ObservationSelector(responseData)
 
-        assert selector.cellCount == 6
+        assert selector.cellCount == 1
         (0..<selector.cellCount).each {
-            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR') ||
-                    selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:DEM:AGE'))
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
         }
     }
@@ -161,7 +160,7 @@ class TimeConstraintSpec extends RESTSpec{
         then: "4 observations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
 
-        assert selector.cellCount == 5
+        assert selector.cellCount == 3
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
