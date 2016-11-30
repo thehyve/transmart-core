@@ -28,15 +28,19 @@ class ObservationSelectorJson {
 
         int fieldsIndex
 
-        hyperCubeMessage.header.'dimensionDeclarations'.each { dilist ->
-            if (dilist.name.equalsIgnoreCase(dimansion)) {
-                dilist.'fields'.eachWithIndex {
-                    field, index ->
-                        if (field.name.equalsIgnoreCase(fieldName)) {
-                            fieldsIndex = index
-                        }
+        if (fieldName) {
+            hyperCubeMessage.header.'dimensionDeclarations'.each { dilist ->
+                if (dilist.name.equalsIgnoreCase(dimansion)) {
+                    dilist.'fields'.eachWithIndex {
+                        field, index ->
+                            if (field.name.equalsIgnoreCase(fieldName)) {
+                                fieldsIndex = index
+                            }
+                    }
                 }
             }
+        } else {
+            fieldsIndex = 0
         }
 
         if (inlined.contains(dimansion)){

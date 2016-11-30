@@ -1,6 +1,7 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
+import groovy.util.logging.Slf4j
 import org.hamcrest.Matchers
 import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
@@ -50,7 +51,7 @@ class MultipleObservationsSpec extends RESTSpec{
     /**
      *  given: "EHR is loaded"
      *  when: "I get all observations of that studie"
-     *  then: "7 observations have a valid startDate, all formated with a datestring"
+     *  then: "7 observations have a valid startDate as timestamp value
      */
 //    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-125 protobuf sterilization, DATE fields missing from dimensions
     def "Start time of observations are exposed through REST API"(){
@@ -61,13 +62,18 @@ class MultipleObservationsSpec extends RESTSpec{
 
         def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        (0..<selector.cellCount).each {
+            println "TYPE: ${selector.select(it, 'StartTimeDimension', null, 'Timestamp')?.class?.simpleName}"
+        }
 
         then: "7 observations have a valid startDate, all formated with a datestring"
 
         int validStartDate = 0
         (0..<selector.cellCount).each {
-            if (selector.select(it, 'StartTimeDimension', 'startDate', 'Timestamp') != '1970-01-01T00:00:00Z'){validStartDate++}
-            assert selector.select(it, 'StartTimeDimension', 'startDate', 'Timestamp') ==~ REGEXDATE
+            if (selector.select(it, 'StartTimeDimension', null, 'Timestamp') != null){
+                validStartDate++
+                assert (selector.select(it, 'StartTimeDimension', null, 'Timestamp') as Long) instanceof Number
+            }
             assert (selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
                     selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:DEM:AGE')
         }
@@ -77,7 +83,7 @@ class MultipleObservationsSpec extends RESTSpec{
     /**
      *  given: "EHR is loaded"
      *  when: "I get all observations of that studie"
-     *  then: "4 observations have a nonNUll endDate, all formated with a datestring"
+     *  then: "4 observations have a nonNUll endDate as timestamp value
      */
 //    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-125 protobuf sterilization, DATE fields missing from dimensions
     def "end time of observations are exposed through REST API"(){
@@ -92,9 +98,12 @@ class MultipleObservationsSpec extends RESTSpec{
 
         int nonNUllEndDate = 0
         (0..<selector.cellCount).each {
-            if (selector.select(it, 'EndTimeDimension', 'endDate', 'Timestamp') != null){nonNUllEndDate++}
-            assert selector.select(it, 'EndTimeDimension', 'endDate', 'Timestamp') ==~ REGEXDATE
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR'
+            if (selector.select(it, 'EndTimeDimension', null, 'Timestamp') != null){
+                nonNUllEndDate++
+                assert (selector.select(it, 'EndTimeDimension', null, 'Timestamp') as Long) instanceof Number
+            }
+            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
+                    selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:DEM:AGE')
         }
         assert nonNUllEndDate == 4
     }
