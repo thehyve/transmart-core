@@ -106,7 +106,21 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         dimensions.each {
             it.selectIDs(query)
         }
-        if (query.params.modifierCodes != ['@']) throw new NotImplementedException("Modifier dimensions are not yet implemented")
+        if (query.params.modifierCodes != ['@']) {
+            if(sort != null) throw new NotImplementedException("sorting is not implemented")
+            q.with {
+                // TODO: The order of sorting should match the one of the main index (or any index). Todo: create
+                // main index.
+                // 'modifierCd' needs to be excluded or listed last when using modifiers
+
+                order 'conceptCode'
+                order 'providerId'
+                order 'patient'
+                order 'encounterNum'
+                order 'startDate'
+                order 'instanceNum'
+            }
+        }
 
         q.with {
             inList 'modifierCd', query.params.modifierCodes
