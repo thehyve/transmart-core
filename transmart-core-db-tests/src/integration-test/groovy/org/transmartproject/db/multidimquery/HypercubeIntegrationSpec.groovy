@@ -231,14 +231,14 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def result = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
 
-        //packable dimensions
+        // indexed dimensions
         def concepts = hypercube.dimensionElements(dims.concept) as Set
         def patients = hypercube.dimensionElements(dims.patient) as Set
         def trialVisits = hypercube.dimensionElements(dims.'trial visit') as Set
         def visit = hypercube.dimensionElements(dims.'visit') as Set
         def providers = hypercube.dimensionElements(dims.provider) as Set
 
-        // not packable dimensions
+        // inlined dimensions
         def startTime = resultObs*.getAt(dims.'start time') as Set
         def endTime = resultObs*.getAt(dims.'end time') as Set
         def locations = resultObs*.getAt(dims.location) as Set

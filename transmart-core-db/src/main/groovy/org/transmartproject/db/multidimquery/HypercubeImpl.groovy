@@ -14,7 +14,6 @@ import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
@@ -76,7 +75,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         this.aliases = ImmutableMap.copyOf(aliases.collectEntries { [it, idx++] })
 
         dimensionElementKeys = this.dimensions
-                .findAll { it.packable.packable }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
+                .findAll { it.density.isDense }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
 
         hasModifiers = (query.params.modifierCodes != ['@'])
         modifierDimensions = ImmutableList.copyOf((List) this.dimensions.findAll {it instanceof ModifierDimension})
@@ -119,7 +118,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
                 def dimElementKey = d.getElementKey(result)
                 if(dimElementKey == null) {
                     dimensionElementIdxes[i] = null
-                } else if(d.packable.packable) {
+                } else if(d.density == Dimension.Density.DENSE) {
                     IndexedArraySet<Object> elementKeys = dimensionElementKeys[d]
                     int dimElementIdx = elementKeys.indexOf(dimElementKey)
                     if(dimElementIdx == -1) {
@@ -138,15 +137,15 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
 
     ImmutableList<Object> dimensionElements(Dimension dim) {
         checkDimension(dim)
-        checkNotPackable(dim)
+        checkIsDense(dim)
         List ret = ImmutableList.copyOf(dim.resolveElements(dimensionElementKeys[dim] ?: []))
         dimensionElements[dim] = ret
         return ret
     }
 
-    static protected void checkNotPackable(Dimension dim) {
-        if(!dim.packable.packable) {
-            throw new UnsupportedOperationException("Cannot get dimension element for unpackable dimension "+
+    static protected void checkIsDense(Dimension dim) {
+        if(dim.density != Dimension.Density.DENSE) {
+            throw new UnsupportedOperationException("Cannot get dimension element for sparse dimension "+
                     dim.class.simpleName)
         }
     }
@@ -157,7 +156,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
 
     Object dimensionElement(Dimension dim, Integer idx) {
         checkDimension(dim)
-        checkNotPackable(dim)
+        checkIsDense(dim)
         if(idx == null) return null
         if(!_dimensionsLoaded) {
             loadDimensions()
@@ -167,7 +166,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
 
     Object dimensionElementKey(Dimension dim, Integer idx) {
         checkDimension(dim)
-        checkNotPackable(dim)
+        checkIsDense(dim)
         if(idx == null) return null
         dimensionElementKeys[dim][idx]
     }
@@ -322,13 +321,13 @@ class HypercubeValueImpl implements HypercubeValue {
 
     int getDimElementIndex(Dimension dim) {
         cube.checkDimension(dim)
-        cube.checkNotPackable(dim)
+        cube.checkIsDense(dim)
         (int) dimensionElementIdxes[cube.dimensionsIndex[dim]]
     }
 
     def getDimKey(Dimension dim) {
         cube.checkDimension(dim)
-        if(dim.packable.packable) {
+        if(dim.density.isDense) {
             cube.dimensionElementKey(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
         } else {
             dimensionElementIdxes[cube.dimensionsIndex[dim]]
