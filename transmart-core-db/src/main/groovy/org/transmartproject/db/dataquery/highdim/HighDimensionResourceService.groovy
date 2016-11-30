@@ -39,6 +39,7 @@ class HighDimensionResourceService implements HighDimensionResource {
 
     private static final int MAX_CACHED_DATA_TYPE_RESOURCES = 50
     private static final int MAX_CACHED_PLATFORM_MAPPINGS = 200
+    private static final int ASSAY_FETCH_SIZE = 5000
 
     /*
      * I couldn't get this field autowired with this class in
@@ -50,7 +51,7 @@ class HighDimensionResourceService implements HighDimensionResource {
      * findAutowiringMetadata(String beanName, Class<?> clazz) is called with
      * '(inner bean)', ConceptsResourceService as parameters, and then does a
      * lookup on a cache whose key is preferably the bean name.
-     * Only if the bean name is empty does it use the class name, excpet the
+     * Only if the bean name is empty does it use the class name, except the
      * the bean name is '(inner bean)', which I'm guessing is used with other
      * inner beans.
      */
@@ -87,6 +88,11 @@ class HighDimensionResourceService implements HighDimensionResource {
             }
 
             isNotNull 'platform'
+
+            join 'patient'
+
+            fetchSize ASSAY_FETCH_SIZE
+
         } /* one row per assay */
 
         HashMultimap multiMap = HashMultimap.create()

@@ -94,12 +94,25 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
                     'No assays satisfy the provided criteria')
         }
 
+        // not needed yet, but it could be a good idea to pass assays here
         HibernateCriteriaBuilder criteriaBuilder =
                 module.prepareDataQuery(projection, openSession())
 
         //We have to specify projection explicitly because of the grails bug
         //https://jira.grails.org/browse/GRAILS-12107
         criteriaBuilder.add(getHibernateInCriterion('assay.id', assaysQuery.forIds()))
+
+        // hasProperty oddly returns null sometimes
+        if (criteriaBuilder.targetClass.metaClass
+                .properties.find { it.name == 'assay' }) {
+            criteriaBuilder.with {
+                'in' 'assay.id', assays*.id
+            }
+        } else {
+            log.debug("${criteriaBuilder.targetClass} has no 'assay', " +
+                    "this is only correct if the data type is only capable " +
+                    "retrieving all the assays")
+        }
 
         /* apply changes to criteria from projection, if any */
         if (projection instanceof CriteriaProjection) {
@@ -119,6 +132,22 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
                 criteriaBuilder.instance.scroll(ScrollMode.FORWARD_ONLY),
                 assays.collect { new AssayColumnImpl(it) },
                 projection)
+    }
+
+    @Override
+    List<AssayColumn> retrieveAssays(List<AssayConstraint> assayConstraints) {
+        // Each module should only return assays that match
+        // the marker types specified, in addition to the
+        // constraints given
+        assayConstraints << new MarkerTypeConstraint(
+                platformNames: module.platformMarkerTypes)
+
+        List<AssayColumn> assays = new AssayQuery(assayConstraints).retrieveAssays()
+        if (assays.empty) {
+            throw new EmptySetException(
+                    'No assay satisfies the provided criteria.')
+        }
+        assays
     }
 
     @Override

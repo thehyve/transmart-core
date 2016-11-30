@@ -91,10 +91,14 @@ public interface HighDimensionDataTypeModule {
     /**
      * Prepares the Criteria-based query to be issued. The data constraints will
      * have the opportunity to modify the criteria before it is issued.
+     * @param assays
      * @param projection
      * @return
      */
-    HibernateCriteriaBuilder prepareDataQuery(Projection projection, SessionImplementor session)
+    HibernateCriteriaBuilder prepareDataQuery(
+            List<AssayColumn> assays,
+            Projection projection,
+            SessionImplementor session)
 
     /**
      * Transform the query result into the final object to be returned by

@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.acgh
 
+import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
@@ -54,11 +55,11 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
 
     final String description = "ACGH data"
 
-    final Map<String, Class> dataProperties = typesMap(DeSubjectAcghData,
+    final ImmutableMap<String, Class> dataProperties = typesMap(DeSubjectAcghData,
             ['chipCopyNumberValue', 'segmentCopyNumberValue', 'flag',
              'probabilityOfLoss', 'probabilityOfNormal', 'probabilityOfGain', 'probabilityOfAmplification'])
 
-    final Map<String, Class> rowProperties = typesMap(RegionRowImpl,
+    final ImmutableMap<String, Class> rowProperties = typesMap(RegionRowImpl,
             ['id', 'name', 'cytoband', 'chromosome', 'start', 'end', 'numberOfProbes', 'bioMarker'])
 
     @Autowired

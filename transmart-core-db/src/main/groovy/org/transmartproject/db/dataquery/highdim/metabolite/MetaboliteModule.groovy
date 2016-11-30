@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.highdim.metabolite
 
+import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
@@ -49,10 +50,10 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
 
     final String description = 'Metabolomics data (Mass Spec)'
 
-    final Map<String, Class> dataProperties = typesMap(DeSubjectMetabolomicsData,
+    final ImmutableMap<String, Class> dataProperties = typesMap(DeSubjectMetabolomicsData,
             ['rawIntensity', 'logIntensity', 'zscore'])
 
-    final Map<String, Class> rowProperties = typesMap(MetaboliteDataRow,
+    final ImmutableMap<String, Class> rowProperties = typesMap(MetaboliteDataRow,
             ['hmdbId', 'biochemicalName'])
 
     @Autowired
