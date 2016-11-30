@@ -31,28 +31,32 @@ import org.transmartproject.core.dataquery.Patient
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 import static org.transmartproject.rest.marshallers.MarshallerSupport.getPropertySubsetForSuperType
 
-class PatientSerializationHelper extends AbstractHalOrJsonSerializationHelper<Patient> {
+class PatientSerializationHelper extends AbstractHalOrJsonSerializationHelper<PatientWrapper> {
 
-    final Class targetType = Patient
+    final Class targetType = PatientWrapper
 
     final String collectionName = 'subjects'
 
-    def convert(Patient patient) {
-        getPropertySubsetForSuperType(patient, Patient, ['assays'] as Set)
+    def convert(PatientWrapper object) {
+        getPropertySubsetForSuperType(object.patient, Patient, ['assays'] as Set)
     }
 
     @Override
-    Collection<Link> getLinks(Patient patient) {
-        def studyName = patient.trial.toLowerCase(Locale.ENGLISH).encodeAsURL()
-
-        //TODO add more relationships (for instance, the parent study)
-        [new Link(RELATIONSHIP_SELF, "/v1/studies/$studyName/subjects/$patient.id")]
+    Collection<Link> getLinks(PatientWrapper object) {
+        switch(object.apiVersion) {
+            case 'v1':
+                def studyName = URLEncoder.encode(object.patient.trial.toLowerCase(Locale.ENGLISH), 'utf-8')
+                //TODO add more relationships (for instance, the parent study)
+                return [new Link(RELATIONSHIP_SELF, "/${object.apiVersion}/studies/$studyName/subjects/${object.patient.id}")]
+            default:
+                return [new Link(RELATIONSHIP_SELF, "/${object.apiVersion}/patients/${object.patient.id}")]
+        }
     }
 
     @Override
-    Map<String, Object> convertToMap(Patient patient) {
-        Map<String, Object> result = getPropertySubsetForSuperType(patient, Patient, ['assays', 'sex'] as Set)
-        result.put('sex', patient.sex.name()) //sex has to be manually converted (no support for enums)
+    Map<String, Object> convertToMap(PatientWrapper object) {
+        Map<String, Object> result = getPropertySubsetForSuperType(object.patient, Patient, ['assays', 'sex'] as Set)
+        result.put('sex', object.patient.sex.name()) //sex has to be manually converted (no support for enums)
         result
     }
 

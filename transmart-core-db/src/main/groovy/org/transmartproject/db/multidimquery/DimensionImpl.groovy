@@ -149,7 +149,7 @@ class ModifierDimension extends DimensionImpl {
 
 @InheritConstructors
 class PatientDimension extends I2b2Dimension {
-    String alias = 'patient'
+    String alias = 'patientId'
     String columnName = 'patient.id'
 
     @Override def selectIDs(Query query) {
@@ -186,7 +186,7 @@ class TrialVisitDimension extends I2b2Dimension {
 
 @InheritConstructors
 class StudyDimension extends I2b2Dimension {
-    String alias = 'study'
+    String alias = 'studyId'
     String getColumnName() {throw new UnsupportedOperationException()}
 
     def selectIDs(Query query) {
@@ -205,9 +205,12 @@ class StudyDimension extends I2b2Dimension {
 
 @InheritConstructors
 class StartTimeDimension extends I2b2NullablePKDimension {
+
+    final static Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
+
     String alias = 'startDate'
     String columnName = 'startDate'
-    Date nullValue = new Date(0) // 1-1-1970
+    Date nullValue = EMPTY_DATE
 
     @Override List<Object> doResolveElements(List elementKeys) {
         elementKeys
@@ -253,7 +256,7 @@ class VisitDimension extends DimensionImpl {
     @Override @CompileStatic
     def getElementKey(ProjectionMap result) {
         BigDecimal encounterNum = (BigDecimal) result.encounterNum
-        encounterNum == minusOne ? null : new Pair(encounterNum, result.patient)
+        encounterNum == minusOne ? null : new Pair(encounterNum, result.patientId)
     }
 
     @Override

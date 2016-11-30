@@ -12,7 +12,7 @@ import org.transmartproject.batch.trialvisit.TrialVisit
  */
 class ClinicalFactsRowSet {
 
-    final static Date DEFAULT_START_DATE = new Date(0)
+    final static Date DEFAULT_START_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
     final static Integer DEFAULT_INSTANCE_NUM = 1
 
     String studyId

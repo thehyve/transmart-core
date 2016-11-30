@@ -27,7 +27,6 @@ class CategoricalVariablesSpec extends RESTSpec{
      *  then: "no observations are returned"
      */
     @Requires({CATEGORICAL_VALUES_LOADED})
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-127 protobuf serialization, empty concepts do not return an empty result.
     def "get observations using old data format new style query"(){
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
 

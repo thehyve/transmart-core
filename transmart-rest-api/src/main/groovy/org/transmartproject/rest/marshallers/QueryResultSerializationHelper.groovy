@@ -7,28 +7,33 @@ import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 import static org.transmartproject.rest.marshallers.MarshallerSupport.getPropertySubsetForSuperType
 
 /**
- * Serialization of {@link QueryResult} objects.
+ * Serialization of {@link QueryResultWrapper} objects.
  */
-class QueryResultSerializationHelper extends AbstractHalOrJsonSerializationHelper<QueryResult> {
+class QueryResultSerializationHelper extends AbstractHalOrJsonSerializationHelper<QueryResultWrapper> {
 
-    final Class<QueryResult> targetType = QueryResult
+    final Class<QueryResultWrapper> targetType = QueryResultWrapper
 
     @Override
-    Collection<Link> getLinks(QueryResult queryResult) {
-        [new Link(RELATIONSHIP_SELF, "/v1/patient_sets/${queryResult.id}")]
+    Collection<Link> getLinks(QueryResultWrapper object) {
+        [new Link(RELATIONSHIP_SELF, "/${object.apiVersion}/patient_sets/${object.queryResult.id}")]
     }
 
     @Override
-    Map<String, Object> convertToMap(QueryResult queryResult) {
-        def map = getPropertySubsetForSuperType(queryResult, QueryResult)
+    Map<String, Object> convertToMap(QueryResultWrapper object) {
+        def map = getPropertySubsetForSuperType(object.queryResult, QueryResult, ['patients'] as Set)
         map.status = map.status.name()
+        if (object.embedPatients) {
+            map.patients = object.queryResult.patients.collect {
+                new PatientWrapper(apiVersion: object.apiVersion, patient: it)
+            }
+        }
 
         map
     }
 
     @Override
-    Set<String> getEmbeddedEntities(QueryResult object) {
-        ['patients']
+    Set<String> getEmbeddedEntities(QueryResultWrapper object) {
+        object.embedPatients ? ['patients'] : []
     }
 
     final String collectionName = null /* will never be in collection */
