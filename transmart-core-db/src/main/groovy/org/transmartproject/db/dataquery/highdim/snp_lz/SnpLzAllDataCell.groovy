@@ -161,8 +161,9 @@ class SnpLzAllDataCell implements Map<String, Object> {
 
     @Override
     Set<Map.Entry<String, Object>> entrySet() {
+        /*
         Maps.transformEntries(PROPERTIES, { key, value ->
             this.get(key)
-        } as Maps.EntryTransformer).entrySet()
+        } as Maps.EntryTransformer).entrySet()*/
     }
 }

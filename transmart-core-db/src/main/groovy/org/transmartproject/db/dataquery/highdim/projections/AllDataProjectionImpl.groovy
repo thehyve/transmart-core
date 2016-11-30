@@ -37,10 +37,10 @@ class AllDataProjectionImpl implements CriteriaProjection<Map<String, Object>>, 
     // These should actually be some kind of OrderedMap that guarantees a specific iteration order, but there is no
     // such interface in general use (only some project specific ones, e.g. org.apache.commons.collections.OrderedMap).
     // As the next best thing we specify a concrete implementation that has stable ordering.
-    ImmutableMap<String, Class> dataProperties
-    ImmutableMap<String, Class> rowProperties
+    Map<String, Class> dataProperties
+    Map<String, Class> rowProperties
 
-    AllDataProjectionImpl(ImmutableMap<String, Class> dataProperties, ImmutableMap<String, Class> rowProperties) {
+    AllDataProjectionImpl(Map<String, Class> dataProperties, Map<String, Class> rowProperties) {
         this.dataProperties = dataProperties
         this.rowProperties = rowProperties
     }

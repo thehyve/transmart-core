@@ -20,7 +20,8 @@
 package org.transmartproject.db.dataquery.highdim.snp_lz
 
 import groovy.transform.InheritConstructors
-import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.SessionFactory
+import org.hibernate.StatelessSession
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 
 /**
@@ -31,7 +32,11 @@ import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceIm
 class SnpLzHighDimensionDataTypeResource extends  HighDimensionDataTypeResourceImpl {
 
     @Override
-    protected SessionImplementor openSession() {
-        module.sessionFactory.openSession()
+    protected StatelessSession openSession() {
+        SessionFactory sessionFactory = module.sessionFactory
+        StatelessSession statelessSession = sessionFactory.openStatelessSession()
+        //To prevent out of memory exception for big data sets: fetch data from the database in the cursor mode.
+        statelessSession.connection().autoCommit = false
+        statelessSession
     }
 }
