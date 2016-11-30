@@ -150,7 +150,7 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "PatientSetConstraint.class"(){
-        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON([type: PatientSetConstraint, patientIds: -62]))
+        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, [name: 'test_PatientSetConstraint'], toJSON([type: PatientSetConstraint, patientIds: -62]))
         def constraintMap = [type: PatientSetConstraint, patientSetId: setID.id]
 
 
@@ -228,9 +228,12 @@ class ConstraintSpec extends RESTSpec{
         then:
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
+        HashSet conceptCodes = []
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            conceptCodes.add selector.select(it, "ConceptDimension", "conceptCode", 'String')
         }
+        assert conceptCodes.size() == 4
+        assert conceptCodes.containsAll("EHR:VSIGN:HR","EHRHD:VSIGN:HR","EHRHD:HD:EXPLUNG","EHRHD:HD:EXPBREAST")
     }
 
     def "ConceptConstraint.class"(){

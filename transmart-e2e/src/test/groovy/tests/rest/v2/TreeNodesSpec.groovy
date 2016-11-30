@@ -79,8 +79,8 @@ class TreeNodesSpec extends  RESTSpec{
      *  then: "then concept nodes have observationCount and patientCount"
      */
     @Requires({SHARED_CONCEPTS_LOADED})
-//    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-144 tree_nodes, shared concepts cause access error when requesting counts=true
-//                                    //FIXME: TMPDEV-145 tree_nodes, shared concepts counts are 0
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-144 tree_nodes, shared concepts cause access error when requesting counts=true
+                                    //FIXME: TMPDEV-145 tree_nodes, shared concepts counts are 0
     def "nodes with flag counts true"(){
         given: "Study SHARED_CONCEPTS is loaded"
 

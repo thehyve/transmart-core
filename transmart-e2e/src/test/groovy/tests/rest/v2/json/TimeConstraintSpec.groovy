@@ -114,10 +114,9 @@ class TimeConstraintSpec extends RESTSpec{
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "1 observation is returned"
-        assert selector.cellCount == 6
+        assert selector.cellCount == 1
         (0..<selector.cellCount).each {
-            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR') ||
-                    selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:DEM:AGE'))
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
         }
     }
@@ -153,7 +152,7 @@ class TimeConstraintSpec extends RESTSpec{
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "4 observations are returned"
-        assert selector.cellCount == 5
+        assert selector.cellCount == 3
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
