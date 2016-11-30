@@ -19,7 +19,6 @@
 
 package org.transmartproject.db.dataquery.highdim.snp_lz
 
-import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic

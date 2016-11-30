@@ -37,7 +37,6 @@ class SnpLzAllDataProjection implements
     private static final ArrayList<String> DOMAIN_CLASS_PROPERTIES_FETCHED =
             ['gpsByProbeBlob', 'gtsByProbeBlob', 'doseByProbeBlob']
 
-<<<<<<< HEAD
     final Map<String, Class> dataProperties = SnpLzAllDataCell
             .metaClass
             .properties
@@ -49,9 +48,8 @@ class SnpLzAllDataProjection implements
              'minorAlleleFrequency', 'minorAllele', 'a1a1Count', 'a1a2Count',
              'a2a2Count', 'noCallCount'].collectEntries {
                 def p = SnpLzRow.metaClass.properties.find { n -> n.name == it }
+            }
 
-=======
->>>>>>> c0b0692... Merge pull request #7 from PMtranSMART/thehyve
     @Override
     ImmutableMap<String, Class> getDataProperties() { _dataProperties }
     private static final ImmutableMap<String, Class> _dataProperties = ImmutableMap.copyOf(

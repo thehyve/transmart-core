@@ -135,7 +135,6 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
                 projection)
     }
 
-    @Override
     List<AssayColumn> retrieveAssays(List<AssayConstraint> assayConstraints) {
         // Each module should only return assays that match
         // the marker types specified, in addition to the

@@ -20,7 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.snp_lz
 
 import groovy.transform.InheritConstructors
-import org.hibernate.engine.SessionImplementor
+import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 
 /**

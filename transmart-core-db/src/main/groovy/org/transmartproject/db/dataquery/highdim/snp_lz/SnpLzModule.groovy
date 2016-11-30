@@ -25,7 +25,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
 import org.hibernate.FetchMode
 import org.hibernate.ScrollableResults
-import org.hibernate.engine.SessionImplementor
+import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult

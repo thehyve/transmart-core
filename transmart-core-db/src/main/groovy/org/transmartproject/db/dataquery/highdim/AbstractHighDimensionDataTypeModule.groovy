@@ -19,8 +19,16 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import com.google.common.collect.ImmutableMap
+import grails.orm.HibernateCriteriaBuilder
+
+import javax.annotation.PostConstruct
+
 import org.hibernate.SessionFactory
+import org.hibernate.engine.spi.SessionImplementor
+import org.hibernate.internal.CriteriaImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
@@ -28,12 +36,12 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 
-import javax.annotation.PostConstruct
-
 abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataTypeModule {
 
     @Autowired
     SessionFactory sessionFactory
+
+    protected int fetchSize = 10000
 
     protected List<DataRetrievalParameterFactory> assayConstraintFactories
 
@@ -44,11 +52,11 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     @Autowired
     HighDimensionResourceService highDimensionResourceService
 
-    static Map<String, Class> typesMap(Class domainClass, List<String> fields,
-                                       Map<String, String> translationMap = [:]) {
-        fields.collectEntries({
+    static ImmutableMap<String, Class> typesMap(Class domainClass, List<String> fields,
+                                                Map<String, String> translationMap = [:]) {
+        ImmutableMap.<String, Class>copyOf(fields.collectEntries({
             [(it): domainClass.metaClass.getMetaProperty(translationMap.get(it, it)).type]
-        }).asImmutable()
+        }))
     }
 
     @PostConstruct
@@ -65,27 +73,27 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     @Lazy volatile Set<String> supportedAssayConstraints = {
         initializeFactories()
         assayConstraintFactories.inject(new HashSet()) {
-                Set accum, DataRetrievalParameterFactory elem ->
-                    accum.addAll elem.supportedNames
-                    accum
+            Set accum, DataRetrievalParameterFactory elem ->
+                accum.addAll elem.supportedNames
+                accum
         }
     }()
 
     @Lazy volatile Set<String> supportedDataConstraints = {
         initializeFactories()
         dataConstraintFactories.inject(new HashSet()) {
-                Set accum, DataRetrievalParameterFactory elem ->
-                    accum.addAll elem.supportedNames
-                    accum
+            Set accum, DataRetrievalParameterFactory elem ->
+                accum.addAll elem.supportedNames
+                accum
         }
     }()
 
     @Lazy volatile Set<String> supportedProjections = {
         initializeFactories()
         projectionFactories.inject(new HashSet()) {
-                Set accum, DataRetrievalParameterFactory elem ->
-                    accum.addAll elem.supportedNames
-                    accum
+            Set accum, DataRetrievalParameterFactory elem ->
+                accum.addAll elem.supportedNames
+                accum
         }
     }()
 
@@ -145,6 +153,42 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
 
         throw new UnsupportedByDataTypeException("The data type ${this.name} " +
                 "does not support the projection $name")
+    }
+
+    HibernateCriteriaBuilder prepareDataQuery(
+            List<AssayColumn> assays,
+            Projection projection,
+            SessionImplementor session) {
+        return prepareDataQuery(projection, session)
+    }
+
+    abstract HibernateCriteriaBuilder prepareDataQuery(
+            Projection projection,
+            SessionImplementor session)
+
+    final protected HibernateCriteriaBuilder createCriteriaBuilder(
+            Class targetClass, String alias, SessionImplementor session) {
+
+        HibernateCriteriaBuilder builder = new HibernateCriteriaBuilder(targetClass, sessionFactory)
+
+        /* we have to write a private here */
+        if (session) {
+            //force usage of a specific session (probably stateless)
+            builder.criteria = new CriteriaImpl(targetClass.canonicalName,
+                    alias,
+                    session)
+            builder.criteriaMetaClass = GroovySystem.metaClassRegistry.
+                    getMetaClass(builder.criteria.getClass())
+        } else {
+            builder.createCriteriaInstance()
+        }
+
+        /* builder.instance.is(builder.criteria) */
+        builder.instance.readOnly = true
+        builder.instance.cacheable = false
+        builder.instance.fetchSize = fetchSize
+
+        builder
     }
 
     final protected Map createAssayIndexMap(List assays) {
