@@ -25,6 +25,7 @@ import org.hibernate.ScrollMode
 import org.hibernate.SessionFactory
 import org.hibernate.StatelessSession
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -139,7 +140,7 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         // Each module should only return assays that match
         // the marker types specified, in addition to the
         // constraints given
-        assayConstraints << new MarkerTypeConstraint(
+        assayConstraints << new MarkerTypeCriteriaConstraint(
                 platformNames: module.platformMarkerTypes)
 
         List<AssayColumn> assays = new AssayQuery(assayConstraints).retrieveAssays()
