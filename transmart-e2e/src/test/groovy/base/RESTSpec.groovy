@@ -233,9 +233,7 @@ class RESTSpec extends Specification{
         while(true) {
             count++
             def cell = ObservationsProto.Observation.parseDelimitedFrom(s_in)
-            if (cell == null){
-                break
-            }
+            assert cell != null, "proto buf message is incomplete. no cell with last=true found. cell ${count} was null"
             cells << cell
             if (cell.last) {
                 break
