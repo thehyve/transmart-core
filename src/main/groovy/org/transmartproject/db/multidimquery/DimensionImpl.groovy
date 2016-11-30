@@ -205,9 +205,12 @@ class StudyDimension extends I2b2Dimension {
 
 @InheritConstructors
 class StartTimeDimension extends I2b2NullablePKDimension {
+
+    final static Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
+
     String alias = 'startDate'
     String columnName = 'startDate'
-    Date nullValue = new Date(0) // 1-1-1970
+    Date nullValue = EMPTY_DATE
 
     @Override List<Object> doResolveElements(List elementKeys) {
         elementKeys
