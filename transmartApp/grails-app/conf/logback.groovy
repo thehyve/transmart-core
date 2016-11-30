@@ -80,7 +80,7 @@ logger('org.transmart.audit', TRACE, ['processAuditLogger'])
 logger('org.transmart.audit', TRACE, ['stdout'])
 */
 
-if (Environment.is(Environment.TEST)) {
+if (Environment.current in [Environment.DEVELOPMENT, Environment.TEST]) {
     logger('org.grails.spring', WARN)
     logger('org.grails.plugins.domain.support.GrailsDomainClassCleaner', WARN)
     logger('grails.plugins.DefaultGrailsPluginManager', WARN) //info to show plugin versions
