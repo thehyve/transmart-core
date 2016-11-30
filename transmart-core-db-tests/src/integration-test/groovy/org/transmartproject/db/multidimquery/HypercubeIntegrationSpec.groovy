@@ -44,7 +44,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         def result = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
-        def concepts = hypercube.dimensionElements(dims.concept) as Set
+        // not packable dimensions
+        def concepts = resultObs*.getAt(dims.concept) as Set
+        // packable dimensions
         def patients = hypercube.dimensionElements(dims.patient) as Set
         def trialVisits = hypercube.dimensionElements(dims.'trial visit') as Set
 
@@ -90,7 +92,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         def result = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
-        def concepts = hypercube.dimensionElements(dims.concept) as Set
+        // not packable dimensions
+        def concepts = resultObs*.getAt(dims.concept) as Set
+        // packable dimensions
         def patients = hypercube.dimensionElements(dims.patient) as Set
 
         // FIXME Modifiers not supported yet, check facts with modifierCd == '@'
@@ -127,9 +131,12 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         def result = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
-        def concepts = hypercube.dimensionElements(dims.concept) as Set
+        // packable dimensions
         def patients = hypercube.dimensionElements(dims.patient) as Set
         def visits = hypercube.dimensionElements(dims.visit) as Set
+
+        // not packable dimensions
+        def concepts = resultObs*.getAt(dims.concept) as Set
 
         def expected = clinicalData.ehrClinicalFacts*.value as HashMultiset
         def expectedConcepts = testData.conceptData.conceptDimensions.findAll {
@@ -169,16 +176,17 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         hypercube.loadDimensions()
 
         //packable dimensions
-        def concepts = hypercube.dimensionElements(dims.concept) as Set
         def patients = hypercube.dimensionElements(dims.patient) as Set
         def trialVisits = hypercube.dimensionElements(dims.'trial visit') as Set
         def visit = hypercube.dimensionElements(dims.'visit') as Set
-        def providers = hypercube.dimensionElements(dims.provider) as Set
 
         // not packable dimensions
+        def concepts = resultObs*.getAt(dims.concept) as Set
         def startTime = resultObs*.getAt(dims.'start time') as Set
         def endTime = resultObs*.getAt(dims.'end time') as Set
         def locations = resultObs*.getAt(dims.location) as Set
+        def providers = resultObs*.getAt(dims.provider) as Set
+        providers.remove(null)
 
         def expected = clinicalData.multidimsClinicalFacts*.value as HashMultiset
         def expectedConcepts = testData.conceptData.conceptDimensions.findAll {
