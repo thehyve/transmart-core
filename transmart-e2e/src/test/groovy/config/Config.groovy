@@ -14,7 +14,7 @@ class Config {
     public static final String ADMIN_PASSWORD = 'admin'
 
     public static final String PATH_HYPERCUBE = "v2/observations"
-    public static final String PATH_AGGREGATE = "query/aggregate"
+    public static final String PATH_AGGREGATE = "v2/observations/aggregate"
     public static final String PATH_PATIENTS = "v2/patients"
     public static final String PATH_TREE_NODES = "v2/tree_nodes"
     public static final String PATH_PATIENT_SET = "v2/patient_sets"

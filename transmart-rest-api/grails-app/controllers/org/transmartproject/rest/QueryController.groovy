@@ -5,12 +5,14 @@ import grails.web.mime.MimeType
 import groovy.util.logging.Slf4j
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
+import org.transmartproject.db.metadata.LegacyStudyException
 import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
 import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.*
@@ -20,79 +22,35 @@ import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 import org.transmartproject.rest.protobuf.ObservationsSerializer
 
 @Slf4j
-class QueryController {
+class QueryController extends AbstractQueryController {
 
     static responseFormats = ['json', 'hal', 'protobuf']
 
-    @Autowired
-    QueryService queryService
-
-    @Autowired
-    CurrentUser currentUser
-
-    @Autowired
-    UsersResource usersResource
-
-    @Autowired
-    MultidimensionalDataSerialisationService multidimensionalDataSerialisationService
-
-    def conceptsResourceService
-
     HighDimensionResourceService highDimensionResourceService
 
-
-    private Constraint parseConstraint(String constraintText) {
-        try {
-            Map constraintData = JSON.parse(constraintText) as Map
-            try {
-                return ConstraintFactory.create(constraintData)
-            } catch (Exception e) {
-                throw new InvalidArgumentsException(e.message)
+    protected ObservationsSerializer.Format getContentFormat() {
+        ObservationsSerializer.Format format = ObservationsSerializer.Format.NONE
+        withFormat {
+            json {
+                format = ObservationsSerializer.Format.JSON
             }
-        } catch (ConverterException e) {
-            throw new InvalidArgumentsException('Cannot parse constraint parameter.')
+            protobuf {
+                format = ObservationsSerializer.Format.PROTOBUF
+            }
         }
-    }
-
-    private Constraint getConstraint(String constraintParameterName = 'constraint') {
-        if (!params.containsKey(constraintParameterName)) {
-            throw new InvalidArgumentsException("${constraintParameterName} parameter is missing.")
-        }
-        if (!params[constraintParameterName]) {
-            throw new InvalidArgumentsException('Empty constraint parameter.')
-        }
-        String constraintParam = URLDecoder.decode(params[constraintParameterName], 'UTF-8')
-        parseConstraint(constraintParam)
-    }
-
-    private Constraint bindConstraint() {
-        Constraint constraint = getConstraint()
-        // check for parse errors
-        if (constraint.hasErrors()) {
-            response.status = 400
-            render constraint.errors as JSON
-            return null
-        }
-        // check for validation errors
-        constraint.validate()
-        if (constraint.hasErrors()) {
-            response.status = 400
-            render constraint.errors as JSON
-            return null
-        }
-        return constraint
+        format
     }
 
     /**
      * Observations endpoint:
-     * <code>/query/observations?constraint=${constraint}</code>
+     * <code>/v2/observation_list?constraint=${constraint}</code>
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
      *
      * @return a list of {@link org.transmartproject.db.i2b2data.ObservationFact} objects that
      * satisfy the constraint.
      */
-    def observations() {
+    def observationList() {
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
@@ -104,14 +62,14 @@ class QueryController {
 
     /**
      * Hypercube endpoint:
-     * <code>/query/hypercube?constraint=${constraint}</code>
+     * <code>/v2/observations?constraint=${constraint}</code>
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
      *
      * @return a hypercube representing the observations that satisfy the constraint.
      */
-    def hypercube() {
-        ObservationsSerializer.Format format = getContentFormat()
+    def observations() {
+        def format = contentFormat
         if (format == ObservationsSerializer.Format.NONE) {
             throw new InvalidArgumentsException("Format not supported.")
         }
@@ -121,7 +79,12 @@ class QueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Hypercube result = queryService.retrieveClinicalData(constraint, user)
+        Hypercube result
+        try {
+            result = queryService.retrieveClinicalData(constraint, user)
+        } catch(LegacyStudyException e) {
+            throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
+        }
 
         log.info "Writing to format: ${format}"
         OutputStream out = new LazyOutputStreamDecorator(
@@ -138,55 +101,8 @@ class QueryController {
     }
 
     /**
-     * Patients endpoint:
-     * <code>/query/patients?constraint=${constraint}</code>
-     *
-     * Expects a {@link Constraint} parameter <code>constraint</code>.
-     *
-     * @return a list of {@link org.transmartproject.db.i2b2data.PatientDimension} objects for
-     * which there are observations that satisfy the constraint.
-     */
-    def patients() {
-        Constraint constraint = bindConstraint()
-        if (constraint == null) {
-            return
-        }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def patients = queryService.listPatients(constraint, user)
-        render patients as JSON
-    }
-
-    /**
-     * Patient set endpoint:
-     * <code>POST /v2/patient_set?constraint=${constraint}</code>
-     *
-     * Creates a patient set ({@link QueryResult}) based the {@link Constraint} parameter <code>constraint</code>.
-     *
-     * @return a map with key 'id' and the id of the resulting {@link QueryResult} as value.
-     */
-    def patientSet() {
-        if (!request.contentType) {
-            throw new InvalidRequestException('No content type provided')
-        }
-        MimeType mimeType = new MimeType(request.contentType)
-        if (mimeType != MimeType.JSON) {
-            throw new InvalidRequestException("Content type should be " +
-                    "${MimeType.JSON.name}; got ${mimeType}.")
-        }
-        Constraint constraint = parseConstraint(request.reader.lines().iterator().join(''))
-        if (constraint == null) {
-            return
-        }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        QueryResult patientSet = queryService.createPatientSet("test set", constraint, user)
-        def result = [id: patientSet.id] as Map
-        response.status = 201
-        render result as JSON
-    }
-
-    /**
      * Count endpoint:
-     * <code>/query/count?constraint=${constraint}</code>
+     * <code>/v2/observations/count?constraint=${constraint}</code>
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
      *
@@ -205,7 +121,7 @@ class QueryController {
 
     /**
      * Aggregate endpoint:
-     * <code>/query/aggregate?type=${type}&constraint=${constraint}</code>
+     * <code>/v2/observations/aggregate?type=${type}&constraint=${constraint}</code>
      *
      * Expects an {@link AggregateType} parameter <code>type</code> and {@link Constraint}
      * parameter <code>constraint</code>.
@@ -234,21 +150,18 @@ class QueryController {
         render result as JSON
     }
 
-    ObservationsSerializer.Format getContentFormat() {
-        ObservationsSerializer.Format format = ObservationsSerializer.Format.NONE
-
-        withFormat {
-            json {
-                format = ObservationsSerializer.Format.JSON
-            }
-            protobuf {
-                format = ObservationsSerializer.Format.PROTOBUF
-            }
-        }
-
-        format
-    }
-
+    /**
+     * High dimensional endpoint:
+     * <code>/v2/high_dim?assay_constraint=${assays}&biomarker_constraint=${biomarker}&projection=${projection}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>assay_constraint</code> and a supported
+     * projection name (see {@link org.transmartproject.core.dataquery.highdim.projections.Projection}.
+     *
+     * The optional {@link Constraint} parameter <code>biomarker_constraint</code> allows filtering on biomarkers, e.g.,
+     * chromosomal regions and gene names.
+     *
+     * @return a hypercube representing the high dimensional data that satisfies the constraints.
+     */
     def highDim() {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         Constraint assayConstraint = getConstraint('assay_constraint')
@@ -260,11 +173,11 @@ class QueryController {
             biomarkerConstraint = constraint
         }
 
-        HddTabularResultHypercubeAdapter hypercube = queryService.highDimension(user, assayConstraint,
+        Hypercube hypercube = queryService.highDimension(user, assayConstraint,
                 biomarkerConstraint,
                 params.projection)
 
-        ObservationsSerializer.Format format = getContentFormat()
+        def format = contentFormat
         OutputStream out = new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
                     response.contentType = format.toString()
@@ -281,7 +194,7 @@ class QueryController {
 
     /**
      * Supported fields endpoint:
-     * <code>/query/supportedFields</code>
+     * <code>/v2/supportedFields</code>
      *
      * @return the list of fields supported by {@link org.transmartproject.db.multidimquery.query.FieldConstraint}.
      */

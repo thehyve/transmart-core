@@ -10,6 +10,7 @@ import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
@@ -17,6 +18,7 @@ import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.QueryResult
@@ -24,7 +26,6 @@ import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
-import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -34,6 +35,8 @@ import org.transmartproject.db.querytool.QtQueryInstance
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
+
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 
 @Slf4j
 @Transactional
@@ -98,11 +101,11 @@ class QueryService {
             }
         } else if (constraint instanceof StudyConstraint) {
             def study = Study.findByStudyId(constraint.studyId)
-            if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
+            if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
                 throw new AccessDeniedException("Access denied to study: ${constraint.studyId}")
             }
         } else if (constraint instanceof StudyObjectConstraint) {
-            if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, constraint.study)) {
+            if (constraint.study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, constraint.study)) {
                 throw new AccessDeniedException("Access denied to study: ${constraint.study?.studyId}")
             }
         } else {
@@ -275,6 +278,17 @@ class QueryService {
         resultInstance
     }
 
+    QueryResult findPatientSet(Long patientSetId, User user) {
+        QueryResult queryResult = QtQueryResultInstance.findById(patientSetId)
+        if (queryResult == null) {
+            throw new NoSuchResourceException("Patient set not found with id ${patientSetId}.")
+        }
+        if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+            throw new AccessDeniedException("Access denied to patient set with id ${patientSetId}.")
+        }
+        queryResult
+    }
+
     Long patientCount(Constraint constraint, User user) {
         checkAccess(constraint, user)
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
@@ -401,10 +415,10 @@ class QueryService {
         return getAggregate(type, queryCriteria)
     }
 
-    HddTabularResultHypercubeAdapter highDimension(User user,
-                                                   Constraint assayConstraint,
-                                                   BiomarkerConstraint biomarkerConstaint = new BiomarkerConstraint(),
-                                                   String projectionName = Projection.ALL_DATA_PROJECTION) {
+    Hypercube highDimension(User user,
+                            Constraint assayConstraint,
+                            BiomarkerConstraint biomarkerConstaint = new BiomarkerConstraint(),
+                            String projectionName = Projection.ALL_DATA_PROJECTION) {
         checkAccess(assayConstraint, user)
 
         //TODO Use hypercube?
@@ -413,27 +427,25 @@ class QueryService {
                 .findAll { it.modifierCd == '@' }
                 .collect { it.numberValue.toLong() }
         //TODO if asssayIds.empty
-        AssayConstraint oldAssayConstraint = highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+        List<AssayConstraint> oldAssayConstraints = [
+                highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+        ]
 
-        //TODO Detect type by only first assay?
-        def subjectSampleMapping = DeSubjectSampleMapping.find {
-            id in assayIds
+        Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
+                highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
+        //TODO assaysByType is empty
+        if (assaysByType.size() > 1) {
+            throw new IllegalStateException("Expected only one high dimensional data type. Got ${assaysByType.keySet()*.dataTypeName}")
         }
-        String markerType = subjectSampleMapping.platform.markerType
-        //TODO Implement such method on old core api level
-        def mapEntry = highDimensionResourceService.dataTypeRegistry.find { dataTypeName, highDimensionDataTypeResourceFactory ->
-            def highDimensionDataTypeResource = highDimensionDataTypeResourceFactory()
-            highDimensionDataTypeResource.module.platformMarkerTypes.contains(markerType)
-        }
-
-        HighDimensionDataTypeResource typeResource = mapEntry.value()
+        //TODO The data type is the same, but platform is different
+        HighDimensionDataTypeResource typeResource = assaysByType.keySet().first()
         HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)
 
         List<DataConstraint> dataConstraints = []
         if (biomarkerConstaint?.biomarkerType) {
             dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.biomarkerType)
         }
-        TabularResult table = typeResource.retrieveData([oldAssayConstraint], dataConstraints, projection)
+        TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
         new HddTabularResultHypercubeAdapter(table)
     }
 

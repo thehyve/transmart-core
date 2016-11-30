@@ -61,7 +61,6 @@ class TimeConstraintSpec extends RESTSpec{
      *  then: "2 observations are returned"
      */
     @Requires({EHR_LOADED})
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //TMPDEV-94 Query language: TimeConstraint BETWEEN operator is not working
     def "query observations based on time constraint between startDates"(){
         given: "Ward-EHR is loaded"
         def date1 = toDateString("29-3-2016 10:00:00Z", "dd-MM-yyyy HH:mm:ssX")
