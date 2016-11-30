@@ -63,7 +63,7 @@ public class ObservationsSerializer {
     protected Map<Dimension, DimensionDeclaration> dimensionDeclarations = [:]
 
 
-    ObservationsSerializer(Hypercube cube, Format format, Dimension packedDimension = null) {
+    ObservationsSerializer(Hypercube cube, Format format, Dimension packedDimension) {
         this.cube = cube
         this.packedDimension = packedDimension
         this.packingEnabled = packedDimension != null
@@ -73,6 +73,10 @@ public class ObservationsSerializer {
             jsonPrinter = printer()
         }
         this.format = format
+    }
+
+    ObservationsSerializer(Hypercube cube, Format format) {
+        this(cube, format, null)
     }
 
     protected boolean first = true
