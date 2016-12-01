@@ -1,8 +1,5 @@
 package org.transmartproject.rest.protobuf
 
-import com.google.common.collect.ImmutableMap
-import com.google.common.collect.ImmutableSet
-
 /**
  * Created by piotrzakrzewski on 03/11/2016.
  */
@@ -18,6 +15,8 @@ class SerializableProperties {
     public static final Set<String> VISIT = ["patient", "activeStatus", "startDate", "endDate", "inoutCd", "locationCd"]
     public static final Set<String> LOCATION = ["locationCd"]
     public static final Set<String> PROVIDER = ["providerId"]
+    public static final Set<String> BIOMARKER = ['label', 'bioMarker']
+    public static final Set<String> ASSAY = ['label', 'assay']
 
 
     public static final Map<String, Set<String>> SERIALIZABLES = [
@@ -29,7 +28,9 @@ class SerializableProperties {
             "StudyDimension": STUDY,
             "VisitDimension": VISIT,
             "LocationDimension": LOCATION,
-            "ProviderDimension": PROVIDER
+            "ProviderDimension": PROVIDER,
+            "BioMarkerDimension": BIOMARKER,
+            "AssayDimension": ASSAY
     ]
     // TODO: fill in the rest of the serializable fields for all other dimensions
     // TODO: decide which fields from each dimension are important
