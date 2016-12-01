@@ -11,9 +11,9 @@ class EmptyHypercube implements Hypercube{
     final boolean AutoloadDimensions = false
 
     void loadDimensions() {}
-    ImmutableList<Object> dimensionElements(Dimension dim){ [] as ImmutableList}
+    ImmutableList<Object> dimensionElements(Dimension dim){ ImmutableList.of()}
 
-    ImmutableList<Dimension> getDimensions() {[] as ImmutableList}
+    ImmutableList<Dimension> getDimensions() { ImmutableList.of()}
 
     Object dimensionElement(Dimension dim, Integer idx) { null }
 
