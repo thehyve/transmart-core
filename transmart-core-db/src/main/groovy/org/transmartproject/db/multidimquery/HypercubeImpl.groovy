@@ -76,7 +76,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         this.aliases = ImmutableMap.copyOf(aliases.collectEntries { [it, idx++] })
 
         dimensionElementKeys = this.dimensions
-                .findAll { it.density.isDense }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
+                .findAll { it.density == Dimension.Density.DENSE }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
 
         hasModifiers = (query.params.modifierCodes != ['@'])
         modifierDimensions = ImmutableList.copyOf((List) this.dimensions.findAll {it instanceof ModifierDimension})
@@ -119,7 +119,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
                 def dimElementKey = d.getElementKey(result)
                 if(dimElementKey == null) {
                     dimensionElementIdxes[i] = null
-                } else if(d.density.isDense) {
+                } else if(d.density == Dimension.Density.DENSE) {
                     IndexedArraySet<Object> elementKeys = dimensionElementKeys[d]
                     int dimElementIdx = elementKeys.indexOf(dimElementKey)
                     if(dimElementIdx == -1) {
@@ -145,7 +145,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     }
 
     static protected void checkIsDense(Dimension dim) {
-        if(!dim.density.isDense) {
+        if(dim.density != Dimension.Density.DENSE) {
             throw new UnsupportedOperationException("Cannot get dimension element for sparse dimension "+
                     dim.class.simpleName)
         }
@@ -187,7 +187,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         // worth implementing.
         if(_dimensionsLoaded) return
         dimensions.each {
-            if(it.density.isDense) dimensionElements(it)
+            if(it.density == Dimension.Density.DENSE) dimensionElements(it)
         }
         _dimensionsLoaded = true
     }
