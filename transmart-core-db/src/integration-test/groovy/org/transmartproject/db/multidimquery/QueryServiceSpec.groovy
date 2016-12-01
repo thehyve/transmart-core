@@ -13,10 +13,14 @@ import org.transmartproject.db.multidimquery.query.ConceptConstraint
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.FieldConstraint
+import org.transmartproject.db.multidimquery.query.ModifierConstraint
 import org.transmartproject.db.multidimquery.query.Operator
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.multidimquery.query.TimeConstraint
+import org.transmartproject.db.multidimquery.query.Type
+import org.transmartproject.db.multidimquery.query.ValueConstraint
 import org.transmartproject.db.user.User
+import spock.lang.Ignore
 import spock.lang.Specification
 import java.text.SimpleDateFormat
 
@@ -181,16 +185,66 @@ class QueryServiceSpec extends Specification {
 
     }
 
+    @Ignore //vistDimension is not supported as Field?
     void 'HD data selected on visit dimension'(){
+        def user = User.findByUsername('test-public-user-1')
+        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
+        def timeDimensionConstraint = new FieldConstraint(
+                operator: Operator.AFTER,
+                value: sdf.parse('2016-05-05 10:00:00'),
+                field: new Field(
+                        dimension: 'VisitDimension',
+                        fieldName: 'endDate',
+                        type: 'DATE'
+                )
 
+        )
+        def conceptConstraint = new ConceptConstraint(
+                path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\'
+        )
+        def combination = new Combination(
+                args: [timeDimensionConstraint, conceptConstraint],
+                operator: Operator.AND
+        )
+        when:
+        Hypercube hypercube = queryService.highDimension(user, combination)
+        hypercube.toList()
+
+        then:
+        hypercube.dimensionElements(assayDim).size() ==1
     }
-
+    @Ignore //instance num doesn't seem to be supported as Field
     void 'HD data selected with instance num'(){
 
     }
 
-    void 'HD data selected based on sample type (modifier)'(){
 
+    void 'HD data selected based on sample type (modifier)'(){
+        def user = User.findByUsername('test-public-user-1')
+        def modifierConstraint = new ModifierConstraint(
+                modifierCode: 'TNS:SMPL',
+                //path: '\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\', //choose either code or path
+                values: new ValueConstraint(
+                        operator: Operator.EQUALS,
+                        valueType: Type.STRING,
+                        value: 'Tumor'
+
+                )
+        )
+        def conceptConstraint = new ConceptConstraint(
+                path:'\\Public Studies\\TUMOR_NORMAL_SAMPLES\\HD\\Breast\\'
+        )
+
+        def combination = new Combination(
+                operator: Operator.AND,
+                args: [modifierConstraint, conceptConstraint]
+        )
+        when:
+        Hypercube hypercube = queryService.retrieveClinicalData(combination, user)
+        hypercube.toList()
+
+        then:
+        hypercube.dimensionElements(patientDim).size() == 2
     }
 
     void 'Test for empty set of assayIds'(){
@@ -216,16 +270,12 @@ class QueryServiceSpec extends Specification {
 
     }
 
-    void 'test for observation fact with @ modifier and missing numerical value'(){
-
-    }
-
     //TODO check accessibility of the probe level information
     //TODO test time constraint
         //TODO check ClinicalTrial Style (e.g. baseline & 3 weeks) -check
-        //TODO check EHR style (date and encounter)
-    //TODO check instance Num
-    //TODO test sample constraint (modifier)
+        //TODO check EHR style (date and encounter) - Ignore visit Dimension
+    //TODO check instance Num -Ignore
+    //TODO test sample constraint (modifier) -
 
     //Check integrity of assumptions
     //TODO asssayIds.empty -check
