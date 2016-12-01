@@ -44,11 +44,10 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         def result = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
-        // not packable dimensions
-        def concepts = resultObs*.getAt(dims.concept) as Set
-        // packable dimensions
+
         def patients = hypercube.dimensionElements(dims.patient) as Set
         def trialVisits = hypercube.dimensionElements(dims.'trial visit') as Set
+        def concepts = hypercube.dimensionElements(dims.concept) as Set
 
         def expected = clinicalData.longitudinalClinicalFacts*.value as HashMultiset
         def expectedConcepts = testData.conceptData.conceptDimensions.findAll {
@@ -92,9 +91,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         def result = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
-        // not packable dimensions
-        def concepts = resultObs*.getAt(dims.concept) as Set
-        // packable dimensions
+
+        def concepts = hypercube.dimensionElements(dims.concept) as Set
         def patients = hypercube.dimensionElements(dims.patient) as Set
 
         // FIXME Modifiers not supported yet, check facts with modifierCd == '@'
@@ -131,12 +129,10 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         def result = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
-        // packable dimensions
+
         def patients = hypercube.dimensionElements(dims.patient) as Set
         def visits = hypercube.dimensionElements(dims.visit) as Set
-
-        // not packable dimensions
-        def concepts = resultObs*.getAt(dims.concept) as Set
+        def concepts = hypercube.dimensionElements(dims.concept) as Set
 
         def expected = clinicalData.ehrClinicalFacts*.value as HashMultiset
         def expectedConcepts = testData.conceptData.conceptDimensions.findAll {
