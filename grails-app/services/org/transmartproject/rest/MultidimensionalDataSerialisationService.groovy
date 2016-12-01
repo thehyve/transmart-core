@@ -15,7 +15,7 @@ class MultidimensionalDataSerialisationService {
      * @param out the stream to serialise to.
      */
     void serialise(Hypercube hypercube, ObservationsSerializer.Format format, OutputStream out) {
-        ObservationsSerializer builder = new ObservationsSerializer(hypercube, format)
+        ObservationsSerializer builder = new ObservationsSerializer(hypercube, format, null)
         builder.write(out)
     }
 }
