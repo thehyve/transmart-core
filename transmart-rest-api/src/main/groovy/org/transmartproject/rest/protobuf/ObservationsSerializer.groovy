@@ -75,10 +75,6 @@ public class ObservationsSerializer {
         this.format = format
     }
 
-    ObservationsSerializer(Hypercube cube, Format format) {
-        this(cube, format, null)
-    }
-
     protected boolean first = true
 
     protected void begin(OutputStream out) {
@@ -151,6 +147,10 @@ public class ObservationsSerializer {
             }
             def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionName)
             switch(dim.class) {
+                case BioMarkerDimension:
+                case AssayDimension:
+                    builder.type = Type.OBJECT
+                    break
                 case StartTimeDimension:
                 case EndTimeDimension:
                     builder.type = Type.TIMESTAMP

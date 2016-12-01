@@ -40,7 +40,7 @@ class ObservationsBuilderTests extends Specification {
         setupData()
         Constraint constraint = new StudyConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
-        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON)
+        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON, null)
 
         when:
         def out = new ByteArrayOutputStream()
@@ -106,7 +106,7 @@ class ObservationsBuilderTests extends Specification {
         setupData()
         Constraint constraint = new StudyConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
-        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.PROTOBUF)
+        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.PROTOBUF, null)
 
         when:
         def s_out = new ByteArrayOutputStream()
