@@ -147,10 +147,6 @@ public class ObservationsSerializer {
             }
             def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionName)
             switch(dim.class) {
-                case BioMarkerDimension:
-                case AssayDimension:
-                    builder.type = Type.OBJECT
-                    break
                 case StartTimeDimension:
                 case EndTimeDimension:
                     builder.type = Type.TIMESTAMP

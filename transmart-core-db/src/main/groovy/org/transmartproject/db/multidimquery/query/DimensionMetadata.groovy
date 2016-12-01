@@ -3,16 +3,17 @@ package org.transmartproject.db.multidimquery.query
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import org.grails.orm.hibernate.cfg.GrailsDomainBinder
-import org.grails.orm.hibernate.cfg.Identity
 import org.grails.orm.hibernate.cfg.Mapping
-import org.grails.orm.hibernate.cfg.PropertyConfig
-import org.grails.orm.hibernate.cfg.Table
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.db.dataquery.highdim.AssayColumnImpl
+import org.transmartproject.db.multidimquery.AssayDimension
+import org.transmartproject.db.multidimquery.BioMarkerDimension
 import org.transmartproject.db.multidimquery.ConceptDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.EndTimeDimension
+import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
 import org.transmartproject.db.multidimquery.LocationDimension
 import org.transmartproject.db.multidimquery.ModifierDimension
 import org.transmartproject.db.multidimquery.PatientDimension
@@ -37,7 +38,9 @@ enum DimensionFetchType {
     VALUE,
     MODIFIER,
     STUDY,
-    VISIT
+    VISIT,
+    BIOMARKER,
+    ASSAY
 }
 
 @InheritConstructors
@@ -64,7 +67,9 @@ class DimensionMetadata {
             [dimensionClass: StartTimeDimension.class,  type: DimensionFetchType.COLUMN,    fieldName: 'startDate'],
             [dimensionClass: EndTimeDimension.class,    type: DimensionFetchType.COLUMN,    fieldName: 'endDate'],
             [dimensionClass: ModifierDimension.class,   type: DimensionFetchType.MODIFIER,  fieldName: ''],
-            [dimensionClass: ValueDimension.class,      type: DimensionFetchType.VALUE,     fieldName: '']
+            [dimensionClass: ValueDimension.class,      type: DimensionFetchType.VALUE,     fieldName: ''],
+            [dimensionClass: BioMarkerDimension.class,  type: DimensionFetchType.BIOMARKER, fieldName: ''],
+            [dimensionClass: AssayDimension.class,      type: DimensionFetchType.ASSAY,     fieldName: ''],
     ].collectEntries {
         [(((Class) it.dimensionClass).simpleName.toLowerCase()): new DimensionMetadata(
                 (Class) it.dimensionClass,
@@ -85,16 +90,6 @@ class DimensionMetadata {
         forDimensionClassName(dimensionClass?.simpleName)
     }
 
-    static final String getColumnForField(Field field) {
-        log.info "Get column for field: ${field.dimension.simpleName}.${field.fieldName}"
-        def metadata = forDimension(field.dimension)
-        PropertyConfig columnMetadata = metadata.dimensionMapping.columns[field.fieldName]
-        if (columnMetadata == null) {
-            throw new QueryBuilderException("Field not found in dimension '${field.dimension.simpleName}': ${field.fieldName}")
-        }
-        columnMetadata.column
-    }
-
     static final Field getField(Class<? extends Dimension> dimensionClass, String fieldName) {
         def metadata = forDimension(dimensionClass)
         def field = metadata.fields.find { it.fieldName == fieldName }
@@ -106,7 +101,7 @@ class DimensionMetadata {
 
     static final List<Field> getSupportedFields() {
         dimensionMetadataMap.values().collectMany {
-            (it.type in [DimensionFetchType.STUDY, DimensionFetchType.VISIT]) ? [] as List<Field> : it.fields }
+            (it.type in [DimensionFetchType.COLUMN, DimensionFetchType.TABLE]) ? it.fields : [] as List<Field> }
     }
 
     DimensionFetchType type
@@ -114,8 +109,6 @@ class DimensionMetadata {
     Class domainClass
     String fieldName
     String columnName
-    String dimensionTableName
-    String dimensionIdColumn
     protected Mapping dimensionMapping
     List<Field> fields = []
     Map<String, Class> fieldTypes = [:]
@@ -155,26 +148,22 @@ class DimensionMetadata {
             } else {
                 this.domainClass = field.type
                 this.dimensionMapping = GrailsDomainBinder.getMapping(domainClass)
-                Table table = dimensionMapping.table
-                this.dimensionTableName = "${table.schema}.${table.name}"
-                Identity dimensionId = (Identity) dimensionMapping.identity
-                this.dimensionIdColumn = dimensionMapping.columns[dimensionId.column]?.column
                 this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
             }
         } else if (type == DimensionFetchType.STUDY) {
             this.domainClass = Study.class
             this.dimensionMapping = GrailsDomainBinder.getMapping(Study)
-            Table table = dimensionMapping.table
-            this.dimensionTableName = "${table.schema}.${table.name}"
-            Identity dimensionId = (Identity) dimensionMapping.identity
-            this.dimensionIdColumn = dimensionMapping.columns[dimensionId.column]?.column
             this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
         } else if (type == DimensionFetchType.VISIT) {
-                this.domainClass = org.transmartproject.db.i2b2data.VisitDimension.class
-                this.dimensionMapping = GrailsDomainBinder.getMapping(org.transmartproject.db.i2b2data.VisitDimension)
-                Table table = dimensionMapping.table
-                this.dimensionTableName = "${table.schema}.${table.name}"
-                this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
+            this.domainClass = org.transmartproject.db.i2b2data.VisitDimension.class
+            this.dimensionMapping = GrailsDomainBinder.getMapping(org.transmartproject.db.i2b2data.VisitDimension)
+            this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
+        } else if (type == DimensionFetchType.BIOMARKER) {
+            this.domainClass = HddTabularResultHypercubeAdapter.BioMarkerAdapter.class
+            this.fields = domainClass.declaredFields.findAll { !it.synthetic }*.name.collect { getMappedField(it) }
+        } else if (type == DimensionFetchType.ASSAY) {
+            this.domainClass = AssayColumnImpl.class
+            this.fields = domainClass.declaredFields.findAll { !it.synthetic }*.name.collect { getMappedField(it) }
         } else {
             this.domainClass = ObservationFact.class
             this.dimensionMapping = observationFactMapping
