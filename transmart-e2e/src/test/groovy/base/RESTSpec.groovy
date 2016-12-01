@@ -1,15 +1,13 @@
 package base
 
-import grails.converters.JSON
 import groovy.json.JsonBuilder
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
-import org.grails.web.json.JSONObject
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
-import protobuf.ObservationsProto
 import protobuf.ObservationsMessageProto
+import protobuf.ObservationsProto
 import selectors.protobuf.ObservationsMessageJson
 import spock.lang.Shared
 import spock.lang.Specification
@@ -19,7 +17,7 @@ import java.text.SimpleDateFormat
 import static config.Config.*
 import static org.hamcrest.Matchers.*
 
-class RESTSpec extends Specification{
+abstract class RESTSpec extends Specification{
 
     def contentTypeForHAL = 'application/hal+json'
     def contentTypeForJSON = 'application/json'
