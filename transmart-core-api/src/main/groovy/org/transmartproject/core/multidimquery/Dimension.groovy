@@ -5,6 +5,13 @@ import org.transmartproject.core.ontology.Study
 
 interface Dimension {
 
+    /**
+     * Indicates the typical size of a dimension. As this is typical, the
+     *
+     * Small: up to 10 to 15 elements
+     * Medium: 10 to 50 elements
+     * Large: more than 50 elements
+     */
     enum Size {
         SMALL,
         MEDIUM,

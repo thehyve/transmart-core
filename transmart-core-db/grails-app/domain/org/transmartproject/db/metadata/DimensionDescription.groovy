@@ -4,26 +4,12 @@ import com.google.common.collect.ImmutableMap
 import groovy.transform.InheritConstructors
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.db.multidimquery.ConceptDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.ModifierDimension
-import org.transmartproject.db.multidimquery.PatientDimension
-import org.transmartproject.db.multidimquery.StartTimeDimension
-import org.transmartproject.db.multidimquery.EndTimeDimension
-import org.transmartproject.db.multidimquery.LocationDimension
-import org.transmartproject.db.multidimquery.StudyDimension
-import org.transmartproject.db.multidimquery.TrialVisitDimension
-import org.transmartproject.db.multidimquery.VisitDimension
-import org.transmartproject.db.multidimquery.ProviderDimension
-import org.transmartproject.db.multidimquery.AssayDimension
-import org.transmartproject.db.multidimquery.BioMarkerDimension
-import org.transmartproject.db.multidimquery.ProjectionDimension
 
 import org.transmartproject.db.i2b2data.Study
 
-import static org.transmartproject.core.multidimquery.Dimension.Size.*
-import static org.transmartproject.core.multidimquery.Dimension.Density.*
-import static org.transmartproject.core.multidimquery.Dimension.Packable.*
+import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 class DimensionDescription {
     static final String LEGACY_MARKER = "legacy tabular study marker"
@@ -56,20 +42,20 @@ class DimensionDescription {
     }
 
     static ImmutableMap<String,DimensionImpl> dimensionsMap = ImmutableMap.copyOf([
-            "study"      : new StudyDimension(MEDIUM, DENSE, PACKABLE),
-            "concept"    : new ConceptDimension(MEDIUM, DENSE, NOT_PACKABLE),
-            "patient"    : new PatientDimension(LARGE, DENSE, PACKABLE),
-            "visit"      : new VisitDimension(SMALL, DENSE, PACKABLE),
-            "start time" : new StartTimeDimension(LARGE, SPARSE, NOT_PACKABLE),
-            "end time"   : new EndTimeDimension(LARGE, SPARSE, NOT_PACKABLE),
-            "location"   : new LocationDimension(MEDIUM, SPARSE, NOT_PACKABLE),
-            "trial visit": new TrialVisitDimension(MEDIUM, DENSE, PACKABLE),
-            "provider"   : new ProviderDimension(SMALL, SPARSE, NOT_PACKABLE),
-//            "sample": new SampleDimension(SMALL, DENSE, NOT_PACKABLE),
+            "study"      : STUDY,
+            "concept"    : CONCEPT,
+            "patient"    : PATIENT,
+            "visit"      : VISIT,
+            "start time" : START_TIME,
+            "end time"   : END_TIME,
+            "location"   : LOCATION,
+            "trial visit": TRIAL_VISIT,
+            "provider"   : PROVIDER,
+//            "sample": SAMPLE,
 
-            "biomarker" : new BioMarkerDimension(LARGE, DENSE, PACKABLE),
-            "assay"     : new AssayDimension(LARGE, DENSE, PACKABLE),
-            "projection": new ProjectionDimension(SMALL, DENSE, NOT_PACKABLE),
+            "biomarker" : BIOMARKER,
+            "assay"     : ASSAY,
+            "projection": PROJECTION,
     ])
 
     boolean isLegacyTabular() {

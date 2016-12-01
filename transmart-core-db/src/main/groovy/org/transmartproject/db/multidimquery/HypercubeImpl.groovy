@@ -19,6 +19,7 @@ import org.transmartproject.db.util.IndexedArraySet
 
 import static org.transmartproject.db.metadata.DimensionDescription.dimensionsMap
 import static org.transmartproject.db.multidimquery.ModifierDimension.modifierCodeField
+import static org.transmartproject.db.multidimquery.DimensionImpl.*
 import static java.util.AbstractMap.SimpleImmutableEntry
 
 /**
@@ -216,11 +217,11 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
 
         static final List<String> primaryKey = ImmutableList.of(
                 // excludes modifierCd as we want to group them
-                alias('concept'),
-                alias('provider'),
-                alias('patient'),
-                VisitDimension.alias,
-                alias('start time'),
+                CONCEPT.alias,
+                PROVIDER.alias,
+                PATIENT.alias,
+                VISIT.alias,
+                START_TIME.alias,
                 'instanceNum',
         )
 
