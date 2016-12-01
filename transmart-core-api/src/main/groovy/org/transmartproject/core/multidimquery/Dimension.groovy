@@ -12,8 +12,10 @@ interface Dimension {
     }
 
     enum Density {
-        DENSE,
-        SPARSE
+        DENSE(isDense: true),
+        SPARSE(isDense: false),
+
+        boolean isDense
     }
 
     enum Packable {

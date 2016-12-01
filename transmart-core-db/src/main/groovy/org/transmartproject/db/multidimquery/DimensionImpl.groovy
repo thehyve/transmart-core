@@ -2,7 +2,9 @@ package org.transmartproject.db.multidimquery
 
 import grails.util.Pair
 import groovy.transform.CompileStatic
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.InheritConstructors
+import groovy.transform.ToString
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.exceptions.DataInconsistencyException
@@ -121,18 +123,42 @@ abstract class HighDimDimension extends DimensionImpl {
 }
 
 
-//TODO: supporting modifier dimensions requires support for sorting, since we need to sort on the full PK except
-// modifierCd in order to ensure that modifier ObservationFacts come next to their observation value
 class ModifierDimension extends DimensionImpl {
-    ModifierDimension(String name, String modifierCode, Size size, Density density, Packable packable) {
+    private static Map<String,ModifierDimension> byName = [:]
+    private static Map<String,ModifierDimension> byCode = [:]
+    synchronized static ModifierDimension get(String name, String modifierCode,
+                                              Size size, Density density, Packable packable) {
+        if(name in byName) {
+            ModifierDimension dim = byName[name]
+            assert dim.is(byCode[dim.modifierCode])
+            if(modifierCode == dim.modifierCode && size == dim.size && density == dim.density
+                    && packable == dim.packable) {
+                return dim
+            }
+
+            def props = [modifierCode: modifierCode, size: size, density: density, packable: packable]
+            throw new RuntimeException("attempting to create a modifier dimension with properties $props while an" +
+                    " identical modifier dimension with different properties already exists: $dim")
+        }
+        assert !byCode.containsKey(modifierCode)
+
+        ModifierDimension dim = new ModifierDimension(name, modifierCode, size, density, packable)
+        byName[name] = dim
+        byCode[modifierCode] = dim
+
+        dim
+    }
+
+    private ModifierDimension(String name, String modifierCode, Size size, Density density, Packable packable) {
         super(size, density, packable)
         this.name = name
         this.modifierCode = modifierCode
     }
 
     static final String modifierCodeField = 'modifierCd'
-    String name
-    String modifierCode
+
+    final String name
+    final String modifierCode
 
     @Override def selectIDs(Query query) {
         if(query.params.modifierCodes == ['@']) {
@@ -143,7 +169,7 @@ class ModifierDimension extends DimensionImpl {
     }
 
     @Override def getElementKey(Map result) {
-        result.name
+        result[name]
     }
 
     @Override List doResolveElements(List elementKeys) {
@@ -155,7 +181,7 @@ class ModifierDimension extends DimensionImpl {
     }
 
     @Override String toString() {
-        "${this.class.simpleName}('$name')"
+        "${this.class.simpleName}(name: '$name', code: '$modifierCode', $size, $density, $packable)"
     }
 
     /**
@@ -258,6 +284,7 @@ class LocationDimension extends I2b2Dimension {
 
 @InheritConstructors
 class VisitDimension extends DimensionImpl {
+    static String alias = 'encounterNum'
 
     @Override
     def selectIDs(Query query) {
@@ -266,7 +293,7 @@ class VisitDimension extends DimensionImpl {
                 property 'patient.id', 'patient'
                 query.params.patientSelected = true
             }
-            property 'encounterNum', 'encounterNum'
+            property 'encounterNum', alias
         }
     }
 
@@ -274,7 +301,7 @@ class VisitDimension extends DimensionImpl {
 
     @Override @CompileStatic
     def getElementKey(Map result) {
-        BigDecimal encounterNum = (BigDecimal) result.encounterNum
+        BigDecimal encounterNum = (BigDecimal) result[alias]
         encounterNum == minusOne ? null : new Pair(encounterNum, result.patient)
     }
 

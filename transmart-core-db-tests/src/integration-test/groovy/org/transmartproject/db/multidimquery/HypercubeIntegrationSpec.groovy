@@ -57,7 +57,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         expect:
 
-        hypercube.dimensionElements.size() == clinicalData.longitudinalStudy.dimensions.size()
+        hypercube.dimensions.size() == clinicalData.longitudinalStudy.dimensions.size()
         result == expected
 
         concepts.size() == expectedConcepts.size()
@@ -82,28 +82,32 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
     void 'test_basic_sample_retrieval'() {
         setupData()
+        def ttDim = clinicalData.tissueTypeDimension
+        def doseDim = clinicalData.doseDimension
 
         def hypercube = queryResource.retrieveData('clinical',
                 constraint: study(clinicalData.sampleStudy.studyId),
                 [clinicalData.sampleStudy])
-        def resultObs = Lists.newArrayList(hypercube).sort()
+        def resultObs = Lists.newArrayList(hypercube).sort { [it.getDimKey(dims.patient), it.value] }
 
-        def result = resultObs*.value as HashMultiset
+        def resultValues = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
         def concepts = hypercube.dimensionElements(dims.concept) as Set
         def patients = hypercube.dimensionElements(dims.patient) as Set
+        def tissueTypes = hypercube.dimensionElements(ttDim) as Set
 
-        // FIXME Modifiers not supported yet, check facts with modifierCd == '@'
         def expected = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == '@'}
-        def expectedValue = expected*.value as HashMultiset
+        def expectedValues = expected*.value as HashMultiset
         def expectedConcepts = testData.conceptData.conceptDimensions.findAll {
             it.conceptCode in expected*.conceptCode
         } as Set
         def expectedPatients = expected*.patient as Set
+        def expectedTissues = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == ttDim.modifierCode}*.textValue as Set
+        def expectedDosages = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}*.numberValue as Set
 
         expect:
-        hypercube.dimensionElements.size() == clinicalData.sampleStudy.dimensions.size()
-        result == expectedValue
+        hypercube.dimensions.size() == clinicalData.sampleStudy.dimensions.size()
+        resultValues == expectedValues
 
         concepts.size() == expectedConcepts.size()
         concepts == expectedConcepts
@@ -111,10 +115,59 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         patients.size() == expectedPatients.size()
         patients == expectedPatients
 
+        tissueTypes.size() == expectedTissues.size()
+        tissueTypes == expectedTissues
+
+        expectedDosages == resultObs*.getAt(doseDim) as Set
+
+        // This makes assumptions on the order of observation facts in the test data
         for (int i = 0; i < resultObs.size(); i++) {
-            resultObs[i].getAt(dims.concept).conceptCode == clinicalData.multidimsClinicalFacts[i].conceptCode
-            resultObs[i].getAt(dims.patient).id == clinicalData.multidimsClinicalFacts[i].patient.id
+            resultObs[i][dims.concept].conceptCode ==
+                    clinicalData.sampleClinicalFacts.findAll{it.modifierCd == '@'}[i].conceptCode
+            resultObs[i][dims.patient].id ==
+                    clinicalData.sampleClinicalFacts.findAll{it.modifierCd == '@'}[i].patient.id
+            resultObs[i][ttDim] ==
+                    clinicalData.sampleClinicalFacts.findAll{it.modifierCd == ttDim.modifierCode}[i].textValue
+            resultObs[i][doseDim] ==
+                    clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}[i].numberValue
         }
+    }
+
+    void 'test_sample_retrieval_with_partial_dimensions'() {
+        setupData()
+        def ttDim = clinicalData.tissueTypeDimension
+        def doseDim = clinicalData.doseDimension
+
+        def hypercube = queryResource.retrieveData('clinical',
+                constraint: study(clinicalData.sampleStudy.studyId),
+                dimensions: ['study', 'concept', 'tissueType', 'dose'],
+                [clinicalData.sampleStudy])
+        def resultObs = Lists.newArrayList(hypercube)
+
+        def resultValues = resultObs*.value as HashMultiset
+        hypercube.loadDimensions()
+        def concepts = hypercube.dimensionElements(dims.concept) as Set
+        def tissueTypes = hypercube.dimensionElements(ttDim) as Set
+
+        def expected = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == '@'}
+        def expectedValues = expected*.value as HashMultiset
+        def expectedConcepts = testData.conceptData.conceptDimensions.findAll {
+            it.conceptCode in expected*.conceptCode
+        } as Set
+        def expectedTissues = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == ttDim.modifierCode}*.textValue as Set
+        def expectedDosages = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}*.numberValue as Set
+
+        expect:
+        hypercube.dimensions.size() == clinicalData.sampleStudy.dimensions.size() - 1
+        resultValues == expectedValues
+
+        concepts.size() == expectedConcepts.size()
+        concepts == expectedConcepts
+
+        tissueTypes.size() == expectedTissues.size()
+        tissueTypes == expectedTissues
+
+        expectedDosages == resultObs*.getAt(doseDim) as Set
     }
 
     void 'test_basic_ehr_retrieval'() {
@@ -139,7 +192,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def expectedVisits = clinicalData.ehrClinicalFacts*.visit as Set
 
         expect:
-        hypercube.dimensionElements.size() == clinicalData.ehrStudy.dimensions.size()
+        hypercube.dimensions.size() == clinicalData.ehrStudy.dimensions.size()
         result == expected
 
         concepts.size() == expectedConcepts.size()
@@ -194,7 +247,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         expect:
 
-        hypercube.dimensionElements.size() == clinicalData.multidimsStudy.dimensions.size()
+        hypercube.dimensions.size() == clinicalData.multidimsStudy.dimensions.size()
         result == expected
 
         concepts.size() == expectedConcepts.size()

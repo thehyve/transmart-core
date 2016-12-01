@@ -1,6 +1,7 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableMap
+import org.transmartproject.core.multidimquery.Dimension
 import spock.lang.Specification
 
 import static java.util.AbstractMap.SimpleEntry
@@ -55,5 +56,12 @@ class HypercubeSpec extends Specification {
         !("firstValue" in map)
 
         map == map.toMutable()
+    }
+
+    void "test dimensions"() {
+
+        expect:
+        Dimension.Density.DENSE.isDense
+        Dimension.Density.SPARSE.isDense == false
     }
 }
