@@ -170,7 +170,9 @@ class ConceptDimension extends I2b2NullablePKDimension {
     String nullValue = '@'
 
     @Override List<Object> doResolveElements(List elementKeys) {
-        org.transmartproject.db.i2b2data.ConceptDimension.findAllByConceptCodeInList(elementKeys)
+        List elements = org.transmartproject.db.i2b2data.ConceptDimension.findAllByConceptCodeInList(elementKeys)
+        elements.sort { elementKeys.indexOf(it.conceptCode) }
+        elements
     }
 }
 
