@@ -31,7 +31,7 @@ class PatientsCategoricalSpec extends RESTSpec{
         when: "I get all patients from the  study that have concept Gender"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"]
 
-        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap)).patients
 
         then: "no patients are returned"
         that responseData.size(), is(0)
@@ -49,7 +49,7 @@ class PatientsCategoricalSpec extends RESTSpec{
         when: "I get all patients from the study that have concept Female"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"]
 
-        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap)).patients
 
         then: "1 patient is returned"
         that responseData.size(), is(1)
@@ -68,7 +68,7 @@ class PatientsCategoricalSpec extends RESTSpec{
         when: "I get all patients from the study that have concept Race"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"]
 
-        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap)).patients
 
         then: "3 patients are returned"
         that responseData.size(), is(3)
@@ -94,7 +94,7 @@ class PatientsCategoricalSpec extends RESTSpec{
                 ]
         ]
 
-        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap)).patients
 
         then: "2 patients are returned"
         that responseData.size(), is(2)

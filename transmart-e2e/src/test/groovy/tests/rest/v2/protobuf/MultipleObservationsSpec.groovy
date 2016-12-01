@@ -49,9 +49,9 @@ class MultipleObservationsSpec extends RESTSpec{
     /**
      *  given: "EHR is loaded"
      *  when: "I get all observations of that studie"
-     *  then: "7 observations have a valid startDate, all formated with a datestring"
+     *  then: "7 observations have a valid startDate as timestamp value
      */
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-125 protobuf sterilization, DATE fields missing from dimensions
+//    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-125 protobuf sterilization, DATE fields missing from dimensions
     def "Start time of observations are exposed through REST API"(){
         given: "EHR is loaded"
 
@@ -66,8 +66,10 @@ class MultipleObservationsSpec extends RESTSpec{
 
         int validStartDate = 0
         (0..<selector.cellCount).each {
-            if (selector.select(it, 'StartTimeDimension', 'startDate', 'Timestamp') != '1970-01-01T00:00:00Z'){validStartDate++}
-            that selector.select(it, 'StartTimeDimension', 'startDate', 'Timestamp'), matchesPattern(REGEXDATE)
+            if (selector.select(it, 'StartTimeDimension', null, 'Timestamp') != null){
+                validStartDate++
+                assert selector.select(it, 'StartTimeDimension', null, 'Timestamp') instanceof Number
+            }
             assert (selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
                     selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:DEM:AGE')
         }
@@ -77,9 +79,9 @@ class MultipleObservationsSpec extends RESTSpec{
     /**
      *  given: "EHR is loaded"
      *  when: "I get all observations of that studie"
-     *  then: "4 observations have a nonNUll endDate, all formated with a datestring"
+     *  then: "4 observations have a nonNUll endDate as timestamp value
      */
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-125 protobuf sterilization, DATE fields missing from dimensions
+//    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-125 protobuf sterilization, DATE fields missing from dimensions
     def "end time of observations are exposed through REST API"(){
         given: "EHR is loaded"
 
@@ -93,9 +95,12 @@ class MultipleObservationsSpec extends RESTSpec{
 
         int nonNUllEndDate = 0
         (0..<selector.cellCount).each {
-            if (selector.select(it, 'EndTimeDimension', 'endDate', 'Timestamp') != null){nonNUllEndDate++}
-            that selector.select(it, 'EndTimeDimension', 'endDate', 'Timestamp'), matchesPattern(REGEXDATE)
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR'
+            if (selector.select(it, 'EndTimeDimension', null, 'Timestamp') != null){
+                nonNUllEndDate++
+                assert selector.select(it, 'EndTimeDimension', null, 'Timestamp') instanceof Number
+            }
+            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
+                    selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:DEM:AGE')
         }
         assert nonNUllEndDate == 4
     }

@@ -244,7 +244,7 @@ class VisitDimension extends DimensionImpl {
     def selectIDs(Query query) {
         query.criteria.with {
             if(!query.params.patientSelected) {
-                property 'patient.id', 'patient'
+                property 'patient.id', 'patientId'
                 query.params.patientSelected = true
             }
             property 'encounterNum', 'encounterNum'

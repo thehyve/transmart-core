@@ -14,7 +14,7 @@ class ObservationSelector {
         this.protoMessage = protoMessage
         this.cellCount = protoMessage.cells.size()
         protoMessage.header.dimensionDeclarationsList.each
-                {it -> if(!it.inline){ //FIXME: this is a temporary fix for: TMPDEV-124 protobuf sterilization, meaning of inline:true is false
+                {it -> if(it.inline){
                     inlined.add(it.name)
                 } else {
                     notInlined.add(it.name)
@@ -40,25 +40,46 @@ class ObservationSelector {
         assert dimensionDeclarationIndex != -1, 'dimansion could not be found in header'
 
         int fieldsIndex
-
-        protoMessage.header.dimensionDeclarationsList.each { dilist ->
-            if (dilist.name.equalsIgnoreCase(dimansion)) {
-                dilist.fieldsList.eachWithIndex {
-                    field, index ->
-                        if (field.name.equalsIgnoreCase(fieldName)) {
-                            fieldsIndex = index
-                        }
+        if (fieldName) {
+            protoMessage.header.dimensionDeclarationsList.each { dilist ->
+                if (dilist.name.equalsIgnoreCase(dimansion)) {
+                    dilist.fieldsList.eachWithIndex {
+                        field, index ->
+                            if (field.name.equalsIgnoreCase(fieldName)) {
+                                fieldsIndex = index
+                            }
+                    }
                 }
             }
+        } else {
+            fieldsIndex = 0
         }
 
         if (inlined.contains(dimansion)){
-            return protoMessage.cells.get(cellIndex).getInlineDimensions(dimensionDeclarationIndex).getFields(fieldsIndex).invokeMethod("get${valueType}Value", null).val
+            return retrieveNullableValue(protoMessage.cells.get(cellIndex).getInlineDimensions(dimensionDeclarationIndex).getFields(fieldsIndex).invokeMethod("get${valueType}Value", null))
         }
 
         //nonInline
         int dimensionIndexes = protoMessage.cells.get(cellIndex).getDimensionIndexes(dimensionDeclarationIndex)
         return protoMessage.footer.getDimension(dimensionDeclarationIndex).getFields(fieldsIndex).invokeMethod("get${valueType}Value",dimensionIndexes).'val'
+    }
+
+    def retrieveNullableValue(value) {
+        def valueCase
+        switch(value.class) {
+            case ObservationsProto.TimestampValue:
+                valueCase = ObservationsProto.TimestampValue.ValueCase.VAL
+                break
+            case ObservationsProto.StringValue:
+                valueCase = ObservationsProto.StringValue.ValueCase.VAL
+                break
+            case ObservationsProto.IntValue:
+                valueCase = ObservationsProto.IntValue.ValueCase.VAL
+                break
+            default:
+                throw new Exception("Not supported.")
+        }
+        return value.valueCase == valueCase ? value.val : null
     }
 
     /**

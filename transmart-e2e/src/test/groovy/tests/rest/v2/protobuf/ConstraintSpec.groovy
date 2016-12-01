@@ -76,9 +76,10 @@ class ConstraintSpec extends RESTSpec{
         ObservationSelector selector = new ObservationSelector(responseData)
 
         then:
-        selector.cellCount == 3
+        assert selector.cellCount == 8
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'TNS:LAB:CELLCNT'
+            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            assert selector.select(it) != null
         }
 
         when:
@@ -90,9 +91,10 @@ class ConstraintSpec extends RESTSpec{
         selector = new ObservationSelector(responseData)
 
         then:
-        selector.cellCount == 3
+        assert selector.cellCount == 8
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'TNS:LAB:CELLCNT'
+            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            assert selector.select(it) != null
         }
     }
 
@@ -144,7 +146,7 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "PatientSetConstraint.class"(){
-        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, null, toJSON([type: PatientSetConstraint, patientIds: -62]))
+        def setID = post(PATH_PATIENT_SET, contentTypeForJSON, [name: 'test_PatientSetConstraint'], toJSON([type: PatientSetConstraint, patientIds: -62]))
         def constraintMap = [type: PatientSetConstraint, patientSetId: setID.id]
 
 
@@ -220,9 +222,12 @@ class ConstraintSpec extends RESTSpec{
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
 
+        HashSet conceptCodes = []
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            conceptCodes.add selector.select(it, "ConceptDimension", "conceptCode", 'String')
         }
+        assert conceptCodes.size() == 4
+        assert conceptCodes.containsAll("EHR:VSIGN:HR","EHRHD:VSIGN:HR","EHRHD:HD:EXPLUNG","EHRHD:HD:EXPBREAST")
     }
 
     def "ConceptConstraint.class"(){

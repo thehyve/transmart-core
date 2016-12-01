@@ -12,6 +12,8 @@ dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.4.3'
     compile 'com.google.protobuf:protobuf-java:3.1.0'
     compile 'com.google.protobuf:protobuf-java-util:3.1.0' // provides  protobuf-to-json serialization
+    compile 'ch.qos.logback:logback-classic:1.1.7'
+    compile 'org.slf4j:slf4j-api:1.7.20'
 
     testCompile 'junit:junit:4.11'
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'

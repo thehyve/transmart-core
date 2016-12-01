@@ -1,6 +1,9 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
+import protobuf.ObservationsMessageProto
+import selectors.protobuf.ObservationSelector
+import selectors.protobuf.ObservationSelectorJson
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 
@@ -21,24 +24,23 @@ class SamplesSpec extends RESTSpec{
      *  then: "3 observations are returned, all have a cellcount"
      */
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
-//    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //TMPDEV-97 ModifierConstraint returns modifier observations with null values
     def "get observations related to a modifier"(){
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
 
         when: "I get all observations related to a modifier 'Sample type' with value 'Tumor'"
         def constraintMap = [
-                type: ModifierConstraint, modifierCode: "TNS:SMPL", path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
         ]
-
         def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "3 observations are returned, all have a cellcount"
-        that responseData.size(), is(3)
-        that responseData, everyItem(allOf(
-                hasEntry('conceptCode', 'TNS:LAB:CELLCNT'),
-                not(hasEntry('numberValue', null))
-        ))
+        assert selector.cellCount == 8
+        (0..<selector.cellCount).each {
+            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            assert selector.select(it) != null
+        }
     }
 
     /**
@@ -47,33 +49,24 @@ class SamplesSpec extends RESTSpec{
      *  then: "3 observations are returned with concept codes: CELLCNT, .., ..."
      */
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS || SUPPRESS_UNIMPLEMENTED}) //TMPDEV-97 ModifierConstraint returns modifier observations with null values. no test set with multiple concepts per sample.
+    @IgnoreIf({SUPPRESS_UNIMPLEMENTED}) //no test data with multiple concepts linked to a modifier
     def "get observations related to a"(){
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
 
         when: "I get all observations related to a modifier 'Sample ID' with value 'id'"
         def constraintMap = [
-                type: ModifierConstraint, modifierCode: "TNS:SMPL", path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample ID\\",
+                type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample ID\\",
                 values: [type: ValueConstraint, valueType: NUMERIC, operator: EQUALS, value: 10]
         ]
-
         def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "3 observations are returned, all have a cellcount"
-        that responseData.size(), is(3)
-        that responseData, allOf(
-                hasItem(
-                        hasEntry('conceptCode', 'TNS:LAB:CELLCNT'),
-                        not(hasEntry('numberValue', null))
-                ),
-                hasItem(
-                        hasEntry('conceptCode', '...'),
-                        not(hasEntry('numberValue', null))
-                ),
-                hasItem(
-                        hasEntry('conceptCode', '...'),
-                        not(hasEntry('numberValue', null))
-                )
-        )
+        assert selector.cellCount == 3
+        (0..<selector.cellCount).each {
+            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('TNS:LAB:CELLCNT') ||
+                    selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('....'))
+            assert selector.select(it) != null
+        }
     }
 }

@@ -1,7 +1,7 @@
 syntax = "proto3";
 package hypercube;
 
-option java_package = "protobuf.v2";
+option java_package = "protobuf";
 option java_outer_classname = "ObservationsProto";
 
 
@@ -9,38 +9,38 @@ option java_outer_classname = "ObservationsProto";
 // starts with a header, then one or more observations or one or more packedObservations (depending on if there is a
 // dimension marked 'packed'), and then one footer.
 
+enum Type {
+    DOUBLE = 0;
+    STRING = 1;
+    INT = 2;
+    TIMESTAMP = 3;
+    OBJECT = 4;
+}
 
 message Header { // header is sent without chunking in a one message
                  repeated DimensionDeclaration dimensionDeclarations = 1;
 }
 
-
 message DimensionDeclaration { // each dimension present in the output is declared with this message
                                string name = 1;
-                               bool isDense = 2; // if true, values of the observation can be packed along
-                                                          // this dimension
-                               repeated FieldDefinition fields = 3; // a.k.a dimension elements
-                               bool inline = 4;  // if true the dimension elements will be stored in the
-                                                          // observation cell instead of the footer
-                               bool packed = 5; // if true, observations are packed along this dimension
-                               DimensionElements elements = 6; // Only used when the dimension elements are
-                                                                        // sent in the header instead of the footer
-} //  TODO: packing along dense dimensions is not yet implemented
+                               /* A description of the elements of the dimension. */
+                               Type type = 2;
+                               repeated FieldDefinition fields = 3;
+                               /* If true, the dimension elements will be stored in the
+                                  observation cell instead of the footer. */
+                               bool inline = 4;
+                               /* If true, observations are packed along this dimension. */
+                               bool packed = 5;
+                               /* Only used if the dimension elements are sent in the header instead of the footer. */
+                               DimensionElements elements = 6;
+}
 
 message FieldDefinition { // each field (dimension element) has its definition specifying type of its value
                           // Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
                           // age, gender, race, etc.
-                          enum ColumnType {
-                              DOUBLE = 0;
-                              STRING = 1;
-                              INT = 2;
-                              TIMESTAMP = 3;
-                          }
-
                           string name = 1;
-                          ColumnType type = 2;
+                          Type type = 2;
 }
-
 
 message Observation {
     // This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
@@ -75,11 +75,9 @@ message PackedObservation {
     repeated string stringValues = 3;
     repeated double numericValues = 4;
 
-    // Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-    // The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-    // patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-    // samples for that patient).
-    repeated int32 numSamples = 5;
+    // The number of entries in either stringValues or numericValues, i.e., the number of observations represented
+    // by this message.
+    int32 numObervations = 5;
 
     bool last = 7; // [default=false];
 }
