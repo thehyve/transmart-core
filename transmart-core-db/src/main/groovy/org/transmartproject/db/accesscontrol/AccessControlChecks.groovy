@@ -235,7 +235,7 @@ class AccessControlChecks {
         }
 
         DetachedCriteria query = org.transmartproject.db.i2b2data.Study.where {
-            (secureObjectToken == org.transmartproject.db.i2b2data.Study.PUBLIC) ||
+            (secureObjectToken in [org.transmartproject.db.i2b2data.Study.PUBLIC, 'EXP:PUBLIC']) ||
                     (secureObjectToken in SecuredObject.where {
                         def so = SecuredObject
                         dataType == 'BIO_CLINICAL_TRIAL'
@@ -260,7 +260,7 @@ class AccessControlChecks {
 
         DetachedCriteria query = org.transmartproject.db.i2b2data.Study.where {
             studyId == studyIdString
-            (secureObjectToken == org.transmartproject.db.i2b2data.Study.PUBLIC) ||
+            (secureObjectToken in [org.transmartproject.db.i2b2data.Study.PUBLIC, 'EXP:PUBLIC']) ||
                     (secureObjectToken in SecuredObject.where {
                         def so = SecuredObject
                         dataType == 'BIO_CLINICAL_TRIAL'
@@ -314,7 +314,7 @@ class AccessControlChecks {
         }
 
         Collection<org.transmartproject.db.i2b2data.Study> studies = getDimensionStudiesForUser(user)
-        List<String> tokens = [org.transmartproject.db.i2b2data.Study.PUBLIC] + studies*.secureObjectToken
+        List<String> tokens = [org.transmartproject.db.i2b2data.Study.PUBLIC, 'EXP:PUBLIC'] + studies*.secureObjectToken
 
         org.hibernate.criterion.DetachedCriteria conceptCriteria =
                 org.hibernate.criterion.DetachedCriteria.forClass(ConceptDimension)
