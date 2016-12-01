@@ -63,7 +63,7 @@ public class ObservationsSerializer {
     protected Map<Dimension, DimensionDeclaration> dimensionDeclarations = [:]
 
 
-    ObservationsSerializer(Hypercube cube, Format format, Dimension packedDimension = null) {
+    ObservationsSerializer(Hypercube cube, Format format, Dimension packedDimension) {
         this.cube = cube
         this.packedDimension = packedDimension
         this.packingEnabled = packedDimension != null
@@ -73,6 +73,10 @@ public class ObservationsSerializer {
             jsonPrinter = printer()
         }
         this.format = format
+    }
+
+    ObservationsSerializer(Hypercube cube, Format format) {
+        this(cube, format, null)
     }
 
     protected boolean first = true
@@ -147,18 +151,13 @@ public class ObservationsSerializer {
             }
             def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionName)
             switch(dim.class) {
-                case BioMarkerDimension:
-                    break
-                case AssayDimension:
-                    break
-                case ProjectionDimension:
-                    break
                 case StartTimeDimension:
                 case EndTimeDimension:
                     builder.type = Type.TIMESTAMP
                     break
                 case ProviderDimension:
                 case LocationDimension:
+                case ProjectionDimension:
                     builder.type = Type.STRING
                     break
                 default:
