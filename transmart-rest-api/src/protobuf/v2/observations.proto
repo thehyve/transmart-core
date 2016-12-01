@@ -18,7 +18,9 @@ enum Type {
 }
 
 message Header { // header is sent without chunking in a one message
-                 repeated DimensionDeclaration dimensionDeclarations = 1;
+    repeated DimensionDeclaration dimensionDeclarations = 1;
+    // same meaning as in Observation
+    bool last = 2; //default: false
 }
 
 message DimensionDeclaration { // each dimension present in the output is declared with this message
@@ -79,7 +81,7 @@ message PackedObservation {
     // by this message.
     int32 numObervations = 5;
 
-    bool last = 7; // [default=false];
+    bool last = 7; // default: false
 }
 
 // Nullable long value type
