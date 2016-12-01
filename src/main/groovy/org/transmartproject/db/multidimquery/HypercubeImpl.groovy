@@ -29,7 +29,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     /*
      * The data representation:
      *
-     * For packable dimensions:
+     * For dense dimensions:
      * Dimension element keys are stored in dimensionElementIdxes. Those are mapped to the actual dimension elements
      * in dimensionElements. Each dimension has a numeric index in dimensionsIndexMap. Each ClinicalValue
      */
@@ -75,7 +75,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         this.aliases = ImmutableMap.copyOf(aliases.collectEntries { [it, idx++] })
 
         dimensionElementKeys = this.dimensions
-                .findAll { it.density.isDense }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
+                .findAll { it.density == Dimension.Density.DENSE }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
 
         hasModifiers = (query.params.modifierCodes != ['@'])
         modifierDimensions = ImmutableList.copyOf((List) this.dimensions.findAll {it instanceof ModifierDimension})
@@ -108,7 +108,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
                     (String) result.valueType, (String) result.textValue, (BigDecimal) result.numberValue)
 
             int nDims = ((List) dimensions).size()
-            // actually this array only contains indexes for packable dimensions, for nonpackable ones it contains the
+            // actually this array only contains indexes for dense dimensions, for sparse ones it contains the
             // element keys directly
             Object[] dimensionElementIdxes = new Object[nDims]
             // Save keys of dimension elements
@@ -161,6 +161,9 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         if(!_dimensionsLoaded) {
             loadDimensions()
         }
+        if (dimensionElements[dim] == null) {
+            throw new Exception("No dimension elements for dimension ${dim?.class?.simpleName}")
+        }
         return dimensionElements[dim][idx]
     }
 
@@ -183,7 +186,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         // worth implementing.
         if(_dimensionsLoaded) return
         dimensions.each {
-            if(it.packable.packable) dimensionElements(it)
+            if(it.density == Dimension.Density.DENSE) dimensionElements(it)
         }
         _dimensionsLoaded = true
     }
