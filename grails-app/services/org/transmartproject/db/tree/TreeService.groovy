@@ -135,7 +135,7 @@ class TreeService {
         includeCounts = includeCounts ?: Boolean.FALSE
         includeTags = includeTags ?: Boolean.FALSE
 
-        List<String> tokens = [Study.PUBLIC]
+        List<String> tokens = [Study.PUBLIC, 'EXP:PUBLIC']
         if (!user.admin) {
             Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user)
             tokens += studies*.secureObjectToken
