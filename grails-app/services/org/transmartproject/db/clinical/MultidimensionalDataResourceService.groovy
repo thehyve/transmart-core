@@ -31,6 +31,7 @@ import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.util.GormWorkarounds
 
 import static org.transmartproject.db.metadata.DimensionDescription.dimensionsMap
+import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 class MultidimensionalDataResourceService implements MultiDimensionalDataResource {
 
@@ -150,12 +151,12 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         q.with {
             inList 'modifierCd', query.params.modifierCodes
-            order 'conceptCode'
-            order 'patient'
-            order 'startDate'
-            order 'encounterNum'
-            order 'providerId'
-            order 'instanceNum'
+
+            // FIXME: Ordering by start date is needed for end-to-end tests. This should be replaced by ordering
+            // support in this service which the tests should then use.
+            if(query.params.modifierCodes == ['@']) {
+                order 'startDate'
+            }
         }
 
         CriteriaImpl hibernateCriteria = query.criteria.instance
@@ -176,12 +177,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     static final List<DimensionImpl> primaryKeyDimensions = ImmutableList.of(
             // primary key columns excluding modifierCd and instanceNum
-            dimensionsMap.concept,
-            dimensionsMap.provider,
-            dimensionsMap.patient,
-            dimensionsMap.visit,
-            dimensionsMap.'start time',
-    )
+            CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME)
 
     /*
     note: efficiently extracting the available dimension elements for dimensions is possible using nonstandard

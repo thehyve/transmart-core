@@ -2,9 +2,7 @@ package org.transmartproject.db.multidimquery
 
 import grails.util.Pair
 import groovy.transform.CompileStatic
-import groovy.transform.EqualsAndHashCode
 import groovy.transform.InheritConstructors
-import groovy.transform.ToString
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.exceptions.DataInconsistencyException
@@ -15,13 +13,46 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.TrialVisit
 
 import static org.transmartproject.core.multidimquery.Dimension.*
+import static org.transmartproject.core.multidimquery.Dimension.Size.*
+import static org.transmartproject.core.multidimquery.Dimension.Density.*
+import static org.transmartproject.core.multidimquery.Dimension.Packable.*
+
 
 abstract class DimensionImpl implements Dimension {
-    // TODO(jan): Which properties on dimensions do we actually need for the hypercube to work?
 
     final Size size
     final Density density
     final Packable packable
+
+
+    // Size is currently not used.
+    //
+    // DENSE indicates that the dimension will be indexed in the hypercube, SPARSE dimensions are inlined
+    //
+    // Packable dimensions can be (profitably) packed into arrays in protobuf serialization. Requirements for being
+    // packable are:
+    //   - Dimension is dense
+    //   - Values are of the same type (so dimensions that determine the type can not be packable, e.g. concept)
+    //   - There are typically at least a dozen elements in a result set, if not it is usually more profitable to
+    //     pack a dimension with more elements.
+
+    static final StudyDimension STUDY =            new StudyDimension(SMALL, DENSE, NOT_PACKABLE)
+    static final ConceptDimension CONCEPT =        new ConceptDimension(MEDIUM, DENSE, NOT_PACKABLE)
+    static final PatientDimension PATIENT =        new PatientDimension(LARGE, DENSE, PACKABLE)
+    static final VisitDimension VISIT =            new VisitDimension(MEDIUM, DENSE, PACKABLE)
+    static final StartTimeDimension START_TIME =   new StartTimeDimension(LARGE, SPARSE, NOT_PACKABLE)
+    static final EndTimeDimension END_TIME =       new EndTimeDimension(LARGE, SPARSE, NOT_PACKABLE)
+    static final LocationDimension LOCATION =      new LocationDimension(MEDIUM, SPARSE, NOT_PACKABLE)
+    static final TrialVisitDimension TRIAL_VISIT = new TrialVisitDimension(SMALL, DENSE, PACKABLE)
+    static final ProviderDimension PROVIDER =      new ProviderDimension(SMALL, DENSE, NOT_PACKABLE)
+
+    // Todo: implement sample dimension as a marker for studies that can have multiple samples
+    //static final DimensionImpl SAMPLE =         new SampleDimension(SMALL, DENSE, NOT_PACKABLE)
+
+    static final BioMarkerDimension BIOMARKER =    new BioMarkerDimension(LARGE, DENSE, PACKABLE)
+    static final AssayDimension ASSAY =            new AssayDimension(LARGE, DENSE, PACKABLE)
+    static final ProjectionDimension PROJECTION =  new ProjectionDimension(SMALL, DENSE, NOT_PACKABLE)
+
 
     DimensionImpl(Size size, Density density, Packable packable) {
         this.size = size
