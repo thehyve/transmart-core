@@ -288,6 +288,13 @@ class NullConstraint extends Constraint {
     Field field
 }
 
+@Canonical
+class RowValueConstraint extends Constraint {
+    Type valueType = Type.NONE
+    Operator operator = Operator.NONE
+    Object value
+}
+
 /**
  * Selects observations for which the value of type <code>valueType</code> conforms
  * to <code>operator</code> and <code>value</code>.
