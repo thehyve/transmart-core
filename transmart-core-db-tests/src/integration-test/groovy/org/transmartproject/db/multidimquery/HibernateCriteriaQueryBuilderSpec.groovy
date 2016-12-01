@@ -329,7 +329,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
         then:
         results.size() == expectedResults.size()
-        results == expectedResults
+        results.sort() == expectedResults.sort()
     }
 
     void 'test CriteriaQueryBuilder with modifier constraints'() {
@@ -367,7 +367,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
         then:
         results.size() == expectedResults.size()
-        results == expectedResults
+        results.sort() == expectedResults.sort()
 
         // test modifierPath subquery(modifierDimensions) + numericalValue.greaterThan
         when:
@@ -424,6 +424,6 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
         then:
         results.size() == expectedResults.size()
-        results == expectedResults
+        results.sort() == expectedResults.sort()
     }
 }
