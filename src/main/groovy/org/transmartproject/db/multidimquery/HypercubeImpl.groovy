@@ -8,6 +8,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.StatelessSessionImpl
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -136,6 +137,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     }
 
     ImmutableList<Object> dimensionElements(Dimension dim) {
+        checkDimension(dim)
         checkNotPackable(dim)
         List ret = ImmutableList.copyOf(dim.resolveElements(dimensionElementKeys[dim] ?: []))
         dimensionElements[dim] = ret
@@ -149,7 +151,12 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         }
     }
 
+    protected void checkDimension(Dimension dim) {
+        if(!(dim in dimensions)) throw new InvalidArgumentsException("Dimension $dim is not part of this result")
+    }
+
     Object dimensionElement(Dimension dim, Integer idx) {
+        checkDimension(dim)
         checkNotPackable(dim)
         if(idx == null) return null
         if(!_dimensionsLoaded) {
@@ -159,6 +166,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     }
 
     Object dimensionElementKey(Dimension dim, Integer idx) {
+        checkDimension(dim)
         checkNotPackable(dim)
         if(idx == null) return null
         dimensionElementKeys[dim][idx]
@@ -304,6 +312,7 @@ class HypercubeValueImpl implements HypercubeValue {
     }
 
     def getDimElement(Dimension dim) {
+        cube.checkDimension(dim)
         if(dim.packable.packable) {
             cube.dimensionElement(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
         } else {
@@ -312,11 +321,13 @@ class HypercubeValueImpl implements HypercubeValue {
     }
 
     int getDimElementIndex(Dimension dim) {
+        cube.checkDimension(dim)
         cube.checkNotPackable(dim)
         (int) dimensionElementIdxes[cube.dimensionsIndex[dim]]
     }
 
     def getDimKey(Dimension dim) {
+        cube.checkDimension(dim)
         if(dim.packable.packable) {
             cube.dimensionElementKey(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
         } else {
