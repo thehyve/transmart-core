@@ -36,9 +36,9 @@ class SamplesSpec extends RESTSpec{
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "3 observations are returned, all have a cellcount"
-        assert selector.cellCount == 3
+        assert selector.cellCount == 8
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('TNS:LAB:CELLCNT')
+            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
             assert selector.select(it) != null
         }
     }

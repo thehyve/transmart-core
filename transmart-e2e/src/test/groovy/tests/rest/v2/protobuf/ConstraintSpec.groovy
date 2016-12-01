@@ -76,9 +76,10 @@ class ConstraintSpec extends RESTSpec{
         ObservationSelector selector = new ObservationSelector(responseData)
 
         then:
-        selector.cellCount == 3
+        assert selector.cellCount == 8
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'TNS:LAB:CELLCNT'
+            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            assert selector.select(it) != null
         }
 
         when:
@@ -90,9 +91,10 @@ class ConstraintSpec extends RESTSpec{
         selector = new ObservationSelector(responseData)
 
         then:
-        selector.cellCount == 3
+        assert selector.cellCount == 8
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'TNS:LAB:CELLCNT'
+            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            assert selector.select(it) != null
         }
     }
 
