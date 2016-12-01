@@ -1,11 +1,10 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
+import selectors.protobuf.ObservationSelectorJson
 import spock.lang.Requires
 
 import static config.Config.*
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.*
 import static tests.rest.v2.ValueType.NUMERIC
 import static tests.rest.v2.ValueType.STRING
@@ -18,37 +17,40 @@ import static tests.rest.v2.constraints.*
  *      It should be possible to link observations from multiple concepts to the same relative timepoint. At least per study, preferably global.
  *      Relative timepoints should be able to have a linked value and unit, representing their place on the relative timescale compared to other relative timepoints with the same unit.
  */
-class RelativeTimepointsSpec extends RESTSpec{
+class RelativeTimepointsSpec extends RESTSpec {
 
     /**
      *  given: "study CLINICAL_TRIAL is loaded"
      *  when: "I get observations from that study related to Baseline"
      *  then: "4 observations are returned"
      */
-    @Requires({CLINICAL_TRIAL_LOADED})
-    def "multiple observations to a relative timepoint"(){
+    @Requires({ CLINICAL_TRIAL_LOADED })
+    def "multiple observations to a relative timepoint"() {
         given: "study CLINICAL_TRIAL is loaded"
 
         when: "I get observations related to Baseline"
         def constraintMap = [
-                type: Combination,
+                type    : Combination,
                 operator: AND,
-                args: [
+                args    : [
                         [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
-                        [type: FieldConstraint,
-                         field: [dimension: 'TrialVisitDimension',
-                                 fieldName: 'relTimeLabel',
-                                 type: STRING ],
+                        [type    : FieldConstraint,
+                         field   : [dimension: 'TrialVisitDimension',
+                                    fieldName: 'relTimeLabel',
+                                    type     : STRING],
                          operator: EQUALS,
-                         value:'Baseline']
+                         value   : 'Baseline']
                 ]
         ]
-
         def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "4 observations are returned"
-        that responseData.size(), is(4)
-        that responseData, everyItem(hasKey('conceptCode'))
+
+        assert selector.cellCount == 4
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CT:VSIGN:HR')
+        }
     }
 
     /**
@@ -57,45 +59,56 @@ class RelativeTimepointsSpec extends RESTSpec{
      *  and: "I get observations related to 7 days"
      *  then: "both sets of observations are the same"
      */
-    @Requires({CLINICAL_TRIAL_LOADED})
-    def "label and relative time is te same"(){
+    @Requires({ CLINICAL_TRIAL_LOADED })
+    def "label and relative time is te same"() {
         given: "study CLINICAL_TRIAL is loaded"
 
         when: "I get observations related to week 1"
         def constraintMap1 = [
-                type: Combination,
+                type    : Combination,
                 operator: AND,
-                args: [
+                args    : [
                         [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
-                        [type: FieldConstraint,
-                         field: [dimension: 'TrialVisitDimension',
-                                 fieldName: 'relTimeLabel',
-                                 type: STRING ],
+                        [type    : FieldConstraint,
+                         field   : [dimension: 'TrialVisitDimension',
+                                    fieldName: 'relTimeLabel',
+                                    type     : STRING],
                          operator: EQUALS,
-                         value:'Week 1']
+                         value   : 'Week 1']
                 ]
         ]
 
         and: "I get observations related to 7 days"
         def constraintMap2 = [
-                type: Combination,
+                type    : Combination,
                 operator: AND,
-                args: [
+                args    : [
                         [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
-                        [type: FieldConstraint,
-                         field: [dimension: 'TrialVisitDimension',
-                                 fieldName: 'relTime',
-                                 type: NUMERIC ],
+                        [type    : FieldConstraint,
+                         field   : [dimension: 'TrialVisitDimension',
+                                    fieldName: 'relTime',
+                                    type     : NUMERIC],
                          operator: EQUALS,
-                         value:7]
+                         value   : 7]
                 ]
         ]
 
         def responseData1 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap1))
+        ObservationSelectorJson selector1 = new ObservationSelectorJson(parseHypercube(responseData1))
         def responseData2 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap2))
+        ObservationSelectorJson selector2 = new ObservationSelectorJson(parseHypercube(responseData2))
 
         then: "both sets of observations are the same"
-        that responseData1, is(responseData2)
+
+        assert selector1.cellCount == selector2.cellCount
+        assert selector1.inlined.size() == selector2.inlined.size()
+        assert selector1.inlined.containsAll(selector2.inlined)
+        assert selector1.notInlined.size() == selector2.notInlined.size()
+        assert selector1.notInlined.containsAll(selector2.notInlined)
+
+        (0..<selector1.cellCount).each {
+            assert selector1.select(it) == selector2.select(it)
+        }
     }
 
     /**
@@ -103,30 +116,34 @@ class RelativeTimepointsSpec extends RESTSpec{
      *  when: "I get observations within that study related to General"
      *  then: "multiple concepts are returned"
      */
-    @Requires({EHR_LOADED})
-    def "multiple concepts to the same relative timepoint within the same study"(){
+    @Requires({ EHR_LOADED })
+    def "multiple concepts to the same relative timepoint within the same study"() {
         given: "study EHR is loaded"
 
         when: "I get observations related to General"
         def constraintMap = [
-                type: Combination,
+                type    : Combination,
                 operator: AND,
-                args: [
+                args    : [
                         [type: StudyConstraint, studyId: EHR_ID],
-                        [type: FieldConstraint,
-                         field: [dimension: 'TrialVisitDimension',
-                                 fieldName: 'relTimeLabel',
-                                 type: STRING ],
+                        [type    : FieldConstraint,
+                         field   : [dimension: 'TrialVisitDimension',
+                                    fieldName: 'relTimeLabel',
+                                    type     : STRING],
                          operator: EQUALS,
-                         value:'General']
+                         value   : 'General']
                 ]
         ]
-
         def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "multiple concepts are returned"
-        that responseData, hasItem(hasEntry('conceptCode', 'EHR:DEM:AGE'))
-        that responseData, hasItem(hasEntry('conceptCode', 'EHR:VSIGN:HR'))
+
+        HashSet concepts = []
+        (0..<selector.cellCount).each {
+            concepts.add(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+        }
+        assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR')
     }
 
     /**
@@ -134,24 +151,26 @@ class RelativeTimepointsSpec extends RESTSpec{
      *  when: "I get observations related to the General relative time label"
      *  then: "multiple concepts from both EHR and CLINICAL_TRIAL are returned"
      */
-    @Requires({EHR_LOADED && CLINICAL_TRIAL_LOADED})
-    def "multiple concepts to the same relative timepoint within several studies"(){
+    @Requires({ EHR_LOADED && CLINICAL_TRIAL_LOADED })
+    def "multiple concepts to the same relative timepoint within several studies"() {
         given: "studies EHR and CLINICAL_TRIAL are loaded"
 
         when: "I get observations related to the General relative time label"
-        def constraintMap = [type: FieldConstraint,
-                             field: [dimension: 'TrialVisitDimension',
-                                     fieldName: 'relTimeLabel',
-                                     type: STRING ],
+        def constraintMap = [type    : FieldConstraint,
+                             field   : [dimension: 'TrialVisitDimension',
+                                        fieldName: 'relTimeLabel',
+                                        type     : STRING],
                              operator: EQUALS,
-                             value:'General']
-
+                             value   : 'General']
         def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "multiple concepts are returned"
-        that responseData, hasItem(hasEntry('conceptCode', 'EHR:DEM:AGE'))
-        that responseData, hasItem(hasEntry('conceptCode', 'EHR:VSIGN:HR'))
-        that responseData, hasItem(hasEntry('conceptCode', 'CT:DEM:AGE'))
+        HashSet concepts = []
+        (0..<selector.cellCount).each {
+            concepts.add(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+        }
+        assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR', 'CT:DEM:AGE')
     }
 
     /**
@@ -160,44 +179,54 @@ class RelativeTimepointsSpec extends RESTSpec{
      *  and: "I get observations related to GREATER_THEN the second to last week"
      *  then: "both sets of observations are the same"
      */
-    @Requires({CLINICAL_TRIAL_LOADED})
-    def "relative timescale compared to other relative timepoints"(){
+    @Requires({ CLINICAL_TRIAL_LOADED })
+    def "relative timescale compared to other relative timepoints"() {
         given: "study CLINICAL_TRIAL is loaded"
 
         when: "I get observations related to the last week"
         def constraintMap1 = [
-                type: Combination,
+                type    : Combination,
                 operator: AND,
-                args: [
+                args    : [
                         [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
-                        [type: FieldConstraint,
-                         field: [dimension: 'TrialVisitDimension',
-                                 fieldName: 'relTimeLabel',
-                                 type: STRING ],
+                        [type    : FieldConstraint,
+                         field   : [dimension: 'TrialVisitDimension',
+                                    fieldName: 'relTimeLabel',
+                                    type     : STRING],
                          operator: EQUALS,
-                         value:'Week 3']
+                         value   : 'Week 3']
                 ]
         ]
 
         and: "I get observations related to GREATER_THEN the second to last week"
         def constraintMap2 = [
-                type: Combination,
+                type    : Combination,
                 operator: AND,
-                args: [
+                args    : [
                         [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
-                        [type: FieldConstraint,
-                         field: [dimension: 'TrialVisitDimension',
-                                 fieldName: 'relTime',
-                                 type: NUMERIC ],
+                        [type    : FieldConstraint,
+                         field   : [dimension: 'TrialVisitDimension',
+                                    fieldName: 'relTime',
+                                    type     : NUMERIC],
                          operator: GREATER_THAN,
-                         value:7]
+                         value   : 7]
                 ]
         ]
-
         def responseData1 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap1))
+        ObservationSelectorJson selector1 = new ObservationSelectorJson(parseHypercube(responseData1))
         def responseData2 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap2))
+        ObservationSelectorJson selector2 = new ObservationSelectorJson(parseHypercube(responseData2))
 
         then: "both sets of observations are the same"
-        that responseData1, is(responseData2)
+
+        assert selector1.cellCount == selector2.cellCount
+        assert selector1.inlined.size() == selector2.inlined.size()
+        assert selector1.inlined.containsAll(selector2.inlined)
+        assert selector1.notInlined.size() == selector2.notInlined.size()
+        assert selector1.notInlined.containsAll(selector2.notInlined)
+
+        (0..<selector1.cellCount).each {
+            assert selector1.select(it) == selector2.select(it)
+        }
     }
 }

@@ -14,6 +14,131 @@ public final class ObservationsProto {
     registerAllExtensions(
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
+  /**
+   * Protobuf enum {@code hypercube.Type}
+   */
+  public enum Type
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>DOUBLE = 0;</code>
+     */
+    DOUBLE(0),
+    /**
+     * <code>STRING = 1;</code>
+     */
+    STRING(1),
+    /**
+     * <code>INT = 2;</code>
+     */
+    INT(2),
+    /**
+     * <code>TIMESTAMP = 3;</code>
+     */
+    TIMESTAMP(3),
+    /**
+     * <code>OBJECT = 4;</code>
+     */
+    OBJECT(4),
+    UNRECOGNIZED(-1),
+    ;
+
+    /**
+     * <code>DOUBLE = 0;</code>
+     */
+    public static final int DOUBLE_VALUE = 0;
+    /**
+     * <code>STRING = 1;</code>
+     */
+    public static final int STRING_VALUE = 1;
+    /**
+     * <code>INT = 2;</code>
+     */
+    public static final int INT_VALUE = 2;
+    /**
+     * <code>TIMESTAMP = 3;</code>
+     */
+    public static final int TIMESTAMP_VALUE = 3;
+    /**
+     * <code>OBJECT = 4;</code>
+     */
+    public static final int OBJECT_VALUE = 4;
+
+
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static Type valueOf(int value) {
+      return forNumber(value);
+    }
+
+    public static Type forNumber(int value) {
+      switch (value) {
+        case 0: return DOUBLE;
+        case 1: return STRING;
+        case 2: return INT;
+        case 3: return TIMESTAMP;
+        case 4: return OBJECT;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<Type>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        Type> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<Type>() {
+            public Type findValueByNumber(int number) {
+              return Type.forNumber(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(ordinal());
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.getDescriptor().getEnumTypes().get(0);
+    }
+
+    private static final Type[] VALUES = values();
+
+    public static Type valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      if (desc.getIndex() == -1) {
+        return UNRECOGNIZED;
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int value;
+
+    private Type(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:hypercube.Type)
+  }
+
   public interface HeaderOrBuilder extends
       // @@protoc_insertion_point(interface_extends:hypercube.Header)
       com.google.protobuf.MessageOrBuilder {
@@ -773,52 +898,40 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * if true, values of the observation can be packed along
+     * A description of the elements of the dimension. 
      * </pre>
      *
-     * <code>optional bool isDense = 2;</code>
+     * <code>optional .hypercube.Type type = 2;</code>
      */
-    boolean getIsDense();
-
+    int getTypeValue();
     /**
      * <pre>
-     * this dimension
+     * A description of the elements of the dimension. 
      * </pre>
      *
+     * <code>optional .hypercube.Type type = 2;</code>
+     */
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType();
+
+    /**
      * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
      */
     java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition> 
         getFieldsList();
     /**
-     * <pre>
-     * this dimension
-     * </pre>
-     *
      * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
      */
     org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition getFields(int index);
     /**
-     * <pre>
-     * this dimension
-     * </pre>
-     *
      * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
      */
     int getFieldsCount();
     /**
-     * <pre>
-     * this dimension
-     * </pre>
-     *
      * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
      */
     java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinitionOrBuilder> 
         getFieldsOrBuilderList();
     /**
-     * <pre>
-     * this dimension
-     * </pre>
-     *
      * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
      */
     org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinitionOrBuilder getFieldsOrBuilder(
@@ -826,7 +939,8 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * if true the dimension elements will be stored in the
+     * If true, the dimension elements will be stored in the
+     *observation cell instead of the footer. 
      * </pre>
      *
      * <code>optional bool inline = 4;</code>
@@ -835,7 +949,7 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * observation cell instead of the footer
+     * If true, observations are packed along this dimension. 
      * </pre>
      *
      * <code>optional bool packed = 5;</code>
@@ -844,7 +958,7 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * Only used when the dimension elements are
+     * Only used if the dimension elements are sent in the header instead of the footer. 
      * </pre>
      *
      * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -852,7 +966,7 @@ public final class ObservationsProto {
     boolean hasElements();
     /**
      * <pre>
-     * Only used when the dimension elements are
+     * Only used if the dimension elements are sent in the header instead of the footer. 
      * </pre>
      *
      * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -860,7 +974,7 @@ public final class ObservationsProto {
     org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements getElements();
     /**
      * <pre>
-     * Only used when the dimension elements are
+     * Only used if the dimension elements are sent in the header instead of the footer. 
      * </pre>
      *
      * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -884,7 +998,7 @@ public final class ObservationsProto {
     }
     private DimensionDeclaration() {
       name_ = "";
-      isDense_ = false;
+      type_ = 0;
       fields_ = java.util.Collections.emptyList();
       inline_ = false;
       packed_ = false;
@@ -922,8 +1036,9 @@ public final class ObservationsProto {
               break;
             }
             case 16: {
+              int rawValue = input.readEnum();
 
-              isDense_ = input.readBool();
+              type_ = rawValue;
               break;
             }
             case 26: {
@@ -1019,36 +1134,39 @@ public final class ObservationsProto {
       }
     }
 
-    public static final int ISDENSE_FIELD_NUMBER = 2;
-    private boolean isDense_;
+    public static final int TYPE_FIELD_NUMBER = 2;
+    private int type_;
     /**
      * <pre>
-     * if true, values of the observation can be packed along
+     * A description of the elements of the dimension. 
      * </pre>
      *
-     * <code>optional bool isDense = 2;</code>
+     * <code>optional .hypercube.Type type = 2;</code>
      */
-    public boolean getIsDense() {
-      return isDense_;
+    public int getTypeValue() {
+      return type_;
+    }
+    /**
+     * <pre>
+     * A description of the elements of the dimension. 
+     * </pre>
+     *
+     * <code>optional .hypercube.Type type = 2;</code>
+     */
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType() {
+      org.transmartproject.rest.hypercubeProto.ObservationsProto.Type result = org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.valueOf(type_);
+      return result == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.UNRECOGNIZED : result;
     }
 
     public static final int FIELDS_FIELD_NUMBER = 3;
     private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition> fields_;
     /**
-     * <pre>
-     * this dimension
-     * </pre>
-     *
      * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
      */
     public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition> getFieldsList() {
       return fields_;
     }
     /**
-     * <pre>
-     * this dimension
-     * </pre>
-     *
      * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
      */
     public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinitionOrBuilder> 
@@ -1056,30 +1174,18 @@ public final class ObservationsProto {
       return fields_;
     }
     /**
-     * <pre>
-     * this dimension
-     * </pre>
-     *
      * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
      */
     public int getFieldsCount() {
       return fields_.size();
     }
     /**
-     * <pre>
-     * this dimension
-     * </pre>
-     *
      * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
      */
     public org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition getFields(int index) {
       return fields_.get(index);
     }
     /**
-     * <pre>
-     * this dimension
-     * </pre>
-     *
      * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
      */
     public org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinitionOrBuilder getFieldsOrBuilder(
@@ -1091,7 +1197,8 @@ public final class ObservationsProto {
     private boolean inline_;
     /**
      * <pre>
-     * if true the dimension elements will be stored in the
+     * If true, the dimension elements will be stored in the
+     *observation cell instead of the footer. 
      * </pre>
      *
      * <code>optional bool inline = 4;</code>
@@ -1104,7 +1211,7 @@ public final class ObservationsProto {
     private boolean packed_;
     /**
      * <pre>
-     * observation cell instead of the footer
+     * If true, observations are packed along this dimension. 
      * </pre>
      *
      * <code>optional bool packed = 5;</code>
@@ -1117,7 +1224,7 @@ public final class ObservationsProto {
     private org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements elements_;
     /**
      * <pre>
-     * Only used when the dimension elements are
+     * Only used if the dimension elements are sent in the header instead of the footer. 
      * </pre>
      *
      * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -1127,7 +1234,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * Only used when the dimension elements are
+     * Only used if the dimension elements are sent in the header instead of the footer. 
      * </pre>
      *
      * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -1137,7 +1244,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * Only used when the dimension elements are
+     * Only used if the dimension elements are sent in the header instead of the footer. 
      * </pre>
      *
      * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -1161,8 +1268,8 @@ public final class ObservationsProto {
       if (!getNameBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 1, name_);
       }
-      if (isDense_ != false) {
-        output.writeBool(2, isDense_);
+      if (type_ != org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.DOUBLE.getNumber()) {
+        output.writeEnum(2, type_);
       }
       for (int i = 0; i < fields_.size(); i++) {
         output.writeMessage(3, fields_.get(i));
@@ -1186,9 +1293,9 @@ public final class ObservationsProto {
       if (!getNameBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, name_);
       }
-      if (isDense_ != false) {
+      if (type_ != org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.DOUBLE.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(2, isDense_);
+          .computeEnumSize(2, type_);
       }
       for (int i = 0; i < fields_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
@@ -1224,8 +1331,7 @@ public final class ObservationsProto {
       boolean result = true;
       result = result && getName()
           .equals(other.getName());
-      result = result && (getIsDense()
-          == other.getIsDense());
+      result = result && type_ == other.type_;
       result = result && getFieldsList()
           .equals(other.getFieldsList());
       result = result && (getInline()
@@ -1249,9 +1355,8 @@ public final class ObservationsProto {
       hash = (19 * hash) + getDescriptorForType().hashCode();
       hash = (37 * hash) + NAME_FIELD_NUMBER;
       hash = (53 * hash) + getName().hashCode();
-      hash = (37 * hash) + ISDENSE_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getIsDense());
+      hash = (37 * hash) + TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + type_;
       if (getFieldsCount() > 0) {
         hash = (37 * hash) + FIELDS_FIELD_NUMBER;
         hash = (53 * hash) + getFieldsList().hashCode();
@@ -1391,7 +1496,7 @@ public final class ObservationsProto {
         super.clear();
         name_ = "";
 
-        isDense_ = false;
+        type_ = 0;
 
         if (fieldsBuilder_ == null) {
           fields_ = java.util.Collections.emptyList();
@@ -1434,7 +1539,7 @@ public final class ObservationsProto {
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         result.name_ = name_;
-        result.isDense_ = isDense_;
+        result.type_ = type_;
         if (fieldsBuilder_ == null) {
           if (((bitField0_ & 0x00000004) == 0x00000004)) {
             fields_ = java.util.Collections.unmodifiableList(fields_);
@@ -1497,8 +1602,8 @@ public final class ObservationsProto {
           name_ = other.name_;
           onChanged();
         }
-        if (other.getIsDense() != false) {
-          setIsDense(other.getIsDense());
+        if (other.type_ != 0) {
+          setTypeValue(other.getTypeValue());
         }
         if (fieldsBuilder_ == null) {
           if (!other.fields_.isEmpty()) {
@@ -1631,40 +1736,66 @@ public final class ObservationsProto {
         return this;
       }
 
-      private boolean isDense_ ;
+      private int type_ = 0;
       /**
        * <pre>
-       * if true, values of the observation can be packed along
+       * A description of the elements of the dimension. 
        * </pre>
        *
-       * <code>optional bool isDense = 2;</code>
+       * <code>optional .hypercube.Type type = 2;</code>
        */
-      public boolean getIsDense() {
-        return isDense_;
+      public int getTypeValue() {
+        return type_;
       }
       /**
        * <pre>
-       * if true, values of the observation can be packed along
+       * A description of the elements of the dimension. 
        * </pre>
        *
-       * <code>optional bool isDense = 2;</code>
+       * <code>optional .hypercube.Type type = 2;</code>
        */
-      public Builder setIsDense(boolean value) {
-        
-        isDense_ = value;
+      public Builder setTypeValue(int value) {
+        type_ = value;
         onChanged();
         return this;
       }
       /**
        * <pre>
-       * if true, values of the observation can be packed along
+       * A description of the elements of the dimension. 
        * </pre>
        *
-       * <code>optional bool isDense = 2;</code>
+       * <code>optional .hypercube.Type type = 2;</code>
        */
-      public Builder clearIsDense() {
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.Type result = org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.valueOf(type_);
+        return result == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.UNRECOGNIZED : result;
+      }
+      /**
+       * <pre>
+       * A description of the elements of the dimension. 
+       * </pre>
+       *
+       * <code>optional .hypercube.Type type = 2;</code>
+       */
+      public Builder setType(org.transmartproject.rest.hypercubeProto.ObservationsProto.Type value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
         
-        isDense_ = false;
+        type_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * A description of the elements of the dimension. 
+       * </pre>
+       *
+       * <code>optional .hypercube.Type type = 2;</code>
+       */
+      public Builder clearType() {
+        
+        type_ = 0;
         onChanged();
         return this;
       }
@@ -1682,10 +1813,6 @@ public final class ObservationsProto {
           org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition, org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinitionOrBuilder> fieldsBuilder_;
 
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition> getFieldsList() {
@@ -1696,10 +1823,6 @@ public final class ObservationsProto {
         }
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public int getFieldsCount() {
@@ -1710,10 +1833,6 @@ public final class ObservationsProto {
         }
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition getFields(int index) {
@@ -1724,10 +1843,6 @@ public final class ObservationsProto {
         }
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public Builder setFields(
@@ -1745,10 +1860,6 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public Builder setFields(
@@ -1763,10 +1874,6 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public Builder addFields(org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition value) {
@@ -1783,10 +1890,6 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public Builder addFields(
@@ -1804,10 +1907,6 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public Builder addFields(
@@ -1822,10 +1921,6 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public Builder addFields(
@@ -1840,10 +1935,6 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public Builder addAllFields(
@@ -1859,10 +1950,6 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public Builder clearFields() {
@@ -1876,10 +1963,6 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public Builder removeFields(int index) {
@@ -1893,10 +1976,6 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.Builder getFieldsBuilder(
@@ -1904,10 +1983,6 @@ public final class ObservationsProto {
         return getFieldsFieldBuilder().getBuilder(index);
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinitionOrBuilder getFieldsOrBuilder(
@@ -1918,10 +1993,6 @@ public final class ObservationsProto {
         }
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinitionOrBuilder> 
@@ -1933,10 +2004,6 @@ public final class ObservationsProto {
         }
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.Builder addFieldsBuilder() {
@@ -1944,10 +2011,6 @@ public final class ObservationsProto {
             org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.getDefaultInstance());
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.Builder addFieldsBuilder(
@@ -1956,10 +2019,6 @@ public final class ObservationsProto {
             index, org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.getDefaultInstance());
       }
       /**
-       * <pre>
-       * this dimension
-       * </pre>
-       *
        * <code>repeated .hypercube.FieldDefinition fields = 3;</code>
        */
       public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.Builder> 
@@ -1984,7 +2043,8 @@ public final class ObservationsProto {
       private boolean inline_ ;
       /**
        * <pre>
-       * if true the dimension elements will be stored in the
+       * If true, the dimension elements will be stored in the
+       *observation cell instead of the footer. 
        * </pre>
        *
        * <code>optional bool inline = 4;</code>
@@ -1994,7 +2054,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * if true the dimension elements will be stored in the
+       * If true, the dimension elements will be stored in the
+       *observation cell instead of the footer. 
        * </pre>
        *
        * <code>optional bool inline = 4;</code>
@@ -2007,7 +2068,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * if true the dimension elements will be stored in the
+       * If true, the dimension elements will be stored in the
+       *observation cell instead of the footer. 
        * </pre>
        *
        * <code>optional bool inline = 4;</code>
@@ -2022,7 +2084,7 @@ public final class ObservationsProto {
       private boolean packed_ ;
       /**
        * <pre>
-       * observation cell instead of the footer
+       * If true, observations are packed along this dimension. 
        * </pre>
        *
        * <code>optional bool packed = 5;</code>
@@ -2032,7 +2094,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * observation cell instead of the footer
+       * If true, observations are packed along this dimension. 
        * </pre>
        *
        * <code>optional bool packed = 5;</code>
@@ -2045,7 +2107,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * observation cell instead of the footer
+       * If true, observations are packed along this dimension. 
        * </pre>
        *
        * <code>optional bool packed = 5;</code>
@@ -2062,7 +2124,7 @@ public final class ObservationsProto {
           org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementsOrBuilder> elementsBuilder_;
       /**
        * <pre>
-       * Only used when the dimension elements are
+       * Only used if the dimension elements are sent in the header instead of the footer. 
        * </pre>
        *
        * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -2072,7 +2134,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only used when the dimension elements are
+       * Only used if the dimension elements are sent in the header instead of the footer. 
        * </pre>
        *
        * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -2086,7 +2148,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only used when the dimension elements are
+       * Only used if the dimension elements are sent in the header instead of the footer. 
        * </pre>
        *
        * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -2106,7 +2168,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only used when the dimension elements are
+       * Only used if the dimension elements are sent in the header instead of the footer. 
        * </pre>
        *
        * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -2124,7 +2186,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only used when the dimension elements are
+       * Only used if the dimension elements are sent in the header instead of the footer. 
        * </pre>
        *
        * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -2146,7 +2208,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only used when the dimension elements are
+       * Only used if the dimension elements are sent in the header instead of the footer. 
        * </pre>
        *
        * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -2164,7 +2226,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only used when the dimension elements are
+       * Only used if the dimension elements are sent in the header instead of the footer. 
        * </pre>
        *
        * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -2176,7 +2238,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only used when the dimension elements are
+       * Only used if the dimension elements are sent in the header instead of the footer. 
        * </pre>
        *
        * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -2191,7 +2253,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only used when the dimension elements are
+       * Only used if the dimension elements are sent in the header instead of the footer. 
        * </pre>
        *
        * <code>optional .hypercube.DimensionElements elements = 6;</code>
@@ -2263,23 +2325,33 @@ public final class ObservationsProto {
       com.google.protobuf.MessageOrBuilder {
 
     /**
+     * <pre>
+     * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
+     * age, gender, race, etc.
+     * </pre>
+     *
      * <code>optional string name = 1;</code>
      */
     java.lang.String getName();
     /**
+     * <pre>
+     * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
+     * age, gender, race, etc.
+     * </pre>
+     *
      * <code>optional string name = 1;</code>
      */
     com.google.protobuf.ByteString
         getNameBytes();
 
     /**
-     * <code>optional .hypercube.FieldDefinition.ColumnType type = 2;</code>
+     * <code>optional .hypercube.Type type = 2;</code>
      */
     int getTypeValue();
     /**
-     * <code>optional .hypercube.FieldDefinition.ColumnType type = 2;</code>
+     * <code>optional .hypercube.Type type = 2;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType getType();
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType();
   }
   /**
    * <pre>
@@ -2361,130 +2433,14 @@ public final class ObservationsProto {
               org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.Builder.class);
     }
 
+    public static final int NAME_FIELD_NUMBER = 1;
+    private volatile java.lang.Object name_;
     /**
      * <pre>
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
      *
-     * Protobuf enum {@code hypercube.FieldDefinition.ColumnType}
-     */
-    public enum ColumnType
-        implements com.google.protobuf.ProtocolMessageEnum {
-      /**
-       * <code>DOUBLE = 0;</code>
-       */
-      DOUBLE(0),
-      /**
-       * <code>STRING = 1;</code>
-       */
-      STRING(1),
-      /**
-       * <code>INT = 2;</code>
-       */
-      INT(2),
-      /**
-       * <code>TIMESTAMP = 3;</code>
-       */
-      TIMESTAMP(3),
-      UNRECOGNIZED(-1),
-      ;
-
-      /**
-       * <code>DOUBLE = 0;</code>
-       */
-      public static final int DOUBLE_VALUE = 0;
-      /**
-       * <code>STRING = 1;</code>
-       */
-      public static final int STRING_VALUE = 1;
-      /**
-       * <code>INT = 2;</code>
-       */
-      public static final int INT_VALUE = 2;
-      /**
-       * <code>TIMESTAMP = 3;</code>
-       */
-      public static final int TIMESTAMP_VALUE = 3;
-
-
-      public final int getNumber() {
-        if (this == UNRECOGNIZED) {
-          throw new java.lang.IllegalArgumentException(
-              "Can't get the number of an unknown enum value.");
-        }
-        return value;
-      }
-
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static ColumnType valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static ColumnType forNumber(int value) {
-        switch (value) {
-          case 0: return DOUBLE;
-          case 1: return STRING;
-          case 2: return INT;
-          case 3: return TIMESTAMP;
-          default: return null;
-        }
-      }
-
-      public static com.google.protobuf.Internal.EnumLiteMap<ColumnType>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static final com.google.protobuf.Internal.EnumLiteMap<
-          ColumnType> internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<ColumnType>() {
-              public ColumnType findValueByNumber(int number) {
-                return ColumnType.forNumber(number);
-              }
-            };
-
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        return getDescriptor().getValues().get(ordinal());
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.getDescriptor().getEnumTypes().get(0);
-      }
-
-      private static final ColumnType[] VALUES = values();
-
-      public static ColumnType valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        if (desc.getIndex() == -1) {
-          return UNRECOGNIZED;
-        }
-        return VALUES[desc.getIndex()];
-      }
-
-      private final int value;
-
-      private ColumnType(int value) {
-        this.value = value;
-      }
-
-      // @@protoc_insertion_point(enum_scope:hypercube.FieldDefinition.ColumnType)
-    }
-
-    public static final int NAME_FIELD_NUMBER = 1;
-    private volatile java.lang.Object name_;
-    /**
      * <code>optional string name = 1;</code>
      */
     public java.lang.String getName() {
@@ -2500,6 +2456,11 @@ public final class ObservationsProto {
       }
     }
     /**
+     * <pre>
+     * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
+     * age, gender, race, etc.
+     * </pre>
+     *
      * <code>optional string name = 1;</code>
      */
     public com.google.protobuf.ByteString
@@ -2519,17 +2480,17 @@ public final class ObservationsProto {
     public static final int TYPE_FIELD_NUMBER = 2;
     private int type_;
     /**
-     * <code>optional .hypercube.FieldDefinition.ColumnType type = 2;</code>
+     * <code>optional .hypercube.Type type = 2;</code>
      */
     public int getTypeValue() {
       return type_;
     }
     /**
-     * <code>optional .hypercube.FieldDefinition.ColumnType type = 2;</code>
+     * <code>optional .hypercube.Type type = 2;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType getType() {
-      org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType result = org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType.valueOf(type_);
-      return result == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType.UNRECOGNIZED : result;
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType() {
+      org.transmartproject.rest.hypercubeProto.ObservationsProto.Type result = org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.valueOf(type_);
+      return result == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.UNRECOGNIZED : result;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -2547,7 +2508,7 @@ public final class ObservationsProto {
       if (!getNameBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 1, name_);
       }
-      if (type_ != org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType.DOUBLE.getNumber()) {
+      if (type_ != org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.DOUBLE.getNumber()) {
         output.writeEnum(2, type_);
       }
     }
@@ -2560,7 +2521,7 @@ public final class ObservationsProto {
       if (!getNameBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, name_);
       }
-      if (type_ != org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType.DOUBLE.getNumber()) {
+      if (type_ != org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.DOUBLE.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(2, type_);
       }
@@ -2823,6 +2784,11 @@ public final class ObservationsProto {
 
       private java.lang.Object name_ = "";
       /**
+       * <pre>
+       * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
+       * age, gender, race, etc.
+       * </pre>
+       *
        * <code>optional string name = 1;</code>
        */
       public java.lang.String getName() {
@@ -2838,6 +2804,11 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
+       * age, gender, race, etc.
+       * </pre>
+       *
        * <code>optional string name = 1;</code>
        */
       public com.google.protobuf.ByteString
@@ -2854,6 +2825,11 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
+       * age, gender, race, etc.
+       * </pre>
+       *
        * <code>optional string name = 1;</code>
        */
       public Builder setName(
@@ -2867,6 +2843,11 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
+       * age, gender, race, etc.
+       * </pre>
+       *
        * <code>optional string name = 1;</code>
        */
       public Builder clearName() {
@@ -2876,6 +2857,11 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
+       * age, gender, race, etc.
+       * </pre>
+       *
        * <code>optional string name = 1;</code>
        */
       public Builder setNameBytes(
@@ -2892,13 +2878,13 @@ public final class ObservationsProto {
 
       private int type_ = 0;
       /**
-       * <code>optional .hypercube.FieldDefinition.ColumnType type = 2;</code>
+       * <code>optional .hypercube.Type type = 2;</code>
        */
       public int getTypeValue() {
         return type_;
       }
       /**
-       * <code>optional .hypercube.FieldDefinition.ColumnType type = 2;</code>
+       * <code>optional .hypercube.Type type = 2;</code>
        */
       public Builder setTypeValue(int value) {
         type_ = value;
@@ -2906,16 +2892,16 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <code>optional .hypercube.FieldDefinition.ColumnType type = 2;</code>
+       * <code>optional .hypercube.Type type = 2;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType getType() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType result = org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType.valueOf(type_);
-        return result == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType.UNRECOGNIZED : result;
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.Type result = org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.valueOf(type_);
+        return result == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.UNRECOGNIZED : result;
       }
       /**
-       * <code>optional .hypercube.FieldDefinition.ColumnType type = 2;</code>
+       * <code>optional .hypercube.Type type = 2;</code>
        */
-      public Builder setType(org.transmartproject.rest.hypercubeProto.ObservationsProto.FieldDefinition.ColumnType value) {
+      public Builder setType(org.transmartproject.rest.hypercubeProto.ObservationsProto.Type value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -2925,7 +2911,7 @@ public final class ObservationsProto {
         return this;
       }
       /**
-       * <code>optional .hypercube.FieldDefinition.ColumnType type = 2;</code>
+       * <code>optional .hypercube.Type type = 2;</code>
        */
       public Builder clearType() {
         
@@ -4639,37 +4625,13 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-     * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-     * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-     * samples for that patient).
+     * The number of entries in either stringValues or numericValues, i.e., the number of observations represented
+     * by this message.
      * </pre>
      *
-     * <code>repeated int32 numSamples = 5;</code>
+     * <code>optional int32 numObervations = 5;</code>
      */
-    java.util.List<java.lang.Integer> getNumSamplesList();
-    /**
-     * <pre>
-     * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-     * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-     * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-     * samples for that patient).
-     * </pre>
-     *
-     * <code>repeated int32 numSamples = 5;</code>
-     */
-    int getNumSamplesCount();
-    /**
-     * <pre>
-     * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-     * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-     * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-     * samples for that patient).
-     * </pre>
-     *
-     * <code>repeated int32 numSamples = 5;</code>
-     */
-    int getNumSamples(int index);
+    int getNumObervations();
 
     /**
      * <pre>
@@ -4696,7 +4658,7 @@ public final class ObservationsProto {
       inlineDimensions_ = java.util.Collections.emptyList();
       stringValues_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       numericValues_ = java.util.Collections.emptyList();
-      numSamples_ = java.util.Collections.emptyList();
+      numObervations_ = 0;
       last_ = false;
     }
 
@@ -4786,24 +4748,8 @@ public final class ObservationsProto {
               break;
             }
             case 40: {
-              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
-                numSamples_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000010;
-              }
-              numSamples_.add(input.readInt32());
-              break;
-            }
-            case 42: {
-              int length = input.readRawVarint32();
-              int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010) && input.getBytesUntilLimit() > 0) {
-                numSamples_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000010;
-              }
-              while (input.getBytesUntilLimit() > 0) {
-                numSamples_.add(input.readInt32());
-              }
-              input.popLimit(limit);
+
+              numObervations_ = input.readInt32();
               break;
             }
             case 56: {
@@ -4830,9 +4776,6 @@ public final class ObservationsProto {
         }
         if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           numericValues_ = java.util.Collections.unmodifiableList(numericValues_);
-        }
-        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
-          numSamples_ = java.util.Collections.unmodifiableList(numSamples_);
         }
         makeExtensionsImmutable();
       }
@@ -5031,49 +4974,19 @@ public final class ObservationsProto {
     }
     private int numericValuesMemoizedSerializedSize = -1;
 
-    public static final int NUMSAMPLES_FIELD_NUMBER = 5;
-    private java.util.List<java.lang.Integer> numSamples_;
+    public static final int NUMOBERVATIONS_FIELD_NUMBER = 5;
+    private int numObervations_;
     /**
      * <pre>
-     * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-     * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-     * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-     * samples for that patient).
+     * The number of entries in either stringValues or numericValues, i.e., the number of observations represented
+     * by this message.
      * </pre>
      *
-     * <code>repeated int32 numSamples = 5;</code>
+     * <code>optional int32 numObervations = 5;</code>
      */
-    public java.util.List<java.lang.Integer>
-        getNumSamplesList() {
-      return numSamples_;
+    public int getNumObervations() {
+      return numObervations_;
     }
-    /**
-     * <pre>
-     * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-     * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-     * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-     * samples for that patient).
-     * </pre>
-     *
-     * <code>repeated int32 numSamples = 5;</code>
-     */
-    public int getNumSamplesCount() {
-      return numSamples_.size();
-    }
-    /**
-     * <pre>
-     * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-     * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-     * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-     * samples for that patient).
-     * </pre>
-     *
-     * <code>repeated int32 numSamples = 5;</code>
-     */
-    public int getNumSamples(int index) {
-      return numSamples_.get(index);
-    }
-    private int numSamplesMemoizedSerializedSize = -1;
 
     public static final int LAST_FIELD_NUMBER = 7;
     private boolean last_;
@@ -5121,12 +5034,8 @@ public final class ObservationsProto {
       for (int i = 0; i < numericValues_.size(); i++) {
         output.writeDoubleNoTag(numericValues_.get(i));
       }
-      if (getNumSamplesList().size() > 0) {
-        output.writeUInt32NoTag(42);
-        output.writeUInt32NoTag(numSamplesMemoizedSerializedSize);
-      }
-      for (int i = 0; i < numSamples_.size(); i++) {
-        output.writeInt32NoTag(numSamples_.get(i));
+      if (numObervations_ != 0) {
+        output.writeInt32(5, numObervations_);
       }
       if (last_ != false) {
         output.writeBool(7, last_);
@@ -5175,19 +5084,9 @@ public final class ObservationsProto {
         }
         numericValuesMemoizedSerializedSize = dataSize;
       }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < numSamples_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeInt32SizeNoTag(numSamples_.get(i));
-        }
-        size += dataSize;
-        if (!getNumSamplesList().isEmpty()) {
-          size += 1;
-          size += com.google.protobuf.CodedOutputStream
-              .computeInt32SizeNoTag(dataSize);
-        }
-        numSamplesMemoizedSerializedSize = dataSize;
+      if (numObervations_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(5, numObervations_);
       }
       if (last_ != false) {
         size += com.google.protobuf.CodedOutputStream
@@ -5217,8 +5116,8 @@ public final class ObservationsProto {
           .equals(other.getStringValuesList());
       result = result && getNumericValuesList()
           .equals(other.getNumericValuesList());
-      result = result && getNumSamplesList()
-          .equals(other.getNumSamplesList());
+      result = result && (getNumObervations()
+          == other.getNumObervations());
       result = result && (getLast()
           == other.getLast());
       return result;
@@ -5247,10 +5146,8 @@ public final class ObservationsProto {
         hash = (37 * hash) + NUMERICVALUES_FIELD_NUMBER;
         hash = (53 * hash) + getNumericValuesList().hashCode();
       }
-      if (getNumSamplesCount() > 0) {
-        hash = (37 * hash) + NUMSAMPLES_FIELD_NUMBER;
-        hash = (53 * hash) + getNumSamplesList().hashCode();
-      }
+      hash = (37 * hash) + NUMOBERVATIONS_FIELD_NUMBER;
+      hash = (53 * hash) + getNumObervations();
       hash = (37 * hash) + LAST_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getLast());
@@ -5385,8 +5282,8 @@ public final class ObservationsProto {
         bitField0_ = (bitField0_ & ~0x00000004);
         numericValues_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000008);
-        numSamples_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000010);
+        numObervations_ = 0;
+
         last_ = false;
 
         return this;
@@ -5437,11 +5334,7 @@ public final class ObservationsProto {
           bitField0_ = (bitField0_ & ~0x00000008);
         }
         result.numericValues_ = numericValues_;
-        if (((bitField0_ & 0x00000010) == 0x00000010)) {
-          numSamples_ = java.util.Collections.unmodifiableList(numSamples_);
-          bitField0_ = (bitField0_ & ~0x00000010);
-        }
-        result.numSamples_ = numSamples_;
+        result.numObervations_ = numObervations_;
         result.last_ = last_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -5541,15 +5434,8 @@ public final class ObservationsProto {
           }
           onChanged();
         }
-        if (!other.numSamples_.isEmpty()) {
-          if (numSamples_.isEmpty()) {
-            numSamples_ = other.numSamples_;
-            bitField0_ = (bitField0_ & ~0x00000010);
-          } else {
-            ensureNumSamplesIsMutable();
-            numSamples_.addAll(other.numSamples_);
-          }
-          onChanged();
+        if (other.getNumObervations() != 0) {
+          setNumObervations(other.getNumObervations());
         }
         if (other.getLast() != false) {
           setLast(other.getLast());
@@ -6255,117 +6141,43 @@ public final class ObservationsProto {
         return this;
       }
 
-      private java.util.List<java.lang.Integer> numSamples_ = java.util.Collections.emptyList();
-      private void ensureNumSamplesIsMutable() {
-        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
-          numSamples_ = new java.util.ArrayList<java.lang.Integer>(numSamples_);
-          bitField0_ |= 0x00000010;
-         }
+      private int numObervations_ ;
+      /**
+       * <pre>
+       * The number of entries in either stringValues or numericValues, i.e., the number of observations represented
+       * by this message.
+       * </pre>
+       *
+       * <code>optional int32 numObervations = 5;</code>
+       */
+      public int getNumObervations() {
+        return numObervations_;
       }
       /**
        * <pre>
-       * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-       * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-       * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-       * samples for that patient).
+       * The number of entries in either stringValues or numericValues, i.e., the number of observations represented
+       * by this message.
        * </pre>
        *
-       * <code>repeated int32 numSamples = 5;</code>
+       * <code>optional int32 numObervations = 5;</code>
        */
-      public java.util.List<java.lang.Integer>
-          getNumSamplesList() {
-        return java.util.Collections.unmodifiableList(numSamples_);
-      }
-      /**
-       * <pre>
-       * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-       * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-       * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-       * samples for that patient).
-       * </pre>
-       *
-       * <code>repeated int32 numSamples = 5;</code>
-       */
-      public int getNumSamplesCount() {
-        return numSamples_.size();
-      }
-      /**
-       * <pre>
-       * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-       * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-       * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-       * samples for that patient).
-       * </pre>
-       *
-       * <code>repeated int32 numSamples = 5;</code>
-       */
-      public int getNumSamples(int index) {
-        return numSamples_.get(index);
-      }
-      /**
-       * <pre>
-       * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-       * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-       * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-       * samples for that patient).
-       * </pre>
-       *
-       * <code>repeated int32 numSamples = 5;</code>
-       */
-      public Builder setNumSamples(
-          int index, int value) {
-        ensureNumSamplesIsMutable();
-        numSamples_.set(index, value);
+      public Builder setNumObervations(int value) {
+        
+        numObervations_ = value;
         onChanged();
         return this;
       }
       /**
        * <pre>
-       * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-       * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-       * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-       * samples for that patient).
+       * The number of entries in either stringValues or numericValues, i.e., the number of observations represented
+       * by this message.
        * </pre>
        *
-       * <code>repeated int32 numSamples = 5;</code>
+       * <code>optional int32 numObervations = 5;</code>
        */
-      public Builder addNumSamples(int value) {
-        ensureNumSamplesIsMutable();
-        numSamples_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-       * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-       * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-       * samples for that patient).
-       * </pre>
-       *
-       * <code>repeated int32 numSamples = 5;</code>
-       */
-      public Builder addAllNumSamples(
-          java.lang.Iterable<? extends java.lang.Integer> values) {
-        ensureNumSamplesIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, numSamples_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       * Only used when there are multiple samples. If absent, this can be interpreted as a list of only 1s.
-       * The length of this list corresponds to the number of elements of the packed dimension (e.g. the number of
-       * patients if packed along the patient dimension). Each value indicates the number of samples (e.g. the number of
-       * samples for that patient).
-       * </pre>
-       *
-       * <code>repeated int32 numSamples = 5;</code>
-       */
-      public Builder clearNumSamples() {
-        numSamples_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000010);
+      public Builder clearNumObervations() {
+        
+        numObervations_ = 0;
         onChanged();
         return this;
       }
@@ -15409,49 +15221,49 @@ public final class ObservationsProto {
       "\n\"src/protobuf/v2/observations.proto\022\thy" +
       "percube\"H\n\006Header\022>\n\025dimensionDeclaratio" +
       "ns\030\001 \003(\0132\037.hypercube.DimensionDeclaratio" +
-      "n\"\261\001\n\024DimensionDeclaration\022\014\n\004name\030\001 \001(\t" +
-      "\022\017\n\007isDense\030\002 \001(\010\022*\n\006fields\030\003 \003(\0132\032.hype" +
-      "rcube.FieldDefinition\022\016\n\006inline\030\004 \001(\010\022\016\n" +
-      "\006packed\030\005 \001(\010\022.\n\010elements\030\006 \001(\0132\034.hyperc" +
-      "ube.DimensionElements\"\222\001\n\017FieldDefinitio" +
-      "n\022\014\n\004name\030\001 \001(\t\0223\n\004type\030\002 \001(\0162%.hypercub" +
-      "e.FieldDefinition.ColumnType\"<\n\nColumnTy",
+      "n\"\277\001\n\024DimensionDeclaration\022\014\n\004name\030\001 \001(\t" +
+      "\022\035\n\004type\030\002 \001(\0162\017.hypercube.Type\022*\n\006field" +
+      "s\030\003 \003(\0132\032.hypercube.FieldDefinition\022\016\n\006i" +
+      "nline\030\004 \001(\010\022\016\n\006packed\030\005 \001(\010\022.\n\010elements\030" +
+      "\006 \001(\0132\034.hypercube.DimensionElements\">\n\017F" +
+      "ieldDefinition\022\014\n\004name\030\001 \001(\t\022\035\n\004type\030\002 \001" +
+      "(\0162\017.hypercube.Type\"\244\001\n\013Observation\022\030\n\020d",
+      "imensionIndexes\030\001 \003(\003\0225\n\020inlineDimension" +
+      "s\030\002 \003(\0132\033.hypercube.DimensionElement\022\025\n\013" +
+      "stringValue\030\003 \001(\tH\000\022\026\n\014numericValue\030\004 \001(" +
+      "\001H\000\022\014\n\004last\030\007 \001(\010B\007\n\005value\"\270\001\n\021PackedObs" +
+      "ervation\022\030\n\020dimensionIndexes\030\001 \003(\003\0226\n\020in" +
+      "lineDimensions\030\002 \003(\0132\034.hypercube.Dimensi" +
+      "onElements\022\024\n\014stringValues\030\003 \003(\t\022\025\n\rnume" +
+      "ricValues\030\004 \003(\001\022\026\n\016numObervations\030\005 \001(\005\022" +
+      "\014\n\004last\030\007 \001(\010\"\"\n\010IntValue\022\r\n\003val\030\001 \001(\022H\000" +
+      "B\007\n\005value\"(\n\016TimestampValue\022\r\n\003val\030\001 \001(\022",
+      "H\000B\007\n\005value\"%\n\013DoubleValue\022\r\n\003val\030\001 \001(\001H" +
+      "\000B\007\n\005value\"%\n\013StringValue\022\r\n\003val\030\001 \001(\tH\000" +
+      "B\007\n\005value\"\350\001\n\020DimensionElement\022 \n\006fields" +
+      "\030\001 \003(\0132\020.hypercube.Value\022%\n\010intValue\030\002 \001" +
+      "(\0132\023.hypercube.IntValue\022+\n\013doubleValue\030\003" +
+      " \001(\0132\026.hypercube.DoubleValue\022+\n\013stringVa" +
+      "lue\030\004 \001(\0132\026.hypercube.StringValue\0221\n\016tim" +
+      "estampValue\030\005 \001(\0132\031.hypercube.TimestampV" +
+      "alue\"\314\001\n\005Value\022-\n\013stringValue\030\001 \001(\0132\026.hy" +
+      "percube.StringValueH\000\022-\n\013doubleValue\030\002 \001",
+      "(\0132\026.hypercube.DoubleValueH\000\022\'\n\010intValue" +
+      "\030\003 \001(\0132\023.hypercube.IntValueH\000\0223\n\016timesta" +
+      "mpValue\030\004 \001(\0132\031.hypercube.TimestampValue" +
+      "H\000B\007\n\005value\"9\n\006Footer\022/\n\tdimension\030\001 \003(\013" +
+      "2\034.hypercube.DimensionElements\"R\n\021Dimens" +
+      "ionElements\022*\n\006fields\030\001 \003(\0132\032.hypercube." +
+      "DimElementField\022\021\n\tperSample\030\002 \001(\010\"\305\001\n\017D" +
+      "imElementField\022+\n\013stringValue\030\001 \003(\0132\026.hy" +
+      "percube.StringValue\022+\n\013doubleValue\030\002 \003(\013" +
+      "2\026.hypercube.DoubleValue\022%\n\010intValue\030\003 \003",
+      "(\0132\023.hypercube.IntValue\0221\n\016timestampValu" +
+      "e\030\004 \003(\0132\031.hypercube.TimestampValue*B\n\004Ty" +
       "pe\022\n\n\006DOUBLE\020\000\022\n\n\006STRING\020\001\022\007\n\003INT\020\002\022\r\n\tT" +
-      "IMESTAMP\020\003\"\244\001\n\013Observation\022\030\n\020dimensionI" +
-      "ndexes\030\001 \003(\003\0225\n\020inlineDimensions\030\002 \003(\0132\033" +
-      ".hypercube.DimensionElement\022\025\n\013stringVal" +
-      "ue\030\003 \001(\tH\000\022\026\n\014numericValue\030\004 \001(\001H\000\022\014\n\004la" +
-      "st\030\007 \001(\010B\007\n\005value\"\264\001\n\021PackedObservation\022" +
-      "\030\n\020dimensionIndexes\030\001 \003(\003\0226\n\020inlineDimen" +
-      "sions\030\002 \003(\0132\034.hypercube.DimensionElement" +
-      "s\022\024\n\014stringValues\030\003 \003(\t\022\025\n\rnumericValues" +
-      "\030\004 \003(\001\022\022\n\nnumSamples\030\005 \003(\005\022\014\n\004last\030\007 \001(\010",
-      "\"\"\n\010IntValue\022\r\n\003val\030\001 \001(\022H\000B\007\n\005value\"(\n\016" +
-      "TimestampValue\022\r\n\003val\030\001 \001(\022H\000B\007\n\005value\"%" +
-      "\n\013DoubleValue\022\r\n\003val\030\001 \001(\001H\000B\007\n\005value\"%\n" +
-      "\013StringValue\022\r\n\003val\030\001 \001(\tH\000B\007\n\005value\"\350\001\n" +
-      "\020DimensionElement\022 \n\006fields\030\001 \003(\0132\020.hype" +
-      "rcube.Value\022%\n\010intValue\030\002 \001(\0132\023.hypercub" +
-      "e.IntValue\022+\n\013doubleValue\030\003 \001(\0132\026.hyperc" +
-      "ube.DoubleValue\022+\n\013stringValue\030\004 \001(\0132\026.h" +
-      "ypercube.StringValue\0221\n\016timestampValue\030\005" +
-      " \001(\0132\031.hypercube.TimestampValue\"\314\001\n\005Valu",
-      "e\022-\n\013stringValue\030\001 \001(\0132\026.hypercube.Strin" +
-      "gValueH\000\022-\n\013doubleValue\030\002 \001(\0132\026.hypercub" +
-      "e.DoubleValueH\000\022\'\n\010intValue\030\003 \001(\0132\023.hype" +
-      "rcube.IntValueH\000\0223\n\016timestampValue\030\004 \001(\013" +
-      "2\031.hypercube.TimestampValueH\000B\007\n\005value\"9" +
-      "\n\006Footer\022/\n\tdimension\030\001 \003(\0132\034.hypercube." +
-      "DimensionElements\"R\n\021DimensionElements\022*" +
-      "\n\006fields\030\001 \003(\0132\032.hypercube.DimElementFie" +
-      "ld\022\021\n\tperSample\030\002 \001(\010\"\305\001\n\017DimElementFiel" +
-      "d\022+\n\013stringValue\030\001 \003(\0132\026.hypercube.Strin",
-      "gValue\022+\n\013doubleValue\030\002 \003(\0132\026.hypercube." +
-      "DoubleValue\022%\n\010intValue\030\003 \003(\0132\023.hypercub" +
-      "e.IntValue\0221\n\016timestampValue\030\004 \003(\0132\031.hyp" +
-      "ercube.TimestampValueB=\n(org.transmartpr" +
-      "oject.rest.hypercubeProtoB\021ObservationsP" +
-      "rotob\006proto3"
+      "IMESTAMP\020\003\022\n\n\006OBJECT\020\004B=\n(org.transmartp" +
+      "roject.rest.hypercubeProtoB\021Observations" +
+      "Protob\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -15476,7 +15288,7 @@ public final class ObservationsProto {
     internal_static_hypercube_DimensionDeclaration_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionDeclaration_descriptor,
-        new java.lang.String[] { "Name", "IsDense", "Fields", "Inline", "Packed", "Elements", });
+        new java.lang.String[] { "Name", "Type", "Fields", "Inline", "Packed", "Elements", });
     internal_static_hypercube_FieldDefinition_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_hypercube_FieldDefinition_fieldAccessorTable = new
@@ -15494,7 +15306,7 @@ public final class ObservationsProto {
     internal_static_hypercube_PackedObservation_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_PackedObservation_descriptor,
-        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValues", "NumericValues", "NumSamples", "Last", });
+        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValues", "NumericValues", "NumObervations", "Last", });
     internal_static_hypercube_IntValue_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_hypercube_IntValue_fieldAccessorTable = new

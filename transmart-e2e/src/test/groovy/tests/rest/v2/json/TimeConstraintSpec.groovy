@@ -1,16 +1,14 @@
-package tests.rest.v2.observations
+package tests.rest.v2.json
 
 import base.RESTSpec
+import protobuf.ObservationsMessageProto
+import selectors.protobuf.ObservationSelector
+import selectors.protobuf.ObservationSelectorJson
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.*
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
-import static tests.rest.v2.Operator.AFTER
-import static tests.rest.v2.Operator.AND
-import static tests.rest.v2.Operator.BEFORE
-import static tests.rest.v2.Operator.BETWEEN
+import static tests.rest.v2.Operator.*
 import static tests.rest.v2.constraints.*
 
 /**
@@ -19,7 +17,7 @@ import static tests.rest.v2.constraints.*
  *      start time
  *      end time
  */
-class TimeConstraintsSpec extends RESTSpec{
+class TimeConstraintSpec extends RESTSpec{
 
     /**
      *  given: "Ward-EHR is loaded"
@@ -43,12 +41,15 @@ class TimeConstraintsSpec extends RESTSpec{
                                  values: [date]]
                         ]
                 ]
-
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "6 observations are returned"
-        that responseData.size(), is(6)
-        that responseData, everyItem(hasKey('conceptCode'))
+        assert selector.cellCount == 6
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it) != null
+        }
     }
 
     /**
@@ -57,7 +58,6 @@ class TimeConstraintsSpec extends RESTSpec{
      *  then: "2 observations are returned"
      */
     @Requires({EHR_LOADED})
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //TMPDEV-94 Query language: TimeConstraint BETWEEN operator is not working
     def "query observations based on time constraint between startDates"(){
         given: "Ward-EHR is loaded"
         def date1 = toDateString("29-3-2016 10:00:00Z", "dd-MM-yyyy HH:mm:ssX")
@@ -76,12 +76,15 @@ class TimeConstraintsSpec extends RESTSpec{
                          values: [date1, date2]]
                 ]
         ]
-
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "2 observations are returned"
-        that responseData.size(), is(2)
-        that responseData, everyItem(hasKey('conceptCode'))
+        assert selector.cellCount == 2
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it) != null
+        }
     }
 
     /**
@@ -106,12 +109,15 @@ class TimeConstraintsSpec extends RESTSpec{
                          values: date]
                 ]
         ]
-
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "1 observation is returned"
-        that responseData.size(), is(6)
-        that responseData, everyItem(hasKey('conceptCode'))
+        assert selector.cellCount == 1
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it) != null
+        }
     }
 
     /**
@@ -141,11 +147,14 @@ class TimeConstraintsSpec extends RESTSpec{
                          values: date2]
                 ]
         ]
-
-        def responseData = get("query/observations", contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "4 observations are returned"
-        that responseData.size(), is(5)
-        that responseData, everyItem(hasKey('conceptCode'))
+        assert selector.cellCount == 3
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it) != null
+        }
     }
 }

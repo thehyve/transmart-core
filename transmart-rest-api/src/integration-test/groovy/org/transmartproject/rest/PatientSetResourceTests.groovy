@@ -35,6 +35,7 @@ class PatientSetResourceTests extends ResourceSpec {
         that response.json, mapWith(
                 setSize: 1,
                 status: 'FINISHED',
+                description: 'Patient set for "My query"',
                 id: isA(Number),
                 username: 'user_-301',)
         that response.json, hasSelfLink("/${VERSION}/patient_sets/${response.json['id']}")

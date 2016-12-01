@@ -32,11 +32,34 @@ class RestApiUrlMappings {
         '/businessException/index'(controller: 'businessException', action: 'index')
 
         group "/v2", {
-
-            "/query/$action?"(method: 'GET', controller: 'query') {
+            "/observation_list"(method: 'GET', controller: 'query', action: 'observationList') {
                 apiVersion = 'v2'
             }
-            "/patient_set"(method: 'POST', controller: 'query', action: 'patientSet') {
+            "/observations"(method: 'GET', controller: 'query', action: 'observations') {
+                apiVersion = 'v2'
+            }
+            "/high_dim"(method: 'GET', controller: 'query', action: 'highDim') {
+                apiVersion = 'v2'
+            }
+            "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
+                apiVersion = 'v2'
+            }
+            "/observations/aggregate"(method: 'GET', controller: 'query', action: 'aggregate') {
+                apiVersion = 'v2'
+            }
+            "/observations/count"(method: 'GET', controller: 'query', action: 'count') {
+                apiVersion = 'v2'
+            }
+            "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
+                apiVersion = 'v2'
+            }
+            "/patient_sets"(method: 'POST', controller: 'patientQuery', action: 'createPatientSet') {
+                apiVersion = 'v2'
+            }
+            "/patients/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatient') {
+                apiVersion = 'v2'
+            }
+            "/patients"(method: 'GET', controller: 'patientQuery', action: 'listPatients') {
                 apiVersion = 'v2'
             }
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {

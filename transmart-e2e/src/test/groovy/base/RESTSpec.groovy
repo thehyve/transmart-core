@@ -10,6 +10,7 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import protobuf.ObservationsProto
 import protobuf.ObservationsMessageProto
+import selectors.protobuf.ObservationsMessageJson
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -24,8 +25,7 @@ class RESTSpec extends Specification{
     def contentTypeForJSON = 'application/json'
     def contentTypeForProtobuf = 'application/x-protobuf'
 
-    @Shared
-    private HashMap<String, String> oauth2token = [:]
+    private static HashMap<String, String> oauth2token = [:]
 
     @Shared
     private http = new HTTPBuilder(BASE_URL)
@@ -218,17 +218,25 @@ class RESTSpec extends Specification{
         }
     }
 
+    def parseHypercube(jsonHypercube){
+        def header = jsonHypercube[0]
+        def cells = jsonHypercube[1..jsonHypercube.size()-2]
+        def footer = jsonHypercube.last()
+        return new ObservationsMessageJson(header, cells, footer)
+    }
+
     def parseProto(s_in){
         def header = ObservationsProto.Header.parseDelimitedFrom(s_in)
+        if (header.dimensionDeclarationsCount == 0){
+            return new ObservationsMessageProto()
+        }
         if (DEBUG){println('proto header = ' + header)}
         def cells = []
         int count = 0
         while(true) {
             count++
             def cell = ObservationsProto.Observation.parseDelimitedFrom(s_in)
-            if (cell == null){
-                break
-            }
+            assert cell != null, "proto buf message is incomplete. no cell with last=true found. cell ${count} was null"
             cells << cell
             if (cell.last) {
                 break

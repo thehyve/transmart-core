@@ -11,10 +11,17 @@ class UrlMappings {
         "/"(controller: 'userLanding', action: 'index')
         "500"(view: '/error')
 
+        group("/v2") {
+            "/oauth/verify"(controller: 'oauth', action: 'verify')
+            "/oauth/authorize"(uri: "/oauth/authorize.dispatch")
+            "/oauth/token"(uri: "/oauth/token.dispatch")
+        }
+
         group("/v1") {
             "/oauth/verify"(controller: 'oauth', action: 'verify')
             "/oauth/authorize"(uri: "/oauth/authorize.dispatch")
             "/oauth/token"(uri: "/oauth/token.dispatch")
         }
+
     }
 }

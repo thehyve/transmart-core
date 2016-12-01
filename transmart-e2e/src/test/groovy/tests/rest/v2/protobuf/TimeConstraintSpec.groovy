@@ -61,7 +61,6 @@ class TimeConstraintSpec extends RESTSpec{
      *  then: "2 observations are returned"
      */
     @Requires({EHR_LOADED})
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //TMPDEV-94 Query language: TimeConstraint BETWEEN operator is not working
     def "query observations based on time constraint between startDates"(){
         given: "Ward-EHR is loaded"
         def date1 = toDateString("29-3-2016 10:00:00Z", "dd-MM-yyyy HH:mm:ssX")
@@ -121,10 +120,9 @@ class TimeConstraintSpec extends RESTSpec{
         then: "1 observation is returned"
         ObservationSelector selector = new ObservationSelector(responseData)
 
-        assert selector.cellCount == 6
+        assert selector.cellCount == 1
         (0..<selector.cellCount).each {
-            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR') ||
-                    selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:DEM:AGE'))
+            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
         }
     }
@@ -162,7 +160,7 @@ class TimeConstraintSpec extends RESTSpec{
         then: "4 observations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
 
-        assert selector.cellCount == 5
+        assert selector.cellCount == 3
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
