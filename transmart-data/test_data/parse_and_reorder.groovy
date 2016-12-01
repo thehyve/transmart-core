@@ -1,4 +1,7 @@
 dependsOn = [
+	'deapp.de_subject_microarray_data'  : [
+		'i2b2demodata.patient_dimension'
+	],
         'searchapp.search_auth_group'       : [
                 'searchapp.search_auth_principal'
         ],
