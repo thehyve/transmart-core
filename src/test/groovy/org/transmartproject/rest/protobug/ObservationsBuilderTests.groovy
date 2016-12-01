@@ -66,7 +66,7 @@ class ObservationsBuilderTests extends Specification {
 
     public void testPackedDimsSerialization() {
         setupData()
-        Constraint constraint = new StudyConstraint(studyId: clinicalData.multidimsStudy.studyId)
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.multidimsStudy], constraint: constraint)
         def patientDimension = DimensionDescription.dimensionsMap.patient
         def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON, patientDimension)
