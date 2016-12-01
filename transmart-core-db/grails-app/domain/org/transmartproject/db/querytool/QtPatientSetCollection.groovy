@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.querytool
 
+import grails.util.Environment
 import org.transmartproject.db.i2b2data.PatientDimension
 
 class QtPatientSetCollection {
@@ -33,7 +34,9 @@ class QtPatientSetCollection {
 	static mapping = {
         table          schema:   'I2B2DEMODATA'
 
-        id             column:   'patient_set_coll_id', generator: 'sequence', params: [sequence: 'QT_SQ_QPR_PCID']
+        id             column:   'patient_set_coll_id', type: Long,
+                       generator: Environment.current == Environment.TEST ? 'identity' : 'sequence',
+                       params: [sequence: 'qt_sq_qpr_pcid', schema: 'i2b2demodata']
         resultInstance column:   'result_instance_id'
         patient        column:   'patient_num'
 
