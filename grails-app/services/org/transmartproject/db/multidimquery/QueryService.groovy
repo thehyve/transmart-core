@@ -422,11 +422,17 @@ class QueryService {
         checkAccess(assayConstraint, user)
 
         //TODO Use hypercube?
+
         List<ObservationFact> observations = list(assayConstraint, user)
         List assayIds = observations
                 .findAll { it.modifierCd == '@' }
                 .collect { it.numberValue.toLong() }
-        //TODO if asssayIds.empty
+        //TODO check for correct Observation fact row
+
+
+        if (assayIds.empty){
+            return new EmptyHypercube()
+        }
         List<AssayConstraint> oldAssayConstraints = [
                 highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
         ]
