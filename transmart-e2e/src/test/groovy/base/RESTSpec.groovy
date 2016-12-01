@@ -227,6 +227,9 @@ class RESTSpec extends Specification{
 
     def parseProto(s_in){
         def header = ObservationsProto.Header.parseDelimitedFrom(s_in)
+        if (header.dimensionDeclarationsCount == 0){
+            return new ObservationsMessageProto()
+        }
         if (DEBUG){println('proto header = ' + header)}
         def cells = []
         int count = 0

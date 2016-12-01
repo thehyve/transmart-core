@@ -1,6 +1,7 @@
 package tests.rest.v2.hd
 
 import base.RESTSpec
+import static config.Config.*
 import groovy.json.JsonBuilder
 
 import static tests.rest.v2.constraints.BiomarkerConstraint
@@ -28,11 +29,10 @@ class HighDimSpec extends RESTSpec {
         def projection = 'all_data'
 
         when:
-        def responseData = get("query/highDim", contentTypeForJSON, [
+        def responseData = get(PATH_HIGHDIM, contentTypeForJSON, [
                 assay_constraint: new JsonBuilder(assayConstraint),
                 biomarker_constraint: new JsonBuilder(biomarkerConstraint),
                 projection: projection
-
         ])
 
         then:

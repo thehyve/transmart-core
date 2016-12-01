@@ -14,7 +14,7 @@ class ObservationSelector {
         this.protoMessage = protoMessage
         this.cellCount = protoMessage.cells.size()
         protoMessage.header.dimensionDeclarationsList.each
-                {it -> if(it.inline){ //FIXME: this is a temporary fix for: TMPDEV-124 protobuf sterilization, meaning of inline:true is false
+                {it -> if(it.inline){
                     inlined.add(it.name)
                 } else {
                     notInlined.add(it.name)

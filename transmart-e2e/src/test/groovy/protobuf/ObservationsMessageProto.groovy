@@ -10,4 +10,10 @@ class ObservationsMessageProto {
         this.cells = cells
         this.footer = footer
     }
+
+    ObservationsMessageProto() {
+        this.header = null
+        this.cells = null
+        this.footer = null
+    }
 }
