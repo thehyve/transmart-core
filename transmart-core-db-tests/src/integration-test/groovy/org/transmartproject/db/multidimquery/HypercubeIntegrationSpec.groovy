@@ -5,6 +5,7 @@ import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
@@ -158,6 +159,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def expectedDosages = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}*.numberValue as Set
 
         expect:
+        !(dims.patient in hypercube.dimensions)
+
         hypercube.dimensions.size() == clinicalData.sampleStudy.dimensions.size() - 1
         resultValues == expectedValues
 
@@ -168,6 +171,13 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         tissueTypes == expectedTissues
 
         expectedDosages == resultObs*.getAt(doseDim) as Set
+
+        when:
+        hypercube.dimensionElements(dims.patient)
+
+        then:
+        thrown(InvalidArgumentsException)
+
     }
 
     void 'test_basic_ehr_retrieval'() {
