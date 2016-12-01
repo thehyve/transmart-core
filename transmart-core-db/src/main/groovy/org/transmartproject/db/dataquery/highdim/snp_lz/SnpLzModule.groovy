@@ -215,26 +215,12 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
         return platforms[0]
     }
 
-    HibernateCriteriaBuilder prepareDataQuery(
-        Projection projection,
-        SessionImplementor session) {
-        throw new UnsupportedByDataTypeException("The snp_lz data module requires " +
-            "the list of assays to be specified when querying data.")
-    }
-
     @Override
     HibernateCriteriaBuilder prepareDataQuery(
-        List<AssayColumn> assays,
         Projection projection,
         SessionImplementor session) {
         HibernateCriteriaBuilder criteriaBuilder =
                 createCriteriaBuilder(SnpDataByProbeCoreDb, 'snp', session)
-
-        def trialName = getTrialNameFromAssays(assays)
-        log.debug "Add constraint for trailName '${trialName}'"
-
-        def platformId = getBioAssayPlatformIdFromAssays(assays)
-        log.debug "Add constraint for platformId '${platformId}'"
 
         criteriaBuilder.with {
             createAlias 'genotypeProbeAnnotation', 'ann',       INNER_JOIN
@@ -264,25 +250,6 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
                 property 'platform.accession',         'platformId'
             }
-
-            /*
-             * This constraint is required, since rows in the {@link SnpDataByProbeCoreDb}
-             * table are not associated with a single subject, but with all the
-             * subjects in a particular trial.
-             */
-            eq 'snp.trialName', trialName
-
-            /*
-             * This constraint is required in the case there is SNP data for multiple
-             * platforms within a trial.
-             */
-            eq 'platform.accession', platformId
-
-            /*
-             * Constraint required to prevent duplicates when multiple genome
-             * builds are present in the genotypeProbeAnnotation table.
-             */
-            eq 'ann.genomeBuild', 'GRCh37'
 
             order 'ann.id', 'asc'
 

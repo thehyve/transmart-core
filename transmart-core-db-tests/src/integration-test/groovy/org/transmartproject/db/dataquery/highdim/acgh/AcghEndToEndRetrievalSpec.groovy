@@ -201,7 +201,7 @@ class AcghEndToEndRetrievalSpec extends TransmartSpecification {
         anotherPlatform.id = 'test-another-platform'
         anotherPlatform.save failOnError: true, flush: true
 
-        // this region should not appear in the result set
+        // this region should not appear in the dataQueryResult set
         def anotherRegion = new DeChromosomalRegion(
                 platform: anotherPlatform,
                 chromosome: '1',

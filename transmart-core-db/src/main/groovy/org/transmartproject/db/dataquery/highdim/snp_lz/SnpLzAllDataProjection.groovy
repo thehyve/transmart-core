@@ -49,17 +49,17 @@ class SnpLzAllDataProjection implements
             ['probabilityA1A1', 'probabilityA1A2', 'probabilityA2A2', 'likelyGenotype', 'minorAlleleDose']
                     .collectEntries {
                 def p = SnpLzAllDataCell.metaClass.properties.find { n -> n.name == it }
-                putAt(p.name, p.type)
+                [p.name, p.type]
             }
 
     @Override
     Map<String, Class> getRowProperties() { _rowProperties }
-    private static final Map<String, Class> _rowProperties = ({
+    private static final Map<String, Class> _rowProperties =
         ['snpName', 'chromosome', 'position', 'a1', 'a2', 'imputeQuality', 'GTProbabilityThreshold',
          'minorAlleleFrequency', 'minorAllele', 'a1a1Count', 'a1a2Count', 'a2a2Count', 'noCallCount'].collectEntries {
             def p = SnpLzRow.metaClass.properties.find { n -> n.name == it }
             [p.name, p.type]
-        }})
+        }
 
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder builder) {

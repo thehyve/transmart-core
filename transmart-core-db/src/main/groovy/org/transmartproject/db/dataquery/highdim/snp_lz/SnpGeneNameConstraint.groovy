@@ -72,8 +72,6 @@ class SnpGeneNameConstraint implements CriteriaDataConstraint {
         List<String> snpNames = getSnpNamesForGeneNames(geneNames)
         // split the list of SNP names into chuncks of max. 500.
         List<List<String>> chunks = snpNames.collate(500)
-        log.debug "Number of SNP names: ${snpNames.size()}"
-        log.debug "Number of chunks: ${chunks.size()}"
         criteria.with {
             or {
                 chunks.collect { names ->

@@ -120,7 +120,7 @@ class ProteinEndToEndRetrievalSpec extends TransmartSpecification {
                 [trialConstraint], [dataConstraint], projection)
         def resultList = Lists.newArrayList result
 
-        /* the result is iterable */
+        /* the dataQueryResult is iterable */
         expect:
         that(resultList, contains(allOf(
                 hasProperty('label', equalTo(ureaTransporterPeptide)),
@@ -213,7 +213,7 @@ class ProteinEndToEndRetrievalSpec extends TransmartSpecification {
 
         result = proteinResource.retrieveData(
                 [trialConstraint], [dataConstraint], projection)
-        //TODO It returns empty result. It would be nice to investigate db state at this point
+        //TODO It returns empty dataQueryResult. It would be nice to investigate db state at this point
         expect:
         that(Lists.newArrayList(result), contains(
                 hasProperty('label', is(adiponectinPeptide))))
