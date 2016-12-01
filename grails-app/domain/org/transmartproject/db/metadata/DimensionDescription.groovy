@@ -34,6 +34,8 @@ class DimensionDescription {
     Dimension.Density density
     Dimension.Packable packable
 
+    transient ModifierDimension modifierDimension = null
+
     static belongsTo = Study
     static hasMany = [
             studies: Study
@@ -97,9 +99,11 @@ class DimensionDescription {
         }
         if(modifierCode == null) {
             return dimensionsMap[name]
-        } else {
-            return new ModifierDimension(name, modifierCode, size, density, packable)
         }
+        if(modifierDimension != null) {
+            return modifierDimension
+        }
+        return modifierDimension = ModifierDimension.get(name, modifierCode, size, density, packable)
     }
 
 }

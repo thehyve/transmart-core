@@ -13,9 +13,11 @@ import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
+import static org.transmartproject.db.metadata.DimensionDescription.dimensionsMap
 import static org.transmartproject.db.multidimquery.ModifierDimension.modifierCodeField
 import static java.util.AbstractMap.SimpleImmutableEntry
 
@@ -32,29 +34,30 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
      * in dimensionElements. Each dimension has a numeric index in dimensionsIndexMap. Each ClinicalValue
      */
 
-    StatelessSessionImpl session
+    private StatelessSessionImpl session
+    private ScrollableResults results
+    private boolean closed = false
 
     //def sort
     //def pack
     boolean autoloadDimensions = true
-    private boolean hasModifiers
-    private ScrollableResults results
+    private final boolean hasModifiers
     final ImmutableMap<String,Integer> aliases
-    Query query
+    private Query query
 
     // ImmutableMap guarantees the same iteration order as the input, and can in fact be converted efficently to an
     // ImmutableList<Entry>.
-    final ImmutableMap<Dimension,Integer> dimensionsIndex
+    protected final ImmutableMap<Dimension,Integer> dimensionsIndex
     final ImmutableList<DimensionImpl> dimensions
     final ImmutableList<ModifierDimension> modifierDimensions
 
     // Map from Dimension -> dimension element keys
     // The IndexedArraySet provides efficient O(1) indexOf/contains operations
     // Only used for non-inline dimensions
-    final Map<Dimension,IndexedArraySet<Object>> dimensionElementKeys
+    private final Map<Dimension,IndexedArraySet<Object>> dimensionElementKeys
 
     // A map that stores the actual dimension elements once they are loaded
-    Map<Dimension, List<Object>> dimensionElements = new HashMap()
+    private Map<Dimension, List<Object>> dimensionElements = new HashMap()
 
     // false if there may be dimension element keys for which the values are not loaded
     private boolean _dimensionsLoaded = false
@@ -90,6 +93,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
 
         @Override boolean hasNext() {
             if (!resultIterator.hasNext()) {
+                close()
                 if (autoloadDimensions) loadDimensions()
                 return false
             }
@@ -132,6 +136,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     }
 
     ImmutableList<Object> dimensionElements(Dimension dim) {
+        checkNotPackable(dim)
         List ret = ImmutableList.copyOf(dim.resolveElements(dimensionElementKeys[dim] ?: []))
         dimensionElements[dim] = ret
         return ret
@@ -171,14 +176,16 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         // worth implementing.
         if(_dimensionsLoaded) return
         dimensions.each {
-            dimensionElements(it)
+            if(it.packable.packable) dimensionElements(it)
         }
         _dimensionsLoaded = true
     }
 
     void close() {
+        if(closed) return
         results.close()
         session.close()
+        closed = true
     }
 
 
@@ -193,13 +200,17 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     // If we don't extend a Java object but just implement Iterator, the Groovy type checker will barf on the
     // ResultIterator constructor. (Groovy 3.1.10)
     static class ModifierResultIterator extends UnmodifiableIterator<Map<String, Object>> {
+        static String alias(String dimName) {
+            ((I2b2Dimension) dimensionsMap[dimName]).alias
+        }
+
         static final List<String> primaryKey = ImmutableList.of(
                 // excludes modifierCd as we want to group them
-                'conceptCode',
-                'providerId',
-                'patient',
-                'encounterNum',
-                'startDate',
+                alias('concept'),
+                alias('provider'),
+                alias('patient'),
+                VisitDimension.alias,
+                alias('start time'),
                 'instanceNum',
         )
 
@@ -237,9 +248,9 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         private Map<String,ProjectionMap> nextGroup() {
             ProjectionMap groupLeader = iter.next()
             Map<String,ProjectionMap> group = [((String)groupLeader[modifierCodeField]): groupLeader]
-            List groupKey = []
+            Object[] groupKey = new Object[primaryKey.size()]
             for(int i=0; i<primaryKey.size(); i++) {
-                groupKey.add(groupLeader[primaryKey[i]])
+                groupKey[i] = groupLeader[primaryKey[i]]
             }
 
             while(iter.hasNext() && belongsToCurrentGroup(groupKey, iter.peek())) {
@@ -250,11 +261,9 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
             group
         }
 
-        private boolean belongsToCurrentGroup(List groupKey, ProjectionMap result) {
+        private boolean belongsToCurrentGroup(Object[] groupKey, ProjectionMap result) {
             for(int i=0; i<primaryKey.size(); i++) {
-                def groupVal = groupKey[i]
-                def resultVal = result[primaryKey[i]]
-                if(groupVal != null && groupVal != resultVal) {
+                if(groupKey[i] != result[primaryKey[i]]) {
                     return false
                 }
             }
