@@ -137,14 +137,27 @@ hibernate {
     cache.use_query_cache = false
 }
 
-dataSource {
-    driverClassName = 'org.h2.Driver'
-    url             = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'"
-    username        = 'sa'
-    password        = ''
-    dbCreate        = 'update'
-    logSql          = false
-    formatSql       = true
+environments {
+    test {
+        dataSource {
+            driverClassName = 'org.h2.Driver'
+            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'"
+            username = 'sa'
+            password = ''
+            dbCreate = 'update'
+            logSql = false
+            formatSql = true
+        }
+    }
+    development {
+        dataSource {
+            url = 'jdbc:postgresql://localhost:5433/transmart'
+            driverClassName = 'org.postgresql.Driver'
+            username = 'tm_cz'
+            password = 'tm_cz'
+            logSql = true
+            formatSql = true
+        }
+    }
 }
-
 // vim: set ts=4 sw=4 et:

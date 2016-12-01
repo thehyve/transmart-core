@@ -32,6 +32,7 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
+import org.transmartproject.rest.marshallers.PatientWrapper
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
 class SubjectController {
@@ -65,7 +66,7 @@ class SubjectController {
                     "does not belong to the study '$studyId'")
         }
 
-        respond patient
+        respond new PatientWrapper(apiVersion: 'v1', patient: patient)
     }
 
     /** GET request on /v1/studies/XXX/concepts/YYY/subjects
@@ -96,11 +97,12 @@ class SubjectController {
         }
     }
 
-    private def wrapSubjects(Object source, String selfLink) {
+    private def wrapSubjects(Collection<Patient> source, String selfLink) {
 
         new ContainerResponseWrapper(
-                container: source,
-                componentType: Patient,
+                key: 'subjects',
+                container: source.collect { new PatientWrapper(apiVersion: 'v1', patient: it) },
+                componentType: PatientWrapper,
                 links: [
                         new Link(grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF,
                                 selfLink
