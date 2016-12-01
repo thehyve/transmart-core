@@ -150,7 +150,12 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         q.with {
             inList 'modifierCd', query.params.modifierCodes
-            // TODO: order by primary-key-except-modifierCodes
+            order 'conceptCode'
+            order 'patient'
+            order 'startDate'
+            order 'encounterNum'
+            order 'providerId'
+            order 'instanceNum'
         }
 
         CriteriaImpl hibernateCriteria = query.criteria.instance

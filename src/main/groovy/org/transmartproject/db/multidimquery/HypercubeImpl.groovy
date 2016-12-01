@@ -312,7 +312,7 @@ class HypercubeValueImpl implements HypercubeValue {
 
     def getDimElement(Dimension dim) {
         cube.checkDimension(dim)
-        if(dim.packable.packable) {
+        if(dim.density.isDense) {
             cube.dimensionElement(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
         } else {
             dim.resolveElement(dimensionElementIdxes[cube.dimensionsIndex[dim]])
