@@ -23,14 +23,7 @@ ENV POSTGRES_PASSWORD ''
 
 RUN ln -snf /root/.sdkman/candidates/groovy/current/bin/groovy /bin/groovy
 RUN echo "cd /tmp/transmart-upgrade/transmart-data && \
+ mkdir -p /var/lib/postgresql/tablespaces/{biomart,deapp,indx,search_app,transmart} && \
+ chown -R postgres:postgres /var/lib/postgresql && \
  make -C env ../vars && source /tmp/transmart-upgrade/transmart-data/vars && \
- make postgres_drop || true && \
- make postgres_test || true && \
- chown -R postgres:postgres  /var/lib/postgresql && \
- make postgres_test || true && \
- make postgres_drop || true && \
- make postgres_test || true && \
- chown -R postgres:postgres  /var/lib/postgresql && \
- make postgres_test || true && \
- make postgres_drop || true && \
  make postgres_test" >> /docker-entrypoint-initdb.d/01-create.sh
