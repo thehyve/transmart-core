@@ -9,7 +9,7 @@ import org.transmartproject.db.multidimquery.query.ConceptConstraint
 import org.transmartproject.db.multidimquery.query.FieldConstraint
 import org.transmartproject.db.multidimquery.query.ModifierConstraint
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.StudyConstraint
+import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.ontology.I2b2Secure
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.*
@@ -116,7 +116,7 @@ class TreeNode {
                 def value
                 switch (columnName) {
                     case 'study_num':
-                        constraint.type = StudyConstraint.simpleName
+                        constraint.type = StudyNameConstraint.simpleName
                         if (hasOperator(['='])) {
                             try {
                                 constraint.id = Long.parseLong(dimensionCode)

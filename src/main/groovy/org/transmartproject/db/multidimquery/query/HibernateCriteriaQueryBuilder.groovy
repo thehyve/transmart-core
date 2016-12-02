@@ -124,45 +124,10 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     }
 
     /**
-     * Creates a subquery to find observations with the same primary key (use <code>id()</code>?)
-     * and match certain value constraints.
+     * Creates a criteria for matching value type and value of a {@link ObservationFact} row with
+     * the type and value in the {@link RowValueConstraint}.
      */
-    Criterion build(ModifierConstraint constraint) {
-        def observationFactAlias = getAlias('observation_fact')
-        def modifierCriterion
-        if (constraint.modifierCode != null) {
-            modifierCriterion = Restrictions.eq('modifierCd', constraint.modifierCode)
-        } else if (constraint.path != null) {
-            String modifierAlias = 'modifier_dimension'
-            DetachedCriteria subCriteria = DetachedCriteria.forClass(ModifierDimensionCoreDb, modifierAlias)
-            subCriteria.add(Restrictions.eq("${modifierAlias}.path", constraint.path))
-            modifierCriterion = Subqueries.propertyEq('modifierCd', subCriteria.setProjection(Projections.property("code")))
-        }
-        else {
-            throw new QueryBuilderException("Modifier constraint shouldn't have a null value both for modifier path and code")
-        }
-        def valueConstraint = constraint.values ?: new TrueConstraint()
-        QueryBuilder subQueryBuilder = new HibernateCriteriaQueryBuilder(
-                aliasSuffixes: aliasSuffixes,
-                studies: studies
-        )
-        DetachedCriteria subQuery = subQueryBuilder.buildCriteria(valueConstraint, modifierCriterion)
-                .add(Restrictions.eqProperty('encounterNum',    "${observationFactAlias}.encounterNum"))
-                .add(Restrictions.eqProperty('patient',         "${observationFactAlias}.patient"))
-                .add(Restrictions.eqProperty('conceptCode',     "${observationFactAlias}.conceptCode"))
-                .add(Restrictions.eqProperty('providerId',      "${observationFactAlias}.providerId"))
-                .add(Restrictions.eqProperty('startDate',       "${observationFactAlias}.startDate"))
-                .add(Restrictions.eqProperty('instanceNum',     "${observationFactAlias}.instanceNum"))
-
-        subQuery = subQuery.setProjection(Projections.id())
-        Subqueries.exists(subQuery)
-    }
-
-    /**
-     * Creates a criteria for matching value type and value of {@link ObservationFact} with
-     * the type and value in the {@link ValueConstraint}.
-     */
-    Criterion build(ValueConstraint constraint) {
+    Criterion build(RowValueConstraint constraint) {
         String valueTypeCode
         Field valueField
         switch (constraint.valueType) {
@@ -189,6 +154,63 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         ]
         Constraint conjunction = new Combination(operator: Operator.AND, args: conjuncts)
         build(conjunction)
+    }
+
+    /**
+     * Creates a subquery to find observations with the same primary key
+     * and match the modifier constraint and value constraint.
+     */
+    Criterion build(ModifierConstraint constraint) {
+        def observationFactAlias = getAlias('observation_fact')
+        def modifierCriterion
+        if (constraint.modifierCode != null) {
+            modifierCriterion = Restrictions.eq('modifierCd', constraint.modifierCode)
+        } else if (constraint.path != null) {
+            String modifierAlias = 'modifier_dimension'
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(ModifierDimensionCoreDb, modifierAlias)
+            subCriteria.add(Restrictions.eq("${modifierAlias}.path", constraint.path))
+            modifierCriterion = Subqueries.propertyEq('modifierCd', subCriteria.setProjection(Projections.property("code")))
+        }
+        else {
+            throw new QueryBuilderException("Modifier constraint shouldn't have a null value both for modifier path and code")
+        }
+        def valueConstraint
+        if (constraint.values) {
+            valueConstraint = new RowValueConstraint(
+                    valueType: constraint.values.valueType,
+                    operator: constraint.values.operator,
+                    value: constraint.values.value
+            )
+        } else {
+            // match all records with the modifier
+            valueConstraint = new TrueConstraint()
+        }
+        QueryBuilder subQueryBuilder = new HibernateCriteriaQueryBuilder(
+                aliasSuffixes: aliasSuffixes,
+                studies: studies
+        )
+        DetachedCriteria subQuery = subQueryBuilder.buildCriteria(valueConstraint, modifierCriterion)
+                .add(Restrictions.eqProperty('encounterNum',    "${observationFactAlias}.encounterNum"))
+                .add(Restrictions.eqProperty('patient',         "${observationFactAlias}.patient"))
+                .add(Restrictions.eqProperty('conceptCode',     "${observationFactAlias}.conceptCode"))
+                .add(Restrictions.eqProperty('providerId',      "${observationFactAlias}.providerId"))
+                .add(Restrictions.eqProperty('startDate',       "${observationFactAlias}.startDate"))
+                .add(Restrictions.eqProperty('instanceNum',     "${observationFactAlias}.instanceNum"))
+
+        subQuery = subQuery.setProjection(Projections.id())
+        Subqueries.exists(subQuery)
+    }
+
+    /**
+     * Creates a subquery to find observations with the same primary key
+     * with observation modifier code '@' and matching the constraint specified by
+     * type, operator and value in the {@link ValueConstraint}.
+     */
+    Criterion build(ValueConstraint constraint) {
+        build(new ModifierConstraint(
+                modifierCode: '@',
+                values: constraint
+        ))
     }
 
     /**
@@ -351,7 +373,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         return Subqueries.propertyEq('conceptCode', subCriteria.setProjection(Projections.property('conceptCode')))
     }
 
-    Criterion build(StudyConstraint constraint){
+    Criterion build(StudyNameConstraint constraint){
         if (constraint.studyId == null){
             throw new QueryBuilderException("Study constraint shouldn't have a null value for studyId")
         }

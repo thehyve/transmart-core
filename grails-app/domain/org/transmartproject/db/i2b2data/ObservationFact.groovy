@@ -125,7 +125,7 @@ class ObservationFact implements Serializable {
             case TYPE_NUMBER:
                 return numberValue
             default:
-                throw new DataInconsistencyException("Inconsistent database value: ObservationFact.valueType " +
+                throw new DataInconsistencyException("Unsupported database value: ObservationFact.valueType " +
                         "must be either '$TYPE_TEXT' or '$TYPE_NUMBER'. Found '${valueType}'")
         }
     }

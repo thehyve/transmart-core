@@ -3,9 +3,12 @@ package org.transmartproject.db.multidimquery
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
+import com.google.common.collect.UnmodifiableIterator
 import groovy.transform.CompileStatic
+import groovy.transform.TupleConstructor
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.StatelessSessionImpl
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -13,6 +16,11 @@ import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
+
+import static org.transmartproject.db.metadata.DimensionDescription.dimensionsMap
+import static org.transmartproject.db.multidimquery.ModifierDimension.modifierCodeField
+import static org.transmartproject.db.multidimquery.DimensionImpl.*
+import static java.util.AbstractMap.SimpleImmutableEntry
 
 /**
  *
@@ -22,32 +30,35 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     /*
      * The data representation:
      *
-     * For packable dimensions:
+     * For dense dimensions:
      * Dimension element keys are stored in dimensionElementIdxes. Those are mapped to the actual dimension elements
      * in dimensionElements. Each dimension has a numeric index in dimensionsIndexMap. Each ClinicalValue
      */
 
-    StatelessSessionImpl session
+    private StatelessSessionImpl session
+    private ScrollableResults results
+    private boolean closed = false
 
     //def sort
     //def pack
     boolean autoloadDimensions = true
-    private ScrollableResults results
+    private final boolean hasModifiers
     final ImmutableMap<String,Integer> aliases
-    Query query
+    private Query query
 
     // ImmutableMap guarantees the same iteration order as the input, and can in fact be converted efficently to an
     // ImmutableList<Entry>.
-    final ImmutableMap<Dimension,Integer> dimensionsIndex
+    protected final ImmutableMap<Dimension,Integer> dimensionsIndex
     final ImmutableList<DimensionImpl> dimensions
+    final ImmutableList<ModifierDimension> modifierDimensions
 
     // Map from Dimension -> dimension element keys
     // The IndexedArraySet provides efficient O(1) indexOf/contains operations
-    // Only used for packable dimensions
-    final Map<Dimension,IndexedArraySet<Object>> dimensionElementKeys
+    // Only used for non-inline dimensions
+    private final Map<Dimension,IndexedArraySet<Object>> dimensionElementKeys
 
     // A map that stores the actual dimension elements once they are loaded
-    Map<Dimension, List<Object>> dimensionElements = new HashMap()
+    private Map<Dimension, List<Object>> dimensionElements = new HashMap()
 
     // false if there may be dimension element keys for which the values are not loaded
     private boolean _dimensionsLoaded = false
@@ -55,10 +66,9 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     HypercubeImpl(ScrollableResults results, Collection<DimensionImpl> dimensions, String[] aliases,
                   Query query, StatelessSessionImpl session) {
         this.results = results
-        this.dimensionsIndex = ImmutableMap.copyOf(dimensions.withIndex().collectEntries())
-        // The Guava immutable collections do this efficiently, the same underlying array of entries is used.
-        //this.dimensions = dimensionsIndex.keySet().asList()
+        // Make sure modifier dimensions are at the end of this list
         this.dimensions = ImmutableList.copyOf(dimensions)
+        this.dimensionsIndex = ImmutableMap.copyOf(this.dimensions.withIndex().collectEntries())
         this.query = query
         this.session = session
 
@@ -67,27 +77,39 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
 
         dimensionElementKeys = this.dimensions
                 .findAll { it.density == Dimension.Density.DENSE }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
+
+        hasModifiers = (query.params.modifierCodes != ['@'])
+        modifierDimensions = ImmutableList.copyOf((List) this.dimensions.findAll {it instanceof ModifierDimension})
     }
 
     Iterator getIterator() {
         new ResultIterator()
     }
 
-    // TODO: support modifier dimensions
-    class ResultIterator extends AbstractIterator<HypercubeValueImpl> {
-        HypercubeValueImpl computeNext() {
-            if (!results.next()) {
-                if(autoloadDimensions) loadDimensions()
-                return endOfData()
+    class ResultIterator implements Iterator<HypercubeValueImpl> {
+        final Iterator<? extends Map<String,Object>> resultIterator = (hasModifiers
+                ? new ModifierResultIterator(modifierDimensions, aliases, results)
+                : new ProjectionMapIterator(aliases, results)
+        )
+
+        @Override boolean hasNext() {
+            if (!resultIterator.hasNext()) {
+                close()
+                if (autoloadDimensions) loadDimensions()
+                return false
             }
+            true
+        }
+
+        @Override HypercubeValueImpl next() {
+            Map<String,Object> result = resultIterator.next()
             _dimensionsLoaded = false
-            ProjectionMap result = new ProjectionMap(aliases, results.get())
 
             def value = ObservationFact.observationFactValue(
                     (String) result.valueType, (String) result.textValue, (BigDecimal) result.numberValue)
 
             int nDims = ((List) dimensions).size()
-            // actually this array only contains indexes for packable dimensions, for nonpackable ones it contains the
+            // actually this array only contains indexes for dense dimensions, for sparse ones it contains the
             // element keys directly
             Object[] dimensionElementIdxes = new Object[nDims]
             // Save keys of dimension elements
@@ -115,6 +137,8 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     }
 
     ImmutableList<Object> dimensionElements(Dimension dim) {
+        checkDimension(dim)
+        checkIsDense(dim)
         List ret = ImmutableList.copyOf(dim.resolveElements(dimensionElementKeys[dim] ?: []))
         dimensionElements[dim] = ret
         return ret
@@ -127,16 +151,25 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         }
     }
 
+    protected void checkDimension(Dimension dim) {
+        if(!(dim in dimensions)) throw new InvalidArgumentsException("Dimension $dim is not part of this result")
+    }
+
     Object dimensionElement(Dimension dim, Integer idx) {
+        checkDimension(dim)
         checkIsDense(dim)
         if(idx == null) return null
         if(!_dimensionsLoaded) {
             loadDimensions()
         }
+        if (dimensionElements[dim] == null) {
+            throw new Exception("No dimension elements for dimension ${dim?.class?.simpleName}")
+        }
         return dimensionElements[dim][idx]
     }
 
     Object dimensionElementKey(Dimension dim, Integer idx) {
+        checkDimension(dim)
         checkIsDense(dim)
         if(idx == null) return null
         dimensionElementKeys[dim][idx]
@@ -154,15 +187,112 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         // worth implementing.
         if(_dimensionsLoaded) return
         dimensions.each {
-            dimensionElements(it)
+            if(it.density == Dimension.Density.DENSE) dimensionElements(it)
         }
         _dimensionsLoaded = true
     }
 
     void close() {
+        if(closed) return
         results.close()
         session.close()
+        closed = true
     }
+
+
+    /**
+     * Group modifiers together. Assumes the query is sorted on the primary key columns with modifierCd last.
+     * The returned values are result maps that have the modifiers added in.
+     *
+     * Todo: if we stick with this solution, this iterator and ProjectionMapIterator should be refactored to extend
+     * ResultIterator and there are probably some other optimizations to make. For now this is a temporary
+     * implementation until modifiers can be joined in the database using the hibernate 5 JPA api.
+     */
+    // If we don't extend a Java object but just implement Iterator, the Groovy type checker will barf on the
+    // ResultIterator constructor. (Groovy 3.1.10)
+    static class ModifierResultIterator extends UnmodifiableIterator<Map<String, Object>> {
+        static String alias(String dimName) {
+            ((I2b2Dimension) dimensionsMap[dimName]).alias
+        }
+
+        static final List<String> primaryKey = ImmutableList.of(
+                // excludes modifierCd as we want to group them
+                CONCEPT.alias,
+                PROVIDER.alias,
+                PATIENT.alias,
+                VISIT.alias,
+                START_TIME.alias,
+                'instanceNum',
+        )
+
+        final ProjectionMapIterator iter
+        final List<ModifierDimension> modifierDimensions
+
+        ModifierResultIterator(List<ModifierDimension> modifierDimensions, ImmutableMap<String,Integer> aliases,
+                ScrollableResults results) {
+            iter = new ProjectionMapIterator(aliases, results)
+            this.modifierDimensions = modifierDimensions
+        }
+
+        @Override boolean hasNext() { iter.hasNext() }
+
+        @Override Map<String,Object> next() {
+            Map<String,ProjectionMap> group = nextGroup()
+
+            Map result = group['@']?.toMutable() ?:
+                    [valueType: ObservationFact.TYPE_TEXT, textValue: null]
+
+            for(int i=0; i<modifierDimensions.size(); i++) {
+                ModifierDimension dim = modifierDimensions[i]
+                ProjectionMap modResult = group[dim.modifierCode]
+                if(modResult != null) {
+                    dim.addModifierValue(result, modResult)
+                }
+            }
+
+            result
+        }
+
+        /**
+         * @return the next group (based on primary key except modifierCd) as a map from modifier code to result
+         */
+        private Map<String,ProjectionMap> nextGroup() {
+            ProjectionMap groupLeader = iter.next()
+            Map<String,ProjectionMap> group = [((String)groupLeader[modifierCodeField]): groupLeader]
+            Object[] groupKey = new Object[primaryKey.size()]
+            for(int i=0; i<primaryKey.size(); i++) {
+                groupKey[i] = groupLeader[primaryKey[i]]
+            }
+
+            while(iter.hasNext() && belongsToCurrentGroup(groupKey, iter.peek())) {
+                ProjectionMap next = iter.next()
+                group[(String)next[modifierCodeField]] = next
+            }
+
+            group
+        }
+
+        private boolean belongsToCurrentGroup(Object[] groupKey, ProjectionMap result) {
+            for(int i=0; i<primaryKey.size(); i++) {
+                if(groupKey[i] != result[primaryKey[i]]) {
+                    return false
+                }
+            }
+            return true
+        }
+    }
+
+    @TupleConstructor
+    static class ProjectionMapIterator extends AbstractIterator<ProjectionMap> {
+        final ImmutableMap<String,Integer> aliases
+        final ScrollableResults results
+
+        ProjectionMap computeNext() {
+            if(!results.next()) return endOfData()
+            new ProjectionMap(aliases, results.get())
+        }
+    }
+
 }
 
 @CompileStatic
@@ -185,7 +315,8 @@ class HypercubeValueImpl implements HypercubeValue {
     }
 
     def getDimElement(Dimension dim) {
-        if(dim.density == Dimension.Density.DENSE) {
+        cube.checkDimension(dim)
+        if(dim.density.isDense) {
             cube.dimensionElement(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
         } else {
             dim.resolveElement(dimensionElementIdxes[cube.dimensionsIndex[dim]])
@@ -193,12 +324,14 @@ class HypercubeValueImpl implements HypercubeValue {
     }
 
     int getDimElementIndex(Dimension dim) {
+        cube.checkDimension(dim)
         cube.checkIsDense(dim)
         (int) dimensionElementIdxes[cube.dimensionsIndex[dim]]
     }
 
     def getDimKey(Dimension dim) {
-        if(dim.density == Dimension.Density.DENSE) {
+        cube.checkDimension(dim)
+        if(dim.density.isDense) {
             cube.dimensionElementKey(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
         } else {
             dimensionElementIdxes[cube.dimensionsIndex[dim]]
@@ -224,24 +357,52 @@ class ProjectionMap extends AbstractMap<String,Object> {
         tuple = _tuple
     }
 
-    // This get is not entirely compliant to the Map contract as we throw on null or on a value not present in the
-    // mapping
     @Override Object get(Object key) {
         Integer idx = mapping[(String) key]
-        if(idx == null) throw new IllegalArgumentException("key '$key' not present in this result row: $this")
+        if(idx == null) return null //throw new IllegalArgumentException("key '$key' not present in this result row: $this")
         tuple[idx]
     }
 
-    /** Default method to support all other Map methods in AbstractMap. Not very efficient, but we don't make use of
-     *  them here */
-    @Override Set<Map.Entry<String,Object>> entrySet() {
-        ((Set) mapping.collect(new HashSet()) { new AbstractMap.SimpleImmutableEntry(it.key, tuple[it.value]) }).asImmutable()
-    }
-
-    @Override Object put(String key, Object val) { throw new UnsupportedOperationException() }
+    @Override Set<Map.Entry<String,Object>> entrySet() { new Entries() }
     @Override int size() { mapping.size() }
     @Override boolean containsKey(key) { mapping.containsKey(key) }
-    @Override Set<String> keySet() { mapping.keySet().asImmutable() }
+    @Override Set<String> keySet() { mapping.keySet() }
     @Override List<Object> values() { ImmutableList.copyOf(tuple) }
-}
 
+    HashMap<String,Object> toMutable() {
+        HashMap<String,Object> map = new HashMap()
+        List<Map.Entry<String,Integer>> mappingEntries = mapping.entrySet().asList()
+        for(int i=0; i<mappingEntries.size(); i++) {
+            Map.Entry<String,Integer> entry = mappingEntries[i]
+            map.put(entry.key, tuple[entry.value])
+        }
+        map
+    }
+
+    class Entries extends AbstractSet<Map.Entry<String,Object>> {
+        Set<Map.Entry<String,Integer>> mappingEntries = mapping.entrySet()
+
+        @Override int size() { mappingEntries.size() }
+
+        @Override boolean contains(Object target) {
+            if(! (target instanceof Map.Entry)) return false
+            Map.Entry entry = (Map.Entry) target
+            if(entry.value == null) return false
+            return ProjectionMap.this.get(entry.key) == entry.value
+        }
+
+        @Override Iterator<Map.Entry<String,Object>> iterator() {
+            new Iterator<Map.Entry<String,Object>>() {
+                private Iterator<Map.Entry<String,Integer>> mappingIterator = mappingEntries.iterator()
+
+                @Override boolean hasNext() { mappingIterator.hasNext() }
+
+                @Override Map.Entry<String,Object> next() {
+                    Map.Entry<String,Integer> mappingEntry = mappingIterator.next()
+                    new SimpleImmutableEntry(mappingEntry.key, tuple[mappingEntry.value])
+                }
+            }
+        }
+    }
+
+}
