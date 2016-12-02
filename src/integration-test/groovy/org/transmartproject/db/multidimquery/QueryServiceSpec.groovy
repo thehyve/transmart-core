@@ -181,12 +181,11 @@ class QueryServiceSpec extends Specification {
 
         then:
         hypercube.dimensionElements(assayDim).size() == 1
-        //TODO pick some random fact of the selected dim
 
     }
 
     @Ignore //vistDimension is not supported as Field?
-    void 'HD data selected on visit dimension'(){
+    void 'HD data selected on visit dimension'() {
         def user = User.findByUsername('test-public-user-1')
         SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         def timeDimensionConstraint = new FieldConstraint(
@@ -211,11 +210,7 @@ class QueryServiceSpec extends Specification {
         hypercube.toList()
 
         then:
-        hypercube.dimensionElements(assayDim).size() ==1
-    }
-    @Ignore //instance num doesn't seem to be supported as Field
-    void 'HD data selected with instance num'(){
-
+        hypercube.dimensionElements(assayDim).size() == 1
     }
 
 
@@ -267,19 +262,5 @@ class QueryServiceSpec extends Specification {
 
         then:
         hypercube.toList().empty
-
     }
-
-    //TODO check accessibility of the probe level information
-    //TODO test time constraint
-        //TODO check ClinicalTrial Style (e.g. baseline & 3 weeks) -check
-        //TODO check EHR style (date and encounter) - Ignore visit Dimension
-    //TODO check instance Num -Ignore
-    //TODO test sample constraint (modifier) -
-
-    //Check integrity of assumptions
-    //TODO asssayIds.empty -check
-    //TODO assaysByType
-    //TODO The data type is the same, but platform is different
-    //TODO Check correctness of Observation Fact (no missing Numerical value at Modifier = '@')
 }
