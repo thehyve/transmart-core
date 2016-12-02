@@ -84,7 +84,7 @@ class PatientsSpec extends RESTSpec{
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
 
         when: "I try to get the patients from that study"
-        def constraintMap = [type: StudyConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
+        def constraintMap = [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
         def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "I get an access error"
@@ -104,7 +104,7 @@ class PatientsSpec extends RESTSpec{
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I try to get the patients from that study"
-        def constraintMap = [type: StudyConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
+        def constraintMap = [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
         def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "I get all patients"

@@ -6,8 +6,6 @@ import selectors.protobuf.ObservationSelector
 import spock.lang.Requires
 
 import static config.Config.*
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.*
 import static tests.rest.v2.ValueType.NUMERIC
 import static tests.rest.v2.ValueType.STRING
@@ -36,7 +34,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
+                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTimeLabel',
@@ -46,7 +44,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "4 observations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -72,7 +70,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
+                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTimeLabel',
@@ -87,7 +85,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
+                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTime',
@@ -97,8 +95,8 @@ class RelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData1 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap1))
-        ObservationsMessageProto responseData2 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap2))
+        ObservationsMessageProto responseData1 = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap1))
+        ObservationsMessageProto responseData2 = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap2))
 
         then: "both sets of observations are the same"
         ObservationSelector selector1 = new ObservationSelector(responseData1)
@@ -129,7 +127,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: EHR_ID],
+                        [type: StudyNameConstraint, studyId: EHR_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTimeLabel',
@@ -139,7 +137,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "multiple concepts are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -168,7 +166,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                              operator: EQUALS,
                              value:'General']
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "multiple concepts are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -196,7 +194,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
+                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTimeLabel',
@@ -211,7 +209,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
+                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTime',
@@ -221,8 +219,8 @@ class RelativeTimepointsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData1 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap1))
-        ObservationsMessageProto responseData2 = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap2))
+        ObservationsMessageProto responseData1 = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap1))
+        ObservationsMessageProto responseData2 = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap2))
 
         then: "both sets of observations are the same"
         ObservationSelector selector1 = new ObservationSelector(responseData1)

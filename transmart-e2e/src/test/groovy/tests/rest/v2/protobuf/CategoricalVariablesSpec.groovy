@@ -3,12 +3,10 @@ package tests.rest.v2.protobuf
 import base.RESTSpec
 import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
-import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.CATEGORICAL_VALUES_LOADED
-import static config.Config.PATH_HYPERCUBE
-import static config.Config.SUPPRESS_KNOWN_BUGS
+import static config.Config.PATH_OBSERVATIONS
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.ValueType.STRING
@@ -33,7 +31,7 @@ class CategoricalVariablesSpec extends RESTSpec{
         when: "I get all observations from the  study that have concept Gender"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "no observations are returned"
         assert responseData.header == null
@@ -50,7 +48,7 @@ class CategoricalVariablesSpec extends RESTSpec{
         when: "I get all observations from the study that have concept Female"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "1 observation is returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -71,7 +69,7 @@ class CategoricalVariablesSpec extends RESTSpec{
         when: "I get all observations from the study that have concept Race"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "3 observations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -100,7 +98,7 @@ class CategoricalVariablesSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "2 observations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)

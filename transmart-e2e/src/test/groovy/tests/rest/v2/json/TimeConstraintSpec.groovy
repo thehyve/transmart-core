@@ -1,10 +1,7 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
 import selectors.protobuf.ObservationSelectorJson
-import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.*
@@ -34,14 +31,14 @@ class TimeConstraintSpec extends RESTSpec{
                         type: Combination,
                         operator: AND,
                         args: [
-                                [type: StudyConstraint, studyId: EHR_ID],
+                                [type: StudyNameConstraint, studyId: EHR_ID],
                                 [type: TimeConstraint,
                                  field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
                                  operator: AFTER,
                                  values: [date]]
                         ]
                 ]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "6 observations are returned"
@@ -69,14 +66,14 @@ class TimeConstraintSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: EHR_ID],
+                        [type: StudyNameConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
                          field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
                          operator: BETWEEN,
                          values: [date1, date2]]
                 ]
         ]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "2 observations are returned"
@@ -102,14 +99,14 @@ class TimeConstraintSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: EHR_ID],
+                        [type: StudyNameConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
                          field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
                          operator: BEFORE,
                          values: date]
                 ]
         ]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "1 observation is returned"
@@ -136,7 +133,7 @@ class TimeConstraintSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: EHR_ID],
+                        [type: StudyNameConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
                          field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
                          operator: AFTER,
@@ -147,7 +144,7 @@ class TimeConstraintSpec extends RESTSpec{
                          values: date2]
                 ]
         ]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "4 observations are returned"

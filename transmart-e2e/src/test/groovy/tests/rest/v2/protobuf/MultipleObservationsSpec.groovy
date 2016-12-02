@@ -3,12 +3,9 @@ package tests.rest.v2.protobuf
 import base.RESTSpec
 import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
-import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.*
-import static org.hamcrest.Matchers.matchesPattern
-import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.constraints.*
 
@@ -33,7 +30,7 @@ class MultipleObservationsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "3 observations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -56,9 +53,9 @@ class MultipleObservationsSpec extends RESTSpec{
         given: "EHR is loaded"
 
         when: "I get all observations of that studie"
-        def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
+        def constraintMap = [type: StudyNameConstraint, studyId: EHR_ID]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "7 observations have a valid startDate, all formated with a datestring"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -86,9 +83,9 @@ class MultipleObservationsSpec extends RESTSpec{
         given: "EHR is loaded"
 
         when: "I get all observations of that studie"
-        def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
+        def constraintMap = [type: StudyNameConstraint, studyId: EHR_ID]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "4 observations have a nonNUll endDate, all formated with a datestring"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -125,7 +122,7 @@ class MultipleObservationsSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "6 obsevations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)

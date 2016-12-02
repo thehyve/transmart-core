@@ -1,12 +1,10 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
 import selectors.protobuf.ObservationSelectorJson
 
 import static config.Config.EHR_ID
-import static config.Config.PATH_HYPERCUBE
+import static config.Config.PATH_OBSERVATIONS
 import static config.Config.PATH_PATIENT_SET
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
@@ -28,7 +26,7 @@ class ConstraintSpec extends RESTSpec{
      Combination.class,
      TemporalConstraint.class,
      ConceptConstraint.class,
-     StudyConstraint.class,
+     StudyNameConstraint.class,
      NullConstraint.class
      */
     def final INVALIDARGUMENTEXCEPTION = "InvalidArgumentsException"
@@ -42,7 +40,7 @@ class ConstraintSpec extends RESTSpec{
         when:" I do a Get query/observations with a wrong type."
         def constraintMap = [type: 'BadType']
 
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "then I get a 400 with 'Constraint not supported: BadType.'"
         that responseData.httpStatus, is(400)
@@ -54,7 +52,7 @@ class ConstraintSpec extends RESTSpec{
         def constraintMap = [type: TrueConstraint]
 
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -75,7 +73,7 @@ class ConstraintSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -91,7 +89,7 @@ class ConstraintSpec extends RESTSpec{
                 type: ModifierConstraint, modifierCode: "TNS:SMPL",
                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
         ]
-        responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then:
@@ -110,7 +108,7 @@ class ConstraintSpec extends RESTSpec{
                              operator: LESS_THAN,
                              value:100]
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -124,7 +122,7 @@ class ConstraintSpec extends RESTSpec{
     def "ValueConstraint.class"(){
         def constraintMap = [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:176]
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -141,7 +139,7 @@ class ConstraintSpec extends RESTSpec{
                              operator: AFTER,
                              values: [date]]
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -157,7 +155,7 @@ class ConstraintSpec extends RESTSpec{
 
 
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -167,7 +165,7 @@ class ConstraintSpec extends RESTSpec{
 
         when:
         constraintMap = [type: PatientSetConstraint, patientIds: -62]
-        responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then:
@@ -182,7 +180,7 @@ class ConstraintSpec extends RESTSpec{
                 arg: [type: PatientSetConstraint, patientIds: [-62, -52, -42]]
         ]
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
 
         then:
@@ -203,7 +201,7 @@ class ConstraintSpec extends RESTSpec{
                 ]
         ]
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then:
@@ -224,7 +222,7 @@ class ConstraintSpec extends RESTSpec{
                 ]
         ]
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
 
         then:
@@ -241,7 +239,7 @@ class ConstraintSpec extends RESTSpec{
     def "ConceptConstraint.class"(){
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -252,9 +250,9 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "StudyConstraint.class"(){
-        def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
+        def constraintMap = [type: StudyNameConstraint, studyId: EHR_ID]
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -271,7 +269,7 @@ class ConstraintSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then:
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))

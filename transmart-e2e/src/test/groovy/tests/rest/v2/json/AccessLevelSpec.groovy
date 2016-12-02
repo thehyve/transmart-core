@@ -2,12 +2,9 @@ package tests.rest.v2.json
 
 import base.RESTSpec
 import selectors.protobuf.ObservationSelectorJson
-import selectors.protobuf.ObservationsMessageJson
 import spock.lang.Requires
 
 import static config.Config.*
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.constraints.ConceptConstraint
 
 @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
@@ -23,7 +20,7 @@ class AccessLevelSpec extends RESTSpec{
 
         when: "I try to get a concept from that study"
         def constraintMap = [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "I get an access error"
         assert responseData.httpStatus == 403
@@ -42,7 +39,7 @@ class AccessLevelSpec extends RESTSpec{
 
         when: "I try to get a concept from that study"
         def constraintMap = [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "I get the observations"
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -64,7 +61,7 @@ class AccessLevelSpec extends RESTSpec{
 
         when: "I try to get a concept from that study"
         def constraintMap = [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "I get the observations"
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))

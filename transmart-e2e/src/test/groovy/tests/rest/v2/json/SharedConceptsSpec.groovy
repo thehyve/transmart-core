@@ -1,14 +1,10 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
 import selectors.protobuf.ObservationSelectorJson
 import spock.lang.Requires
 
 import static config.Config.*
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.constraints.*
 
@@ -25,7 +21,7 @@ class SharedConceptsSpec extends RESTSpec {
 
         when: "I get observaties using this shared Consept id"
         def constraintMap = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "observations are returned from both Studies"
@@ -50,11 +46,11 @@ class SharedConceptsSpec extends RESTSpec {
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: SHARED_CONCEPTS_A_ID],
+                        [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_A_ID],
                         [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
                 ]
         ]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "observations are returned from only that Studies"
@@ -76,7 +72,7 @@ class SharedConceptsSpec extends RESTSpec {
 
         when: "I get observaties using this shared Consept id"
         def constraintMap = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "observations are returned from both public Studies but not the restricted study"
@@ -101,7 +97,7 @@ class SharedConceptsSpec extends RESTSpec {
 
         when: "I get observaties using this shared Consept id"
         def constraintMap = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "observations are returned from both public Studies but not the restricted study"

@@ -3,7 +3,7 @@ package config
 class Config {
     //Constants
     public static final String BASE_URL = 'http://localhost:8080/'
-//    public static final String BASE_URL = 'http://transmart-pro-test.thehyve.net/transmart/'
+//    public static final String BASE_URL = 'http://transmart-pro-dev.thehyve.net/'
     public static final String BAD_USERNAME = 'bad username'
     public static final String BAD_PASSWORD = 'bad password'
     public static final String DEFAULT_USERNAME = 'test-public-user-1'
@@ -13,7 +13,7 @@ class Config {
     public static final String ADMIN_USERNAME = 'admin'
     public static final String ADMIN_PASSWORD = 'admin'
 
-    public static final String PATH_HYPERCUBE = "v2/observations"
+    public static final String PATH_OBSERVATIONS = "v2/observations"
     public static final String PATH_HIGH_DIM = "v2/high_dim"
     public static final String PATH_AGGREGATE = "v2/observations/aggregate"
     public static final String PATH_PATIENTS = "v2/patients"
