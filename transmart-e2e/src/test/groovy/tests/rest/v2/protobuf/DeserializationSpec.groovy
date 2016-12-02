@@ -14,7 +14,7 @@ class DeserializationSpec extends RESTSpec{
     def "reconstruct observations"(){
         def constraintMap = [type: StudyConstraint, studyId: CATEGORICAL_VALUES_ID]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -43,7 +43,7 @@ class DeserializationSpec extends RESTSpec{
         ]
 
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)

@@ -3,12 +3,9 @@ package tests.rest.v2.protobuf
 import base.RESTSpec
 import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
-import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.*
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.*
 import static tests.rest.v2.constraints.*
 
@@ -43,7 +40,7 @@ class TimeConstraintSpec extends RESTSpec{
                         ]
                 ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "6 observations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -80,7 +77,7 @@ class TimeConstraintSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "2 observations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -115,7 +112,7 @@ class TimeConstraintSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "1 observation is returned"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -155,7 +152,7 @@ class TimeConstraintSpec extends RESTSpec{
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "4 observations are returned"
         ObservationSelector selector = new ObservationSelector(responseData)

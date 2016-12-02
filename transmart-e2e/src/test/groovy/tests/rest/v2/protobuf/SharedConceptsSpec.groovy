@@ -6,8 +6,6 @@ import selectors.protobuf.ObservationSelector
 import spock.lang.Requires
 
 import static config.Config.*
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.constraints.*
 
@@ -25,7 +23,7 @@ class SharedConceptsSpec extends RESTSpec {
         when: "I get observaties using this shared Consept id"
         def constraintMap = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "observations are returned from both Studies"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -56,7 +54,7 @@ class SharedConceptsSpec extends RESTSpec {
                 ]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "observations are returned from only that Studies"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -80,7 +78,7 @@ class SharedConceptsSpec extends RESTSpec {
         when: "I get observaties using this shared Consept id"
         def constraintMap = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "observations are returned from both public Studies but not the restricted study"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -107,7 +105,7 @@ class SharedConceptsSpec extends RESTSpec {
         when: "I get observaties using this shared Consept id"
         def constraintMap = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "observations are returned from both public Studies but not the restricted study"
         ObservationSelector selector = new ObservationSelector(responseData)

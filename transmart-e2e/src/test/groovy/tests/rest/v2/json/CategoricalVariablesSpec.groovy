@@ -2,14 +2,10 @@ package tests.rest.v2.json
 
 import base.RESTSpec
 import selectors.protobuf.ObservationSelectorJson
-import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.CATEGORICAL_VALUES_LOADED
-import static config.Config.PATH_HYPERCUBE
-import static config.Config.SUPPRESS_KNOWN_BUGS
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
+import static config.Config.PATH_OBSERVATIONS
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.ValueType.STRING
@@ -34,7 +30,7 @@ class CategoricalVariablesSpec extends RESTSpec{
         when: "I get all observations from the  study that have concept Gender"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"]
 
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "no observations are returned"
         assert responseData.cellCount == []
@@ -51,7 +47,7 @@ class CategoricalVariablesSpec extends RESTSpec{
         when: "I get all observations from the study that have concept Female"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"]
 
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "1 observation is returned"
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -72,7 +68,7 @@ class CategoricalVariablesSpec extends RESTSpec{
         when: "I get all observations from the study that have concept Race"
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"]
 
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "3 observations are returned"
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -101,7 +97,7 @@ class CategoricalVariablesSpec extends RESTSpec{
                 ]
         ]
 
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "2 observations are returned"
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))

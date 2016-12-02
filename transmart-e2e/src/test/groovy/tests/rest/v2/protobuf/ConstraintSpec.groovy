@@ -5,7 +5,7 @@ import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
 
 import static config.Config.EHR_ID
-import static config.Config.PATH_HYPERCUBE
+import static config.Config.PATH_OBSERVATIONS
 import static config.Config.PATH_PATIENT_SET
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
@@ -41,7 +41,7 @@ class ConstraintSpec extends RESTSpec{
         when:" I do a Get query/observations with a wrong type."
         def constraintMap = [type: 'BadType']
 
-        def responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "then I get a 400 with 'Constraint not supported: BadType.'"
         that responseData.httpStatus, is(400)
@@ -53,7 +53,7 @@ class ConstraintSpec extends RESTSpec{
         def constraintMap = [type: TrueConstraint]
 
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -72,7 +72,7 @@ class ConstraintSpec extends RESTSpec{
                 type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
         ]
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
         ObservationSelector selector = new ObservationSelector(responseData)
 
         then:
@@ -87,7 +87,7 @@ class ConstraintSpec extends RESTSpec{
                 type: ModifierConstraint, modifierCode: "TNS:SMPL",
                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
         ]
-        responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
         selector = new ObservationSelector(responseData)
 
         then:
@@ -106,7 +106,7 @@ class ConstraintSpec extends RESTSpec{
                              operator: LESS_THAN,
                              value:100]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -118,7 +118,7 @@ class ConstraintSpec extends RESTSpec{
     def "ValueConstraint.class"(){
         def constraintMap = [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:176]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -135,7 +135,7 @@ class ConstraintSpec extends RESTSpec{
                              operator: AFTER,
                              values: [date]]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -151,7 +151,7 @@ class ConstraintSpec extends RESTSpec{
 
 
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -161,7 +161,7 @@ class ConstraintSpec extends RESTSpec{
 
         when:
         constraintMap = [type: PatientSetConstraint, patientIds: -62]
-        responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
         selector = new ObservationSelector(responseData)
 
         then:
@@ -176,7 +176,7 @@ class ConstraintSpec extends RESTSpec{
                 arg: [type: PatientSetConstraint, patientIds: [-62, -52, -42]]
         ]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -195,7 +195,7 @@ class ConstraintSpec extends RESTSpec{
                 ]
         ]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -217,7 +217,7 @@ class ConstraintSpec extends RESTSpec{
                 ]
         ]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -233,7 +233,7 @@ class ConstraintSpec extends RESTSpec{
     def "ConceptConstraint.class"(){
         def constraintMap = [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -246,7 +246,7 @@ class ConstraintSpec extends RESTSpec{
     def "StudyConstraint.class"(){
         def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -263,7 +263,7 @@ class ConstraintSpec extends RESTSpec{
         ]
 
         when:
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then:
         ObservationSelector selector = new ObservationSelector(responseData)

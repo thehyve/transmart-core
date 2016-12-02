@@ -1,16 +1,10 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
-import groovy.util.logging.Slf4j
-import org.hamcrest.Matchers
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
 import selectors.protobuf.ObservationSelectorJson
 import spock.lang.Requires
 
 import static config.Config.*
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.constraints.*
 
@@ -35,7 +29,7 @@ class MultipleObservationsSpec extends RESTSpec{
                 ]
         ]
 
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "3 observations are returned"
@@ -60,7 +54,7 @@ class MultipleObservationsSpec extends RESTSpec{
         when: "I get all observations of that studie"
         def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
 
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
         (0..<selector.cellCount).each {
             println "TYPE: ${selector.select(it, 'StartTimeDimension', null, 'Timestamp')?.class?.simpleName}"
@@ -91,7 +85,7 @@ class MultipleObservationsSpec extends RESTSpec{
 
         when: "I get all observations of that studie"
         def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "4 observations have a nonNUll endDate, all formated with a datestring"
@@ -127,7 +121,7 @@ class MultipleObservationsSpec extends RESTSpec{
                         [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                 ]
         ]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "6 obsevations are returned"

@@ -3,14 +3,10 @@ package tests.rest.v2.protobuf
 import base.RESTSpec
 import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
-import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.*
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.EQUALS
-import static tests.rest.v2.ValueType.NUMERIC
 import static tests.rest.v2.ValueType.STRING
 import static tests.rest.v2.constraints.ModifierConstraint
 import static tests.rest.v2.constraints.ValueConstraint
@@ -32,7 +28,7 @@ class SamplesSpec extends RESTSpec{
                 values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "8 observations are returned, all have a cellcount"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -59,7 +55,7 @@ class SamplesSpec extends RESTSpec{
                 type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\"
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "8 observations are returned, all have a cellcount"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -85,7 +81,7 @@ class SamplesSpec extends RESTSpec{
                 type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\does not exist\\"
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "0 observations are returned"
         responseData.header == null

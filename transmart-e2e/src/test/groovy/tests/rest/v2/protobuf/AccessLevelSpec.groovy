@@ -3,12 +3,9 @@ package tests.rest.v2.protobuf
 import base.RESTSpec
 import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
-import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.*
-import static org.hamcrest.Matchers.*
-import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.constraints.ConceptConstraint
 
 @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
@@ -24,7 +21,7 @@ class AccessLevelSpec extends RESTSpec{
 
         when: "I try to get a concept from that study"
         def constraintMap = [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]
-        def responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        def responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "I get an access error"
         assert responseData.httpStatus == 403
@@ -43,7 +40,7 @@ class AccessLevelSpec extends RESTSpec{
 
         when: "I try to get a concept from that study"
         def constraintMap = [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "I get the observations"
         ObservationSelector selector = new ObservationSelector(responseData)
@@ -65,7 +62,7 @@ class AccessLevelSpec extends RESTSpec{
 
         when: "I try to get a concept from that study"
         def constraintMap = [type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]
-        ObservationsMessageProto responseData = getProtobuf(PATH_HYPERCUBE, toQuery(constraintMap))
+        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "I get the observations"
         ObservationSelector selector = new ObservationSelector(responseData)

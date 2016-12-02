@@ -1,8 +1,6 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
 import selectors.protobuf.ObservationSelectorJson
 
 import static config.Config.*
@@ -15,7 +13,7 @@ class DeserializationSpec extends RESTSpec{
     def "reconstruct observations"(){
         def constraintMap = [type: StudyConstraint, studyId: CATEGORICAL_VALUES_ID]
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then:
@@ -44,7 +42,7 @@ class DeserializationSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then:

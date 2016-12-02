@@ -82,6 +82,13 @@ class ObservationSelector {
         return value.valueCase == valueCase ? value.val : null
     }
 
+    def select(cellIndex, dimansion, valueType){
+        int dimensionDeclarationIndex = notInlined.indexOf(dimansion)
+
+        int dimensionIndexes = protoMessage.cells.get(cellIndex).getDimensionIndexes(dimensionDeclarationIndex)
+        return protoMessage.footer.getDimension(dimensionDeclarationIndex).getFields(0).invokeMethod("get${valueType}Value",dimensionIndexes).'val'
+    }
+
     /**
      * returns the value of a cell
      *

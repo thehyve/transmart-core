@@ -42,7 +42,7 @@ class RelativeTimepointsSpec extends RESTSpec {
                          value   : 'Baseline']
                 ]
         ]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "4 observations are returned"
@@ -93,9 +93,9 @@ class RelativeTimepointsSpec extends RESTSpec {
                 ]
         ]
 
-        def responseData1 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap1))
+        def responseData1 = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap1))
         ObservationSelectorJson selector1 = new ObservationSelectorJson(parseHypercube(responseData1))
-        def responseData2 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap2))
+        def responseData2 = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap2))
         ObservationSelectorJson selector2 = new ObservationSelectorJson(parseHypercube(responseData2))
 
         then: "both sets of observations are the same"
@@ -134,7 +134,7 @@ class RelativeTimepointsSpec extends RESTSpec {
                          value   : 'General']
                 ]
         ]
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "multiple concepts are returned"
@@ -162,7 +162,7 @@ class RelativeTimepointsSpec extends RESTSpec {
                                         type     : STRING],
                              operator: EQUALS,
                              value   : 'General']
-        def responseData = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "multiple concepts are returned"
@@ -212,9 +212,9 @@ class RelativeTimepointsSpec extends RESTSpec {
                          value   : 7]
                 ]
         ]
-        def responseData1 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap1))
+        def responseData1 = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap1))
         ObservationSelectorJson selector1 = new ObservationSelectorJson(parseHypercube(responseData1))
-        def responseData2 = get(PATH_HYPERCUBE, contentTypeForJSON, toQuery(constraintMap2))
+        def responseData2 = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap2))
         ObservationSelectorJson selector2 = new ObservationSelectorJson(parseHypercube(responseData2))
 
         then: "both sets of observations are the same"
