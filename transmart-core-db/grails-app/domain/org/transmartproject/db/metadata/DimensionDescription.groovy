@@ -16,6 +16,7 @@ class DimensionDescription {
 
     String name
     String modifierCode
+    String valueType
     Dimension.Size size
     Dimension.Density density
     Dimension.Packable packable
@@ -29,6 +30,7 @@ class DimensionDescription {
 
     static constraints = {
         modifierCode    nullable: true
+        valueType       nullable: true
         size            nullable: true
         density         nullable: true
         packable        nullable: true
@@ -68,10 +70,10 @@ class DimensionDescription {
 
     void check() {
         if(name == LEGACY_MARKER) return
-        if(dimensionsMap.keySet().contains(name) && [modifierCode, size, density, packable].any { it != null }) {
+        if(dimensionsMap.keySet().contains(name) && [modifierCode, valueType, size, density, packable].any { it != null }) {
             throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: For builtin " +
                     "'$name' dimension all other fields must be set to NULL")
-        } else if(!dimensionsMap.keySet().contains(name) && [modifierCode, size, density, packable].any { it == null }) {
+        } else if(!dimensionsMap.keySet().contains(name) && [modifierCode, valueType, size, density, packable].any { it == null }) {
             throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' dimension" +
                     " is not builtin and some modifier dimension fields are NULL")
         }
@@ -88,7 +90,7 @@ class DimensionDescription {
         if(modifierDimension != null) {
             return modifierDimension
         }
-        return modifierDimension = ModifierDimension.get(name, modifierCode, size, density, packable)
+        return modifierDimension = ModifierDimension.get(name, modifierCode, valueType, size, density, packable)
     }
 
 }

@@ -133,9 +133,9 @@ class ClinicalTestData {
         def longitudinalClinicalFacts = createLongitudinalFacts(conceptDims[4..5], patients, longitudinalStudy, observationStartDates, observationEndDates,
                 locations, providers)
 
-        def doseDimension = new DimensionDescription(name: "dose", modifierCode: "TEST:DOSE",
+        def doseDimension = new DimensionDescription(name: "dose", modifierCode: "TEST:DOSE", valueType: ObservationFact.TYPE_NUMBER,
                 size: LARGE, density: SPARSE, packable: NOT_PACKABLE).save()
-        def tissueTypeDimension = new DimensionDescription(name: "tissueType", modifierCode: "TEST:TISSUETYPE",
+        def tissueTypeDimension = new DimensionDescription(name: "tissueType", modifierCode: "TEST:TISSUETYPE", valueType: ObservationFact.TYPE_TEXT,
                 size: MEDIUM, density: DENSE, packable: PACKABLE).save()
 
         def sampleStudy = StudyTestData.createStudy "sample study", ["patient", "concept", "study",
