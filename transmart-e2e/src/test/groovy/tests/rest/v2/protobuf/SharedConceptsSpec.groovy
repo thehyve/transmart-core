@@ -49,7 +49,7 @@ class SharedConceptsSpec extends RESTSpec {
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: SHARED_CONCEPTS_A_ID],
+                        [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_A_ID],
                         [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
                 ]
         ]

@@ -46,17 +46,17 @@ public interface ValueType {
 
 public interface constraints {
     String TrueConstraint = 'TrueConstraint',
-    BiomarkerConstraint = 'BiomarkerConstraint',
-    ModifierConstraint = 'ModifierConstraint',
-    FieldConstraint = 'FieldConstraint',
-    ValueConstraint = 'ValueConstraint',
-    TimeConstraint = 'TimeConstraint',
-    PatientSetConstraint = 'PatientSetConstraint',
-    Negation = 'Negation',
-    Combination = 'Combination',
-    TemporalConstraint = 'TemporalConstraint',
-    ConceptConstraint = 'ConceptConstraint',
-    NullConstraint = 'NullConstraint',
-    StudyConstraint = 'StudyConstraint'
+           BiomarkerConstraint = 'BiomarkerConstraint',
+           ModifierConstraint = 'ModifierConstraint',
+           FieldConstraint = 'FieldConstraint',
+           ValueConstraint = 'ValueConstraint',
+           TimeConstraint = 'TimeConstraint',
+           PatientSetConstraint = 'PatientSetConstraint',
+           Negation = 'Negation',
+           Combination = 'Combination',
+           TemporalConstraint = 'TemporalConstraint',
+           ConceptConstraint = 'ConceptConstraint',
+           NullConstraint = 'NullConstraint',
+           StudyNameConstraint = 'StudyNameConstraint'
 }
 

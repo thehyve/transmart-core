@@ -52,7 +52,7 @@ class MultipleObservationsSpec extends RESTSpec{
         given: "EHR is loaded"
 
         when: "I get all observations of that studie"
-        def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
+        def constraintMap = [type: StudyNameConstraint, studyId: EHR_ID]
 
         def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
@@ -84,7 +84,7 @@ class MultipleObservationsSpec extends RESTSpec{
         given: "EHR is loaded"
 
         when: "I get all observations of that studie"
-        def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
+        def constraintMap = [type: StudyNameConstraint, studyId: EHR_ID]
         def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 

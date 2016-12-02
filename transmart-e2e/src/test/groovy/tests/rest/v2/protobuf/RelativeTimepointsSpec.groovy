@@ -34,7 +34,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
+                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTimeLabel',
@@ -70,7 +70,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
+                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTimeLabel',
@@ -85,7 +85,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
+                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTime',
@@ -127,7 +127,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: EHR_ID],
+                        [type: StudyNameConstraint, studyId: EHR_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTimeLabel',
@@ -194,7 +194,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
+                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTimeLabel',
@@ -209,7 +209,7 @@ class RelativeTimepointsSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID],
+                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type: FieldConstraint,
                          field: [dimension: 'TrialVisitDimension',
                                  fieldName: 'relTime',

@@ -26,7 +26,7 @@ class ConstraintSpec extends RESTSpec{
      Combination.class,
      TemporalConstraint.class,
      ConceptConstraint.class,
-     StudyConstraint.class,
+     StudyNameConstraint.class,
      NullConstraint.class
      */
     def final INVALIDARGUMENTEXCEPTION = "InvalidArgumentsException"
@@ -250,7 +250,7 @@ class ConstraintSpec extends RESTSpec{
     }
 
     def "StudyConstraint.class"(){
-        def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
+        def constraintMap = [type: StudyNameConstraint, studyId: EHR_ID]
         when:
         def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 

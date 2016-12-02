@@ -31,7 +31,7 @@ class TimeConstraintSpec extends RESTSpec{
                         type: Combination,
                         operator: AND,
                         args: [
-                                [type: StudyConstraint, studyId: EHR_ID],
+                                [type: StudyNameConstraint, studyId: EHR_ID],
                                 [type: TimeConstraint,
                                  field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
                                  operator: AFTER,
@@ -66,7 +66,7 @@ class TimeConstraintSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: EHR_ID],
+                        [type: StudyNameConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
                          field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
                          operator: BETWEEN,
@@ -99,7 +99,7 @@ class TimeConstraintSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: EHR_ID],
+                        [type: StudyNameConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
                          field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
                          operator: BEFORE,
@@ -133,7 +133,7 @@ class TimeConstraintSpec extends RESTSpec{
                 type: Combination,
                 operator: AND,
                 args: [
-                        [type: StudyConstraint, studyId: EHR_ID],
+                        [type: StudyNameConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
                          field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
                          operator: AFTER,

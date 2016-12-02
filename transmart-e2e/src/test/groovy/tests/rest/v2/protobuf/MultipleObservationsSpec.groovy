@@ -53,7 +53,7 @@ class MultipleObservationsSpec extends RESTSpec{
         given: "EHR is loaded"
 
         when: "I get all observations of that studie"
-        def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
+        def constraintMap = [type: StudyNameConstraint, studyId: EHR_ID]
 
         ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
@@ -83,7 +83,7 @@ class MultipleObservationsSpec extends RESTSpec{
         given: "EHR is loaded"
 
         when: "I get all observations of that studie"
-        def constraintMap = [type: StudyConstraint, studyId: EHR_ID]
+        def constraintMap = [type: StudyNameConstraint, studyId: EHR_ID]
 
         ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 

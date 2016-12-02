@@ -7,12 +7,12 @@ import selectors.protobuf.ObservationSelector
 import static config.Config.*
 import static tests.rest.v2.Operator.OR
 import static tests.rest.v2.constraints.Combination
-import static tests.rest.v2.constraints.StudyConstraint
+import static tests.rest.v2.constraints.StudyNameConstraint
 
 class DeserializationSpec extends RESTSpec{
 
     def "reconstruct observations"(){
-        def constraintMap = [type: StudyConstraint, studyId: CATEGORICAL_VALUES_ID]
+        def constraintMap = [type: StudyNameConstraint, studyId: CATEGORICAL_VALUES_ID]
         when:
         ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
@@ -37,8 +37,8 @@ class DeserializationSpec extends RESTSpec{
                 type: Combination,
                 operator: OR,
                 args: [
-                        [type: StudyConstraint, studyId: CATEGORICAL_VALUES_ID],
-                        [type: StudyConstraint, studyId: CLINICAL_TRIAL_ID]
+                        [type: StudyNameConstraint, studyId: CATEGORICAL_VALUES_ID],
+                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID]
                 ]
         ]
 
