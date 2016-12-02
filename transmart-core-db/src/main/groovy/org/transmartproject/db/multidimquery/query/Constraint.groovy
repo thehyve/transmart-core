@@ -273,7 +273,7 @@ class ConceptConstraint extends Constraint {
 }
 
 @Canonical
-class StudyConstraint extends Constraint {
+class StudyNameConstraint extends Constraint {
     String studyId
 }
 
@@ -286,6 +286,13 @@ class StudyObjectConstraint extends Constraint {
 class NullConstraint extends Constraint {
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
+}
+
+@Canonical
+class RowValueConstraint extends Constraint {
+    Type valueType = Type.NONE
+    Operator operator = Operator.NONE
+    Object value
 }
 
 /**
@@ -471,7 +478,7 @@ class TemporalConstraint extends Constraint {
  * - {@link Combination}
  * - {@link TemporalConstraint}
  * - {@link ConceptConstraint}
- * - {@link StudyConstraint}
+ * - {@link StudyNameConstraint}
  * - {@link NullConstraint}
  */
 @Slf4j
@@ -492,7 +499,7 @@ class ConstraintFactory {
             Combination.class,
             TemporalConstraint.class,
             ConceptConstraint.class,
-            StudyConstraint.class,
+            StudyNameConstraint.class,
             StudyObjectConstraint.class,
             NullConstraint.class
     ].collectEntries {

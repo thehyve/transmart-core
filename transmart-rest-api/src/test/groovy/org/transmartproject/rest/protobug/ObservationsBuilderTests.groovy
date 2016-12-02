@@ -10,7 +10,7 @@ import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.PatientDimension
 import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.StudyConstraint
+import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.TestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
@@ -38,9 +38,9 @@ class ObservationsBuilderTests extends Specification {
 
     public void testJsonSerialization() {
         setupData()
-        Constraint constraint = new StudyConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
-        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON)
+        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON, null)
 
         when:
         def out = new ByteArrayOutputStream()
@@ -66,7 +66,7 @@ class ObservationsBuilderTests extends Specification {
 
     public void testPackedDimsSerialization() {
         setupData()
-        Constraint constraint = new StudyConstraint(studyId: clinicalData.multidimsStudy.studyId)
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.multidimsStudy], constraint: constraint)
         def patientDimension = DimensionDescription.dimensionsMap.patient
         def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON, patientDimension)
@@ -78,7 +78,7 @@ class ObservationsBuilderTests extends Specification {
         Collection result = new JsonSlurper().parse(out.toByteArray())
         def dimElementsSize = result.last()['dimension'].size()
         def dimensionDeclarations = result.first()['dimensionDeclarations']
-        def notPackedDimensions = dimensionDeclarations.findAll {it.inline && !it.packed }
+        def notPackedDimensions = dimensionDeclarations.findAll { !it.inline && !it.packed }
         def notPackedDimensionsSize = notPackedDimensions.size()
 
         then:
@@ -104,9 +104,9 @@ class ObservationsBuilderTests extends Specification {
 
     public void testProtobufSerialization() {
         setupData()
-        Constraint constraint = new StudyConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
-        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.PROTOBUF)
+        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.PROTOBUF, null)
 
         when:
         def s_out = new ByteArrayOutputStream()

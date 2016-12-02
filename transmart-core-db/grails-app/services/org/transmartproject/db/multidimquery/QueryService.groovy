@@ -99,7 +99,7 @@ class QueryService {
             if (!accessControlChecks.checkConceptAccess(user, conceptPath: constraint.path)) {
                 throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
             }
-        } else if (constraint instanceof StudyConstraint) {
+        } else if (constraint instanceof StudyNameConstraint) {
             def study = Study.findByStudyId(constraint.studyId)
             if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
                 throw new AccessDeniedException("Access denied to study: ${constraint.studyId}")
@@ -306,11 +306,11 @@ class QueryService {
         patientCount(new ConceptConstraint(path: path), user)
     }
 
-    static List<StudyConstraint> findStudyConstraints(Constraint constraint) {
-        if (constraint instanceof StudyConstraint) {
+    static List<StudyNameConstraint> findStudyNameConstraints(Constraint constraint) {
+        if (constraint instanceof StudyNameConstraint) {
             return [constraint]
         } else if (constraint instanceof Combination) {
-            constraint.args.collectMany { findStudyConstraints(it) }
+            constraint.args.collectMany { findStudyNameConstraints(it) }
         } else {
             return []
         }
@@ -421,22 +421,29 @@ class QueryService {
                             String projectionName = Projection.ALL_DATA_PROJECTION) {
         checkAccess(assayConstraint, user)
 
-        //TODO Use hypercube?
         List<ObservationFact> observations = list(assayConstraint, user)
+        //TODO check for correct Observation fact row
         List assayIds = observations
                 .findAll { it.modifierCd == '@' }
                 .collect { it.numberValue.toLong() }
-        //TODO if asssayIds.empty
+
+
+
+        if (assayIds.empty){
+            return new EmptyHypercube()
+        }
         List<AssayConstraint> oldAssayConstraints = [
                 highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
         ]
 
         Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
                 highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
+
         //TODO assaysByType is empty
         if (assaysByType.size() > 1) {
             throw new IllegalStateException("Expected only one high dimensional data type. Got ${assaysByType.keySet()*.dataTypeName}")
         }
+
         //TODO The data type is the same, but platform is different
         HighDimensionDataTypeResource typeResource = assaysByType.keySet().first()
         HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)

@@ -9,16 +9,50 @@ import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.clinical.Query
+import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.TrialVisit
 
 import static org.transmartproject.core.multidimquery.Dimension.*
+import static org.transmartproject.core.multidimquery.Dimension.Size.*
+import static org.transmartproject.core.multidimquery.Dimension.Density.*
+import static org.transmartproject.core.multidimquery.Dimension.Packable.*
+
 
 abstract class DimensionImpl implements Dimension {
-    // TODO(jan): Which properties on dimensions do we actually need for the hypercube to work?
 
     final Size size
     final Density density
     final Packable packable
+
+
+    // Size is currently not used.
+    //
+    // DENSE indicates that the dimension will be indexed in the hypercube, SPARSE dimensions are inlined
+    //
+    // Packable dimensions can be (profitably) packed into arrays in protobuf serialization. Requirements for being
+    // packable are:
+    //   - Dimension is dense
+    //   - Values are of the same type (so dimensions that determine the type can not be packable, e.g. concept)
+    //   - There are typically at least a dozen elements in a result set, if not it is usually more profitable to
+    //     pack a dimension with more elements.
+
+    static final StudyDimension STUDY =            new StudyDimension(SMALL, DENSE, NOT_PACKABLE)
+    static final ConceptDimension CONCEPT =        new ConceptDimension(MEDIUM, DENSE, NOT_PACKABLE)
+    static final PatientDimension PATIENT =        new PatientDimension(LARGE, DENSE, PACKABLE)
+    static final VisitDimension VISIT =            new VisitDimension(MEDIUM, DENSE, PACKABLE)
+    static final StartTimeDimension START_TIME =   new StartTimeDimension(LARGE, SPARSE, NOT_PACKABLE)
+    static final EndTimeDimension END_TIME =       new EndTimeDimension(LARGE, SPARSE, NOT_PACKABLE)
+    static final LocationDimension LOCATION =      new LocationDimension(MEDIUM, SPARSE, NOT_PACKABLE)
+    static final TrialVisitDimension TRIAL_VISIT = new TrialVisitDimension(SMALL, DENSE, PACKABLE)
+    static final ProviderDimension PROVIDER =      new ProviderDimension(SMALL, DENSE, NOT_PACKABLE)
+
+    // Todo: implement sample dimension as a marker for studies that can have multiple samples
+    //static final DimensionImpl SAMPLE =         new SampleDimension(SMALL, DENSE, NOT_PACKABLE)
+
+    static final BioMarkerDimension BIOMARKER =    new BioMarkerDimension(LARGE, DENSE, PACKABLE)
+    static final AssayDimension ASSAY =            new AssayDimension(LARGE, DENSE, PACKABLE)
+    static final ProjectionDimension PROJECTION =  new ProjectionDimension(SMALL, DENSE, NOT_PACKABLE)
+
 
     DimensionImpl(Size size, Density density, Packable packable) {
         this.size = size
@@ -33,7 +67,7 @@ abstract class DimensionImpl implements Dimension {
     abstract def selectIDs(Query query)
 
     @CompileStatic
-    abstract def getElementKey(ProjectionMap result)
+    abstract def getElementKey(Map result)
 
     List<Object> resolveElements(List elementKeys) {
         if (elementKeys.size() == 0) return []
@@ -56,12 +90,12 @@ abstract class DimensionImpl implements Dimension {
         }
     }
 
-    abstract List<Object> doResolveElements(List elementKeys)
+    abstract List doResolveElements(List elementKeys)
 
     /* This default implementation should be overridden for efficiency for non-packable dimensions.
      */
 
-    Object resolveElement(elementId) {
+    def resolveElement(elementId) {
         resolveElements([elementId])[0]
     }
 
@@ -82,7 +116,8 @@ abstract class I2b2Dimension extends DimensionImpl {
     }
 
     @Override
-    def getElementKey(ProjectionMap result) {
+    def getElementKey(Map result) {
+        assert result.getOrDefault('modifierCd', '@') == '@'
         result[alias]
     }
 }
@@ -93,7 +128,8 @@ abstract class I2b2NullablePKDimension extends I2b2Dimension {
     abstract def getNullValue()
 
     @Override
-    def getElementKey(ProjectionMap result) {
+    def getElementKey(Map result) {
+        assert result.getOrDefault('modifierCd', '@') == '@'
         def res = result[alias]
         res == nullValue ? null : res
     }
@@ -107,43 +143,92 @@ abstract class HighDimDimension extends DimensionImpl {
     }
 
     @Override
-    List<Object> doResolveElements(List elementKeys) {
+    List doResolveElements(List elementKeys) {
         throw new NotImplementedException()
     }
 
     @Override @CompileStatic
-    def getElementKey(ProjectionMap result) {
+    def getElementKey(Map result) {
         throw new NotImplementedException()
     }
 }
 
 
-//TODO: supporting modifier dimensions requires support for sorting, since we need to sort on the full PK except
-// modifierCd in order to ensure that modifier ObservationFacts come next to their observation value
 class ModifierDimension extends DimensionImpl {
-    ModifierDimension(String name, String modifierCode, Size size, Density density, Packable packable) {
+    private static Map<String,ModifierDimension> byName = [:]
+    private static Map<String,ModifierDimension> byCode = [:]
+    synchronized static ModifierDimension get(String name, String modifierCode, String valueType,
+                                              Size size, Density density, Packable packable) {
+        if(name in byName) {
+            ModifierDimension dim = byName[name]
+            assert dim.is(byCode[dim.modifierCode])
+            if(modifierCode == dim.modifierCode && size == dim.size && density == dim.density
+                    && packable == dim.packable) {
+                return dim
+            }
+
+            def props = [modifierCode: modifierCode, size: size, density: density, packable: packable]
+            throw new RuntimeException("attempting to create a modifier dimension with properties $props while an" +
+                    " identical modifier dimension with different properties already exists: $dim")
+        }
+        assert !byCode.containsKey(modifierCode)
+
+        ModifierDimension dim = new ModifierDimension(name, modifierCode, valueType, size, density, packable)
+        byName[name] = dim
+        byCode[modifierCode] = dim
+
+        dim
+    }
+
+    private ModifierDimension(String name, String modifierCode, String valueType, Size size, Density density, Packable packable) {
         super(size, density, packable)
         this.name = name
         this.modifierCode = modifierCode
+        if (!(valueType in [ObservationFact.TYPE_NUMBER, ObservationFact.TYPE_TEXT])) {
+            throw new RuntimeException("Unsupported value type: ${valueType}. " +
+                    "Should be one of [${ObservationFact.TYPE_NUMBER}, ${ObservationFact.TYPE_TEXT}].")
+        }
+        this.valueType = valueType
     }
 
-    String name
-    String modifierCode
+    static final String modifierCodeField = 'modifierCd'
+
+    final String name
+    final String modifierCode
+    final String valueType
 
     @Override def selectIDs(Query query) {
+        if(query.params.modifierCodes == ['@']) {
+            // make sure this is added only once to the query
+            query.criteria.property modifierCodeField, modifierCodeField
+        }
         query.params.modifierCodes += modifierCode
     }
 
-    @Override def getElementKey(ProjectionMap result) {
-        throw new UnsupportedOperationException("ModifierDimension.getElementKey")
+    @Override def getElementKey(Map result) {
+        result[name]
     }
 
-    @Override List<Object> doResolveElements(List elementKeys) {
+    @Override List doResolveElements(List elementKeys) {
         return elementKeys
     }
 
+    @Override def resolveElement(key) {
+        key
+    }
+
     @Override String toString() {
-        "${this.class.simpleName}('$name')"
+        "${this.class.simpleName}(name: '$name', code: '$modifierCode', $size, $density, $packable)"
+    }
+
+    /**
+     * Add the value from the modifierRow into the result
+     */
+    void addModifierValue(Map result, ProjectionMap modifierRow) {
+        assert modifierRow[modifierCodeField] == modifierCode
+        assert !result.containsKey(name), "$name already used as an alias or as a different modifier"
+        result[name] = ObservationFact.observationFactValue(
+                (String) modifierRow.valueType, (String) modifierRow.textValue, (BigDecimal) modifierRow.numberValue)
     }
 }
 
@@ -158,7 +243,7 @@ class PatientDimension extends I2b2Dimension {
         query.params.patientSelected = true
     }
 
-    @Override List<Object> doResolveElements(List elementKeys) {
+    @Override List doResolveElements(List elementKeys) {
         org.transmartproject.db.i2b2data.PatientDimension.getAll(elementKeys)
     }
 }
@@ -169,8 +254,10 @@ class ConceptDimension extends I2b2NullablePKDimension {
     String columnName = 'conceptCode'
     String nullValue = '@'
 
-    @Override List<Object> doResolveElements(List elementKeys) {
-        org.transmartproject.db.i2b2data.ConceptDimension.findAllByConceptCodeInList(elementKeys)
+    @Override List doResolveElements(List elementKeys) {
+        List elements = org.transmartproject.db.i2b2data.ConceptDimension.findAllByConceptCodeInList(elementKeys)
+        elements.sort { elementKeys.indexOf(it.conceptCode) }
+        elements
     }
 }
 
@@ -179,7 +266,7 @@ class TrialVisitDimension extends I2b2Dimension {
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
 
-    @Override List<Object> doResolveElements(List elementKeys) {
+    @Override List doResolveElements(List elementKeys) {
         TrialVisit.getAll(elementKeys)
     }
 }
@@ -197,7 +284,7 @@ class StudyDimension extends I2b2Dimension {
         }
     }
 
-    @Override List<Object> doResolveElements(List elementKeys) {
+    @Override List doResolveElements(List elementKeys) {
         org.transmartproject.db.i2b2data.Study.getAll(elementKeys)
     }
 }
@@ -212,7 +299,7 @@ class StartTimeDimension extends I2b2NullablePKDimension {
     String columnName = 'startDate'
     Date nullValue = EMPTY_DATE
 
-    @Override List<Object> doResolveElements(List elementKeys) {
+    @Override List doResolveElements(List elementKeys) {
         elementKeys
     }
 }
@@ -222,7 +309,7 @@ class EndTimeDimension extends I2b2Dimension {
     String alias = 'endDate'
     String columnName = 'endDate'
 
-    @Override List<Object> doResolveElements(List elementKeys) {
+    @Override List doResolveElements(List elementKeys) {
         elementKeys
     }
 }
@@ -232,13 +319,14 @@ class LocationDimension extends I2b2Dimension {
     String alias = 'location'
     String columnName = 'locationCd'
 
-    @Override List<Object> doResolveElements(List elementKeys) {
+    @Override List doResolveElements(List elementKeys) {
         elementKeys
     }
 }
 
 @InheritConstructors
 class VisitDimension extends DimensionImpl {
+    static String alias = 'encounterNum'
 
     @Override
     def selectIDs(Query query) {
@@ -247,21 +335,21 @@ class VisitDimension extends DimensionImpl {
                 property 'patient.id', 'patientId'
                 query.params.patientSelected = true
             }
-            property 'encounterNum', 'encounterNum'
+            property 'encounterNum', alias
         }
     }
 
     static private BigDecimal minusOne = new BigDecimal(-1)
 
     @Override @CompileStatic
-    def getElementKey(ProjectionMap result) {
-        BigDecimal encounterNum = (BigDecimal) result.encounterNum
+    def getElementKey(Map result) {
+        BigDecimal encounterNum = (BigDecimal) result[alias]
         encounterNum == minusOne ? null : new Pair(encounterNum, result.patientId)
     }
 
     @Override
-    List<Object> doResolveElements(List elementKeys) {
-        (List<Object>) org.transmartproject.db.i2b2data.VisitDimension.withCriteria {
+    List doResolveElements(List elementKeys) {
+        (List) org.transmartproject.db.i2b2data.VisitDimension.withCriteria {
             or {
                 elementKeys.each { Pair key ->
                     and {
@@ -280,7 +368,7 @@ class ProviderDimension extends I2b2NullablePKDimension {
     String columnName = 'providerId'
     String nullValue = '@'
 
-    List<Object> doResolveElements(List elementKeys) {
+    List doResolveElements(List elementKeys) {
         elementKeys
     }
 }

@@ -217,9 +217,9 @@ abstract class RESTSpec extends Specification{
     }
 
     def parseHypercube(jsonHypercube){
-        def header = jsonHypercube[0]
-        def cells = jsonHypercube[1..jsonHypercube.size()-2]
-        def footer = jsonHypercube.last()
+        def header = jsonHypercube.size() ? jsonHypercube[0] : []
+        def cells = jsonHypercube.size() ? jsonHypercube[1..jsonHypercube.size()-2] : []
+        def footer = jsonHypercube.size() ? jsonHypercube.last() : []
         return new ObservationsMessageJson(header, cells, footer)
     }
 
@@ -234,6 +234,9 @@ abstract class RESTSpec extends Specification{
         while(true) {
             count++
             def cell = ObservationsProto.Observation.parseDelimitedFrom(s_in)
+            if (header.toString() == "" && cell == null) {
+                break
+            }
             assert cell != null, "proto buf message is incomplete. no cell with last=true found. cell ${count} was null"
             cells << cell
             if (cell.last) {

@@ -7,11 +7,13 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.AssayDimension
 import org.transmartproject.db.multidimquery.BioMarkerDimension
 import org.transmartproject.db.multidimquery.EndTimeDimension
 import org.transmartproject.db.multidimquery.LocationDimension
+import org.transmartproject.db.multidimquery.ModifierDimension
 import org.transmartproject.db.multidimquery.ProjectionDimension
 import org.transmartproject.db.multidimquery.ProviderDimension
 import org.transmartproject.db.multidimquery.StartTimeDimension
@@ -75,10 +77,6 @@ public class ObservationsSerializer {
         this.format = format
     }
 
-    ObservationsSerializer(Hypercube cube, Format format) {
-        this(cube, format, null)
-    }
-
     protected boolean first = true
 
     protected void begin(OutputStream out) {
@@ -139,7 +137,12 @@ public class ObservationsSerializer {
     protected getDimensionsDefs() {
         def declarations = cube.dimensions.collect { dim ->
             def builder = DimensionDeclaration.newBuilder()
-            String dimensionName = dim.toString()
+            String dimensionName
+            if (dim instanceof ModifierDimension) {
+                dimensionName = dim.name
+            } else {
+                dimensionName = dim.toString()
+            }
             builder.setName(dimensionName)
             if (dim.density == Dimension.Density.SPARSE) {
                 // Sparse dimensions are inlined, dense dimensions are referred to by indexes
@@ -151,6 +154,19 @@ public class ObservationsSerializer {
             }
             def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionName)
             switch(dim.class) {
+                case ModifierDimension:
+                    def modifierDim = (ModifierDimension)dim
+                    switch (modifierDim.valueType) {
+                        case ObservationFact.TYPE_NUMBER:
+                            builder.type = Type.DOUBLE
+                            break
+                        case ObservationFact.TYPE_TEXT:
+                            builder.type = Type.STRING
+                            break
+                        default:
+                            throw new Exception("Unsupported value type for dimension ${dimensionName}: ${modifierDim.valueType}.")
+                    }
+                    break
                 case StartTimeDimension:
                 case EndTimeDimension:
                     builder.type = Type.TIMESTAMP
@@ -378,12 +394,14 @@ public class ObservationsSerializer {
                 break
             case Type.DOUBLE:
                 def doubleValue = DoubleValue.newBuilder()
-                if (value instanceof Float) {
+                if (value == null) {
+                    // skip
+                } else if (value instanceof Float) {
                     doubleValue.val = value.doubleValue()
                 } else if (value instanceof Double) {
                     doubleValue.val = value.doubleValue()
                 } else {
-                    throw new Exception("Type not supported: ${value?.class?.simpleName}.")
+                    throw new Exception("Type not supported: ${value?.class?.simpleName} (value: ${value}, type: ${type.name()}).")
                 }
                 builder.addDoubleValue doubleValue.build()
                 break
