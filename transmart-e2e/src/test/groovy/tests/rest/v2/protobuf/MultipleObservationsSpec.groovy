@@ -39,7 +39,7 @@ class MultipleObservationsSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it, "PatientDimension", "age", 'Int') == 30
-            assert selector.select(it) == [60.0, 59.0, 80.0].get(it)
+            assert [60.0D, 59.0D, 80.0D].contains(selector.select(it))
         }
     }
 
@@ -131,7 +131,7 @@ class MultipleObservationsSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it, "PatientDimension", "age", 'Int') == (it < 3 ? 30 : 52)
-            assert selector.select(it) == [60.0, 59.0, 80.0, 78.0, 56.0, 102.0].get(it)
+            assert [60.0D, 59.0D, 80.0D, 78.0D, 56.0D, 102.0D].contains(selector.select(it))
         }
     }
 }
