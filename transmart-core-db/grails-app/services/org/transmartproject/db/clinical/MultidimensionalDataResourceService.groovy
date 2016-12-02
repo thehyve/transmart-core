@@ -108,7 +108,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             // This throws a LegacyStudyException for non-17.1 style studies
             // This could probably be done more efficiently, but GORM support for many-to-many collections is pretty
             // buggy. And usually the studies and dimensions will be cached in memory.
-            validDimensions = ImmutableSet.copyOf((Set<DimensionImpl>) studies*.dimensions.flatten())
+            validDimensions = ImmutableSet.copyOf((Set<DimensionImpl>) studies*.dimensions.flatten().findAll{
+                !(it.class in notImplementedDimensions)
+            })
 
         } else {
             validDimensions = ImmutableSet.copyOf DimensionDescription.all*.dimension.findAll{
