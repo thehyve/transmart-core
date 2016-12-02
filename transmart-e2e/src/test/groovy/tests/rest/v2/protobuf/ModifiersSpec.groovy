@@ -12,9 +12,8 @@ class ModifiersSpec extends RESTSpec {
     /**
      *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
      *  when: "I get all observations"
-     *  then "the modifiers are included"
+     *  then "the modifiers are included as a Dimension"
      */
-    @IgnoreIf({SUPPRESS_UNIMPLEMENTED})
     def "get modifiers"() {
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
         def constraintMap = [type: constraints.StudyNameConstraint, studyId: TUMOR_NORMAL_SAMPLES_ID]
@@ -24,14 +23,13 @@ class ModifiersSpec extends RESTSpec {
         ObservationSelector selector = new ObservationSelector(responseData)
 
         then: "the modifiers are included"
+        selector.cellCount == 19
         HashSet modifierDimension = []
         (0..<selector.cellCount).each {
-            modifierDimension.add(selector.select(it, "modifierDimension", "modifierCode", 'String'))
-            assert selector.select(it, "modifierDimension", "studyId", 'String').equals(TUMOR_NORMAL_SAMPLES_ID)
+            modifierDimension.add(selector.select(it, "sample_type", 'String'))
+            assert selector.select(it, "StudyDimension", "studyId", 'String').equals(TUMOR_NORMAL_SAMPLES_ID)
         }
-        assert modifierDimension.size() == 1
-        assert modifierDimension.contains('TNS:SMPL')
+        assert modifierDimension.size() == 3
+        assert modifierDimension.containsAll('', 'Tumor', 'Normal')
     }
-
-
 }
