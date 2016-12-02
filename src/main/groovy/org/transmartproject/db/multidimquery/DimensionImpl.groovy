@@ -157,7 +157,7 @@ abstract class HighDimDimension extends DimensionImpl {
 class ModifierDimension extends DimensionImpl {
     private static Map<String,ModifierDimension> byName = [:]
     private static Map<String,ModifierDimension> byCode = [:]
-    synchronized static ModifierDimension get(String name, String modifierCode,
+    synchronized static ModifierDimension get(String name, String modifierCode, String valueType,
                                               Size size, Density density, Packable packable) {
         if(name in byName) {
             ModifierDimension dim = byName[name]
@@ -173,23 +173,29 @@ class ModifierDimension extends DimensionImpl {
         }
         assert !byCode.containsKey(modifierCode)
 
-        ModifierDimension dim = new ModifierDimension(name, modifierCode, size, density, packable)
+        ModifierDimension dim = new ModifierDimension(name, modifierCode, valueType, size, density, packable)
         byName[name] = dim
         byCode[modifierCode] = dim
 
         dim
     }
 
-    private ModifierDimension(String name, String modifierCode, Size size, Density density, Packable packable) {
+    private ModifierDimension(String name, String modifierCode, String valueType, Size size, Density density, Packable packable) {
         super(size, density, packable)
         this.name = name
         this.modifierCode = modifierCode
+        if (!(valueType in [ObservationFact.TYPE_NUMBER, ObservationFact.TYPE_TEXT])) {
+            throw new RuntimeException("Unsupported value type: ${valueType}. " +
+                    "Should be one of [${ObservationFact.TYPE_NUMBER}, ${ObservationFact.TYPE_TEXT}].")
+        }
+        this.valueType = valueType
     }
 
     static final String modifierCodeField = 'modifierCd'
 
     final String name
     final String modifierCode
+    final String valueType
 
     @Override def selectIDs(Query query) {
         if(query.params.modifierCodes == ['@']) {
