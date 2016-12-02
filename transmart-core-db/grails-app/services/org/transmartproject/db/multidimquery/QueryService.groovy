@@ -421,22 +421,29 @@ class QueryService {
                             String projectionName = Projection.ALL_DATA_PROJECTION) {
         checkAccess(assayConstraint, user)
 
-        //TODO Use hypercube?
         List<ObservationFact> observations = list(assayConstraint, user)
+        //TODO check for correct Observation fact row
         List assayIds = observations
                 .findAll { it.modifierCd == '@' }
                 .collect { it.numberValue.toLong() }
-        //TODO if asssayIds.empty
+
+
+
+        if (assayIds.empty){
+            return new EmptyHypercube()
+        }
         List<AssayConstraint> oldAssayConstraints = [
                 highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
         ]
 
         Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
                 highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
+
         //TODO assaysByType is empty
         if (assaysByType.size() > 1) {
             throw new IllegalStateException("Expected only one high dimensional data type. Got ${assaysByType.keySet()*.dataTypeName}")
         }
+
         //TODO The data type is the same, but platform is different
         HighDimensionDataTypeResource typeResource = assaysByType.keySet().first()
         HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)

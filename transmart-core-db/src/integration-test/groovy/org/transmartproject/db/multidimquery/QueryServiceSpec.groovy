@@ -11,10 +11,18 @@ import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
 import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.Field
+import org.transmartproject.db.multidimquery.query.FieldConstraint
+import org.transmartproject.db.multidimquery.query.ModifierConstraint
 import org.transmartproject.db.multidimquery.query.Operator
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
+import org.transmartproject.db.multidimquery.query.TimeConstraint
+import org.transmartproject.db.multidimquery.query.Type
+import org.transmartproject.db.multidimquery.query.ValueConstraint
 import org.transmartproject.db.user.User
+import spock.lang.Ignore
 import spock.lang.Specification
+import java.text.SimpleDateFormat
 
 @Rollback
 @Integration
@@ -26,6 +34,7 @@ class QueryServiceSpec extends Specification {
     Dimension assayDim = DimensionDescription.dimensionsMap.assay
     Dimension biomarkerDim = DimensionDescription.dimensionsMap.biomarker
     Dimension projectionDim = DimensionDescription.dimensionsMap.projection
+    Dimension patientDim = DimensionDescription.dimensionsMap.patient
 
     void 'get whole hd data for single node'() {
         User user = User.findByUsername('test-public-user-1')
@@ -92,7 +101,166 @@ class QueryServiceSpec extends Specification {
         hypercube.dimensionElements(projectionDim).size() == 10
     }
 
-    //TODO check accessibility of the probe level information
-    //TODO test time constraint
-    //TODO test sample constraint
+    void 'get hd data for selected trial visit dimension'() {
+        def user = User.findByUsername('test-public-user-1')
+        def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+        def trialVisitConstraint = new FieldConstraint(
+                field: new Field(
+                        dimension: TrialVisitDimension,
+                        fieldName: 'relTimeLabel',
+                        type: 'STRING'
+                ),
+                operator: Operator.EQUALS
+        )
+        def combination
+
+        when:
+        trialVisitConstraint.value = 'Baseline'
+        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
+        Hypercube hypercube = queryService.highDimension(user, combination)
+        hypercube.toList()
+
+        then:
+        hypercube.dimensionElements(biomarkerDim).size() == 3
+        hypercube.dimensionElements(assayDim).size() == 4
+        hypercube.dimensionElements(projectionDim).size() == 10
+
+        when:
+        trialVisitConstraint.value = 'Week 1'
+        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
+        hypercube = queryService.highDimension(user, combination)
+        hypercube.toList()
+
+        then:
+
+        hypercube.dimensionElements(assayDim).size() == 1
+        def patient = hypercube.dimensionElement(patientDim, 0)
+        patient.id == -601
+        patient.age == 26
+
+
+    }
+    void 'get hd data for selected time constraint'() {
+        def user = User.findByUsername('test-public-user-2')
+        def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
+        def startDateTimeConstraint = new TimeConstraint(
+                field: new Field(
+                        dimension: StartTimeDimension,
+                        fieldName: 'startDate',
+                        type: 'DATE'
+                ),
+                values: [sdf.parse('2016-03-29 10:30:30')],
+                operator: Operator.AFTER
+        )
+
+        def endDateTimeConstraint = new TimeConstraint(
+                field: new Field(
+                        dimension: EndTimeDimension,
+                        fieldName: 'endDate',
+                        type: 'DATE'
+                ),
+                values: [sdf.parse('2016-04-02 01:00:00')],
+                operator: Operator.BEFORE
+        )
+
+        def combination
+        Hypercube hypercube
+        when:
+        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, startDateTimeConstraint])
+        hypercube = queryService.highDimension(user, combination)
+        hypercube.toList()
+
+        then:
+        hypercube.dimensionElements(assayDim).size() == 3
+
+        when:
+        combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
+        hypercube = queryService.highDimension(user, combination)
+        hypercube.toList()
+
+        then:
+        hypercube.dimensionElements(assayDim).size() == 1
+
+    }
+
+    @Ignore //vistDimension is not supported as Field?
+    void 'HD data selected on visit dimension'() {
+        def user = User.findByUsername('test-public-user-1')
+        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
+        def timeDimensionConstraint = new FieldConstraint(
+                operator: Operator.AFTER,
+                value: sdf.parse('2016-05-05 10:00:00'),
+                field: new Field(
+                        dimension: 'VisitDimension',
+                        fieldName: 'endDate',
+                        type: 'DATE'
+                )
+
+        )
+        def conceptConstraint = new ConceptConstraint(
+                path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\'
+        )
+        def combination = new Combination(
+                args: [timeDimensionConstraint, conceptConstraint],
+                operator: Operator.AND
+        )
+        when:
+        Hypercube hypercube = queryService.highDimension(user, combination)
+        hypercube.toList()
+
+        then:
+        hypercube.dimensionElements(assayDim).size() == 1
+    }
+
+
+    void 'HD data selected based on sample type (modifier)'(){
+        def user = User.findByUsername('test-public-user-1')
+        def modifierConstraint = new ModifierConstraint(
+                modifierCode: 'TNS:SMPL',
+                //path: '\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\', //choose either code or path
+                values: new ValueConstraint(
+                        operator: Operator.EQUALS,
+                        valueType: Type.STRING,
+                        value: 'Tumor'
+
+                )
+        )
+        def conceptConstraint = new ConceptConstraint(
+                path:'\\Public Studies\\TUMOR_NORMAL_SAMPLES\\HD\\Breast\\'
+        )
+
+        def combination = new Combination(
+                operator: Operator.AND,
+                args: [modifierConstraint, conceptConstraint]
+        )
+        when:
+        Hypercube hypercube = queryService.retrieveClinicalData(combination, user)
+        hypercube.toList()
+
+        then:
+        hypercube.dimensionElements(patientDim).size() == 2
+    }
+
+    void 'Test for empty set of assayIds'(){
+        def user = User.findByUsername('test-public-user-1')
+        def sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
+        def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+        def endDateTimeConstraint = new TimeConstraint(
+                field: new Field(
+                        dimension: EndTimeDimension,
+                        fieldName: 'endDate',
+                        type: 'DATE'
+                ),
+                values: [sdf.parse('2016-04-02 01:00:00')],
+                operator: Operator.AFTER //only exist one before, none after
+        )
+        when:
+        Combination combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
+        Hypercube hypercube = queryService.highDimension(user, combination)
+
+
+        then:
+        hypercube.toList().empty
+    }
 }
