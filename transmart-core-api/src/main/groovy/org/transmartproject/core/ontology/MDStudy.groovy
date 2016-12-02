@@ -12,4 +12,6 @@ interface MDStudy extends ProtectedResource {
 
     Collection<Dimension> getDimensions()
 
+    Dimension getDimensionByName(String name)
+
 }

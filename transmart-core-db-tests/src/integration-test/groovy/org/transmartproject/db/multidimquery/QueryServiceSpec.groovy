@@ -118,6 +118,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         def observations = ObservationFact.findAll {
+            modifierCd == '@'
             valueType == ObservationFact.TYPE_NUMBER
             numberValue > 1
             createAlias('patient', 'p')

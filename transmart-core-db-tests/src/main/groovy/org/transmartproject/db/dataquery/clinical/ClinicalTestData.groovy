@@ -24,6 +24,8 @@ import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.StudyTestData
 import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.i2b2data.*
+import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.multidimquery.ModifierDimension
 import org.transmartproject.db.ontology.AcrossTrialsTestData
 import org.transmartproject.db.ontology.I2b2
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
@@ -35,6 +37,9 @@ import java.text.SimpleDateFormat
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
+import static org.transmartproject.core.multidimquery.Dimension.Density.*
+import static org.transmartproject.core.multidimquery.Dimension.Size.*
+import static org.transmartproject.core.multidimquery.Dimension.Packable.*
 
 class ClinicalTestData {
 
@@ -52,6 +57,9 @@ class ClinicalTestData {
     Study                   multidimsStudy
     List<ObservationFact>   multidimsClinicalFacts
     List<ModifierDimensionCoreDb> modifierDimensions
+    ModifierDimension       doseDimension
+    ModifierDimension       tissueTypeDimension
+
 
     @Lazy
     QtQueryMaster patientsQueryMaster = createQueryResult patients
@@ -125,7 +133,13 @@ class ClinicalTestData {
         def longitudinalClinicalFacts = createLongitudinalFacts(conceptDims[4..5], patients, longitudinalStudy, observationStartDates, observationEndDates,
                 locations, providers)
 
-        def sampleStudy = StudyTestData.createStudy "sample study", ["patient", "concept", "study"] // todo: "sample", "testmodifier"
+        def doseDimension = new DimensionDescription(name: "dose", modifierCode: "TEST:DOSE",
+                size: LARGE, density: SPARSE, packable: NOT_PACKABLE).save()
+        def tissueTypeDimension = new DimensionDescription(name: "tissueType", modifierCode: "TEST:TISSUETYPE",
+                size: MEDIUM, density: DENSE, packable: PACKABLE).save()
+
+        def sampleStudy = StudyTestData.createStudy "sample study", ["patient", "concept", "study",
+                doseDimension, tissueTypeDimension] // todo: "sample"
         def sampleClinicalFacts = createSampleFacts(conceptDims[5], patients, sampleStudy, observationStartDates, observationEndDates,
                 locations, providers)
 
@@ -144,6 +158,8 @@ class ClinicalTestData {
                 longitudinalClinicalFacts: longitudinalClinicalFacts,
                 sampleStudy: sampleStudy,
                 sampleClinicalFacts: sampleClinicalFacts,
+                doseDimension: doseDimension.dimension,
+                tissueTypeDimension: tissueTypeDimension.dimension,
                 ehrStudy: ehrStudy,
                 ehrClinicalFacts: ehrClinicalFacts,
                 multidimsStudy:multidimsStudy,
@@ -252,15 +268,13 @@ class ClinicalTestData {
     }
 
     static ObservationFact addModifiersToObservationFact(ObservationFact basicObservationFact,
-                                                         int instanceNum,
                                                          String modifierCd,
                                                          Object value) {
 
         def extendedFact = new ObservationFact()
         InvokerHelper.setProperties(extendedFact, basicObservationFact.properties)
 
-        extendedFact.setInstanceNum(instanceNum)
-        extendedFact.setModifierCd(modifierCd)
+        extendedFact.modifierCd = modifierCd
 
         if (value instanceof Number) {
             extendedFact.valueType = ObservationFact.TYPE_NUMBER
@@ -269,6 +283,7 @@ class ClinicalTestData {
         } else if (value != null) {
             extendedFact.valueType = ObservationFact.TYPE_TEXT
             extendedFact.textValue = value as String
+            extendedFact.numberValue = null
         }
 
         extendedFact
@@ -353,16 +368,22 @@ class ClinicalTestData {
                                                    Study study, List<Date> startDates, List<Date> endDates,
                                                    List<String> locations, List<String> providers){
 
-        def fact = createObservationFact(concept.conceptCode, patients[2], DUMMY_ENCOUNTER_ID, '', 1, createTrialVisit('days', 2, 'label_1', study))
-        String modifierCd = 'TEST:TISSUETYPE'
-
+        def trialVisit = createTrialVisit(null, 0, 'baseline', study)
         def factList = []
-        factList << fact
-        factList << addModifiersToObservationFact(fact, 1, modifierCd, 'CONNECTIVE TISSUE')
-        factList << addModifiersToObservationFact(fact, 2, modifierCd, 'MUSCLE TISSUE')
-        factList << addModifiersToObservationFact(fact, 1, 'TEST:DOSE', 325)
-        factList << addModifiersToObservationFact(fact, 2, 'TEST:DOSE', 630)
-        factList << addModifiersToObservationFact(fact, 1, 'TEST:FREQ', 'FREQ')
+        patients.each { patient ->
+            def fact1 = createObservationFact(concept.conceptCode, patient, DUMMY_ENCOUNTER_ID, 'first sample', 1, trialVisit)
+            def fact2 = createObservationFact(concept.conceptCode, patient, DUMMY_ENCOUNTER_ID, 'second sample', 2, trialVisit)
+            String tissueCode = 'TEST:TISSUETYPE'
+            String doseCode = 'TEST:DOSE'
+
+            factList << fact1
+            factList << fact2
+            factList << addModifiersToObservationFact(fact1, tissueCode, 'CONNECTIVE TISSUE')
+            factList << addModifiersToObservationFact(fact2, tissueCode, 'MUSCLE TISSUE')
+            factList << addModifiersToObservationFact(fact1, doseCode, 325)
+            factList << addModifiersToObservationFact(fact2, doseCode, 630)
+        }
+
         factList
         //extendObservationFactList(factList, startDates, endDates, locations, providers)
     }

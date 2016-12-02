@@ -1,5 +1,6 @@
 package org.transmartproject.db.clinical
 
+import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.TupleConstructor
@@ -11,6 +12,7 @@ import org.hibernate.criterion.ProjectionList
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.MDStudy
@@ -21,11 +23,15 @@ import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.HypercubeImpl
 import org.transmartproject.db.multidimquery.ProjectionDimension
 import org.transmartproject.db.multidimquery.QueryService
+import org.transmartproject.db.multidimquery.VisitDimension
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.util.GormWorkarounds
+
+import static org.transmartproject.db.metadata.DimensionDescription.dimensionsMap
+import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 class MultidimensionalDataResourceService implements MultiDimensionalDataResource {
 
@@ -55,7 +61,18 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint
-        Set<DimensionImpl> dimensions = ImmutableSet.copyOf(args.dimensions ?: []) // make unique
+        Set<DimensionImpl> dimensions = ImmutableSet.copyOf(
+                args.dimensions.collect {
+                    if(it instanceof DimensionImpl) {
+                        return it
+                    }
+                    if(it instanceof String) {
+                        def dim = dimensionsMap[it] ?: DimensionDescription.findByName(it)?.dimension
+                        if(dim == null) throw new InvalidArgumentsException("Unknown dimension: $it")
+                        return dim
+                    }
+                    throw new InvalidArgumentsException("dimension $it is not a valid dimension or dimension name")
+                } ?: [])
 
         // These are not yet implemented
         def sort = args.sort
@@ -63,7 +80,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def preloadDimensions = args.pack ?: false
 
         // Add any studies that are being selected on
-        def studyIds = QueryService.findStudyConstraints(constraint)*.studyId
+        def studyIds = QueryService.findStudyNameConstraints(constraint)*.studyId
         Set studies = (studyIds.empty ? [] : Study.findAllByStudyIdInList(studyIds)) +
                 QueryService.findStudyObjectConstraints(constraint)*.study as Set
 
@@ -106,16 +123,40 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         dimensions.each {
             it.selectIDs(query)
         }
-        if (query.params.modifierCodes != ['@']) throw new NotImplementedException("Modifier dimensions are not yet implemented")
+        if (query.params.modifierCodes != ['@']) {
+            if(sort != null) throw new NotImplementedException("sorting is not implemented")
+
+            // Make sure all primary key dimension columns are selected, even if they are not part of the result
+            primaryKeyDimensions.each {
+                if(!(it in dimensions)) {
+                    it.selectIDs(query)
+                }
+            }
+
+            q.with {
+                // instanceNum is not a dimension
+                property 'instanceNum', 'instanceNum'
+
+                // TODO: The order of sorting should match the one of the main index (or any index). Todo: create
+                // main index.
+                // 'modifierCd' needs to be excluded or listed last when using modifiers
+                order 'conceptCode'
+                order 'providerId'
+                order 'patient'
+                order 'encounterNum'
+                order 'startDate'
+                order 'instanceNum'
+            }
+        }
 
         q.with {
             inList 'modifierCd', query.params.modifierCodes
-            order 'conceptCode'
-            order 'patient'
-            order 'startDate'
-            order 'encounterNum'
-            order 'providerId'
-            order 'instanceNum'
+
+            // FIXME: Ordering by start date is needed for end-to-end tests. This should be replaced by ordering
+            // support in this service which the tests should then use.
+            if(query.params.modifierCodes == ['@']) {
+                order 'startDate'
+            }
         }
 
         CriteriaImpl hibernateCriteria = query.criteria.instance
@@ -133,6 +174,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         new HypercubeImpl(results, dimensions, aliases, query, session)
         // session will be closed by the Hypercube
     }
+
+    static final List<DimensionImpl> primaryKeyDimensions = ImmutableList.of(
+            // primary key columns excluding modifierCd and instanceNum
+            CONCEPT, PROVIDER, PATIENT, VISIT, START_TIME)
 
     /*
     note: efficiently extracting the available dimension elements for dimensions is possible using nonstandard
