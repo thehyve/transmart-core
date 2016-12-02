@@ -78,7 +78,7 @@ class ObservationsBuilderTests extends Specification {
         Collection result = new JsonSlurper().parse(out.toByteArray())
         def dimElementsSize = result.last()['dimension'].size()
         def dimensionDeclarations = result.first()['dimensionDeclarations']
-        def notPackedDimensions = dimensionDeclarations.findAll {it.inline && !it.packed }
+        def notPackedDimensions = dimensionDeclarations.findAll { !it.inline && !it.packed }
         def notPackedDimensionsSize = notPackedDimensions.size()
 
         then:
