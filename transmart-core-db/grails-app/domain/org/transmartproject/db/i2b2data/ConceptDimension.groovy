@@ -19,6 +19,9 @@
 
 package org.transmartproject.db.i2b2data
 
+import groovy.transform.ToString
+
+@ToString
 class ConceptDimension {
 
     String       conceptPath
