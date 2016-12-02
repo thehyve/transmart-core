@@ -15,6 +15,7 @@ CREATE TABLE dimension_description (
     id integer NOT NULL,
     density character varying(255),
     modifier_code character varying(255),
+    value_type character varying(50),
     name character varying(255) NOT NULL,
     packable character varying(255),
     size_cd character varying(255)
