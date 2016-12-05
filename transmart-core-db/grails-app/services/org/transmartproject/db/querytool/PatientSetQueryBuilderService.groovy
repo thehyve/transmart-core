@@ -320,4 +320,29 @@ class PatientSetQueryBuilderService {
 
         spec.postProcessQuery "$spec.factTableColumn IN ($res)", userInContext
     }
+
+    /**
+     * Build query to retrieve patient counts from table with precalculated counts.
+     *
+     * @param OntologyTerm term
+     * @return sql query as a String
+     */
+    public String buildPatientCountQuery(OntologyTerm term) {
+        String conceptPath = getConceptRelativePath term.key
+        "select patient_count from i2b2demodata.concept_counts where concept_path='$conceptPath'"
+    }
+
+    /**
+    *
+    * @param String conceptKey (including root node)
+    * @return concept path (without root node)
+    */
+    private String getConceptRelativePath(String conceptKey) {
+        conceptKey = conceptKey.replace("\\\\","") // skip double slashes specific to root
+        String sep = "\\\\" // double escaped because of regexp
+        ArrayList<String> splittage = Arrays.asList(conceptKey.split(sep))
+        splittage.remove(splittage.first()) // drop root node
+        sep = "\\" // for sql query and other purposes: single \
+        sep + splittage.join(sep) + sep //needs to start and end with \
+    }
 }

@@ -234,6 +234,11 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     }
 
     @Override
+    int getPatientCount() {
+        super.countPatients(this)
+    }
+
+    @Override
     String toString() {
         getClass().canonicalName + "[${attached ? 'attached' : 'not attached'}" +
                 "] [ fullName=$fullName ]"

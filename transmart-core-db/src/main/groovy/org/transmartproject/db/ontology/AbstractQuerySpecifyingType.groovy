@@ -86,6 +86,12 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
         PatientDimension.findAllByIdInList(patientIdList)
     }
 
+    protected int countPatients(OntologyTerm term) {
+        String sqlQuery = patientSetQueryBuilderService.buildPatientCountQuery(term)
+        def query = sessionFactory.currentSession.createSQLQuery(sqlQuery)
+        query.list()[0] ?: 0
+    }
+
     @Override
     String postProcessQuery(String sql, User user) {
         sql
