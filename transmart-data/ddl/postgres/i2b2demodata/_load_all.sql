@@ -37,12 +37,12 @@
 \i i2b2demodata/jms_subscriptions.sql
 \i i2b2demodata/jms_transactions.sql
 \i i2b2demodata/jms_users.sql
+\i i2b2demodata/linked_file_collection.sql
 \i i2b2demodata/map.sql
 \i i2b2demodata/modifier_dimension.sql
 \i i2b2demodata/modifier_metadata.sql
 \i i2b2demodata/views/modifier_dimension_view.sql
 \i i2b2demodata/news_updates.sql
-\i i2b2demodata/visit_dimension.sql
 \i i2b2demodata/study.sql
 \i i2b2demodata/trial_visit_dimension.sql
 \i i2b2demodata/observation_fact.sql
@@ -70,6 +70,8 @@
 \i i2b2demodata/set_type.sql
 \i i2b2demodata/set_upload_status.sql
 \i i2b2demodata/source_master.sql
+\i i2b2demodata/storage_system.sql
 \i i2b2demodata/timers.sql
 \i i2b2demodata/upload_status.sql
+\i i2b2demodata/visit_dimension.sql
 \i i2b2demodata/_misc.sql

@@ -16,8 +16,10 @@ class LinkedFileCollection {
 
     static mapping = {
         table          schema:   'I2B2DEMODATA'
+        version false
     }
 
     static constraints = {
+        sourceSystem nullable: false
     }
 }

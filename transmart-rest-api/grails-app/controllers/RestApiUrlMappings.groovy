@@ -65,6 +65,9 @@ class RestApiUrlMappings {
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
                 apiVersion = 'v2'
             }
+            "/storage"(method: 'GET', controller: 'storage', action: 'index'){
+                apiVersion = "v2"
+            }
         }
 
         group "/v1", {
