@@ -63,6 +63,13 @@ class ObservationSelectorJson {
         }
     }
 
+    def select(cellIndex, dimansion, valueType){
+        int dimensionDeclarationIndex = notInlined.indexOf(dimansion)
+
+        int dimensionIndexes = hyperCubeMessage.cells[cellIndex].dimensionIndexes[dimensionDeclarationIndex] as int
+        return hyperCubeMessage.footer.dimension[dimensionDeclarationIndex].fields[0]."${valueType.toLowerCase()}Value"[dimensionIndexes].'val'
+    }
+
     /**
      * returns the value of a cell
      *

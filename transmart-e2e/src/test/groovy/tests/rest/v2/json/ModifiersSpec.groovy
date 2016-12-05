@@ -1,8 +1,7 @@
-package tests.rest.v2.protobuf
+package tests.rest.v2.json
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
+import selectors.protobuf.ObservationSelectorJson
 import tests.rest.v2.constraints
 
 import static config.Config.PATH_OBSERVATIONS
@@ -20,8 +19,8 @@ class ModifiersSpec extends RESTSpec {
         def constraintMap = [type: constraints.StudyNameConstraint, studyId: TUMOR_NORMAL_SAMPLES_ID]
 
         when: "I get all observations"
-        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
-        ObservationSelector selector = new ObservationSelector(responseData)
+        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then: "the modifiers are included"
         selector.cellCount == 19
@@ -31,6 +30,6 @@ class ModifiersSpec extends RESTSpec {
             assert selector.select(it, "StudyDimension", "studyId", 'String').equals(TUMOR_NORMAL_SAMPLES_ID)
         }
         assert modifierDimension.size() == 3
-        assert modifierDimension.containsAll('', 'Tumor', 'Normal')
+        assert modifierDimension.containsAll(null, 'Tumor', 'Normal')
     }
 }

@@ -1,23 +1,17 @@
-package tests.rest.v2.hd
+package tests.rest.v2.protobuf
 
 import base.RESTSpec
+import groovy.json.JsonBuilder
 import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
 import spock.lang.IgnoreIf
 
-import static config.Config.*
-import groovy.json.JsonBuilder
-
-import static config.Config.*
+import static config.Config.PATH_HIGH_DIM
+import static config.Config.SUPPRESS_KNOWN_BUGS
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.EQUALS
-import static tests.rest.v2.Operator.LESS_THAN
 import static tests.rest.v2.ValueType.NUMERIC
-import static tests.rest.v2.constraints.BiomarkerConstraint
-import static tests.rest.v2.constraints.Combination
-import static tests.rest.v2.constraints.ConceptConstraint
-import static tests.rest.v2.constraints.FieldConstraint
-import static tests.rest.v2.constraints.PatientSetConstraint
+import static tests.rest.v2.constraints.*
 
 class HighDimSpec extends RESTSpec {
 
@@ -41,18 +35,17 @@ class HighDimSpec extends RESTSpec {
         def projection = 'all_data'
 
         when:
-        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
+        ObservationsMessageProto responseData = getProtobuf(PATH_HIGH_DIM, [
                 assay_constraint: new JsonBuilder(assayConstraint),
                 biomarker_constraint: new JsonBuilder(biomarkerConstraint),
                 projection: projection
         ])
+        ObservationSelector selector = new ObservationSelector(responseData)
 
         then:
-        def biomarkers = 2
-        def assays = 6
-        def projections = 10
-        def metaRows = 2
-        responseData.size() == biomarkers * assays * projections + metaRows
+        responseData.header.dimensionDeclarationsCount == 4
+        responseData.cells.size() == 120
+        responseData.footer.dimensionCount == 4
     }
 
     /**
