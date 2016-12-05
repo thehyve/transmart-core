@@ -1,16 +1,17 @@
 package org.transmartproject.rest
 
-import grails.web.mime.MimeType
+import grails.rest.Link
+import grails.rest.render.util.AbstractLinkingRenderer
+import org.codehaus.groovy.grails.web.mime.MimeType
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryDefinitionXmlConverter
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.rest.marshallers.QueryResultWrapper
+import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
-
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 
@@ -36,8 +37,8 @@ class PatientSetController {
      * GET /v1/patient_sets
      */
     def index() {
-        throw new NoSuchResourceException('Listing previously created ' +
-                'patient resources is not yet possible')
+        List result = queriesResource.getQueryResultsSummaryByUsername(currentUser.getUsername() )
+        respond wrapPatients(result)
     }
 
     /**
@@ -84,5 +85,24 @@ class PatientSetController {
                 embedPatients: true
         ),
         [status: 201]
+    }
+
+    /**
+     * Disable created patient set.
+     *
+     * POST /patient_sets/<result_instance_id>
+     */
+    def disable(Long id) {
+        respond queriesResource.runDisablingQuery(id, currentUser.username),
+                [status: 201]
+    }
+
+    private wrapPatients(Object source) {
+        new ContainerResponseWrapper
+                (
+                        container: source,
+                        componentType: Patient,
+                        links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/patient_sets") ]
+                )
     }
 }

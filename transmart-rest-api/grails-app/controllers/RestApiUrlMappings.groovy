@@ -108,6 +108,7 @@ class RestApiUrlMappings {
             '/patient_sets'(resources: 'patientSet', include: ['index', 'show', 'save'])
 
             '/observations'(method: 'GET', controller: 'observation', action: 'indexStandalone')
+            
             '/observations2'(method: 'GET', controller: 'observation', action: 'observations2')
 
             "/studies/$studyId/concepts/$id**"(
@@ -119,6 +120,13 @@ class RestApiUrlMappings {
                     id validator: { !(it ==~ '.+/highdim(?:/[^/]+)?') }
                 }
             }
+
+            "/export"( controller: 'ExportController', action:'export')
+
+            "/api-version"(method: 'GET', controller: 'apiVersion', action: 'index')
+
+            "/export/datatypes"(method: 'GET', controller: 'export', action:'datatypes')
+
         }
 
     }
