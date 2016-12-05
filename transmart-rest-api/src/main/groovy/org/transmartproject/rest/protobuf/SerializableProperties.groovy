@@ -9,7 +9,7 @@ class SerializableProperties {
                                                         "religion", "sourcesystemCd", "sexCd"]
     public static final Set<String> CONCEPT = ["conceptPath", "conceptCode"]
     public static final Set<String> STUDY = ["studyId", "bioExperimentId", "secureObjectToken"]
-    public static final Set<String> TRIAL_VISIT = ["relTimeUnit", "relTime", "relTimeLabel", "study"]
+    public static final Set<String> TRIAL_VISIT = ["id", "relTimeUnit", "relTime", "relTimeLabel"]
     public static final Set<String> START_DATE = ["startDate"]
     public static final Set<String> END_DATE = ["endDate"]
     public static final Set<String> VISIT = ["patient", "activeStatus", "startDate", "endDate", "inoutCd", "locationCd"]
