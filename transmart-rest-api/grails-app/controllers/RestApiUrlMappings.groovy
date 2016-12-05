@@ -80,6 +80,9 @@ class RestApiUrlMappings {
             "/storage/$id"(method: 'DELETE', controller: 'storage', action: 'delete') {
                 apiVersion = "v2"
             }
+            "/studies/$studyId/storage"(method: 'GET', controller: 'storage', action: 'indexStudy') {
+                apiVersion = "v2"
+            }
         }
 
         group "/v1", {
