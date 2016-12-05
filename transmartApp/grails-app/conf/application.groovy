@@ -219,12 +219,10 @@ environments {
     test {
         dataSources {
             dataSource {
-                driverClassName = 'org.h2.Driver'
-                url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM './h2_init.sql'"
-                dialect = 'org.hibernate.dialect.H2Dialect'
-                username = 'sa'
-                password = ''
-                dbCreate = 'update'
+                url = 'jdbc:postgresql://localhost:5432/transmart'
+                driverClassName = 'org.postgresql.Driver'
+                username = 'tm_cz'
+                password = 'tm_cz'
                 logSql = true
                 formatSql = true
             }
@@ -239,6 +237,34 @@ environments {
                 formatSql = true
             }
         }
+        org.transmart.configFine = true
+        hibernate {
+            cache.use_second_level_cache = true
+            cache.use_query_cache = false
+        }
+    }
+    test_postgresql {
+        dataSources {
+            dataSource {
+                url = 'jdbc:postgresql://localhost:5432/transmart'
+                driverClassName = 'org.postgresql.Driver'
+                username = 'tm_cz'
+                password = 'tm_cz'
+                logSql = true
+                formatSql = true
+            }
+            oauth2 {
+                driverClassName = 'org.h2.Driver'
+                url = "jdbc:h2:mem:oauth2;MVCC=TRUE"
+                dialect = 'org.hibernate.dialect.H2Dialect'
+                username = 'sa'
+                password = ''
+                dbCreate = 'update'
+                logSql = true
+                formatSql = true
+            }
+        }
+        org.transmart.configFine = true
         hibernate {
             cache.use_second_level_cache = true
             cache.use_query_cache = false

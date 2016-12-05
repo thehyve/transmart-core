@@ -7,7 +7,7 @@ php:
 env:
   - TERM=dumb; DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
   - TERM=dumb; DIR=transmart-rest-api; TEST=check
-  - TERM=dumb; DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST="-Dgrails.env=test_postgresql check"
+  - TERM=dumb; DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest :transmartApp:assemble"; TEST="-Dgrails.env=test_postgresql check :transmart-e2e:test"; START_WEB_APP="Y"
   - TERM=dumb; DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=capsule; TEST="test functionalTest"
 
 addons:
@@ -41,7 +41,9 @@ before_install:
 
 install:
   - echo $DIR; cd $DIR
-  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; gradle $INSTALL)
+  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; gradle --stacktrace $INSTALL)
+  - ([ -z "$START_WEB_APP" ]) || (gradle -Dgrails.env=test_postgresql :transmartApp:bootRun &)
+  - sleep 60
   - cd -
 
 before_script:
