@@ -1,0 +1,6 @@
+---
+version: '2.0'
+services:
+    tm_test_db:
+        build: ./tm_test_db
+        ports: ['6000:5432']
