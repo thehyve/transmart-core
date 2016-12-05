@@ -23,6 +23,7 @@ class Config {
 
     //study ids
     public static final String EHR_ID = 'EHR'
+    public static final String EHR_HIGHDIM_ID = 'EHR_HIGHDIM'
     public static final String CLINICAL_TRIAL_ID = 'CLINICAL_TRIAL'
     public static final String CATEGORICAL_VALUES_ID = 'CATEGORICAL_VALUES'
     public static final String TUMOR_NORMAL_SAMPLES_ID = 'TUMOR_NORMAL_SAMPLES'
@@ -38,6 +39,7 @@ class Config {
 
     //test studies loaded
     public static final boolean EHR_LOADED = true
+    public static final boolean EHR_HIGHDIM_LOADED = true
     public static final boolean CLINICAL_TRIAL_LOADED = true
     public static final boolean CATEGORICAL_VALUES_LOADED = true
     public static final boolean TUMOR_NORMAL_SAMPLES_LOADED = true
