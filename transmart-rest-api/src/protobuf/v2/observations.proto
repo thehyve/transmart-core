@@ -31,7 +31,8 @@ message DimensionDeclaration { // each dimension present in the output is declar
                                /* If true, the dimension elements will be stored in the
                                   observation cell instead of the footer. */
                                bool inline = 4;
-                               /* If true, observations are packed along this dimension. */
+                               /* If true, observations are packed along this dimension. Only one dimension can have
+                               this flag set, and this flag is mutually exclusive with the 'inline' flag.*/
                                bool packed = 5;
                                /* Only used if the dimension elements are sent in the header instead of the footer. */
                                DimensionElements elements = 6;
