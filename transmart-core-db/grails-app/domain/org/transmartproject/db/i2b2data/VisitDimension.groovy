@@ -28,6 +28,7 @@ class VisitDimension implements Serializable{
     static mapping = {
         table           name: 'visit_dimension', schema: 'I2B2DEMODATA'
         id              composite: ['encounterNum', 'patient']
+        encounterNum    column: 'encounter_num'
         patient         column: 'patient_num'
         activeStatusCd  column: 'active_status_cd'
         startDate       column: 'start_date'
