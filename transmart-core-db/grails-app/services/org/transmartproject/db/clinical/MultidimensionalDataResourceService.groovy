@@ -23,14 +23,13 @@ import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.HypercubeImpl
 import org.transmartproject.db.multidimquery.ProjectionDimension
 import org.transmartproject.db.multidimquery.QueryService
-import org.transmartproject.db.multidimquery.VisitDimension
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.util.GormWorkarounds
 
-import static org.transmartproject.db.metadata.DimensionDescription.dimensionsMap
+import static org.transmartproject.db.multidimquery.DimensionImpl.dimensionsMap
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 class MultidimensionalDataResourceService implements MultiDimensionalDataResource {

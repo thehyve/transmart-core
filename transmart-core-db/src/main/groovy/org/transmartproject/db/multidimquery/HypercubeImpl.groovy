@@ -17,10 +17,9 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
-import static org.transmartproject.db.metadata.DimensionDescription.dimensionsMap
+import static org.transmartproject.db.multidimquery.DimensionImpl.dimensionsMap
 import static org.transmartproject.db.multidimquery.ModifierDimension.modifierCodeField
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
-import static java.util.AbstractMap.SimpleImmutableEntry
 
 /**
  *

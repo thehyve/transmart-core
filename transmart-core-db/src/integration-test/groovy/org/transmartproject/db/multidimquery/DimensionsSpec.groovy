@@ -3,7 +3,6 @@ package org.transmartproject.db.multidimquery
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.db.metadata.DimensionDescription
 import spock.lang.Specification
 
 @Rollback
@@ -12,7 +11,7 @@ class DimensionsSpec extends Specification {
 
     def 'studyDim.resolveElements guarantees order'() {
         expect:
-        resolveElementsGuaranteesOrder(DimensionDescription.dimensionsMap.study, [
+        resolveElementsGuaranteesOrder(DimensionImpl.dimensionsMap.study, [
                 -20,
                 -31,
                 -30,
@@ -27,7 +26,7 @@ class DimensionsSpec extends Specification {
 
     def 'conceptDim.resolveElements guarantees order'() {
         expect:
-        resolveElementsGuaranteesOrder(DimensionDescription.dimensionsMap.concept, [
+        resolveElementsGuaranteesOrder(DimensionImpl.dimensionsMap.concept, [
                 "CT:DEM:AGE",
                 "CTHD:DEM:AGE",
                 "CT:VSIGN:HR",

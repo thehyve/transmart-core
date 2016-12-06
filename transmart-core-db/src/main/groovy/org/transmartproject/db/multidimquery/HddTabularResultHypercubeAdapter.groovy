@@ -18,7 +18,6 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
-import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
@@ -29,10 +28,10 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                 " implemented in HddTabularResultHypercubeAdapter")
     }
 
-    static Dimension biomarkerDim = DimensionDescription.dimensionsMap.biomarker
-    static Dimension assayDim = DimensionDescription.dimensionsMap.assay
-    static Dimension patientDim = DimensionDescription.dimensionsMap.patient
-    static Dimension projectionDim = DimensionDescription.dimensionsMap.projection
+    static Dimension biomarkerDim = DimensionImpl.dimensionsMap.biomarker
+    static Dimension assayDim = DimensionImpl.dimensionsMap.assay
+    static Dimension patientDim = DimensionImpl.dimensionsMap.patient
+    static Dimension projectionDim = DimensionImpl.dimensionsMap.projection
 
     private TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ? /* depends on projection */>> table
     private TabularResultAdapterIterator iterator

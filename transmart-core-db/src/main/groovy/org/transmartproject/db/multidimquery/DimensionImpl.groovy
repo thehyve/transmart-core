@@ -54,6 +54,8 @@ abstract class DimensionImpl implements Dimension {
     static final AssayDimension ASSAY =            new AssayDimension(LARGE, DENSE, PACKABLE)
     static final ProjectionDimension PROJECTION =  new ProjectionDimension(SMALL, DENSE, NOT_PACKABLE)
 
+    // NB: This map only contains the static dimensions! To get a dimension that is not static
+    // use DimensionDescription.findByName(name).dimension
     static final ImmutableMap<String,DimensionImpl> dimensionsMap = ImmutableMap.copyOf([
             (STUDY.name)      : STUDY,
             (CONCEPT.name)    : CONCEPT,

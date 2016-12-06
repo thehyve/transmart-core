@@ -2,6 +2,7 @@ package org.transmartproject.db
 
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.multidimquery.DimensionImpl
 
 
 class StudyTestData {
@@ -33,7 +34,7 @@ class StudyTestData {
             } else if(it instanceof String) {
                 def candidates = DimensionDescription.findAllByName(it)
                 if(!candidates) {
-                    assert DimensionDescription.dimensionsMap.containsKey(it), "Unknown dimension name '$it', " +
+                    assert DimensionImpl.dimensionsMap.containsKey(it), "Unknown dimension name '$it', " +
                             "modifier dimensions as string are not supported in createStudy()"
                     study.addToDimensionDescriptions(new DimensionDescription(name: it))
                 } else if(candidates.size() == 1) {

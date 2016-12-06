@@ -11,7 +11,6 @@ import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.metadata.DimensionDescription
 
 @Integration
 @Rollback
@@ -28,7 +27,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
         testData.saveAll()
-        dims = DimensionDescription.dimensionsMap
+        dims = DimensionImpl.dimensionsMap
     }
 
     static private study(String name) {

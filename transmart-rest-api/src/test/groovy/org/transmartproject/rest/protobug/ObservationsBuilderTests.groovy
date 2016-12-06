@@ -8,10 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.PatientDimension
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.TestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.protobuf.ObservationsSerializer
@@ -68,7 +66,7 @@ class ObservationsBuilderTests extends Specification {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.multidimsStudy], constraint: constraint)
-        def patientDimension = DimensionDescription.dimensionsMap.patient
+        def patientDimension = DimensionImpl.dimensionsMap.patient
         def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON, patientDimension)
 
         when:
@@ -151,6 +149,6 @@ class ObservationsBuilderTests extends Specification {
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
         testData.saveAll()
-        dims = DimensionDescription.dimensionsMap
+        dims = DimensionImpl.dimensionsMap
     }
 }

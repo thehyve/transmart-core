@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
@@ -31,10 +30,10 @@ class QueryServiceSpec extends Specification {
     @Autowired
     QueryService queryService
 
-    Dimension assayDim = DimensionDescription.dimensionsMap.assay
-    Dimension biomarkerDim = DimensionDescription.dimensionsMap.biomarker
-    Dimension projectionDim = DimensionDescription.dimensionsMap.projection
-    Dimension patientDim = DimensionDescription.dimensionsMap.patient
+    Dimension assayDim = DimensionImpl.dimensionsMap.assay
+    Dimension biomarkerDim = DimensionImpl.dimensionsMap.biomarker
+    Dimension projectionDim = DimensionImpl.dimensionsMap.projection
+    Dimension patientDim = DimensionImpl.dimensionsMap.patient
 
     void 'get whole hd data for single node'() {
         User user = User.findByUsername('test-public-user-1')

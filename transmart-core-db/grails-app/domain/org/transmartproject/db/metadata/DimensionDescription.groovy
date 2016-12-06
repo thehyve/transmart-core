@@ -1,6 +1,5 @@
 package org.transmartproject.db.metadata
 
-import com.google.common.collect.ImmutableMap
 import groovy.transform.InheritConstructors
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.multidimquery.Dimension
@@ -8,8 +7,6 @@ import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.ModifierDimension
 
 import org.transmartproject.db.i2b2data.Study
-
-import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 class DimensionDescription {
     static final String LEGACY_MARKER = "legacy tabular study marker"
@@ -43,7 +40,6 @@ class DimensionDescription {
         size    column: 'size_cd'
     }
 
-    static ImmutableMap<String,DimensionImpl> dimensionsMap = dimensionsMap
 
     boolean isLegacyTabular() {
         return name == LEGACY_MARKER
@@ -55,10 +51,12 @@ class DimensionDescription {
 
     void check() {
         if(name == LEGACY_MARKER) return
-        if(dimensionsMap.keySet().contains(name) && [modifierCode, valueType, size, density, packable].any { it != null }) {
+        if(DimensionImpl.dimensionsMap.keySet().contains(name)
+                && [modifierCode, valueType, size, density, packable].any { it != null }) {
             throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: For builtin " +
                     "'$name' dimension all other fields must be set to NULL")
-        } else if(!dimensionsMap.keySet().contains(name) && [modifierCode, valueType, size, density, packable].any { it == null }) {
+        } else if(!DimensionImpl.dimensionsMap.keySet().contains(name)
+                && [modifierCode, valueType, size, density, packable].any { it == null }) {
             throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' dimension" +
                     " is not builtin and some modifier dimension fields are NULL")
         }
@@ -70,7 +68,7 @@ class DimensionDescription {
                     "Retrieving 17.1 dimensions is not possible.")
         }
         if(modifierCode == null) {
-            return dimensionsMap[name]
+            return DimensionImpl.dimensionsMap[name]
         }
         if(modifierDimension != null) {
             return modifierDimension
