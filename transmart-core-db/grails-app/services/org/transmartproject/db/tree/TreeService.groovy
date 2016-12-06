@@ -94,8 +94,10 @@ class TreeService {
     void enrichWithCounts(List<TreeNode> forest, User user) {
         forest.each { TreeNode node ->
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
-                node.observationCount = queryService.cachedCountForConcept(node.fullName, user)
-                node.patientCount = queryService.cachedPatientCountForConcept(node.fullName, user)
+                if (node.tableName.toLowerCase() == 'concept_dimension') {
+                    node.observationCount = queryService.cachedCountForConcept(node.dimensionCode, user)
+                    node.patientCount = queryService.cachedPatientCountForConcept(node.dimensionCode, user)
+                }
             } else {
                 enrichWithCounts(node.children, user)
             }
