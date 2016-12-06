@@ -175,21 +175,21 @@ class TreeService {
         List<I2b2Secure> nodes = criteria.getExecutableCriteria(sessionFactory.currentSession).list()
         nodes.unique { it.fullName }
         def t2 = new Date()
-        log.info "Found ${nodes.size()} nodes. Query took ${t2.time - t1.time} ms."
+        log.debug "Found ${nodes.size()} nodes. Query took ${t2.time - t1.time} ms."
 
         def forest = buildForest(nodes)
         def t3 = new Date()
-        log.info "Forest growing took ${t3.time - t2.time} ms."
+        log.debug "Forest growing took ${t3.time - t2.time} ms."
         if (includeCounts) {
             enrichWithCounts(forest, user)
             def t4 = new Date()
-            log.info "Adding counts took ${t4.time - t3.time} ms."
+            log.debug "Adding counts took ${t4.time - t3.time} ms."
         }
         if (includeTags) {
             def t5 = new Date()
             enrichWithTags(forest, user)
             def t6 = new Date()
-            log.info "Adding metadata tags took ${t6.time - t5.time} ms."
+            log.debug "Adding metadata tags took ${t6.time - t5.time} ms."
         }
         forest
     }
