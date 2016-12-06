@@ -2,16 +2,15 @@ package tests.rest.v2.json
 
 import base.RESTSpec
 import groovy.json.JsonBuilder
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
 import selectors.protobuf.ObservationSelectorJson
 import spock.lang.IgnoreIf
+import spock.lang.Requires
 
-import static config.Config.PATH_HIGH_DIM
-import static config.Config.SUPPRESS_KNOWN_BUGS
-import static tests.rest.v2.Operator.AND
-import static tests.rest.v2.Operator.EQUALS
-import static tests.rest.v2.ValueType.NUMERIC
+import static config.Config.*
+import static org.hamcrest.Matchers.is
+import static spock.util.matcher.HamcrestSupport.that
+import static tests.rest.v2.Operator.*
+import static tests.rest.v2.ValueType.*
 import static tests.rest.v2.constraints.*
 
 class HighDimSpec extends RESTSpec {
@@ -224,5 +223,114 @@ class HighDimSpec extends RESTSpec {
 
         then:
         selector.cellCount == 18
+    }
+
+    /**
+     *  given: "study EHR_HIGHDIM is loaded"
+     *  when: "I get highdim for EHR_HIGHDIM after 01-04-2016Z"
+     *  then: "only data for Expression Breast is returned"
+     */
+    @Requires({EHR_HIGHDIM_LOADED})
+    def "highdim by timeConstraint"(){
+        def date = toDateString("01-04-2016Z")
+        def assayConstraint = [
+                type: Combination,
+                operator: AND,
+                args: [
+                        [type: StudyNameConstraint, studyId: EHR_HIGHDIM_ID],
+                        [type: TimeConstraint,
+                         field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: DATE ],
+                         operator: AFTER,
+                         values: [date]]
+                ]
+        ]
+        when:
+        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
+                assay_constraint: new JsonBuilder(assayConstraint),
+        ])
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+
+        then:
+
+        selector.cellCount == 60
+        (0..<selector.cellCount).each {
+
+            ['117_at', '1007_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
+            selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == null
+
+            [-6016,-6017,-6018, -6019].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
+            ['sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
+
+            ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+        }
+    }
+
+    /**
+     *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
+     *  when: "I get highdim for TUMOR_NORMAL_SAMPLES with modifier Normal"
+     *  then: "only data for modifier Normal is returned"
+     */
+    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
+    def "highdim by modifier"(){
+        def assayConstraint = [type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                               values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Normal"]]
+
+        when:
+        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
+                assay_constraint: new JsonBuilder(assayConstraint),
+        ])
+        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+
+        then:
+        selector.cellCount == 120
+        (0..<selector.cellCount).each {
+
+            ['117_at', '1007_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
+            selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == null
+
+            [-631,-637,-638, -639].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
+            ['sample1', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
+
+            ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+        }
+    }
+
+    /**
+     *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
+     *  when: "I get highdim for an invalid assay_constraint"
+     *  then: "an error is returned"
+     */
+    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
+    def "highdim by invalid assay"(){
+        def assayConstraint = [type: 'invalidConstraint']
+
+        when:
+        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
+                assay_constraint: new JsonBuilder(assayConstraint),
+        ])
+
+        then:
+        that responseData.httpStatus, is(400)
+        that responseData.type, is('InvalidArgumentsException')
+        that responseData.message, is('Constraint not supported: invalidConstraint.')
+    }
+
+    /**
+     *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
+     *  when: "I get highdim for TUMOR_NORMAL_SAMPLES with modifier Normal"
+     *  then: "only data for modifier Normal is returned"
+     */
+    @Requires({EHR_HIGHDIM_LOADED})
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-166 getting high dim by non highdim conceptConstraint returns 500 error
+    def "highdim by non-highdim concept"(){
+        def assayConstraint = [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
+
+        when:
+        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
+                assay_constraint: new JsonBuilder(assayConstraint),
+        ])
+
+        then:
+        responseData == []
     }
 }
