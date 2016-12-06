@@ -51,12 +51,10 @@ class DimensionDescription {
 
     void check() {
         if(name == LEGACY_MARKER) return
-        if(DimensionImpl.dimensionsMap.keySet().contains(name)
-                && [modifierCode, valueType, size, density, packable].any { it != null }) {
+        if(DimensionImpl.isBuiltinDimension(name) && [modifierCode, valueType, size, density, packable].any { it != null }) {
             throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: For builtin " +
                     "'$name' dimension all other fields must be set to NULL")
-        } else if(!DimensionImpl.dimensionsMap.keySet().contains(name)
-                && [modifierCode, valueType, size, density, packable].any { it == null }) {
+        } else if(!DimensionImpl.isBuiltinDimension(name) && [modifierCode, valueType, size, density, packable].any { it == null }) {
             throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' dimension" +
                     " is not builtin and some modifier dimension fields are NULL")
         }
@@ -68,12 +66,12 @@ class DimensionDescription {
                     "Retrieving 17.1 dimensions is not possible.")
         }
         if(modifierCode == null) {
-            return DimensionImpl.dimensionsMap[name]
+            return DimensionImpl.getBuiltinDimension(name)
         }
-        if(modifierDimension != null) {
-            return modifierDimension
+        if(modifierDimension == null) {
+            modifierDimension = ModifierDimension.get(name, modifierCode, valueType, size, density, packable)
         }
-        return modifierDimension = ModifierDimension.get(name, modifierCode, valueType, size, density, packable)
+        return modifierDimension
     }
 
 }

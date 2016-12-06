@@ -29,7 +29,7 @@ class ObservationsBuilderTests extends Specification {
 
     TestData testData
     ClinicalTestData clinicalData
-    Map<String, DimensionImpl> dims
+    //Map<String, DimensionImpl> dims
     
     @Autowired
     MultidimensionalDataResourceService queryResource
@@ -66,7 +66,7 @@ class ObservationsBuilderTests extends Specification {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.multidimsStudy], constraint: constraint)
-        def patientDimension = DimensionImpl.dimensionsMap.patient
+        def patientDimension = DimensionImpl.PATIENT
         def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON, patientDimension)
 
         when:
@@ -149,6 +149,6 @@ class ObservationsBuilderTests extends Specification {
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
         testData.saveAll()
-        dims = DimensionImpl.dimensionsMap
+        //dims = DimensionImpl.dimensionsMap
     }
 }

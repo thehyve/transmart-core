@@ -34,7 +34,7 @@ class StudyTestData {
             } else if(it instanceof String) {
                 def candidates = DimensionDescription.findAllByName(it)
                 if(!candidates) {
-                    assert DimensionImpl.dimensionsMap.containsKey(it), "Unknown dimension name '$it', " +
+                    assert DimensionImpl.isBuiltinDimension(it), "Unknown dimension name '$it', " +
                             "modifier dimensions as string are not supported in createStudy()"
                     study.addToDimensionDescriptions(new DimensionDescription(name: it))
                 } else if(candidates.size() == 1) {

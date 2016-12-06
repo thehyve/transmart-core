@@ -29,7 +29,6 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.util.GormWorkarounds
 
-import static org.transmartproject.db.multidimquery.DimensionImpl.dimensionsMap
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 class MultidimensionalDataResourceService implements MultiDimensionalDataResource {
@@ -66,7 +65,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                         return it
                     }
                     if(it instanceof String) {
-                        def dim = dimensionsMap[it] ?: DimensionDescription.findByName(it)?.dimension
+                        def dim = DimensionDescription.findByName(it)?.dimension
                         if(dim == null) throw new InvalidArgumentsException("Unknown dimension: $it")
                         return dim
                     }

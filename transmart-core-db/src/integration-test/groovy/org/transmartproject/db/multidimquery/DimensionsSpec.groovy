@@ -11,7 +11,7 @@ class DimensionsSpec extends Specification {
 
     def 'studyDim.resolveElements guarantees order'() {
         expect:
-        resolveElementsGuaranteesOrder(DimensionImpl.dimensionsMap.study, [
+        resolveElementsGuaranteesOrder(DimensionImpl.STUDY, [
                 -20,
                 -31,
                 -30,
@@ -26,7 +26,7 @@ class DimensionsSpec extends Specification {
 
     def 'conceptDim.resolveElements guarantees order'() {
         expect:
-        resolveElementsGuaranteesOrder(DimensionImpl.dimensionsMap.concept, [
+        resolveElementsGuaranteesOrder(DimensionImpl.CONCEPT, [
                 "CT:DEM:AGE",
                 "CTHD:DEM:AGE",
                 "CT:VSIGN:HR",

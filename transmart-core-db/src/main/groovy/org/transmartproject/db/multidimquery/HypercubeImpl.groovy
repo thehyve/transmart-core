@@ -17,7 +17,6 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
-import static org.transmartproject.db.multidimquery.DimensionImpl.dimensionsMap
 import static org.transmartproject.db.multidimquery.ModifierDimension.modifierCodeField
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
@@ -210,9 +209,6 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     // If we don't extend a Java object but just implement Iterator, the Groovy type checker will barf on the
     // ResultIterator constructor. (Groovy 3.1.10)
     static class ModifierResultIterator extends UnmodifiableIterator<Map<String, Object>> {
-        static String alias(String dimName) {
-            ((I2b2Dimension) dimensionsMap[dimName]).alias
-        }
 
         static final List<String> primaryKey = ImmutableList.of(
                 // excludes modifierCd as we want to group them
@@ -398,7 +394,7 @@ class ProjectionMap extends AbstractMap<String,Object> {
 
                 @Override Map.Entry<String,Object> next() {
                     Map.Entry<String,Integer> mappingEntry = mappingIterator.next()
-                    new SimpleImmutableEntry(mappingEntry.key, tuple[mappingEntry.value])
+                    new AbstractMap.SimpleImmutableEntry(mappingEntry.key, tuple[mappingEntry.value])
                 }
             }
         }

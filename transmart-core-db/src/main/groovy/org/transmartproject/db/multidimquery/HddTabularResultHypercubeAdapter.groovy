@@ -28,10 +28,10 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                 " implemented in HddTabularResultHypercubeAdapter")
     }
 
-    static Dimension biomarkerDim = DimensionImpl.dimensionsMap.biomarker
-    static Dimension assayDim = DimensionImpl.dimensionsMap.assay
-    static Dimension patientDim = DimensionImpl.dimensionsMap.patient
-    static Dimension projectionDim = DimensionImpl.dimensionsMap.projection
+    static Dimension biomarkerDim = DimensionImpl.BIOMARKER
+    static Dimension assayDim = DimensionImpl.ASSAY
+    static Dimension patientDim = DimensionImpl.PATIENT
+    static Dimension projectionDim = DimensionImpl.PROJECTION
 
     private TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ? /* depends on projection */>> table
     private TabularResultAdapterIterator iterator

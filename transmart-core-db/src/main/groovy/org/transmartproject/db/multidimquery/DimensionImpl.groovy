@@ -54,9 +54,9 @@ abstract class DimensionImpl implements Dimension {
     static final AssayDimension ASSAY =            new AssayDimension(LARGE, DENSE, PACKABLE)
     static final ProjectionDimension PROJECTION =  new ProjectionDimension(SMALL, DENSE, NOT_PACKABLE)
 
-    // NB: This map only contains the static dimensions! To get a dimension that is not static
+    // NB: This map only contains the builtin dimensions! To get a dimension that is not necessarily builtin
     // use DimensionDescription.findByName(name).dimension
-    static final ImmutableMap<String,DimensionImpl> dimensionsMap = ImmutableMap.copyOf([
+    private static final ImmutableMap<String,DimensionImpl> builtinDimensions = ImmutableMap.copyOf([
             (STUDY.name)      : STUDY,
             (CONCEPT.name)    : CONCEPT,
             (PATIENT.name)    : PATIENT,
@@ -72,6 +72,9 @@ abstract class DimensionImpl implements Dimension {
             (ASSAY.name)     : ASSAY,
             (PROJECTION.name): PROJECTION,
     ])
+
+    static getBuiltinDimension(String name) { builtinDimensions.get(name) }
+    static boolean isBuiltinDimension(String name) { builtinDimensions.containsKey(name) }
 
     DimensionImpl(Size size, Density density, Packable packable) {
         this.size = size
@@ -332,7 +335,7 @@ class StartTimeDimension extends I2b2NullablePKDimension {
 
 @InheritConstructors
 class EndTimeDimension extends I2b2Dimension {
-    String name = 'start time'
+    String name = 'end time'
     String alias = 'endDate'
     String columnName = 'endDate'
 

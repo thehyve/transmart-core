@@ -30,10 +30,10 @@ class QueryServiceSpec extends Specification {
     @Autowired
     QueryService queryService
 
-    Dimension assayDim = DimensionImpl.dimensionsMap.assay
-    Dimension biomarkerDim = DimensionImpl.dimensionsMap.biomarker
-    Dimension projectionDim = DimensionImpl.dimensionsMap.projection
-    Dimension patientDim = DimensionImpl.dimensionsMap.patient
+    Dimension assayDim = DimensionImpl.ASSAY
+    Dimension biomarkerDim = DimensionImpl.BIOMARKER
+    Dimension projectionDim = DimensionImpl.PROJECTION
+    Dimension patientDim = DimensionImpl.PATIENT
 
     void 'get whole hd data for single node'() {
         User user = User.findByUsername('test-public-user-1')
