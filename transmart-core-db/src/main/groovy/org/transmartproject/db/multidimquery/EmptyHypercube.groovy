@@ -34,13 +34,11 @@ class EmptyHypercube implements Hypercube {
 
     Iterator iterator() {
         return new Iterator() {
-            @Override
-            boolean hasNext() {
+            @Override boolean hasNext() {
                 return false
             }
 
-            @Override
-            Object next() {
+            @Override Object next() {
                 throw new NoSuchElementException()
             }
         }

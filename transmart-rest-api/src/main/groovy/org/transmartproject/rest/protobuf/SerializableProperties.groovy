@@ -8,11 +8,12 @@ class SerializableProperties {
                                                         "age", "race", "maritalStatus",
                                                         "religion", "sourcesystemCd", "sexCd"]
     public static final Set<String> CONCEPT = ["conceptPath", "conceptCode"]
-    public static final Set<String> STUDY = ["studyId", "bioExperimentId", "secureObjectToken"]
-    public static final Set<String> TRIAL_VISIT = ["relTimeUnit", "relTime", "relTimeLabel", "study"]
+    public static final Set<String> STUDY = ["studyId"]
+    public static final Set<String> TRIAL_VISIT = ["relTimeUnit", "relTime", "relTimeLabel"]
     public static final Set<String> START_DATE = ["startDate"]
     public static final Set<String> END_DATE = ["endDate"]
-    public static final Set<String> VISIT = ["patient", "activeStatus", "startDate", "endDate", "inoutCd", "locationCd"]
+    public static final Set<String> VISIT = ["patientInTrialId", "activeStatus", "startDate", "endDate", "inoutCd",
+                                             "locationCd"]
     public static final Set<String> LOCATION = ["locationCd"]
     public static final Set<String> PROVIDER = ["providerId"]
     public static final Set<String> BIOMARKER = ['label', 'bioMarker']

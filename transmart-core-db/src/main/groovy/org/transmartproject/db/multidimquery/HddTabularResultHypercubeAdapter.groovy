@@ -136,10 +136,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                     ))
                 } else if(value instanceof Map) {
                     Map<String, Object> mapValue = (Map<String,Object>) value
-                    Map.Entry<String, Object> entry
-                    Iterator<Map.Entry> it = mapValue.entrySet().iterator()
-                    while(it.hasNext()) {
-                        entry = it.next()
+                    for(entry in mapValue.entrySet()) {
                         _projectionFields.add(entry.key)
                         nextVals.add(new TabularResultAdapterValue(
                                 getDimensions(), entry.value, bm, assay, entry.key,

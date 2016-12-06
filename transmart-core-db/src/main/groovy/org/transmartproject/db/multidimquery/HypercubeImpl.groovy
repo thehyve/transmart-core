@@ -237,8 +237,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
             Map result = group['@']?.toMutable() ?:
                     [valueType: ObservationFact.TYPE_TEXT, textValue: null]
 
-            for(int i=0; i<modifierDimensions.size(); i++) {
-                ModifierDimension dim = modifierDimensions[i]
+            for(dim in modifierDimensions) {
                 ProjectionMap modResult = group[dim.modifierCode]
                 if(modResult != null) {
                     dim.addModifierValue(result, modResult)
@@ -366,10 +365,8 @@ class ProjectionMap extends AbstractMap<String,Object> {
 
     HashMap<String,Object> toMutable() {
         HashMap<String,Object> map = new HashMap()
-        List<Map.Entry<String,Integer>> mappingEntries = mapping.entrySet().asList()
-        for(int i=0; i<mappingEntries.size(); i++) {
-            Map.Entry<String,Integer> entry = mappingEntries[i]
-            map.put(entry.key, tuple[entry.value])
+        for(entry in mapping.entrySet()) {
+            map[entry.key] = tuple[entry.value]
         }
         map
     }

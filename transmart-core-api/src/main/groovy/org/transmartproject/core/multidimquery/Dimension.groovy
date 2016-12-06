@@ -44,7 +44,17 @@ interface Dimension {
 
     IterableResult<Object> getElements(Collection<Study> studies)
 
-    List<Object> resolveElements(List elementKeys)
+    List resolveElements(List elementKeys)
 
-    def resolveElement(elementId)
+    def resolveElement(elementKey)
+
+    /**
+     * Returns a serializable view of an element. If the element is in fact a Number, String, or Date, it is returned
+     * as-is. If it is a complex type, this method returns a map with String keys that holds the relevant properties,
+     * which themselves are again of serializable types.*
+     *
+     * @param element: an element returned from getElements or resolveElement(s)
+     * @return a String, Number, Date or Map<String,something serializable>
+     */
+    def asSerializable(element)
 }
