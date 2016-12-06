@@ -70,7 +70,7 @@ class PatientSetController {
         }
         MimeType mimeType = new MimeType(request.contentType)
 
-        if (!(mimeType in [MimeType.XML, MimeType.TEXT_XML])) {
+        if (!(mimeType.name in [MimeType.XML.name, MimeType.TEXT_XML.name])) {
             throw new InvalidRequestException("Content type should been " +
                     "text/xml or application/xml; got $mimeType")
         }

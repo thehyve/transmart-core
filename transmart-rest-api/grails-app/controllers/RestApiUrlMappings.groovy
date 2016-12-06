@@ -111,6 +111,12 @@ class RestApiUrlMappings {
             
             '/observations2'(method: 'GET', controller: 'observation', action: 'observations2')
 
+            "/export"( controller: 'ExportController', action:'export')
+
+            "/api-version"(method: 'GET', controller: 'apiVersion', action: 'index')
+
+            "/export/datatypes"(method: 'GET', controller: 'export', action:'datatypes')
+
             "/studies/$studyId/concepts/$id**"(
                     controller: 'concept', action: 'show', method: 'GET'
             ) {
@@ -120,12 +126,6 @@ class RestApiUrlMappings {
                     id validator: { !(it ==~ '.+/highdim(?:/[^/]+)?') }
                 }
             }
-
-            "/export"( controller: 'ExportController', action:'export')
-
-            "/api-version"(method: 'GET', controller: 'apiVersion', action: 'index')
-
-            "/export/datatypes"(method: 'GET', controller: 'export', action:'datatypes')
 
         }
 

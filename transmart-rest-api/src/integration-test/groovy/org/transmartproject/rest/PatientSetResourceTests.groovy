@@ -26,7 +26,7 @@ class PatientSetResourceTests extends ResourceSpec {
         when:
         def response = post("/$VERSION/patient_sets") {
             header 'Accept', contentTypeForHAL
-            contentType MimeType.XML.name
+            contentType MimeType.TEXT_XML.name
             xml QUERY_DEFINITION
         }
 
@@ -53,7 +53,7 @@ class PatientSetResourceTests extends ResourceSpec {
         when:
         def response1 = post("/$VERSION/patient_sets") {
             header 'Accept', contentTypeForHAL
-            contentType MimeType.XML.name
+            contentType MimeType.TEXT_XML.name
             xml QUERY_DEFINITION
         }
 

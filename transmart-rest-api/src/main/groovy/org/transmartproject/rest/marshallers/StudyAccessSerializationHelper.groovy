@@ -38,21 +38,24 @@ class StudyAccessSerializationHelper extends AbstractHalOrJsonSerializationHelpe
 
     final Class targetType = StudyAccessImpl
     final String collectionName = 'studiesAccess'
+    private static final String VERSION = "v1"
+
 
     @Override
     Collection<Link> getLinks(StudyAccessImpl studyAccessImpl) {
-        [new Link(RELATIONSHIP_SELF, '/studies/' +
+        [new Link(RELATIONSHIP_SELF, "/$VERSION/studies/" +
                 studyAccessImpl.study.id.toLowerCase(Locale.ENGLISH).encodeAsURL())]
     }
 
     @Override
     Map<String, Object> convertToMap(StudyAccessImpl studyAccessImpl) {
         def term = new OntologyTermWrapper(studyAccessImpl.study.ontologyTerm, true)
-        def mapResponse = [id: studyAccessImpl.study.id, ontologyTerm: term, accessibleByUser:studyAccessImpl.accessibleByUser]
+        def mapResponse = [id: studyAccessImpl.study.id, ontologyTerm: term, accessibleByUser: studyAccessImpl.accessibleByUser]
+        mapResponse
+    }
 
     @Override
     Set<String> getEmbeddedEntities(StudyAccessImpl object) {
         ['ontologyTerm'] as Set
     }
 }
-

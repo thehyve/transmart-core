@@ -27,6 +27,8 @@ package org.transmartproject.rest
 
 import grails.rest.Link
 import grails.rest.render.util.AbstractLinkingRenderer
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.rest.misc.CurrentUser
 
 import javax.annotation.Resource
 
@@ -43,7 +45,12 @@ class StudyController {
     static responseFormats = ['json', 'hal']
 
     @Resource
-    StudiesResource studiesResourceService
+    private StudiesResource studiesResourceService
+
+    @Autowired
+    CurrentUser currentUser
+
+    private static final String VERSION = "v1"
 
     /** GET request on /v1/studies/
      *  This will return the list of studies, where each study will be rendered in its short format
@@ -56,16 +63,14 @@ class StudyController {
             boolean view = currentUser.canPerform(API_READ, study)
             boolean export = currentUser.canPerform(EXPORT, study)
             //Possibility of adding more access types.
-            Map accessibleByUser = [
-                    view:view,
-                    export:export]
             StudyAccessImpl studyAccessImpl= new StudyAccessImpl(
-                    accessibleByUser:accessibleByUser,
+                    accessibleByUser:[
+                            view:view,
+                            export:export],
                     study:study)
             studiesAccess.add(studyAccessImpl)
         }
-        def studiesAccessWrapped =  wrapStudies(studiesAccess)
-        respond studiesAccessWrapped
+        respond wrapStudies(studiesAccess)
     }
 
     /** GET request on /v1/studies/${id}
@@ -94,7 +99,7 @@ class StudyController {
         (
             container: source,
             componentType: Study,
-            links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/v1/studies") ]
+            links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/$VERSION/studies") ]
         )
     }
     
