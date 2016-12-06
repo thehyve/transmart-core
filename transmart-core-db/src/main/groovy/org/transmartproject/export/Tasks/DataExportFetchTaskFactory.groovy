@@ -34,7 +34,6 @@ class DataExportFetchTaskFactory implements  ApplicationContextAware {
                 value.values().every { it instanceof Map }
     }
 
-    @Override
     DataExportFetchTask createTask(Map<String, Object> arguments) {
         def conceptKeysArg = arguments[CONCEPT_KEYS_PARAMETER_NAME]
         def ridsArg =

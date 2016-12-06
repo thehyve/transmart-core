@@ -3,15 +3,10 @@ package org.transmartproject.export.Tasks
 import au.com.bytecode.opencsv.CSVWriter
 import com.google.common.base.Charsets
 import com.google.common.base.Stopwatch
-import com.google.common.collect.ImmutableMap
 import com.google.common.collect.Iterators
 import com.google.common.collect.PeekingIterator
-import com.google.common.io.Closer
-import groovy.transform.ToString
 import groovy.util.logging.Log4j
-import org.codehaus.groovy.grails.support.PersistenceContextInterceptor
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow

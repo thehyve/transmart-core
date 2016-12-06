@@ -214,7 +214,7 @@ class QueriesResourceService implements QueriesResource {
         query.collect { new QueryResultSummaryImplementation(it)}
 }
 
-    @Override
+    //@Override
     List<QueryResult> getQueryResultsByUsername(String username) {
         def query = QtQueryResultInstance.where {
             queryInstance.userId == username

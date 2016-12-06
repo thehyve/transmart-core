@@ -10,6 +10,7 @@ import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryDefinitionXmlConverter
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.rest.marshallers.QueryResultWrapper
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
