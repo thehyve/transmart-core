@@ -1,5 +1,6 @@
 package org.transmartproject.db.multidimquery
 
+import com.google.common.collect.ImmutableMap
 import grails.util.Pair
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
@@ -53,12 +54,30 @@ abstract class DimensionImpl implements Dimension {
     static final AssayDimension ASSAY =            new AssayDimension(LARGE, DENSE, PACKABLE)
     static final ProjectionDimension PROJECTION =  new ProjectionDimension(SMALL, DENSE, NOT_PACKABLE)
 
+    static final ImmutableMap<String,DimensionImpl> dimensionsMap = ImmutableMap.copyOf([
+            (STUDY.name)      : STUDY,
+            (CONCEPT.name)    : CONCEPT,
+            (PATIENT.name)    : PATIENT,
+            (VISIT.name)      : VISIT,
+            (START_TIME.name) : START_TIME,
+            (END_TIME.name)   : END_TIME,
+            (LOCATION.name)   : LOCATION,
+            (TRIAL_VISIT.name): TRIAL_VISIT,
+            (PROVIDER.name)   : PROVIDER,
+//            (SAMPLE.name) : SAMPLE,
+
+            (BIOMARKER.name) : BIOMARKER,
+            (ASSAY.name)     : ASSAY,
+            (PROJECTION.name): PROJECTION,
+    ])
 
     DimensionImpl(Size size, Density density, Packable packable) {
         this.size = size
         this.density = density
         this.packable = packable
     }
+
+    @Override abstract String getName()
 
     @Override IterableResult<Object> getElements(Collection<Study> studies) {
         throw new NotImplementedException()
@@ -234,6 +253,7 @@ class ModifierDimension extends DimensionImpl {
 
 @InheritConstructors
 class PatientDimension extends I2b2Dimension {
+    String name = 'patient'
     String alias = 'patientId'
     String columnName = 'patient.id'
 
@@ -250,6 +270,7 @@ class PatientDimension extends I2b2Dimension {
 
 @InheritConstructors
 class ConceptDimension extends I2b2NullablePKDimension {
+    String name = 'concept'
     String alias = 'conceptCode'
     String columnName = 'conceptCode'
     String nullValue = '@'
@@ -263,6 +284,7 @@ class ConceptDimension extends I2b2NullablePKDimension {
 
 @InheritConstructors
 class TrialVisitDimension extends I2b2Dimension {
+    String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
 
@@ -273,6 +295,7 @@ class TrialVisitDimension extends I2b2Dimension {
 
 @InheritConstructors
 class StudyDimension extends I2b2Dimension {
+    String name = 'study'
     String alias = 'studyId'
     String getColumnName() {throw new UnsupportedOperationException()}
 
@@ -292,6 +315,7 @@ class StudyDimension extends I2b2Dimension {
 
 @InheritConstructors
 class StartTimeDimension extends I2b2NullablePKDimension {
+    String name = 'start time'
 
     final static Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
 
@@ -306,6 +330,7 @@ class StartTimeDimension extends I2b2NullablePKDimension {
 
 @InheritConstructors
 class EndTimeDimension extends I2b2Dimension {
+    String name = 'start time'
     String alias = 'endDate'
     String columnName = 'endDate'
 
@@ -316,6 +341,7 @@ class EndTimeDimension extends I2b2Dimension {
 
 @InheritConstructors
 class LocationDimension extends I2b2Dimension {
+    String name = 'location'
     String alias = 'location'
     String columnName = 'locationCd'
 
@@ -326,6 +352,7 @@ class LocationDimension extends I2b2Dimension {
 
 @InheritConstructors
 class VisitDimension extends DimensionImpl {
+    String name = 'visit'
     static String alias = 'encounterNum'
 
     @Override
@@ -364,6 +391,7 @@ class VisitDimension extends DimensionImpl {
 
 @InheritConstructors
 class ProviderDimension extends I2b2NullablePKDimension {
+    String name = 'provider'
     String alias = 'provider'
     String columnName = 'providerId'
     String nullValue = '@'
@@ -375,12 +403,15 @@ class ProviderDimension extends I2b2NullablePKDimension {
 
 @InheritConstructors
 class AssayDimension extends HighDimDimension {
+    String name = 'assay'
 }
 
 @InheritConstructors
 class BioMarkerDimension extends HighDimDimension {
+    String name = 'biomarker'
 }
 
 @InheritConstructors
 class ProjectionDimension extends HighDimDimension {
+    String name = 'projection'
 }

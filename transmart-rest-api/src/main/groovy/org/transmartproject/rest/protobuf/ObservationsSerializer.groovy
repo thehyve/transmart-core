@@ -1,5 +1,7 @@
 package org.transmartproject.rest.protobuf
 
+import com.google.common.collect.AbstractIterator
+import com.google.common.collect.PeekingIterator
 import com.google.protobuf.Empty
 import com.google.protobuf.Message
 import groovy.util.logging.Slf4j
@@ -37,16 +39,10 @@ public class ObservationsSerializer {
             this.format = format
         }
 
-        private static final Map<String, Format> mapping = Format.values().collectEntries {
-            [(it.format): it]
-        }
-
         public static Format from(String format) {
-            if (mapping.containsKey(format)) {
-                return mapping[format]
-            } else {
-                throw new Exception("Unknown format: ${format}")
-            }
+            Format f = Format.values().find { it.format == format }
+            if (f == null) throw new Exception("Unknown format: ${format}")
+            f
         }
 
         public String toString() {
@@ -501,7 +497,20 @@ public class ObservationsSerializer {
 
     void write(OutputStream out) {
         begin(out)
-        Iterator<HypercubeValue> iterator = cube.iterator()
+
+        Iterator<HypercubeValue> rawIterator = cube.iterator()
+        PeekingIterator<HypercubeValue> iterator
+        if(rawIterator instanceof PeekingIterator) {
+            iterator = rawIterator
+        } else {
+            iterator = new AbstractIterator<HypercubeValue>() {
+                HypercubeValue computeNext() {
+                    if(!rawIterator.hasNext()) return endOfData()
+                    return rawIterator.next()
+                }
+            }
+        }
+
         if (!iterator.hasNext()) {
             writeEmptyMessage(out)
         }

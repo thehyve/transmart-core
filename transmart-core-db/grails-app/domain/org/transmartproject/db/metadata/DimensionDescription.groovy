@@ -43,22 +43,7 @@ class DimensionDescription {
         size    column: 'size_cd'
     }
 
-    static ImmutableMap<String,DimensionImpl> dimensionsMap = ImmutableMap.copyOf([
-            "study"      : STUDY,
-            "concept"    : CONCEPT,
-            "patient"    : PATIENT,
-            "visit"      : VISIT,
-            "start time" : START_TIME,
-            "end time"   : END_TIME,
-            "location"   : LOCATION,
-            "trial visit": TRIAL_VISIT,
-            "provider"   : PROVIDER,
-//            "sample": SAMPLE,
-
-            "biomarker" : BIOMARKER,
-            "assay"     : ASSAY,
-            "projection": PROJECTION,
-    ])
+    static ImmutableMap<String,DimensionImpl> dimensionsMap = dimensionsMap
 
     boolean isLegacyTabular() {
         return name == LEGACY_MARKER

@@ -6,7 +6,8 @@ import org.transmartproject.core.ontology.Study
 interface Dimension {
 
     /**
-     * Indicates the typical size of a dimension. As this is typical, the
+     * Indicates the typical size of a dimension. As this is typical, the actual size in a result set does not always
+     * match this range.
      *
      * Small: up to 10 to 15 elements
      * Medium: 10 to 50 elements
@@ -32,6 +33,8 @@ interface Dimension {
         boolean packable
     }
 
+
+    String getName()
 
     Size getSize()
 
