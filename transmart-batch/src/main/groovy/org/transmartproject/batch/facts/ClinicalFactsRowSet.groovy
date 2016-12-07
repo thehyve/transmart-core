@@ -90,7 +90,7 @@ class ClinicalFactsRowSet {
 
             [
                     sourcesystem_cd: studyId,
-                    encounter_num  : patient.code,
+                    encounter_num  : -1,
                     patient_num    : patient.code,
                     concept_cd     : concept.code,
                     //start_date: new Date(Long.MAX_VALUE), //doesn't work
