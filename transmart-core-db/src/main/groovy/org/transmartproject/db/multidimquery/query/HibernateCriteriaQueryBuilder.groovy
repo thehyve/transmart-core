@@ -15,6 +15,7 @@ import org.transmartproject.db.multidimquery.StartTimeDimension
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.multidimquery.VisitDimension
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 import org.transmartproject.db.util.StringUtils
@@ -90,6 +91,8 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             case DimensionFetchType.MODIFIER:
             case DimensionFetchType.VALUE:
                 return field.fieldName
+            case DimensionFetchType.VISIT:
+                throw new QueryBuilderException("Field '${field.fieldName}' of class ${metadata.domainClass.simpleName} is not directly accessible.")
             default:
                 break
         }
@@ -237,15 +240,90 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     }
 
     /**
-     * Creates a criteria object for a field constraint. Applies {@link #convertValue(Field, Object)} on the value
+     * Creates a {@link Criterion} for the Boolean constraint that operates
+     * on a property and a value.
+     *
      * Supports the operators:
-     * - EQUALS
-     * - GREATER_THAN
-     * - GREATER_THAN_OR_EQUALS
-     * - LESS_THAN
-     * - LESS_THAN_OR_EQUALS
-     * - CONTAINS (both for collections and strings)
-     * - LIKE
+     * - {@link Operator#EQUALS}
+     * - {@link Operator#NOT_EQUALS}
+     * - {@link Operator#GREATER_THAN}
+     * - {@link Operator#GREATER_THAN_OR_EQUALS}
+     * - {@link Operator#LESS_THAN}
+     * - {@link Operator#LESS_THAN_OR_EQUALS}
+     * - {@link Operator#BEFORE}
+     * - {@link Operator#AFTER}
+     * - {@link Operator#BETWEEN}
+     * - {@link Operator#CONTAINS} (both for collections and strings)
+     * - {@link Operator#LIKE}
+     * - {@link Operator#IN}
+     *
+     * @param operator the operator to apply
+     * @param propertyName the name of the property used as left hand side of the operation
+     * @param type the type of the property
+     * @param value the value used as right hand side of the operation
+     * @return a {@link Criterion} object represention the operation.
+     */
+    static Criterion applyOperator(Operator operator, String propertyName, Type type, Object value) {
+        Criterion criterion
+        switch(operator) {
+            case Operator.EQUALS:
+                criterion = Restrictions.eq(propertyName, value)
+                break
+            case Operator.NOT_EQUALS:
+                criterion = Restrictions.ne(propertyName, value)
+                break
+            case Operator.GREATER_THAN:
+                criterion = Restrictions.gt(propertyName, value)
+                break
+            case Operator.GREATER_THAN_OR_EQUALS:
+                criterion = Restrictions.ge(propertyName, value)
+                break
+            case Operator.LESS_THAN:
+                criterion = Restrictions.lt(propertyName, value)
+                break
+            case Operator.LESS_THAN_OR_EQUALS:
+                criterion = Restrictions.le(propertyName, value)
+                break
+            case Operator.BEFORE:
+                criterion = Restrictions.lt(propertyName, value)
+                break
+            case Operator.AFTER:
+                criterion = Restrictions.gt(propertyName, value)
+                break
+            case Operator.BETWEEN:
+                def values = value as List<Date>
+                criterion = Restrictions.between(propertyName, values[0], values[1])
+                break
+            case Operator.CONTAINS:
+                if (type == Type.STRING) {
+                    criterion = StringUtils.like(propertyName, value.toString(), MatchMode.ANYWHERE)
+                } else {
+                    criterion = Restrictions.in(propertyName, value)
+                }
+                break
+            case Operator.LIKE:
+                criterion = StringUtils.like(propertyName, value.toString(), MatchMode.EXACT)
+                break
+            case Operator.IN:
+                criterion = Restrictions.in(propertyName, value)
+                break
+            default:
+                throw new QueryBuilderException("Operator '${operator.symbol}' not supported.")
+        }
+        if (type == Type.DATE) {
+            Restrictions.and(
+                Restrictions.isNotNull(propertyName),
+                Restrictions.ne(propertyName, EMPTY_DATE),
+                criterion
+            )
+        } else {
+            criterion
+        }
+    }
+
+    /**
+     * Creates a criteria object for a field constraint. Applies {@link #convertValue(Field, Object)} on the value
+     *
      * @throws QueryBuilderException if the field type does not support the operator or the value is not supported
      * for the field type.
      * @see {@link Operator} and {@link Type} for supported operators and types.
@@ -260,39 +338,22 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             throw new QueryBuilderException("Value of class ${constraint.value?.class?.simpleName} not supported for field type '${constraint.field.type}'.")
         }
         constraint.value = convertValue(constraint.field, constraint.value)
-        String propertyName = getFieldPropertyName(constraint.field)
-        switch(constraint.operator) {
-            case Operator.EQUALS:
-                return Restrictions.eq(propertyName, constraint.value)
-            case Operator.NOT_EQUALS:
-                return Restrictions.ne(propertyName, constraint.value)
-            case Operator.GREATER_THAN:
-                return Restrictions.gt(propertyName, constraint.value)
-            case Operator.GREATER_THAN_OR_EQUALS:
-                return Restrictions.ge(propertyName, constraint.value)
-            case Operator.LESS_THAN:
-                return Restrictions.lt(propertyName, constraint.value)
-            case Operator.LESS_THAN_OR_EQUALS:
-                return Restrictions.le(propertyName, constraint.value)
-            case Operator.BEFORE:
-                return Restrictions.lt(propertyName, constraint.value)
-            case Operator.AFTER:
-                return Restrictions.gt(propertyName, constraint.value)
-            case Operator.BETWEEN:
-                def values = constraint.value as List<Date>
-                return Restrictions.between(propertyName, values[0], values[1])
-            case Operator.CONTAINS:
-                if (constraint.field.type == Type.STRING) {
-                    return StringUtils.like(propertyName, constraint.value.toString(), MatchMode.ANYWHERE)
-                } else {
-                    return Restrictions.in(propertyName, constraint.value)
-                }
-            case Operator.LIKE:
-                return StringUtils.like(propertyName, constraint.value.toString(), MatchMode.EXACT)
-            case Operator.IN:
-                return Restrictions.in(propertyName, constraint.value)
-            default:
-                throw new QueryBuilderException("Operator '${constraint.operator.symbol}' not supported.")
+        if (constraint.field.dimension == VisitDimension) {
+            /**
+             * special case that requires a subquery, because there is no proper
+             * reference to the visit dimension in {@link ObservationFact}.
+             */
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.VisitDimension, 'visit')
+            String propertyName = constraint.field.fieldName
+            subCriteria.add(applyOperator(constraint.operator, propertyName, constraint.field.type, constraint.value))
+            return Subqueries.propertiesIn(['encounterNum', 'patient'] as String[],
+                    subCriteria.setProjection(Projections.projectionList()
+                            .add(Projections.property('encounterNum'))
+                            .add(Projections.property('patient'))
+                    ))
+        } else {
+            String propertyName = getFieldPropertyName(constraint.field)
+            applyOperator(constraint.operator, propertyName, constraint.field.type, constraint.value)
         }
     }
 
@@ -300,38 +361,28 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * Creates a criteria object for the time constraint by conversion to a field constraint for the start time field.
      */
     Criterion build(TimeConstraint constraint) {
-        Criterion timeCriterion
         switch(constraint.operator) {
             case Operator.BEFORE:
-                timeCriterion = build(new FieldConstraint(
-                                field: startTimeField,
+                return build(new FieldConstraint(
+                                field: constraint.field,
                                 operator: constraint.operator,
                                 value: constraint.values[0]
                 ))
-                break
             case Operator.AFTER:
-                timeCriterion = build(new FieldConstraint(
-                        field: startTimeField,
+                return build(new FieldConstraint(
+                        field: constraint.field,
                         operator: constraint.operator,
                         value: constraint.values[0]
                 ))
-                break
             case Operator.BETWEEN:
-                timeCriterion = build(new FieldConstraint(
-                        field: startTimeField,
+                return build(new FieldConstraint(
+                        field: constraint.field,
                         operator: constraint.operator,
                         value: constraint.values
                 ))
-                break
             default:
                 throw new QueryBuilderException("Operator '${constraint.operator.symbol}' not supported.")
         }
-        def propertyName = getFieldPropertyName(constraint.field)
-        Restrictions.and(
-                Restrictions.isNotNull(propertyName),
-                Restrictions.ne(propertyName, EMPTY_DATE),
-                timeCriterion
-        )
     }
 
     /**

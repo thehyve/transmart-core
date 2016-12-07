@@ -16,11 +16,11 @@ import org.transmartproject.db.multidimquery.query.FieldConstraint
 import org.transmartproject.db.multidimquery.query.ModifierConstraint
 import org.transmartproject.db.multidimquery.query.Operator
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
+import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.multidimquery.query.TimeConstraint
 import org.transmartproject.db.multidimquery.query.Type
 import org.transmartproject.db.multidimquery.query.ValueConstraint
 import org.transmartproject.db.user.User
-import spock.lang.Ignore
 import spock.lang.Specification
 import java.text.SimpleDateFormat
 
@@ -35,6 +35,7 @@ class QueryServiceSpec extends Specification {
     Dimension biomarkerDim = DimensionDescription.dimensionsMap.biomarker
     Dimension projectionDim = DimensionDescription.dimensionsMap.projection
     Dimension patientDim = DimensionDescription.dimensionsMap.patient
+    Dimension visitDim = DimensionDescription.dimensionsMap.visit
 
     void 'get whole hd data for single node'() {
         User user = User.findByUsername('test-public-user-1')
@@ -184,7 +185,38 @@ class QueryServiceSpec extends Specification {
 
     }
 
-    @Ignore //vistDimension is not supported as Field?
+    void 'Clinical data selected on visit dimension'() {
+        def user = User.findByUsername('test-public-user-1')
+        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
+        def minDate = sdf.parse('2016-04-01 10:00:00')
+        def visitStartConstraint = new FieldConstraint(
+                operator: Operator.AFTER,
+                value: minDate,
+                field: new Field(
+                        dimension: VisitDimension,
+                        fieldName: 'startDate',
+                        type: 'DATE'
+                )
+        )
+        def studyNameConstraint = new StudyNameConstraint(
+                studyId: 'EHR'
+        )
+        def combination = new Combination(
+                args: [visitStartConstraint, studyNameConstraint],
+                operator: Operator.AND
+        )
+        when:
+        Hypercube hypercube = queryService.retrieveClinicalData(combination, user)
+        def observations = hypercube.toList()
+
+        then:
+        observations.size() == 2
+        hypercube.dimensionElements(visitDim).each {
+            assert (it.getAt('startDate') as Date) > minDate
+        }
+    }
+
+
     void 'HD data selected on visit dimension'() {
         def user = User.findByUsername('test-public-user-1')
         SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
@@ -192,7 +224,7 @@ class QueryServiceSpec extends Specification {
                 operator: Operator.AFTER,
                 value: sdf.parse('2016-05-05 10:00:00'),
                 field: new Field(
-                        dimension: 'VisitDimension',
+                        dimension: VisitDimension,
                         fieldName: 'endDate',
                         type: 'DATE'
                 )
