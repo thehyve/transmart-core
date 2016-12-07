@@ -296,4 +296,26 @@ class QueryServiceSpec extends Specification {
         hypercube.dimensionElements(assayDim).size() == 1
         hypercube.dimensionElements(projectionDim).size() == 13
     }
+
+    void 'get transcript data for selected genes'() {
+        def user = User.findByUsername('test-public-user-1')
+        ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Breast\\')
+        BiomarkerConstraint bioMarkerConstraint = new BiomarkerConstraint(
+                biomarkerType: DataConstraint.GENES_CONSTRAINT,
+                params: [
+                        names: ['AURKA']
+                ]
+        )
+
+        when:
+        Hypercube hypercube = queryService.highDimension(user, conceptConstraint, bioMarkerConstraint)
+
+        then:
+        hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
+                hypercube.dimensionElements(assayDim).size() *
+                hypercube.dimensionElements(projectionDim).size()
+        hypercube.dimensionElements(biomarkerDim).size() == 1
+        hypercube.dimensionElements(assayDim).size() == 3
+        hypercube.dimensionElements(projectionDim).size() == 13
+    }
 }
