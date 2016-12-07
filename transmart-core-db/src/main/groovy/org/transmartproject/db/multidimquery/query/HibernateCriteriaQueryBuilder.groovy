@@ -261,7 +261,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @param propertyName the name of the property used as left hand side of the operation
      * @param type the type of the property
      * @param value the value used as right hand side of the operation
-     * @return a {@link Criterion} object represention the operation.
+     * @return a {@link Criterion} object representing the operation.
      */
     static Criterion applyOperator(Operator operator, String propertyName, Type type, Object value) {
         Criterion criterion
@@ -333,9 +333,20 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         if (!constraint.operator.supportsType(constraint.field.type)) {
             throw new QueryBuilderException("Field type ${constraint.field.type} not supported for operator '${constraint.operator.symbol}'.")
         }
-        if ((!(constraint.operator in [Operator.BETWEEN, Operator.IN]) && !constraint.field.type.supportsValue(constraint.value))
-                || (constraint.operator in [Operator.BETWEEN, Operator.IN] && !constraint.field.type.supportsValue(constraint.value.first()))) {
-            throw new QueryBuilderException("Value of class ${constraint.value?.class?.simpleName} not supported for field type '${constraint.field.type}'.")
+        if (constraint.operator in [Operator.BETWEEN, Operator.IN]) {
+            if (constraint.value instanceof Collection) {
+                constraint.value.each {
+                    if (!constraint.field.type.supportsValue(it)) {
+                        throw new QueryBuilderException("Value of class ${it?.class?.simpleName} not supported for field type '${constraint.field.type}'.")
+                    }
+                }
+            } else {
+                throw new QueryBuilderException("Expected collection, got ${constraint.value?.class?.simpleName}.")
+            }
+        } else {
+            if (!constraint.field.type.supportsValue(constraint.value)) {
+                throw new QueryBuilderException("Value of class ${constraint.value?.class?.simpleName} not supported for field type '${constraint.field.type}'.")
+            }
         }
         constraint.value = convertValue(constraint.field, constraint.value)
         if (constraint.field.dimension == VisitDimension) {

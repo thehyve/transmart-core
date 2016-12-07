@@ -42,7 +42,7 @@ class QuerySpec extends Specification {
         !constraint.validate()
         constraint.errors.fieldErrorCount == 1
         constraint.errors.fieldErrors[0].field == 'value'
-        constraint.errors.fieldErrors[0].code == 'org.transmartproject.query.invalid.value.message'
+        constraint.errors.fieldErrors[0].code == 'org.transmartproject.query.invalid.value.operator.message'
     }
 
     void 'test constraint equality'() {

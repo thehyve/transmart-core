@@ -249,19 +249,39 @@ class FieldConstraint extends Constraint {
 
     static constraints = {
         value validator: { Object val, obj, Errors errors ->
-            if (obj.field && !obj.field.type.supportsValue(val)) {
-                errors.rejectValue(
-                        'value',
-                        'org.transmartproject.query.invalid.value.message',
-                        [val, obj.field.type] as String[],
-                        'Operator not valid for type')
+            if (obj.field) {
+                if (obj.operator in [Operator.IN, Operator.BETWEEN]) {
+                    if (val instanceof Collection) {
+                        val.each {
+                            if (!obj.field.type.supportsValue(it)) {
+                                errors.rejectValue(
+                                        'value',
+                                        'org.transmartproject.query.invalid.value.operator.message',
+                                        [it, obj.field.type, obj.operator] as String[],
+                                        'Value not compatible with type')
+                            }
+                        }
+                    } else {
+                        errors.rejectValue(
+                                'value',
+                                'org.transmartproject.query.value.not.collection.message',
+                                [obj.operator, val] as String[],
+                                'Collection expected')
+                    }
+                } else if (!obj.field.type.supportsValue(val)) {
+                    errors.rejectValue(
+                            'value',
+                            'org.transmartproject.query.invalid.value.operator.message',
+                            [val, obj.field.type, obj.operator] as String[],
+                            'Value not compatible with type')
+                }
             } }
         operator validator: { Operator op, obj, Errors errors ->
             if (obj.field && !op.supportsType(obj.field.type)) {
                 errors.rejectValue(
                         'operator',
                         'org.transmartproject.query.invalid.operator.message', [op.symbol, obj.field.type] as String[],
-                        'Value not compatible with type')
+                        'Operator not valid for type')
             } }
     }
 }
@@ -546,7 +566,7 @@ class ConstraintFactory {
     }
 
     static Field bindField(Object object, String name, Map values) {
-        log.info "Find field for ${values.toMapString()}"
+        log.debug "Find field for ${values.toMapString()}"
         if (values == null) {
             throw new ConstraintBindingException('Cannot create field for null values.')
         }
@@ -555,9 +575,9 @@ class ConstraintFactory {
         def metadata = DimensionMetadata.forDimensionClassName(dimensionClassName)
         try {
             Field field = DimensionMetadata.getField(metadata.dimension, fieldName)
-            log.info "Field data: ${field}"
+            log.debug "Field data: ${field}"
             object[name] = field
-            log.info "Object: ${object}"
+            log.debug "Object: ${object}"
             return field
         } catch (QueryBuilderException e) {
             throw new ConstraintBindingException(
