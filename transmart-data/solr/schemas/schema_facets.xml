@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This supersedes the browse index -->
+<schema name="facets" version="1.0">
+
+  <types>
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
+    <!-- precisionStep="0" enables efficient numeric sorting and minimizes index size;
+         range queries will be penalized -->
+    <fieldType name="long" class="solr.TrieLongField" precisionStep="0"/>
+    <fieldType name="date" class="solr.TrieDateField" precisionStep="8"/>
+    <fieldType name="double" class="solr.TrieDoubleField" precisionStep="8"/>
+    <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
+
+    <fieldType name="string_l" class="solr.TextField" positionIncrementGap="100">
+        <analyzer>
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+
+    <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+  </types>
+
+  <fields>
+    <!-- convention: pre-defined fields in uppercase -->
+    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <!-- SUBTYPE in browse index -->
+    <field name="TYPE" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="SUBTYPE" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="TEXT" type="text" indexed="true" stored="false" required="false" multiValued="true"/>
+    <field name="FILE_PATH" type="string" indexed="false" stored="true" required="false" multiValued="false"/>
+    <field name="FOLDER_ID" type="long" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="CONCEPT_PATH" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+
+    <!-- required by solr -->
+    <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
+
+    <!-- dynamic fields -->
+    <dynamicField name="*_d" type="date" indexed="true" docValues="true" stored="false" multiValued="true"/>
+	<dynamicField name="*_s" type="string" indexed="true" docValues="true" stored="false" multiValued="true"/>
+	<!-- _s fields are copied to _l fields for case insensitive searches -->
+	<dynamicField name="*_l" type="string_l" indexed="true" docValues="false" stored="false" multiValued="true"/>
+    <dynamicField name="*_t" type="string" indexed="true" docValues="false" stored="false" multiValued="true"/>
+    <dynamicField name="*_i" type="long" indexed="true" docValues="true" stored="false" multiValued="true"/>
+    <dynamicField name="*_f" type="double" indexed="true" docValues="true" stored="false" multiValued="true"/>
+
+    <!-- to work-around limitation of tika extraction not supporting uppercase fields -->
+    <field name="type" type="string" indexed="false" stored="false" required="false" multiValued="false"/>
+    <field name="text" type="text" indexed="false" stored="false" required="false" multiValued="true"/>
+    <field name="file_path" type="string" indexed="false" stored="false" required="false" multiValued="false"/>
+    <field name="folder_id" type="long" indexed="false" stored="false" required="false" multiValued="false"/>
+    <dynamicField name="ignored_*" type="ignored"/>
+  </fields>
+
+  <copyField source="*_t" dest="TEXT" maxChars="50000"/>
+  <copyField source="*_s" dest="TEXT" maxChars="50000"/>
+  <copyField source="*_s" dest="*_l"/>
+
+  <!-- to work-around limitation of tika extraction not supporting uppercase fields -->
+  <copyField source="type" dest="TYPE"/>
+  <copyField source="text" dest="TEXT"/>
+  <copyField source="file_path" dest="FILE_PATH"/>
+  <copyField source="folder_id" dest="FOLDER_ID"/>
+
+  <uniqueKey>id</uniqueKey>
+  <defaultSearchField>TEXT</defaultSearchField>
+</schema>
