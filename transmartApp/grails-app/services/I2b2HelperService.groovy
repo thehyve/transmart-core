@@ -11,6 +11,7 @@ import org.transmart.searchapp.SecureObjectPath
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.ontology.AbstractI2b2Metadata
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
 import org.transmartproject.db.util.StringUtils
@@ -158,14 +159,21 @@ class I2b2HelperService {
      */
     def String getConceptCodeFromKey(String key) {
         log.trace("Getting concept codes for key:" + key);
-        //String slash="\\";
-        //logMessage("Here is slash: "+slash);
-        StringBuilder concepts = new StringBuilder();
-        String path = key.substring(key.indexOf("\\", 2), key.length());
-        //path=path.replace("@", slash);
+        String path
+        def term = conceptsResourceService.getByKey(key)
+        if (term instanceof AbstractI2b2Metadata) {
+            if (term.dimensionTableName.toLowerCase() == 'concept_dimension'
+                    && term.operator.toLowerCase() in ['=', 'like']) {
+                path = term.dimensionCode
+            }
+        }
+        if (!path || path.empty) {
+            return ""
+        }
         if (!path.endsWith("\\")) {
             path += "\\";
         }
+        def concepts = new StringBuilder()
         Sql sql = new Sql(dataSource);
         String sqlt =
                 sql.eachRow("SELECT CONCEPT_CD FROM CONCEPT_DIMENSION c WHERE CONCEPT_PATH = ?", [path], { row ->
