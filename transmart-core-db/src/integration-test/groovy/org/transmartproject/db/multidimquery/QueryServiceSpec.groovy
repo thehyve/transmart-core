@@ -263,4 +263,37 @@ class QueryServiceSpec extends Specification {
         then:
         hypercube.toList().empty
     }
+
+    void 'get transcript data for selected patients and selected transcripts'() {
+        def user = User.findByUsername('test-public-user-1')
+        ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Breast\\')
+        def secondSubject = org.transmartproject.db.i2b2data.PatientDimension.find {
+            sourcesystemCd == 'RNASEQ_TRANSCRIPT:2'
+        }
+        Constraint assayConstraint = new PatientSetConstraint(patientIds: secondSubject*.id)
+        Constraint combinationConstraint = new Combination(
+                operator: Operator.AND,
+                args: [
+                        conceptConstraint,
+                        assayConstraint
+                ]
+        )
+        BiomarkerConstraint bioMarkerConstraint = new BiomarkerConstraint(
+                biomarkerType: DataConstraint.TRANSCRIPTS_CONSTRAINT,
+                params: [
+                        names: ['tr2']
+                ]
+        )
+
+        when:
+        Hypercube hypercube = queryService.highDimension(user, combinationConstraint, bioMarkerConstraint)
+
+        then:
+        hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
+                hypercube.dimensionElements(assayDim).size() *
+                hypercube.dimensionElements(projectionDim).size()
+        hypercube.dimensionElements(biomarkerDim).size() == 1
+        hypercube.dimensionElements(assayDim).size() == 1
+        hypercube.dimensionElements(projectionDim).size() == 13
+    }
 }
