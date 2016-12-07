@@ -98,6 +98,9 @@ class RestApiUrlMappings {
             "/storage/$id"(method: 'PUT', controller: 'storageSystem', action: 'update') {
                 apiVersion = "v2"
             }
+            "/recommended_concepts/$conceptCode"(method: 'GET', controller: 'concept', action: 'showRecommended') {
+                apiVersion = 'v2'
+            }
         }
 
         group "/v1", {
