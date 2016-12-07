@@ -1,7 +1,9 @@
 package org.transmartproject.db.multidimquery
 
+import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import grails.util.Pair
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
 import org.apache.commons.lang.NotImplementedException
@@ -25,6 +27,7 @@ import static org.transmartproject.core.multidimquery.Dimension.Density.*
 import static org.transmartproject.core.multidimquery.Dimension.Packable.*
 
 
+@CompileStatic
 abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
     final Size size
@@ -96,7 +99,6 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
     abstract def selectIDs(Query query)
 
-    @CompileStatic
     abstract ELKey getElementKey(Map result)
 
     @Override List<ELT> resolveElements(List/*<ELKey>*/ elementKeys) {
@@ -132,19 +134,19 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     // SerializableType which provides a trivial implementation for that.
     abstract Class getElementType()
     abstract List<String> getElementProperties()
-    final static List<Class> serializableTypes = [Number, String, Date]
+    final static List<Class> serializableTypes = ImmutableList.copyOf([Number, String, Date])
 
     // Too bad @Lazy doesn't work with primitive types
     @Lazy private Boolean elementTypeIsSerializable = serializableTypes.any { elementType in it }
 
-    @Override @CompileStatic
-    def asSerializable(/*ELT*/ element) {
+    @Override def asSerializable(/*ELT*/ element) {
         if(!elementType.isInstance(element)) {
             throw new InvalidArgumentsException("element with wrong type passed to ${this}.asSerializable; " +
                     "expected $elementType, got type ${element.class}, value $element")
         }
-        assert !elementTypeIsSerializable : "If the element type is serializable this dimension should inherit "+
-        "SerializableType which overrides this method"
+        assert !elementTypeIsSerializable :
+            "If the element type is serializable this dimension should inherit SerializableType which overrides this method"
+        // if(elementTypeIsSerializable) return element
 
         Map result = [:]
         List<String> properties = elementProperties
@@ -164,13 +166,14 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
  * Implement this in dimensions that have a serializable element type (Number, String, or Date), rather than a
  * compound element type
  */
+@CompileStatic
 trait SerializableType {
     List<String> getElementProperties() { throw new UnsupportedOperationException("${this}.getElementProperties()") }
     def asSerializable(/*ELT*/ element) { element }
 }
 
-@InheritConstructors
-@CompileStatic
+
+@CompileStatic @InheritConstructors
 abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
     abstract String getAlias()
     abstract String getColumnName()
@@ -192,28 +195,24 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
 abstract class I2b2NullablePKDimension<ELT,ELKey> extends I2b2Dimension<ELT,ELKey> {
     abstract ELKey getNullValue()
 
-    @Override
-    ELKey getElementKey(Map result) {
+    @Override ELKey getElementKey(Map result) {
         assert result.getOrDefault('modifierCd', '@') == '@'
         ELKey res = result[alias]
         res == nullValue ? null : res
     }
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
-    @Override
-    def selectIDs(Query query) {
+    @Override def selectIDs(Query query) {
         throw new NotImplementedException()
     }
 
-    @Override
-    List<ELT> doResolveElements(List<ELKey> elementKeys) {
+    @Override List<ELT> doResolveElements(List<ELKey> elementKeys) {
         throw new NotImplementedException()
     }
 
-    @Override @CompileStatic
-    ELKey getElementKey(Map result) {
+    @Override ELKey getElementKey(Map result) {
         throw new NotImplementedException()
     }
 }
@@ -222,6 +221,7 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
 // ModifierDimension is currently only implemented for serializable types. If desired, the implementation could be
 // extended to also support modifiers that link to other tables, thus leading to modifier dimensions with compound
 // element types
+@CompileStatic
 class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableType {
     Class elementType = Object
     private static Map<String,ModifierDimension> byName = [:]
@@ -266,6 +266,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
     final String modifierCode
     final String valueType
 
+    @CompileDynamic
     @Override def selectIDs(Query query) {
         if(query.params.modifierCodes == ['@']) {
             // make sure this is added only once to the query
@@ -297,7 +298,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
     }
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class PatientDimension extends I2b2Dimension<Patient, Long> {
     Class elementType = Patient
     List<String> elementProperties = ["inTrialId", "birthDate", "deathDate",
@@ -313,12 +314,13 @@ class PatientDimension extends I2b2Dimension<Patient, Long> {
         query.params.patientSelected = true
     }
 
+    @CompileDynamic
     @Override List<Patient> doResolveElements(List<Long> elementKeys) {
         org.transmartproject.db.i2b2data.PatientDimension.getAll(elementKeys)
     }
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, String> {
     Class elementType = I2b2ConceptDimensions
     List<String> elementProperties = ["conceptPath", "conceptCode"]
@@ -327,6 +329,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
     String columnName = 'conceptCode'
     String nullValue = '@'
 
+    @CompileDynamic
     @Override List<I2b2ConceptDimensions> doResolveElements(List<String> elementKeys) {
         List<I2b2ConceptDimensions> elements = I2b2ConceptDimensions.findAllByConceptCodeInList(elementKeys)
         elements.sort { elementKeys.indexOf(it.conceptCode) }
@@ -334,7 +337,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
     }
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> {
     Class elementType = TrialVisit
     List<String> elementProperties = ["relTimeLabel", "relTimeUnit", "relTime"]
@@ -342,12 +345,13 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> {
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
 
+    @CompileDynamic
     @Override List<TrialVisit> doResolveElements(List<Long> elementKeys) {
         TrialVisit.getAll(elementKeys)
     }
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class StudyDimension extends I2b2Dimension<MDStudy, Long> {
     Class elementType = MDStudy
     List<String> elementProperties = ["studyId"]
@@ -355,6 +359,7 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> {
     String alias = 'studyId'
     String getColumnName() {throw new UnsupportedOperationException()}
 
+    @CompileDynamic
     def selectIDs(Query query) {
         query.criteria.with {
             trialVisit {
@@ -363,13 +368,14 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> {
         }
     }
 
+    @CompileDynamic
     @Override List<MDStudy> doResolveElements(List<Long> elementKeys) {
         org.transmartproject.db.i2b2data.Study.getAll(elementKeys)
     }
 }
 
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class StartTimeDimension extends I2b2NullablePKDimension<Date,Date> implements SerializableType {
     Class elementType = Date
     String name = 'start time'
@@ -385,7 +391,7 @@ class StartTimeDimension extends I2b2NullablePKDimension<Date,Date> implements S
     }
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class EndTimeDimension extends I2b2Dimension<Date,Date> implements SerializableType {
     Class elementType = Date
     String name = 'end time'
@@ -397,7 +403,7 @@ class EndTimeDimension extends I2b2Dimension<Date,Date> implements SerializableT
     }
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class LocationDimension extends I2b2Dimension<String,String> implements SerializableType {
     Class elementType = String
     String name = 'location'
@@ -409,7 +415,7 @@ class LocationDimension extends I2b2Dimension<String,String> implements Serializ
     }
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,Long>> {
     Class elementType = I2b2VisitDimension
     List<String> elementProperties = ["patientInTrialId", "activeStatus", "startDate", "endDate", "inoutCd",
@@ -417,8 +423,7 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,L
     String name = 'visit'
     static String alias = 'encounterNum'
 
-    @Override
-    def selectIDs(Query query) {
+    @Override def selectIDs(Query query) {
         query.criteria.with {
             if(!query.params.patientSelected) {
                 property 'patient.id', 'patientId'
@@ -430,14 +435,13 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,L
 
     static private BigDecimal minusOne = new BigDecimal(-1)
 
-    @Override @CompileStatic
-    Pair<BigDecimal,Long> getElementKey(Map result) {
+    @Override Pair<BigDecimal,Long> getElementKey(Map result) {
         BigDecimal encounterNum = (BigDecimal) result[alias]
         encounterNum == minusOne ? null : new Pair(encounterNum, result.patientId)
     }
 
-    @Override
-    List<I2b2VisitDimension> doResolveElements(List<Pair<BigDecimal,Long>> elementKeys) {
+    @CompileDynamic
+    @Override List<I2b2VisitDimension> doResolveElements(List<Pair<BigDecimal,Long>> elementKeys) {
         (List) I2b2VisitDimension.withCriteria {
             or {
                 elementKeys.each { Pair key ->
@@ -451,7 +455,7 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,L
     }
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class ProviderDimension extends I2b2NullablePKDimension<String,String> implements SerializableType {
     Class elementType = String
     String name = 'provider'
@@ -464,20 +468,20 @@ class ProviderDimension extends I2b2NullablePKDimension<String,String> implement
     }
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class AssayDimension extends HighDimDimension<Long,Long> implements SerializableType {
     Class elementType = Long
     String name = 'assay'
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> {
     Class elementType = HddTabularResultHypercubeAdapter.BioMarkerAdapter
     List<String> elementProperties = ['label', 'bioMarker']
     String name = 'biomarker'
 }
 
-@InheritConstructors
+@CompileStatic @InheritConstructors
 class ProjectionDimension extends HighDimDimension<String,String> implements SerializableType {
     Class elementType = String
     String name = 'projection'
