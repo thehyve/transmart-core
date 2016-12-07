@@ -42,7 +42,7 @@ class QueryServiceSpec extends Specification {
         ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
         when:
-        Hypercube hypercube = queryService.highDimension(user, conceptConstraint)
+        Hypercube hypercube = queryService.highDimension(conceptConstraint, user)
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -69,7 +69,7 @@ class QueryServiceSpec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(user, combinationConstraint)
+        Hypercube hypercube = queryService.highDimension(combinationConstraint, user)
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -91,7 +91,7 @@ class QueryServiceSpec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(user, conceptConstraint, bioMarkerConstraint)
+        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user)
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -118,7 +118,7 @@ class QueryServiceSpec extends Specification {
         when:
         trialVisitConstraint.value = 'Baseline'
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
-        Hypercube hypercube = queryService.highDimension(user, combination)
+        Hypercube hypercube = queryService.highDimension(combination, user)
         hypercube.toList()
 
         then:
@@ -129,7 +129,7 @@ class QueryServiceSpec extends Specification {
         when:
         trialVisitConstraint.value = 'Week 1'
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
-        hypercube = queryService.highDimension(user, combination)
+        hypercube = queryService.highDimension(combination, user)
         hypercube.toList()
 
         then:
@@ -169,7 +169,7 @@ class QueryServiceSpec extends Specification {
         Hypercube hypercube
         when:
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, startDateTimeConstraint])
-        hypercube = queryService.highDimension(user, combination)
+        hypercube = queryService.highDimension(combination, user)
         hypercube.toList()
 
         then:
@@ -177,7 +177,7 @@ class QueryServiceSpec extends Specification {
 
         when:
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
-        hypercube = queryService.highDimension(user, combination)
+        hypercube = queryService.highDimension(combination, user)
         hypercube.toList()
 
         then:
@@ -238,7 +238,7 @@ class QueryServiceSpec extends Specification {
                 operator: Operator.AND
         )
         when:
-        Hypercube hypercube = queryService.highDimension(user, combination)
+        Hypercube hypercube = queryService.highDimension(combination, user)
         hypercube.toList()
 
         then:
@@ -289,7 +289,7 @@ class QueryServiceSpec extends Specification {
         )
         when:
         Combination combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
-        Hypercube hypercube = queryService.highDimension(user, combination)
+        Hypercube hypercube = queryService.highDimension(combination, user)
 
 
         then:

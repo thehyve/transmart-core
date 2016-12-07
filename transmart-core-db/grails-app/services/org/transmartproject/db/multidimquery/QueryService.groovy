@@ -36,8 +36,6 @@ import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
-
 @Slf4j
 @Transactional
 class QueryService {
@@ -425,10 +423,11 @@ class QueryService {
         return getAggregate(type, queryCriteria)
     }
 
-    Hypercube highDimension(User user,
-                            Constraint assayConstraint,
-                            BiomarkerConstraint biomarkerConstaint = new BiomarkerConstraint(),
-                            String projectionName = Projection.ALL_DATA_PROJECTION) {
+    Hypercube highDimension(
+            Constraint assayConstraint,
+            BiomarkerConstraint biomarkerConstraint = new BiomarkerConstraint(),
+            String projectionName = Projection.ALL_DATA_PROJECTION,
+            User user) {
         checkAccess(assayConstraint, user)
 
         List<ObservationFact> observations = list(assayConstraint, user)
@@ -459,8 +458,8 @@ class QueryService {
         HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)
 
         List<DataConstraint> dataConstraints = []
-        if (biomarkerConstaint?.biomarkerType) {
-            dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.biomarkerType)
+        if (biomarkerConstraint?.biomarkerType) {
+            dataConstraints << typeResource.createDataConstraint(biomarkerConstraint.params, biomarkerConstraint.biomarkerType)
         }
         TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
         new HddTabularResultHypercubeAdapter(table)
