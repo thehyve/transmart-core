@@ -5,7 +5,7 @@ import groovy.transform.EqualsAndHashCode
 @EqualsAndHashCode
 class BrowseAssaysView implements Serializable {
 
-    String identifier
+    String id
     String title
     String description
     String measurementType
@@ -18,15 +18,13 @@ class BrowseAssaysView implements Serializable {
 
     static mapping = {
         table schema: 'biomart_user'
-        id composite: ['identifier']
         version false
 
         id         insert: false, update: false
-        identifier column: 'id'
     }
 
     static constraints = {
-        identifier      nullable: true, maxSize: 300
+        id      nullable: true, maxSize: 300
         title           nullable: true, maxSize: 1000
         description     nullable: true, maxSize: 2000
         measurementType nullable: true
@@ -36,5 +34,9 @@ class BrowseAssaysView implements Serializable {
         gene            nullable: true
         mirna           nullable: true
         biomarkerType   nullable: true
+    }
+
+    def getIdentifier() {
+        id
     }
 }
