@@ -34,23 +34,23 @@
 		<span class='AnalysisHeader'>Box Plot</span><br /><br />
 		
         <g:each var="location" in="${imageLocations}">
-            <g:img file="${location}" width="600" height="600"></g:img>
+			<img src="${location}">
         </g:each>
 	
 		<br />
 		<br />	
-		${legendText}	
+		${raw(legendText)}
 	
 		<br />
 		<br />	
 	
-		${ANOVAData}
+		${raw(ANOVAData)}
 		
 		<br />
 
         <g:if test="${zipLink}">
             <div>
-                <a class='AnalysisLink' class='downloadLink' href="${resource(file: zipLink)}">Download raw R data</a>
+                <a class='AnalysisLink' class='downloadLink' href="${zipLink}">Download raw R data</a>
             </div>
         </g:if>
 		
