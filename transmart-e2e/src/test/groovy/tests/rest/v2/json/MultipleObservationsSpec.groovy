@@ -38,7 +38,7 @@ class MultipleObservationsSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it, "PatientDimension", "age", 'Int') == 30
-            assert [60.0, 59.0, 80.0].contains(selector.select(it))
+            assert [60, 59, 80].contains(selector.select(it) as int)
         }
     }
 
@@ -47,7 +47,6 @@ class MultipleObservationsSpec extends RESTSpec{
      *  when: "I get all observations of that studie"
      *  then: "7 observations have a valid startDate as timestamp value
      */
-//    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-125 protobuf sterilization, DATE fields missing from dimensions
     def "Start time of observations are exposed through REST API"(){
         given: "EHR is loaded"
 
@@ -79,7 +78,6 @@ class MultipleObservationsSpec extends RESTSpec{
      *  when: "I get all observations of that studie"
      *  then: "4 observations have a nonNUll endDate as timestamp value
      */
-//    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-125 protobuf sterilization, DATE fields missing from dimensions
     def "end time of observations are exposed through REST API"(){
         given: "EHR is loaded"
 
@@ -130,7 +128,7 @@ class MultipleObservationsSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it, "PatientDimension", "age", 'Int') == (it < 3 ? 30 : 52)
-            assert [60.0, 59.0, 80.0, 78.0, 56.0, 102.0].contains(selector.select(it))
+            assert [60, 59, 80, 78, 56, 102].contains(selector.select(it) as int)
         }
     }
 }

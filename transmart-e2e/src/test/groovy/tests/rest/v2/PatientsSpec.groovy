@@ -39,7 +39,7 @@ class PatientsSpec extends RESTSpec{
         def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "2 patients are returned"
-        responseData.patients.size() == 2
+        assert responseData.patients.size() == 2
         that responseData.patients, everyItem(hasKey('id'))
     }
 
@@ -70,7 +70,7 @@ class PatientsSpec extends RESTSpec{
         def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "2 patients are returned"
-        responseData.patients.size() == 2
+        assert responseData.patients.size() == 2
         that responseData.patients, everyItem(hasKey('id'))
     }
 
@@ -108,7 +108,7 @@ class PatientsSpec extends RESTSpec{
         def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "I get all patients"
-        responseData.patients.size() == 2
+        assert responseData.patients.size() == 2
         that responseData.patients, hasItems(
                 hasEntry('id', -69),
                 hasEntry('id', -59))

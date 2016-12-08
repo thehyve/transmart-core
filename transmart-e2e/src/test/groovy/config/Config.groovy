@@ -30,6 +30,7 @@ class Config {
     public static final String SHARED_CONCEPTS_A_ID = 'SHARED_CONCEPTS_STUDY_A'
     public static final String SHARED_CONCEPTS_B_ID = 'SHARED_CONCEPTS_STUDY_B'
     public static final String SHARED_CONCEPTS_RESTRICTED_ID = 'SHARED_CONCEPTS_STUDY_C_PRIV'
+    public static final String RNASEQ_TRANSCRIPT_ID = 'RNASEQ_TRANSCRIPT'
 
     //settings
     public static final boolean OAUTH_NEEDED = true

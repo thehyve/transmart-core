@@ -46,7 +46,7 @@ class HighDimSpec extends RESTSpec {
         def assays = 6
         def projections = 10
         def metaRows = 2
-        responseData.size() == biomarkers * assays * projections + metaRows
+        assert responseData.size() == biomarkers * assays * projections + metaRows
     }
 
     /**
@@ -77,17 +77,16 @@ class HighDimSpec extends RESTSpec {
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then:
-
         selector.cellCount == 120
         (0..<selector.cellCount).each {
 
-            ['117_at', '1007_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
-            selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == null
+            assert ['117_at', '1007_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
+            assert selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == 'null'
 
-            [-6001,-6002,-6004,-6006,-6007,-6008].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
-            ['sample1', 'sample2', 'sample4', 'sample6', 'sample7', 'sample8'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
+            assert [-6001,-6002,-6004,-6006,-6007,-6008].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
+            assert ['sample1', 'sample2', 'sample4', 'sample6', 'sample7', 'sample8'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
 
-            ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
         }
     }
 
@@ -109,17 +108,16 @@ class HighDimSpec extends RESTSpec {
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then:
-
         selector.cellCount == 90
         (0..<selector.cellCount).each {
 
-            ['117_at', '1007_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
-            selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == null
+            assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
+            assert selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == 'null'
 
-            [-6003,-6005,-6009].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
-            ['sample3', 'sample5', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
+            assert [-6003,-6005,-6009].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
+            assert ['sample3', 'sample5', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
 
-            ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
         }
     }
 
@@ -149,7 +147,7 @@ class HighDimSpec extends RESTSpec {
         ])
 
         then:
-        responseData == []
+        assert responseData == []
     }
 
     /**
@@ -222,7 +220,7 @@ class HighDimSpec extends RESTSpec {
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then:
-        selector.cellCount == 18
+        assert selector.cellCount == 18
     }
 
     /**
@@ -251,17 +249,16 @@ class HighDimSpec extends RESTSpec {
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         then:
-
         selector.cellCount == 60
         (0..<selector.cellCount).each {
 
-            ['117_at', '1007_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
-            selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == null
+            assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
+            assert selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == 'null'
 
-            [-6016,-6017,-6018, -6019].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
-            ['sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
+            assert [-6016,-6017,-6018, -6019].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
+            assert ['sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
 
-            ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
         }
     }
 
@@ -285,13 +282,13 @@ class HighDimSpec extends RESTSpec {
         selector.cellCount == 120
         (0..<selector.cellCount).each {
 
-            ['117_at', '1007_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
-            selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == null
+            assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
+            assert selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == 'null'
 
-            [-631,-637,-638, -639].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
-            ['sample1', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
+            assert [-631,-637,-638, -639].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
+            assert ['sample1', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
 
-            ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
         }
     }
 
