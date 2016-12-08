@@ -19,85 +19,85 @@
 
 package org.transmartproject.db.ontology
 
-//import grails.orm.HibernateCriteriaBuilder
+import java.util.List;
+
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
 import groovy.transform.EqualsAndHashCode
-import org.hibernate.criterion.MatchMode
-import org.transmartproject.core.concept.ConceptKey
+
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.db.util.StringUtils
+import org.transmartproject.core.concept.ConceptKey
 
-@EqualsAndHashCode(includes = ['tableCode'])
+@EqualsAndHashCode(includes = [ 'tableCode' ])
 class TableAccess extends AbstractQuerySpecifyingType implements
         OntologyTerm, Serializable {
 
-    Integer level
-    String fullName
-    String name
-    String code
+    Integer      level
+    String       fullName
+    String       name
+    String       code
 
-    String tableName
+    String       tableName
 
-    String tableCode
-    Character cProtectedAccess
-    Character cSynonymCd = 'N'
-    String cVisualattributes = ''
+    String       tableCode
+    Character    cProtectedAccess
+    Character    cSynonymCd = 'N'
+    String       cVisualattributes = ''
 
-    BigDecimal cTotalnum
-    String cMetadataxml
-    String cComment
-    String tooltip
-    Date cEntryDate
-    Date cChangeDate
-    Character cStatusCd
-    String valuetypeCd
+    BigDecimal   cTotalnum
+    String       cMetadataxml
+    String       cComment
+    String       tooltip
+    Date         cEntryDate
+    Date         cChangeDate
+    Character    cStatusCd
+    String       valuetypeCd
 
     static mapping = {
-        table name: 'table_access', schema: 'I2B2METADATA'
+        table   name: 'table_access', schema: 'I2B2METADATA'
         version false
 
         /* hibernate needs an id, see
          * http://docs.jboss.org/hibernate/orm/3.3/reference/en/html/mapping.html#mapping-declaration-id
          */
-        id name: 'tableCode', generator: 'assigned'
+        id          composite: ['tableCode']
 
-        fullName column: 'C_FULLNAME'
-        level column: 'C_HLEVEL'
-        name column: 'C_NAME'
-        code column: 'C_BASECODE'
-        tooltip column: 'C_TOOLTIP'
-        tableName column: 'C_TABLE_NAME'
-        tableCode column: 'C_TABLE_CD'
+        fullName             column:   'C_FULLNAME'
+        level                column:   'C_HLEVEL'
+        name                 column:   'C_NAME'
+        code                 column:   'C_BASECODE'
+        tooltip              column:   'C_TOOLTIP'
+        tableName            column:   'C_TABLE_NAME'
+        tableCode            column:   'C_TABLE_CD'
 
-        factTableColumn column: 'C_FACTTABLECOLUMN'
-        dimensionTableName column: 'C_DIMTABLENAME'
-        columnName column: 'C_COLUMNNAME'
-        columnDataType column: 'C_COLUMNDATATYPE'
-        operator column: 'C_OPERATOR'
-        dimensionCode column: 'C_DIMCODE'
+        factTableColumn      column:   'C_FACTTABLECOLUMN'
+        dimensionTableName   column:   'C_DIMTABLENAME'
+        columnName           column:   'C_COLUMNNAME'
+        columnDataType       column:   'C_COLUMNDATATYPE'
+        operator             column:   'C_OPERATOR'
+        dimensionCode        column:   'C_DIMCODE'
     }
 
     static constraints = {
-        tableCode maxSize: 50
-        tableName maxSize: 50
-        cProtectedAccess nullable: true
-        fullName maxSize: 700
-        name maxSize: 2000
-        cSynonymCd nullable: true
-        cVisualattributes maxSize: 3
-        cTotalnum nullable: true
-        code nullable: true, maxSize: 50
-        cMetadataxml nullable: true
-        cComment nullable: true
-        tooltip nullable: true, maxSize: 900
-        cEntryDate nullable: true
-        cChangeDate nullable: true
-        cStatusCd nullable: true
-        valuetypeCd nullable: true, maxSize: 50
+        tableCode           maxSize:    50
+        tableName           maxSize:    50
+        cProtectedAccess    nullable:   true
+        fullName            maxSize:    700
+        name                maxSize:    2000
+        cSynonymCd          nullable:   true
+        cVisualattributes   maxSize:    3
+        cTotalnum           nullable:   true
+        code                nullable:   true,   maxSize:   50
+        cMetadataxml        nullable:   true
+        cComment            nullable:   true
+        tooltip             nullable:   true,   maxSize:   900
+        cEntryDate          nullable:   true
+        cChangeDate         nullable:   true
+        cStatusCd           nullable:   true
+        valuetypeCd         nullable:   true,   maxSize:   50
 
         AbstractQuerySpecifyingType.constraints.delegate = delegate
         AbstractQuerySpecifyingType.constraints()
@@ -115,7 +115,8 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         }
     }
 
-    Class getOntologyTermDomainClassReferred() {
+    Class getOntologyTermDomainClassReferred()
+    {
         def domainClass = Holders.getGrailsApplication().domainClasses.find
                 {
                     AbstractI2b2Metadata.class.isAssignableFrom(it.clazz) &&
@@ -160,12 +161,84 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         getDescendants(true, showHidden, showSynonyms)
     }
 
+    @Override
+    List<OntologyTerm> getHDforAllDescendants() {
+        getHDDescendants(true, false, false, false)
+    }
+
+    List<String> getAllDescendantsForFacets() {
+        getDescendantsFullName(true, false, false, false)
+    }
+
+    private List<OntologyTerm> getHDDescendants(boolean allDescendants,
+                                                boolean showHidden = false,
+                                                boolean showSynonyms = false,
+                                                boolean isOrdered = true) {
+
+        HibernateCriteriaBuilder c
+
+        /* extract table code from concept key and resolve it to a table name */
+        c = TableAccess.createCriteria()
+        String tableName = c.get {
+            projections { distinct('tableName') }
+            eq('tableCode', this.conceptKey.tableCode)
+        }
+
+        /* validate this table name */
+        def domainClass = this.ontologyTermDomainClassReferred
+        if (!domainClass) {
+            throw new RuntimeException("Metadata table ${tableName} is not " +
+                    "mapped")
+        }
+
+        /* select level on the original table (is this really necessary?) */
+        c = domainClass.createCriteria();
+        Integer parentLevel = c.get {
+            projections { property 'level' }
+
+            and {
+                eq 'fullName', fullName
+                eq 'cSynonymCd', 'N' as char
+            }
+        }
+        if (parentLevel == null)
+            throw new RuntimeException("Could not determine parent's level; " +
+                    "could not find it in ${domainClass}'s table (fullname: " +
+                    "$fullName)")
+
+        /* Finally select the relevant stuff */
+        def fullNameSearch = fullName.asLikeLiteral() + '%'
+
+        c = domainClass.createCriteria()
+        c.list {
+            and {
+                like 'fullName', fullNameSearch
+                if (allDescendants) {
+                    gt 'level', parentLevel
+                } else {
+                    eq 'level', parentLevel + 1
+                }
+
+                if (!showHidden) {
+                    not { like 'cVisualattributes', '_H%' }
+                }
+                if (!showSynonyms) {
+                    eq 'cSynonymCd', 'N' as char
+                }
+                like 'cVisualattributes', '__H%'
+            }
+            if (isOrdered)
+                order('name')
+        }
+    }
+
     private List<OntologyTerm> getDescendants(boolean allDescendants,
                                               boolean showHidden = false,
-                                              boolean showSynonyms = false) {
+                                              boolean showSynonyms = false,
+                                              boolean isOrdered = true) {
 
-        //HibernateCriteriaBuilder c
         HibernateCriteriaBuilder c
+
         /* extract table code from concept key and resolve it to a table name */
         c = TableAccess.createCriteria()
         String tableName = c.get {
@@ -199,10 +272,13 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                     "could not find it in ${domainClass}'s table (fullname: " +
                     "$fullName)")
 
+        /* Finally select the relevant stuff */
+        def fullNameSearch = fullName.asLikeLiteral() + '%'
+
         c = domainClass.createCriteria()
         c.list {
             and {
-                add(StringUtils.like('fullName', fullName, MatchMode.START))
+                like 'fullName', fullNameSearch
                 if (allDescendants) {
                     gt 'level', parentLevel
                 } else {
@@ -216,7 +292,76 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                     eq 'cSynonymCd', 'N' as char
                 }
             }
-            order('name')
+            if (isOrdered)
+                order('name')
+        }
+    }
+
+    private List<String> getDescendantsFullName(boolean allDescendants,
+                                                boolean showHidden = false,
+                                                boolean showSynonyms = false,
+                                                boolean isOrdered = true) {
+
+        HibernateCriteriaBuilder c
+
+        /* extract table code from concept key and resolve it to a table name */
+        c = TableAccess.createCriteria()
+        String tableName = c.get {
+            projections {
+                distinct('tableName')
+            }
+            eq('tableCode', this.conceptKey.tableCode)
+        }
+
+        /* validate this table name */
+        def domainClass = this.ontologyTermDomainClassReferred
+        if (!domainClass) {
+            throw new RuntimeException("Metadata table ${tableName} is not " +
+                    "mapped")
+        }
+
+        /* select level on the original table (is this really necessary?) */
+        c = domainClass.createCriteria();
+        Integer parentLevel = c.get {
+            projections {
+                property 'level'
+            }
+
+            and {
+                eq 'fullName', fullName
+                eq 'cSynonymCd', 'N' as char
+            }
+        }
+        if (parentLevel == null)
+            throw new RuntimeException("Could not determine parent's level; " +
+                    "could not find it in ${domainClass}'s table (fullname: " +
+                    "$fullName)")
+
+        /* Finally select the relevant stuff */
+        def fullNameSearch = fullName.asLikeLiteral() + '%'
+
+        c = domainClass.createCriteria()
+        c.list {
+            projections {
+                property('fullName')
+            }
+            and {
+                like 'fullName', fullNameSearch
+                if (allDescendants) {
+                    gt 'level', parentLevel
+                } else {
+                    eq 'level', parentLevel + 1
+                }
+
+                if (!showHidden) {
+                    not { like 'cVisualattributes', '_H%' }
+                }
+                if (!showSynonyms) {
+                    eq 'cSynonymCd', 'N' as char
+                }
+            }
+            if (isOrdered)
+                order('name')
         }
     }
 
@@ -235,7 +380,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
 
     @Override
     String toString() {
-        getClass().canonicalName + "[${attached ? 'attached' : 'not attached'}" +
+        getClass().canonicalName + "[${attached?'attached':'not attached'}" +
                 "] [ fullName=$fullName ]"
     }
 }
