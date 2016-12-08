@@ -81,7 +81,7 @@ abstract class AbstractFacetsIndexingFolderModule<T> implements FacetsIndexingMo
     }
 
     protected FacetsDocId docIdFromDbObject(T dbObject) {
-        String folderId = dbObject.identifier.replaceFirst(/\AFOL:/,'')
+        String folderId = dbObject.id.replaceFirst(/\AFOL:/,'')
         new FacetsDocId(docType, folderId)
     }
 
@@ -114,7 +114,7 @@ abstract class AbstractFacetsIndexingFolderModule<T> implements FacetsIndexingMo
 
         domainClass.createCriteria().list {
             projections {
-                property('identifier')
+                property('id')
             }
         }.collect {
             new FacetsDocId(docType, it.replaceFirst(/\AFOL:/,''))
@@ -132,7 +132,7 @@ abstract class AbstractFacetsIndexingFolderModule<T> implements FacetsIndexingMo
         }
 
         domainClass.withCriteria {
-            'in'('identifier', tableIds as List)
+            'in'('id', tableIds as List)
         }.collect { convert it } as Set
     }
 
