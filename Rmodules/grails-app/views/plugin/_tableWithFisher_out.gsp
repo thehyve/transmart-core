@@ -6,7 +6,7 @@
 		<table>
 			<tr>
 				<td>
-					${countData}		
+					${raw(countData)}
 				</td>
 			</tr>
 			<tr>
@@ -16,7 +16,7 @@
 			</tr>				
 			<tr>
 				<td>
-					${statisticsData}		
+					${raw(statisticsData)}
 				</td>
 			</tr>
 			<tr>
@@ -27,7 +27,7 @@
 			<tr>
 				<td>
 					<g:if test="${zipLink}">
-						<a class='AnalysisLink' class='downloadLink' href="${resource(file: zipLink)}">Download raw R data</a>
+						<a class='AnalysisLink' class='downloadLink' href="${zipLink}">Download raw R data</a>
 					</g:if>
 				</td>
 			</tr>			
