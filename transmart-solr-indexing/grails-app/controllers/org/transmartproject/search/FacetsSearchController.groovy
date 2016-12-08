@@ -326,8 +326,7 @@ class FacetsSearchController {
     }
 }
 
-@Validateable
-class AutoCompleteCommand {
+class AutoCompleteCommand implements Validateable {
     String requiredField
     String category
     String term
@@ -339,8 +338,7 @@ class AutoCompleteCommand {
     }
 }
 
-@Validateable
-class FieldTerms {
+class FieldTerms implements Validateable {
     String operator
     List<SearchTerm> searchTerms = []
 
@@ -349,8 +347,7 @@ class FieldTerms {
     }
 }
 
-@Validateable
-class GetFacetsCommand {
+class GetFacetsCommand implements Validateable {
     String requiredField
     String operator
     @BindUsing({ obj, source ->
@@ -373,8 +370,7 @@ class GetFacetsCommand {
     }
 }
 
-@Validateable
-class SearchTerm {
+class SearchTerm implements Validateable {
     String literalTerm
     String luceneTerm
 }
