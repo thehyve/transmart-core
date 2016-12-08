@@ -2,7 +2,7 @@
 grails:
     profile: web-plugin
     codegen:
-        defaultPackage: transmart.solr.indexing
+        defaultPackage: org.transmartproject.search
     spring:
         transactionManagement:
             proxies: false

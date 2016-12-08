@@ -1,4 +1,4 @@
-package transmart.solr.indexing
+package transmartproject.search.indexing
 
 import grails.plugins.*
 
