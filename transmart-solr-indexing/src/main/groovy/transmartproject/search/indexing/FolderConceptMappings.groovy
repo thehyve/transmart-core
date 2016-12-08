@@ -1,12 +1,12 @@
 package org.transmartproject.search.indexing
 
-import grails.plugin.cache.ehcache.GrailsEhcacheCacheManager
 import net.sf.ehcache.Ehcache
 import net.sf.ehcache.loader.CacheLoader
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.search.browse.FolderStudyMappingView
+import org.springframework.cache.CacheManager
 
 @Component
 class FolderConceptMappings {
@@ -15,10 +15,10 @@ class FolderConceptMappings {
     private static final String ALL_MAPPINGS_KEY = 'all_mappings'
 
     @Autowired
-    private GrailsEhcacheCacheManager grailsCacheManager
+    private CacheManager cacheManager
 
     private Ehcache getEhcache() {
-        grailsCacheManager.getCache(FOLDER_CONCEPT_MAPPINGS_CACHE).nativeCache
+        cacheManager.getCache(FOLDER_CONCEPT_MAPPINGS_CACHE).nativeCache
     }
 
     private Map<ConceptFullName, Long /* folder id */>  getRootMappings() {
