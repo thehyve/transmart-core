@@ -21,7 +21,7 @@ class I2b2TagType {
         nodeType        column: 'node_type'
         valueType       column: 'value_type'
         shownIfEmpty    column: 'shown_if_empty'
-        index           column: 'index'
+        index           column: '"index"'
 
         options         fetch: 'join', joinTable: [name: 'i2b2_tag_type_options', key: 'tag_type_id']
 
