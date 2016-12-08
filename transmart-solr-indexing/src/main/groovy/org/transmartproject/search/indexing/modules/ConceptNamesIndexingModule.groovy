@@ -5,7 +5,6 @@ import com.google.common.collect.HashMultimap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Iterators
 import com.google.common.collect.Multimap
-import grails.plugin.cache.ehcache.GrailsEhcacheCacheManager
 import net.sf.ehcache.Ehcache
 import net.sf.ehcache.loader.CacheLoader
 import org.springframework.beans.factory.annotation.Autowired
