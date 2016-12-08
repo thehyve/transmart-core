@@ -10,20 +10,41 @@ import spock.lang.Specification
 @TestFor(OntologyTermController)
 class OntologyTermSpec extends Specification {
 
-    def conceptCode1
+    String contentTypeForJSON
 
     def setup() {
-        conceptCode1 = "testCode"
+        contentTypeForJSON = 'application/json'
     }
 
-    void "test return conceptCode list"() {
+    void "test '/search/conceptCode' endpoint"() {
         when:
-        def expectedResult = (1..controller.RESPONSE_SIZE).collect{"$conceptCode1 recommended_$it"}
-        params.conceptCode = conceptCode1
+        params.conceptCode = "testCode"
         controller.index()
 
         then:
-        response.getJson().size() == controller.RESPONSE_SIZE
-        response.getJson() == expectedResult
+        response.contentType.contains(contentTypeForJSON)
+        response.getJson().size() > 0
+        response.getJson().each {
+            assert it.has('score')
+            assert it.has('classpath')
+            assert it.has('terminology_type')
+            assert it.has('label')
+        }
+    }
+
+    void "test '/idx' endpoint"(){
+        when:
+        params.conceptCode = "roxId"
+        controller.show()
+
+        then:
+        response.contentType.contains(contentTypeForJSON)
+        response.getJson().size() > 0
+        response.getJson().each {
+            assert it.has('id')
+            assert it.has('node')
+            assert it.has('type')
+        }
     }
 }
+
