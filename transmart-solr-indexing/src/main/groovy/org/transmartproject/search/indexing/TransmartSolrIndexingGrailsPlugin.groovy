@@ -1,4 +1,4 @@
-package transmartproject.search.indexing
+package org.transmartproject.search.indexing
 import org.springframework.stereotype.Component
 import grails.plugins.*
 
@@ -43,8 +43,9 @@ Brief summary/description of the plugin.
     Closure doWithSpring() { {->
         xmlns context:"http://www.springframework.org/schema/context"
 
-
-        context.'component-scan'('base-package': 'transmartproject.search.indexing') {
+        def pckg = 'org.transmartproject.search.indexing'
+        println "Wiring custom beans from package: $pckg"
+        context.'component-scan'('base-package': pckg) {
             context.'include-filter'(
                     type:       'annotation',
                     expression: Component.canonicalName)
