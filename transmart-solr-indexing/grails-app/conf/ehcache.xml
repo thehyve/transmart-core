@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" updateCheck="false">
+
+    <diskStore path="java.io.tmpdir"/>
+
+    <cacheManagerEventListenerFactory class="" properties=""/>
+
+    <defaultCache
+            maxElementsInMemory="50000"
+            eternal="false"
+            timeToLiveSeconds="300"
+            overflowToDisk="false"
+            diskPersistent="false"
+    />
+
+    <cache name="FacetsIndexCache"
+           eternal="false"
+           timeToLiveSeconds="900"
+           overflowToDisk="false"
+           diskPersistent="false"
+           maxElementsInMemory="10"
+           maxElementsOnDisk="0"
+    />
+
+</ehcache>
