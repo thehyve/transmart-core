@@ -434,7 +434,7 @@ class QueryService {
         List<ObservationFact> observations = list(assayConstraint, user)
         //TODO check for correct Observation fact row
         List assayIds = observations
-                .findAll { it.modifierCd == '@' }
+                .findAll { it.modifierCd == '@' && it.numberValue != null}
                 .collect { it.numberValue.toLong() }
 
 
