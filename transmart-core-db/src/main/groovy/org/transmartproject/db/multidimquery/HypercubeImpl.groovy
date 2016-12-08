@@ -8,7 +8,6 @@ import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.StatelessSessionImpl
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -56,7 +55,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     private final Map<Dimension,IndexedArraySet<Object>> dimensionElementKeys
 
     // A map that stores the actual dimension elements once they are loaded
-    private Map<Dimension, List<Object>> dimensionElements = new HashMap()
+    private Map<Dimension, ImmutableList<Object>> dimensionElements = new HashMap()
 
     // false if there may be dimension element keys for which the values are not loaded
     private boolean _dimensionsLoaded = false
@@ -117,7 +116,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
                 def dimElementKey = d.getElementKey(result)
                 if(dimElementKey == null) {
                     dimensionElementIdxes[i] = null
-                } else if(d.density == Dimension.Density.DENSE) {
+                } else if(d.density.isDense) {
                     IndexedArraySet<Object> elementKeys = dimensionElementKeys[d]
                     int dimElementIdx = elementKeys.indexOf(dimElementKey)
                     if(dimElementIdx == -1) {
@@ -134,14 +133,6 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         }
     }
 
-    ImmutableList<Object> dimensionElements(Dimension dim) {
-        checkDimension(dim)
-        checkIsDense(dim)
-        List ret = ImmutableList.copyOf(dim.resolveElements(dimensionElementKeys[dim] ?: []))
-        dimensionElements[dim] = ret
-        return ret
-    }
-
     static protected void checkIsDense(Dimension dim) {
         if(dim.density != Dimension.Density.DENSE) {
             throw new UnsupportedOperationException("Cannot get dimension element for sparse dimension "+
@@ -150,7 +141,24 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     }
 
     protected void checkDimension(Dimension dim) {
-        if(!(dim in dimensions)) throw new InvalidArgumentsException("Dimension $dim is not part of this result")
+        if(!(dim in dimensions)) throw new IllegalArgumentException("Dimension $dim is not part of this result")
+    }
+
+    protected int getDimensionsIndex(Dimension dim) {
+        Integer i = dimensionsIndex[dim]
+        if(i == null) throw new IllegalArgumentException("Dimension $dim is not part of this result")
+        i
+    }
+
+    ImmutableList<Object> dimensionElements(Dimension dim) {
+        checkDimension(dim)
+        checkIsDense(dim)
+        if(_dimensionsLoaded) return dimensionElements[dim]
+        // if _dimensionsLoaded is not set, new element keys may have been added so we need to load or re-load even
+        // if there is already a result in dimensionElements[dim]
+        def ret = ImmutableList.copyOf(dim.resolveElements(dimensionElementKeys[dim] ?: []))
+        dimensionElements[dim] = ret
+        return ret
     }
 
     Object dimensionElement(Dimension dim, Integer idx) {
@@ -160,10 +168,11 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         if(!_dimensionsLoaded) {
             loadDimensions()
         }
-        if (dimensionElements[dim] == null) {
+        List thisDimensionElements = dimensionElements[dim]
+        if (thisDimensionElements == null) {
             throw new Exception("No dimension elements for dimension ${dim?.class?.simpleName}")
         }
-        return dimensionElements[dim][idx]
+        return thisDimensionElements[idx]
     }
 
     Object dimensionElementKey(Dimension dim, Integer idx) {
@@ -185,7 +194,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         // worth implementing.
         if(_dimensionsLoaded) return
         dimensions.each {
-            if(it.density == Dimension.Density.DENSE) dimensionElements(it)
+            if(it.density.isDense) dimensionElements(it)
         }
         _dimensionsLoaded = true
     }
@@ -311,24 +320,24 @@ class HypercubeValueImpl implements HypercubeValue {
     def getDimElement(Dimension dim) {
         cube.checkDimension(dim)
         if(dim.density.isDense) {
-            cube.dimensionElement(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
+            cube.dimensionElement(dim, (Integer) dimensionElementIdxes[cube.getDimensionsIndex(dim)])
         } else {
-            dim.resolveElement(dimensionElementIdxes[cube.dimensionsIndex[dim]])
+            dim.resolveElement(dimensionElementIdxes[cube.getDimensionsIndex(dim)])
         }
     }
 
     int getDimElementIndex(Dimension dim) {
         cube.checkDimension(dim)
         cube.checkIsDense(dim)
-        (int) dimensionElementIdxes[cube.dimensionsIndex[dim]]
+        (int) dimensionElementIdxes[cube.getDimensionsIndex(dim)]
     }
 
     def getDimKey(Dimension dim) {
         cube.checkDimension(dim)
         if(dim.density.isDense) {
-            cube.dimensionElementKey(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
+            cube.dimensionElementKey(dim, (Integer) dimensionElementIdxes[cube.getDimensionsIndex(dim)])
         } else {
-            dimensionElementIdxes[cube.dimensionsIndex[dim]]
+            dimensionElementIdxes[cube.getDimensionsIndex(dim)]
         }
     }
 

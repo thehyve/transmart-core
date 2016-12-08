@@ -6,6 +6,7 @@ import grails.util.Pair
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
+import groovy.transform.PackageScope
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient
@@ -20,6 +21,7 @@ import org.transmartproject.db.i2b2data.TrialVisit
 
 import org.transmartproject.db.i2b2data.ConceptDimension as I2b2ConceptDimensions
 import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
+import org.transmartproject.db.i2b2data.PatientDimension as I2b2PatientDimension
 
 import static org.transmartproject.core.multidimquery.Dimension.*
 import static org.transmartproject.core.multidimquery.Dimension.Size.*
@@ -97,6 +99,11 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         throw new NotImplementedException()
     }
 
+    protected <T> T getKey(Map map, String alias) {
+        def res = map.getOrDefault(alias, this)
+        if(res.is(this)) throw new IllegalArgumentException("Resultmap $map does not contain key $alias")
+        (T) res
+    }
     abstract def selectIDs(Query query)
 
     abstract ELKey getElementKey(Map result)
@@ -167,9 +174,12 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
  * compound element type
  */
 @CompileStatic
-trait SerializableType {
+trait SerializableType<ELTKey> {
     List<String> getElementProperties() { throw new UnsupportedOperationException("${this}.getElementProperties()") }
-    def asSerializable(/*ELT*/ element) { element }
+    def asSerializable(ELTKey element) { element }
+    List<ELTKey> resolveElements(List<ELTKey> elementKeys) { elementKeys }
+    ELTKey resolveElement(ELTKey key) { key }
+    List doResolveElements(List elementKeys) { throw new UnsupportedOperationException("should not happen") }
 }
 
 
@@ -186,7 +196,7 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
     @Override
     ELKey getElementKey(Map result) {
         assert result.getOrDefault('modifierCd', '@') == '@'
-        result[alias]
+        getKey(result, alias)
     }
 }
 
@@ -197,7 +207,7 @@ abstract class I2b2NullablePKDimension<ELT,ELKey> extends I2b2Dimension<ELT,ELKe
 
     @Override ELKey getElementKey(Map result) {
         assert result.getOrDefault('modifierCd', '@') == '@'
-        ELKey res = result[alias]
+        ELKey res = getKey(result, alias)
         res == nullValue ? null : res
     }
 }
@@ -222,7 +232,7 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
 // extended to also support modifiers that link to other tables, thus leading to modifier dimensions with compound
 // element types
 @CompileStatic
-class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableType {
+class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableType<Object> {
     Class elementType = Object
     private static Map<String,ModifierDimension> byName = [:]
     private static Map<String,ModifierDimension> byCode = [:]
@@ -276,12 +286,8 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
     }
 
     @Override def getElementKey(Map result) {
-        result[name]
+        getKey(result, name)
     }
-
-    @Override List doResolveElements(List elementKeys) { elementKeys }
-
-    @Override def resolveElement(key) { key }
 
     @Override String toString() {
         "${this.class.simpleName}(name: '$name', code: '$modifierCode', $size, $density, $packable)"
@@ -317,6 +323,16 @@ class PatientDimension extends I2b2Dimension<Patient, Long> {
     @CompileDynamic
     @Override List<Patient> doResolveElements(List<Long> elementKeys) {
         org.transmartproject.db.i2b2data.PatientDimension.getAll(elementKeys)
+//        List<I2b2PatientDimension> res = I2b2PatientDimension.findAllByIdInList(elementKeys)
+//        Map<Long,I2b2PatientDimension> ids = new HashMap(res.size(), 1.0f)
+//        for (object in res) {
+//            ids[object.id] = object
+//        }
+//        res.clear()
+//        for (key in elementKeys) {
+//            res << ids[key]
+//        }
+//        res
     }
 }
 
@@ -376,7 +392,7 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> {
 
 
 @CompileStatic @InheritConstructors
-class StartTimeDimension extends I2b2NullablePKDimension<Date,Date> implements SerializableType {
+class StartTimeDimension extends I2b2NullablePKDimension<Date,Date> implements SerializableType<Date> {
     Class elementType = Date
     String name = 'start time'
 
@@ -385,34 +401,22 @@ class StartTimeDimension extends I2b2NullablePKDimension<Date,Date> implements S
     String alias = 'startDate'
     String columnName = 'startDate'
     Date nullValue = EMPTY_DATE
-
-    @Override List doResolveElements(List elementKeys) {
-        elementKeys
-    }
 }
 
 @CompileStatic @InheritConstructors
-class EndTimeDimension extends I2b2Dimension<Date,Date> implements SerializableType {
+class EndTimeDimension extends I2b2Dimension<Date,Date> implements SerializableType<Date> {
     Class elementType = Date
     String name = 'end time'
     String alias = 'endDate'
     String columnName = 'endDate'
-
-    @Override List doResolveElements(List elementKeys) {
-        elementKeys
-    }
 }
 
 @CompileStatic @InheritConstructors
-class LocationDimension extends I2b2Dimension<String,String> implements SerializableType {
+class LocationDimension extends I2b2Dimension<String,String> implements SerializableType<String> {
     Class elementType = String
     String name = 'location'
     String alias = 'location'
     String columnName = 'locationCd'
-
-    @Override List doResolveElements(List elementKeys) {
-        elementKeys
-    }
 }
 
 @CompileStatic @InheritConstructors
@@ -436,7 +440,7 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,L
     static private BigDecimal minusOne = new BigDecimal(-1)
 
     @Override Pair<BigDecimal,Long> getElementKey(Map result) {
-        BigDecimal encounterNum = (BigDecimal) result[alias]
+        BigDecimal encounterNum = (BigDecimal) getKey(result, alias)
         encounterNum == minusOne ? null : new Pair(encounterNum, result.patientId)
     }
 
@@ -456,20 +460,16 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,L
 }
 
 @CompileStatic @InheritConstructors
-class ProviderDimension extends I2b2NullablePKDimension<String,String> implements SerializableType {
+class ProviderDimension extends I2b2NullablePKDimension<String,String> implements SerializableType<String> {
     Class elementType = String
     String name = 'provider'
     String alias = 'provider'
     String columnName = 'providerId'
     String nullValue = '@'
-
-    List doResolveElements(List elementKeys) {
-        elementKeys
-    }
 }
 
 @CompileStatic @InheritConstructors
-class AssayDimension extends HighDimDimension<Long,Long> implements SerializableType {
+class AssayDimension extends HighDimDimension<Long,Long> implements SerializableType<Long> {
     Class elementType = Long
     String name = 'assay'
 }
@@ -482,7 +482,7 @@ class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapt
 }
 
 @CompileStatic @InheritConstructors
-class ProjectionDimension extends HighDimDimension<String,String> implements SerializableType {
+class ProjectionDimension extends HighDimDimension<String,String> implements SerializableType<String> {
     Class elementType = String
     String name = 'projection'
 }
