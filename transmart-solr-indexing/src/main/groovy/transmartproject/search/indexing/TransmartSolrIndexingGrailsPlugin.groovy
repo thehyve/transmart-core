@@ -1,5 +1,5 @@
 package transmartproject.search.indexing
-
+import org.springframework.stereotype.Component
 import grails.plugins.*
 
 class TransmartSolrIndexingGrailsPlugin extends Plugin {
@@ -41,8 +41,15 @@ Brief summary/description of the plugin.
 //    def scm = [ url: "http://svn.codehaus.org/grails-plugins/" ]
 
     Closure doWithSpring() { {->
-            // TODO Implement runtime spring config (optional)
+        xmlns context:"http://www.springframework.org/schema/context"
+
+
+        context.'component-scan'('base-package': 'transmartproject.search.indexing') {
+            context.'include-filter'(
+                    type:       'annotation',
+                    expression: Component.canonicalName)
         }
+    }
     }
 
     void doWithDynamicMethods() {
