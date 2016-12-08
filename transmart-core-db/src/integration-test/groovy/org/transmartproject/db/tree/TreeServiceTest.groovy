@@ -56,6 +56,7 @@ class TreeServiceTest extends Specification {
                 'CLINICAL_TRIAL_HIGHDIM',
                 'EHR',
                 'EHR_HIGHDIM',
+                'RNASEQ_TRANSCRIPT',
                 'SHARED_CONCEPTS_STUDY_A',
                 'SHARED_CONCEPTS_STUDY_B',
                 'TUMOR_NORMAL_SAMPLES'
