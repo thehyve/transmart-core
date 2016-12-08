@@ -89,8 +89,8 @@ class TreeNodesSpec extends  RESTSpec{
         then: "then concept nodes have observationCount and patientCount"
         def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
 
-        assert getNodeByName(studyA, "Heart Rate").observationCount == 3
-        assert getNodeByName(studyA, "Heart Rate").patientCount == 2
+        assert getNodeByName(studyA, "Heart Rate").observationCount == 5
+        assert getNodeByName(studyA, "Heart Rate").patientCount == 4
         assert getNodeByName(studyA, "Age").observationCount == 2
         assert getNodeByName(studyA, "Age").patientCount == 2
     }
