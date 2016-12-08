@@ -263,58 +263,60 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @param value the value used as right hand side of the operation
      * @return a {@link Criterion} object representing the operation.
      */
-    static Criterion applyOperator(Operator operator, String propertyName, Type type, Object value) {
-        Criterion criterion
+    static Criterion criterionForOperator(Operator operator, String propertyName, Type type, Object value) {
         switch(operator) {
             case Operator.EQUALS:
-                criterion = Restrictions.eq(propertyName, value)
-                break
+                return Restrictions.eq(propertyName, value)
             case Operator.NOT_EQUALS:
-                criterion = Restrictions.ne(propertyName, value)
-                break
+                return Restrictions.ne(propertyName, value)
             case Operator.GREATER_THAN:
-                criterion = Restrictions.gt(propertyName, value)
-                break
+                return Restrictions.gt(propertyName, value)
             case Operator.GREATER_THAN_OR_EQUALS:
-                criterion = Restrictions.ge(propertyName, value)
-                break
+                return Restrictions.ge(propertyName, value)
             case Operator.LESS_THAN:
-                criterion = Restrictions.lt(propertyName, value)
-                break
+                return Restrictions.lt(propertyName, value)
             case Operator.LESS_THAN_OR_EQUALS:
-                criterion = Restrictions.le(propertyName, value)
-                break
+                return Restrictions.le(propertyName, value)
             case Operator.BEFORE:
-                criterion = Restrictions.lt(propertyName, value)
-                break
+                return Restrictions.lt(propertyName, value)
             case Operator.AFTER:
-                criterion = Restrictions.gt(propertyName, value)
-                break
+                return Restrictions.gt(propertyName, value)
             case Operator.BETWEEN:
                 def values = value as List<Date>
-                criterion = Restrictions.between(propertyName, values[0], values[1])
-                break
+                return Restrictions.between(propertyName, values[0], values[1])
             case Operator.CONTAINS:
                 if (type == Type.STRING) {
-                    criterion = StringUtils.like(propertyName, value.toString(), MatchMode.ANYWHERE)
+                    return StringUtils.like(propertyName, value.toString(), MatchMode.ANYWHERE)
                 } else {
-                    criterion = Restrictions.in(propertyName, value)
+                    return Restrictions.in(propertyName, value)
                 }
-                break
             case Operator.LIKE:
-                criterion = StringUtils.like(propertyName, value.toString(), MatchMode.EXACT)
-                break
+                return StringUtils.like(propertyName, value.toString(), MatchMode.EXACT)
             case Operator.IN:
-                criterion = Restrictions.in(propertyName, value)
-                break
+                return Restrictions.in(propertyName, value)
             default:
                 throw new QueryBuilderException("Operator '${operator.symbol}' not supported.")
         }
+    }
+
+    /**
+     * Creates a {@link Criterion} for the Boolean constraint that operates
+     * on a property and a value, see {@link #criterionForOperator}.
+     * Adds a not null and not empty check for fields of type {@link Type#DATE}.
+     *
+     * @param operator the operator to apply
+     * @param propertyName the name of the property used as left hand side of the operation
+     * @param type the type of the property
+     * @param value the value used as right hand side of the operation
+     * @return a {@link Criterion} object representing the operation.
+     */
+    static Criterion applyOperator(Operator operator, String propertyName, Type type, Object value) {
+        Criterion criterion = criterionForOperator(operator, propertyName, type, value)
         if (type == Type.DATE) {
             Restrictions.and(
-                Restrictions.isNotNull(propertyName),
-                Restrictions.ne(propertyName, EMPTY_DATE),
-                criterion
+                    Restrictions.isNotNull(propertyName),
+                    Restrictions.ne(propertyName, EMPTY_DATE),
+                    criterion
             )
         } else {
             criterion
