@@ -9,8 +9,6 @@ class AnalysisFilesController {
 
     public static final String ROLE_ADMIN = 'ROLE_ADMIN'
 
-    def sendFileService
-
     def springSecurityService
 
     def RModulesOutputRenderService
@@ -61,7 +59,8 @@ class AnalysisFilesController {
             return
         }
 
-        sendFileService.sendFile servletContext, request, response, targetFile
+        render(file: targetFile, fileName: targetFile.name, contentType: servletContext.getMimeType(targetFile.name
+                .toLowerCase()))
     }
 
     private boolean isAdmin() {

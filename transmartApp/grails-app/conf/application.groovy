@@ -157,11 +157,6 @@ org.transmart.security.spnegoEnabled = false
 org.transmart.security.sniValidation = true
 org.transmart.security.sslValidation = true
 
-// requires NIO connector though. If you use apache in front of tomcat in the
-// same server, you can set this to false and set .apache = true
-// Bear in mind bug GRAILS-11376 with Tomcat NIO and Grails 2.3.6+
-grails.plugins.sendfile.tomcat = false
-
 grails.plugin.springsecurity.useSecurityEventListener = true
 
 bruteForceLoginLock {
