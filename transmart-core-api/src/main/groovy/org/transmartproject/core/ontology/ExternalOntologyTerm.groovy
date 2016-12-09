@@ -9,5 +9,5 @@ interface ExternalOntologyTerm {
      *
      * @return preferred codes for the given concept code
      */
-    List<String> fetchPreferredConcept(String conceptCode)
+    Object fetchPreferredConcept(String conceptCode)
 }

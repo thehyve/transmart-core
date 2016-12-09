@@ -25,6 +25,7 @@
 
 package org.transmartproject.rest
 
+import grails.converters.JSON
 import grails.rest.Link
 import groovy.transform.TypeChecked
 import org.transmartproject.core.ontology.ConceptsResource
@@ -65,7 +66,7 @@ class ConceptController {
     }
 
     def showRecommended(String conceptCode) {
-        respond externalOntologyTermService.fetchPreferredConcept(conceptCode)
+        render externalOntologyTermService.fetchPreferredConcept(conceptCode) as JSON
     }
 
     /**

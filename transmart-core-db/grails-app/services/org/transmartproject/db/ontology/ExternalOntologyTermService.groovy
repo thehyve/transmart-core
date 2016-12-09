@@ -4,7 +4,6 @@ import groovyx.net.http.ContentType
 import groovyx.net.http.Method
 import org.transmartproject.core.ontology.ExternalOntologyTerm
 import groovyx.net.http.HTTPBuilder
-import groovyx.net.http.HttpResponseDecorator
 
 /**
  * Created by ewelina on 7-12-16.
@@ -18,10 +17,10 @@ class ExternalOntologyTermService implements ExternalOntologyTerm {
     private http = new HTTPBuilder(ONTOLOGY_SERVER_URL)
 
     @Override
-    List<String> fetchPreferredConcept(String conceptCode) {
+    public Object fetchPreferredConcept(String conceptCode) {
         // TODO: Add possibility to use other parameters (optional), decide on which we want to use
         def responseData = get("$SEARCH_TEXT_PATH/$conceptCode", contentType)
-        responseData
+        wrapOntologyServerResponse(responseData)
     }
 
     /**
@@ -29,7 +28,6 @@ class ExternalOntologyTermService implements ExternalOntologyTerm {
      *
      * @param path
      * @param AcceptHeader
-     * @param query
      * @return
      */
     def get(String path, String AcceptHeader){
@@ -55,5 +53,23 @@ class ExternalOntologyTermService implements ExternalOntologyTerm {
                 return reader
             }
         }
+    }
+
+    private Object wrapOntologyServerResponse(responseData)
+    {
+        def recommendedValues = getHighlyReccomendedValues(responseData)
+        def conceptPaths = recommendedValues.classpath.collect{ path->
+            path.join("/");
+        }
+        def label = recommendedValues.label
+        [
+                concept_paths : conceptPaths,
+                label : label
+        ]
+    }
+
+    private Object getHighlyReccomendedValues(responseData){
+        //TODO decide on which value is the most recommended one
+        responseData.get(0)
     }
 }
