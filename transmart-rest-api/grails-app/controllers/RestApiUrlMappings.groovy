@@ -65,22 +65,22 @@ class RestApiUrlMappings {
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
                 apiVersion = 'v2'
             }
-            "/storage"(method: 'GET', controller: 'storage', action: 'index') {
+            "/files"(method: 'GET', controller: 'storage', action: 'index') {
                 apiVersion = "v2"
             }
-            "/storage/$id"(method: 'GET', controller: 'storage', action: 'show') {
+            "/files/$id"(method: 'GET', controller: 'storage', action: 'show') {
                 apiVersion = "v2"
             }
-            "/storage"(method: 'POST', controller: 'storage', action: 'save') {
+            "/files"(method: 'POST', controller: 'storage', action: 'save') {
                 apiVersion = "v2"
             }
-            "/storage/$id"(method: 'PUT', controller: 'storage', action: 'update') {
+            "/files/$id"(method: 'PUT', controller: 'storage', action: 'update') {
                 apiVersion = "v2"
             }
-            "/storage/$id"(method: 'DELETE', controller: 'storage', action: 'delete') {
+            "/files/$id"(method: 'DELETE', controller: 'storage', action: 'delete') {
                 apiVersion = "v2"
             }
-            "/studies/$studyId/storage"(method: 'GET', controller: 'storage', action: 'indexStudy') {
+            "/studies/$studyId/files"(method: 'GET', controller: 'storage', action: 'indexStudy') {
                 apiVersion = "v2"
             }
         }

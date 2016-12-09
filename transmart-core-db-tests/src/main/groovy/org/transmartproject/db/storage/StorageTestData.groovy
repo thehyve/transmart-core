@@ -31,7 +31,7 @@ class StorageTestData {
         linkedFileCollection.name = "1000 genemes VCFs"
         linkedFileCollection.sourceSystem = storageSystem
         linkedFileCollection.uuid = 'ys8ib-4zz18-cyw4o6pmrxrixnr'
-        linkedFileCollection.study = 'multidimensional study' // from ClinicalTestData
+        linkedFileCollection.study = 'STUDY_ID_1'
         storageTestData.linkedFileCollectionList << linkedFileCollection
         storageTestData
     }
