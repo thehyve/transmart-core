@@ -52,7 +52,8 @@ class StorageController extends RestfulController {
                     "is an admin action")
         }
         params.max = Math.min(max ?: 100, 1000) // hard limit on number of results, we can consider removing
-        respond listAllResources(params), model: [("${resourceName}Count".toString()): countResources()]
+        def response = ['files':listAllResources(params)]
+        respond response
     }
 
     def indexStudy(String studyId, Integer max) {

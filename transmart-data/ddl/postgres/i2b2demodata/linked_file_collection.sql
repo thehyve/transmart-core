@@ -14,4 +14,9 @@ CREATE TABLE linked_file_collection (
 --
 ALTER TABLE ONLY linked_file_collection
     ADD CONSTRAINT linked_file_collection_pkey PRIMARY KEY (id);
+--
+-- Name: SOURCE_SYSTEM_ID_ID_FK; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
+--
+ALTER TABLE i2b2demodata.linked_file_collection ADD CONSTRAINT "SOURCE_SYSTEM_ID_ID_FK" FOREIGN KEY ("source_system_id")
+ REFERENCES i2b2demodata.storage_system (id);
 
