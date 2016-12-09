@@ -1,8 +1,13 @@
 package org.transmartproject.search.indexing
 
+import org.springframework.beans.factory.annotation.Autowired
+
 class IndexingController {
 
+    @Autowired
     FacetsQueryingService facetsQueryingService
+
+    @Autowired
     FacetsIndexingService facetsIndexingService
 
     def fullReindex() {
