@@ -31,6 +31,7 @@ import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.clinical.facts.*
+import org.transmartproject.batch.clinical.ontology.OntologyNode
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.variable.ColumnMappingFileHeaderHandler
 import org.transmartproject.batch.clinical.variable.ColumnMappingValidator
@@ -147,6 +148,13 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .writer(saveClinicalVariableList(null))
                 .build()
 
+        Step readOntologyMappingStep = steps.get('readOntologyMapping')
+                .allowStartIfComplete(true)
+                .chunk(5)
+                .reader(ontologyMappingReader(null))
+                .writer(saveOntologyMapping(null))
+                .build()
+
         Step readWordMapStep = steps.get('readWordMap')
                 .allowStartIfComplete(true)
                 .tasklet(readWordMapTasklet())
@@ -162,6 +170,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
         parallelFlowOf(
                 'readControlFilesFlow',
                 readVariablesStep,
+                readOntologyMappingStep,
                 readWordMapStep,
                 readXtrialsStep,)
     }
@@ -182,6 +191,31 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Resource columnMapFileResource() {
         new JobParameterFileResource(parameter: ClinicalJobSpecification.COLUMN_MAP_FILE)
+    }
+
+    @Bean
+    ItemStreamReader<OntologyNode> ontologyMappingReader(
+            FieldSetMapper<OntologyNode> ontologyNodeFieldMapper) {
+        tsvFileReader(
+                strict: false,
+                ontologyMapFileResource(),
+                mapper: ontologyNodeFieldMapper,
+                columnNames: 'auto',
+                allowMissingTrailingColumns: true,
+                linesToSkip: 1,
+        )
+    }
+
+    @Bean
+    @JobScopeInterfaced
+    Resource ontologyMapFileResource() {
+        new JobParameterFileResource(parameter: ClinicalJobSpecification.ONTOLOGY_MAP_FILE)
+    }
+
+    @Bean
+    @JobScope
+    PutInBeanWriter<OntologyNode> saveOntologyMapping(ClinicalJobContext ctx) {
+        new PutInBeanWriter<OntologyNode>(bean: ctx.ontologyMapping)
     }
 
     @Bean
