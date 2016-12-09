@@ -45,21 +45,19 @@ class StorageController extends RestfulController {
     }
 
     @Override
-    def index(Integer max) {
+    def index() {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
             throw new AccessDeniedException("Listing all Linked File Collections " +
                     "is an admin action")
         }
-        params.max = Math.min(max ?: 100, 1000) // hard limit on number of results, we can consider removing
-        def response = ['files':listAllResources(params)]
+        def response = ['files': listAllResources(params)]
         respond response
     }
 
-    def indexStudy(String studyId, Integer max) {
+    def indexStudy(String studyId) {
         def study = studiesResourceService.getStudyById(studyId)
         currentUser.checkAccess(READ, study)
-        params.max = Math.min(max ?: 100, 1000) // hard limit on number of results, we can consider removing
         respond listAllResources(params), model: [("${resourceName}Count".toString()): countResources()]
     }
 
