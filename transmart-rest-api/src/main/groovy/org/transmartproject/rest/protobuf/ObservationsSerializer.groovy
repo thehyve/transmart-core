@@ -497,19 +497,7 @@ public class ObservationsSerializer {
 
     void write(OutputStream out) {
         begin(out)
-
-        Iterator<HypercubeValue> rawIterator = cube.iterator()
-        PeekingIterator<HypercubeValue> iterator
-        if(rawIterator instanceof PeekingIterator) {
-            iterator = rawIterator
-        } else {
-            iterator = new AbstractIterator<HypercubeValue>() {
-                HypercubeValue computeNext() {
-                    if(!rawIterator.hasNext()) return endOfData()
-                    return rawIterator.next()
-                }
-            }
-        }
+        Iterator<HypercubeValue> iterator = cube.iterator()
 
         if (!iterator.hasNext()) {
             writeEmptyMessage(out)

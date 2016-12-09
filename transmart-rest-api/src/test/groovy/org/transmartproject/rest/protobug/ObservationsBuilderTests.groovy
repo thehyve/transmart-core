@@ -48,7 +48,7 @@ class ObservationsBuilderTests extends Specification {
         def dimElementsSize = result.last()['dimension'].size()
 
         then:
-        result.size() == 14
+        result.size() == clinicalData.longitudinalClinicalFacts.size()+2
         that result, everyItem(anyOf(
                 hasKey('dimensionDeclarations'),
                 hasKey('dimensionIndexes'),
@@ -80,7 +80,7 @@ class ObservationsBuilderTests extends Specification {
         def notPackedDimensionsSize = notPackedDimensions.size()
 
         then:
-        result.size() == 14
+        result.size() == clinicalData.multidimsClinicalFacts.size() + 2
         that result, everyItem(anyOf(
                 hasKey('dimensionDeclarations'),
                 hasKey('dimensionIndexes'),
@@ -124,7 +124,7 @@ class ObservationsBuilderTests extends Specification {
         int count = 0
         while(true) {
             count++
-            if (count > 12) {
+            if (count > clinicalData.longitudinalClinicalFacts.size()) {
                 throw new Exception("Expected previous message to be marked as 'last'.")
             }
             log.info "Reading cell..."
@@ -141,7 +141,7 @@ class ObservationsBuilderTests extends Specification {
         then:
         header != null
         header.dimensionDeclarationsList.size() == mockedCube.dimensions.size()
-        cells.size() == 12
+        cells.size() == clinicalData.longitudinalClinicalFacts.size()
         footer != null
     }
 
