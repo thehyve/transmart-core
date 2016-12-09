@@ -14,7 +14,7 @@ RUN curl -s "https://get.sdkman.io" | bash && \
  sdk install groovy && sdk use groovy
 # groovy is needed for uploading test data
 
-ENV BRANCH module-c
+ENV BRANCH master
 # change this to use a different branch of transmart-upgrade
 
 RUN git clone -b $BRANCH --depth 1 https://github.com/thehyve/transmart-upgrade.git /tmp/transmart-upgrade

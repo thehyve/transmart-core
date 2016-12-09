@@ -58,7 +58,9 @@ class StorageController extends RestfulController {
     def indexStudy(String studyId) {
         def study = studiesResourceService.getStudyById(studyId)
         currentUser.checkAccess(READ, study)
-        respond listAllResources(params), model: [("${resourceName}Count".toString()): countResources()]
+        def filesInStudy = LinkedFileCollection.findAllByStudy(studyId)
+        def response = ['files': filesInStudy  ]
+        respond response
     }
 
 }

@@ -83,6 +83,15 @@ class RestApiUrlMappings {
             "/studies/$studyId/files"(method: 'GET', controller: 'storage', action: 'indexStudy') {
                 apiVersion = "v2"
             }
+            "/storage"(method: 'GET', controller: 'storageSystem', action: 'index') {
+                apiVersion = "v2"
+            }
+            "/storage/$id"(method: 'GET', controller: 'storageSystem', action: 'show') {
+                apiVersion = "v2"
+            }
+            "/storage"(method: 'GET', controller: 'storageSystem', action: 'index') {
+                apiVersion = "v2"
+            }
         }
 
         group "/v1", {
