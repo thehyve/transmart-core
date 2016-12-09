@@ -5,7 +5,7 @@ MAINTAINER "Piotr Zakrzewski" <piotr@thehyve.nl>
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
- apt-get install -y git make php5-cli sudo php5-json curl unzip software-properties-common
+ apt-get install -y git make php5-cli sudo php5-json curl zip unzip software-properties-common
 RUN ln -snf /bin/bash /bin/sh
 RUN echo "deb http://ftp.de.debian.org/debian jessie-backports main" >> /etc/apt/sources.list.d/webupd8team-java.list \
  && apt-get update && apt-get install -y openjdk-8-jdk

@@ -1,11 +1,12 @@
 package tests.rest.v2.protobuf
 
 import base.RESTSpec
-import static config.Config.*
 import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
-import spock.lang.IgnoreIf
 import tests.rest.v2.constraints
+
+import static config.Config.PATH_OBSERVATIONS
+import static config.Config.TUMOR_NORMAL_SAMPLES_ID
 
 class ModifiersSpec extends RESTSpec {
 

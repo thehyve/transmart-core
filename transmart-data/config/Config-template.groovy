@@ -21,7 +21,7 @@ def jobsDirectory     = "/var/tmp/jobs/"
 def oauthEnabled      = true
 def samlEnabled       = false
 def gwavaEnabled      = false
-def transmartURL      = "http://localhost:${System.getProperty('server.port', '8080')}/transmart"
+def transmartURL      = "http://localhost:${System.getProperty('server.port', '8080')}"
 
 //Disabling/Enabling UI tabs
 ui {
@@ -426,7 +426,10 @@ grails { plugin { springsecurity {
                         authorities: ['ROLE_CLIENT'],
                         scopes: ['read', 'write'],
                         authorizedGrantTypes: ['authorization_code', 'refresh_token'],
-                        redirectUris: [(transmartURL - ~'\\/$') + '/v1/oauth/verify'],
+                        redirectUris: [
+                                (transmartURL - ~'\\/$') + '/oauth/verify',
+                                (transmartURL - ~'\\/$') + '/v1/oauth/verify'
+                        ],
                     ],
                     [
                         clientId: 'glowingbear-js',

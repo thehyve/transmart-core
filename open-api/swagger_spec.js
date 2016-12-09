@@ -1,4 +1,4 @@
-{
+var spec = {
     "swagger": "2.0",
     "schemes": [
         "http",

@@ -84,6 +84,6 @@ class SamplesSpec extends RESTSpec{
         ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "0 observations are returned"
-        responseData.header == null
+        assert responseData.header == null
     }
 }

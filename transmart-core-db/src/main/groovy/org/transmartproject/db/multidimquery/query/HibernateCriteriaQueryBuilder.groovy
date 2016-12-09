@@ -362,14 +362,18 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     }
 
     Criterion build(ConceptConstraint constraint){
-        if (constraint.path == null){
-            throw new QueryBuilderException("Concept constraint shouldn't have a null value for path")
-        }
-        //SELECT * from OBSERVATION_FACT WHERE CONCEPT_CD =
-        //                             (SELECT CONCEPT_CD FROM CONCEPT_DIMENSION WHERE CONCEPT_PATH = ?)
         DetachedCriteria subCriteria = DetachedCriteria.forClass(ConceptDimension, 'concept_dimension')
-        subCriteria.add(Restrictions.eq('concept_dimension.conceptPath', constraint.path))
-
+        if (constraint.path) {
+            // SELECT * from OBSERVATION_FACT WHERE CONCEPT_CD =
+            //                             (SELECT CONCEPT_CD FROM CONCEPT_DIMENSION WHERE CONCEPT_PATH = ?)
+            subCriteria.add(Restrictions.eq('concept_dimension.conceptPath', constraint.path))
+        } else if (constraint.conceptCode) {
+            // SELECT * from OBSERVATION_FACT WHERE CONCEPT_CD =
+            //                             (SELECT CONCEPT_CD FROM CONCEPT_DIMENSION WHERE CONCEPT_CD = ?)
+            subCriteria.add(Restrictions.eq('concept_dimension.conceptCode', constraint.conceptCode))
+        } else {
+            throw new QueryBuilderException("No path or conceptCode in concept constraint.")
+        }
         return Subqueries.propertyEq('conceptCode', subCriteria.setProjection(Projections.property('conceptCode')))
     }
 

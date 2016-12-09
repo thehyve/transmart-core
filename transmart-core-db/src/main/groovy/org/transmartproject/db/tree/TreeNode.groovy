@@ -67,6 +67,9 @@ class TreeNode {
      */
     Map getConstraint() {
         def constraint = [:] as Map
+        if (!(LEAF in visualAttributes || MODIFIER_LEAF in visualAttributes)) {
+            return null
+        }
         switch (tableName) {
             case 'concept_dimension':
                 if (columnName == 'concept_path' && hasOperator(['=', 'like'])) {

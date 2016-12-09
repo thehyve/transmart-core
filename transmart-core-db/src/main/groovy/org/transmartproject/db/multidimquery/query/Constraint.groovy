@@ -268,8 +268,25 @@ class FieldConstraint extends Constraint {
 
 @Canonical
 class ConceptConstraint extends Constraint {
+    String conceptCode
     String path
 
+    static constraints = {
+        path nullable: true
+        conceptCode nullable: true, validator: {val, obj, Errors errors ->
+            if (!val && !obj.path) {
+                errors.rejectValue(
+                        'conceptCode',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "Concept constraint requires path or conceptCode. Got none.")
+            } else if (val && obj.path) {
+                errors.rejectValue(
+                        'conceptCode',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "Concept constraint requires path or conceptCode. Got both.")
+            }
+        }
+    }
 }
 
 @Canonical

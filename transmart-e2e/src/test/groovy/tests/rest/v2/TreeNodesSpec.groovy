@@ -79,9 +79,7 @@ class TreeNodesSpec extends  RESTSpec{
      *  then: "then concept nodes have observationCount and patientCount"
      */
     @Requires({SHARED_CONCEPTS_LOADED})
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-144 tree_nodes, shared concepts cause access error when requesting counts=true
-                                    //FIXME: TMPDEV-145 tree_nodes, shared concepts counts are 0
-    def "nodes with flag counts true"(){
+    def "nodes with counts true"(){
         given: "Study SHARED_CONCEPTS is loaded"
 
         when: "I get the tree_nodes with counts=true"
@@ -91,10 +89,29 @@ class TreeNodesSpec extends  RESTSpec{
         then: "then concept nodes have observationCount and patientCount"
         def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
 
-        assert getNodeByName(studyA, "Heart Rate").observationCount == 3
-        assert getNodeByName(studyA, "Heart Rate").patientCount == 2
+        assert getNodeByName(studyA, "Heart Rate").observationCount == 5
+        assert getNodeByName(studyA, "Heart Rate").patientCount == 4
         assert getNodeByName(studyA, "Age").observationCount == 2
         assert getNodeByName(studyA, "Age").patientCount == 2
+    }
+
+    /**
+     *  given: "Study SHARED_CONCEPTS is loaded"
+     *  when: "I get the tree_nodes with tags=true"
+     *  then: "then concept nodes have observationCount and patientCount"
+     */
+    @Requires({SHARED_CONCEPTS_LOADED})
+    @IgnoreIf({SUPPRESS_UNIMPLEMENTED}) //FIXME: no test set with tags
+    def "nodes with tags true"(){
+        given: "Study SHARED_CONCEPTS is loaded"
+
+        when: "I get the tree_nodes with tags=true"
+        def queryMap = ['tags' : true]
+        def responseData = get(PATH_TREE_NODES, contentTypeForJSON, queryMap)
+
+        then: "then concept nodes have observationCount and patientCount"
+        def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
+        assert false : "test needs real assertions"
     }
 
     /**

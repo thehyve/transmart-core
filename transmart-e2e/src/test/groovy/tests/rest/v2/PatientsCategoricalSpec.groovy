@@ -3,14 +3,13 @@ package tests.rest.v2
 import base.RESTSpec
 import spock.lang.Requires
 
-import static config.Config.CATEGORICAL_VALUES_LOADED
-import static config.Config.PATH_PATIENTS
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.ValueType.STRING
 import static tests.rest.v2.constraints.*
+import static config.Config.*
 
 /**
  *  TMPREQ-18

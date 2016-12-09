@@ -65,12 +65,12 @@ class TreeNodeMarshaller implements ObjectMarshaller<JSON> {
         TreeNode node = (TreeNode)object
         def request = WebUtils.retrieveGrailsWebRequest().getCurrentRequest()
         boolean hal = (request.format == 'hal')
-        log.info "Converting ${node.name}..."
+        log.debug "Converting ${node.name}..."
         Date t1 = new Date()
         Map<String, Object> mapRepresentation =
                 convertToMap(node, hal)
         Date t2 = new Date()
-        log.info "Convert to map took ${t2.time - t1.time} ms."
+        log.debug "Convert to map took ${t2.time - t1.time} ms."
         if (hal) {
             mapRepresentation[LINKS_ATTRIBUTE] = getLinks(node)
         }

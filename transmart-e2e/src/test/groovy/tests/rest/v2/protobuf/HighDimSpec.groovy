@@ -1,23 +1,18 @@
-package tests.rest.v2.hd
+package tests.rest.v2.protobuf
 
 import base.RESTSpec
+import groovy.json.JsonBuilder
 import protobuf.ObservationsMessageProto
 import selectors.protobuf.ObservationSelector
 import spock.lang.IgnoreIf
+import spock.lang.Requires
 
 import static config.Config.*
-import groovy.json.JsonBuilder
-
-import static config.Config.*
-import static tests.rest.v2.Operator.AND
-import static tests.rest.v2.Operator.EQUALS
-import static tests.rest.v2.Operator.LESS_THAN
-import static tests.rest.v2.ValueType.NUMERIC
-import static tests.rest.v2.constraints.BiomarkerConstraint
-import static tests.rest.v2.constraints.Combination
-import static tests.rest.v2.constraints.ConceptConstraint
-import static tests.rest.v2.constraints.FieldConstraint
-import static tests.rest.v2.constraints.PatientSetConstraint
+import static org.hamcrest.Matchers.is
+import static spock.util.matcher.HamcrestSupport.that
+import static tests.rest.v2.Operator.*
+import static tests.rest.v2.ValueType.*
+import static tests.rest.v2.constraints.*
 
 class HighDimSpec extends RESTSpec {
 
@@ -41,18 +36,17 @@ class HighDimSpec extends RESTSpec {
         def projection = 'all_data'
 
         when:
-        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
+        ObservationsMessageProto responseData = getProtobuf(PATH_HIGH_DIM, [
                 assay_constraint: new JsonBuilder(assayConstraint),
                 biomarker_constraint: new JsonBuilder(biomarkerConstraint),
                 projection: projection
         ])
+        ObservationSelector selector = new ObservationSelector(responseData)
 
         then:
-        def biomarkers = 2
-        def assays = 6
-        def projections = 10
-        def metaRows = 2
-        responseData.size() == biomarkers * assays * projections + metaRows
+        responseData.header.dimensionDeclarationsCount == 4
+        responseData.cells.size() == 120
+        responseData.footer.dimensionCount == 4
     }
 
     /**
@@ -83,17 +77,16 @@ class HighDimSpec extends RESTSpec {
         ObservationSelector selector = new ObservationSelector(responseData)
 
         then:
-
         selector.cellCount == 120
         (0..<selector.cellCount).each {
 
-            ['117_at', '1007_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
-            selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == null
+            assert ['117_at', '1007_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
+            assert selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == 'null'
 
-            [-6001,-6002,-6004,-6006,-6007,-6008].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
-            ['sample1', 'sample2', 'sample4', 'sample6', 'sample7', 'sample8'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
+            assert [-6001L,-6002L,-6004L,-6006L,-6007L,-6008L].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
+            assert ['sample1', 'sample2', 'sample4', 'sample6', 'sample7', 'sample8'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
 
-            ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
         }
     }
 
@@ -115,17 +108,16 @@ class HighDimSpec extends RESTSpec {
         ObservationSelector selector = new ObservationSelector(responseData)
 
         then:
-
         selector.cellCount == 90
         (0..<selector.cellCount).each {
 
-            ['117_at', '1007_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
-            selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == null
+            assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
+            assert selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == 'null'
 
-            [-6003,-6005,-6009].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
-            ['sample3', 'sample5', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
+            assert [-6003L,-6005L,-6009L].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
+            assert ['sample3', 'sample5', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
 
-            ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
         }
     }
 
@@ -230,6 +222,115 @@ class HighDimSpec extends RESTSpec {
         ObservationSelector selector = new ObservationSelector(responseData)
 
         then:
-        selector.cellCount == 18
+        assert selector.cellCount == 18
+    }
+
+    /**
+     *  given: "study EHR_HIGHDIM is loaded"
+     *  when: "I get highdim for EHR_HIGHDIM after 01-04-2016Z"
+     *  then: "only data for Expression Breast is returned"
+     */
+    @Requires({EHR_HIGHDIM_LOADED})
+    def "highdim by timeConstraint"(){
+        def date = toDateString("01-04-2016Z")
+        def assayConstraint = [
+                type: Combination,
+                operator: AND,
+                args: [
+                        [type: StudyNameConstraint, studyId: EHR_HIGHDIM_ID],
+                        [type: TimeConstraint,
+                         field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: DATE ],
+                         operator: AFTER,
+                         values: [date]]
+                ]
+        ]
+        when:
+        def responseData = getProtobuf(PATH_HIGH_DIM, [
+                assay_constraint: new JsonBuilder(assayConstraint),
+        ])
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        then:
+
+        selector.cellCount == 60
+        (0..<selector.cellCount).each {
+
+            assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
+            assert selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == 'null'
+
+            assert [-6016L,-6017L,-6018L, -6019L].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
+            assert ['sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
+
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+        }
+    }
+
+    /**
+     *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
+     *  when: "I get highdim for TUMOR_NORMAL_SAMPLES with modifier Normal"
+     *  then: "only data for modifier Normal is returned"
+     */
+    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
+    def "highdim by modifier"(){
+        def assayConstraint = [type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                               values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Normal"]]
+
+        when:
+        def responseData = getProtobuf(PATH_HIGH_DIM, [
+                assay_constraint: new JsonBuilder(assayConstraint),
+        ])
+        ObservationSelector selector = new ObservationSelector(responseData)
+
+        then:
+        selector.cellCount == 120
+        (0..<selector.cellCount).each {
+
+            assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'BioMarkerDimension', 'label', 'String'))
+            assert selector.select(it, 'BioMarkerDimension', 'bioMarker', 'String') == 'null'
+
+            assert [-631L,-637L,-638L, -639L].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
+            assert ['sample1', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
+
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+        }
+    }
+
+    /**
+     *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
+     *  when: "I get highdim for an invalid assay_constraint"
+     *  then: "an error is returned"
+     */
+    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
+    def "highdim by invalid assay"(){
+        def assayConstraint = [type: 'invalidConstraint']
+
+        when:
+        def responseData = getProtobuf(PATH_HIGH_DIM, [
+                assay_constraint: new JsonBuilder(assayConstraint),
+        ])
+
+        then:
+        that responseData.httpStatus, is(400)
+        that responseData.type, is('InvalidArgumentsException')
+        that responseData.message, is('Constraint not supported: invalidConstraint.')
+    }
+
+    /**
+     *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
+     *  when: "I get highdim for TUMOR_NORMAL_SAMPLES with modifier Normal"
+     *  then: "only data for modifier Normal is returned"
+     */
+    @Requires({EHR_HIGHDIM_LOADED})
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-166 getting high dim by non highdim conceptConstraint returns 500 error
+    def "highdim by non-highdim concept"(){
+        def assayConstraint = [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
+
+        when:
+        def responseData = getProtobuf(PATH_HIGH_DIM, [
+                assay_constraint: new JsonBuilder(assayConstraint),
+        ])
+
+        then:
+        responseData == ''
     }
 }
