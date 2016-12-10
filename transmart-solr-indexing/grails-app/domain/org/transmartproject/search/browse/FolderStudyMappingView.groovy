@@ -14,7 +14,7 @@ class FolderStudyMappingView implements Serializable {
         id column: 'unique_id', insert: false, update: false
         conceptPath column: 'c_fullname'
         //if (Holders.grailsApplication.config.dataSource.dialect.contains('Oracle')) {
-        root type: 'yes_no'
+        //root type: 'yes_no'
         //}
         version false
     }

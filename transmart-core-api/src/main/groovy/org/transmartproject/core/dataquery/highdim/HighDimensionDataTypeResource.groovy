@@ -66,21 +66,6 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
                                                  List<DataConstraint> dataConstraints,
                                                  Projection projection)
 
-    /**
-     * Retrieves assay column information from the database.
-     * The result is a list of assays.
-     * The list is identical to the <code>indicesList</code> in the <code>TabularResult</code>
-     * returned by {@link #retrieveData}.
-     *
-     * An {@link EmptySetException} exception is thrown if and only if
-     * the assay constraints do not satisfy any assay.
-     *
-     * @param assayConstraints list of constraints that filter the columns/
-     * assays that are to be included in the result set
-     * @return the assays matching the assay constraints.
-     * @throws EmptySetException iff no assays can be found
-     */
-    List<AssayColumn> retrieveAssays(List<AssayConstraint> assayConstraints)
 
     /**
      * The list of {@link AssayConstraint} types supported by this data type,

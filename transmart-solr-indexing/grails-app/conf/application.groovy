@@ -25,12 +25,22 @@ hibernate {
 }
 dataSources {
     dataSource {
+        driverClassName = 'org.postgresql.Driver'
+        url = 'jdbc:postgresql://localhost:25432/postgres'
+        username = 'biomart_user'
+        password = 'biomart_user'
+        dbCreate = 'none'
+        dialect = 'org.hibernate.dialect.PostgreSQLDialect'
+        logSql = true
+        formatSql = true
+    }
+    /*dataSource {
         driverClassName = 'oracle.jdbc.driver.OracleDriver'
-        url             = 'jdbc:oracle:thin:@dev5.thehyve.net:47526:ORCL'
+        url             = 'jdbc:oracle:thin:@localhost:6003:ORCL'//'jdbc:oracle:thin:@dev5.thehyve.net:47526:ORCL'
         username        = 'biomart_user'
         password        = 'biomart_user'
         dbCreate        = 'none'
-    }
+    }*/
 }
 
 // environment specific settings
@@ -56,6 +66,7 @@ environments {
             username = 'biomart_user'
             password = 'biomart_user'
             dbCreate = 'none'
+            dialect = 'org.hibernate.dialect.PostgreSQLDialect'
             logSql = true
             formatSql = true
         }

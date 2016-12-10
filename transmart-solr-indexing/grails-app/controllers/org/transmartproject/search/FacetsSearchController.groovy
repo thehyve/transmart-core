@@ -30,6 +30,7 @@ import static org.transmartproject.search.indexing.FacetsIndexingService.*
 class FacetsSearchController {
 
     static scope = 'singleton'
+    static responseFormats = ['json']
 
     private static final Pattern KEY_CODE_PATTERN = Pattern.compile('(?<=\\A\\\\\\\\)[^\\\\]+')
 
@@ -49,7 +50,7 @@ class FacetsSearchController {
                                           PSEUDO_FIELD_ALL,]
 
     private static final Pattern LUCENE_SPECIAL_CHARACTER = ~/[\Q+-&|!(){}[]^"~*?:\\E]/
-    private static final int MAX_RESULTS = Holders.config.org.transmartproject.facetresultsmax
+    private static final int MAX_RESULTS = 100
 
     // for faceting
     def getFilterCategories() {
@@ -59,8 +60,7 @@ class FacetsSearchController {
     // Return search categories for the drop down
     def getSearchCategories() {
         render facetsQueryingService.allDisplaySettings.findAll { e ->
-            !(e.value.hideFromListings ||
-                    e.key in (Holders.config.org.transmartproject.hidden_fields ?: []))
+            !e.value.hideFromListings
         }.collectEntries { e ->
             [e.key, e.value.displayName]
         } as JSON
@@ -113,13 +113,13 @@ class FacetsSearchController {
         def result = facetsQueryingService.parseFacetCounts(resp).collect { String field, SortedSet<TermCount> terms ->
             terms
                     .findAll {
-                        it.term.toLowerCase(Locale.ENGLISH)
-                                .startsWith(autoCompleteCommand.term.toLowerCase(Locale.ENGLISH))
-                    }.collect {
-                        [category: field,
-                        value: it.term,
-                        count: it.count]
-                    }
+                it.term.toLowerCase(Locale.ENGLISH)
+                        .startsWith(autoCompleteCommand.term.toLowerCase(Locale.ENGLISH))
+            }.collect {
+                [category: field,
+                 value: it.term,
+                 count: it.count]
+            }
         }.flatten()
 
         render result as JSON
@@ -149,9 +149,7 @@ class FacetsSearchController {
                 }
             }.flatten()
         }
-		
-		log.info("MAX_RESULTS = $MAX_RESULTS")
-		
+
         // build query
         def allFields = facetsQueryingService.allDisplaySettings.keySet()
         def q = new SolrQuery()
@@ -370,7 +368,7 @@ class GetFacetsCommand implements Validateable {
     }
 }
 
-class SearchTerm implements Validateable {
+class SearchTerm implements Validateable{
     String literalTerm
     String luceneTerm
 }
