@@ -19,7 +19,6 @@
 
 package org.transmartproject.db.ontology
 
-import java.util.List;
 
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
@@ -30,6 +29,8 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.concept.ConceptKey
+
+import static org.transmartproject.db.util.StringUtils.asLikeLiteral
 
 @EqualsAndHashCode(includes = [ 'tableCode' ])
 class TableAccess extends AbstractQuerySpecifyingType implements
@@ -207,7 +208,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                     "$fullName)")
 
         /* Finally select the relevant stuff */
-        def fullNameSearch = fullName.asLikeLiteral() + '%'
+        def fullNameSearch = asLikeLiteral(fullName) + '%'
 
         c = domainClass.createCriteria()
         c.list {
@@ -273,7 +274,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                     "$fullName)")
 
         /* Finally select the relevant stuff */
-        def fullNameSearch = fullName.asLikeLiteral() + '%'
+        def fullNameSearch = asLikeLiteral(fullName) + '%'
 
         c = domainClass.createCriteria()
         c.list {
@@ -338,7 +339,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                     "$fullName)")
 
         /* Finally select the relevant stuff */
-        def fullNameSearch = fullName.asLikeLiteral() + '%'
+        def fullNameSearch = asLikeLiteral(fullName) + '%'
 
         c = domainClass.createCriteria()
         c.list {
