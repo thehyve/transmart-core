@@ -1,6 +1,6 @@
 
 com.rwg.solr.scheme = 'http'
-com.rwg.solr.host   = 'localhost:9001'
+com.rwg.solr.host   = 'localhost:8983'
 com.rwg.solr.facets.path = 'solr/facets/'
 com.recomdata.FmFolderService.filestoreDirectory = (new File(System.getenv('HOME'), '.grails/transmart-filestore')).absolutePath
 
