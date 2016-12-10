@@ -57,28 +57,28 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     String       valuetypeCd
 
     static mapping = {
-        table   name: 'table_access', schema: 'I2B2METADATA'
+        table name: 'table_access', schema: 'I2B2METADATA'
         version false
 
         /* hibernate needs an id, see
          * http://docs.jboss.org/hibernate/orm/3.3/reference/en/html/mapping.html#mapping-declaration-id
          */
-        id          composite: ['tableCode']
+        id name: 'tableCode', generator: 'assigned'
 
-        fullName             column:   'C_FULLNAME'
-        level                column:   'C_HLEVEL'
-        name                 column:   'C_NAME'
-        code                 column:   'C_BASECODE'
-        tooltip              column:   'C_TOOLTIP'
-        tableName            column:   'C_TABLE_NAME'
-        tableCode            column:   'C_TABLE_CD'
+        fullName column: 'C_FULLNAME'
+        level column: 'C_HLEVEL'
+        name column: 'C_NAME'
+        code column: 'C_BASECODE'
+        tooltip column: 'C_TOOLTIP'
+        tableName column: 'C_TABLE_NAME'
+        tableCode column: 'C_TABLE_CD'
 
-        factTableColumn      column:   'C_FACTTABLECOLUMN'
-        dimensionTableName   column:   'C_DIMTABLENAME'
-        columnName           column:   'C_COLUMNNAME'
-        columnDataType       column:   'C_COLUMNDATATYPE'
-        operator             column:   'C_OPERATOR'
-        dimensionCode        column:   'C_DIMCODE'
+        factTableColumn column: 'C_FACTTABLECOLUMN'
+        dimensionTableName column: 'C_DIMTABLENAME'
+        columnName column: 'C_COLUMNNAME'
+        columnDataType column: 'C_COLUMNDATATYPE'
+        operator column: 'C_OPERATOR'
+        dimensionCode column: 'C_DIMCODE'
     }
 
     static constraints = {
