@@ -65,7 +65,7 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
             @Override
             protected FacetsDocId computeNext() {
                 if (lastQueryNames) {
-                    return new FacetsDocId(CONCEPT_DOC_TYPE, lastQueryNames.pop())
+                    return new FacetsDocId(CONCEPT_DOC_TYPE, lastQueryNames.pop().getFullName())
                 }
                 if (toProcess.empty) {
                     return endOfData()
