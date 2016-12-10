@@ -42,7 +42,7 @@ class FacetsQueryingService {
     private CacheManager cacheManager
 
     private Ehcache getEhcache() {
-        cacheManager.getCache(FOLDER_CONCEPT_MAPPINGS_CACHE).nativeCache
+        cacheManager.getCache(FACETS_QUERYING_SERVICE_CACHE).nativeCache
     }
 
     private static final Set<String> BLACKLISTED_FIELD_NAMES =
