@@ -318,7 +318,7 @@ class QueryServiceSpec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(user, combinationConstraint, bioMarkerConstraint)
+        Hypercube hypercube = queryService.highDimension(combinationConstraint, bioMarkerConstraint, user)
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -340,7 +340,7 @@ class QueryServiceSpec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(user, conceptConstraint, bioMarkerConstraint)
+        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user)
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
