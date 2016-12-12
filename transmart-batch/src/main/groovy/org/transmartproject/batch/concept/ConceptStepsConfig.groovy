@@ -28,8 +28,13 @@ class ConceptStepsConfig implements StepBuildingConfigurationTrait {
     DatabaseImplementationClassPicker picker
 
     @Bean
-    Step gatherCurrentConcepts(Tasklet gatherCurrentConceptsTasklet) {
-        allowStartStepOf('gatherCurrentConcepts', gatherCurrentConceptsTasklet)
+    Step gatherCurrentConceptCodes(Tasklet gatherCurrentConceptCodesTasklet) {
+        allowStartStepOf('gatherCurrentConceptsCodes', gatherCurrentConceptCodesTasklet)
+    }
+
+    @Bean
+    Step gatherCurrentTreeNodes(Tasklet gatherCurrentTreeNodesTasklet) {
+        allowStartStepOf('gatherCurrentTreeNodes', gatherCurrentTreeNodesTasklet)
     }
 
     @Bean

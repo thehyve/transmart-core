@@ -20,7 +20,7 @@ import java.sql.ResultSet
  * It will always load the TOP_NODE for the study.
  *
  * If the job context variable
- * {@link GatherCurrentConceptsTasklet#LIST_OF_CONCEPTS_KEY}
+ * {@link GatherCurrentTreeNodesTasklet#LIST_OF_CONCEPTS_KEY}
  * is set, then the concepts with full names in that list (and their
  * parents will be loaded). Otherwise, all the concepts for the study will be
  * loaded.
@@ -31,9 +31,9 @@ import java.sql.ResultSet
 @Component
 @JobScopeInterfaced
 @Slf4j
-class GatherCurrentConceptsTasklet implements Tasklet {
+class GatherCurrentTreeNodesTasklet implements Tasklet {
 
-    public final static String LIST_OF_CONCEPTS_KEY = 'gatherCurrentConceptsTasklet.listOfConcepts'
+    public final static String LIST_OF_CONCEPTS_KEY = 'gatherCurrentTreeNodesTasklet.listOfConcepts'
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate
@@ -41,7 +41,7 @@ class GatherCurrentConceptsTasklet implements Tasklet {
     @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
-    @Value("#{jobExecution.executionContext.get('gatherCurrentConceptsTasklet.listOfConcepts')}")
+    @Value("#{jobExecution.executionContext.get('gatherCurrentTreeNodesTasklet.listOfConcepts')}")
     Collection<ConceptPath> conceptPaths
 
     @Autowired
@@ -79,17 +79,17 @@ class GatherCurrentConceptsTasklet implements Tasklet {
                     'the concepts for study {}', studyId)
         }
 
-        List<ConceptNode> concepts = jdbcTemplate.query(
+        List<ConceptNode> treeNodes = jdbcTemplate.query(
                 sql,
                 params,
-                GatherCurrentConceptsTasklet.&resultRowToConceptNode as RowMapper<ConceptNode>)
+                GatherCurrentTreeNodesTasklet.&resultRowToConceptNode as RowMapper<ConceptNode>)
 
-        concepts.each {
-            log.debug('Found existing concept {}', it)
+        treeNodes.each {
+            log.info('Found existing i2b2 node {}', it)
             contribution.incrementReadCount() //increment reads. unfortunately we have to do this in some loop
         }
 
-        conceptTree.loadExisting concepts
+        conceptTree.loadExisting treeNodes
 
         RepeatStatus.FINISHED
     }

@@ -54,14 +54,20 @@ class InsertConceptsService {
 
     boolean recordId
 
-    Collection<ConceptNode> insert(Collection<ConceptNode> newConcepts) throws Exception {
-        log.debug "New concepts are ${newConcepts*.path}"
-
-        conceptTree.reserveIdsFor(newConcepts)
+    Collection<ConceptNode> insert(Collection<ConceptNode> newTreeNodes) throws Exception {
+        log.debug "New concepts are ${newTreeNodes*.path}"
+        // reserve ids for non-shared concepts and store generated codes in-place
+        conceptTree.reserveIdsFor(newTreeNodes)
+        // save concept dimension entries
+        def newConcepts = newTreeNodes
+                .findAll { !(it.code in conceptTree.savedConceptCodes) }
+                .unique { it.code }
         insertConceptDimension(studyId, newConcepts)
-        insertI2b2(studyId, newConcepts)
-        conceptTree.addToSavedNodes(newConcepts)
-        newConcepts
+        conceptTree.addToSavedConceptCodes(newConcepts*.code)
+        // save tree nodes
+        insertI2b2(studyId, newTreeNodes)
+        conceptTree.addToSavedNodes(newTreeNodes)
+        newTreeNodes
     }
 
     private int[] insertI2b2(String studyId, Collection<ConceptNode> newConcepts, Date now = new Date()) {
@@ -71,7 +77,6 @@ class InsertConceptsService {
 
         log.debug("Inserting ${newConcepts.size()} new concepts (i2b2/i2b2secure)")
 
-        String comment = "trial:$studyId"
         List<Map> i2b2Rows = []
         List<Map> i2b2SecureRows = []
 
@@ -91,7 +96,7 @@ class InsertConceptsService {
                     c_columnname      : 'CONCEPT_PATH',
                     c_columndatatype  : 'T',
                     c_operator        : 'LIKE',
-                    c_dimcode         : it.path.toString(),
+                    c_dimcode         : it.conceptPath.toString(),
                     c_tooltip         : it.path.toString(),
                     m_applied_path    : '@',
                     update_date       : now,
@@ -100,9 +105,6 @@ class InsertConceptsService {
                     sourcesystem_cd   : conceptTree.isStudyNode(it) ? studyId : null,
             ]
 
-            if (it.path.contains(topNode)) {
-                i2b2Row.c_comment = comment
-            }
             if (recordId) {
                 i2b2Row.record_id = -1
             }
@@ -132,8 +134,8 @@ class InsertConceptsService {
         Map<String, Object>[] rows = newConcepts.collect {
             [
                     concept_cd     : it.code,
-                    concept_path   : it.path.toString(),
-                    name_char      : it.name,
+                    concept_path   : it.conceptPath.toString(),
+                    name_char      : it.conceptName,
                     update_date    : now,
                     download_date  : now,
                     import_date    : now,

@@ -71,6 +71,9 @@ class ClinicalVariable implements Serializable {
         this.columnNumber = columnNumber - 1 /* to make it 0-based */
     }
 
+    /**
+     * The label used as the name of the variable.
+     */
     String dataLabel
 
     String strictCategoricalVariable
@@ -90,11 +93,23 @@ class ClinicalVariable implements Serializable {
     }
 
     /**
-     * These are to be calculated
-     * @see ClinicalVariableFieldMapper */
+     * These are determined in the {@link ClinicalVariableFieldMapper}:
+     */
 
-    /** */
+    /**
+     * Path of the variable in the study tree.
+     */
+    ConceptPath path
+
+    /**
+     * Path of the concept in the concept dimension, referred to by this variable.
+     */
     ConceptPath conceptPath
+
+    /**
+     * Concept code of the concept in the concept dimension, referred to by this variable.
+     */
+    String conceptCode
 
     DemographicVariable demographicVariable
 

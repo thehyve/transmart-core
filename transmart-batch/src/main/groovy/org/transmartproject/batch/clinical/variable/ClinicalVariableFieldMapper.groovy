@@ -4,10 +4,12 @@ import groovy.transform.CompileStatic
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper
 import org.springframework.batch.item.file.mapping.FieldSetMapper
 import org.springframework.batch.item.file.transform.FieldSet
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.validation.BindException
 import org.transmartproject.batch.beans.JobScopeInterfaced
+import org.transmartproject.batch.clinical.ontology.OntologyMapping
 import org.transmartproject.batch.concept.ConceptFragment
 import org.transmartproject.batch.concept.ConceptPath
 import org.transmartproject.batch.patient.DemographicVariable
@@ -22,6 +24,9 @@ class ClinicalVariableFieldMapper implements FieldSetMapper<ClinicalVariable> {
 
     @Value("#{jobParameters['TOP_NODE']}")
     ConceptPath topNodePath
+
+    @Autowired
+    OntologyMapping ontologyMapping
 
     private final FieldSetMapper<ClinicalVariable> delegate =
             new BeanWrapperFieldSetMapper<>(
@@ -40,7 +45,16 @@ class ClinicalVariableFieldMapper implements FieldSetMapper<ClinicalVariable> {
                     ConceptFragment.decode(item.categoryCode) +
                     ConceptFragment.decode(item.dataLabel)
 
-            item.conceptPath = path
+            item.path = path
+            // Set concept code to preferred ontology code if available;
+            // leave empty otherwise.
+            def ontologyNode = ontologyMapping.nodeMap[path]
+            if (ontologyNode) {
+                item.conceptPath = new ConceptPath(ontologyNode.code)
+                item.conceptCode = ontologyNode.code
+            } else {
+                item.conceptPath = path
+            }
         }
 
         item.demographicVariable =

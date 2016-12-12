@@ -8,13 +8,30 @@ import groovy.transform.ToString
  * Represents a concept.
  */
 @SuppressWarnings('DuplicateListLiteral') // bug in codenarc
-@ToString(includes = ['code', 'path'])
-@EqualsAndHashCode(includes = ['code', 'path'])
+@ToString(includes = ['code', 'path', 'conceptPath', 'conceptCode'])
+@EqualsAndHashCode(includes = ['code', 'path', 'conceptPath', 'conceptCode'])
 @CompileStatic
 class ConceptNode {
     int level
+    /**
+     * Tree node path
+     */
     ConceptPath path
+    /**
+     * Name of the tree node
+     */
     String name
+    /**
+     * Concept name
+     */
+    String conceptName
+    /**
+     * Concept path
+     */
+    ConceptPath conceptPath
+    /**
+     * Concept code
+     */
     String code
 
     ConceptType type = ConceptType.UNKNOWN

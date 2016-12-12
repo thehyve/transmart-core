@@ -35,10 +35,12 @@ class ConceptTree {
 
     private final Set<ConceptNode> savedNodes = []
 
+    private final Set<String> savedConceptCodes = []
+
     @PostConstruct
     void generateStudyNode() {
         // automatically creates nodes up until topNodePath
-        // if any of these already exist, they should be replaced in loadExisting()
+        // if any of these already exist, they should be replaced in loadTreeNodes()
         getOrGenerate(topNodePath, ConceptType.CATEGORICAL) // for collaterals
     }
 
@@ -52,6 +54,14 @@ class ConceptTree {
             nodeMap[n.path] = n
             savedNodes << n
         }
+    }
+
+    void addToSavedConceptCodes(Collection<String> codes) {
+        this.savedConceptCodes.addAll(codes)
+    }
+
+    Set<String> getSavedConceptCodes() {
+        savedConceptCodes
     }
 
     Set<ConceptNode> getNewConceptNodes() {
@@ -110,7 +120,7 @@ class ConceptTree {
          * U+00FFFF as the upper bound to get everything that starts
          * with parent.path */
         nodeMap.subMap(parent.path, false,
-                new ConceptPath(parent.path + ((char) 0xFFFF).toString()), false)
+                new ConceptPath(parent.path + ((char) 0xFFFF.byteValue()).toString()), false)
                 .values()
     }
 
@@ -118,7 +128,15 @@ class ConceptTree {
         node in savedNodes
     }
 
+    boolean isSharedConcept(ConceptNode node) {
+        node.code in savedConceptCodes
+    }
+
     void reserveIdsFor(ConceptNode node) {
+        if (isSharedConcept(node)) {
+            log.info "Shared concept ${node.conceptPath}, not reserving a concept id."
+            return
+        }
         if (isSavedNode(node)) {
             log.warn("Could not rewrite id for node that already has one (${node.code}).")
             return

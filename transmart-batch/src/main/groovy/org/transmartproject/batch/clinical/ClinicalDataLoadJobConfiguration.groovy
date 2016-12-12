@@ -67,9 +67,12 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @javax.annotation.Resource
     Tasklet insertTableAccessTasklet
-    
+
     @javax.annotation.Resource
-    Tasklet gatherCurrentConceptsTasklet
+    Tasklet gatherCurrentConceptCodesTasklet
+
+    @javax.annotation.Resource
+    Tasklet gatherCurrentTreeNodesTasklet
 
     @javax.annotation.Resource
     Tasklet gatherCurrentTrialVisitsTasklet
@@ -108,12 +111,14 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     Flow mainFlow() {
         new FlowBuilder<SimpleFlow>('mainFlow')
-                .start(readControlFilesFlow(null)) //reads control files (column map, word map, xtrial)
+                .start(readOntologyMappingStep())
+                .next(readControlFilesFlow(null)) //reads control files (column map, word map, xtrial)
 
                 // read stuff from the DB
                 .next(wrapStepWithName('gatherCurrentPatients',
                         gatherCurrentPatientsStep(null, null)))
-                .next(allowStartStepOf(this.&getGatherCurrentConceptsTasklet))
+                .next(allowStartStepOf(this.&getGatherCurrentConceptCodesTasklet))
+                .next(allowStartStepOf(this.&getGatherCurrentTreeNodesTasklet))
                 .next(allowStartStepOf(this.&getGatherCurrentTrialVisitsTasklet))
                 .next(allowStartStepOf(this.&gatherXtrialNodesTasklet))
 
@@ -135,62 +140,13 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     }
 
     @Bean
-    Flow readControlFilesFlow(ColumnMappingValidator columnMappingValidator) {
-        Step readVariablesStep = steps.get('readVariables')
-                .allowStartIfComplete(true)
-                .chunk(5)
-                .reader(clinicalVariablesReader(null, null))
-                .processor(compositeOf(
-                    duplicateClinicalVariableDetector(),
-                    duplicateDemographicVariablesDetector(),
-                    duplicateConceptPathDetector(),
-                    new ValidatingItemProcessor(adaptValidator(columnMappingValidator))))
-                .writer(saveClinicalVariableList(null))
-                .build()
-
-        Step readOntologyMappingStep = steps.get('readOntologyMapping')
+    Step readOntologyMappingStep() {
+        steps.get('readOntologyMapping')
                 .allowStartIfComplete(true)
                 .chunk(5)
                 .reader(ontologyMappingReader(null))
                 .writer(saveOntologyMapping(null))
                 .build()
-
-        Step readWordMapStep = steps.get('readWordMap')
-                .allowStartIfComplete(true)
-                .tasklet(readWordMapTasklet())
-                .build()
-
-        Step readXtrialsStep = steps.get('readXtrialsFile')
-                .allowStartIfComplete(true)
-                .chunk(5)
-                .reader(xtrialMappingReader())
-                .writer(xtrialsFileTaskletWriter())
-                .build()
-
-        parallelFlowOf(
-                'readControlFilesFlow',
-                readVariablesStep,
-                readOntologyMappingStep,
-                readWordMapStep,
-                readXtrialsStep,)
-    }
-
-    @Bean
-    ItemStreamReader<ClinicalVariable> clinicalVariablesReader(
-            FieldSetMapper<ClinicalVariable> clinicalVariableFieldMapper,
-            ColumnMappingFileHeaderHandler columnMappingFileHeaderValidatingHandler) {
-        tsvFileReader(
-                columnMapFileResource(),
-                mapper: clinicalVariableFieldMapper,
-                saveHeader: columnMappingFileHeaderValidatingHandler,
-                allowMissingTrailingColumns: true,
-                linesToSkip: 1,)
-    }
-
-    @Bean
-    @JobScopeInterfaced
-    Resource columnMapFileResource() {
-        new JobParameterFileResource(parameter: ClinicalJobSpecification.COLUMN_MAP_FILE)
     }
 
     @Bean
@@ -216,6 +172,57 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @JobScope
     PutInBeanWriter<OntologyNode> saveOntologyMapping(ClinicalJobContext ctx) {
         new PutInBeanWriter<OntologyNode>(bean: ctx.ontologyMapping)
+    }
+
+    @Bean
+    Flow readControlFilesFlow(ColumnMappingValidator columnMappingValidator) {
+        Step readVariablesStep = steps.get('readVariables')
+                .allowStartIfComplete(true)
+                .chunk(5)
+                .reader(clinicalVariablesReader(null, null))
+                .processor(compositeOf(
+                    duplicateClinicalVariableDetector(),
+                    duplicateDemographicVariablesDetector(),
+                    duplicateConceptPathDetector(),
+                    new ValidatingItemProcessor(adaptValidator(columnMappingValidator))))
+                .writer(saveClinicalVariableList(null))
+                .build()
+
+        Step readWordMapStep = steps.get('readWordMap')
+                .allowStartIfComplete(true)
+                .tasklet(readWordMapTasklet())
+                .build()
+
+        Step readXtrialsStep = steps.get('readXtrialsFile')
+                .allowStartIfComplete(true)
+                .chunk(5)
+                .reader(xtrialMappingReader())
+                .writer(xtrialsFileTaskletWriter())
+                .build()
+
+        parallelFlowOf(
+                'readControlFilesFlow',
+                readVariablesStep,
+                readWordMapStep,
+                readXtrialsStep,)
+    }
+
+    @Bean
+    ItemStreamReader<ClinicalVariable> clinicalVariablesReader(
+            FieldSetMapper<ClinicalVariable> clinicalVariableFieldMapper,
+            ColumnMappingFileHeaderHandler columnMappingFileHeaderValidatingHandler) {
+        tsvFileReader(
+                columnMapFileResource(),
+                mapper: clinicalVariableFieldMapper,
+                saveHeader: columnMappingFileHeaderValidatingHandler,
+                allowMissingTrailingColumns: true,
+                linesToSkip: 1,)
+    }
+
+    @Bean
+    @JobScopeInterfaced
+    Resource columnMapFileResource() {
+        new JobParameterFileResource(parameter: ClinicalJobSpecification.COLUMN_MAP_FILE)
     }
 
     @Bean
