@@ -6,6 +6,8 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.db.RestExportService
 
+import javax.validation.Valid
+
 class ExportController {
 
     static responseFormats = ['json', 'hal']
@@ -42,8 +44,7 @@ class ExportController {
 
 }
 
-//@Validateable
-class ExportCommand {
+class ExportCommand implements Validateable{
     Map arguments = [:]
 
     static constraints = {

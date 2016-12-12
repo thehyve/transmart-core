@@ -2,7 +2,7 @@ package org.transmartproject.rest
 
 import grails.rest.Link
 import grails.rest.render.util.AbstractLinkingRenderer
-import org.codehaus.groovy.grails.web.mime.MimeType
+import grails.web.mime.MimeType
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidRequestException
@@ -10,6 +10,7 @@ import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryDefinitionXmlConverter
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryResultSummary
 import org.transmartproject.rest.marshallers.QueryResultWrapper
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
@@ -22,6 +23,8 @@ import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperat
 class PatientSetController {
 
     static responseFormats = ['json', 'hal']
+
+    private final static String VERSION = 'v1'
 
     @Autowired
     private QueriesResource queriesResource
@@ -39,7 +42,7 @@ class PatientSetController {
      */
     def index() {
         List result = queriesResource.getQueryResultsSummaryByUsername(currentUser.getUsername() )
-        respond wrapPatients(result)
+        respond wrapQueryResultSummary(result)
     }
 
     /**
@@ -53,7 +56,7 @@ class PatientSetController {
         currentUser.checkAccess(READ, queryResult)
 
         respond new QueryResultWrapper(
-                apiVersion: 'v1',
+                apiVersion: '/v1',
                 queryResult: queryResult,
                 embedPatients: true
         )
@@ -94,16 +97,16 @@ class PatientSetController {
      * POST /patient_sets/<result_instance_id>
      */
     def disable(Long id) {
-        respond queriesResource.runDisablingQuery(id, currentUser.username),
-                [status: 201]
+        queriesResource.disablingQuery(id, currentUser.username)
+        respond status: 204
     }
 
-    private wrapPatients(Object source) {
+    private wrapQueryResultSummary(Object source) {
         new ContainerResponseWrapper
                 (
                         container: source,
-                        componentType: Patient,
-                        links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/patient_sets") ]
+                        componentType: QueryResultSummary,
+                        links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "$VERSION/patient_sets") ]
                 )
     }
 }

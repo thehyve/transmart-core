@@ -9,13 +9,9 @@ class ExportTaskSpec extends ResourceSpec {
     private static
     final String JSON_CONCEPTS_DATATYPES_URI = "%5B%7B%22conceptKeys%22%3A%20%5B%22%5C%5C%5C%5Ci2b2%20main%5C%5Cfoo%5C%5Cstudy1%5C%5Cbar%5C%5C%22%5D%7D%2C%20%7B%22conceptKeys%22%3A%20%5B%22%5C%5C%5C%5Ci2b2%20main%5C%5Cfoo%5C%5Cstudy2%5C%5Clong%20path%5C%5C%22%2C%20%22%5C%5C%5C%5Ci2b2%20main%5C%5Cfoo%5C%5Cstudy2%5C%5Csex%5C%5C%22%5D%7D%5D%0A"
 
-    private static
-    final String JSON_CONCEPT_DATATYPES_MAP = "%5B%7B%0A%09%22conceptKeys%22%3A%20%5B%22%5C%5C%5C%5Ci2b2%20main%5C%5Cfoo%5C%5Cstudy1%5C%5Cbar%5C%5C%22%5D%0A%7D%5D"
-
     void testDataTypes() {
         when:
         def response = get "$VERSION/export/datatypes?concepts=$JSON_CONCEPTS_DATATYPES_URI"
-        //List<Map> JSONResponse = response.json.collect()
         then:
         response.status == 200
         //JSON -> Map etc structure, compare it to MAP structure

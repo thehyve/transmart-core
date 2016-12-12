@@ -13,9 +13,11 @@ class QueryResultSummarySerializationHelper extends AbstractHalOrJsonSerializati
 
     final Class<QueryResultSummary> targetType = QueryResultSummary
 
+    private final static String VERSION = '/v1'
+
     @Override
     Collection<Link> getLinks(QueryResultSummary queryResultSummary) {
-        [new Link(RELATIONSHIP_SELF, "/patient_sets/${queryResultSummary.id}")]
+        [new Link(RELATIONSHIP_SELF, "$VERSION/patient_sets/${queryResultSummary.id}")]
     }
 
     @Override

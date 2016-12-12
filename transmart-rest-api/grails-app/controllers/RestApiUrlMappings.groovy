@@ -111,7 +111,7 @@ class RestApiUrlMappings {
             
             '/observations2'(method: 'GET', controller: 'observation', action: 'observations2')
 
-            "/export"( controller: 'ExportController', action:'export')
+            "/export"(method: 'GET', controller: 'ExportController', action:'export')
 
             "/api-version"(method: 'GET', controller: 'apiVersion', action: 'index')
 

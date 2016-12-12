@@ -66,10 +66,10 @@ class QueriesResourceAuthorizationDecorator
     }
 
     @Override
-    QueryResult runDisablingQuery(Long id,
-                                  String username) throws InvalidRequestException
+    QueryResult disablingQuery(Long id,
+                               String username) throws InvalidRequestException
     {
-        delegate.runDisablingQuery(id, username)
+        delegate.disablingQuery(id, username)
     }
 
 

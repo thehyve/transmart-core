@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Janssen Research & Development, LLC.
+ * Copyright 2016 The Hyve B.V.
  *
  * This file is part of REST API: transMART's plugin exposing tranSMART's
  * data via an HTTP-accessible RESTful API.

@@ -105,10 +105,10 @@ class RestExportService {
     }
 
     private void addOntologyTerm(OntologyTerm term, Datatypes dataType, int cohortNumberID) {
-        if (cohortNumberID in dataType.OntologyTermsMap.keySet()) {
-            dataType.OntologyTermsMap[cohortNumberID].add(term)
+        if (cohortNumberID in dataType.ontologyTermsMap.keySet()) {
+            dataType.ontologyTermsMap[cohortNumberID].add(term)
         } else {
-            dataType.OntologyTermsMap[cohortNumberID] = [term]
+            dataType.ontologyTermsMap[cohortNumberID] = [term]
         }
 
     }

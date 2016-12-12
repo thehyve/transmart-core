@@ -11,12 +11,12 @@ class DataTypeSerializationHelper  extends AbstractHalOrJsonSerializationHelper<
     Map<String, Object> convertToMap(Datatypes datatypes) {
         def cohortInfoList = []
         def cohortsMap = [:]
-        datatypes.OntologyTermsMap.each { ID, terms ->
+        datatypes.ontologyTermsMap.each { id, terms ->
             terms.collect { term ->
-                if (ID in cohortsMap.keySet()) {
-                    cohortsMap[ID].add([subjects: term.patients.collect({ it.id }), conceptPath: term.fullName])
+                if (id in cohortsMap.keySet()) {
+                    cohortsMap[id].add([subjects: term.patients.collect({ it.id }), conceptPath: term.fullName])
                 } else {
-                    cohortsMap[ID] = [[subjects: term.patients.collect({ it.id }), conceptPath: term.fullName]]
+                    cohortsMap[id] = [[subjects: term.patients.collect({ it.id }), conceptPath: term.fullName]]
                 }
             }
         }

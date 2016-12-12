@@ -43,8 +43,10 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
     String       dimensionCode
 
     def patientSetQueryBuilderService
-    def sessionFactory
+
     def databasePortabilityService
+
+    def sessionFactory
 
     static constraints = {
         factTableColumn      nullable:   false,   maxSize:   50

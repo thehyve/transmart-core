@@ -166,8 +166,8 @@ class QueriesResourceService implements QueriesResource {
         resultInstance
     }
 
-    QueryResult runDisablingQuery(Long id,
-                         String username) throws InvalidRequestException
+    QueryResult disablingQuery(Long id,
+                               String username) throws InvalidRequestException
     {
         QtQueryResultInstance resultInstance = getQueryResultFromId(id)
 
