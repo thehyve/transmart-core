@@ -2,8 +2,10 @@ package org.transmartproject.rest
 
 import grails.rest.RestfulController
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.storage.StorageSystem
+import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 
 /**
@@ -22,6 +24,32 @@ class StorageSystemController extends RestfulController {
 
     @Autowired
     CurrentUser currentUser
+
+    @Override
+    def save() {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        if (!user.admin) {
+            throw new AccessDeniedException("Listing all Linked File Collections " +
+                    "is an admin action")
+        }
+        super.save()
+    }
+
+    @Override
+    def delete() {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        if (!user.admin) {
+            throw new AccessDeniedException("Listing all Linked File Collections " +
+                    "is an admin action")
+        }
+        super.delete()
+    }
+
+    @Override
+    def index() {
+        def response = ['storageSystems': listAllResources(params)]
+        respond response
+    }
 
 
 }

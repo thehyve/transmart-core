@@ -89,7 +89,7 @@ class RestApiUrlMappings {
             "/storage/$id"(method: 'GET', controller: 'storageSystem', action: 'show') {
                 apiVersion = "v2"
             }
-            "/storage/$id"(method: 'POST', controller: 'storageSystem', action: 'save') {
+            "/storage"(method: 'POST', controller: 'storageSystem', action: 'save') {
                 apiVersion = "v2"
             }
             "/storage/$id"(method: 'DELETE', controller: 'storageSystem', action: 'delete') {
