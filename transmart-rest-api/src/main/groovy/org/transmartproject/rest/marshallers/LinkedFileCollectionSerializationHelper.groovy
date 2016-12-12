@@ -5,7 +5,7 @@ import org.transmartproject.db.storage.LinkedFileCollection
 /**
  * Created by piotrzakrzewski on 09/12/2016.
  */
-class LinkedFileCollectionSerializationHelper extends AbstractHalOrJsonSerializationHelper<LinkedFileCollection>{
+class LinkedFileCollectionSerializationHelper extends AbstractHalOrJsonSerializationHelper<LinkedFileCollection> {
 
     final Class targetType = LinkedFileCollection
 
@@ -13,10 +13,12 @@ class LinkedFileCollectionSerializationHelper extends AbstractHalOrJsonSerializa
 
     @Override
     Map<String, Object> convertToMap(LinkedFileCollection linkedFileCollection) {
-        ['sourceSystemId':linkedFileCollection.sourceSystem?.id,
-        'name':linkedFileCollection.name,
-        'studyId':linkedFileCollection.study,
-        'uuid':linkedFileCollection.uuid]
+        ['sourceSystemId': linkedFileCollection.sourceSystem?.id,
+         'name'          : linkedFileCollection.name,
+         'studyId'       : linkedFileCollection.study?.studyId,
+         'uuid'          : linkedFileCollection.uuid,
+         'id'            : linkedFileCollection.id,
+        ]
     }
 
 }

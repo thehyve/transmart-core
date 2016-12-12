@@ -6,6 +6,7 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.storage.LinkedFileCollection
 
 /**
  * Domain class that represents the link between a study and observation data

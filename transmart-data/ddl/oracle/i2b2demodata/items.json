@@ -10,7 +10,12 @@
         "type" : "TABLE",
         "owner" : "I2B2DEMODATA",
         "name" : "STORAGE_SYSTEM"
-      }]
+      },
+        {
+          "type" : "TABLE",
+          "owner" : "I2B2DEMODATA",
+          "name" : "STUDY"
+        }]
     }, {
       "child" : {
         "type" : "TABLE",

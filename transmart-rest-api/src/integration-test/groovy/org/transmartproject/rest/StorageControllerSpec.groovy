@@ -20,7 +20,7 @@ class StorageControllerSpec extends ResourceSpec {
         response.json[FILES_COLLECTION_NAME].size() == 1
         response.json[FILES_COLLECTION_NAME][0].name == '1000 genemes VCFs'
         response.json[FILES_COLLECTION_NAME][0].uuid == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
-        response.json[FILES_COLLECTION_NAME][0].studyId == 'STUDY_ID_1'
+        response.json[FILES_COLLECTION_NAME][0].studyId == 'storage_study'
         response.json[FILES_COLLECTION_NAME][0].sourceSystemId == 1
     }
 
@@ -28,7 +28,7 @@ class StorageControllerSpec extends ResourceSpec {
         when:
         def bodyContent = ['name'        : 'new file Link',
                            'sourceSystem': 1,
-                           'study'       : 'STUDY_ID_2',
+                           'study'       : 'storage_study2',
                            'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc'] as JSON
         def postResponse = post "/$VERSION/files", {
             contentType "application/json"
@@ -41,7 +41,7 @@ class StorageControllerSpec extends ResourceSpec {
         indexResponse.json[FILES_COLLECTION_NAME].size() == 2
         indexResponse.json[FILES_COLLECTION_NAME][1].name == 'new file Link'
         indexResponse.json[FILES_COLLECTION_NAME][1].uuid == 'aaaaa-bbbbb-ccccccccccccccc'
-        indexResponse.json[FILES_COLLECTION_NAME][1].studyId == 'STUDY_ID_2'
+        indexResponse.json[FILES_COLLECTION_NAME][1].studyId == 'storage_study2'
         indexResponse.json[FILES_COLLECTION_NAME][1].sourceSystemId == 1
     }
 
@@ -52,13 +52,13 @@ class StorageControllerSpec extends ResourceSpec {
         response.status == 200
         response.json['name'] == '1000 genemes VCFs'
         response.json['uuid'] == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
-        response.json['studyId'] == 'STUDY_ID_1'
+        response.json['studyId'] == 'storage_study'
         response.json['sourceSystemId'] == 1
     }
 
     void indexByStudyTest() {
         when:
-        def response = get "/$VERSION/studies/STUDY_ID_1/files"
+        def response = get "/$VERSION/studies/storage_study/files"
         String expectedCollectionName = 'files'
         then:
         response.status == 200
@@ -66,7 +66,7 @@ class StorageControllerSpec extends ResourceSpec {
         response.json[expectedCollectionName].size() == 1
         response.json[expectedCollectionName][0].name == '1000 genemes VCFs'
         response.json[expectedCollectionName][0].uuid == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
-        response.json[expectedCollectionName][0].studyId == 'STUDY_ID_1'
+        response.json[expectedCollectionName][0].studyId == 'storage_study'
         response.json[expectedCollectionName][0].sourceSystemId == 1
     }
 

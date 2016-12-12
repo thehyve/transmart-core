@@ -1,6 +1,7 @@
 package org.transmartproject.db.storage
 
-
+import org.transmartproject.db.StudyTestData
+import org.transmartproject.db.i2b2data.Study
 import static org.transmartproject.db.TestDataHelper.save
 
 /**
@@ -10,14 +11,21 @@ class StorageTestData {
 
     List<StorageSystem> storageSystemList
     List<LinkedFileCollection> linkedFileCollectionList
+    List<Study> studies
 
     def saveAll() {
+        save studies
         save storageSystemList
         save linkedFileCollectionList
     }
 
     public static StorageTestData createDefault() {
         def storageTestData = new StorageTestData()
+        def study1 = StudyTestData.createStudy "storage_study", ["patient", "concept", "trial visit", "study"]
+        def study2 = StudyTestData.createStudy "storage_study2", ["patient", "concept", "trial visit", "study"]
+        storageTestData.studies = []
+        storageTestData.studies << study1
+        storageTestData.studies << study2
         storageTestData.linkedFileCollectionList = []
         storageTestData.storageSystemList = []
         def storageSystem = new StorageSystem()
@@ -31,7 +39,7 @@ class StorageTestData {
         linkedFileCollection.name = "1000 genemes VCFs"
         linkedFileCollection.sourceSystem = storageSystem
         linkedFileCollection.uuid = 'ys8ib-4zz18-cyw4o6pmrxrixnr'
-        linkedFileCollection.study = 'STUDY_ID_1'
+        linkedFileCollection.study = study1
         storageTestData.linkedFileCollectionList << linkedFileCollection
         storageTestData
     }
