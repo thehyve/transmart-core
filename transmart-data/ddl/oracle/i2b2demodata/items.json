@@ -1,5 +1,24 @@
 {
-  "dependencies" : [ {
+  "dependencies" : [
+    {
+      "child" : {
+        "type" : "TABLE",
+        "owner" : "I2B2DEMODATA",
+        "name" : "LINKED_FILE_COLLECTION"
+      },
+      "parents" : [ {
+        "type" : "TABLE",
+        "owner" : "I2B2DEMODATA",
+        "name" : "LINKED_FILE_COLLECTION"
+      }]
+    }, {
+      "child" : {
+        "type" : "TABLE",
+        "owner" : "I2B2DEMODATA",
+        "name" : "STORAGE_SYSTEM"
+      },
+      "parents" : [ ]
+    }, {
     "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
