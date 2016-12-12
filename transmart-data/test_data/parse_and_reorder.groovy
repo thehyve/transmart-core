@@ -32,7 +32,8 @@ dependsOn = [
                 'i2b2demodata.qt_query_result_instance',
         ],
         'i2b2demodata.linked_file_collection':[
-                'i2b2demodata.storage_system'
+                'i2b2demodata.storage_system',
+                'i2b2demodata.study'
         ]
 ]
 
