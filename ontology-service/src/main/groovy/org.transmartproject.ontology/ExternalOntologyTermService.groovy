@@ -1,14 +1,15 @@
-package org.transmartproject.db.ontology
+package org.transmartproject.ontology
 
+import groovy.util.logging.Slf4j
 import groovyx.net.http.ContentType
 import groovyx.net.http.Method
-import org.transmartproject.core.ontology.ExternalOntologyTerm
 import groovyx.net.http.HTTPBuilder
 
 /**
  * Created by ewelina on 7-12-16.
  */
-class ExternalOntologyTermService implements ExternalOntologyTerm {
+@Slf4j
+class ExternalOntologyTermService {
 
     //TODO: move configuration parameters to config file
     public static final String ONTOLOGY_SERVER_URL = 'http://localhost:8081/'
@@ -16,7 +17,6 @@ class ExternalOntologyTermService implements ExternalOntologyTerm {
     def contentType = 'application/json'
     private http = new HTTPBuilder(ONTOLOGY_SERVER_URL)
 
-    @Override
     public Object fetchPreferredConcept(String conceptCode) {
         // TODO: Add possibility to use other parameters (optional), decide on which we want to use
         def responseData = get("$SEARCH_TEXT_PATH/$conceptCode", contentType)
@@ -37,11 +37,10 @@ class ExternalOntologyTermService implements ExternalOntologyTerm {
 
             log.info(URLDecoder.decode(uri.toString(), 'UTF-8'))
             response.success = { resp, reader ->
-                if(resp.headers.'Content-Type'.contains(AcceptHeader))
+                if(!resp.headers.'Content-Type'.contains(AcceptHeader))
                     log.error("Response was successful but not what was expected.")
                 log.info("Got response: ${resp.statusLine}")
                 log.info("Content-Type: ${resp.headers.'Content-Type'}")
-                log.info(reader)
                 return reader
             }
 
@@ -49,7 +48,6 @@ class ExternalOntologyTermService implements ExternalOntologyTerm {
                 log.error(resp.statusLine.statusCode)
                 log.error( "Got response: ${resp.statusLine}")
                 log.error( "Content-Type: ${resp.headers.'Content-Type'}")
-                log.error( reader)
                 return reader
             }
         }
