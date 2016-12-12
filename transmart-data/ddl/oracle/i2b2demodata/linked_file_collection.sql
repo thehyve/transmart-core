@@ -22,6 +22,6 @@ ALTER TABLE "i2b2demodata"."linked_file_collection" ADD CONSTRAINT "SOURCE_SYSTE
 --
 -- Name: STUDY_ID_FK; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
-ALTER TABLE "i2b2demodata"."linked_file_collection" ADD CONSTRAINT "STUDY_ID_FK" FOREIGN KEY ("study_id")
+ALTER TABLE "i2b2demodata"."linked_file_collection" ADD CONSTRAINT "STUDY_ID_FK" FOREIGN KEY ("study")
  REFERENCES "i2b2demodata"."study" (study_num);
 
