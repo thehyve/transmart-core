@@ -24,23 +24,23 @@ hibernate {
     singleSession = true // configure OSIV singleSession mode
 }
 dataSources {
-    dataSource {
+    /*dataSource {
         driverClassName = 'org.postgresql.Driver'
-        url = 'jdbc:postgresql://localhost:25432/postgres'
+        url = 'jdbc:postgresql://localhost:6009/transmart'
         username = 'biomart_user'
         password = 'biomart_user'
         dbCreate = 'none'
         dialect = 'org.hibernate.dialect.PostgreSQLDialect'
         logSql = true
         formatSql = true
-    }
-    /*dataSource {
+    }*/
+    dataSource {
         driverClassName = 'oracle.jdbc.driver.OracleDriver'
-        url             = 'jdbc:oracle:thin:@localhost:6003:ORCL'//'jdbc:oracle:thin:@dev5.thehyve.net:47526:ORCL'
+        url             = 'jdbc:oracle:thin:@dev5.thehyve.net:47526:ORCL'
         username        = 'biomart_user'
         password        = 'biomart_user'
         dbCreate        = 'none'
-    }*/
+    }
 }
 
 // environment specific settings

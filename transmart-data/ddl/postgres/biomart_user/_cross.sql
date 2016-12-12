@@ -1,7 +1,7 @@
 --
 -- Name: bio_data_values_view; Type: VIEW; Schema: biomart_user; Owner: -
 --
-CREATE VIEW bio_data_values_view AS
+CREATE VIEW biomart_user.bio_data_values_view AS
  SELECT bdu.unique_id,
     COALESCE(bcc.code_name, bdi.disease, bo.obs_name, bm.bio_marker_name, bap.platform_name, bc.generic_name, bc.brand_name, bc.jnj_number, bc.cnto_number) AS name,
     COALESCE(bcc.code_description, bo.obs_descr, bm.bio_marker_description, bap.platform_description, bc.description) AS description
@@ -22,7 +22,7 @@ UNION
 --
 -- Name: browse_analyses_view; Type: VIEW; Schema: biomart_user; Owner: -
 --
-CREATE VIEW browse_analyses_view AS
+CREATE VIEW biomart_user.browse_analyses_view AS
  SELECT fd.unique_id AS id,
     baa.analysis_name AS title,
     baa.long_description AS description,
@@ -44,7 +44,7 @@ CREATE VIEW browse_analyses_view AS
 --
 -- Name: browse_assays_view; Type: VIEW; Schema: biomart_user; Owner: -
 --
-CREATE VIEW browse_assays_view AS
+CREATE VIEW biomart_user.browse_assays_view AS
  SELECT DISTINCT fd.unique_id AS id,
     f.folder_name AS title,
     f.description,
@@ -81,7 +81,7 @@ CREATE VIEW browse_assays_view AS
 --
 -- Name: browse_folders_view; Type: VIEW; Schema: biomart_user; Owner: -
 --
-CREATE VIEW browse_folders_view AS
+CREATE VIEW biomart_user.browse_folders_view AS
  SELECT fd.unique_id AS id,
     f.folder_name AS title,
     f.description,
@@ -95,7 +95,7 @@ CREATE VIEW browse_folders_view AS
 --
 -- Name: browse_programs_view; Type: VIEW; Schema: biomart_user; Owner: -
 --
-CREATE VIEW browse_programs_view AS
+CREATE VIEW biomart_user.browse_programs_view AS
  SELECT fd.unique_id AS id,
     f.folder_name AS title,
     f.description,
@@ -179,7 +179,7 @@ CREATE VIEW browse_programs_view AS
 --
 -- Name: browse_studies_view; Type: VIEW; Schema: biomart_user; Owner: -
 --
-CREATE VIEW browse_studies_view AS
+CREATE VIEW biomart_user.browse_studies_view AS
  SELECT fd.unique_id AS id,
     exp.title,
     exp.description,
@@ -242,7 +242,7 @@ CREATE VIEW browse_studies_view AS
 --
 -- Name: folder_study_mapping; Type: VIEW; Schema: biomart_user; Owner: -
 --
-CREATE VIEW folder_study_mapping AS
+CREATE VIEW biomart_user.folder_study_mapping AS
  WITH RECURSIVE study_nodes AS (
          SELECT i2b2_trial_nodes.c_fullname,
             ('EXP:'::text || i2b2_trial_nodes.trial) AS unique_id
