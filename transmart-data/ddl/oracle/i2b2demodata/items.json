@@ -9,7 +9,7 @@
       "parents" : [ {
         "type" : "TABLE",
         "owner" : "I2B2DEMODATA",
-        "name" : "LINKED_FILE_COLLECTION"
+        "name" : "STORAGE_SYSTEM"
       }]
     }, {
       "child" : {
