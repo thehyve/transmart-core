@@ -106,7 +106,7 @@ class ConceptTree {
         conceptNodes[conceptPath]
     }
 
-    ConceptNode getOrGenerateConceptForVariable(ConceptType type, ClinicalVariable variable) {
+    ConceptNode getOrGenerateConceptForVariable(ClinicalVariable variable) {
         if (!variable || !variable.conceptPath || !variable.path) {
             throw new RuntimeException("Unexpected variable: ${variable}")
         }
@@ -114,16 +114,10 @@ class ConceptTree {
         def node = conceptNodes[variable.conceptPath]
         if (node) {
             log.info "getOrGenerateConceptForVariable: found concept: ${node.path}"
-            if (node.type == ConceptType.UNKNOWN) {
-                node.type = type
-                log.debug("Assigning type $type to concept node $node")
-            } else if (type != ConceptType.UNKNOWN && node.type != type) {
-                throw new UnexpectedConceptTypeException(type, node.type, variable.conceptPath)
-            }
             return node
         }
         node = new ConceptNode(variable.path)
-        node.type = type
+        node.type = ClinicalVariable.conceptTypeFor(variable)
         node.conceptName = variable.conceptName
         node.conceptPath = variable.conceptPath
         node.code = variable.conceptCode
