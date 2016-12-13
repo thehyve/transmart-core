@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.db.objects.Sequences
+import org.transmartproject.batch.clinical.ontology.OntologyNode
+import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.db.SequenceReserver
 
 import javax.annotation.PostConstruct
@@ -37,11 +39,15 @@ class ConceptTree {
 
     private final Set<String> savedConceptCodes = []
 
+    /* concept nodes indexed by concept path */
+    private final NavigableMap<ConceptPath, ConceptNode> conceptNodes =
+            Maps.newTreeMap()
+
     @PostConstruct
     void generateStudyNode() {
         // automatically creates nodes up until topNodePath
         // if any of these already exist, they should be replaced in loadTreeNodes()
-        getOrGenerate(topNodePath, ConceptType.CATEGORICAL) // for collaterals
+        getOrGenerate(topNodePath, null, ConceptType.CATEGORICAL) // for collaterals
     }
 
     void loadExisting(Collection<ConceptNode> nodes) {
@@ -52,6 +58,9 @@ class ConceptTree {
             }
 
             nodeMap[n.path] = n
+            if (n.conceptPath) {
+                conceptNodes[n.conceptPath] = n
+            }
             savedNodes << n
         }
     }
@@ -93,26 +102,96 @@ class ConceptTree {
         nodeMap[path]
     }
 
-    ConceptNode getOrGenerate(ConceptPath path, ConceptType type) {
-        def node = nodeMap[path]
+    ConceptNode conceptNodeForConceptPath(ConceptPath conceptPath) {
+        conceptNodes[conceptPath]
+    }
+
+    ConceptNode getOrGenerateConceptForVariable(ConceptType type, ClinicalVariable variable) {
+        if (!variable || !variable.conceptPath || !variable.path) {
+            throw new RuntimeException("Unexpected variable: ${variable}")
+        }
+        log.info "getOrGenerateConceptForVariable: ${variable.conceptName} / ${variable.conceptPath}"
+        def node = conceptNodes[variable.conceptPath]
         if (node) {
+            log.info "getOrGenerateConceptForVariable: found concept: ${node.path}"
             if (node.type == ConceptType.UNKNOWN) {
                 node.type = type
                 log.debug("Assigning type $type to concept node $node")
             } else if (type != ConceptType.UNKNOWN && node.type != type) {
-                throw new UnexpectedConceptTypeException(type, node.type, path)
+                throw new UnexpectedConceptTypeException(type, node.type, variable.conceptPath)
+            }
+            return node
+        }
+        node = new ConceptNode(variable.path)
+        node.type = type
+        node.conceptName = variable.conceptName
+        node.conceptPath = variable.conceptPath
+        node.code = variable.conceptCode
+        log.info("Generated new concept node: ${node.conceptPath}")
+        nodeMap[variable.path] = node
+        if (node.conceptPath) {
+            conceptNodes[node.conceptPath] = node
+        }
+        node
+    }
+
+    /**
+     * Creates a concept node representing both an i2b2 ontology node and a concept in the concept dimension.
+     *
+     * @param path The path in the i2b2 ontology tree.
+     * @param variable The variable represented by the node.
+     * @param conceptType (optional) overrides the concept type specifier in the variable.
+     * @return the generated node.
+     */
+    ConceptNode getOrGenerate(ConceptPath path, ClinicalVariable variable, ConceptType conceptType = null) {
+        if (!conceptType) {
+            conceptType = ClinicalVariable.conceptTypeFor(variable)
+        }
+        def node = nodeMap[path]
+        if (node) {
+            if (node.type == ConceptType.UNKNOWN) {
+                node.type = conceptType
+                log.debug("Assigning type $conceptType to concept node $node")
+            } else if (conceptType != ConceptType.UNKNOWN && node.type != conceptType) {
+                throw new UnexpectedConceptTypeException(conceptType, node.type, path)
             }
             return node
         }
 
         for (def p = path.parent; p != null; p = p.parent) {
-            getOrGenerate(p, ConceptType.CATEGORICAL) /* for the collaterals */
+            getOrGenerate(p, null, ConceptType.CATEGORICAL) /* for the collaterals */
         }
 
         node = new ConceptNode(path)
-        node.type = type
-        log.debug("Generated new concept node: $path")
+        node.type = conceptType
+        if (variable) {
+            node.conceptName = variable.conceptName
+            node.conceptPath = variable.conceptPath
+            node.code = variable.conceptCode
+        }
+        log.info("Generated new concept node: $path")
         nodeMap[path] = node
+        if (node.conceptPath) {
+            conceptNodes[node.conceptPath] = node
+        }
+        node
+    }
+
+    ConceptNode getOrGenerateNode(ConceptPath path, OntologyNode ontologyNode) {
+        def node = nodeMap[path]
+        if (node) {
+            return node
+        }
+
+        node = new ConceptNode(path)
+        node.name = ontologyNode.label
+        node.conceptPath = new ConceptPath(['Ontology', ontologyNode.code])
+        node.code = ontologyNode.code
+        node.conceptName = ontologyNode.label
+        node.uri = ontologyNode.uri
+        log.info("Generated new node: $path")
+        nodeMap[path] = node
+        node
     }
 
     Collection<ConceptNode> childrenFor(ConceptNode parent) {
@@ -128,13 +207,13 @@ class ConceptTree {
         node in savedNodes
     }
 
-    boolean isSharedConcept(ConceptNode node) {
-        node.code in savedConceptCodes
-    }
-
     void reserveIdsFor(ConceptNode node) {
-        if (isSharedConcept(node)) {
-            log.info "Shared concept ${node.conceptPath}, not reserving a concept id."
+        if (!node.conceptPath) {
+            log.info "No concept path set for node ${node.path}, not reserving a concept id."
+            return
+        }
+        if (node.code) {
+            log.info "Code already set for ${node.conceptPath}, not reserving a concept id."
             return
         }
         if (isSavedNode(node)) {

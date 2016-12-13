@@ -3,10 +3,12 @@ package org.transmartproject.batch.clinical.ontology
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.configuration.annotation.JobScope
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.concept.ConceptFragment
 import org.transmartproject.batch.concept.ConceptPath
+import org.transmartproject.batch.concept.ConceptTree
 
 import javax.annotation.PostConstruct
 
@@ -23,22 +25,34 @@ class OntologyMapping {
     @Value("#{jobParameters['TOP_NODE']}")
     ConceptPath topNodePath
 
-    /**
-     * The map from ontology code to ontology node
-     */
-    final Map<String, OntologyNode> nodes = [:]
+    @Autowired
+    ConceptTree conceptTree
+
+    private final Map<String, OntologyNode> nodes = [:]
 
     /**
      * The map from concept path (category code and data label), representing
      * a variable, to the ontology node associated with it.
      */
-    final Map<ConceptPath, OntologyNode> nodeMap = [:]
+    private final Map<ConceptPath, OntologyNode> nodeMap = [:]
+
+    /**
+     * The map from ontology code to ontology node
+     */
+    Map<String, OntologyNode> getNodes() {
+        nodes
+    }
+
+    OntologyNode getNodeForPath(ConceptPath path) {
+        nodeMap[path]
+    }
 
     void leftShift(OntologyNode node) {
         add(node)
     }
 
     void add(OntologyNode node) {
+        log.info "Adding ontology node: ${node.code}"
         // add node to nodes
         if (!(node.code in nodes.keySet())) {
             nodes.put(node.code, node)

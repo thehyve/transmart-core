@@ -33,6 +33,11 @@ class ConceptStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
+    Step insertOntologyTree(Tasklet insertOntologyTreeTasklet) {
+        stepOf('insertOntologyTree', insertOntologyTreeTasklet)
+    }
+
+    @Bean
     Step gatherCurrentTreeNodes(Tasklet gatherCurrentTreeNodesTasklet) {
         allowStartStepOf('gatherCurrentTreeNodes', gatherCurrentTreeNodesTasklet)
     }

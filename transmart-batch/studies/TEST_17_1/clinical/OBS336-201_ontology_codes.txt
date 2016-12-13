@@ -4,6 +4,10 @@ Demography	Sex	SNOMEDCT/184100006	Patient sex	http://purl.bioontology.org/ontolo
 		SNOMEDCT/160476009	Social / personal history observable	http://purl.bioontology.org/ontology/SNOMEDCT/160476009	SNOMEDCT/363787002
 		SNOMEDCT/363787002	Observable entity	http://purl.bioontology.org/ontology/SNOMEDCT/363787002	
 Demography	Race	SNOMEDCT/103579009	Race	http://purl.bioontology.org/ontology/SNOMEDCT/103579009	SNOMEDCT/302147001
+Demography\Race	White	SNOMEDCT/413773004	Caucasian	http://purl.bioontology.org/ontology/SNOMEDCT/413773004	SNOMEDCT/415229000
+		SNOMEDCT/415229000	Racial group	http://purl.bioontology.org/ontology/SNOMEDCT/415229000	SNOMEDCT/389109008
+		SNOMEDCT/389109008	Group	http://purl.bioontology.org/ontology/SNOMEDCT/389109008	SNOMEDCT/48176007
+		SNOMEDCT/48176007	Social context	http://purl.bioontology.org/ontology/SNOMEDCT/48176007	
 Demography	YOB	SNOMEDCT/184099003	Date of birth	http://purl.bioontology.org/ontology/SNOMEDCT/184099003	SNOMEDCT/302147001
 Vital Signs	Height_CM	SNOMEDCT/248333004	Standing height	http://purl.bioontology.org/ontology/SNOMEDCT/248333004	SNOMEDCT/50373000
 		SNOMEDCT/50373000	Body height measure	http://purl.bioontology.org/ontology/SNOMEDCT/50373000	SNOMEDCT/271603002

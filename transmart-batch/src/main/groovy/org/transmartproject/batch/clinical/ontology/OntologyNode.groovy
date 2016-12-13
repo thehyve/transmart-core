@@ -9,6 +9,6 @@ class OntologyNode {
 
     String code
     String label
-    String URI
+    String uri
     List<String> ancestorCodes
 }

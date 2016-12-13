@@ -31,6 +31,7 @@ import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.clinical.facts.*
+import org.transmartproject.batch.clinical.ontology.InsertOntologyTreeTasklet
 import org.transmartproject.batch.clinical.ontology.OntologyNode
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.variable.ColumnMappingFileHeaderHandler
@@ -52,6 +53,7 @@ import org.transmartproject.batch.tag.TagsLoadJobConfiguration
  */
 @Configuration
 @ComponentScan(['org.transmartproject.batch.clinical',
+        'org.transmartproject.batch.clinical.ontology',
         'org.transmartproject.batch.concept',
         'org.transmartproject.batch.patient',
         'org.transmartproject.batch.facts',
@@ -64,6 +66,9 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @javax.annotation.Resource
     Step tagsLoadStep
+
+    @javax.annotation.Resource
+    InsertOntologyTreeTasklet insertOntologyTreeTasklet
 
     @javax.annotation.Resource
     Tasklet insertTableAccessTasklet
@@ -128,6 +133,8 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
                 .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object, study
                 .next(stepOf(this.&getInsertTableAccessTasklet))
+
+                .next(stepOf(this.&getInsertOntologyTreeTasklet))
 
                 // main data reading and insertion step (in observation_fact)
                 .next(rowProcessingStep())

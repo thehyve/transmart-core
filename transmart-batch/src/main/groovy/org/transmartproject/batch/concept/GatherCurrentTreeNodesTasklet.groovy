@@ -51,9 +51,13 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         String sql = '''
-                SELECT c_fullname, c_hlevel, c_name, c_basecode, c_metadataxml, c_visualattributes
+                SELECT c_fullname, c_hlevel, c_name, c_dimcode, c_metadataxml, c_visualattributes
                 FROM i2b2metadata.i2b2
-                WHERE c_fullname IN (:rootPathFullNames) OR '''
+                WHERE
+                c_tablename LIKE 'CONCEPT_DIMENSION' AND
+                c_columnname LIKE 'CONCEPT_PATH' AND
+                c_operator IN ('=', 'LIKE') AND (
+                c_fullname IN (:rootPathFullNames) OR '''
 
         def params = [
                 rootPathFullNames: thisAndItsParents(conceptTree.topNodePath),
@@ -78,6 +82,7 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
             log.debug('No concept list given; will load all ' +
                     'the concepts for study {}', studyId)
         }
+        sql += ')'
 
         List<ConceptNode> treeNodes = jdbcTemplate.query(
                 sql,
@@ -85,7 +90,21 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
                 GatherCurrentTreeNodesTasklet.&resultRowToConceptNode as RowMapper<ConceptNode>)
 
         treeNodes.each {
-            log.info('Found existing i2b2 node {}', it)
+            log.info "Found existing i2b2 node ${it.path}"
+            if (it.conceptPath) {
+                log.info "select CONCEPT_CD from I2B2DEMODATA.CONCEPT_DIMENSION where CONCEPT_PATH LIKE ${it.conceptPath.toString()}"
+                def conceptCode = jdbcTemplate.query(
+                        "select CONCEPT_CD from I2B2DEMODATA.CONCEPT_DIMENSION where CONCEPT_PATH LIKE :path",
+                        [path: it.conceptPath.toString()],
+                        { ResultSet rs, int rowNum -> rs.getString('CONCEPT_CD') } as RowMapper<String>
+                )
+                if (!conceptCode.empty) {
+                    it.code = conceptCode[0]
+                    log.info "Concept code is ${it.code}."
+                } else {
+                    log.info "No concept code found."
+                }
+            }
             contribution.incrementReadCount() //increment reads. unfortunately we have to do this in some loop
         }
 
@@ -104,12 +123,16 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
 
     @SuppressWarnings('UnusedPrivateMethodParameter')
     private static ConceptNode resultRowToConceptNode(ResultSet rs, int rowNum) {
-        ConceptPath path = new ConceptPath(rs.getString('c_fullname'))
+        def path = new ConceptPath(rs.getString('c_fullname'))
+        def dimCode = rs.getString('c_dimcode')
+        def conceptPath = (dimCode && !dimCode.empty) ? new ConceptPath(dimCode) : null
         new ConceptNode(
                 level: rs.getInt('c_hlevel'),
                 path: path,
                 name: rs.getString('c_name'),
-                code: rs.getString('c_basecode'),
+                conceptName: null,
+                conceptPath: conceptPath,
+                code: null,
                 type: typeFor(rs),
         )
     }

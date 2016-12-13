@@ -1,6 +1,7 @@
 package org.transmartproject.batch.clinical.variable
 
 import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper
 import org.springframework.batch.item.file.mapping.FieldSetMapper
 import org.springframework.batch.item.file.transform.FieldSet
@@ -20,6 +21,7 @@ import org.transmartproject.batch.patient.DemographicVariable
 @Component
 @JobScopeInterfaced
 @CompileStatic
+@Slf4j
 class ClinicalVariableFieldMapper implements FieldSetMapper<ClinicalVariable> {
 
     @Value("#{jobParameters['TOP_NODE']}")
@@ -48,11 +50,14 @@ class ClinicalVariableFieldMapper implements FieldSetMapper<ClinicalVariable> {
             item.path = path
             // Set concept code to preferred ontology code if available;
             // leave empty otherwise.
-            def ontologyNode = ontologyMapping.nodeMap[path]
+            log.info "Mapping variable ${path}."
+            def ontologyNode = ontologyMapping.getNodeForPath(path)
             if (ontologyNode) {
-                item.conceptPath = new ConceptPath(ontologyNode.code)
+                item.conceptName = ontologyNode.label
+                item.conceptPath = new ConceptPath(['Ontology', ontologyNode.code])
                 item.conceptCode = ontologyNode.code
             } else {
+                item.conceptName = item.dataLabel
                 item.conceptPath = path
             }
         }

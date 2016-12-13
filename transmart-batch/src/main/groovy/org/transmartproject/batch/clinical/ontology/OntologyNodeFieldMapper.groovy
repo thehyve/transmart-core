@@ -8,7 +8,7 @@ import org.springframework.validation.BindException
 import org.transmartproject.batch.beans.JobScopeInterfaced
 
 /**
- * Fill the calculated fields of {@link org.transmartproject.batch.clinical.variable.ClinicalVariable}.
+ * Fill the fields of {@link org.transmartproject.batch.clinical.ontology.OntologyNode}.
  */
 @Component
 @JobScopeInterfaced
@@ -17,13 +17,15 @@ class OntologyNodeFieldMapper implements FieldSetMapper<OntologyNode> {
 
     @Override
     OntologyNode mapFieldSet(FieldSet fieldSet) throws BindException {
+        def ancestorsString = fieldSet.readString('Ancestors').trim()
+        def ancestorCodes = (ancestorsString.empty ? [] : ancestorsString.split(',')) as List<String>
         def node = new OntologyNode(
                 categoryCode:   fieldSet.readString('Category code'),
                 dataLabel:      fieldSet.readString('Data label'),
                 code:           fieldSet.readString('Ontology code'),
                 label:          fieldSet.readString('Label'),
-                URI:            fieldSet.readString('URI'),
-                ancestorCodes:  fieldSet.readString('Ancestors').split(',') as List<String>
+                uri:            fieldSet.readString('URI'),
+                ancestorCodes:  ancestorCodes
         )
         node
     }

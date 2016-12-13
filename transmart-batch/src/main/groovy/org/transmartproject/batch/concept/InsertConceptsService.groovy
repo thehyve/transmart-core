@@ -55,13 +55,19 @@ class InsertConceptsService {
     boolean recordId
 
     Collection<ConceptNode> insert(Collection<ConceptNode> newTreeNodes) throws Exception {
-        log.debug "New concepts are ${newTreeNodes*.path}"
+        log.debug "New tree nodes are ${newTreeNodes*.path}"
+        newTreeNodes.each {
+            log.info "Adding tree node ${it.path}"
+        }
         // reserve ids for non-shared concepts and store generated codes in-place
         conceptTree.reserveIdsFor(newTreeNodes)
         // save concept dimension entries
         def newConcepts = newTreeNodes
-                .findAll { !(it.code in conceptTree.savedConceptCodes) }
-                .unique { it.code }
+                .findAll { it.conceptPath && !(it.code in conceptTree.savedConceptCodes) }
+                .unique { it.conceptPath }
+        newConcepts.each {
+            log.info "Adding concept ${it.conceptPath} (${it.code})"
+        }
         insertConceptDimension(studyId, newConcepts)
         conceptTree.addToSavedConceptCodes(newConcepts*.code)
         // save tree nodes
@@ -86,7 +92,7 @@ class InsertConceptsService {
             Map i2b2Row = [
                     c_hlevel          : it.level,
                     c_fullname        : it.path.toString(),
-                    c_basecode        : it.code,
+                    c_basecode        : null,
                     c_name            : it.name,
                     c_synonym_cd      : 'N',
                     c_visualattributes: visualAttributes,
@@ -96,7 +102,7 @@ class InsertConceptsService {
                     c_columnname      : 'CONCEPT_PATH',
                     c_columndatatype  : 'T',
                     c_operator        : 'LIKE',
-                    c_dimcode         : it.conceptPath.toString(),
+                    c_dimcode         : it.conceptPath?.toString() ?: '',
                     c_tooltip         : it.path.toString(),
                     m_applied_path    : '@',
                     update_date       : now,
@@ -134,8 +140,9 @@ class InsertConceptsService {
         Map<String, Object>[] rows = newConcepts.collect {
             [
                     concept_cd     : it.code,
-                    concept_path   : it.conceptPath.toString(),
+                    concept_path   : it.conceptPath,
                     name_char      : it.conceptName,
+                    concept_blob   : it.uri,
                     update_date    : now,
                     download_date  : now,
                     import_date    : now,
@@ -156,8 +163,9 @@ class InsertConceptsService {
             case ConceptType.CATEGORICAL:
                 return null
             default:
-                throw new IllegalStateException(
-                        "Unexpected concept type: ${concept.type}")
+                return null
+                //throw new IllegalStateException(
+                //        "Unexpected concept type: ${concept.type}")
         }
     }
 

@@ -114,12 +114,13 @@ class ClinicalFactsRowSetFactory {
 
         ConceptType conceptType
         ConceptPath conceptPath = getOrGenerateConceptPath(variables, var, row)
-        ConceptNode concept = tree[conceptPath]
+        ConceptNode concept = tree.conceptNodeForConceptPath(conceptPath)
         String value = row[var.columnNumber]
 
         // if the concept doesn't yet exist (ie first record)
         if (!concept) {
-            conceptType = getConceptTypeFromColumnsFile(var)
+            log.info "Did not find tree node for concept path ${conceptPath} (variable: ${var})"
+            conceptType = ClinicalVariable.conceptTypeFor(var)
             if (conceptType == ConceptType.UNKNOWN) {
                 // if no conceptType is set in the column mapping file,
                 // try to detect the conceptType from the first record
@@ -130,7 +131,7 @@ class ClinicalFactsRowSetFactory {
 
             // has the side-effect of assigning type if it's unknown and
             // creating the concept from scratch if it doesn't exist at all
-            concept = tree.getOrGenerate(conceptPath, conceptType)
+            concept = tree.getOrGenerateConceptForVariable(conceptType, var)
         } else { // the concept does already exist (ie not first record)
             conceptType = concept.type
 
@@ -146,7 +147,7 @@ class ClinicalFactsRowSetFactory {
 
         // we need a subnode if the variable is categorical
         if (conceptType == ConceptType.CATEGORICAL && !'y'.equalsIgnoreCase(var.strictCategoricalVariable)) {
-            concept = tree.getOrGenerate(conceptPath + value, ConceptType.CATEGORICAL)
+            concept = tree.getOrGenerate(new ConceptPath(conceptPath) + value, var, ConceptType.CATEGORICAL)
         }
 
         concept
@@ -189,32 +190,6 @@ class ClinicalFactsRowSetFactory {
         }
 
         topNodePath + relConceptPath
-    }
-
-    private ConceptType getConceptTypeFromColumnsFile(ClinicalVariable var) {
-        ConceptType conceptType
-
-        switch (var.conceptType) {
-            case ClinicalVariable.CONCEPT_TYPE_CATEGORICAL:
-                conceptType = ConceptType.CATEGORICAL
-                break
-
-            case ClinicalVariable.CONCEPT_TYPE_NUMERICAL:
-                conceptType = ConceptType.NUMERICAL
-                break
-
-            case null:
-            case '':
-                conceptType = ConceptType.UNKNOWN
-                break
-
-            default:
-                throw new IllegalStateException(
-                        "Invalid value for concept type column: $var.conceptType. This " +
-                                'should never happen (ought to have been validated)')
-        }
-
-        conceptType
     }
 
     XtrialNode getXtrialNodeFor(ConceptNode conceptNode) {
