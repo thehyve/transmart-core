@@ -5,7 +5,6 @@ import com.google.common.collect.PeekingIterator
 import com.google.protobuf.Empty
 import com.google.protobuf.Message
 import groovy.util.logging.Slf4j
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -13,96 +12,42 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.multidimquery.*
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
 
-import static com.google.protobuf.util.JsonFormat.Printer
-import static com.google.protobuf.util.JsonFormat.printer
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 
 @Slf4j
 public class HypercubeProtobufSerializer {
 
-    enum Format {
-        JSON('application/json'),
-        PROTOBUF('application/x-protobuf'),
-        NONE('none')
-
-        private String format
-
-        Format(String format) {
-            this.format = format
-        }
-
-        public static Format from(String format) {
-            Format f = Format.values().find { it.format == format }
-            if (f == null) throw new Exception("Unknown format: ${format}")
-            f
-        }
-
-        public String toString() {
-            format
-        }
-    }
-
     protected Hypercube cube
     protected Dimension packedDimension
     protected boolean packingEnabled
-    protected Printer jsonPrinter
     protected Writer writer
-    protected Format format
 
     protected Map<Dimension, List<Object>> dimensionElements = [:]
     protected Map<Dimension, DimensionDeclaration> dimensionDeclarations = [:]
 
 
-    HypercubeProtobufSerializer(Hypercube cube, Format format, Dimension packedDimension) {
+    HypercubeProtobufSerializer(Hypercube cube, Dimension packedDimension) {
         this.cube = cube
         this.packedDimension = packedDimension
         this.packingEnabled = packedDimension != null
-        if (format == Format.NONE) {
-            throw new InvalidArgumentsException("No format selected.")
-        } else if (format == Format.JSON) {
-            jsonPrinter = printer()
-        }
-        this.format = format
     }
 
     protected boolean first = true
 
-    protected void begin(OutputStream out) {
-        first = true
-        if (format == Format.JSON) {
-            writer = new PrintWriter(new BufferedOutputStream(out))
-            writer.print('[')
-        }
-    }
-
     protected void writeMessage(OutputStream out, Message message) {
-        if (format == Format.JSON) {
-            if (!first) {
-                writer.print(', ')
-            }
-            jsonPrinter.appendTo(message, writer)
-        } else {
-            message.writeDelimitedTo(out)
-        }
+        message.writeDelimitedTo(out)
         if (first) {
             first = false
         }
     }
 
     protected void end(OutputStream out) {
-        if (format == Format.JSON) {
-            writer.print(']')
-            writer.flush()
-        } else {
-            out.flush()
-        }
+        out.flush()
     }
 
     void writeEmptyMessage(OutputStream out) {
-        if (format == Format.PROTOBUF) {
-            Empty empty = Empty.newBuilder().build()
-            empty.writeDelimitedTo(out)
-        }
+        Empty empty = Empty.newBuilder().build()
+        empty.writeDelimitedTo(out)
     }
 
     static Type getFieldType(Class type) {
@@ -125,13 +70,7 @@ public class HypercubeProtobufSerializer {
     protected getDimensionsDefs() {
         def declarations = cube.dimensions.collect { dim ->
             def builder = DimensionDeclaration.newBuilder()
-            String dimensionName
-            if (dim instanceof ModifierDimension) {
-                dimensionName = dim.name
-            } else {
-                dimensionName = dim.toString()
-            }
-            builder.setName(dimensionName)
+            builder.setName(dim.name)
             if (dim.density == Dimension.Density.SPARSE) {
                 // Sparse dimensions are inlined, dense dimensions are referred to by indexes
                 // (referring to objects in the footer message).
@@ -140,7 +79,7 @@ public class HypercubeProtobufSerializer {
             if (dim == packedDimension) {
                 builder.setPacked(true)
             }
-            def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionName)
+            def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dim.name)
             switch(dim.class) {
                 case ModifierDimension:
                     def modifierDim = (ModifierDimension)dim
@@ -152,7 +91,7 @@ public class HypercubeProtobufSerializer {
                             builder.type = Type.STRING
                             break
                         default:
-                            throw new Exception("Unsupported value type for dimension ${dimensionName}: ${modifierDim.valueType}.")
+                            throw new Exception("Unsupported value type for dimension ${dim.name}: ${modifierDim.valueType}.")
                     }
                     break
                 case StartTimeDimension:
