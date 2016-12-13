@@ -20,7 +20,10 @@ import org.transmartproject.batch.secureobject.SecureObjectConfig
  * Concept spring configuration
  */
 @Configuration
-@ComponentScan
+@ComponentScan([
+        'org.transmartproject.batch.concept',
+        'org.transmartproject.batch.clinical.ontology',
+])
 @Import([DbConfig, SecureObjectConfig])
 class ConceptStepsConfig implements StepBuildingConfigurationTrait {
 
