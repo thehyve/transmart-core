@@ -148,7 +148,7 @@ class TrialVisitWithTimeDataTests implements JobRunningTestTrait {
                         concept_path: '\\Public Studies\\TEST_17_1\\Demography\\Sex\\',
                 ]
 
-        assertThat facts, everyItem(either(hasEntry('tval_char', 'M')).or(hasEntry('tval_char', 'F')))
+        assertThat facts, everyItem(either(hasEntry('tval_char', 'M')) | hasEntry('tval_char', 'F'))
     }
 
 }

@@ -92,7 +92,6 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
         treeNodes.each {
             log.info "Found existing i2b2 node ${it.path}"
             if (it.conceptPath) {
-                log.info "select CONCEPT_CD from I2B2DEMODATA.CONCEPT_DIMENSION where CONCEPT_PATH LIKE ${it.conceptPath.toString()}"
                 def conceptCode = jdbcTemplate.query(
                         "select CONCEPT_CD from I2B2DEMODATA.CONCEPT_DIMENSION where CONCEPT_PATH LIKE :path",
                         [path: it.conceptPath.toString()],
@@ -100,9 +99,9 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
                 )
                 if (!conceptCode.empty) {
                     it.code = conceptCode[0]
-                    log.info "Concept code is ${it.code}."
+                    log.debug "Concept code is ${it.code}."
                 } else {
-                    log.info "No concept code found."
+                    log.warn "No concept code found."
                 }
             }
             contribution.incrementReadCount() //increment reads. unfortunately we have to do this in some loop

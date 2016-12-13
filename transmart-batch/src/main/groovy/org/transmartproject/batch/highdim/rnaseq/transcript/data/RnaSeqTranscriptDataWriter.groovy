@@ -4,7 +4,6 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.item.ItemWriter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.db.objects.Tables
@@ -24,9 +23,6 @@ class RnaSeqTranscriptDataWriter implements ItemWriter<RnaSeqDataValue> {
 
     @Value("#{rnaSeqTranscriptDataJobContextItems.patientIdAssayIdMap}")
     Map<String, Long> patientIdAssayIdMap
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate
 
     @Value(Tables.RNASEQ_TRANSCRIPT_DATA)
     private SimpleJdbcInsert jdbcInsert

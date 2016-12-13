@@ -107,9 +107,7 @@ class ConceptTree {
     }
 
     ConceptNode getOrGenerateConceptForVariable(ClinicalVariable variable) {
-        if (!variable || !variable.conceptPath || !variable.path) {
-            throw new RuntimeException("Unexpected variable: ${variable}")
-        }
+        assert variable && variable.conceptPath && variable.path
         def node = conceptNodes[variable.conceptPath]
         if (node) {
             return node
@@ -132,13 +130,12 @@ class ConceptTree {
      *
      * @param path The path in the i2b2 ontology tree.
      * @param variable The variable represented by the node.
-     * @param conceptType (optional) overrides the concept type specifier in the variable.
+     * @param type (optional) overrides the concept type specifier in the variable.
      * @return the generated node.
      */
-    ConceptNode getOrGenerate(ConceptPath path, ClinicalVariable variable, ConceptType conceptType = null) {
-        if (!conceptType) {
-            conceptType = ClinicalVariable.conceptTypeFor(variable)
-        }
+    ConceptNode getOrGenerate(ConceptPath path, ClinicalVariable variable, ConceptType type = null) {
+        // choose specified type if avaiable, else choose type based on the variable
+        def conceptType = type ?: ClinicalVariable.conceptTypeFor(variable)
         def node = nodeMap[path]
         if (node) {
             if (node.type == ConceptType.UNKNOWN) {

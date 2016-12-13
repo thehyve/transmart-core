@@ -10,8 +10,7 @@ import java.sql.SQLException
  */
 class DeleteObservationFactTasklet extends GenericTableUpdateTasklet {
 
-    @Override
-    String getSql() {
+    String sql =
         """
         delete from I2B2DEMODATA.OBSERVATION_FACT
         where TRIAL_VISIT_NUM in (
@@ -22,7 +21,6 @@ class DeleteObservationFactTasklet extends GenericTableUpdateTasklet {
             where s.STUDY_ID = ?
         )
         """
-    }
 
     @Override
     void setValues(PreparedStatement ps) throws SQLException {

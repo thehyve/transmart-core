@@ -10,8 +10,6 @@ import org.transmartproject.batch.concept.ConceptFragment
 import org.transmartproject.batch.concept.ConceptPath
 import org.transmartproject.batch.concept.ConceptTree
 
-import javax.annotation.PostConstruct
-
 /**
  * Structure to hold the ontology mapping that maps variables to ontology terms
  * and the ancestry of ontology terms.

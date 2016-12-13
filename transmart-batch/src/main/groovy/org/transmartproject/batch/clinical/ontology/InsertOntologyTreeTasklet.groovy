@@ -11,8 +11,12 @@ import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.ClinicalJobContext
 import org.transmartproject.batch.concept.ConceptPath
 import org.transmartproject.batch.concept.ConceptTree
-import org.transmartproject.batch.concept.ConceptType
 
+/**
+ * Adds nodes to the ontology tree based on the variables
+ * in the variable mapping and the ontology codes in the ontology
+ * mapping file.
+ */
 @Component
 @JobScope
 @Slf4j
@@ -37,27 +41,25 @@ class InsertOntologyTreeTasklet implements Tasklet {
     private List<Entry> orderByDependencies(String code) {
         if (code in done) {
             return []
-        } else {
-            def node = ontologyMapping.nodes[code]
-            if (!node) {
-                throw new RuntimeException("No node found for code ${code}")
-            }
-            if (node.ancestorCodes.empty) {
-                done << code
-                return [new Entry(node: node, path: [node.label])]
-            } else {
-                done << code
-                List<Entry> result = []
-                node.ancestorCodes.each { String ancestorCode ->
-                    def dependencies = orderByDependencies(ancestorCode)
-                    dependencies.each { Entry ancestor ->
-                        result << ancestor
-                        result << new Entry(node: node, path: ancestor.path + [node.label])
-                    }
-                }
-                return result
+        }
+        def node = ontologyMapping.nodes[code]
+        if (!node) {
+            throw new NodeNotFoundException("No node found for code ${code}")
+        }
+        if (node.ancestorCodes.empty) {
+            done << code
+            return [new Entry(node: node, path: [node.label])]
+        }
+        done << code
+        List<Entry> result = []
+        node.ancestorCodes.each { String ancestorCode ->
+            def dependencies = orderByDependencies(ancestorCode)
+            dependencies.each { Entry ancestor ->
+                result << ancestor
+                result << new Entry(node: node, path: ancestor.path + [node.label])
             }
         }
+        result
     }
 
     @Override
@@ -88,7 +90,6 @@ class InsertOntologyTreeTasklet implements Tasklet {
             }
             contribution.incrementFilterCount(1)
         }
-
-        return null
+        RepeatStatus.FINISHED
     }
 }

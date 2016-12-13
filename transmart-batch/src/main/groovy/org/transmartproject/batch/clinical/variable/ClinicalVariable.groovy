@@ -68,7 +68,7 @@ class ClinicalVariable implements Serializable {
      * @param var the clinical variable to fetch the concept type for.
      * @return the concept type.
      */
-    public static final ConceptType conceptTypeFor(ClinicalVariable var) {
+    static final ConceptType conceptTypeFor(ClinicalVariable var) {
         switch (var.conceptType) {
             case CONCEPT_TYPE_CATEGORICAL:
                 return ConceptType.CATEGORICAL

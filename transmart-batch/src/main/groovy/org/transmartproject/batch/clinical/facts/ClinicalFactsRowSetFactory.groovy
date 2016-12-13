@@ -133,22 +133,25 @@ class ClinicalFactsRowSetFactory {
     private ConceptNode getOrGenerateConceptNode(ClinicalDataFileVariables variables,
                                                  ClinicalVariable var,
                                                  ClinicalDataRow row) {
-        /*
-         * Concepts are created and assigned types and ids
-         */
-        ConceptPath conceptPath = getOrGenerateConceptPath(variables, var, row)
-        ConceptNode concept = tree.conceptNodeForConceptPath(conceptPath)
+        if (!var.conceptPath) {
+            /*
+             * Concepts are created and assigned types and ids
+             */
+            ConceptPath conceptPath = getOrGenerateConceptPath(variables, var, row)
+            var.conceptPath = conceptPath
+            var.path = conceptPath
+        }
+        ConceptNode concept = tree.conceptNodeForConceptPath(var.conceptPath)
+        // if the concept doesn't yet exist (ie first record)
+        concept = concept ?: tree.getOrGenerateConceptForVariable(var)
+
         String value = row[var.columnNumber]
 
-        // if the concept doesn't yet exist (ie first record)
-        if (!concept) {
-            concept = tree.getOrGenerateConceptForVariable(var)
-        }
         updateConceptType(concept, var, value)
 
         // we need a subnode if the variable is categorical
         if (concept.type == ConceptType.CATEGORICAL && !'y'.equalsIgnoreCase(var.strictCategoricalVariable)) {
-            concept = tree.getOrGenerate(new ConceptPath(conceptPath) + value, var, ConceptType.CATEGORICAL)
+            concept = tree.getOrGenerate(new ConceptPath(var.conceptPath) + value, var, ConceptType.CATEGORICAL)
         }
 
         concept
