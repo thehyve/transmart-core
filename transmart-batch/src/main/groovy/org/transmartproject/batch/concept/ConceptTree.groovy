@@ -110,10 +110,8 @@ class ConceptTree {
         if (!variable || !variable.conceptPath || !variable.path) {
             throw new RuntimeException("Unexpected variable: ${variable}")
         }
-        log.info "getOrGenerateConceptForVariable: ${variable.conceptName} / ${variable.conceptPath}"
         def node = conceptNodes[variable.conceptPath]
         if (node) {
-            log.info "getOrGenerateConceptForVariable: found concept: ${node.path}"
             return node
         }
         node = new ConceptNode(variable.path)
@@ -121,7 +119,7 @@ class ConceptTree {
         node.conceptName = variable.conceptName
         node.conceptPath = variable.conceptPath
         node.code = variable.conceptCode
-        log.info("Generated new concept node: ${node.conceptPath}")
+        log.debug("Generated new concept node: ${node.conceptPath}")
         nodeMap[variable.path] = node
         if (node.conceptPath) {
             conceptNodes[node.conceptPath] = node
@@ -163,7 +161,7 @@ class ConceptTree {
             node.conceptPath = variable.conceptPath
             node.code = variable.conceptCode
         }
-        log.info("Generated new concept node: $path")
+        log.debug("Generated new concept node: $path")
         nodeMap[path] = node
         if (node.conceptPath) {
             conceptNodes[node.conceptPath] = node
@@ -178,12 +176,13 @@ class ConceptTree {
         }
 
         node = new ConceptNode(path)
+        node.ontologyNode = true
         node.name = ontologyNode.label
         node.conceptPath = new ConceptPath(['Ontology', ontologyNode.code])
         node.code = ontologyNode.code
         node.conceptName = ontologyNode.label
         node.uri = ontologyNode.uri
-        log.info("Generated new node: $path")
+        log.debug("Generated new node: $path")
         nodeMap[path] = node
         node
     }
@@ -203,11 +202,11 @@ class ConceptTree {
 
     void reserveIdsFor(ConceptNode node) {
         if (!node.conceptPath) {
-            log.info "No concept path set for node ${node.path}, not reserving a concept id."
+            log.debug "No concept path set for node ${node.path}, not reserving a concept id."
             return
         }
         if (node.code) {
-            log.info "Code already set for ${node.conceptPath}, not reserving a concept id."
+            log.debug "Code already set for ${node.conceptPath}, not reserving a concept id."
             return
         }
         if (isSavedNode(node)) {

@@ -42,6 +42,9 @@ class InsertConceptsService {
     @Value(Tables.I2B2_SECURE)
     private SimpleJdbcInsert i2b2SecureInsert
 
+    @Value(Tables.TABLE_ACCESS)
+    private SimpleJdbcInsert tableAccessInsert
+
     @SuppressWarnings('PrivateFieldCouldBeFinal')
     @Lazy
     private String metadataXml = { generateMetadataXml() }()
@@ -76,6 +79,31 @@ class InsertConceptsService {
         newTreeNodes
     }
 
+    private int[] insertTableAccess(List<ConceptNode> rootNodes) {
+        def tableAccessRows = rootNodes.collect { ConceptNode node ->
+            assert node.level == 0
+            log.info "Inserting ${node.name} into $Tables.TABLE_ACCESS"
+            [
+                c_table_cd: node.name, // transmart needs key the same as first element of path
+                c_table_name: (Tables.tableName(Tables.I2B2)).toUpperCase(), // 'I2B2'
+                c_protected_access: 'N',
+                c_hlevel: 0,
+                c_fullname: node.path.toString(),
+                c_name: node.name,
+                c_synonym_cd: 'N',
+                c_visualattributes: 'CAE',
+                c_facttablecolumn: 'concept_cd',
+                c_dimtablename: 'concept_dimension',
+                c_columnname: 'concept_path',
+                c_columndatatype: 'T',
+                c_operator: 'LIKE',
+                c_dimcode: node.conceptPath?.toString() ?: '',
+            ]
+        }
+        int[] counts = tableAccessInsert.executeBatch(tableAccessRows as Map[])
+        counts
+    }
+
     private int[] insertI2b2(String studyId, Collection<ConceptNode> newConcepts, Date now = new Date()) {
         if (!newConcepts) {
             return new int[0]
@@ -92,7 +120,7 @@ class InsertConceptsService {
             Map i2b2Row = [
                     c_hlevel          : it.level,
                     c_fullname        : it.path.toString(),
-                    c_basecode        : null,
+                    c_basecode        : it.code,
                     c_name            : it.name,
                     c_synonym_cd      : 'N',
                     c_visualattributes: visualAttributes,
@@ -116,13 +144,16 @@ class InsertConceptsService {
             }
 
             Map i2b2SecureRow = new HashMap(i2b2Row)
-            i2b2SecureRow.put('secure_obj_token', secureObjectToken as String)
+            def sot = it.ontologyNode ? 'PUBLIC' : secureObjectToken as String
+            i2b2SecureRow.put('secure_obj_token', sot)
             i2b2SecureRow.remove('record_id')
 
             i2b2Rows.add(i2b2Row)
             i2b2SecureRows.add(i2b2SecureRow)
         }
 
+        int[] tableAccessCounts = insertTableAccess(newConcepts.findAll { it.level == 0 } as List<ConceptNode>)
+        DatabaseUtil.checkUpdateCounts(tableAccessCounts, 'inserting table_access')
         int[] counts1 = i2b2Insert.executeBatch(i2b2Rows as Map[])
         DatabaseUtil.checkUpdateCounts(counts1, 'inserting i2b2')
         int[] counts2 = i2b2SecureInsert.executeBatch(i2b2SecureRows as Map[])

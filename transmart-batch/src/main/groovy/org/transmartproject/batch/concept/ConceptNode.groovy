@@ -38,6 +38,11 @@ class ConceptNode {
      */
     String uri
 
+    /**
+     * Flag if this node represents a shared ontology term (public access)
+     */
+    boolean ontologyNode = false
+
     ConceptType type = ConceptType.UNKNOWN
 
     ConceptNode() {
