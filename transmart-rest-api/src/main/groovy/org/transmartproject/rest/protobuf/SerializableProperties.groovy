@@ -12,7 +12,7 @@ class SerializableProperties {
     public static final Set<String> TRIAL_VISIT = ["relTimeUnit", "relTime", "relTimeLabel"]
     public static final Set<String> START_DATE = ["startDate"]
     public static final Set<String> END_DATE = ["endDate"]
-    public static final Set<String> VISIT = ["patientInTrialId", "activeStatusCd", "startDate", "endDate", "inoutCd", "locationCd"]
+    public static final Set<String> VISIT = ["patientInTrialId", "encounterNum", "activeStatusCd", "startDate", "endDate", "inoutCd", "locationCd"]
     public static final Set<String> LOCATION = ["locationCd"]
     public static final Set<String> PROVIDER = ["providerId"]
     public static final Set<String> BIOMARKER = ['label', 'bioMarker']
