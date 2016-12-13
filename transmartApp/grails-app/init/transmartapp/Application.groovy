@@ -48,7 +48,18 @@ class Application extends GrailsAutoConfiguration implements EnvironmentAware {
         }
 
         URL fileUrl = new URI("file:${groovyConfigFilePath}").toURL()
-        ConfigObject config = new ConfigSlurper().parse(fileUrl)
+        ConfigObject config
+        if (environment.activeProfiles) {
+            if(environment.activeProfiles.length > 1) {
+                log.warn("Expected to get single environment profile. But got: ${environment.activeProfiles} instead. " +
+                        "Use ${environment.activeProfiles[0]} and ignore others")
+            }
+            config = new ConfigSlurper(environment.activeProfiles[0]).parse(fileUrl)
+        } else {
+            log.warn('No environment profile specified. All environment specific configurations will be ignored.')
+            config = new ConfigSlurper().parse(fileUrl)
+        }
+
 
         log.info "Including configuration file [${groovyConfigFilePath}] in configuration building."
 

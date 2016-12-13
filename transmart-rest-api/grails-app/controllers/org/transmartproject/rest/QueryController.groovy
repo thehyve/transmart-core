@@ -1,23 +1,14 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
-import grails.web.mime.MimeType
 import groovy.util.logging.Slf4j
-import org.grails.web.converters.exceptions.ConverterException
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.metadata.LegacyStudyException
-import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
-import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
-import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 import org.transmartproject.rest.protobuf.ObservationsSerializer
 
@@ -173,9 +164,7 @@ class QueryController extends AbstractQueryController {
             biomarkerConstraint = constraint
         }
 
-        Hypercube hypercube = queryService.highDimension(user, assayConstraint,
-                biomarkerConstraint,
-                params.projection)
+        Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, params.projection, user)
 
         def format = contentFormat
         OutputStream out = new LazyOutputStreamDecorator(

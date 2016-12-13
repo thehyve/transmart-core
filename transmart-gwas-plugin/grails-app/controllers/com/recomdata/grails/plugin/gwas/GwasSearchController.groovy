@@ -27,7 +27,6 @@ class GwasSearchController {
     def RModulesOutputRenderService
     def springSecurityService
     def gwasSearchService
-    def sendFileService
 
     /**
      * Renders a UI for selecting regions by gene/RSID or chromosome.
@@ -434,7 +433,8 @@ class GwasSearchController {
             return
         }
 
-        sendFileService.sendFile servletContext, request, response, targetFile
+        render(file: targetFile, fileName: targetFile.name, contentType: servletContext.getMimeType(targetFile.name
+                .toLowerCase()))
     }
 
     def getQQPlotImage = {

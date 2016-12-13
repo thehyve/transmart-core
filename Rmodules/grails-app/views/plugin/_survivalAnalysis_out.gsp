@@ -34,31 +34,31 @@
 		<span class='AnalysisHeader'>Survival Curve</span><br /><br />
 		
 		<g:each var="location" in="${imageLocation}">
-			<asset:image file="${location}"></asset:image>
+			<img src="${location}"/> <br/>
 		</g:each>
 	
 		<br />
 		<br />	
-		${legendText}	
+		${raw(legendText)}
 	
 		<br />
 		<br />
 		<span class='AnalysisHeader'>Cox Regression Result</span><br /><br />
 		
-		${coxData}
+		${raw(coxData)}
 		
 		<br />
 		<br />		
 		<span class='AnalysisHeader'>Survival Curve Fitting Summary</span><br /><br />
 		
-		${survivalData}
+		${raw(survivalData)}
 
 		
 		
 		<br />
 		<br />
 		<g:if test="${zipLink}">
-			<a class='AnalysisLink' class='downloadLink' href="${resource(file: zipLink)}">Download raw R data</a>
+			<a class='AnalysisLink' class='downloadLink' href="${zipLink}">Download raw R data</a>
 		</g:if>
 	</form>
 </body>

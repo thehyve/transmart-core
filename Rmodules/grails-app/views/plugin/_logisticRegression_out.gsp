@@ -44,12 +44,12 @@
 			<tr>
 				<g:each var="location" in="${imageLocations}">
 			    	%{--<img src='${location}'  width="700" height="700" alt="Logistic Regression"/> <br />--}%
-                    <g:img file="${location}" width="700" height="700" ></g:img> <br />
+					<img src="${location}"/> <br/>
 				</g:each>
 			</tr>				
 			<tr>
 				<td>
-					${LOGREGData}		
+					${raw(LOGREGData)}
 				</td>
 			</tr>
 			<tr>
@@ -60,7 +60,7 @@
 			<tr>
 				<td>
 					<g:if test="${zipLocation}">
-						<a class='AnalysisLink' class='downloadLink' href="${resource(file: zipLocation)}">Download raw R data</a>
+						<a class='AnalysisLink' class='downloadLink' href="${zipLocation}">Download raw R data</a>
 					</g:if>
 				</td>
 			</tr>		
