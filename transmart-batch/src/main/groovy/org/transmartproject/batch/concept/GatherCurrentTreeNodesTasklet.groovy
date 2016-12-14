@@ -63,10 +63,8 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
                 rootPathFullNames: thisAndItsParents(conceptTree.topNodePath),
         ]
 
-        if (log.debugEnabled) {
-            log.debug("Will look for concepts ${params.rootPathFullNames}. " +
+        log.debug("Will look for concepts ${params.rootPathFullNames}. " +
                     "List originally given: $conceptPaths")
-        }
 
         if (conceptPaths) {
             sql += 'c_fullname IN (:fullNames)'

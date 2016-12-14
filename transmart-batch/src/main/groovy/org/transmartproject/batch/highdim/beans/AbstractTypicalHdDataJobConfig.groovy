@@ -44,6 +44,8 @@ abstract class AbstractTypicalHdDataJobConfig {
     Step gatherCurrentPatients
 
     @Resource
+    Step gatherCurrentConceptCodes
+    @Resource
     Step gatherCurrentTreeNodes
     @Resource
     Step validateTopNodePreexistence
@@ -89,6 +91,7 @@ abstract class AbstractTypicalHdDataJobConfig {
         new FlowBuilder<SimpleFlow>('typicalHdDataFlow')
                 .start(readMappingFile)
                 .next(failIfPlatformNotFound)
+                .next(gatherCurrentConceptCodes)
                 .next(gatherCurrentTreeNodes)
                 .next(validateTopNodePreexistence)
                 .next(validateHighDimensionalConcepts)

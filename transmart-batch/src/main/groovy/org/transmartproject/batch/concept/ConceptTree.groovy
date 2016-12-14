@@ -157,6 +157,9 @@ class ConceptTree {
             node.conceptName = variable.conceptName
             node.conceptPath = variable.conceptPath
             node.code = variable.conceptCode
+        } else if (type == ConceptType.HIGH_DIMENSIONAL) {
+            node.conceptName = path[-1]
+            node.conceptPath = path
         }
         log.debug("Generated new concept node: $path")
         nodeMap[path] = node
