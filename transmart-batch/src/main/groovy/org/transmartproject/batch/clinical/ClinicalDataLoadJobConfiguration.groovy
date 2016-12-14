@@ -71,9 +71,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     InsertOntologyTreeTasklet insertOntologyTreeTasklet
 
     @javax.annotation.Resource
-    Tasklet insertTableAccessTasklet
-
-    @javax.annotation.Resource
     Tasklet gatherCurrentConceptCodesTasklet
 
     @javax.annotation.Resource
@@ -132,7 +129,6 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .next(stepOf(this.&deleteConceptCountsTasklet))
 
                 .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object, study
-                .next(stepOf(this.&getInsertTableAccessTasklet))
 
                 .next(stepOf(this.&getInsertOntologyTreeTasklet))
 
