@@ -98,6 +98,7 @@ class OntologyTermResponseGenerator {
             codeList.add(masterTypeMasterTerm[0])
             codeList.add(masterTypeTopConceptOfMasterTerm[0])
             codeList.addAll(masterTypeNarrowerConcept.subList((1 + index), (numOfNarrowerCodesOnList + index)))
+            codeList.add(masterTypeNarrowerConcept.last())
             elem = codeList
         }
         concepts
@@ -109,6 +110,7 @@ class OntologyTermResponseGenerator {
             codeList.add(hostedTypeMasterTerm[0])
             codeList.add(hostedTypeTopConceptOfMasterTerm[0])
             codeList.addAll(hostedTypeNarrowerConcept.subList((1 + index), (numOfNarrowerCodesOnList + index)))
+            codeList.add(hostedTypeNarrowerConcept.last())
             elem = codeList
         }
         concepts
@@ -119,6 +121,16 @@ class OntologyTermResponseGenerator {
             "Cancer"                           : "top concept of master terminology",
             "Carcinoma"                        : "narrowed concept of 'Cancer'",
             "Adenosquamous Carcinoma"          : "narrower concept",
+            "Ductal Carcinoma In Situ"         : "narrower concept",
+            "Invasive Ductal Carcinoma"        : "narrower concept",
+            "Invasive Lobular Carcinoma"       : "narrower concept",
+            "Squamous cell carcinoma"          : "narrower concept",
+            "Adenocarcinoma"                   : "narrower concept",
+            "Anaplastic carcinoma"             : "narrower concept",
+            "Large cell carcinoma"             : "narrower concept",
+            "Small cell carcinoma"             : "narrower concept",
+            "Basal cell carcinoma"             : "narrower concept",
+            "Renal cell carcinoma"             : "narrower concept",
             "Adenosquamous Cell Lung Carcinoma": "narrower concept and search hit"
     ]
 
@@ -128,7 +140,7 @@ class OntologyTermResponseGenerator {
      * @return
      */
     public Object getDetails(String idx) {
-        int random = new Random().nextInt(sampleDescriptionsMap.size() + 1);
+        int random = new Random().nextInt(sampleDescriptionsMap.size())
         String key = sampleDescriptionsMap.keySet()[random]
         Object value = sampleDescriptionsMap.get(key)
         def details = [
