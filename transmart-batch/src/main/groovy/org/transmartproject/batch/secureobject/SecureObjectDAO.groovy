@@ -47,16 +47,20 @@ class SecureObjectDAO {
     void createSecureObject(String displayName,
                             SecureObjectToken token) {
 
+        // Find or create bio experiment object
         long bioExperimentId = bioExperimentDAO.findOrCreateBioExperiment(token.studyId)
-        Map secureObjectValues = findOrCreateSecureObject(
-                bioExperimentId, displayName, token)
-        Map studyValues = findOrCreateStudy(token.studyId, token, bioExperimentId)
 
-        if (!token.public) {
-            insertDummySecurityObservation(token)
+        // Find or create study object
+        Map studyValues = findOrCreateStudy(token.studyId, token, bioExperimentId)
+        if (studyValues['secure_obj_token'] != token.toString()) {
+            throw new IllegalStateException("Study found " +
+                    "($studyValues) does not have expected " +
+                    "secure object token ${token.toString()}")
         }
 
-        /* some quick validation */
+        // Find or create secure object
+        Map secureObjectValues = findOrCreateSecureObject(
+                bioExperimentId, displayName, token)
         if (secureObjectValues['bio_data_id'] != bioExperimentId) {
             throw new IllegalStateException("Secure object found " +
                     "($secureObjectValues) does not point to expected " +
@@ -69,10 +73,9 @@ class SecureObjectDAO {
                     "$CLINICAL_TRIAL_SECURE_OBJECT_DATA_TYPE, but got " +
                     "$secureObjectValues")
         }
-        if (studyValues['secure_obj_token'] != token.toString()) {
-            throw new IllegalStateException("Study found " +
-                    "($studyValues) does not have expected " +
-                    "secure object token ${token.toString()}")
+
+        if (!token.public) {
+            insertDummySecurityObservation(token)
         }
     }
 
@@ -90,7 +93,11 @@ class SecureObjectDAO {
     }
 
     int deleteSecureObject(SecureObjectToken secureObjectToken) {
-        def secureObject = findSecureObject(secureObjectToken)
+        if (!secureObjectToken?.experimentId) {
+            log.debug "No experiment id found for secure object token $secureObjectToken"
+            return 0
+        }
+        def secureObject = findSecureObjectByExperimentId(secureObjectToken.experimentId.longValue())
 
         if (!secureObject) {
             log.debug "No existing secure object token $secureObjectToken found"
@@ -161,7 +168,7 @@ class SecureObjectDAO {
         affected
     }
 
-    private Map findSecureObject(SecureObjectToken secureObjectToken) {
+    private Map findSecureObjectByExperimentId(long experimentId) {
         def queryResult = jdbcTemplate.queryForList """
                 SELECT bio_data_id,
                         display_name,
@@ -169,13 +176,13 @@ class SecureObjectDAO {
                         bio_data_unique_id,
                         search_secure_object_id
                 FROM ${Tables.SECURE_OBJECT}
-                WHERE bio_data_unique_id = :sot
-                """, [sot: secureObjectToken.toString()]
+                WHERE bio_data_id = :experimentId
+                """, [experimentId: experimentId]
 
         if (queryResult.size() > 1) {
             throw new IncorrectResultSizeDataAccessException("Expected to get " +
-                    "only one search secure object with bio_data_unique_id = " +
-                    "${secureObjectToken.toString()}, but found: $queryResult", 1)
+                    "only one search secure object with bio_data_id = " +
+                    "${experimentId}, but found: $queryResult", 1)
         }
 
         queryResult.size() > 0 ? queryResult.first() : null
@@ -185,7 +192,7 @@ class SecureObjectDAO {
                                          String displayName,
                                          SecureObjectToken secureObjectToken) {
 
-        def queryResult = findSecureObject(secureObjectToken)
+        def queryResult = findSecureObjectByExperimentId(experimentId)
 
         def retVal
         if (queryResult == null) {
@@ -197,9 +204,10 @@ class SecureObjectDAO {
                     display_name           : displayName,
                     bio_data_id            : experimentId,]
             secureObjectInsert.execute(retVal)
-
+            secureObjectToken.experimentId = id
             retVal
         } else {
+            secureObjectToken.experimentId = experimentId
             queryResult
         }
     }
@@ -219,7 +227,7 @@ class SecureObjectDAO {
                 concept_cd     : DUMMY_SECURITY_CONCEPT_CD,
                 valtype_cd     : 'T',
                 tval_char      : token.toString(),
-                start_date     : new GregorianCalendar(1970, 0, 1).time,
+                start_date     : new GregorianCalendar(1, 0, 1).time,
                 import_date    : new Date(),
                 provider_id    : '@',
                 location_cd    : '@',

@@ -47,7 +47,7 @@ class ConceptTree {
     void generateStudyNode() {
         // automatically creates nodes up until topNodePath
         // if any of these already exist, they should be replaced in loadTreeNodes()
-        getOrGenerate(topNodePath, null, ConceptType.CATEGORICAL) // for collaterals
+        getOrGenerate(topNodePath, null, ConceptType.UNKNOWN) // for collaterals
     }
 
     void loadExisting(Collection<ConceptNode> nodes) {
@@ -134,7 +134,7 @@ class ConceptTree {
      * @return the generated node.
      */
     ConceptNode getOrGenerate(ConceptPath path, ClinicalVariable variable, ConceptType type = null) {
-        // choose specified type if avaiable, else choose type based on the variable
+        // choose specified type if available, else choose type based on the variable
         def conceptType = type ?: ClinicalVariable.conceptTypeFor(variable)
         def node = nodeMap[path]
         if (node) {
@@ -148,18 +148,18 @@ class ConceptTree {
         }
 
         for (def p = path.parent; p != null; p = p.parent) {
-            getOrGenerate(p, null, ConceptType.CATEGORICAL) /* for the collaterals */
+            getOrGenerate(p, null, ConceptType.UNKNOWN) /* for the collaterals */
         }
 
         node = new ConceptNode(path)
         node.type = conceptType
-        if (variable) {
+        if (node.type in [ConceptType.CATEGORICAL, ConceptType.HIGH_DIMENSIONAL]) {
+            node.conceptName = path[-1]
+            node.conceptPath = path
+        } else if (variable) {
             node.conceptName = variable.conceptName
             node.conceptPath = variable.conceptPath
             node.code = variable.conceptCode
-        } else if (type == ConceptType.HIGH_DIMENSIONAL) {
-            node.conceptName = path[-1]
-            node.conceptPath = path
         }
         log.debug("Generated new concept node: $path")
         nodeMap[path] = node

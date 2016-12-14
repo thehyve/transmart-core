@@ -18,6 +18,8 @@ class SecureObjectToken {
     @Value("#{jobParameters['SECURITY_REQUIRED']}")
     String securityRequired // should be Y or N
 
+    Long experimentId
+
     boolean isPublic() {
         securityRequired != 'Y'
     }

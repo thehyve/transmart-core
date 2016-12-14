@@ -474,7 +474,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
                 hasEntry('c_columnname', 'concept_path'),
                 hasEntry('c_columndatatype', 'T'),
                 hasEntry('c_operator', 'LIKE'),
-                hasEntry('c_dimcode', path.toString()),
+                hasEntry('c_dimcode', ''),
         )
     }
 
@@ -502,15 +502,4 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
         assertThat r, is(nullValue())
     }
 
-    @Test
-    void testStudyFolderIsMarkedWithStudyId() {
-        def q = """
-            SELECT c_comment
-            FROM ${Tables.I2B2} I
-            WHERE c_fullname = :node"""
-
-        def r = jdbcTemplate.queryForObject(q, [node: STUDY_BASE_FOLDER], String)
-
-        assertThat r, is('trial:' + STUDY_ID)
-    }
 }
