@@ -15,6 +15,7 @@ import org.transmartproject.rest.misc.CurrentUser
 import javax.annotation.Resource
 
 import static org.springframework.http.HttpStatus.CREATED
+import static org.springframework.http.HttpStatus.OK
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 
 /**
@@ -104,7 +105,25 @@ class StorageController extends RestfulController {
             throw new AccessDeniedException("updating a linked file entry " +
                     "is an admin action")
         }
-        super.delete()
+        def fields = request.JSON
+        def studyId = fields['study']
+        def study = Study.findByStudyId(studyId)
+        fields['study'] = study.id
+        def instance = queryForResource(params.id)
+        if (instance == null) {
+            transactionStatus.setRollbackOnly()
+            notFound()
+            return
+        }
+        instance.properties = fields
+
+        if (instance.hasErrors()) {
+            transactionStatus.setRollbackOnly()
+            respond instance.errors, view:'edit' // STATUS CODE 422
+            return
+        }
+        updateResource instance
+        respond instance, [status: OK]
     }
 
 }

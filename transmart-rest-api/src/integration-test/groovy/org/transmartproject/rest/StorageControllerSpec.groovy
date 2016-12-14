@@ -99,6 +99,32 @@ class StorageControllerSpec extends ResourceSpec {
         indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME][2]['singleFileCollections'] == true
     }
 
+    def LinkUpdateTest() {
+        when:
+        def bodyContent = ['name'        : 'updated name',
+                           'sourceSystem': 1,
+                           'study'       : 'storage_study2',
+                           'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc'] as JSON
+        def before = get "/$VERSION/files/1"
+        def updateResponse = update "/$VERSION/files/1", {
+            contentType "application/json"
+            json bodyContent
+        }
+        def after = get "/$VERSION/files/1"
+        def bodyJsn = before.json as JSON
+        def putBack = update "/$VERSION/files/1", {
+            contentType "application/json"
+            json bodyJsn
+        }
+        then:
+        before.status == 200
+        updateResponse.status == 200
+        after.status == 200
+        putBack.status == 200
+        after.json['name'] == 'updated name'
+        putBack.json['name'] == before.json['name']
+    }
+
     def storageSystemGetTest() {
         when:
         def response = get("/$VERSION/storage/1")

@@ -52,7 +52,7 @@ class StorageSystemController extends RestfulController {
             throw new AccessDeniedException("Removing a storage system entry " +
                     "is an admin action")
         }
-        super.delete()
+        super.update()
     }
 
     @Override

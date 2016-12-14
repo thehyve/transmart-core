@@ -95,6 +95,9 @@ class RestApiUrlMappings {
             "/storage/$id"(method: 'DELETE', controller: 'storageSystem', action: 'delete') {
                 apiVersion = "v2"
             }
+            "/storage/$id"(method: 'PUT', controller: 'storageSystem', action: 'update') {
+                apiVersion = "v2"
+            }
         }
 
         group "/v1", {
