@@ -13,9 +13,9 @@ class LinkedFileCollectionSerializationHelper extends AbstractHalOrJsonSerializa
 
     @Override
     Map<String, Object> convertToMap(LinkedFileCollection linkedFileCollection) {
-        ['sourceSystemId': linkedFileCollection.sourceSystem?.id,
+        ['sourceSystem': linkedFileCollection.sourceSystem?.id,
          'name'          : linkedFileCollection.name,
-         'studyId'       : linkedFileCollection.study?.studyId,
+         'study'       : linkedFileCollection.study?.studyId,
          'uuid'          : linkedFileCollection.uuid,
          'id'            : linkedFileCollection.id,
         ]

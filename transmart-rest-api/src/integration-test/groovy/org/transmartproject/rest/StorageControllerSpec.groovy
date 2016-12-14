@@ -20,8 +20,8 @@ class StorageControllerSpec extends ResourceSpec {
         response.json[FILES_COLLECTION_NAME].size() == 1
         response.json[FILES_COLLECTION_NAME][0].name == '1000 genemes VCFs'
         response.json[FILES_COLLECTION_NAME][0].uuid == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
-        response.json[FILES_COLLECTION_NAME][0].studyId == 'storage_study'
-        response.json[FILES_COLLECTION_NAME][0].sourceSystemId == 1
+        response.json[FILES_COLLECTION_NAME][0].study == 'storage_study'
+        response.json[FILES_COLLECTION_NAME][0].sourceSystem == 1
     }
 
     void postFileLinkTest() {
@@ -41,8 +41,8 @@ class StorageControllerSpec extends ResourceSpec {
         indexResponse.json[FILES_COLLECTION_NAME].size() == 2
         indexResponse.json[FILES_COLLECTION_NAME][1].name == 'new file Link'
         indexResponse.json[FILES_COLLECTION_NAME][1].uuid == 'aaaaa-bbbbb-ccccccccccccccc'
-        indexResponse.json[FILES_COLLECTION_NAME][1].studyId == 'storage_study2'
-        indexResponse.json[FILES_COLLECTION_NAME][1].sourceSystemId == 1
+        indexResponse.json[FILES_COLLECTION_NAME][1].study == 'storage_study2'
+        indexResponse.json[FILES_COLLECTION_NAME][1].sourceSystem == 1
     }
 
     def singleGetTest() {
@@ -52,8 +52,8 @@ class StorageControllerSpec extends ResourceSpec {
         response.status == 200
         response.json['name'] == '1000 genemes VCFs'
         response.json['uuid'] == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
-        response.json['studyId'] == 'storage_study'
-        response.json['sourceSystemId'] == 1
+        response.json['study'] == 'storage_study'
+        response.json['sourceSystem'] == 1
     }
 
     void indexByStudyTest() {
@@ -66,8 +66,8 @@ class StorageControllerSpec extends ResourceSpec {
         response.json[expectedCollectionName].size() == 1
         response.json[expectedCollectionName][0].name == '1000 genemes VCFs'
         response.json[expectedCollectionName][0].uuid == 'ys8ib-4zz18-cyw4o6pmrxrixnr'
-        response.json[expectedCollectionName][0].studyId == 'storage_study'
-        response.json[expectedCollectionName][0].sourceSystemId == 1
+        response.json[expectedCollectionName][0].study == 'storage_study'
+        response.json[expectedCollectionName][0].sourceSystem == 1
     }
 
     void StorageSystemPostTest() {
