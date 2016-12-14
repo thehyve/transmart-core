@@ -52,7 +52,7 @@ class SecureObjectDAO {
                 bioExperimentId, displayName, token)
         Map studyValues = findOrCreateStudy(token.studyId, token, bioExperimentId)
 
-        if (token.toString() != 'EXP:PUBLIC') {
+        if (!token.public) {
             insertDummySecurityObservation(token)
         }
 
@@ -70,11 +70,9 @@ class SecureObjectDAO {
                     "$secureObjectValues")
         }
         if (studyValues['secure_obj_token'] != token.toString()) {
-            if (!(studyValues['secure_obj_token'] == 'PUBLIC' && token.toString() == 'EXP:PUBLIC')) {
-                throw new IllegalStateException("Study found " +
-                        "($studyValues) does not have expected " +
-                        "secure object token ${token.toString()}")
-            }
+            throw new IllegalStateException("Study found " +
+                    "($studyValues) does not have expected " +
+                    "secure object token ${token.toString()}")
         }
     }
 
@@ -268,8 +266,7 @@ class SecureObjectDAO {
             return study
         }
         Long id = sequenceReserver.getNext(Sequences.STUDY)
-        // The special token 'PUBLIC' is encoded differently in the study table.
-        String token = secureObjectToken.toString() == 'EXP:PUBLIC' ? 'PUBLIC' : secureObjectToken.toString()
+        String token = secureObjectToken.toString()
         study = [
                 study_num           : id,
                 study_id            : studyId,

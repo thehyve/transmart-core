@@ -166,7 +166,8 @@ class InsertConceptsService {
             }
 
             Map i2b2SecureRow = new HashMap(i2b2Row)
-            def sot = it.ontologyNode ? 'PUBLIC' : secureObjectToken as String
+            /* In this case, we use 'EXP:PUBLIC' for public nodes, to make the nodes visible in transmartApp. */
+            def sot = (it.ontologyNode || secureObjectToken.public) ? 'EXP:PUBLIC' : secureObjectToken.toString()
             i2b2SecureRow.put('secure_obj_token', sot)
             i2b2SecureRow.remove('record_id')
 
