@@ -93,7 +93,7 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
             log.info "Found existing i2b2 node ${it.path}"
             if (it.conceptPath) {
                 def conceptCode = jdbcTemplate.query(
-                        "select CONCEPT_CD from I2B2DEMODATA.CONCEPT_DIMENSION where CONCEPT_PATH LIKE :path",
+                        "select CONCEPT_CD from I2B2DEMODATA.CONCEPT_DIMENSION where CONCEPT_PATH = :path",
                         [path: it.conceptPath.toString()],
                         { ResultSet rs, int rowNum -> rs.getString('CONCEPT_CD') } as RowMapper<String>
                 )

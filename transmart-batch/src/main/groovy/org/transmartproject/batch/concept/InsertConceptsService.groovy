@@ -6,6 +6,7 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Lazy
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.db.objects.Tables
@@ -45,6 +46,9 @@ class InsertConceptsService {
     @Value(Tables.TABLE_ACCESS)
     private SimpleJdbcInsert tableAccessInsert
 
+    @Autowired
+    private NamedParameterJdbcTemplate jdbcTemplate
+
     @SuppressWarnings('PrivateFieldCouldBeFinal')
     @Lazy
     private String metadataXml = { generateMetadataXml() }()
@@ -79,8 +83,27 @@ class InsertConceptsService {
         newTreeNodes
     }
 
+    /**
+     * Fetches the full paths of existing table access entries.
+     * @return The list of paths.
+     */
+    private Collection<String> fetchTableAccessEntries() {
+        jdbcTemplate.queryForList("SELECT c_fullname FROM $Tables.TABLE_ACCESS", [:], String)
+    }
+
+    /**
+     * Inserts table access entries for the root nodes (<code>level == 0</code>),
+     * if a node with the same path does not already exists.
+     *
+     * @param rootNodes
+     * @return the array with insert counts as documented in
+     * {@link org.springframework.jdbc.core.simple.SimpleJdbcInsertOperations#executeBatch}.
+     */
     private int[] insertTableAccess(List<ConceptNode> rootNodes) {
-        def tableAccessRows = rootNodes.collect { ConceptNode node ->
+        def existingEntries = fetchTableAccessEntries() as Set<String>
+        def tableAccessRows = rootNodes.findAll { ConceptNode node ->
+            !(node.path.toString() in existingEntries)
+        }.collect { ConceptNode node ->
             assert node.level == 0
             log.info "Inserting ${node.name} into $Tables.TABLE_ACCESS"
             [
@@ -100,8 +123,7 @@ class InsertConceptsService {
                 c_dimcode: node.conceptPath?.toString() ?: '',
             ]
         }
-        int[] counts = tableAccessInsert.executeBatch(tableAccessRows as Map[])
-        counts
+        tableAccessInsert.executeBatch(tableAccessRows as Map[])
     }
 
     private int[] insertI2b2(String studyId, Collection<ConceptNode> newConcepts, Date now = new Date()) {
