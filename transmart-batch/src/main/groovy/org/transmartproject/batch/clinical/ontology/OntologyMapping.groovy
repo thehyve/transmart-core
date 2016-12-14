@@ -50,7 +50,7 @@ class OntologyMapping {
     }
 
     void add(OntologyNode node) {
-        log.info "Adding ontology node: ${node.code}"
+        log.info "Adding ontology node: ${node.label} (${node.code})"
         // add node to nodes
         if (!(node.code in nodes.keySet())) {
             nodes.put(node.code, node)

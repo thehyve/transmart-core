@@ -64,7 +64,7 @@ class InsertConceptsService {
     Collection<ConceptNode> insert(Collection<ConceptNode> newTreeNodes) throws Exception {
         log.debug "New tree nodes are ${newTreeNodes*.path}"
         newTreeNodes.each {
-            log.info "Adding tree node ${it.path}"
+            log.debug "Adding tree node ${it.path}"
         }
         // reserve ids for non-shared concepts and store generated codes in-place
         conceptTree.reserveIdsFor(newTreeNodes)
@@ -73,7 +73,7 @@ class InsertConceptsService {
                 .findAll { it.conceptPath && !(it.code in conceptTree.savedConceptCodes) }
                 .unique { it.conceptPath }
         newConcepts.each {
-            log.info "Adding concept ${it.conceptPath} (${it.code})"
+            log.debug "Adding concept ${it.conceptPath} (${it.code})"
         }
         insertConceptDimension(studyId, newConcepts)
         conceptTree.addToSavedConceptCodes(newConcepts*.code)

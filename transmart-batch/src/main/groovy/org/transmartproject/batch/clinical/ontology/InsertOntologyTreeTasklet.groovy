@@ -66,7 +66,7 @@ class InsertOntologyTreeTasklet implements Tasklet {
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         def ontologyCodes = ontologyMapping.nodes.keySet() - conceptTree.savedConceptCodes
         def ontologyCodesInOrder = ontologyCodes.collectMany {
-            log.info "Considering ontology code '$it'..."
+            log.debug "Considering ontology code '$it'..."
             orderByDependencies(it)
         }
 
@@ -76,7 +76,6 @@ class InsertOntologyTreeTasklet implements Tasklet {
                 it.categoryCode == entry.node.categoryCode &&
                 it.dataLabel == entry.node.dataLabel
             }
-            log.info "Adding node for entry ${entry.path} (var = ${var?.conceptPath})"
             if (var) {
                 conceptTree.getOrGenerate(
                         new ConceptPath(entry.path),
