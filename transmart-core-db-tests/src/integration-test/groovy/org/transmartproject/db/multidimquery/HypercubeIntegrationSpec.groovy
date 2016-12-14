@@ -6,12 +6,14 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.metadata.DimensionDescription
+
+import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 @Integration
 @Rollback
@@ -19,7 +21,6 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
     TestData testData
     ClinicalTestData clinicalData
-    Map<String, DimensionImpl> dims
 
     @Autowired
     MultidimensionalDataResourceService queryResource
@@ -28,12 +29,26 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
         testData.saveAll()
-        dims = DimensionDescription.dimensionsMap
     }
 
     static private study(String name) {
         new StudyNameConstraint(studyId: name)
     }
+
+    static private def pattern = ~"[0-9]+(\\.[0-9]+)?\$"
+    static private def getKey = { HypercubeValue v ->
+        if(v.value in String) {
+            def m = pattern.matcher(v.value)
+            m.find()
+            return m.group() as BigDecimal
+        }
+        return v.value as BigDecimal
+    }
+
+    static private trAt(val) {
+        val == '@' ? null : val
+    }
+
 
     void 'test_basic_longitudinal_retrieval'() {
         setupData()
@@ -41,14 +56,14 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def hypercube = queryResource.retrieveData('clinical',
                 constraint: study(clinicalData.longitudinalStudy.studyId),
                 [clinicalData.longitudinalStudy])
-        def resultObs = Lists.newArrayList(hypercube).sort()
+        def resultObs = Lists.newArrayList(hypercube).sort(getKey)
 
         def result = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
 
-        def patients = hypercube.dimensionElements(dims.patient) as Set
-        def trialVisits = hypercube.dimensionElements(dims.'trial visit') as Set
-        def concepts = hypercube.dimensionElements(dims.concept) as Set
+        def patients = hypercube.dimensionElements(PATIENT) as Set
+        def trialVisits = hypercube.dimensionElements(TRIAL_VISIT) as Set
+        def concepts = hypercube.dimensionElements(CONCEPT) as Set
 
         def expected = clinicalData.longitudinalClinicalFacts*.value as HashMultiset
         def expectedConcepts = testData.conceptData.conceptDimensions.findAll {
@@ -72,13 +87,14 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         trialVisits == expectedVisits
 
         for (int i = 0; i < resultObs.size(); i++) {
-            resultObs[i].getAt(dims.concept).conceptCode == clinicalData.longitudinalClinicalFacts[i].conceptCode
-            resultObs[i].getAt(dims.patient).id == clinicalData.longitudinalClinicalFacts[i].patient.id
-            def iTrialVisit = resultObs[i].getAt(dims.'trial visit')
-            iTrialVisit.id == clinicalData.longitudinalClinicalFacts[i].trialVisit.id
-            iTrialVisit.relTime == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTime
-            iTrialVisit.relTimeLabel == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTimeLabel
-            iTrialVisit.relTimeUnit == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTimeUnit
+            assert resultObs[i].getAt(CONCEPT).conceptCode == clinicalData.longitudinalClinicalFacts[i].conceptCode
+            assert resultObs[i].getAt(PATIENT).id == clinicalData.longitudinalClinicalFacts[i].patient.id
+            assert resultObs[i].value == clinicalData.longitudinalClinicalFacts[i].value
+            def iTrialVisit = resultObs[i].getAt(TRIAL_VISIT)
+            assert iTrialVisit.id == clinicalData.longitudinalClinicalFacts[i].trialVisit.id
+            assert iTrialVisit.relTime == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTime
+            assert iTrialVisit.relTimeLabel == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTimeLabel
+            assert iTrialVisit.relTimeUnit == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTimeUnit
         }
     }
 
@@ -90,13 +106,13 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def hypercube = queryResource.retrieveData('clinical',
                 constraint: study(clinicalData.sampleStudy.studyId),
                 [clinicalData.sampleStudy])
-        def resultObs = Lists.newArrayList(hypercube).sort { [it.getDimKey(dims.patient), it.value] }
+        def resultObs = Lists.newArrayList(hypercube) // TODO: make observations sortable to ensure order
 
         def resultValues = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
 
-        def concepts = hypercube.dimensionElements(dims.concept) as Set
-        def patients = hypercube.dimensionElements(dims.patient) as Set
+        def concepts = hypercube.dimensionElements(CONCEPT) as Set
+        def patients = hypercube.dimensionElements(PATIENT) as Set
         def tissueTypes = hypercube.dimensionElements(ttDim) as Set
 
         def expected = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == '@'}
@@ -125,13 +141,13 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
 
         // This makes assumptions on the order of observation facts in the test data
         for (int i = 0; i < resultObs.size(); i++) {
-            resultObs[i][dims.concept].conceptCode ==
+            assert resultObs[i][CONCEPT].conceptCode ==
                     clinicalData.sampleClinicalFacts.findAll{it.modifierCd == '@'}[i].conceptCode
-            resultObs[i][dims.patient].id ==
+            assert resultObs[i][PATIENT].id ==
                     clinicalData.sampleClinicalFacts.findAll{it.modifierCd == '@'}[i].patient.id
-            resultObs[i][ttDim] ==
+            assert resultObs[i][ttDim] ==
                     clinicalData.sampleClinicalFacts.findAll{it.modifierCd == ttDim.modifierCode}[i].textValue
-            resultObs[i][doseDim] ==
+            assert resultObs[i][doseDim] ==
                     clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}[i].numberValue
         }
     }
@@ -145,11 +161,11 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
                 constraint: study(clinicalData.sampleStudy.studyId),
                 dimensions: ['study', 'concept', 'tissueType', 'dose'],
                 [clinicalData.sampleStudy])
-        def resultObs = Lists.newArrayList(hypercube)
+        def resultObs = Lists.newArrayList(hypercube) // TODO: make observations sortable to ensure order
 
         def resultValues = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
-        def concepts = hypercube.dimensionElements(dims.concept) as Set
+        def concepts = hypercube.dimensionElements(CONCEPT) as Set
         def tissueTypes = hypercube.dimensionElements(ttDim) as Set
 
         def expected = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == '@'}
@@ -161,7 +177,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def expectedDosages = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}*.numberValue as Set
 
         expect:
-        !(dims.patient in hypercube.dimensions)
+        !(PATIENT in hypercube.dimensions)
 
         hypercube.dimensions.size() == clinicalData.sampleStudy.dimensions.size() - 1
         resultValues == expectedValues
@@ -175,10 +191,10 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         expectedDosages == resultObs*.getAt(doseDim) as Set
 
         when:
-        hypercube.dimensionElements(dims.patient)
+        hypercube.dimensionElements(PATIENT)
 
         then:
-        thrown(InvalidArgumentsException)
+        thrown(IllegalArgumentException)
 
     }
 
@@ -188,14 +204,14 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def hypercube = queryResource.retrieveData('clinical',
                 constraint: study(clinicalData.ehrStudy.studyId),
                 [clinicalData.ehrStudy])
-        def resultObs = Lists.newArrayList(hypercube).sort()
+        def resultObs = Lists.newArrayList(hypercube) // TODO: make observations sortable to ensure order
 
         def result = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
 
-        def patients = hypercube.dimensionElements(dims.patient) as Set
-        def visits = hypercube.dimensionElements(dims.visit) as Set
-        def concepts = hypercube.dimensionElements(dims.concept) as Set
+        def patients = hypercube.dimensionElements(PATIENT) as Set
+        def visits = hypercube.dimensionElements(VISIT) as Set
+        def concepts = hypercube.dimensionElements(CONCEPT) as Set
 
         def expected = clinicalData.ehrClinicalFacts*.value as HashMultiset
         def expectedConcepts = testData.conceptData.conceptDimensions.findAll {
@@ -218,8 +234,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         visits == expectedVisits
 
         for (int i = 0; i < resultObs.size(); i++) {
-            resultObs[i].getAt(dims.concept).conceptCode == clinicalData.ehrClinicalFacts[i].conceptCode
-            resultObs[i].getAt(dims.patient).id == clinicalData.ehrClinicalFacts[i].patient.id
+            assert resultObs[i].getAt(CONCEPT).conceptCode == clinicalData.ehrClinicalFacts[i].conceptCode
+            assert resultObs[i].getAt(PATIENT).id == clinicalData.ehrClinicalFacts[i].patient.id
         }
     }
 
@@ -229,22 +245,21 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def hypercube = queryResource.retrieveData('clinical',
                 constraint: study(clinicalData.multidimsStudy.studyId),
                 [clinicalData.multidimsStudy])
-        def resultObs = Lists.newArrayList(hypercube).sort()
-
+        def resultObs = Lists.newArrayList(hypercube).sort(getKey)
         def result = resultObs*.value as HashMultiset
         hypercube.loadDimensions()
 
         // indexed dimensions
-        def concepts = hypercube.dimensionElements(dims.concept) as Set
-        def patients = hypercube.dimensionElements(dims.patient) as Set
-        def trialVisits = hypercube.dimensionElements(dims.'trial visit') as Set
-        def visit = hypercube.dimensionElements(dims.'visit') as Set
+        def concepts = hypercube.dimensionElements(CONCEPT) as Set
+        def patients = hypercube.dimensionElements(PATIENT) as Set
+        def trialVisits = hypercube.dimensionElements(TRIAL_VISIT) as Set
+        def visit = hypercube.dimensionElements(VISIT) as Set
 
         // inlined dimensions
-        def startTime = resultObs*.getAt(dims.'start time') as Set
-        def endTime = resultObs*.getAt(dims.'end time') as Set
-        def locations = resultObs*.getAt(dims.location) as Set
-        def providers = resultObs*.getAt(dims.provider) as Set
+        def startTime = resultObs*.getAt(START_TIME) as Set
+        def endTime = resultObs*.getAt(END_TIME) as Set
+        def locations = resultObs*.getAt(LOCATION) as Set
+        def providers = resultObs*.getAt(PROVIDER) as Set
         providers.remove(null)
 
         def expected = clinicalData.multidimsClinicalFacts*.value as HashMultiset
@@ -289,17 +304,17 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         providers == expectedProviders
 
         for (int i = 0; i < resultObs.size(); i++) {
-            resultObs[i].getAt(dims.concept).conceptCode == clinicalData.multidimsClinicalFacts[i].conceptCode
-            resultObs[i].getAt(dims.patient).id == clinicalData.multidimsClinicalFacts[i].patient.id
-            def iTrialVisit = resultObs[i].getAt(dims.'trial visit')
-            iTrialVisit.id == clinicalData.multidimsClinicalFacts[i].trialVisit.id
-            iTrialVisit.relTime == clinicalData.multidimsClinicalFacts[i].trialVisit.relTime
-            iTrialVisit.relTimeLabel == clinicalData.multidimsClinicalFacts[i].trialVisit.relTimeLabel
-            iTrialVisit.relTimeUnit == clinicalData.multidimsClinicalFacts[i].trialVisit.relTimeUnit
-            resultObs[i].getAt(dims.provider) == clinicalData.multidimsClinicalFacts[i].providerId
-            resultObs[i].getAt(dims.'start time') == clinicalData.multidimsClinicalFacts[i].startDate
-            resultObs[i].getAt(dims.'end time') == clinicalData.multidimsClinicalFacts[i].endDate
-            resultObs[i].getAt(dims.location) == clinicalData.multidimsClinicalFacts[i].locationCd
+            assert resultObs[i].getAt(CONCEPT).conceptCode == clinicalData.multidimsClinicalFacts[i].conceptCode
+            assert resultObs[i].getAt(PATIENT).id == clinicalData.multidimsClinicalFacts[i].patient.id
+            def iTrialVisit = resultObs[i].getAt(TRIAL_VISIT)
+            assert iTrialVisit.id == clinicalData.multidimsClinicalFacts[i].trialVisit.id
+            assert iTrialVisit.relTime == clinicalData.multidimsClinicalFacts[i].trialVisit.relTime
+            assert iTrialVisit.relTimeLabel == clinicalData.multidimsClinicalFacts[i].trialVisit.relTimeLabel
+            assert iTrialVisit.relTimeUnit == clinicalData.multidimsClinicalFacts[i].trialVisit.relTimeUnit
+            assert resultObs[i].getAt(PROVIDER) == trAt(clinicalData.multidimsClinicalFacts[i].providerId)
+            assert resultObs[i].getAt(START_TIME) == trAt(clinicalData.multidimsClinicalFacts[i].startDate)
+            assert resultObs[i].getAt(END_TIME) == trAt(clinicalData.multidimsClinicalFacts[i].endDate)
+            assert resultObs[i].getAt(LOCATION) == trAt(clinicalData.multidimsClinicalFacts[i].locationCd)
         }
     }
 }

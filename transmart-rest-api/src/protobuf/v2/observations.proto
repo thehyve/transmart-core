@@ -18,7 +18,9 @@ enum Type {
 }
 
 message Header { // header is sent without chunking in a one message
-                 repeated DimensionDeclaration dimensionDeclarations = 1;
+    repeated DimensionDeclaration dimensionDeclarations = 1;
+    // same meaning as in Observation
+    bool last = 2; //default: false
 }
 
 message DimensionDeclaration { // each dimension present in the output is declared with this message
@@ -29,7 +31,8 @@ message DimensionDeclaration { // each dimension present in the output is declar
                                /* If true, the dimension elements will be stored in the
                                   observation cell instead of the footer. */
                                bool inline = 4;
-                               /* If true, observations are packed along this dimension. */
+                               /* If true, observations are packed along this dimension. Only one dimension can have
+                               this flag set, and this flag is mutually exclusive with the 'inline' flag.*/
                                bool packed = 5;
                                /* Only used if the dimension elements are sent in the header instead of the footer. */
                                DimensionElements elements = 6;
@@ -79,7 +82,7 @@ message PackedObservation {
     // by this message.
     int32 numObervations = 5;
 
-    bool last = 7; // [default=false];
+    bool last = 7; // default: false
 }
 
 // Nullable long value type

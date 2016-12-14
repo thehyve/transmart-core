@@ -8,10 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.PatientDimension
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.TestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.protobuf.ObservationsSerializer
@@ -31,7 +29,7 @@ class ObservationsBuilderTests extends Specification {
 
     TestData testData
     ClinicalTestData clinicalData
-    Map<String, DimensionImpl> dims
+    //Map<String, DimensionImpl> dims
     
     @Autowired
     MultidimensionalDataResourceService queryResource
@@ -50,7 +48,7 @@ class ObservationsBuilderTests extends Specification {
         def dimElementsSize = result.last()['dimension'].size()
 
         then:
-        result.size() == 14
+        result.size() == clinicalData.longitudinalClinicalFacts.size()+2
         that result, everyItem(anyOf(
                 hasKey('dimensionDeclarations'),
                 hasKey('dimensionIndexes'),
@@ -68,7 +66,7 @@ class ObservationsBuilderTests extends Specification {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.multidimsStudy], constraint: constraint)
-        def patientDimension = DimensionDescription.dimensionsMap.patient
+        def patientDimension = DimensionImpl.PATIENT
         def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON, patientDimension)
 
         when:
@@ -82,7 +80,7 @@ class ObservationsBuilderTests extends Specification {
         def notPackedDimensionsSize = notPackedDimensions.size()
 
         then:
-        result.size() == 14
+        result.size() == clinicalData.multidimsClinicalFacts.size() + 2
         that result, everyItem(anyOf(
                 hasKey('dimensionDeclarations'),
                 hasKey('dimensionIndexes'),
@@ -126,7 +124,7 @@ class ObservationsBuilderTests extends Specification {
         int count = 0
         while(true) {
             count++
-            if (count > 12) {
+            if (count > clinicalData.longitudinalClinicalFacts.size()) {
                 throw new Exception("Expected previous message to be marked as 'last'.")
             }
             log.info "Reading cell..."
@@ -143,7 +141,7 @@ class ObservationsBuilderTests extends Specification {
         then:
         header != null
         header.dimensionDeclarationsList.size() == mockedCube.dimensions.size()
-        cells.size() == 12
+        cells.size() == clinicalData.longitudinalClinicalFacts.size()
         footer != null
     }
 
@@ -151,6 +149,6 @@ class ObservationsBuilderTests extends Specification {
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
         testData.saveAll()
-        dims = DimensionDescription.dimensionsMap
+        //dims = DimensionImpl.dimensionsMap
     }
 }

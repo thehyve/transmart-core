@@ -14,4 +14,5 @@ interface MDStudy extends ProtectedResource {
 
     Dimension getDimensionByName(String name)
 
+    //Todo: also expose the org.transmart.biomart.Experiment?
 }
