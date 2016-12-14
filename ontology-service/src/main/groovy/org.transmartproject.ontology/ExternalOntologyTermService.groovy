@@ -1,36 +1,91 @@
 package org.transmartproject.ontology
 
+import au.com.bytecode.opencsv.CSVWriter
 import groovy.util.logging.Slf4j
 import groovyx.net.http.ContentType
 import groovyx.net.http.Method
 import groovyx.net.http.HTTPBuilder
 
 /**
- * Created by ewelina on 7-12-16.
- */
+*  Created by ewelina on 7-12-16.
+*/
 @Slf4j
 class ExternalOntologyTermService {
 
-    //TODO: move configuration parameters to config file
-    public static final String ONTOLOGY_SERVER_URL = 'http://localhost:8081/'
-    public static final String SEARCH_TEXT_PATH = "search/"
-    def contentType = 'application/json'
-    private http = new HTTPBuilder(ONTOLOGY_SERVER_URL)
-
-    public Object fetchPreferredConcept(String conceptCode) {
-        // TODO: Add possibility to use other parameters (optional), decide on which we want to use
-        def responseData = get("$SEARCH_TEXT_PATH/$conceptCode", contentType)
-        wrapOntologyServerResponse(responseData)
+    /**
+     * Ontology service for fetching ontology metadata for a concept code.
+     * @param ontologyServerUrl
+     * @param searchTextRequestPath
+     * @param conceptCodeDetailsRequestPath
+     */
+    ExternalOntologyTermService(ontologyServerUrl, searchTextRequestPath, conceptCodeDetailsRequestPath) {
+        this.ONTOLOGY_SERVER_URL = ontologyServerUrl
+        this.SEARCH_TEXT_REQUEST_PATH = searchTextRequestPath
+        this.CONCEPT_CODE_DETAILS_REQUEST_PATH = conceptCodeDetailsRequestPath
+        this.http = new HTTPBuilder(ONTOLOGY_SERVER_URL)
     }
 
+    def ONTOLOGY_SERVER_URL // = 'http://localhost:8081/'
+    def SEARCH_TEXT_REQUEST_PATH // = 'search/'
+    def CONCEPT_CODE_DETAILS_REQUEST_PATH // = ''
+    private http
+
+    private String contentType = 'application/json'
+    private String categoryCode
+    private String dataLabel
+
     /**
-     * http request to get preferred concept codes fetched from external ontology server
-     *
+     * Reference terms from external ontology servers
+     * @param categoryCode
+     * @param dataLabel
+     * @return
+     */
+    public Object fetchPreferredConcept(String categoryCode, String dataLabel) {
+        this.categoryCode = categoryCode
+        this.dataLabel = dataLabel
+
+        def responseData = get("$SEARCH_TEXT_REQUEST_PATH/$categoryCode", contentType)
+
+        if(responseData.size() > 0) {
+            def recommendedValues = getHighlyRecommendedValues(responseData)
+            LinkedHashMap responseMap = wrapOntologyServerResponse(recommendedValues.classpath)
+            List values = new ArrayList()
+            LinkedHashMap labels = getLabels(responseMap.keySet())
+            Iterator iterator = responseMap.iterator()
+
+            String rootValue = iterator.next().key
+            String rootLabel = recommendedValues.label
+
+            responseMap.each {
+                OntologyMap ontologyMap = values ? mapResponseToOntologyCodes(it, labels[it.key]) : mapResponseToOntologyCodes(it, rootLabel, rootValue )
+                String[] value = [ontologyMap.categoryCode,
+                                  ontologyMap.dataLabel,
+                                  ontologyMap.ontologyCode,
+                                  ontologyMap.label,
+                                  ontologyMap.uri,
+                                  ontologyMap.ancestors]
+                values.add(value)
+            }
+            return generateTSV(values)
+        }
+        else return null
+    }
+
+    LinkedHashMap getLabels(Collection values) {
+        def labelMap = [:]
+        values.collect{
+            def detail = get("$CONCEPT_CODE_DETAILS_REQUEST_PATH/$it", contentType)
+            labelMap.put(it, detail.node)
+        }
+        labelMap
+    }
+/**
+     * Http request to get preferred concept codes fetched from external ontology server
      * @param path
      * @param AcceptHeader
      * @return
      */
-    def get(String path, String AcceptHeader){
+    def get(String path, String AcceptHeader) {
         http.request(Method.GET, ContentType.JSON) { req ->
             uri.path = path
             headers.Accept = AcceptHeader
@@ -53,21 +108,86 @@ class ExternalOntologyTermService {
         }
     }
 
-    private Object wrapOntologyServerResponse(responseData)
-    {
-        def recommendedValues = getHighlyReccomendedValues(responseData)
-        def conceptPaths = recommendedValues.classpath.collect{ path->
-            path.join("/");
+    /**
+     * Wrap server response into ONTOLOGY_MAP_FILE table format.
+     * @param paths
+     * @return
+     */
+    private LinkedHashMap wrapOntologyServerResponse(paths) {
+        def multimap = [:]
+        paths.each { path ->
+            for(int i = 0; i < path.size(); i++) {
+                if (multimap[path[i]] == null) {
+                    multimap[path[i]] = new HashSet()
+                }
+                if (i > 0) {
+                    multimap[path[i]] << path[i - 1]
+                }
+            }
         }
-        def label = recommendedValues.label
-        [
-                concept_paths : conceptPaths,
-                label : label
-        ]
+        multimap
     }
 
-    private Object getHighlyReccomendedValues(responseData){
+    /**
+     * Get most preferred codes from list of retrieved values.
+     * @param responseData
+     * @return
+     */
+    private Object getHighlyRecommendedValues(responseData) {
         //TODO decide on which value is the most recommended one
         responseData.get(0)
+    }
+
+    /**
+     * Create OntologyMap object from external server response.
+     * @param response
+     * @param rootValue
+     * @param label
+     * @return
+     */
+    private Object mapResponseToOntologyCodes(response, String label = "", String rootValue = null) {
+        if (rootValue) {
+            OntologyMap ontologyMap = new OntologyMap(
+                    categoryCode,
+                    dataLabel,
+                    response.key,
+                    label,
+                    "$ONTOLOGY_SERVER_URL$SEARCH_TEXT_REQUEST_PATH$categoryCode",
+                    ""
+            )
+            return ontologyMap
+        } else {
+            OntologyMap ontologyMap = new OntologyMap(
+                    response.key,
+                    label,
+                    "$ONTOLOGY_SERVER_URL$SEARCH_TEXT_REQUEST_PATH$categoryCode",
+                    response.value.join(", ")
+            )
+            return ontologyMap
+        }
+    }
+
+    /**
+     * Convert results into TSV file format.
+     * @param values
+     * @return
+     */
+    private static StringWriter generateTSV(List<String[]> values) {
+        StringWriter buffer = new StringWriter()
+        CSVWriter writer = new CSVWriter(buffer, '\t' as char)
+        try {
+            writer.writeNext(OntologyMap.categoryCodeHeader,
+                    OntologyMap.dataLabelHeader,
+                    OntologyMap.ontologyCodeHeader,
+                    OntologyMap.labelHeader,
+                    OntologyMap.uriHeader,
+                    OntologyMap.ancestorsHeader)
+            values.each {
+                writer.writeNext(it)
+            }
+        } finally {
+            writer.close()
+        }
+        buffer
     }
 }

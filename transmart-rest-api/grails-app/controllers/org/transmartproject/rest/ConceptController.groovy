@@ -64,7 +64,12 @@ class ConceptController {
     }
 
     def showRecommended(String conceptCode) {
-        render new ExternalOntologyTermService().fetchPreferredConcept(conceptCode) as JSON
+        render new ExternalOntologyTermService(
+                'http://localhost:8081/',
+                'search/',
+                ''
+        )
+                .fetchPreferredConcept(conceptCode, "test") as JSON
     }
 
     /**

@@ -23,6 +23,7 @@ class OntologyTermsSpec extends RESTSpec {
         def responseData = get("$PATH_RECOMMENTED_CONCEPTS/$conceptCode", contentTypeForJSON)
 
         then:
+        responseData.status == 200
         responseData.size() > 0
     }
 }

@@ -15,4 +15,5 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     compile 'ch.qos.logback:logback-classic:1.1.7'
     compile 'org.slf4j:slf4j-api:1.7.20'
+    compile 'net.sf.opencsv:opencsv:2.3'
 }
