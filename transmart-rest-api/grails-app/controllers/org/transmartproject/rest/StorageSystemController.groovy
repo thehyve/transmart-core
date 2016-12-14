@@ -29,7 +29,7 @@ class StorageSystemController extends RestfulController {
     def save() {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
-            throw new AccessDeniedException("Listing all Linked File Collections " +
+            throw new AccessDeniedException("Creating new storage system entry" +
                     "is an admin action")
         }
         super.save()
@@ -39,7 +39,17 @@ class StorageSystemController extends RestfulController {
     def delete() {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
-            throw new AccessDeniedException("Listing all Linked File Collections " +
+            throw new AccessDeniedException("Removing a storage system entry " +
+                    "is an admin action")
+        }
+        super.delete()
+    }
+
+    @Override
+    def update() {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        if (!user.admin) {
+            throw new AccessDeniedException("Removing a storage system entry " +
                     "is an admin action")
         }
         super.delete()

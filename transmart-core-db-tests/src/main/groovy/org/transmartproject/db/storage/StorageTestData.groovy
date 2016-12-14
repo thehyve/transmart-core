@@ -41,6 +41,13 @@ class StorageTestData {
         linkedFileCollection.uuid = 'ys8ib-4zz18-cyw4o6pmrxrixnr'
         linkedFileCollection.study = study1
         storageTestData.linkedFileCollectionList << linkedFileCollection
+        def deleteMesystem = new StorageSystem()
+        deleteMesystem.name = "delete_me"
+        deleteMesystem.systemType = 'oracle'
+        deleteMesystem.singleFileCollections = true
+        deleteMesystem.systemVersion = '11g'
+        deleteMesystem.url = 'http://oracle.someco.com:6726'
+        storageTestData.storageSystemList << deleteMesystem
         storageTestData
     }
 

@@ -70,29 +70,33 @@ class StorageControllerSpec extends ResourceSpec {
         response.json[expectedCollectionName][0].sourceSystemId == 1
     }
 
-    void StorageSystemPosttest() {
+    void StorageSystemPostTest() {
         when:
+        def indexResponseBefore = get("/$VERSION/storage")
         def bodyContent = [
-                'name':'mongodb at The Hyve',
-                'systemType':'mongodb',
-                'url':'https://mongodb.thehyve.net:5467',
-                'systemVersion':'3.4',
-                'singleFileCollections':true,
+                'name'                 : 'mongodb at The Hyve',
+                'systemType'           : 'mongodb',
+                'url'                  : 'https://mongodb.thehyve.net:5467',
+                'systemVersion'        : '3.4',
+                'singleFileCollections': true,
         ] as JSON
         def response = post "/$VERSION/storage", {
             contentType "application/json"
             json bodyContent
         }
-        def indexResponse = get("/$VERSION/storage")
+        def indexResponseAfter = get("/$VERSION/storage")
+        int itemsBefore = indexResponseBefore.json[STORAGE_SYSTEM_COLLECTION_NAME].size()
+        int itemsAfter = indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME].size()
         then:
         response.status == 201
-        indexResponse.status == 200
-        indexResponse.json[STORAGE_SYSTEM_COLLECTION_NAME].size() == 2
-        indexResponse.json[STORAGE_SYSTEM_COLLECTION_NAME][1]['name'] == 'mongodb at The Hyve'
-        indexResponse.json[STORAGE_SYSTEM_COLLECTION_NAME][1]['systemType'] == 'mongodb'
-        indexResponse.json[STORAGE_SYSTEM_COLLECTION_NAME][1]['systemVersion'] == '3.4'
-        indexResponse.json[STORAGE_SYSTEM_COLLECTION_NAME][1]['url'] == 'https://mongodb.thehyve.net:5467'
-        indexResponse.json[STORAGE_SYSTEM_COLLECTION_NAME][1]['singleFileCollections'] == true
+        indexResponseAfter.status == 200
+        indexResponseBefore.status == 200
+        itemsAfter == (itemsBefore + 1)
+        indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME][2]['name'] == 'mongodb at The Hyve'
+        indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME][2]['systemType'] == 'mongodb'
+        indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME][2]['systemVersion'] == '3.4'
+        indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME][2]['url'] == 'https://mongodb.thehyve.net:5467'
+        indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME][2]['singleFileCollections'] == true
     }
 
     def storageSystemGetTest() {
@@ -106,4 +110,16 @@ class StorageControllerSpec extends ResourceSpec {
         response.json['url'] == 'https://arvbox-pro-dev.thehyve.net'
         response.json['singleFileCollections'] == false
     }
+
+    def storageSystemDeleteTest() {
+        when:
+        def beforeResponse = get("/$VERSION/storage/2")
+        def deleteResponse = delete("/$VERSION/storage/2")
+        def afterResponse = get("/$VERSION/storage/2")
+        then:
+        beforeResponse.status == 200
+        deleteResponse.status == 204
+        afterResponse.status == 404
+    }
+
 }

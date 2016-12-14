@@ -49,7 +49,7 @@ class StorageController extends RestfulController {
     def save() {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
-            throw new AccessDeniedException("Listing all Linked File Collections " +
+            throw new AccessDeniedException("Creating new Linked File Collections " +
                     "is an admin action")
         }
         def fields = request.JSON
@@ -85,6 +85,26 @@ class StorageController extends RestfulController {
         def filesInStudy = LinkedFileCollection.findAllByStudy(study)
         def response = ['files': filesInStudy  ]
         respond response
+    }
+
+    @Override
+    def delete() {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        if (!user.admin) {
+            throw new AccessDeniedException("Removing a linked file entry " +
+                    "is an admin action")
+        }
+        super.delete()
+    }
+
+    @Override
+    def update() {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        if (!user.admin) {
+            throw new AccessDeniedException("updating a linked file entry " +
+                    "is an admin action")
+        }
+        super.delete()
     }
 
 }
