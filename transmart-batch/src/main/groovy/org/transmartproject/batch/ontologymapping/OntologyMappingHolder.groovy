@@ -1,5 +1,6 @@
 package org.transmartproject.batch.ontologymapping
 
+import groovy.transform.Canonical
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.stereotype.Component
 import org.transmartproject.ontology.OntologyMap
@@ -10,5 +11,14 @@ import org.transmartproject.ontology.OntologyMap
 @Component
 @JobScope
 class OntologyMappingHolder {
-    List<OntologyMap> nodes
+
+    @Canonical
+    static class Key {
+        String ontologyCode
+        String categoryCode
+        String dataLabel
+    }
+
+    Map<Key, OntologyMap> nodes
+
 }

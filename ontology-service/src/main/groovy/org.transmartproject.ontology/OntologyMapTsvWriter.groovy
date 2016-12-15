@@ -9,7 +9,7 @@ class OntologyMapTsvWriter {
      * @param values
      * @return
      */
-    private static void write(OutputStream o, List<OntologyMap> values) {
+    static void write(OutputStream o, Collection<OntologyMap> values) {
         o.withWriter { Writer w ->
             CSVWriter writer = new CSVWriter(w, '\t' as char)
             try {

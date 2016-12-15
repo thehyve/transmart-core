@@ -12,6 +12,15 @@ import groovyx.net.http.HTTPBuilder
 @Slf4j
 class DefaultExternalOntologyTermService implements ExternalOntologyTermService {
 
+    private static final ContentType CONTENT_TYPE = ContentType.JSON
+
+    private String ontologyServerUrl
+    private String searchTextRequestPath
+    private String conceptCodeDetailsRequestPath
+    private HTTPBuilder http
+
+    private final Map<String, String> labelCache = [:]
+
     /**
      * Ontology service for fetching ontology metadata for a concept code.
      * @param ontologyServerUrl
@@ -28,13 +37,6 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
         this.http = new HTTPBuilder(ontologyServerUrl)
     }
 
-    private String ontologyServerUrl
-    private String searchTextRequestPath
-    private String conceptCodeDetailsRequestPath
-    private HTTPBuilder http
-
-    private static final String contentType = 'application/json'
-
     /**
      * Reference terms from external ontology servers
      * @param categoryCode
@@ -43,7 +45,7 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
      */
     public List<OntologyMap> fetchPreferredConcept(String categoryCode, String dataLabel) {
 
-        def response = get("$searchTextRequestPath/$dataLabel", contentType)
+        def response = get("$searchTextRequestPath/$dataLabel")
 
         if (!response) {
             return []
@@ -64,6 +66,7 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
         def labels = getLabels(ancestorsMap.keySet())
 
         String originalCode = paths[0][0]
+        log.debug "Found code ${originalCode} for ${categoryCode}, ${dataLabel}."
 
         ancestorsMap.collect { code, ancestors ->
             def isOriginalCode = (code == originalCode)
@@ -84,8 +87,14 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
     Map<String, String> getLabels(Collection<String> values) {
         def labelMap = [:]
         values.collect{
-            def detail = get("$conceptCodeDetailsRequestPath/$it", contentType)
-            labelMap.put(it, detail?.node ?: '')
+            def label = labelCache[it]
+            if (!label) {
+                def detail = get("$conceptCodeDetailsRequestPath/$it")
+                label = detail?.node ?: ''
+                log.info "Label for value ${it}: ${label}"
+                labelCache[it] = label
+            }
+            labelMap.put(it, label)
         }
         labelMap
     }
@@ -96,17 +105,18 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
      * @param acceptHeader
      * @return
      */
-    def get(String path, String acceptHeader) {
+    def get(String path) {
         http.request(Method.GET, ContentType.JSON) { req ->
             uri.path = path
-            headers.Accept = acceptHeader
+            headers['Accept'] = CONTENT_TYPE.acceptHeader
 
-            log.info(URLDecoder.decode(uri.toString(), 'UTF-8'))
+            log.debug "GET ${URLDecoder.decode(uri.toString(), 'UTF-8')}"
             response.success = { HttpResponseDecorator resp, Object data ->
-                if(!resp.headers.'Content-Type'.contains(acceptHeader))
-                    log.error("Response was successful but not what was expected.")
-                log.info("Got response: ${resp.statusLine}")
-                log.info("Content-Type: ${resp.headers.'Content-Type'}")
+                def contentType = (resp.headers.'Content-Type' as String).split(';')[0]
+                if (!(contentType in CONTENT_TYPE.contentTypeStrings)) {
+                    throw new OntologyServerConnectionException("" +
+                            "Unsupported response type: ${contentType}")
+                }
                 return data
             }
 
@@ -115,7 +125,7 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
                     return null
                 }
                 throw new OntologyServerConnectionException(
-                        "Got ${resp.statusLine.statusCode}: ${resp.statusLine.reasonPhrase}")
+                        "Code ${resp.statusLine.statusCode}: ${resp.statusLine.reasonPhrase}")
             }
         }
     }
@@ -133,8 +143,8 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
                 if (multimap[path[i]] == null) {
                     multimap[path[i]] = [] as Set<String>
                 }
-                if (i > 0) {
-                    multimap[path[i]] << path[i - 1]
+                if (i > 1) {
+                    multimap[path[i - 1]] << path[i]
                 }
             }
         }

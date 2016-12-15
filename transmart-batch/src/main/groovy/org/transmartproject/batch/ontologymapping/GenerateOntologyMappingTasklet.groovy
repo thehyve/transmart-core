@@ -36,15 +36,25 @@ class GenerateOntologyMappingTasklet implements Tasklet {
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         log.info "Fetching ontology nodes from ${ontologyServerUrl}..."
         ExternalOntologyTermService service = new DefaultExternalOntologyTermService(ontologyServerUrl)
-        ontologyMappingHolder.nodes = []
+        ontologyMappingHolder.nodes = [:]
         ctx.variables.each { ClinicalVariable variable ->
-            log.info "Fetching for variable ${variable.dataLabel}..."
+            log.debug "Fetching for variable ${variable.dataLabel}..."
             def mappingResults = service.fetchPreferredConcept(variable.categoryCode, variable.dataLabel)
             if (mappingResults) {
-                log.info "Found mapping for ${variable.dataLabel}!"
                 mappingResults.each { mapping ->
-                    ontologyMappingHolder.nodes << mapping
-                    contribution.incrementReadCount()
+                    if (mapping.dataLabel) {
+                        log.info "Found ontology mapping for variable ${variable.dataLabel}: " +
+                                "${mapping.label} (${mapping.ontologyCode})."
+                    }
+                    def key = new OntologyMappingHolder.Key(
+                            ontologyCode: mapping.ontologyCode,
+                            categoryCode: mapping.categoryCode,
+                            dataLabel: mapping.dataLabel
+                    )
+                    if (!ontologyMappingHolder.nodes.containsKey(key)) {
+                        ontologyMappingHolder.nodes[key] = mapping
+                        contribution.incrementReadCount()
+                    }
                 }
             }
         }

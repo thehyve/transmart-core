@@ -34,7 +34,10 @@ class WriteOntologyMappingTasklet implements Tasklet {
             RepeatStatus.FINISHED
         }
 
-        OntologyMapTsvWriter.write(resource.outputStream, ontologyMappingHolder.nodes)
+        def nodes = ontologyMappingHolder.nodes.values()
+        log.info "Writing ${nodes.size()} ontology entries."
+
+        OntologyMapTsvWriter.write(resource.outputStream, nodes)
         contribution.incrementWriteCount(ontologyMappingHolder.nodes.size())
 
         RepeatStatus.FINISHED
