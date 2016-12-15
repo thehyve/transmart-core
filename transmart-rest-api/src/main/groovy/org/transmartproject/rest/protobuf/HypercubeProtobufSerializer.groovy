@@ -1,9 +1,11 @@
 package org.transmartproject.rest.protobuf
 
 import com.google.common.collect.AbstractIterator
+import com.google.common.collect.Iterators
 import com.google.common.collect.PeekingIterator
 import com.google.protobuf.Empty
 import com.google.protobuf.Message
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
@@ -15,26 +17,28 @@ import org.transmartproject.db.multidimquery.query.DimensionMetadata
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 
 @Slf4j
+@CompileStatic
 public class HypercubeProtobufSerializer {
 
     protected Hypercube cube
     protected Dimension packedDimension
     protected boolean packingEnabled
-    protected Writer writer
+    protected OutputStream out
 
     protected Map<Dimension, List<Object>> dimensionElements = [:]
     protected Map<Dimension, DimensionDeclaration> dimensionDeclarations = [:]
 
 
-    HypercubeProtobufSerializer(Hypercube cube, Dimension packedDimension) {
+    HypercubeProtobufSerializer(Map args, Hypercube cube, OutputStream out) {
         this.cube = cube
-        this.packedDimension = packedDimension
+        this.out = out
+        this.packedDimension = args.packedDimension
         this.packingEnabled = packedDimension != null
     }
 
     protected boolean first = true
 
-    protected void writeMessage(OutputStream out, Message message) {
+    protected void writeMessage(Message message) {
         message.writeDelimitedTo(out)
         if (first) {
             first = false
@@ -43,11 +47,6 @@ public class HypercubeProtobufSerializer {
 
     protected void end(OutputStream out) {
         out.flush()
-    }
-
-    void writeEmptyMessage(OutputStream out) {
-        Empty empty = Empty.newBuilder().build()
-        empty.writeDelimitedTo(out)
     }
 
     static Type getFieldType(Class type) {
@@ -63,67 +62,83 @@ public class HypercubeProtobufSerializer {
             return Type.STRING
         } else {
             // refer to objects by their identifier
-            return Type.INT
+            throw new RuntimeException("Unknown type")
+            //return Type.INT
         }
     }
 
     protected getDimensionsDefs() {
         def declarations = cube.dimensions.collect { dim ->
             def builder = DimensionDeclaration.newBuilder()
-            builder.setName(dim.name)
-            if (dim.density == Dimension.Density.SPARSE) {
+            builder.name = dim.name
+            if (!dim.density.isDense) {
                 // Sparse dimensions are inlined, dense dimensions are referred to by indexes
                 // (referring to objects in the footer message).
-                builder.setInline(true)
+                builder.inline = true
             }
             if (dim == packedDimension) {
-                builder.setPacked(true)
+                builder.packed = true
             }
+            builder.type = type(dim.elementType)
+
+            if(!dim.elementsSerializable) {
+                dim.elementFields.each {
+
+                }
+            }
+
+
             def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dim.name)
-            switch(dim.class) {
-                case ModifierDimension:
-                    def modifierDim = (ModifierDimension)dim
-                    switch (modifierDim.valueType) {
-                        case ObservationFact.TYPE_NUMBER:
-                            builder.type = Type.DOUBLE
-                            break
-                        case ObservationFact.TYPE_TEXT:
-                            builder.type = Type.STRING
-                            break
-                        default:
-                            throw new Exception("Unsupported value type for dimension ${dim.name}: ${modifierDim.valueType}.")
-                    }
-                    break
-                case StartTimeDimension:
-                case EndTimeDimension:
-                    builder.type = Type.TIMESTAMP
-                    break
-                case ProviderDimension:
-                case LocationDimension:
-                case ProjectionDimension:
-                    builder.type = Type.STRING
-                    break
-                default:
-                    builder.type = Type.OBJECT
-                    def metadata = DimensionMetadata.forDimension(dim.class)
-                    metadata.fields.each { field ->
-                        if (field.fieldName in publicFacingFields) {
-                            Class valueType = metadata.fieldTypes[field.fieldName]
-                            def fieldDef = FieldDefinition.newBuilder()
-                                    .setName(field.fieldName)
-                                    .setType(getFieldType(valueType))
-                                    .build()
-                            builder.addFields(fieldDef)
-                        }
-                    }
-                    break
-            }
             def dimensionDeclaration = builder.build()
             dimensionDeclarations[dim] = dimensionDeclaration
             dimensionDeclaration
         }
         declarations
     }
+
+    static protected Type type(Class cls) {
+        switch (cls) {
+            case String:
+                return Type.STRING
+            case Integer:
+            case Long:
+            case Short:
+                return Type.INT
+            case Double:
+            case Float:
+            case Number:
+                return Type.DOUBLE
+            case Date:
+                return Type.TIMESTAMP
+            default:
+                return Type.OBJECT
+        }
+    }
+//
+//            case StartTimeDimension:
+//            case EndTimeDimension:
+//                builder.type = Type.TIMESTAMP
+//                break
+//            case ProviderDimension:
+//            case LocationDimension:
+//            case ProjectionDimension:
+//                builder.type = Type.STRING
+//                break
+//            default:
+//                builder.type = Type.OBJECT
+//                def metadata = DimensionMetadata.forDimension(dim.class)
+//                metadata.fields.each { field ->
+//                    if (field.fieldName in publicFacingFields) {
+//                        Class valueType = metadata.fieldTypes[field.fieldName]
+//                        def fieldDef = FieldDefinition.newBuilder()
+//                                .setName(field.fieldName)
+//                                .setType(getFieldType(valueType))
+//                                .build()
+//                        builder.addFields(fieldDef)
+//                    }
+//                }
+//                break
+//        }
 
     protected Header buildHeader() {
         Header.newBuilder().addAllDimensionDeclarations(dimensionsDefs).build()
@@ -162,7 +177,7 @@ public class HypercubeProtobufSerializer {
         if (last) {
             message.last = last
         }
-        writeMessage(out, message.build())
+        writeMessage(message.build())
     }
 
     protected void addToPackedValues(OutputStream out, HypercubeValue value, boolean last) {
@@ -179,7 +194,7 @@ public class HypercubeProtobufSerializer {
         }
     }
 
-    protected void writeCells(OutputStream out, Iterator<HypercubeValue> it) {
+    protected void writeCells(Iterator<HypercubeValue> it) {
         while (it.hasNext()) {
             HypercubeValue value = it.next()
             if (packingEnabled) {
@@ -190,7 +205,7 @@ public class HypercubeProtobufSerializer {
                 if (last) {
                     message.last = last
                 }
-                writeMessage(out, message.build())
+                writeMessage(message.build())
             }
         }
     }
@@ -423,32 +438,21 @@ public class HypercubeProtobufSerializer {
             dimensionElements[dim].add(element)
             index = dimensionElements[dim].indexOf(element)
         }
-        index.longValue()
+        index
     }
 
     void write(OutputStream out) {
-        begin(out)
-
         Iterator<HypercubeValue> rawIterator = cube.iterator()
-        PeekingIterator<HypercubeValue> iterator
-        if(rawIterator instanceof PeekingIterator) {
-            iterator = rawIterator
-        } else {
-            iterator = new AbstractIterator<HypercubeValue>() {
-                HypercubeValue computeNext() {
-                    if(!rawIterator.hasNext()) return endOfData()
-                    return rawIterator.next()
-                }
-            }
-        }
+        PeekingIterator<HypercubeValue> iterator =
+                (rawIterator instanceof PeekingIterator) ? rawIterator : Iterators.peekingIterator(rawIterator)
 
         if (!iterator.hasNext()) {
-            writeEmptyMessage(out)
+            //writeEmptyMessage(out)
         }
         else {
-            writeMessage(out, buildHeader())
-            writeCells(out, iterator)
-            writeMessage(out, buildFooter())
+            writeMessage(buildHeader())
+            writeCells(iterator)
+            writeMessage(buildFooter())
         }
         end(out)
     }
