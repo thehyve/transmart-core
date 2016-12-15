@@ -13,6 +13,7 @@ class StorageSystem {
 
     static mapping = {
         table          schema:   'I2B2DEMODATA'
+        singleFileCollections defaultValue: false
         version false
     }
 
