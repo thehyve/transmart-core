@@ -33,7 +33,7 @@ dependencies {
     final H2_VERSION = '1.4.185'
     final HIBERNATE_VALIDATOR_VERSION = '5.2.2.Final'
 
-    compile 'org.codehaus.groovy:groovy-all:2.3.6'
+    compile 'org.codehaus.groovy:groovy-all:2.4.7'
 
     compile group: 'org.springframework.batch', name: 'spring-batch-core', version: BATCH_VERSION
 

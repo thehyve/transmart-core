@@ -207,10 +207,10 @@ class ClinicalFactsRowSetFactory {
     }
 
     private Map<String, ClinicalDataFileVariables> generateVariablesMap() {
-        Map<String, List<ClinicalVariable>> map = variables.groupBy { it.filename }
-        map.collectEntries {
-            [(it.key): ClinicalDataFileVariables.fromVariableList(it.value)]
-        }
+        Map<String, List<ClinicalVariable>> map = variables.groupBy { ClinicalVariable variable -> variable.filename }
+        map.collectEntries { String key, List<ClinicalVariable> value ->
+            [(key): ClinicalDataFileVariables.fromVariableList(value)]
+        } as Map<String, ClinicalDataFileVariables>
     }
 
 }
