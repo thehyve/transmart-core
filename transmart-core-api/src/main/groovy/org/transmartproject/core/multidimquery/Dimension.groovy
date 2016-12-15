@@ -1,5 +1,6 @@
 package org.transmartproject.core.multidimquery
 
+import com.google.common.collect.ImmutableMap
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.ontology.Study
 
@@ -49,9 +50,31 @@ interface Dimension {
     def resolveElement(elementKey)
 
     /**
+     * @return true if the elements of this dimension are serializable, meaning they are of type String, Date, or
+     * Number.
+     * Note that 'serializable' within this interface is a subset of the java.io.Serializable meaning. Serializable
+     * here is limited to types that can be directly serialized by the rest-api, i.e. String, Date, or subclasses of
+     * Number.
+     */
+    boolean getElementsSerializable()
+
+    /**
+     * @return if the element type is serializable, return the type (String, Date, or a subclass of Number). If the
+     * elements are not serializable, returns null.
+     */
+    Class<? extends Serializable> getElementType()
+
+    /**
+     * @return an (ordered) immutable map with the property names for the elements of this dimension as keys, and
+     * their types as values. If the elements of this dimension are serializable (according to
+     * getElementsSerializable()), this method returns null.
+     */
+    ImmutableMap<String, Class> getElementFields()
+
+    /**
      * Returns a serializable view of an element. If the element is in fact a Number, String, or Date, it is returned
      * as-is. If it is a complex type, this method returns a map with String keys that holds the relevant properties,
-     * which themselves are again of serializable types.*
+     * which themselves are again of serializable types.
      *
      * @param element: an element returned from getElements or resolveElement(s)
      * @return a String, Number, Date or Map<String,something serializable>

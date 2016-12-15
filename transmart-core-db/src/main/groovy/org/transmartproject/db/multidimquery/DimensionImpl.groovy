@@ -1,12 +1,10 @@
 package org.transmartproject.db.multidimquery
 
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import grails.util.Pair
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.InheritConstructors
-import groovy.transform.PackageScope
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient
@@ -28,7 +26,10 @@ import static org.transmartproject.core.multidimquery.Dimension.Size.*
 import static org.transmartproject.core.multidimquery.Dimension.Density.*
 import static org.transmartproject.core.multidimquery.Dimension.Packable.*
 
-
+/* Not sure if the generic parameters are worth it. They cannot be used fully due to implementing a non-generic
+interface, and we need to know the reified element type to check that the right types are used. And they need to be
+typed twice for every dimension due to the use of generic traits.
+ */
 @CompileStatic
 abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
@@ -84,6 +85,10 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
             (PROJECTION.name): PROJECTION,
     ])
 
+    static {
+        builtinDimensions.values().each { it.verify() }
+    }
+
     static getBuiltinDimension(String name) { builtinDimensions.get(name) }
     static boolean isBuiltinDimension(String name) { builtinDimensions.containsKey(name) }
 
@@ -108,7 +113,92 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
     abstract ELKey getElementKey(Map result)
 
-    @Override List<ELT> resolveElements(List/*<ELKey>*/ elementKeys) {
+
+    // This default implementation of asSerializable works for compound element types. For simple element types that
+    // themselves are already a serializable type (Number, Date, or String), the dimension should extend
+    // SerializableElemDim which provides a trivial implementation for that.
+    Class<? extends Serializable> getElementType() {
+        elementsSerializable ? elemType : null
+    }
+    abstract Class getElemType()
+    abstract List<String> getElemFields()
+
+    // These are implemented in SerializableElemDim or CompoundElemDim
+    abstract boolean getElementsSerializable()
+    abstract ImmutableMap<String,Class> getElementFields()
+    abstract def asSerializable(element)
+    abstract List resolveElements(List elementKeys)
+    abstract def resolveElement(key)
+
+    @Override String toString() {
+        this.class.simpleName
+    }
+
+    static boolean isSerializableType(Class t) {
+        [Number, String, Date].any { it.isAssignableFrom(t) }
+    }
+    /**
+     * Differences between serializable and non-serializable element types are implemented by extending the
+     * SerializableElemDim trait. This method verifies that the element type is consistent with the usage of this trait.
+     */
+    final void verify() {
+        boolean serializable = isSerializableType(elementType)
+        assert elementsSerializable == serializable
+        assert (elemFields == null) == serializable
+        assert (elementFields == null) == serializable
+    }
+}
+
+/**
+ * Implement this in dimensions that have a serializable element type (Number, String, or Date)
+ * @param <ELTKey> The type of both the key and the element, which must be the same
+ */
+@CompileStatic
+trait SerializableElemDim<ELTKey> {
+    boolean getElementsSerializable() { true }
+
+    List<String> getElemFields() { null }
+    ImmutableMap<String,Class> getElementFields() { null }
+
+    def asSerializable(/*ELTKey*/ element) { element }
+
+    List<ELTKey> resolveElements(List/*<ELTKey>*/ elementKeys) { elementKeys }
+    ELTKey resolveElement(/*ELTKey*/ key) { key }
+}
+
+/**
+ * Implement this in dimensions that have a compound element type. The implement the abstract methods to have support
+ * for the required operations.
+ * @param <ELT> The type of the dimension's elements
+ * @param <ELKey> The type of the dimensions elements key
+ */
+@CompileStatic
+trait CompositeElemDim<ELT,ELKey> {
+    boolean getElementsSerializable() { false }
+
+    abstract Class getElemType()
+    abstract List<String> getElemFields()
+    @Lazy ImmutableMap<String,Class> elementFields = ImmutableMap.copyOf(
+            elemFields.collectEntries { [it, elemType.metaClass.getMetaProperty(it).type] }
+    )
+
+    def asSerializable(/*ELT*/ element) {
+        if(!elemType.isInstance(element)) {
+            throw new InvalidArgumentsException("element with wrong type passed to ${this}.asSerializable; " +
+                    "expected $elemType, got type ${element.class}, value $element")
+        }
+
+        Map result = [:]
+        def pogo = (GroovyObject) element
+        for(prop in elemFields) {
+            result[prop] = pogo.getProperty(prop)
+        }
+        result
+    }
+
+    abstract List<ELT> doResolveElements(List<ELKey> elementKeys)
+
+    List<ELT> resolveElements(List/*<ELKey>*/ elementKeys) {
         if (elementKeys.size() == 0) return []
 
         List<ELT> results = doResolveElements(elementKeys)
@@ -129,57 +219,10 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         }
     }
 
-    abstract List<ELT> doResolveElements(List<ELKey> elementKeys)
-
-    /* This default implementation should be overridden for efficiency for non-packable dimensions. */
-    @Override ELT resolveElement(/*ELKey*/ elementId) {
+    /* This default implementation should be overridden for efficiency for sparse dimensions. */
+    ELT resolveElement(/*ELKey*/ elementId) {
         resolveElements([elementId])[0]
     }
-
-    // This default implementation of asSerializable works for compound element types. For simple element types that
-    // themselves are already a serializable type (Number, Date, or String), the dimension should extend
-    // SerializableType which provides a trivial implementation for that.
-    abstract Class getElementType()
-    abstract List<String> getElementProperties()
-    final static List<Class> serializableTypes = ImmutableList.copyOf([Number, String, Date])
-
-    // Too bad @Lazy doesn't work with primitive types
-    @Lazy private Boolean elementTypeIsSerializable = serializableTypes.any { elementType in it }
-
-    @Override def asSerializable(/*ELT*/ element) {
-        if(!elementType.isInstance(element)) {
-            throw new InvalidArgumentsException("element with wrong type passed to ${this}.asSerializable; " +
-                    "expected $elementType, got type ${element.class}, value $element")
-        }
-        assert !elementTypeIsSerializable :
-            "If the element type is serializable this dimension should inherit SerializableType which overrides this method"
-        // if(elementTypeIsSerializable) return element
-
-        Map result = [:]
-        List<String> properties = elementProperties
-        def pogo = (GroovyObject) element
-        for(prop in properties) {
-            result[prop] = pogo.getProperty(prop)
-        }
-        result
-    }
-
-    @Override String toString() {
-        this.class.simpleName
-    }
-}
-
-/**
- * Implement this in dimensions that have a serializable element type (Number, String, or Date), rather than a
- * compound element type
- */
-@CompileStatic
-trait SerializableType<ELTKey> {
-    List<String> getElementProperties() { throw new UnsupportedOperationException("${this}.getElementProperties()") }
-    def asSerializable(ELTKey element) { element }
-    List<ELTKey> resolveElements(List<ELTKey> elementKeys) { elementKeys }
-    ELTKey resolveElement(ELTKey key) { key }
-    List doResolveElements(List elementKeys) { throw new UnsupportedOperationException("should not happen") }
 }
 
 
@@ -218,7 +261,7 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
         throw new NotImplementedException()
     }
 
-    @Override List<ELT> doResolveElements(List<ELKey> elementKeys) {
+    List<ELT> doResolveElements(List<ELKey> elementKeys) {
         throw new NotImplementedException()
     }
 
@@ -232,11 +275,10 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
 // extended to also support modifiers that link to other tables, thus leading to modifier dimensions with compound
 // element types
 @CompileStatic
-class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableType<Object> {
-    Class elementType = Object
+class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableElemDim<Object> {
     private static Map<String,ModifierDimension> byName = [:]
     private static Map<String,ModifierDimension> byCode = [:]
-    synchronized static ModifierDimension get(String name, String modifierCode, String valueType,
+    synchronized static ModifierDimension get(String name, String modifierCode, Class elementType,
                                               Size size, Density density, Packable packable) {
         if(name in byName) {
             ModifierDimension dim = byName[name]
@@ -252,29 +294,28 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
         }
         assert !byCode.containsKey(modifierCode)
 
-        ModifierDimension dim = new ModifierDimension(name, modifierCode, valueType, size, density, packable)
+        if(!isSerializableType(elementType)) throw new NotImplementedException(
+                "Support for non-serializable modifier dimensions is not implemented: $name")
+        ModifierDimension dim = new ModifierDimension(name, modifierCode, elementType, size, density, packable)
+        dim.verify()
         byName[name] = dim
         byCode[modifierCode] = dim
 
         dim
     }
 
-    private ModifierDimension(String name, String modifierCode, String valueType, Size size, Density density, Packable packable) {
+    private ModifierDimension(String name, String modifierCode, Class elementType, Size size, Density density, Packable packable) {
         super(size, density, packable)
         this.name = name
         this.modifierCode = modifierCode
-        if (!(valueType in [ObservationFact.TYPE_NUMBER, ObservationFact.TYPE_TEXT])) {
-            throw new RuntimeException("Unsupported value type: ${valueType}. " +
-                    "Should be one of [${ObservationFact.TYPE_NUMBER}, ${ObservationFact.TYPE_TEXT}].")
-        }
-        this.valueType = valueType
+        this.elemType = elementType
     }
 
     static final String modifierCodeField = 'modifierCd'
 
+    final Class elemType
     final String name
     final String modifierCode
-    final String valueType
 
     @CompileDynamic
     @Override def selectIDs(Query query) {
@@ -308,9 +349,9 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
 }
 
 @CompileStatic @InheritConstructors
-class PatientDimension extends I2b2Dimension<Patient, Long> {
-    Class elementType = Patient
-    List<String> elementProperties = ["inTrialId", "birthDate", "deathDate",
+class PatientDimension extends I2b2Dimension<Patient, Long> implements CompositeElemDim<Patient, Long> {
+    Class elemType = Patient
+    List<String> elemFields = ["inTrialId", "birthDate", "deathDate",
                                       "age", "race", "maritalStatus",
                                       "religion", "sourcesystemCd", "sexCd"]
     String name = 'patient'
@@ -340,9 +381,10 @@ class PatientDimension extends I2b2Dimension<Patient, Long> {
 }
 
 @CompileStatic @InheritConstructors
-class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, String> {
-    Class elementType = I2b2ConceptDimensions
-    List<String> elementProperties = ["conceptPath", "conceptCode"]
+class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, String> implements
+        CompositeElemDim<I2b2ConceptDimensions, String> {
+    Class elemType = I2b2ConceptDimensions
+    List<String> elemFields = ["conceptPath", "conceptCode"]
     String name = 'concept'
     String alias = 'conceptCode'
     String columnName = 'conceptCode'
@@ -357,9 +399,9 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 }
 
 @CompileStatic @InheritConstructors
-class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> {
-    Class elementType = TrialVisit
-    List<String> elementProperties = ["relTimeLabel", "relTimeUnit", "relTime"]
+class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements CompositeElemDim<TrialVisit, Long> {
+    Class elemType = TrialVisit
+    List<String> elemFields = ["relTimeLabel", "relTimeUnit", "relTime"]
     String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
@@ -371,9 +413,9 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> {
 }
 
 @CompileStatic @InheritConstructors
-class StudyDimension extends I2b2Dimension<MDStudy, Long> {
-    Class elementType = MDStudy
-    List<String> elementProperties = ["studyId"]
+class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeElemDim<MDStudy, Long> {
+    Class elemType = MDStudy
+    List<String> elemFields = ["studyId"]
     String name = 'study'
     String alias = 'studyId'
     String getColumnName() {throw new UnsupportedOperationException()}
@@ -395,8 +437,8 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> {
 
 
 @CompileStatic @InheritConstructors
-class StartTimeDimension extends I2b2NullablePKDimension<Date,Date> implements SerializableType<Date> {
-    Class elementType = Date
+class StartTimeDimension extends I2b2NullablePKDimension<Date,Date> implements SerializableElemDim<Date> {
+    Class elemType = Date
     String name = 'start time'
 
     final static Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
@@ -407,25 +449,26 @@ class StartTimeDimension extends I2b2NullablePKDimension<Date,Date> implements S
 }
 
 @CompileStatic @InheritConstructors
-class EndTimeDimension extends I2b2Dimension<Date,Date> implements SerializableType<Date> {
-    Class elementType = Date
+class EndTimeDimension extends I2b2Dimension<Date,Date> implements SerializableElemDim<Date> {
+    Class elemType = Date
     String name = 'end time'
     String alias = 'endDate'
     String columnName = 'endDate'
 }
 
 @CompileStatic @InheritConstructors
-class LocationDimension extends I2b2Dimension<String,String> implements SerializableType<String> {
-    Class elementType = String
+class LocationDimension extends I2b2Dimension<String,String> implements SerializableElemDim<String> {
+    Class elemType = String
     String name = 'location'
     String alias = 'location'
     String columnName = 'locationCd'
 }
 
 @CompileStatic @InheritConstructors
-class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,Long>> {
-    Class elementType = I2b2VisitDimension
-    List<String> elementProperties = ["patientInTrialId", "activeStatus", "startDate", "endDate", "inoutCd",
+class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,Long>> implements
+        CompositeElemDim<I2b2VisitDimension, Pair<BigDecimal,Long>> {
+    Class elemType = I2b2VisitDimension
+    List<String> elemFields = ["patientInTrialId", "activeStatus", "startDate", "endDate", "inoutCd",
                                       "locationCd"]
     String name = 'visit'
     static String alias = 'encounterNum'
@@ -463,8 +506,8 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,L
 }
 
 @CompileStatic @InheritConstructors
-class ProviderDimension extends I2b2NullablePKDimension<String,String> implements SerializableType<String> {
-    Class elementType = String
+class ProviderDimension extends I2b2NullablePKDimension<String,String> implements SerializableElemDim<String> {
+    Class elemType = String
     String name = 'provider'
     String alias = 'provider'
     String columnName = 'providerId'
@@ -472,20 +515,21 @@ class ProviderDimension extends I2b2NullablePKDimension<String,String> implement
 }
 
 @CompileStatic @InheritConstructors
-class AssayDimension extends HighDimDimension<Long,Long> implements SerializableType<Long> {
-    Class elementType = Long
+class AssayDimension extends HighDimDimension<Long,Long> implements SerializableElemDim<Long> {
+    Class elemType = Long
     String name = 'assay'
 }
 
 @CompileStatic @InheritConstructors
-class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> {
-    Class elementType = HddTabularResultHypercubeAdapter.BioMarkerAdapter
-    List<String> elementProperties = ['label', 'bioMarker']
+class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> implements
+        CompositeElemDim<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> {
+    Class elemType = HddTabularResultHypercubeAdapter.BioMarkerAdapter
+    List<String> elemFields = ['label', 'bioMarker']
     String name = 'biomarker'
 }
 
 @CompileStatic @InheritConstructors
-class ProjectionDimension extends HighDimDimension<String,String> implements SerializableType<String> {
-    Class elementType = String
+class ProjectionDimension extends HighDimDimension<String,String> implements SerializableElemDim<String> {
+    Class elemType = String
     String name = 'projection'
 }

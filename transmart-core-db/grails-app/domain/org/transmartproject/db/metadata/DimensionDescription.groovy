@@ -3,10 +3,14 @@ package org.transmartproject.db.metadata
 import groovy.transform.InheritConstructors
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.ModifierDimension
 
 import org.transmartproject.db.i2b2data.Study
+
+import static org.transmartproject.db.i2b2data.ObservationFact.TYPE_NUMBER
+import static org.transmartproject.db.i2b2data.ObservationFact.TYPE_TEXT
 
 class DimensionDescription {
     static final String LEGACY_MARKER = "legacy tabular study marker"
@@ -54,9 +58,15 @@ class DimensionDescription {
         if(DimensionImpl.isBuiltinDimension(name) && [modifierCode, valueType, size, density, packable].any { it != null }) {
             throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: For builtin " +
                     "'$name' dimension all other fields must be set to NULL")
-        } else if(!DimensionImpl.isBuiltinDimension(name) && [modifierCode, valueType, size, density, packable].any { it == null }) {
-            throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' dimension" +
-                    " is not builtin and some modifier dimension fields are NULL")
+        } else if(!DimensionImpl.isBuiltinDimension(name)) {
+            if([modifierCode, valueType, size, density, packable].any { it == null }) {
+                throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' dimension" +
+                        " is not builtin and some modifier dimension fields are NULL")
+            } else if(!(valueType in [TYPE_NUMBER, TYPE_TEXT])) {
+                throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' " +
+                        "dimension contains an unrecognized valueType '$valueType', expected " +
+                        "'$TYPE_TEXT' or '$TYPE_NUMBER'")
+            }
         }
     }
 
@@ -69,9 +79,20 @@ class DimensionDescription {
             return DimensionImpl.getBuiltinDimension(name)
         }
         if(modifierDimension == null) {
-            modifierDimension = ModifierDimension.get(name, modifierCode, valueType, size, density, packable)
+            modifierDimension = ModifierDimension.get(name, modifierCode, classForType(), size, density, packable)
         }
         return modifierDimension
+    }
+
+    private Class classForType() {
+        switch(valueType) {
+            case TYPE_TEXT:
+                return String
+            case TYPE_NUMBER:
+                return Double
+            default:
+                throw new RuntimeException("Unsupported value type: ${valueType}. Should be one of [${TYPE_NUMBER}, ${TYPE_TEXT}].")
+        }
     }
 
 }
