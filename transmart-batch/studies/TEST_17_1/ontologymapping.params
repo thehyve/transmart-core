@@ -1,0 +1,2 @@
+COLUMN_MAP_FILE=clinical/OBS336-201_columns.txt
+ONTOLOGY_MAP_FILE=ontology_codes.txt
