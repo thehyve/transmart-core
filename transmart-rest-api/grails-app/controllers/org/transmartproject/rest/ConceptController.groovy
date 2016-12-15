@@ -24,10 +24,9 @@
  */
 
 package org.transmartproject.rest
-import org.transmartproject.ontology.ExternalOntologyTermService
+import org.transmartproject.ontology.DefaultExternalOntologyTermService
 import grails.converters.JSON
 import grails.rest.Link
-import groovy.transform.TypeChecked
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.OntologyTermWrapper
@@ -64,7 +63,7 @@ class ConceptController {
     }
 
     def showRecommended(String conceptCode) {
-        render new ExternalOntologyTermService(
+        render new DefaultExternalOntologyTermService(
                 'http://localhost:8081/',
                 'search/',
                 ''

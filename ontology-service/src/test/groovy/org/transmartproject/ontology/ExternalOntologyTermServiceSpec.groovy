@@ -7,7 +7,7 @@ import org.apache.tools.ant.taskdefs.optional.extension.Specification
 /**
  * Created by ewelina on 14-12-16.
  */
-@TestFor(ExternalOntologyTermService)
+@TestFor(DefaultExternalOntologyTermService)
 class ExternalOntologyTermServiceSpec extends Specification {
 
     def setup() {
