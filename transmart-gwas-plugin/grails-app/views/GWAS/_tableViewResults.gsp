@@ -8,7 +8,7 @@
 	</g:if>
 	<div id="table_results_length_div" class="dataTables_length">
 		<label>Show 
-			<g:select name="resultCounter" size="1" from="${['100':'100','150':'150','200':'200','500':'500']}" optionKey="${{it.key}}" optionValue="${{it.value}}" id="table_results_length" onchange="loadTableResultsGrid({max: jQuery(this).val()})" value="${max}"/> ${type} results
+			<g:select name="resultCounter" size="1" from="${['100':'100','150':'150','200':'200','500':'500']}" optionKey="${{it.key}}" optionValue="${{it.value}}" id="table_results_length" onchange="gwasLoadTableResultsGrid({max: jQuery(this).val()})" value="${max}"/> ${type} results
 		</label>	
 	</div>
 	<g:if test="${showSearch}">
@@ -18,7 +18,7 @@
 			</label>
 			<label>Search: 
 				<input value="${search}" type="text" style="width: 50px" id="table_results_search">
-				<span class="linkbutton" onclick="loadTableResultsGrid({cutoff: jQuery('#table_results_cutoff').val(), search: jQuery('#table_results_search').val()})">OK</span>
+				<span class="linkbutton" onclick="gwasLoadTableResultsGrid({cutoff: jQuery('#table_results_cutoff').val(), search: jQuery('#table_results_search').val()})">OK</span>
 			</label>
 		</div>
 	</g:if>
@@ -30,19 +30,19 @@
 						<%-- If this is sorted, give link to asc/desc (opposite current order) --%>
 						<g:if test="${col.sortField.equals(sortField)}">
 							<g:if test="${order.equals('desc')}">
-								<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadTableResultsGrid({sortField: '${col.sortField}', order: 'asc'})">
+								<th "class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="gwasLoadTableResultsGrid({sortField: '${col.sortField}', order: 'asc'})">
 									${col.sTitle} <asset:image src="desc.gif"/>
 								</th>
 							</g:if>
 							<g:else>
-								<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadTableResultsGrid({sortField: '${col.sortField}', order: 'desc'})">
+								<th "class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="gwasLoadTableResultsGrid({sortField: '${col.sortField}', order: 'desc'})">
 									${col.sTitle} <asset:image src="asc.gif"/>
 								</th>
 							</g:else>
 						</g:if>
 						<%-- Otherwise just provide asc link --%>
 						<g:else>
-							<th class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="loadTableResultsGrid({sortField: '${col.sortField}', order: 'asc'})">
+							<th "class="sorting" tabindex="0" rowspan="1" colspan="1" style="width: 100px; cursor: pointer;" onclick="gwasLoadTableResultsGrid({sortField: '${col.sortField}', order: 'asc'})">
 								${col.sTitle}
 							</th>
 						</g:else>
@@ -76,14 +76,14 @@
 	</div>
 	<div class="dataTables_paginate paging_two_button">
 		<g:if test="${offset > 0}">
-			<a class="paginate_enabled_previous" tabindex="0" role="button" id="table_results_previous" aria-controls="results_table" onclick="loadTableResultsGrid({offset: ${offset-max}})">Previous</a>
+			<a class="paginate_enabled_previous" tabindex="0" role="button" id="table_results_previous" aria-controls="results_table" onclick="gwasLoadTableResultsGrid({offset: ${offset-max}})">Previous</a>
 		</g:if>
 		<g:else>
 			<a class="paginate_disabled_previous" tabindex="0" role="button" id="table_results_previous" aria-controls="results_table">Previous</a>
 		</g:else>
 		
 		<g:if test="${offset + max < totalCount}">
-			<a class="paginate_enabled_next" tabindex="0" role="button" id="table_results_next" aria-controls="results_table" onclick="loadTableResultsGrid({offset: ${offset+max}})">Next</a>
+			<a class="paginate_enabled_next" tabindex="0" role="button" id="table_results_next" aria-controls="results_table" onclick="gwasLoadTableResultsGrid({offset: ${offset+max}})">Next</a>
 		</g:if>
 		<g:else>
 			<a class="paginate_disabled_next" tabindex="0" role="button" id="table_results_next" aria-controls="results_table">Next</a>

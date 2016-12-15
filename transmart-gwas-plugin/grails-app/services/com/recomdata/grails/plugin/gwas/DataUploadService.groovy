@@ -476,35 +476,21 @@ public class DataUploadService{
 	}
 
 	def writeFile(location, file, upload) throws Exception {
-		CSVReader csvRead=null;
-		CSVWriter csv = null;
-		try {
-		csvRead = new CSVReader(new InputStreamReader(file.getInputStream()), '\t'.charAt(0), CSVWriter.NO_QUOTE_CHARACTER);
-		
+		CSVReader csvRead = new CSVReader(new InputStreamReader(file.getInputStream()), '\t'.charAt(0), CSVWriter.NO_QUOTE_CHARACTER);
 		String[] header = csvRead.readNext();
-		log.debug("Read file");
+		
 		//Verify fields and return immediately if we don't have a required one
 		def result = verifyFields(header, upload.dataType)
 		if (!result.success) {
 			return result;
 		}
-		log.debug("Fields verified");
-		def headerList = header.toList();
-		//contains index from the database of field name and index
-		//<String, long>
-		HashMap columnOrder=getColumnIndex(upload.dataType)
 		
-//Currently ignoring: HETISQ
-//  HETPVAL
+		def headerList = header.toList();
+		
 		def pValueIndex = -1;
 		def logpValueIndex = -1;
 		def rsIdIndex=-1;
 		def numberOfColumns = headerList.size();
-		//contains index from the file to the index defined in the database.
-		//<Long, int>
-		//based on header field build this map, keep the field index and header Index.
-		HashMap fileColumnIdx=new HashMap()
-		
 		for (int i = 0; i < headerList.size(); i++) {
 			def column = headerList[i];
 			if (column.trim().toLowerCase().equals("p_value")) {
@@ -516,16 +502,8 @@ public class DataUploadService{
 			else if(column.trim().toLowerCase().equals("rs_id")){
 				rsIdIndex=i;
 			}
-			else
-			{
-				def idx = columnOrder.get(headerList[i].toUpperCase())
-				if (idx==null)
-				System.out.println(headerList[i].toUpperCase()+" at index "+ i)
-				else
-				fileColumnIdx.put (idx,i);
-			}
 		}
-
+		
 		//If we don't have p-value or log p-value, add this column at the end
 		if (pValueIndex < 0) {
 			pValueIndex = headerList.size();
@@ -535,43 +513,20 @@ public class DataUploadService{
 			logpValueIndex = headerList.size();
 			headerList[headerList.size()] = "log_p_value";
 		}
-		log.info("RS at "+rsIdIndex+" pvalue "+pValueIndex+" -logPvalue "+ logpValueIndex)
-		fileColumnIdx.put ((Long)0,(int)rsIdIndex)
-		def pvalCol=(Long)columnOrder.size()+1
-		fileColumnIdx.put (pvalCol,(int)pValueIndex)
-		def pvalLog10Col=(Long)(columnOrder.size()+2)
-		fileColumnIdx.put (pvalLog10Col,(int)logpValueIndex);
-
-
-
+		
 		/* Columns are sorted - now start writing the file */
-
-	
-
+		
+		CSVWriter csv = null;
+		try {
 			csv = new CSVWriter(new FileWriter(new File(location)), '\t'.charAt(0), CSVWriter.NO_QUOTE_CHARACTER) //How to specify character in Grails...?!
-			String [] headerRow=new String[fileColumnIdx.size()];
-			for (int rowIdx=0; rowIdx < fileColumnIdx.size();rowIdx++)
-			{
-				//System.out.println(rowIdx)
-				def index=fileColumnIdx.get((Long)rowIdx)
-				if (index==null)
-				log.info("file column Index is null for "+ rowIdx +"-"+ fileColumnIdx.toString())
-				else if (headerList[index]==null)
-				log.info("header list is null for "+index+" - "+headerList.toString());
-				else
-				headerRow[rowIdx]=headerList[fileColumnIdx.get((Long)rowIdx)]
-				
-			}
-			//csv.writeNext(headerList as String[])
-			csv.writeNext(headerRow);
-
+			csv.writeNext(headerList as String[])
+			
 			//For each line, check the value and p-value - if we have one but not the other, calculate and fill it
 			String[] nextLine
 			def pflag=false;
 			String linenos="";
 			int lineno=1;
 			while ((nextLine = csvRead.readNext()) != null) {
-				String [] curRow=new String[fileColumnIdx.size()];
 				def columns = nextLine.toList()
 				def currentpValue = columns[pValueIndex]
 				def currentlogpValue = columns[logpValueIndex]
@@ -579,10 +534,9 @@ public class DataUploadService{
 				int flag=1;
 				if (!currentpValue && !currentlogpValue) {
 					linenos += columns[rsIdIndex]+",";
-					pflag=true;
-					flag=0;
-					//  throw new Exception("No p_value or log_p_value was provided for a row."+ linenos);
-
+					pflag=true; flag=0;
+				  //  throw new Exception("No p_value or log_p_value was provided for a row."+ linenos);
+					
 				}
 				else if (!currentpValue) {
 					columns[pValueIndex] = 0 - Math.power(10.0, Double.parseDouble(currentlogpValue))
@@ -592,25 +546,14 @@ public class DataUploadService{
 					if (logp == Double.POSITIVE_INFINITY )
 					{
 						logp=0 - log10(new BigDecimal(currentpValue),10);
-
+							
 					}
 					columns[logpValueIndex] = 0 - logp
 				}
-
+				
 				//This row is now complete - write it!
 				if(flag==1){
-					// csv.writeNext(columns as String[])
-					for (int rowIdx=0; rowIdx<fileColumnIdx.size();rowIdx++)
-					{
-						System.out.println(rowIdx)
-						def index=fileColumnIdx.get((Long)rowIdx)
-						if (index==null)
-						log.info("file column Index is null for "+ rowIdx +"-"+ fileColumnIdx.toString())
-						else
-						curRow[rowIdx]=columns[index]
-					}
-					//csv.writeNext(headerList as String[])
-					csv.writeNext(curRow);
+				   csv.writeNext(columns as String[])
 				}
 			}
 			if(pflag){
@@ -618,18 +561,17 @@ public class DataUploadService{
 				//result.error="No p_value or log_p_value was provided for snps "+linenos;
 				throw new Exception ("No p_value or log_p_value was provided for SNPs "+linenos);
 			}
-
+			
 			return result;
 		}
 		catch (Exception e) {
-			log.error(e.printStackTrace());
 			throw e;
 		}
-		//			upload.status = "ERROR"
-		//			upload.save(flush: true)
-		//			render(view: "complete", model: [result: new DataUploadResult(success:false, error: "Could not write file: " + e.getMessage()), uploadDataInstance: upload]);
-		//			return;
-		//		}
+//			upload.status = "ERROR"
+//			upload.save(flush: true)
+//			render(view: "complete", model: [result: new DataUploadResult(success:false, error: "Could not write file: " + e.getMessage()), uploadDataInstance: upload]);
+//			return;
+//		}
 		finally {
 			if (csvRead != null) {
 				csvRead.close();
@@ -640,6 +582,172 @@ public class DataUploadService{
 			}
 		}
 	}
+
+//	def writeFile(location, file, upload) throws Exception {
+//		CSVReader csvRead=null;
+//		CSVWriter csv = null;
+//		try {
+//		csvRead = new CSVReader(new InputStreamReader(file.getInputStream()), '\t'.charAt(0), CSVWriter.NO_QUOTE_CHARACTER);
+//		
+//		String[] header = csvRead.readNext();
+//		log.debug("Read file");
+//		//Verify fields and return immediately if we don't have a required one
+//		def result = verifyFields(header, upload.dataType)
+//		if (!result.success) {
+//			return result;
+//		}
+//		log.debug("Fields verified");
+//		def headerList = header.toList();
+//		//contains index from the database of field name and index
+//		//<String, long>
+//		HashMap columnOrder=getColumnIndex(upload.dataType)
+//		
+////Currently ignoring: HETISQ
+////  HETPVAL
+//		def pValueIndex = -1;
+//		def logpValueIndex = -1;
+//		def rsIdIndex=-1;
+//		def numberOfColumns = headerList.size();
+//		//contains index from the file to the index defined in the database.
+//		//<Long, int>
+//		//based on header field build this map, keep the field index and header Index.
+//		HashMap fileColumnIdx=new HashMap()
+//		
+//		for (int i = 0; i < headerList.size(); i++) {
+//			def column = headerList[i];
+//			if (column.trim().toLowerCase().equals("p_value")) {
+//				pValueIndex = i;
+//			}
+//			else if (column.trim().toLowerCase().equals("log_p_value")) {
+//				logpValueIndex = i;
+//			}
+//			else if(column.trim().toLowerCase().equals("rs_id")){
+//				rsIdIndex=i;
+//			}
+//			else
+//			{
+//				def idx = columnOrder.get(headerList[i].toUpperCase())
+//				if (idx==null)
+//				System.out.println(headerList[i].toUpperCase()+" at index "+ i)
+//				else
+//				fileColumnIdx.put (idx,i);
+//			}
+//		}
+//
+//		//If we don't have p-value or log p-value, add this column at the end
+//		if (pValueIndex < 0) {
+//			pValueIndex = headerList.size();
+//			headerList[headerList.size()] = "p_value";
+//		}
+//		else if (logpValueIndex < 0) {
+//			logpValueIndex = headerList.size();
+//			headerList[headerList.size()] = "log_p_value";
+//		}
+//		log.info("RS at "+rsIdIndex+" pvalue "+pValueIndex+" -logPvalue "+ logpValueIndex)
+//		fileColumnIdx.put ((Long)0,(int)rsIdIndex)
+//		def pvalCol=(Long)columnOrder.size()+1
+//		fileColumnIdx.put (pvalCol,(int)pValueIndex)
+//		def pvalLog10Col=(Long)(columnOrder.size()+2)
+//		fileColumnIdx.put (pvalLog10Col,(int)logpValueIndex);
+//
+//
+//
+//		/* Columns are sorted - now start writing the file */
+//
+//	
+//
+//			csv = new CSVWriter(new FileWriter(new File(location)), '\t'.charAt(0), CSVWriter.NO_QUOTE_CHARACTER) //How to specify character in Grails...?!
+//			String [] headerRow=new String[fileColumnIdx.size()];
+//			for (int rowIdx=0; rowIdx < fileColumnIdx.size();rowIdx++)
+//			{
+//				//System.out.println(rowIdx)
+//				def index=fileColumnIdx.get((Long)rowIdx)
+//				if (index==null)
+//				log.info("file column Index is null for "+ rowIdx +"-"+ fileColumnIdx.toString())
+//				else if (headerList[index]==null)
+//				log.info("header list is null for "+index+" - "+headerList.toString());
+//				else
+//				headerRow[rowIdx]=headerList[fileColumnIdx.get((Long)rowIdx)]
+//				
+//			}
+//			//csv.writeNext(headerList as String[])
+//			csv.writeNext(headerRow);
+//
+//			//For each line, check the value and p-value - if we have one but not the other, calculate and fill it
+//			String[] nextLine
+//			def pflag=false;
+//			String linenos="";
+//			int lineno=1;
+//			while ((nextLine = csvRead.readNext()) != null) {
+//				String [] curRow=new String[fileColumnIdx.size()];
+//				def columns = nextLine.toList()
+//				def currentpValue = columns[pValueIndex]
+//				def currentlogpValue = columns[logpValueIndex]
+//				lineno++;
+//				int flag=1;
+//				if (!currentpValue && !currentlogpValue) {
+//					linenos += columns[rsIdIndex]+",";
+//					pflag=true;
+//					flag=0;
+//					//  throw new Exception("No p_value or log_p_value was provided for a row."+ linenos);
+//
+//				}
+//				else if (!currentpValue) {
+//					columns[pValueIndex] = 0 - Math.power(10.0, Double.parseDouble(currentlogpValue))
+//				}
+//				else if (!currentlogpValue) {
+//					def logp=Math.log10(Double.parseDouble(currentpValue));
+//					if (logp == Double.POSITIVE_INFINITY )
+//					{
+//						logp=0 - log10(new BigDecimal(currentpValue),10);
+//
+//					}
+//					columns[logpValueIndex] = 0 - logp
+//				}
+//
+//				//This row is now complete - write it!
+//				if(flag==1){
+//					// csv.writeNext(columns as String[])
+//					for (int rowIdx=0; rowIdx<fileColumnIdx.size();rowIdx++)
+//					{
+//						System.out.println(rowIdx)
+//						def index=fileColumnIdx.get((Long)rowIdx)
+//						if (index==null)
+//						log.info("file column Index is null for "+ rowIdx +"-"+ fileColumnIdx.toString())
+//						else
+//						curRow[rowIdx]=columns[index]
+//					}
+//					//csv.writeNext(headerList as String[])
+//					csv.writeNext(curRow);
+//				}
+//			}
+//			if(pflag){
+//				//result.success=false;
+//				//result.error="No p_value or log_p_value was provided for snps "+linenos;
+//				throw new Exception ("No p_value or log_p_value was provided for SNPs "+linenos);
+//			}
+//
+//			return result;
+//		}
+//		catch (Exception e) {
+//			log.error(e.printStackTrace());
+//			throw e;
+//		}
+//		//			upload.status = "ERROR"
+//		//			upload.save(flush: true)
+//		//			render(view: "complete", model: [result: new DataUploadResult(success:false, error: "Could not write file: " + e.getMessage()), uploadDataInstance: upload]);
+//		//			return;
+//		//		}
+//		finally {
+//			if (csvRead != null) {
+//				csvRead.close();
+//			}
+//			if (csv != null) {
+//				csv.flush()
+//				csv.close()
+//			}
+//		}
+//	}
 	
 	def runStaging(etlId) throws Exception {
 		
@@ -652,4 +760,3 @@ public class DataUploadService{
 		
 	}
 }
-

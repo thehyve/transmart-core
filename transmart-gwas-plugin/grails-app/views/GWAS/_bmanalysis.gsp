@@ -15,20 +15,20 @@
         <table class="analysis-table">
             <tr>
             	<td style="width:20px;">
-					  <input type="checkbox" name="${analysisId}" class="analysischeckbox" value="${analysis.name}" onclick="updateSelectedAnalyses();" style="zoom:1.5;"/>
+					  <input type="checkbox" name="${analysisId}" class="analysischeckbox" value="${analysis.name}" onclick="gwasUpdateSelectedAnalyses();" style="zoom:1.5;"/>
             	</td>
                 <td style="width:20px;">
 		          <g:form controller="GWAS" name="AnalysisDetail_${analysisId}" id="AnalysisDetail_${analysisId}" action="doComparison">
 		              <input type="hidden" id="analysis_results_${analysisId}_state" value="0" />
 						
-			          <a href="#" onclick="showDetailDialog('${createLink(controller:'trial', action:'showAnalysis', id:analysisId)}', '${analysis.name.replace("'", "\\'")}');">
-	                   <asset:image alt="Analysis" src="analysis.png" style="vertical-align: top;margin-top: -2px;" /></a>
+			          <a href="#" onclick="gwasShowDetailDialog('${createLink(controller:'trial', action:'showAnalysis', id:analysisId)}', '${analysis.name.replace("'", "\\'")}');">
+	                    <asset:image alt="Analysis" src="analysis.png" style="vertical-align: top;margin-top: -2px;" /></a>                          
 	              </g:form>
                 </td>
 
                 <g:set var="onAnalysisClick" value=""/>
                 <g:ifPlugin name="transmart-gwas">
-                    <g:set var="onAnalysisClick" value="showVisualization('${analysisId}', false);"/>
+                    <g:set var="onAnalysisClick" value="gwasShowVisualization('${analysisId}', false);"/>
                 </g:ifPlugin>
                 <td onclick="${onAnalysisClick}" class="td-link" >${analysis.name}</td>
 				<td style="color:red;font-weight:bold">${sensitiveDesc}</td>
@@ -48,7 +48,8 @@
            <div id="visTabs_${analysisId}" class="analysis-tabs">
                <ul>
                   <li><a href="#results_${analysisId}">Analysis Results</a></li>
-                  <li><a href="#qqplot_${analysisId}" onclick="loadQQPlot('${analysisId}');">QQ Plot</a></li>
+                  <li><a href="#qqplot_${analysisId}" onclick="gwasLoadQQPlot('${analysisId}');">QQ Plot</a></li>
+                  <li><a href="#manhattanplot_${analysisId}" onclick="gwasLoadManhattanPlot('${analysisId}');">Manhattan Plot</a></li>
                </ul>
              
                 <div id="results_${analysisId}">
@@ -57,8 +58,8 @@
                         <div id="btnResultsExport_${analysisId}" class='vis-toolbar-item'><a href="${createLink([plugin: 'transmart-gwas', controller:'gwasSearch', action:'getAnalysisResults', params:[export: true, analysisId: analysisId]])}"><asset:image alt="" src="internal-link.gif" /> Export as CSV</a></div>
                         <div id="resultsExportOpts_${analysisId}" class='menuOptList' style="display:none;">
                             <ul>
-                                <li onclick="exportResultsData('${analysisId}','data');">Export data (.csv)</li>
-                                <li onclick="exportResultsData('${analysisId}','image');">Export image (.png)</li>
+                                <li onclick="gwasExportResultsData('${analysisId}','data');">Export data (.csv)</li>
+                                <li onclick="gwasExportResultsData('${analysisId}','image');">Export image (.png)</li>
                             </ul>
                         </div>
     				<%-- </g:if> --%>
@@ -81,6 +82,19 @@
                      <div id ="qqplot_results_${analysisId}" class="heatmap_analysis"></div>
 
                   </div>
+               </div>
+               
+                <div id="manhattanplot_${analysisId}">
+                  <div class='vis-toolBar' >
+                   <div id="btnmanhattanplotExport_${analysisId}" class='vis-toolbar-item' onclick="">
+                        <a href="" target="_blank" id="manhattanplot_export_${analysisId}">
+                            <img alt="" src="${resource(dir:'images',file:'internal-link.gif')}" /> Export as PNG
+                        </a>
+                     </div>
+
+                     <div id ="manhattanplot_results_${analysisId}" class="heatmap_analysis"></div>
+
+		     </div>
                </div>
             </div>
         </div>
