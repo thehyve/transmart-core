@@ -22,7 +22,7 @@ class WriteOntologyMappingTasklet implements Tasklet {
     @Autowired
     OntologyMappingHolder ontologyMappingHolder
 
-    private FileSystemResource resource
+    private final FileSystemResource resource
 
     WriteOntologyMappingTasklet(FileSystemResource resource) {
         this.resource = resource

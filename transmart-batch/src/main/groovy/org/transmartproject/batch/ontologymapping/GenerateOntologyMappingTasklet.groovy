@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.ClinicalJobContext
-import org.transmartproject.batch.clinical.ontology.OntologyNode
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.ontology.DefaultExternalOntologyTermService
 import org.transmartproject.ontology.ExternalOntologyTermService
