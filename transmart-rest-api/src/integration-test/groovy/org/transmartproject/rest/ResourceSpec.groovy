@@ -25,6 +25,7 @@
 
 package org.transmartproject.rest
 
+import grails.artefact.controller.RestResponder
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
 import grails.rest.render.RendererRegistry
@@ -73,6 +74,23 @@ abstract class ResourceSpec extends Specification {
 
     RestResponse get(String path, Closure paramSetup = {}) {
         rest.get("${baseURL}${path}", paramSetup)
+    }
+
+    RestResponse delete(String path, Closure paramSetup = {}) {
+        rest.delete("${baseURL}${path}", paramSetup)
+    }
+    /**
+    * An alias to put method
+    * @param path
+    * @param paramSetup
+    * @return
+    */
+    RestResponse update(String path, Closure paramSetup = {}) {
+        rest.put("${baseURL}${path}", paramSetup)
+    }
+
+    RestResponse put(String path, Closure paramSetup = {}) {
+        rest.put("${baseURL}${path}", paramSetup)
     }
 
     RestResponse post(String path, Closure paramSetup = {}) {

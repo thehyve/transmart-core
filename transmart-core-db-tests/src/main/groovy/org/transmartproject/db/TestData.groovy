@@ -27,6 +27,7 @@ import org.transmartproject.db.dataquery.highdim.mrna.MrnaTestData
 import org.transmartproject.db.i2b2data.I2b2Data
 import org.transmartproject.db.ontology.ConceptTestData
 import org.transmartproject.db.ontology.I2b2
+import org.transmartproject.db.storage.StorageTestData
 
 class TestData {
 
@@ -37,6 +38,7 @@ class TestData {
     MrnaTestData mrnaData
     AcghTestData acghData
     SampleBioMarkerTestData bioMarkerTestData
+    StorageTestData storageTestData
 
     static void reset() {
         ClinicalTestData.reset()
@@ -64,6 +66,7 @@ class TestData {
         def bioMarkerTestData = new SampleBioMarkerTestData()
         def mrnaData = new MrnaTestData('2', bioMarkerTestData) //concept code '2'
         def acghData = new AcghTestData('4', bioMarkerTestData) //concept code '4'
+        def storageTestData = StorageTestData.createDefault()
 
         new TestData(
                 conceptData: conceptData,
@@ -73,6 +76,7 @@ class TestData {
                 mrnaData: mrnaData,
                 acghData: acghData,
                 bioMarkerTestData: bioMarkerTestData,
+                storageTestData: storageTestData,
         )
     }
 
@@ -129,5 +133,6 @@ class TestData {
         mrnaData?.saveAll()
         mrnaData?.updateDoubleScaledValues()
         acghData?.saveAll()
+        storageTestData?.saveAll()
     }
 }
