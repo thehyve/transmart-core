@@ -9,6 +9,7 @@ import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.FileSystemResource
 import org.springframework.stereotype.Component
+import org.transmartproject.ontology.OntologyMapTsvWriter
 
 /**
  * Writes ontology nodes to a ontology mapping file.
@@ -32,12 +33,9 @@ class WriteOntologyMappingTasklet implements Tasklet {
         if (!ontologyMappingHolder.nodes) {
             RepeatStatus.FINISHED
         }
-        resource.outputStream.withPrintWriter { Writer w ->
-            ontologyMappingHolder.nodes.each {
-                w.write(it.code + '\n')
-                contribution.incrementWriteCount(1)
-            }
-        }
+
+        OntologyMapTsvWriter.write(resource.outputStream, ontologyMappingHolder.nodes)
+        contribution.incrementWriteCount(ontologyMappingHolder.nodes.size())
 
         RepeatStatus.FINISHED
     }
