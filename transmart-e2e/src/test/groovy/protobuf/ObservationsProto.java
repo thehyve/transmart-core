@@ -166,6 +166,15 @@ public final class ObservationsProto {
      */
     protobuf.ObservationsProto.DimensionDeclarationOrBuilder getDimensionDeclarationsOrBuilder(
         int index);
+
+    /**
+     * <pre>
+     * same meaning as in Observation
+     * </pre>
+     *
+     * <code>optional bool last = 2;</code>
+     */
+    boolean getLast();
   }
   /**
    * <pre>
@@ -184,6 +193,7 @@ public final class ObservationsProto {
     }
     private Header() {
       dimensionDeclarations_ = java.util.Collections.emptyList();
+      last_ = false;
     }
 
     @java.lang.Override
@@ -220,6 +230,11 @@ public final class ObservationsProto {
                   input.readMessage(protobuf.ObservationsProto.DimensionDeclaration.parser(), extensionRegistry));
               break;
             }
+            case 16: {
+
+              last_ = input.readBool();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -246,6 +261,7 @@ public final class ObservationsProto {
               protobuf.ObservationsProto.Header.class, protobuf.ObservationsProto.Header.Builder.class);
     }
 
+    private int bitField0_;
     public static final int DIMENSIONDECLARATIONS_FIELD_NUMBER = 1;
     private java.util.List<protobuf.ObservationsProto.DimensionDeclaration> dimensionDeclarations_;
     /**
@@ -281,6 +297,19 @@ public final class ObservationsProto {
       return dimensionDeclarations_.get(index);
     }
 
+    public static final int LAST_FIELD_NUMBER = 2;
+    private boolean last_;
+    /**
+     * <pre>
+     * same meaning as in Observation
+     * </pre>
+     *
+     * <code>optional bool last = 2;</code>
+     */
+    public boolean getLast() {
+      return last_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -296,6 +325,9 @@ public final class ObservationsProto {
       for (int i = 0; i < dimensionDeclarations_.size(); i++) {
         output.writeMessage(1, dimensionDeclarations_.get(i));
       }
+      if (last_ != false) {
+        output.writeBool(2, last_);
+      }
     }
 
     public int getSerializedSize() {
@@ -306,6 +338,10 @@ public final class ObservationsProto {
       for (int i = 0; i < dimensionDeclarations_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, dimensionDeclarations_.get(i));
+      }
+      if (last_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(2, last_);
       }
       memoizedSize = size;
       return size;
@@ -325,6 +361,8 @@ public final class ObservationsProto {
       boolean result = true;
       result = result && getDimensionDeclarationsList()
           .equals(other.getDimensionDeclarationsList());
+      result = result && (getLast()
+          == other.getLast());
       return result;
     }
 
@@ -339,6 +377,9 @@ public final class ObservationsProto {
         hash = (37 * hash) + DIMENSIONDECLARATIONS_FIELD_NUMBER;
         hash = (53 * hash) + getDimensionDeclarationsList().hashCode();
       }
+      hash = (37 * hash) + LAST_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getLast());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -468,6 +509,8 @@ public final class ObservationsProto {
         } else {
           dimensionDeclarationsBuilder_.clear();
         }
+        last_ = false;
+
         return this;
       }
 
@@ -491,6 +534,7 @@ public final class ObservationsProto {
       public protobuf.ObservationsProto.Header buildPartial() {
         protobuf.ObservationsProto.Header result = new protobuf.ObservationsProto.Header(this);
         int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         if (dimensionDeclarationsBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
             dimensionDeclarations_ = java.util.Collections.unmodifiableList(dimensionDeclarations_);
@@ -500,6 +544,8 @@ public final class ObservationsProto {
         } else {
           result.dimensionDeclarations_ = dimensionDeclarationsBuilder_.build();
         }
+        result.last_ = last_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -566,6 +612,9 @@ public final class ObservationsProto {
               dimensionDeclarationsBuilder_.addAllMessages(other.dimensionDeclarations_);
             }
           }
+        }
+        if (other.getLast() != false) {
+          setLast(other.getLast());
         }
         onChanged();
         return this;
@@ -833,6 +882,44 @@ public final class ObservationsProto {
         }
         return dimensionDeclarationsBuilder_;
       }
+
+      private boolean last_ ;
+      /**
+       * <pre>
+       * same meaning as in Observation
+       * </pre>
+       *
+       * <code>optional bool last = 2;</code>
+       */
+      public boolean getLast() {
+        return last_;
+      }
+      /**
+       * <pre>
+       * same meaning as in Observation
+       * </pre>
+       *
+       * <code>optional bool last = 2;</code>
+       */
+      public Builder setLast(boolean value) {
+        
+        last_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * same meaning as in Observation
+       * </pre>
+       *
+       * <code>optional bool last = 2;</code>
+       */
+      public Builder clearLast() {
+        
+        last_ = false;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -949,7 +1036,8 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * If true, observations are packed along this dimension. 
+     * If true, observations are packed along this dimension. Only one dimension can have
+     *this flag set, and this flag is mutually exclusive with the 'inline' flag.
      * </pre>
      *
      * <code>optional bool packed = 5;</code>
@@ -1211,7 +1299,8 @@ public final class ObservationsProto {
     private boolean packed_;
     /**
      * <pre>
-     * If true, observations are packed along this dimension. 
+     * If true, observations are packed along this dimension. Only one dimension can have
+     *this flag set, and this flag is mutually exclusive with the 'inline' flag.
      * </pre>
      *
      * <code>optional bool packed = 5;</code>
@@ -2084,7 +2173,8 @@ public final class ObservationsProto {
       private boolean packed_ ;
       /**
        * <pre>
-       * If true, observations are packed along this dimension. 
+       * If true, observations are packed along this dimension. Only one dimension can have
+       *this flag set, and this flag is mutually exclusive with the 'inline' flag.
        * </pre>
        *
        * <code>optional bool packed = 5;</code>
@@ -2094,7 +2184,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * If true, observations are packed along this dimension. 
+       * If true, observations are packed along this dimension. Only one dimension can have
+       *this flag set, and this flag is mutually exclusive with the 'inline' flag.
        * </pre>
        *
        * <code>optional bool packed = 5;</code>
@@ -2107,7 +2198,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * If true, observations are packed along this dimension. 
+       * If true, observations are packed along this dimension. Only one dimension can have
+       *this flag set, and this flag is mutually exclusive with the 'inline' flag.
        * </pre>
        *
        * <code>optional bool packed = 5;</code>
@@ -4635,7 +4727,7 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * [default=false];
+     * default: false
      * </pre>
      *
      * <code>optional bool last = 7;</code>
@@ -4992,7 +5084,7 @@ public final class ObservationsProto {
     private boolean last_;
     /**
      * <pre>
-     * [default=false];
+     * default: false
      * </pre>
      *
      * <code>optional bool last = 7;</code>
@@ -6185,7 +6277,7 @@ public final class ObservationsProto {
       private boolean last_ ;
       /**
        * <pre>
-       * [default=false];
+       * default: false
        * </pre>
        *
        * <code>optional bool last = 7;</code>
@@ -6195,7 +6287,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * [default=false];
+       * default: false
        * </pre>
        *
        * <code>optional bool last = 7;</code>
@@ -6208,7 +6300,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * [default=false];
+       * default: false
        * </pre>
        *
        * <code>optional bool last = 7;</code>
@@ -15219,50 +15311,51 @@ public final class ObservationsProto {
   static {
     java.lang.String[] descriptorData = {
       "\n+src/test/groovy/protobuf/observations." +
-      "proto\022\thypercube\"H\n\006Header\022>\n\025dimensionD" +
+      "proto\022\thypercube\"V\n\006Header\022>\n\025dimensionD" +
       "eclarations\030\001 \003(\0132\037.hypercube.DimensionD" +
-      "eclaration\"\277\001\n\024DimensionDeclaration\022\014\n\004n" +
-      "ame\030\001 \001(\t\022\035\n\004type\030\002 \001(\0162\017.hypercube.Type" +
-      "\022*\n\006fields\030\003 \003(\0132\032.hypercube.FieldDefini" +
-      "tion\022\016\n\006inline\030\004 \001(\010\022\016\n\006packed\030\005 \001(\010\022.\n\010" +
-      "elements\030\006 \001(\0132\034.hypercube.DimensionElem" +
-      "ents\">\n\017FieldDefinition\022\014\n\004name\030\001 \001(\t\022\035\n" +
-      "\004type\030\002 \001(\0162\017.hypercube.Type\"\244\001\n\013Observa",
-      "tion\022\030\n\020dimensionIndexes\030\001 \003(\003\0225\n\020inline" +
-      "Dimensions\030\002 \003(\0132\033.hypercube.DimensionEl" +
-      "ement\022\025\n\013stringValue\030\003 \001(\tH\000\022\026\n\014numericV" +
-      "alue\030\004 \001(\001H\000\022\014\n\004last\030\007 \001(\010B\007\n\005value\"\270\001\n\021" +
-      "PackedObservation\022\030\n\020dimensionIndexes\030\001 " +
-      "\003(\003\0226\n\020inlineDimensions\030\002 \003(\0132\034.hypercub" +
-      "e.DimensionElements\022\024\n\014stringValues\030\003 \003(" +
-      "\t\022\025\n\rnumericValues\030\004 \003(\001\022\026\n\016numObervatio" +
-      "ns\030\005 \001(\005\022\014\n\004last\030\007 \001(\010\"\"\n\010IntValue\022\r\n\003va" +
-      "l\030\001 \001(\022H\000B\007\n\005value\"(\n\016TimestampValue\022\r\n\003",
-      "val\030\001 \001(\022H\000B\007\n\005value\"%\n\013DoubleValue\022\r\n\003v" +
-      "al\030\001 \001(\001H\000B\007\n\005value\"%\n\013StringValue\022\r\n\003va" +
-      "l\030\001 \001(\tH\000B\007\n\005value\"\350\001\n\020DimensionElement\022" +
-      " \n\006fields\030\001 \003(\0132\020.hypercube.Value\022%\n\010int" +
-      "Value\030\002 \001(\0132\023.hypercube.IntValue\022+\n\013doub" +
-      "leValue\030\003 \001(\0132\026.hypercube.DoubleValue\022+\n" +
-      "\013stringValue\030\004 \001(\0132\026.hypercube.StringVal" +
-      "ue\0221\n\016timestampValue\030\005 \001(\0132\031.hypercube.T" +
-      "imestampValue\"\314\001\n\005Value\022-\n\013stringValue\030\001" +
-      " \001(\0132\026.hypercube.StringValueH\000\022-\n\013double",
-      "Value\030\002 \001(\0132\026.hypercube.DoubleValueH\000\022\'\n" +
-      "\010intValue\030\003 \001(\0132\023.hypercube.IntValueH\000\0223" +
-      "\n\016timestampValue\030\004 \001(\0132\031.hypercube.Times" +
-      "tampValueH\000B\007\n\005value\"9\n\006Footer\022/\n\tdimens" +
-      "ion\030\001 \003(\0132\034.hypercube.DimensionElements\"" +
-      "R\n\021DimensionElements\022*\n\006fields\030\001 \003(\0132\032.h" +
-      "ypercube.DimElementField\022\021\n\tperSample\030\002 " +
-      "\001(\010\"\305\001\n\017DimElementField\022+\n\013stringValue\030\001" +
-      " \003(\0132\026.hypercube.StringValue\022+\n\013doubleVa" +
-      "lue\030\002 \003(\0132\026.hypercube.DoubleValue\022%\n\010int",
-      "Value\030\003 \003(\0132\023.hypercube.IntValue\0221\n\016time" +
-      "stampValue\030\004 \003(\0132\031.hypercube.TimestampVa" +
-      "lue*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING\020\001\022\007\n\003I" +
-      "NT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004B\035\n\010proto" +
-      "bufB\021ObservationsProtob\006proto3"
+      "eclaration\022\014\n\004last\030\002 \001(\010\"\277\001\n\024DimensionDe" +
+      "claration\022\014\n\004name\030\001 \001(\t\022\035\n\004type\030\002 \001(\0162\017." +
+      "hypercube.Type\022*\n\006fields\030\003 \003(\0132\032.hypercu" +
+      "be.FieldDefinition\022\016\n\006inline\030\004 \001(\010\022\016\n\006pa" +
+      "cked\030\005 \001(\010\022.\n\010elements\030\006 \001(\0132\034.hypercube" +
+      ".DimensionElements\">\n\017FieldDefinition\022\014\n" +
+      "\004name\030\001 \001(\t\022\035\n\004type\030\002 \001(\0162\017.hypercube.Ty",
+      "pe\"\244\001\n\013Observation\022\030\n\020dimensionIndexes\030\001" +
+      " \003(\003\0225\n\020inlineDimensions\030\002 \003(\0132\033.hypercu" +
+      "be.DimensionElement\022\025\n\013stringValue\030\003 \001(\t" +
+      "H\000\022\026\n\014numericValue\030\004 \001(\001H\000\022\014\n\004last\030\007 \001(\010" +
+      "B\007\n\005value\"\270\001\n\021PackedObservation\022\030\n\020dimen" +
+      "sionIndexes\030\001 \003(\003\0226\n\020inlineDimensions\030\002 " +
+      "\003(\0132\034.hypercube.DimensionElements\022\024\n\014str" +
+      "ingValues\030\003 \003(\t\022\025\n\rnumericValues\030\004 \003(\001\022\026" +
+      "\n\016numObervations\030\005 \001(\005\022\014\n\004last\030\007 \001(\010\"\"\n\010" +
+      "IntValue\022\r\n\003val\030\001 \001(\022H\000B\007\n\005value\"(\n\016Time",
+      "stampValue\022\r\n\003val\030\001 \001(\022H\000B\007\n\005value\"%\n\013Do" +
+      "ubleValue\022\r\n\003val\030\001 \001(\001H\000B\007\n\005value\"%\n\013Str" +
+      "ingValue\022\r\n\003val\030\001 \001(\tH\000B\007\n\005value\"\350\001\n\020Dim" +
+      "ensionElement\022 \n\006fields\030\001 \003(\0132\020.hypercub" +
+      "e.Value\022%\n\010intValue\030\002 \001(\0132\023.hypercube.In" +
+      "tValue\022+\n\013doubleValue\030\003 \001(\0132\026.hypercube." +
+      "DoubleValue\022+\n\013stringValue\030\004 \001(\0132\026.hyper" +
+      "cube.StringValue\0221\n\016timestampValue\030\005 \001(\013" +
+      "2\031.hypercube.TimestampValue\"\314\001\n\005Value\022-\n" +
+      "\013stringValue\030\001 \001(\0132\026.hypercube.StringVal",
+      "ueH\000\022-\n\013doubleValue\030\002 \001(\0132\026.hypercube.Do" +
+      "ubleValueH\000\022\'\n\010intValue\030\003 \001(\0132\023.hypercub" +
+      "e.IntValueH\000\0223\n\016timestampValue\030\004 \001(\0132\031.h" +
+      "ypercube.TimestampValueH\000B\007\n\005value\"9\n\006Fo" +
+      "oter\022/\n\tdimension\030\001 \003(\0132\034.hypercube.Dime" +
+      "nsionElements\"R\n\021DimensionElements\022*\n\006fi" +
+      "elds\030\001 \003(\0132\032.hypercube.DimElementField\022\021" +
+      "\n\tperSample\030\002 \001(\010\"\305\001\n\017DimElementField\022+\n" +
+      "\013stringValue\030\001 \003(\0132\026.hypercube.StringVal" +
+      "ue\022+\n\013doubleValue\030\002 \003(\0132\026.hypercube.Doub",
+      "leValue\022%\n\010intValue\030\003 \003(\0132\023.hypercube.In" +
+      "tValue\0221\n\016timestampValue\030\004 \003(\0132\031.hypercu" +
+      "be.TimestampValue*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n\n" +
+      "\006STRING\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OBJ" +
+      "ECT\020\004B\035\n\010protobufB\021ObservationsProtob\006pr" +
+      "oto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -15281,7 +15374,7 @@ public final class ObservationsProto {
     internal_static_hypercube_Header_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_Header_descriptor,
-        new java.lang.String[] { "DimensionDeclarations", });
+        new java.lang.String[] { "DimensionDeclarations", "Last", });
     internal_static_hypercube_DimensionDeclaration_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_hypercube_DimensionDeclaration_fieldAccessorTable = new
