@@ -4,9 +4,7 @@ import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.step.tasklet.TaskletStep
-import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemStreamReader
-import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.mapping.FieldSetMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -19,7 +17,6 @@ import org.transmartproject.batch.beans.AbstractJobConfiguration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.clinical.ClinicalJobContext
 import org.transmartproject.batch.clinical.ClinicalJobSpecification
-import org.transmartproject.batch.clinical.ontology.OntologyNode
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
 import org.transmartproject.batch.clinical.variable.ColumnMappingFileHeaderHandler
 import org.transmartproject.batch.support.JobParameterFileResource
@@ -33,14 +30,51 @@ import org.transmartproject.batch.support.JobParameterFileResource
 class FetchOntologyMappingJobConfiguration extends AbstractJobConfiguration {
 
     static final String JOB_NAME = 'FetchOntologyMappingJob'
-    static final int CHUNK_SIZE = 100
 
     @Bean(name = 'FetchOntologyMappingJob')
     Job job() {
         jobs.get(JOB_NAME)
                 .start(readVariablesStep())
-                .next(ontologyMappingExportStep())
+                .next(generateOntologyMappingStep())
+                .next(writeOntologyMappingStep())
                 .build()
+    }
+
+    @Bean
+    Step generateOntologyMappingStep() {
+        TaskletStep s = steps.get('generateOntologyMapping')
+            .allowStartIfComplete(true)
+            .tasklet(ontologyMappingGenerator())
+            .build()
+        s
+    }
+
+    @Bean
+    @JobScope
+    GenerateOntologyMappingTasklet ontologyMappingGenerator() {
+        new GenerateOntologyMappingTasklet()
+    }
+
+    @Bean
+    Step writeOntologyMappingStep() {
+        TaskletStep s = steps.get('writeOntologyMapping')
+                .allowStartIfComplete(true)
+                .tasklet(writeOntologyMapping())
+                .build()
+        s
+    }
+
+    @Bean
+    @JobScope
+    WriteOntologyMappingTasklet writeOntologyMapping() {
+        Resource resource = ontologyMappingFileResource(null)
+        new WriteOntologyMappingTasklet(resource)
+    }
+
+    @Bean
+    @JobScope
+    FileSystemResource ontologyMappingFileResource(@Value("#{jobParameters}") Map<String, Object> jobParameters) {
+        new FileSystemResource(jobParameters[FetchOntologyMappingJobSpecification.ONTOLOGY_MAP_FILE] as String)
     }
 
     @Bean
@@ -76,40 +110,6 @@ class FetchOntologyMappingJobConfiguration extends AbstractJobConfiguration {
     @JobScopeInterfaced
     Resource columnMapFileResource() {
         new JobParameterFileResource(parameter: ClinicalJobSpecification.COLUMN_MAP_FILE)
-    }
-
-    @Bean
-    Step ontologyMappingExportStep() {
-        TaskletStep s = steps.get('tagTypesExportStep')
-                .chunk(CHUNK_SIZE)
-                .reader(ontologyMappingGenerator())
-                .writer(ontologyMappingWriter())
-                .faultTolerant()
-                .processorNonTransactional()
-                .retryLimit(0) // do not retry individual items
-                .listener(logCountsStepListener())
-                .listener(lineOfErrorDetectionListener())
-                .build()
-        s
-    }
-
-    @Bean
-    @JobScope
-    OntologyMappingGenerator ontologyMappingGenerator() {
-        new OntologyMappingGenerator()
-    }
-
-    @Bean
-    @JobScope
-    OntologyMappingWriter ontologyMappingWriter() {
-        Resource resource = ontologyMappingFileResource(null)
-        new OntologyMappingWriter(resource)
-    }
-
-    @Bean
-    @JobScope
-    FileSystemResource ontologyMappingFileResource(@Value("#{jobParameters}") Map<String, Object> jobParameters) {
-        new FileSystemResource(jobParameters[FetchOntologyMappingJobSpecification.ONTOLOGY_MAP_FILE])
     }
 
 }

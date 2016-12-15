@@ -13,6 +13,7 @@ final class FetchOntologyMappingJobSpecification
         implements ExternalJobParametersModule, JobSpecification {
 
     public final static String ONTOLOGY_MAP_FILE = 'ONTOLOGY_MAP_FILE'
+    public final static String ONTOLOGY_SERVER_URL = 'ONTOLOGY_SERVER_URL'
     public final static String COLUMN_MAP_FILE = ClinicalJobSpecification.COLUMN_MAP_FILE
 
     final List<? extends ExternalJobParametersModule> jobParametersModules = [
@@ -23,11 +24,15 @@ final class FetchOntologyMappingJobSpecification
 
     final Set<String> supportedParameters = ImmutableSet.of(
             ONTOLOGY_MAP_FILE,
+            ONTOLOGY_SERVER_URL,
             ClinicalJobSpecification.COLUMN_MAP_FILE
     )
 
     void munge(ExternalJobParametersInternalInterface ejp)
             throws InvalidParametersFileException {
+        if (ejp[ONTOLOGY_SERVER_URL] == 'x') {
+            ejp[ONTOLOGY_SERVER_URL] == null
+        }
         if (ejp[ONTOLOGY_MAP_FILE] == 'x') {
             ejp[ONTOLOGY_MAP_FILE] == null
         }
