@@ -286,7 +286,8 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
     }
 
     @Override def getElementKey(Map result) {
-        getKey(result, name)
+        // This may not exist, if there was no modifier row for this modifier. In that case we return null
+        result[name]
     }
 
     @Override String toString() {
