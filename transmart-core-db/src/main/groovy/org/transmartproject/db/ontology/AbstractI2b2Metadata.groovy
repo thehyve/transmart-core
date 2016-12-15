@@ -29,6 +29,8 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.db.util.StringUtils
 
+import static org.transmartproject.db.util.StringUtils.asLikeLiteral
+
 @EqualsAndHashCode(includes = [ 'fullName', 'name' ])
 abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         implements OntologyTerm {
@@ -184,8 +186,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
 			boolean showSynonyms = false,
 			boolean isOrdered = true) {
 		HibernateCriteriaBuilder c
-		def fullNameSearch = this.conceptKey.conceptFullName.toString()
-				.asLikeLiteral() + '%'
+		def fullNameSearch = asLikeLiteral(this.conceptKey.conceptFullName.toString()) + '%'
 
 		c = createCriteria()
 		def ret = c.list {
@@ -217,8 +218,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
                                               boolean showSynonyms = false,
 											  boolean isOrdered = true) {
         HibernateCriteriaBuilder c
-        def fullNameSearch = this.conceptKey.conceptFullName.toString()
-                .asLikeLiteral() + '%'
+        def fullNameSearch = asLikeLiteral(this.conceptKey.conceptFullName.toString()) + '%'
 
         c = createCriteria()
         def ret = c.list {
@@ -249,8 +249,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
 												  boolean showSynonyms = false,
 												  boolean isOrdered = true) {
 			HibernateCriteriaBuilder c
-			def fullNameSearch = this.conceptKey.conceptFullName.toString()
-					.asLikeLiteral() + '%'
+			def fullNameSearch = asLikeLiteral(this.conceptKey.conceptFullName.toString()) + '%'
 	
 			c = createCriteria()
 			def ret = c.list {
