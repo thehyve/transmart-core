@@ -46,4 +46,8 @@ class Config {
     public static final boolean TUMOR_NORMAL_SAMPLES_LOADED = true
     public static final boolean SHARED_CONCEPTS_LOADED = true
     public static final boolean SHARED_CONCEPTS_RESTRICTED_LOADED = true
+
+    //external ontology server
+    public static final String ONTOLOGY_SERVER_URL = 'http://localhost:8081/'
+    public static final String PATH_RECOMMENTED_CONCEPTS = "v2/recommended_concepts"
 }
