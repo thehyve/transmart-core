@@ -299,9 +299,11 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
      */
     void addModifierValue(Map result, ProjectionMap modifierRow) {
         assert modifierRow[modifierCodeField] == modifierCode
-        assert !result.containsKey(name), "$name already used as an alias or as a different modifier"
-        result[name] = ObservationFact.observationFactValue(
+        def modifierValue = ObservationFact.observationFactValue(
                 (String) modifierRow.valueType, (String) modifierRow.textValue, (BigDecimal) modifierRow.numberValue)
+        if(result.putIfAbsent(name, modifierValue) != null) {
+            assert result && false, "$name already used as an alias or as a different modifier"
+        }
     }
 }
 
