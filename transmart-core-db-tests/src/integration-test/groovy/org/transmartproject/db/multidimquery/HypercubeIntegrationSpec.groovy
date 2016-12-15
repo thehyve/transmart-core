@@ -28,6 +28,15 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
     void setupData() {
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
+
+        // Intentionally remove one modifier row
+        def lastSamplePatient = clinicalData.sampleClinicalFacts.findAll {
+            it.modifierCd == 'TEST:DOSE'
+        }*.patient.sort({it.id})[-1]
+        clinicalData.sampleClinicalFacts.removeAll {
+            it.modifierCd == 'TEST:DOSE' && it.patient.id == lastSamplePatient.id
+        }
+
         testData.saveAll()
     }
 
@@ -123,6 +132,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def expectedPatients = expected*.patient as Set
         def expectedTissues = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == ttDim.modifierCode}*.textValue as Set
         def expectedDosages = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}*.numberValue as Set
+        expectedDosages << null // a missing dose
 
         expect:
         hypercube.dimensions.size() == clinicalData.sampleStudy.dimensions.size()
@@ -148,7 +158,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
             assert resultObs[i][ttDim] ==
                     clinicalData.sampleClinicalFacts.findAll{it.modifierCd == ttDim.modifierCode}[i].textValue
             assert resultObs[i][doseDim] ==
-                    clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}[i].numberValue
+                    clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}[i]?.numberValue
         }
     }
 
@@ -175,6 +185,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         } as Set
         def expectedTissues = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == ttDim.modifierCode}*.textValue as Set
         def expectedDosages = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}*.numberValue as Set
+        expectedDosages << null // a missing dose
 
         expect:
         !(PATIENT in hypercube.dimensions)
