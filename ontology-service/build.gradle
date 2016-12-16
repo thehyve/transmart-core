@@ -12,8 +12,7 @@ dependencies {
     compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.6'
     compile 'com.google.guava:guava:18.0'
     compile 'com.opencsv:opencsv:3.8'
-
-    compileOnly 'org.slf4j:slf4j-api:1.7.20'
+    compile 'org.slf4j:slf4j-api:1.7.20'
 
     testRuntime 'org.hamcrest:hamcrest-core:1.3'
     testRuntime 'org.hamcrest:hamcrest-library:1.3'
