@@ -5,6 +5,7 @@ import grails.rest.render.util.AbstractLinkingRenderer
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestParam
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.tree.TreeNode
 import org.transmartproject.db.tree.TreeService
@@ -42,6 +43,12 @@ class TreeController {
               @RequestParam('depth') Integer depth,
               @RequestParam('counts') Boolean counts,
               @RequestParam('tags') Boolean tags) {
+        def acceptedParams = ['action', 'controller', 'apiVersion', 'root', 'depth', 'count', 'tags']
+        params.keySet().each { param ->
+            if (!acceptedParams.contains(param)) {
+                throw new InvalidArgumentsException("Parameter not supported: $param.")
+            }
+        }
         if (root) {
             root = URLDecoder.decode(root, 'UTF-8')
         }
