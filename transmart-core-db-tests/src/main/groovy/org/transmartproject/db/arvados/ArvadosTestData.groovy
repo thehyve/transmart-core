@@ -1,6 +1,5 @@
 package org.transmartproject.db.arvados
 
-import org.transmartproject.db.storage.SupportedWorkflow
 import static org.transmartproject.db.TestDataHelper.save
 
 /**
@@ -18,13 +17,15 @@ class ArvadosTestData {
     public static ArvadosTestData createDefault() {
         ArvadosTestData arvadosTestData = new ArvadosTestData()
         arvadosTestData.supportedWorkflows = []
-        def exampleWorkflow = new SupportedWorkflow()
+        SupportedWorkflow exampleWorkflow = new SupportedWorkflow()
         exampleWorkflow.name = "example workflow"
         exampleWorkflow.description = "This workflow exemplifies the aptness of this solution"
         exampleWorkflow.arvadosInstanceUrl = "https://arvbox-pro-dev.thehyve.net:8000"
         exampleWorkflow.arvadosVersion = "v1"
-        exampleWorkflow.defaultParams = "{'firstParam':2, 'secondParam':'bla'}"
+        exampleWorkflow.defaultParams = '{"firstParam":2, "secondParam":"bla"}'
+        exampleWorkflow.uuid = "qwuip-ouip-aaaaaaaaaaaaaa"
         arvadosTestData.supportedWorkflows << exampleWorkflow
+        return arvadosTestData
     }
 
 

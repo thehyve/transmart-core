@@ -1,6 +1,5 @@
-package org.transmartproject.db.storage
+package org.transmartproject.db.arvados
 
-import org.transmartproject.db.i2b2data.Study
 
 /**
  * Created by piotrzakrzewski on 14/12/2016.

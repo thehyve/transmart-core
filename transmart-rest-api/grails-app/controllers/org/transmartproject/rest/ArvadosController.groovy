@@ -4,7 +4,7 @@ import grails.rest.RestfulController
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.storage.SupportedWorkflow
+import org.transmartproject.db.arvados.SupportedWorkflow
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
 
