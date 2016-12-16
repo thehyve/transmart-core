@@ -1,2 +1,2 @@
-"Transmart RNASeq Transcript"	"TM:TRANSCRIPT"	"RNASEQ_TRANSCRIPT"								
-"Transmart Microarray"	"TM:MICROARRAY"	"Gene Expression"								
+"Transmart RNASeq Transcript"	"TRANSMART:HIGHDIM:RNASEQ_TRANSCRIPT"	"RNASEQ_TRANSCRIPT"								
+"Transmart Microarray"	"TRANSMART:HIGHDIM:GENE_EXPRESSION"	"Gene Expression"								
