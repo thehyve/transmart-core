@@ -248,17 +248,6 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
         numJoined = jdbcTemplate.queryForObject(q, [study: STUDY_ID], Long)
 
         assertThat numJoined, is(equalTo(numI2b2))
-
-        // they should also match through the "basecode"
-        q = """
-            SELECT COUNT(*)
-            FROM ${Tables.I2B2} I
-            INNER JOIN ${Tables.CONCEPT_DIMENSION} D
-                ON (I.c_basecode = D.concept_cd)
-            WHERE I.sourcesystem_cd = :study"""
-        numJoined = jdbcTemplate.queryForObject(q, [study: STUDY_ID], Long)
-
-        assertThat numJoined, is(equalTo(numI2b2))
     }
 
     @Test

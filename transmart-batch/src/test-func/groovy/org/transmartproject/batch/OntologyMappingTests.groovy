@@ -3,6 +3,7 @@ package org.transmartproject.batch
 import org.junit.AfterClass
 import org.junit.ClassRule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.springframework.test.context.ContextConfiguration
@@ -27,7 +28,9 @@ class OntologyMappingTests implements JobRunningTestTrait {
     private final static String STUDY_ID = 'TEST_17_1'
 
     @ClassRule
-    public final static TestRule RUN_JOB_RULES = new RunJobRule("studies/${STUDY_ID}/clinical/clinical.params")
+    public final static TestRule RUN_JOB_RULES = new RuleChain([
+            new RunJobRule("studies/${STUDY_ID}/clinical.params")
+    ])
 
     // needed by the trait
     public final static TestRule RUN_JOB_RULE =

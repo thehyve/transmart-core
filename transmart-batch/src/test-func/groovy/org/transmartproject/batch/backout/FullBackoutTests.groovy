@@ -59,11 +59,6 @@ class FullBackoutTests implements JobRunningTestTrait {
         q = "SELECT c_fullname FROM $Tables.I2B2_SECURE"
         r = jdbcTemplate.queryForObject(q, [:], String)
         assertThat r, is(PRIVATE_STUDIES_PATH)
-
-        assertThat rowCounter.count(Tables.CONCEPT_DIMENSION), is(1L)
-        q = "SELECT concept_path FROM $Tables.CONCEPT_DIMENSION"
-        r = jdbcTemplate.queryForObject(q, [:], String)
-        assertThat r, is(PRIVATE_STUDIES_PATH)
     }
 
     @Test
