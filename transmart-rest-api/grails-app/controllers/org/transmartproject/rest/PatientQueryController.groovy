@@ -33,6 +33,12 @@ class PatientQueryController extends AbstractQueryController {
      * which there are observations that satisfy the constraint.
      */
     def listPatients(@RequestParam('api_version') String apiVersion) {
+        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint']
+        params.keySet().each { param ->
+            if (!acceptedParams.contains(param)) {
+                throw new InvalidArgumentsException("Parameter not supported: $param.")
+            }
+        }
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
@@ -56,6 +62,12 @@ class PatientQueryController extends AbstractQueryController {
             @PathVariable('id') Long id) {
         if (id == null) {
             throw new InvalidArgumentsException("Parameter 'id' is missing.")
+        }
+        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint']
+        params.keySet().each { param ->
+            if (!acceptedParams.contains(param)) {
+                throw new InvalidArgumentsException("Parameter not supported: $param.")
+            }
         }
 
         Constraint constraint = new PatientSetConstraint(patientIds: [id])
@@ -90,6 +102,12 @@ class PatientQueryController extends AbstractQueryController {
     def findPatientSet(
             @RequestParam('api_version') String apiVersion,
             @PathVariable('id') Long id) {
+        def acceptedParams = ['action', 'controller', 'apiVersion']
+        params.keySet().each { param ->
+            if (!acceptedParams.contains(param)) {
+                throw new InvalidArgumentsException("Parameter not supported: $param.")
+            }
+        }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
         QueryResult patientSet = queryService.findPatientSet(id, user)
@@ -111,6 +129,12 @@ class PatientQueryController extends AbstractQueryController {
     def createPatientSet(
             @RequestParam('api_version') String apiVersion,
             @RequestParam('name') String name) {
+        def acceptedParams = ['action', 'controller', 'apiVersion', 'name', 'constraint']
+        params.keySet().each { param ->
+            if (!acceptedParams.contains(param)) {
+                throw new InvalidArgumentsException("Parameter not supported: $param.")
+            }
+        }
         if (name) {
             name = URLDecoder.decode(name, 'UTF-8').trim()
         } else {
