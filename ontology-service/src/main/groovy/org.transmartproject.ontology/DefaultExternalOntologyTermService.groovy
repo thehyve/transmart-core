@@ -65,7 +65,7 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
         def ancestorsMap = createAncestorsMap(paths)
         def labels = getLabels(ancestorsMap.keySet())
 
-        String originalCode = paths[0][0]
+        String originalCode = paths[0][-1]
         log.debug "Found code ${originalCode} for ${categoryCode}, ${dataLabel}."
 
         ancestorsMap.collect { code, ancestors ->
@@ -144,7 +144,7 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
                     multimap[path[i]] = [] as Set<String>
                 }
                 if (i > 1) {
-                    multimap[path[i - 1]] << path[i]
+                    multimap[path[i]] << path[i - 1]
                 }
             }
         }
