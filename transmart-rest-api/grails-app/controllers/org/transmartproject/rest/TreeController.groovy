@@ -43,7 +43,7 @@ class TreeController {
               @RequestParam('depth') Integer depth,
               @RequestParam('counts') Boolean counts,
               @RequestParam('tags') Boolean tags) {
-        def acceptedParams = ['action', 'controller', 'apiVersion', 'root', 'depth', 'count', 'tags']
+        def acceptedParams = ['action', 'controller', 'apiVersion', 'root', 'depth', 'counts', 'tags']
         params.keySet().each { param ->
             if (!acceptedParams.contains(param)) {
                 throw new InvalidArgumentsException("Parameter not supported: $param.")
