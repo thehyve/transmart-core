@@ -47,7 +47,9 @@ class StorageControllerSpec extends ResourceSpec {
 
     def singleGetTest() {
         when:
-        def response = get("/$VERSION/files/1")
+        def indexResponse = get("/$VERSION/files")
+        int fileId = indexResponse.json[FILES_COLLECTION_NAME][0].id
+        def response = get("/$VERSION/files/$fileId")
         then:
         response.status == 200
         response.json['name'] == '1000 genemes VCFs'
@@ -101,18 +103,20 @@ class StorageControllerSpec extends ResourceSpec {
 
     def LinkUpdateTest() {
         when:
+        def indexResponse = get("/$VERSION/files")
+        int fileId = indexResponse.json[FILES_COLLECTION_NAME][0].id
         def bodyContent = ['name'        : 'updated name',
                            'sourceSystem': 1,
                            'study'       : 'storage_study2',
                            'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc'] as JSON
-        def before = get "/$VERSION/files/1"
-        def updateResponse = update "/$VERSION/files/1", {
+        def before = get "/$VERSION/files/$fileId"
+        def updateResponse = update "/$VERSION/files/$fileId", {
             contentType "application/json"
             json bodyContent
         }
-        def after = get "/$VERSION/files/1"
+        def after = get "/$VERSION/files/$fileId"
         def bodyJsn = before.json as JSON
-        def putBack = update "/$VERSION/files/1", {
+        def putBack = update "/$VERSION/files/$fileId", {
             contentType "application/json"
             json bodyJsn
         }
@@ -127,7 +131,9 @@ class StorageControllerSpec extends ResourceSpec {
 
     def storageSystemGetTest() {
         when:
-        def response = get("/$VERSION/storage/1")
+        def indexResponse = get("/$VERSION/storage")
+        int storageId = indexResponse.json[STORAGE_SYSTEM_COLLECTION_NAME][0].id
+        def response = get("/$VERSION/storage/$storageId")
         then:
         response.status == 200
         response.json['name'] == 'arvados keep at The Hyve'

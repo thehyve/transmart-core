@@ -74,4 +74,5 @@
 \i i2b2demodata/visit_dimension.sql
 \i i2b2demodata/storage_system.sql
 \i i2b2demodata/linked_file_collection.sql
+\i i2b2demodata/supported_workflow.sql
 \i i2b2demodata/_misc.sql
