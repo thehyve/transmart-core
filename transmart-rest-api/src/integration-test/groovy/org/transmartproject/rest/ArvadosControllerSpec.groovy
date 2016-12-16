@@ -31,7 +31,7 @@ class ArvadosControllerSpec extends ResourceSpec {
                            'description'       : 'description',
                            'arvadosInstanceUrl': 'http://arv-server.com',
                            'arvadosVersion'    : 'v1',
-                           'defaultParams'     : '{"firstParam":10, "secondParam":"maraP"}',
+                           'defaultParams'     : ["firstParam":10, "secondParam":"maraP"],
                            'uuid'              : 'instance-objid-randomstr',] as JSON
         def postResponse = post "/$VERSION/arvados/workflows", {
             contentType "application/json"

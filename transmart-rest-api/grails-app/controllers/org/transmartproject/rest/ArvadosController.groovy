@@ -1,12 +1,16 @@
 package org.transmartproject.rest
 
+import grails.converters.JSON
 import grails.rest.RestfulController
+import grails.web.http.HttpHeaders
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.arvados.SupportedWorkflow
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.CurrentUser
+
+import static org.springframework.http.HttpStatus.CREATED
 
 /**
  * Created by piotrzakrzewski on 15/12/2016.
@@ -32,7 +36,26 @@ class ArvadosController extends RestfulController {
             throw new AccessDeniedException("Creating a new supported workflow" +
                     "is an admin action")
         }
-        super.save()
+        def instance = resource.newInstance()
+        def fields = request.JSON
+        if (fields['defaultParams']){
+            def defaultParams = fields['defaultParams'] as JSON
+            defaultParams = defaultParams.toString()
+            fields['defaultParams'] = defaultParams
+        } else {
+            fields['defaultParams'] = "{}"
+        }
+        bindData instance, fields
+
+        instance.validate()
+        if (instance.hasErrors()) {
+            transactionStatus.setRollbackOnly()
+            respond instance.errors, view:'create' // STATUS CODE 422
+            return
+        }
+        saveResource instance
+
+        respond instance, [status: CREATED, view:'show']
     }
 
     @Override

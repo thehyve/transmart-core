@@ -16,7 +16,9 @@ class SupportedWorkflow {
 
     static mapping = {
         table          schema:   'I2B2DEMODATA'
+        defaultParams type: "text"
         version false
+        id generator: 'sequence'
     }
 
     static constraints = {
