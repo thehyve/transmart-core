@@ -43,7 +43,8 @@ class StorageController extends RestfulController {
     def show() {
         def fileCollection = queryForResource(params.id)
         if (fileCollection == null) {
-            respond "Resource not found", [status: CREATED, view:'show']
+            notFound()
+            return
         }
         currentUser.checkAccess(READ, fileCollection.study)
         respond fileCollection
