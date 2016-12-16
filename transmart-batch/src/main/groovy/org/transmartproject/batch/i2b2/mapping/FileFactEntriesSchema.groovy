@@ -37,8 +37,8 @@ class FileFactEntriesSchema implements Map<I2b2MappingEntry, List<I2b2MappingEnt
             builder.put(conceptEntry, ImmutableList.copyOf(modifierEntries))
         }
 
-        conceptModifierEntryMap = builder.build()
-        this.conceptVarToEntryMap = conceptEntryMapping
+        conceptModifierEntryMap = builder.build() as Map<I2b2MappingEntry, List>
+        this.conceptVarToEntryMap = conceptEntryMapping //as IdentityHashMap<ConceptI2b2Variable, I2b2MappingEntry>
         this.filename = filename
     }
 
@@ -50,22 +50,22 @@ class FileFactEntriesSchema implements Map<I2b2MappingEntry, List<I2b2MappingEnt
                 new IdentityHashMap()
 
         // spread operator is broken with static compile here
-        assert allEntriesForFile.collect { it.filename }.unique().size() == 1
+        assert allEntriesForFile.collect { I2b2MappingEntry entry -> entry.filename }.unique().size() == 1
 
-        allEntriesForFile.findAll {
-            it.i2b2Variable instanceof ConceptI2b2Variable
-        }.each {
-            conceptToEntryMap[(ConceptI2b2Variable) it.i2b2Variable] = it
-            entries[it] = []
+        allEntriesForFile.findAll { I2b2MappingEntry entry ->
+            entry.i2b2Variable instanceof ConceptI2b2Variable
+        }.each { I2b2MappingEntry entry ->
+            conceptToEntryMap[(ConceptI2b2Variable) entry.i2b2Variable] = entry
+            entries[entry] = []
         }
 
-        allEntriesForFile.findAll {
-            it.i2b2Variable instanceof ModifierI2b2Variable
-        }.each {
+        allEntriesForFile.findAll { I2b2MappingEntry entry ->
+            entry.i2b2Variable instanceof ModifierI2b2Variable
+        }.each { I2b2MappingEntry e ->
             I2b2MappingEntry entry = conceptToEntryMap.get(
-                    ((ModifierI2b2Variable) it.i2b2Variable).boundConceptVariable)
+                    ((ModifierI2b2Variable) e.i2b2Variable).boundConceptVariable)
             assert entries[entry] != null
-            entries[entry] << it
+            entries[entry] << e
         }
 
         new FileFactEntriesSchema(allEntriesForFile.find().filename,
@@ -118,9 +118,9 @@ class FileFactEntriesSchema implements Map<I2b2MappingEntry, List<I2b2MappingEnt
                 Map<Set<Tuple>, Integer> counts
                 counts = getModifierEntryListListsForConceptCodeAndColumn(code, col).countBy {
                     List<I2b2MappingEntry> modifierEntries ->
-                        modifierEntries.collect {
-                            new Tuple((ModifierI2b2Variable) it.i2b2Variable,
-                                    it.columnNumber)
+                        modifierEntries.collect { I2b2MappingEntry entry ->
+                            new Tuple((ModifierI2b2Variable) entry.i2b2Variable,
+                                    entry.columnNumber)
                         } as Set
                 }
 
@@ -177,10 +177,10 @@ class FileFactEntriesSchema implements Map<I2b2MappingEntry, List<I2b2MappingEnt
     }
 
     private List<List<I2b2MappingEntry>> getModifierEntryListListsForConceptCodeAndColumn(String code, int column) {
-        getConceptEntriesForConceptCode(code).findAll {
-            it.columnNumber == column
-        }.collect {
-            owner[it]
+        getConceptEntriesForConceptCode(code).findAll { I2b2MappingEntry entry ->
+            entry.columnNumber == column
+        }.collect { I2b2MappingEntry entry ->
+            owner[entry]
         }
     }
 }

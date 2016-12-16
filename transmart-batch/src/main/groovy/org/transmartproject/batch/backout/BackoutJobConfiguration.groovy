@@ -64,12 +64,12 @@ class BackoutJobConfiguration extends BackoutJobConfigurationParent {
 
     @Bean
     Flow mainFlow(List<BackoutModule> backoutModules,
-                  Tasklet gatherCurrentConceptsTasklet,
+                  Tasklet gatherCurrentTreeNodesTasklet,
                   Tasklet validateTopNodePreexistenceTasklet,
                   NextBackoutModuleJobExecutionDecider decider) {
 
         def flowBuilder = new FlowBuilder<SimpleFlow>('mainFlow')
-                .start(allowStartStepOf('gatherCurrentConcepts', gatherCurrentConceptsTasklet))
+                .start(allowStartStepOf('gatherCurrentTreeNodes', gatherCurrentTreeNodesTasklet))
                 .next(stepOf('validateTopNode', validateTopNodePreexistenceTasklet))
                 .next(decider)
 

@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.beans.JobScopeInterfaced
+import org.transmartproject.batch.clinical.ontology.OntologyMapping
 import org.xml.sax.SAXException
 
 import java.sql.ResultSet
@@ -20,7 +21,7 @@ import java.sql.ResultSet
  * It will always load the TOP_NODE for the study.
  *
  * If the job context variable
- * {@link GatherCurrentConceptsTasklet#LIST_OF_CONCEPTS_KEY}
+ * {@link GatherCurrentTreeNodesTasklet#LIST_OF_CONCEPTS_KEY}
  * is set, then the concepts with full names in that list (and their
  * parents will be loaded). Otherwise, all the concepts for the study will be
  * loaded.
@@ -31,9 +32,9 @@ import java.sql.ResultSet
 @Component
 @JobScopeInterfaced
 @Slf4j
-class GatherCurrentConceptsTasklet implements Tasklet {
+class GatherCurrentTreeNodesTasklet implements Tasklet {
 
-    public final static String LIST_OF_CONCEPTS_KEY = 'gatherCurrentConceptsTasklet.listOfConcepts'
+    public final static String LIST_OF_CONCEPTS_KEY = 'gatherCurrentTreeNodesTasklet.listOfConcepts'
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate
@@ -41,28 +42,33 @@ class GatherCurrentConceptsTasklet implements Tasklet {
     @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
-    @Value("#{jobExecution.executionContext.get('gatherCurrentConceptsTasklet.listOfConcepts')}")
+    @Value("#{jobExecution.executionContext.get('gatherCurrentTreeNodesTasklet.listOfConcepts')}")
     Collection<ConceptPath> conceptPaths
 
     @Autowired
     ConceptTree conceptTree
 
+    @Autowired
+    OntologyMapping ontologyMapping
+
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         String sql = '''
-                SELECT c_fullname, c_hlevel, c_name, c_basecode, c_metadataxml, c_visualattributes
+                SELECT c_fullname, c_hlevel, c_name, c_dimcode, c_metadataxml, c_visualattributes
                 FROM i2b2metadata.i2b2
-                WHERE c_fullname IN (:rootPathFullNames) OR '''
+                WHERE
+                c_tablename LIKE 'CONCEPT_DIMENSION' AND
+                c_columnname LIKE 'CONCEPT_PATH' AND
+                c_operator IN ('=', 'LIKE') AND (
+                c_fullname IN (:rootPathFullNames) OR '''
 
         def params = [
                 rootPathFullNames: thisAndItsParents(conceptTree.topNodePath),
         ]
 
-        if (log.debugEnabled) {
-            log.debug("Will look for concepts ${params.rootPathFullNames}. " +
+        log.debug("Will look for concepts ${params.rootPathFullNames}. " +
                     "List originally given: $conceptPaths")
-        }
 
         if (conceptPaths) {
             sql += 'c_fullname IN (:fullNames)'
@@ -78,18 +84,36 @@ class GatherCurrentConceptsTasklet implements Tasklet {
             log.debug('No concept list given; will load all ' +
                     'the concepts for study {}', studyId)
         }
+        sql += ')'
 
-        List<ConceptNode> concepts = jdbcTemplate.query(
+        List<ConceptNode> treeNodes = jdbcTemplate.query(
                 sql,
                 params,
-                GatherCurrentConceptsTasklet.&resultRowToConceptNode as RowMapper<ConceptNode>)
+                GatherCurrentTreeNodesTasklet.&resultRowToConceptNode as RowMapper<ConceptNode>)
 
-        concepts.each {
-            log.debug('Found existing concept {}', it)
+        treeNodes.each {
+            log.debug "Found existing i2b2 node ${it.path}"
+            if (it.conceptPath) {
+                def conceptCode = jdbcTemplate.query(
+                        "select CONCEPT_CD from I2B2DEMODATA.CONCEPT_DIMENSION where CONCEPT_PATH = :path",
+                        [path: it.conceptPath.toString()],
+                        { ResultSet rs, int rowNum -> rs.getString('CONCEPT_CD') } as RowMapper<String>
+                )
+                if (!conceptCode.empty) {
+                    it.code = conceptCode[0]
+                    log.debug "Concept code is ${it.code}."
+                } else {
+                    log.warn "No concept code found."
+                }
+                def ontologyNode = ontologyMapping.getNodeForPath(it.path)
+                if (ontologyNode) {
+                    it.ontologyNode = true
+                }
+            }
             contribution.incrementReadCount() //increment reads. unfortunately we have to do this in some loop
         }
 
-        conceptTree.loadExisting concepts
+        conceptTree.loadExisting treeNodes
 
         RepeatStatus.FINISHED
     }
@@ -104,12 +128,16 @@ class GatherCurrentConceptsTasklet implements Tasklet {
 
     @SuppressWarnings('UnusedPrivateMethodParameter')
     private static ConceptNode resultRowToConceptNode(ResultSet rs, int rowNum) {
-        ConceptPath path = new ConceptPath(rs.getString('c_fullname'))
+        def path = new ConceptPath(rs.getString('c_fullname'))
+        def dimCode = rs.getString('c_dimcode')
+        def conceptPath = (dimCode && !dimCode.empty) ? new ConceptPath(dimCode) : null
         new ConceptNode(
                 level: rs.getInt('c_hlevel'),
                 path: path,
                 name: rs.getString('c_name'),
-                code: rs.getString('c_basecode'),
+                conceptName: null,
+                conceptPath: conceptPath,
+                code: null,
                 type: typeFor(rs),
         )
     }

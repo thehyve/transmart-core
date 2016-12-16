@@ -12,7 +12,7 @@ class StandardMultipleVariablesPerSampleFieldSetMapper
         new TripleStandardDataValue(annotation: annotation, sampleCode: sampleCode)
     }
 
-    final Map<String, Closure> fieldSetters =
+    Map<String, Closure> fieldSetters =
             [
                     val   : { TripleStandardDataValue instance, String value ->
                         instance.value = numberFormat.parse(value).doubleValue()

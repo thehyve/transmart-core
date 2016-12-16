@@ -6,6 +6,7 @@ import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Lazy
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.db.objects.Tables
@@ -42,6 +43,12 @@ class InsertConceptsService {
     @Value(Tables.I2B2_SECURE)
     private SimpleJdbcInsert i2b2SecureInsert
 
+    @Value(Tables.TABLE_ACCESS)
+    private SimpleJdbcInsert tableAccessInsert
+
+    @Autowired
+    private NamedParameterJdbcTemplate jdbcTemplate
+
     @SuppressWarnings('PrivateFieldCouldBeFinal')
     @Lazy
     private String metadataXml = { generateMetadataXml() }()
@@ -54,14 +61,69 @@ class InsertConceptsService {
 
     boolean recordId
 
-    Collection<ConceptNode> insert(Collection<ConceptNode> newConcepts) throws Exception {
-        log.debug "New concepts are ${newConcepts*.path}"
-
-        conceptTree.reserveIdsFor(newConcepts)
+    Collection<ConceptNode> insert(Collection<ConceptNode> newTreeNodes) throws Exception {
+        log.debug "New tree nodes are ${newTreeNodes*.path}"
+        newTreeNodes.each {
+            log.debug "Adding tree node ${it.path}"
+        }
+        // reserve ids for non-shared concepts and store generated codes in-place
+        conceptTree.reserveIdsFor(newTreeNodes)
+        // save concept dimension entries
+        def newConcepts = newTreeNodes
+                .findAll { it.conceptPath && !(it.code in conceptTree.savedConceptCodes) }
+                .unique { it.conceptPath }
+        newConcepts.each {
+            log.debug "Adding concept ${it.conceptPath} (${it.code})"
+        }
         insertConceptDimension(studyId, newConcepts)
-        insertI2b2(studyId, newConcepts)
-        conceptTree.addToSavedNodes(newConcepts)
-        newConcepts
+        conceptTree.addToSavedConceptCodes(newConcepts*.code)
+        // save tree nodes
+        insertI2b2(studyId, newTreeNodes)
+        conceptTree.addToSavedNodes(newTreeNodes)
+        newTreeNodes
+    }
+
+    /**
+     * Fetches the full paths of existing table access entries.
+     * @return The list of paths.
+     */
+    private Collection<String> fetchTableAccessEntries() {
+        jdbcTemplate.queryForList("SELECT c_fullname FROM $Tables.TABLE_ACCESS", [:], String)
+    }
+
+    /**
+     * Inserts table access entries for the root nodes (<code>level == 0</code>),
+     * if a node with the same path does not already exists.
+     *
+     * @param rootNodes
+     * @return the array with insert counts as documented in
+     * {@link org.springframework.jdbc.core.simple.SimpleJdbcInsertOperations#executeBatch}.
+     */
+    private int[] insertTableAccess(List<ConceptNode> rootNodes) {
+        def existingEntries = fetchTableAccessEntries() as Set<String>
+        def tableAccessRows = rootNodes.findAll { ConceptNode node ->
+            !(node.path.toString() in existingEntries)
+        }.collect { ConceptNode node ->
+            assert node.level == 0
+            log.info "Inserting ${node.name} into $Tables.TABLE_ACCESS"
+            [
+                c_table_cd: node.name, // transmart needs key the same as first element of path
+                c_table_name: (Tables.tableName(Tables.I2B2)).toUpperCase(), // 'I2B2'
+                c_protected_access: 'N',
+                c_hlevel: 0,
+                c_fullname: node.path.toString(),
+                c_name: node.name,
+                c_synonym_cd: 'N',
+                c_visualattributes: 'CAE',
+                c_facttablecolumn: 'concept_cd',
+                c_dimtablename: 'concept_dimension',
+                c_columnname: 'concept_path',
+                c_columndatatype: 'T',
+                c_operator: 'LIKE',
+                c_dimcode: node.conceptPath?.toString() ?: '',
+            ]
+        }
+        tableAccessInsert.executeBatch(tableAccessRows as Map[])
     }
 
     private int[] insertI2b2(String studyId, Collection<ConceptNode> newConcepts, Date now = new Date()) {
@@ -71,7 +133,6 @@ class InsertConceptsService {
 
         log.debug("Inserting ${newConcepts.size()} new concepts (i2b2/i2b2secure)")
 
-        String comment = "trial:$studyId"
         List<Map> i2b2Rows = []
         List<Map> i2b2SecureRows = []
 
@@ -91,7 +152,7 @@ class InsertConceptsService {
                     c_columnname      : 'CONCEPT_PATH',
                     c_columndatatype  : 'T',
                     c_operator        : 'LIKE',
-                    c_dimcode         : it.path.toString(),
+                    c_dimcode         : it.conceptPath?.toString() ?: '',
                     c_tooltip         : it.path.toString(),
                     m_applied_path    : '@',
                     update_date       : now,
@@ -100,21 +161,22 @@ class InsertConceptsService {
                     sourcesystem_cd   : conceptTree.isStudyNode(it) ? studyId : null,
             ]
 
-            if (it.path.contains(topNode)) {
-                i2b2Row.c_comment = comment
-            }
             if (recordId) {
                 i2b2Row.record_id = -1
             }
 
             Map i2b2SecureRow = new HashMap(i2b2Row)
-            i2b2SecureRow.put('secure_obj_token', secureObjectToken as String)
+            /* In this case, we use 'EXP:PUBLIC' for public nodes, to make the nodes visible in transmartApp. */
+            def sot = (it.ontologyNode || secureObjectToken.public) ? 'EXP:PUBLIC' : secureObjectToken.toString()
+            i2b2SecureRow.put('secure_obj_token', sot)
             i2b2SecureRow.remove('record_id')
 
             i2b2Rows.add(i2b2Row)
             i2b2SecureRows.add(i2b2SecureRow)
         }
 
+        int[] tableAccessCounts = insertTableAccess(newConcepts.findAll { it.level == 0 } as List<ConceptNode>)
+        DatabaseUtil.checkUpdateCounts(tableAccessCounts, 'inserting table_access')
         int[] counts1 = i2b2Insert.executeBatch(i2b2Rows as Map[])
         DatabaseUtil.checkUpdateCounts(counts1, 'inserting i2b2')
         int[] counts2 = i2b2SecureInsert.executeBatch(i2b2SecureRows as Map[])
@@ -132,8 +194,9 @@ class InsertConceptsService {
         Map<String, Object>[] rows = newConcepts.collect {
             [
                     concept_cd     : it.code,
-                    concept_path   : it.path.toString(),
-                    name_char      : it.name,
+                    concept_path   : it.conceptPath,
+                    name_char      : it.conceptName,
+                    concept_blob   : it.uri,
                     update_date    : now,
                     download_date  : now,
                     import_date    : now,
@@ -154,8 +217,9 @@ class InsertConceptsService {
             case ConceptType.CATEGORICAL:
                 return null
             default:
-                throw new IllegalStateException(
-                        "Unexpected concept type: ${concept.type}")
+                return null
+                //throw new IllegalStateException(
+                //        "Unexpected concept type: ${concept.type}")
         }
     }
 

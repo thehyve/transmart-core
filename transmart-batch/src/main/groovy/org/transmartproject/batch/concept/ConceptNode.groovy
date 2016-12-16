@@ -8,14 +8,40 @@ import groovy.transform.ToString
  * Represents a concept.
  */
 @SuppressWarnings('DuplicateListLiteral') // bug in codenarc
-@ToString(includes = ['code', 'path'])
-@EqualsAndHashCode(includes = ['code', 'path'])
+@ToString(includes = ['code', 'path', 'conceptName', 'conceptPath', 'conceptCode'])
+@EqualsAndHashCode(includes = ['code', 'path', 'conceptName', 'conceptPath', 'conceptCode'])
 @CompileStatic
 class ConceptNode {
     int level
+    /**
+     * Tree node path
+     */
     ConceptPath path
+    /**
+     * Name of the tree node
+     */
     String name
+    /**
+     * Concept name
+     */
+    String conceptName
+    /**
+     * Concept path
+     */
+    ConceptPath conceptPath
+    /**
+     * Concept code
+     */
     String code
+    /**
+     * Concept URI
+     */
+    String uri
+
+    /**
+     * Flag if this node represents a shared ontology term (public access)
+     */
+    boolean ontologyNode = false
 
     ConceptType type = ConceptType.UNKNOWN
 

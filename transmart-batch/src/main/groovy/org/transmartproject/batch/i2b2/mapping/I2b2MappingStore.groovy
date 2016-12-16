@@ -103,7 +103,7 @@ class I2b2MappingStore {
             it.fileResource
         }.collectEntries { Resource r, List<I2b2MappingEntry> entries ->
             [r, FileFactEntriesSchema.buildFor(entries)]
-        }
+        } as Map<Resource, FileFactEntriesSchema>
     }
 
     FileFactEntriesSchema geFileFactEntriesSchemaFor(Resource fileResource) {

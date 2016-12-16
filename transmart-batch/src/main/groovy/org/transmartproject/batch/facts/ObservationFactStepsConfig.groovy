@@ -3,13 +3,11 @@ package org.transmartproject.batch.facts
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ItemStreamReader
-import org.springframework.batch.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
-import org.transmartproject.batch.highdim.assays.AssayMappingsRowStore
 
 /**
  * Observation facts spring batch steps configuration
@@ -22,10 +20,8 @@ class ObservationFactStepsConfig implements StepBuildingConfigurationTrait {
 
     @Bean
     @JobScopeInterfaced
-    Tasklet deleteObservationFactTasklet(AssayMappingsRowStore mappings) {
-        new DeleteObservationFactTasklet(
-                highDim: true,
-                basePaths: mappings.allConceptPaths)
+    Tasklet deleteObservationFactTasklet() {
+        new DeleteObservationFactTasklet()
     }
 
     @Bean
