@@ -2,6 +2,7 @@ package org.transmartproject.batch.backout
 
 import org.junit.AfterClass
 import org.junit.ClassRule
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -23,6 +24,8 @@ import static org.hamcrest.Matchers.is
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
+// FIXME: Reinstate this test before the final release.
+@Ignore
 class FullBackoutTests implements JobRunningTestTrait {
 
     public static final String STUDY_ID = 'GSE8581'
