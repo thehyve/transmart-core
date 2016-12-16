@@ -144,7 +144,7 @@ class QueryController extends AbstractQueryController {
      * @return a map with the aggregate type as key and the result as value.
      */
     def aggregate() {
-        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint']
+        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint', 'type']
         params.keySet().each { param ->
             if (!acceptedParams.contains(param)) {
                 throw new InvalidArgumentsException("Parameter not supported: $param.")
@@ -157,7 +157,7 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        def aggregateType = AggregateType.forName(params.type)
+        def aggregateType = AggregateType.forName(params.type as String)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def aggregatedValue = queryService.aggregate(aggregateType, constraint, user)
         def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
