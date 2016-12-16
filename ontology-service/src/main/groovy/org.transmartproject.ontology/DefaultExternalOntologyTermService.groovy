@@ -63,7 +63,7 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
         def ancestorsMap = createAncestorsMap(paths)
         def labels = getLabels(ancestorsMap.keySet())
 
-        String originalCode = paths[0][0]
+        String originalCode = paths[0][-1]
 
         ancestorsMap.collect { code, ancestors ->
             def isOriginalCode = (code == originalCode)
