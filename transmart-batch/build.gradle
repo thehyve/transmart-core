@@ -4,6 +4,7 @@ plugins {
 
 apply plugin: 'jacoco'
 apply plugin: 'groovy'
+apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'codenarc'
 apply plugin: 'maven'
@@ -172,6 +173,7 @@ task functionalTest(type: Test) {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.5'
+    gradleVersion = '2.12'
 }
 
 def getPomConfiguration() {
