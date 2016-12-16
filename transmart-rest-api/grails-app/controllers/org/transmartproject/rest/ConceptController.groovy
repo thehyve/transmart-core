@@ -24,8 +24,6 @@
  */
 
 package org.transmartproject.rest
-import org.transmartproject.ontology.DefaultExternalOntologyTermService
-import grails.converters.JSON
 import grails.rest.Link
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
@@ -60,11 +58,6 @@ class ConceptController {
             respond new OntologyTermWrapper(concept,
                     id == OntologyTermCategory.ROOT_CONCEPT_PATH)
         }
-    }
-
-    def showRecommended(String conceptCode) {
-        render new DefaultExternalOntologyTermService()
-                .fetchPreferredConcept("testCategoryCode", conceptCode) as JSON
     }
 
     /**
