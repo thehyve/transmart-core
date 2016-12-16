@@ -140,6 +140,11 @@ class ClinicalVariable implements Serializable {
      */
     String conceptCode
 
+    /**
+     * Flag if this variable is associated with a shared ontology term
+     */
+    boolean ontologyNode = false
+
     DemographicVariable demographicVariable
 
     boolean isDemographic() {

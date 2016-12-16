@@ -99,7 +99,7 @@ class ClinicalFactsRowSetFactory {
 
             def conceptNode = getOrGenerateConceptNode fileVariables, var, row
             def xtrialNode = getXtrialNodeFor(conceptNode)
-            result.addValue conceptNode, xtrialNode, value
+            result.addValue conceptNode, xtrialNode, value as String
         }
 
         result

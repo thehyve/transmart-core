@@ -53,6 +53,7 @@ class ClinicalVariableFieldMapper implements FieldSetMapper<ClinicalVariable> {
             log.info "Mapping variable ${path}."
             def ontologyNode = ontologyMapping.getNodeForPath(path)
             if (ontologyNode) {
+                item.ontologyNode = true
                 item.conceptName = ontologyNode.label
                 item.conceptPath = new ConceptPath(['Ontology', ontologyNode.code])
                 item.conceptCode = ontologyNode.code

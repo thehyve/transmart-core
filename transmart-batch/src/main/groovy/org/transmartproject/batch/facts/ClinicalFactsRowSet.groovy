@@ -1,5 +1,6 @@
 package org.transmartproject.batch.facts
 
+import groovy.util.logging.Slf4j
 import org.transmartproject.batch.clinical.xtrial.XtrialNode
 import org.transmartproject.batch.concept.ConceptNode
 import org.transmartproject.batch.concept.ConceptType
@@ -10,10 +11,12 @@ import org.transmartproject.batch.trialvisit.TrialVisit
  * Contains the transformed meaningful information from one data Row</br>
  * This includes the Patient and values for all Variables in a row of a file
  */
+@Slf4j
 class ClinicalFactsRowSet {
 
     final static Date DEFAULT_START_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
     final static Integer DEFAULT_INSTANCE_NUM = 1
+    final static String ORIGINAL_VARIABLE_NAME_MODIFIER = 'original_variable'
 
     String studyId
     Patient patient
@@ -33,15 +36,28 @@ class ClinicalFactsRowSet {
                 concept: concept,
                 xtrialNode: xtrialNode,
                 value: value,)
+        if (concept.ontologyNode) {
+            // Add entry with modifier to indicate the original variable name
+            // used for an observation.
+            clinicalFacts << new ClinicalFact(
+                    concept: concept,
+                    modifierCode: ORIGINAL_VARIABLE_NAME_MODIFIER,
+                    value: concept.name)
+        }
     }
 
     class ClinicalFact {
         String value
         ConceptNode concept
+        String modifierCode
         XtrialNode xtrialNode
 
+        ConceptType getType() {
+            modifierCode ? ConceptType.CATEGORICAL : concept.type
+        }
+
         String getValueTypeCode() {
-            switch (concept.type) {
+            switch (type) {
                 case ConceptType.NUMERICAL:
                     return 'N'
                 case ConceptType.HIGH_DIMENSIONAL:
@@ -54,7 +70,7 @@ class ClinicalFactsRowSet {
         }
 
         String getStringValue() {
-            switch (concept.type) {
+            switch (type) {
                 case ConceptType.NUMERICAL:
                     return 'E' // value is Equal to the numeric value column
                 case ConceptType.HIGH_DIMENSIONAL:
@@ -67,7 +83,7 @@ class ClinicalFactsRowSet {
         }
 
         Double getNumericValue() {
-            switch (concept.type) {
+            switch (type) {
                 case ConceptType.NUMERICAL:
                     return Double.valueOf(value)
                 case ConceptType.HIGH_DIMENSIONAL:
@@ -103,7 +119,7 @@ class ClinicalFactsRowSet {
 
                     provider_id    : '@',
                     location_cd    : '@',
-                    modifier_cd    : xtrialNode?.code ?: '@',
+                    modifier_cd    : xtrialNode?.code ?: modifierCode ?: '@',
                     valueflag_cd   : '@',
                     instance_num   : instanceNum ?: DEFAULT_INSTANCE_NUM,
                     trial_visit_num: trialVisit?.id

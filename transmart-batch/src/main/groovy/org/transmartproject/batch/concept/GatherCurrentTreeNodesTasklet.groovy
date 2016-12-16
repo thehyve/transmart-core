@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.beans.JobScopeInterfaced
+import org.transmartproject.batch.clinical.ontology.OntologyMapping
 import org.xml.sax.SAXException
 
 import java.sql.ResultSet
@@ -46,6 +47,9 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
 
     @Autowired
     ConceptTree conceptTree
+
+    @Autowired
+    OntologyMapping ontologyMapping
 
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -100,6 +104,10 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
                     log.debug "Concept code is ${it.code}."
                 } else {
                     log.warn "No concept code found."
+                }
+                def ontologyNode = ontologyMapping.getNodeForPath(it.path)
+                if (ontologyNode) {
+                    it.ontologyNode = true
                 }
             }
             contribution.incrementReadCount() //increment reads. unfortunately we have to do this in some loop

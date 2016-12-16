@@ -117,6 +117,7 @@ class ConceptTree {
         node.conceptName = variable.conceptName
         node.conceptPath = variable.conceptPath
         node.code = variable.conceptCode
+        node.ontologyNode = variable.ontologyNode
         log.debug("Generated new concept node: ${node.conceptPath}")
         nodeMap[variable.path] = node
         if (node.conceptPath) {
@@ -160,6 +161,7 @@ class ConceptTree {
             node.conceptName = variable.conceptName
             node.conceptPath = variable.conceptPath
             node.code = variable.conceptCode
+            node.ontologyNode = variable.ontologyNode
         }
         log.debug("Generated new concept node: $path")
         nodeMap[path] = node
