@@ -25,6 +25,7 @@ import org.hibernate.ScrollMode
 import org.hibernate.SessionFactory
 import org.hibernate.StatelessSession
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -34,6 +35,7 @@ import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
@@ -119,6 +121,22 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
                 criteriaBuilder.instance.scroll(ScrollMode.FORWARD_ONLY),
                 assays.collect { new AssayColumnImpl(it) },
                 projection)
+    }
+
+    //@Override
+    List<AssayColumn> retrieveAssays(List<AssayConstraint> assayConstraints) {
+        // Each module should only return assays that match
+        // the marker types specified, in addition to the
+        // constraints given
+        assayConstraints << new MarkerTypeConstraint(
+                platformNames: module.platformMarkerTypes)
+
+        List<AssayColumn> assays = new AssayQuery(assayConstraints).retrieveAssays()
+        if (assays.empty) {
+            throw new EmptySetException(
+                    'No assay satisfies the provided criteria.')
+        }
+        assays
     }
 
     @Override

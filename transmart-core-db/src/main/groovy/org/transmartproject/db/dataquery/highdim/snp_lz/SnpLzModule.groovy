@@ -223,7 +223,7 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
             "the list of assays to be specified when querying data.")
     }
 
-    //@Override Projection projection, SessionImplementor session
+    @Override
     HibernateCriteriaBuilder prepareDataQuery(
         List<AssayColumn> assays,
         Projection projection,
