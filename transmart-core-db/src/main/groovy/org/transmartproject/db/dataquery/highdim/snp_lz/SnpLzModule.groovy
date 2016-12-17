@@ -77,11 +77,11 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
     final List<String> platformMarkerTypes = ['SNP']
 
-    final ImmutableMap<String, Class> dataProperties = typesMap(SnpLzAllDataCell,
+    final Map<String, Class> dataProperties = typesMap(SnpLzAllDataCell,
             ['probabilityA1A1', 'probabilityA1A2', 'probabilityA2A2',
              'likelyAllele1', 'likelyAllele2', 'minorAlleleDose'])
 
-    final ImmutableMap<String, Class> rowProperties = typesMap(SnpLzRow,
+    final Map<String, Class> rowProperties = typesMap(SnpLzRow,
             ['snpName', 'chromosome', 'position', 'a1', 'a2', 'imputeQuality',
              'GTProbabilityThreshold', 'minorAlleleFrequency', 'minorAllele',
              'a1a1Count', 'a1a2Count', 'a2a2Count', 'noCallCount'])
