@@ -130,7 +130,10 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
     private static ConceptNode resultRowToConceptNode(ResultSet rs, int rowNum) {
         def path = new ConceptPath(rs.getString('c_fullname'))
         def dimCode = rs.getString('c_dimcode')
-        def conceptPath = (dimCode && !dimCode.empty) ? new ConceptPath(dimCode) : null
+        def conceptPath = null
+        if (dimCode?.trim() && dimCode != '@') {
+            conceptPath = new ConceptPath(dimCode)
+        }
         new ConceptNode(
                 level: rs.getInt('c_hlevel'),
                 path: path,
