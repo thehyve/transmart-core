@@ -3,6 +3,7 @@ package org.transmartproject.db.multidimquery
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
+import com.google.common.collect.PeekingIterator
 import com.google.common.collect.UnmodifiableIterator
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
@@ -79,26 +80,24 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         modifierDimensions = ImmutableList.copyOf((List) this.dimensions.findAll {it instanceof ModifierDimension})
     }
 
-    Iterator getIterator() {
+    @Override PeekingIterator<HypercubeValueImpl> iterator() { (PeekingIterator) super.iterator() }
+    @Override PeekingIterator<HypercubeValueImpl> getIterator() {
         new ResultIterator()
     }
 
-    class ResultIterator implements Iterator<HypercubeValueImpl> {
+    class ResultIterator extends AbstractIterator<HypercubeValueImpl> implements PeekingIterator<HypercubeValueImpl> {
         final Iterator<? extends Map<String,Object>> resultIterator = (hasModifiers
                 ? new ModifierResultIterator(modifierDimensions, aliases, results)
                 : new ProjectionMapIterator(aliases, results)
         )
 
-        @Override boolean hasNext() {
+        @Override HypercubeValueImpl computeNext() {
             if (!resultIterator.hasNext()) {
                 close()
                 if (autoloadDimensions) loadDimensions()
-                return false
+                return endOfData()
             }
-            true
-        }
 
-        @Override HypercubeValueImpl next() {
             Map<String,Object> result = resultIterator.next()
             _dimensionsLoaded = false
 

@@ -2,6 +2,7 @@ package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 import groovy.transform.TailRecursive
@@ -91,11 +92,13 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     }
 
 
-    @Override Iterator<HypercubeValue> getIterator() {
+    @Override PeekingIterator<HypercubeValue> iterator() { (PeekingIterator) super.iterator() }
+    @Override PeekingIterator<HypercubeValue> getIterator() {
         iterator == null ? (iterator = new TabularResultAdapterIterator()) : iterator
     }
 
-    class TabularResultAdapterIterator extends AbstractIterator<HypercubeValue> {
+    class TabularResultAdapterIterator extends AbstractIterator<HypercubeValue> implements
+            PeekingIterator<HypercubeValue> {
         private Iterator<? extends DataRow<AssayColumn, ?>> tabularIter = table.getRows()
         private List<HypercubeValue> nextVals = []
         private Iterator<HypercubeValue> nextIter = nextVals.iterator()
