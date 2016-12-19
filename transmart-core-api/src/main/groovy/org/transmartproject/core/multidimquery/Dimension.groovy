@@ -65,11 +65,13 @@ interface Dimension {
     Class<? extends Serializable> getElementType()
 
     /**
-     * @return an (ordered) immutable map with the property names for the elements of this dimension as keys, and
-     * their types as values. If the elements of this dimension are serializable (according to
-     * getElementsSerializable()), this method returns null.
+     * @return for dimensions with non-serializable elements, an (ordered) immutable map with as keys the field names
+     * that should be used for serialization, and as values instances of Property that can be used to retrieve the
+     * property from an element.
+     * If the elements of this dimension are serializable (according to getElementsSerializable()), this method returns
+     * null.
      */
-    ImmutableMap<String, Class> getElementFields()
+    ImmutableMap<String, Property> getElementFields()
 
     /**
      * Returns a serializable view of an element. If the element is in fact a Number, String, or Date, it is returned
@@ -80,4 +82,19 @@ interface Dimension {
      * @return a String, Number, Date or Map<String,something serializable>
      */
     def asSerializable(element)
+}
+
+/**
+ * A property descriptor returned from getElementFields()
+ */
+interface Property {
+
+    /** The name to use for this property externally, e.g. for serialization */
+    String getName()
+
+    /** The type of this property. This is the return type for `get` */
+    Class getType()
+
+    /** Given an element, return the value for this property */
+    def get(element)
 }
