@@ -5,8 +5,10 @@ import grails.transaction.Transactional
 import grails.util.Holders
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
+import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
@@ -58,10 +60,7 @@ class QueryService {
     private final Field numberValueField =
             new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
 
-//    private final List modifierCodes = highDimensionResourceService.knownTypes.collect { String dataTypeName ->
-//        String highDimType = dataTypeName.toUpperCase().replaceAll(' ', '_')
-//        "TRANSMART:HIGHDIM:${highDimType}".toString()
-//    }
+    private final Criterion defaultHDModifierCriterion = Restrictions.like('modifierCd', 'TRANSMART:HIGHDIM:%')
 
     private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
         assert 'user is required', user
@@ -177,6 +176,21 @@ class QueryService {
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
         DetachedCriteria criteria = builder.buildCriteria(constraint)
+        getList(criteria)
+    }
+
+    /**
+     * @description Function for getting a list of observations that are specified by <code>query</code>.
+     * @param query
+     * @param user
+     */
+    List<ObservationFact> highDimObservationList(Constraint constraint, User user) {
+        checkAccess(constraint, user)
+        log.info "Studies: ${accessControlChecks.getDimensionStudiesForUser(user)*.studyId}"
+        def builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser(user)
+        )
+        DetachedCriteria criteria = builder.buildCriteria(constraint, defaultHDModifierCriterion)
         getList(criteria)
     }
 
@@ -435,12 +449,12 @@ class QueryService {
             User user) {
         checkAccess(assayConstraint, user)
 
-        List modifierCodes = highDimensionResourceService.knownTypes.collect { String dataTypeName ->
+        List modifierCodes = highDimensionResourceService.knownMarkerTypes.collect { String dataTypeName ->
         String highDimType = dataTypeName.toUpperCase()
         "TRANSMART:HIGHDIM:${highDimType}".toString()
         }
 
-        List<ObservationFact> observations = list(assayConstraint, user)
+        List<ObservationFact> observations = highDimObservationList(assayConstraint, user)
         //TODO check for correct Observation fact row
 
         List assayIds = observations
