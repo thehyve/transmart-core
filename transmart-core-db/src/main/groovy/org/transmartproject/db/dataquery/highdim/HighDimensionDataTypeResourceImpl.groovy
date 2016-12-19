@@ -96,10 +96,20 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
 
         HibernateCriteriaBuilder criteriaBuilder =
                 module.prepareDataQuery(assays, projection, openSession())
-
+        // hasProperty oddly returns null sometimes
+        if (criteriaBuilder.targetClass.metaClass
+                .properties.find { it.name == 'assay' }) {
+            criteriaBuilder.with {
+                'in' 'assay.id', assays*.id
+            }
+        } else {
+            log.debug("${criteriaBuilder.targetClass} has no 'assay', " +
+                    "this is only correct if the data type is only capable " +
+                    "retrieving all the assays")
+        }
         //We have to specify projection explicitly because of the grails bug
         //https://jira.grails.org/browse/GRAILS-12107
-        criteriaBuilder.add(getHibernateInCriterion('assay.id', assaysQuery.forIds()))
+        //criteriaBuilder.add(getHibernateInCriterion('assay.id', assaysQuery.forIds()))
 
         /* apply changes to criteria from projection, if any */
         if (projection instanceof CriteriaProjection) {
