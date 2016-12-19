@@ -20,7 +20,6 @@
 package org.transmartproject.db.dataquery.highdim
 
 import grails.orm.HibernateCriteriaBuilder
-
 import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
 import org.hibernate.engine.spi.SessionImplementor
@@ -92,22 +91,18 @@ public interface HighDimensionDataTypeModule {
     /**
      * Prepares the Criteria-based query to be issued. The data constraints will
      * have the opportunity to modify the criteria before it is issued.
-     * @param assays
      * @param projection
      * @return
      */
-    HibernateCriteriaBuilder prepareDataQuery(
-            List<AssayColumn> assays,
-            Projection projection,
-            SessionImplementor session)
+    HibernateCriteriaBuilder prepareDataQuery(List<AssayColumn> assays, Projection projection, SessionImplementor session)
 
     /**
      * Transform the query result into the final object to be returned by
      * {@link HighDimensionDataTypeResource#retrieveData(List, List, Projection)}.
      */
     TabularResult transformResults(ScrollableResults results,
-                                   List<AssayColumn> assays,
-                                   Projection projection)
+                                     List<AssayColumn> assays,
+                                     Projection projection)
 
     /**
      * Returns a list of markertypes that are supported by this module
