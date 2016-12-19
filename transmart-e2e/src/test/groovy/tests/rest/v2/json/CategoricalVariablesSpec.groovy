@@ -33,7 +33,7 @@ class CategoricalVariablesSpec extends RESTSpec{
         def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "no observations are returned"
-        assert responseData.cellCount == []
+        assert responseData == [:]
     }
 
     /**

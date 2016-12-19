@@ -10,7 +10,8 @@ import org.transmartproject.db.metadata.LegacyStudyException
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
-import org.transmartproject.rest.protobuf.ObservationsSerializer
+
+import static org.transmartproject.rest.MultidimensionalDataSerialisationService.*
 
 @Slf4j
 class QueryController extends AbstractQueryController {
@@ -19,14 +20,14 @@ class QueryController extends AbstractQueryController {
 
     HighDimensionResourceService highDimensionResourceService
 
-    protected ObservationsSerializer.Format getContentFormat() {
-        ObservationsSerializer.Format format = ObservationsSerializer.Format.NONE
+    protected Format getContentFormat() {
+        Format format = Format.NONE
         withFormat {
             json {
-                format = ObservationsSerializer.Format.JSON
+                format = Format.JSON
             }
             protobuf {
-                format = ObservationsSerializer.Format.PROTOBUF
+                format = Format.PROTOBUF
             }
         }
         format
@@ -73,7 +74,7 @@ class QueryController extends AbstractQueryController {
             }
         }
         def format = contentFormat
-        if (format == ObservationsSerializer.Format.NONE) {
+        if (format == Format.NONE) {
             throw new InvalidArgumentsException("Format not supported.")
         }
         Constraint constraint = bindConstraint()

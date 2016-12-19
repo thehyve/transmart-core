@@ -1,5 +1,7 @@
 package selectors.protobuf
 
+import grails.converters.JSON
+
 class ObservationSelectorJson {
     final ObservationsMessageJson hyperCubeMessage
     final int cellCount
@@ -10,46 +12,26 @@ class ObservationSelectorJson {
         this.hyperCubeMessage = hyperCubeMessage
         this.cellCount = hyperCubeMessage.cells.size()
         hyperCubeMessage.header.'dimensionDeclarations'.each
-                {it -> if(it.inline){ //FIXME: this is a temporary fix for: TMPDEV-124 protobuf sterilization, meaning of inline:true is false
+                {it -> if(it.inline){
                     inlined.add(it.name)
                 } else {
                     notInlined.add(it.name)
                 }}
     }
 
-    def select(cellIndex, dimansion, fieldName, valueType) {
-        int dimensionDeclarationIndex = -1
-        if (notInlined.contains(dimansion)){
-            dimensionDeclarationIndex = notInlined.indexOf(dimansion)
-        } else if (inlined.contains(dimansion)) {
-            dimensionDeclarationIndex = inlined.indexOf(dimansion)
-        }
-        assert dimensionDeclarationIndex != -1, 'dimansion could not be found in header'
-
-        int fieldsIndex
-
-        if (fieldName) {
-            hyperCubeMessage.header.'dimensionDeclarations'.each { dilist ->
-                if (dilist.name.equalsIgnoreCase(dimansion)) {
-                    dilist.'fields'.eachWithIndex {
-                        field, index ->
-                            if (field.name.equalsIgnoreCase(fieldName)) {
-                                fieldsIndex = index
-                            }
-                    }
-                }
-            }
+    def select(cellIndex, dimension, fieldName, valueType) {
+        def result
+        if (inlined.contains(dimension)){
+            def index = inlined.indexOf(dimension)
+            def dimObject = hyperCubeMessage.cells[cellIndex].inlineDimensions[index]
+            result = fieldName ? dimObject[fieldName] : dimObject
         } else {
-            fieldsIndex = 0
+            // non inline
+            def index = notInlined.indexOf(dimension)
+            def valueIndex = hyperCubeMessage.cells[cellIndex].dimensionIndexes[index]
+            def dimElements = hyperCubeMessage.footer.dimensions[index]
+            result = fieldName ? dimElements[fieldName][valueIndex] : dimElements[valueIndex]
         }
-
-        if (inlined.contains(dimansion)){
-            return hyperCubeMessage.cells.get(cellIndex).inlineDimensions[dimensionDeclarationIndex].fields[fieldsIndex]."${valueType.toLowerCase()}Value".val
-        }
-
-        //nonInline
-        int dimensionIndexes = hyperCubeMessage.cells[cellIndex].dimensionIndexes[dimensionDeclarationIndex] as int
-        def result = hyperCubeMessage.footer.dimension[dimensionDeclarationIndex].fields[fieldsIndex]."${valueType.toLowerCase()}Value"[dimensionIndexes].'val'
 
         switch (valueType){
             case 'String':
@@ -58,16 +40,18 @@ class ObservationSelectorJson {
                 return result as int
             case 'Double':
                 return result as double
-            case 'Timestamp':
-                return result as Date
+            case 'Date':
+                return result ? Date.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", result) : null
+            default:
+                return result
         }
     }
 
-    def select(cellIndex, dimansion, valueType){
-        int dimensionDeclarationIndex = notInlined.indexOf(dimansion)
-
-        int dimensionIndexes = hyperCubeMessage.cells[cellIndex].dimensionIndexes[dimensionDeclarationIndex] as int
-        return hyperCubeMessage.footer.dimension[dimensionDeclarationIndex].fields[0]."${valueType.toLowerCase()}Value"[dimensionIndexes].'val'
+    def select(cellIndex, dimension){
+        def index = notInlined.indexOf(dimension)
+        def valueIndex = hyperCubeMessage.cells[cellIndex].dimensionIndexes[index]
+        // return the object at position valueIndex of inlined dimension index.
+        return hyperCubeMessage.footer.dimensions[index][valueIndex]
     }
 
     /**

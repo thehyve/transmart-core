@@ -1,4 +1,4 @@
-package org.transmartproject.rest.protobuf
+package org.transmartproject.rest.serialization
 
 /**
  * Created by piotrzakrzewski on 03/11/2016.

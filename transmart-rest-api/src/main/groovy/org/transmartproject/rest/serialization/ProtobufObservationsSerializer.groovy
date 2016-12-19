@@ -1,18 +1,12 @@
-package org.transmartproject.rest.protobuf
+package org.transmartproject.rest.serialization
 
-import com.google.common.collect.AbstractIterator
-import com.google.common.collect.PeekingIterator
 import com.google.protobuf.Empty
 import com.google.protobuf.Message
 import groovy.util.logging.Slf4j
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.metadata.DimensionDescription
-import org.transmartproject.db.multidimquery.AssayDimension
-import org.transmartproject.db.multidimquery.BioMarkerDimension
 import org.transmartproject.db.multidimquery.EndTimeDimension
 import org.transmartproject.db.multidimquery.LocationDimension
 import org.transmartproject.db.multidimquery.ModifierDimension
@@ -22,96 +16,10 @@ import org.transmartproject.db.multidimquery.StartTimeDimension
 import org.transmartproject.db.multidimquery.StudyDimension
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
 
-import static com.google.protobuf.util.JsonFormat.*
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 
 @Slf4j
-public class ObservationsSerializer {
-
-    enum Format {
-        JSON('application/json'),
-        PROTOBUF('application/x-protobuf'),
-        NONE('none')
-
-        private String format
-
-        Format(String format) {
-            this.format = format
-        }
-
-        public static Format from(String format) {
-            Format f = Format.values().find { it.format == format }
-            if (f == null) throw new Exception("Unknown format: ${format}")
-            f
-        }
-
-        public String toString() {
-            format
-        }
-    }
-
-    protected Hypercube cube
-    protected Dimension packedDimension
-    protected boolean packingEnabled
-    protected Printer jsonPrinter
-    protected Writer writer
-    protected Format format
-
-    protected Map<Dimension, List<Object>> dimensionElements = [:]
-    protected Map<Dimension, DimensionDeclaration> dimensionDeclarations = [:]
-
-
-    ObservationsSerializer(Hypercube cube, Format format, Dimension packedDimension) {
-        this.cube = cube
-        this.packedDimension = packedDimension
-        this.packingEnabled = packedDimension != null
-        if (format == Format.NONE) {
-            throw new InvalidArgumentsException("No format selected.")
-        } else if (format == Format.JSON) {
-            jsonPrinter = printer()
-        }
-        this.format = format
-    }
-
-    protected boolean first = true
-
-    protected void begin(OutputStream out) {
-        first = true
-        if (format == Format.JSON) {
-            writer = new PrintWriter(new BufferedOutputStream(out))
-            writer.print('[')
-        }
-    }
-
-    protected void writeMessage(OutputStream out, Message message) {
-        if (format == Format.JSON) {
-            if (!first) {
-                writer.print(', ')
-            }
-            jsonPrinter.appendTo(message, writer)
-        } else {
-            message.writeDelimitedTo(out)
-        }
-        if (first) {
-            first = false
-        }
-    }
-
-    protected void end(OutputStream out) {
-        if (format == Format.JSON) {
-            writer.print(']')
-            writer.flush()
-        } else {
-            out.flush()
-        }
-    }
-
-    void writeEmptyMessage(OutputStream out) {
-        if (format == Format.PROTOBUF) {
-            Empty empty = Empty.newBuilder().build()
-            empty.writeDelimitedTo(out)
-        }
-    }
+public class ProtobufObservationsSerializer extends AbstractObservationsSerializer {
 
     static Type getFieldType(Class type) {
         if (Float.isAssignableFrom(type)) {
@@ -128,6 +36,41 @@ public class ObservationsSerializer {
             // refer to objects by their identifier
             return Type.INT
         }
+    }
+
+    protected Dimension packedDimension
+    protected boolean packingEnabled
+
+    protected Map<Dimension, DimensionDeclaration> dimensionDeclarations = [:]
+
+    ProtobufObservationsSerializer(Hypercube cube, Dimension packedDimension) {
+        super(cube)
+        this.packedDimension = packedDimension
+        this.packingEnabled = packedDimension != null
+    }
+
+    protected boolean first = true
+
+    protected void begin(OutputStream out) {
+        first = true
+    }
+
+    protected void writeMessage(OutputStream out, Message message) {
+        message.writeDelimitedTo(out)
+        if (first) {
+            first = false
+        }
+    }
+
+    @Override
+    protected void end(OutputStream out) {
+        out.flush()
+    }
+
+    @Override
+    void writeEmptyMessage(OutputStream out) {
+        Empty empty = Empty.newBuilder().build()
+        empty.writeDelimitedTo(out)
     }
 
     protected getDimensionsDefs() {
@@ -196,6 +139,10 @@ public class ObservationsSerializer {
 
     protected Header buildHeader() {
         Header.newBuilder().addAllDimensionDeclarations(dimensionsDefs).build()
+    }
+
+    protected void writeHeader(OutputStream out) {
+        writeMessage(out, buildHeader())
     }
 
     protected List<HypercubeValue> currentValues = []
@@ -483,31 +430,8 @@ public class ObservationsSerializer {
         Footer.newBuilder().addAllDimension(footer).build()
     }
 
-    protected Long determineFooterIndex(Dimension dim, Object element) {
-        if (dimensionElements[dim] == null) {
-            dimensionElements[dim] = []
-        }
-        int index = dimensionElements[dim].indexOf(element)
-        if (index == -1) {
-            dimensionElements[dim].add(element)
-            index = dimensionElements[dim].indexOf(element)
-        }
-        index.longValue()
-    }
-
-    void write(OutputStream out) {
-        begin(out)
-        Iterator<HypercubeValue> iterator = cube.iterator()
-
-        if (!iterator.hasNext()) {
-            writeEmptyMessage(out)
-        }
-        else {
-            writeMessage(out, buildHeader())
-            writeCells(out, iterator)
-            writeMessage(out, buildFooter())
-        }
-        end(out)
+    protected void writeFooter(OutputStream out) {
+        writeMessage(out, buildFooter())
     }
 
 }
