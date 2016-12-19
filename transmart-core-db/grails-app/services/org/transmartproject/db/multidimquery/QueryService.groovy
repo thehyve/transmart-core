@@ -58,6 +58,11 @@ class QueryService {
     private final Field numberValueField =
             new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
 
+//    private final List modifierCodes = highDimensionResourceService.knownTypes.collect { String dataTypeName ->
+//        String highDimType = dataTypeName.toUpperCase().replaceAll(' ', '_')
+//        "TRANSMART:HIGHDIM:${highDimType}".toString()
+//    }
+
     private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
         assert 'user is required', user
         assert 'constraint is required', constraint
@@ -430,12 +435,17 @@ class QueryService {
             User user) {
         checkAccess(assayConstraint, user)
 
+        List modifierCodes = highDimensionResourceService.knownTypes.collect { String dataTypeName ->
+        String highDimType = dataTypeName.toUpperCase()
+        "TRANSMART:HIGHDIM:${highDimType}".toString()
+        }
+
         List<ObservationFact> observations = list(assayConstraint, user)
         //TODO check for correct Observation fact row
-        List assayIds = observations
-                .findAll { it.modifierCd == '@' && it.numberValue != null}
-                .collect { it.numberValue.toLong() }
 
+        List assayIds = observations
+                .findAll { it.modifierCd in modifierCodes && it.numberValue != null}
+                .collect { it.numberValue.toLong() }
 
 
         if (assayIds.empty){
