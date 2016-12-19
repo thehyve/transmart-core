@@ -51,19 +51,6 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     //   - There are typically at least a dozen elements in a result set, if not it is usually more profitable to
     //     pack a dimension with more elements.
 
-//    static final StudyDimension STUDY =            null
-//    static final ConceptDimension CONCEPT =        null
-//    static final PatientDimension PATIENT =        null
-//    static final VisitDimension VISIT =            null
-//    static final StartTimeDimension START_TIME =   null
-//    static final EndTimeDimension END_TIME =       null
-//    static final LocationDimension LOCATION =      null
-//    static final TrialVisitDimension TRIAL_VISIT = null
-//    static final ProviderDimension PROVIDER =      null
-//    static final BioMarkerDimension BIOMARKER =    null
-//    static final AssayDimension ASSAY =            null
-//    static final ProjectionDimension PROJECTION =  null
-
     static final StudyDimension STUDY =            new StudyDimension(SMALL, DENSE, NOT_PACKABLE)
     static final ConceptDimension CONCEPT =        new ConceptDimension(MEDIUM, DENSE, NOT_PACKABLE)
     static final PatientDimension PATIENT =        new PatientDimension(LARGE, DENSE, PACKABLE)

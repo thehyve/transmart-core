@@ -14,43 +14,6 @@ import static org.transmartproject.core.multidimquery.Dimension.Packable.*
 
 class DimensionSpec extends Specification {
 
-    def foo(Map map) {
-        map.put('religion', 42)
-        map.put('religion', null)
-    }
-
-    def verify(dim) {
-        dim.verify()
-        true
-    }
-
-    @Ignore
-    def testtest() {
-        when:
-        def END_TIME = new EndTimeDimension(LARGE, SPARSE, NOT_PACKABLE)
-        def START_TIME =   new StartTimeDimension(LARGE, SPARSE, NOT_PACKABLE)
-        def LOCATION =      new LocationDimension(MEDIUM, SPARSE, NOT_PACKABLE)
-
-        def STUDY =            new StudyDimension(SMALL, DENSE, NOT_PACKABLE)
-        def CONCEPT =        new ConceptDimension(MEDIUM, DENSE, NOT_PACKABLE)
-        def PATIENT =        new PatientDimension(LARGE, DENSE, PACKABLE)
-        def VISIT =            new VisitDimension(MEDIUM, DENSE, PACKABLE)
-        def TRIAL_VISIT = new TrialVisitDimension(SMALL, DENSE, PACKABLE)
-        def PROVIDER =      new ProviderDimension(SMALL, DENSE, NOT_PACKABLE)
-
-        then:
-        verify START_TIME
-        verify END_TIME
-        verify LOCATION
-
-        verify STUDY
-        verify CONCEPT
-        verify PATIENT
-        verify VISIT
-        verify TRIAL_VISIT
-        verify PROVIDER
-    }
-
     def 'test dimensions'() {
 
         expect:
