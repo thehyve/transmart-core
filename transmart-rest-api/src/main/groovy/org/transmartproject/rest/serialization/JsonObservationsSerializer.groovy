@@ -1,6 +1,5 @@
 package org.transmartproject.rest.serialization
 
-import com.google.protobuf.util.JsonFormat
 import grails.converters.JSON
 import groovy.transform.CompileStatic
 import org.transmartproject.core.multidimquery.Dimension
@@ -13,11 +12,7 @@ import org.transmartproject.db.multidimquery.ModifierDimension
 import org.transmartproject.db.multidimquery.ProjectionDimension
 import org.transmartproject.db.multidimquery.ProviderDimension
 import org.transmartproject.db.multidimquery.StartTimeDimension
-import org.transmartproject.db.multidimquery.StudyDimension
 import org.transmartproject.db.multidimquery.query.DimensionMetadata
-import org.transmartproject.rest.hypercubeProto.ObservationsProto
-
-import static com.google.protobuf.util.JsonFormat.printer
 
 /**
  * <code>
@@ -188,13 +183,11 @@ class JsonObservationsSerializer extends AbstractObservationsSerializer {
         }
     }
 
-    protected JsonFormat.Printer jsonPrinter
     protected Writer writer
     protected Map<Dimension, DimensionProperties> dimensionDeclarations = [:]
 
     JsonObservationsSerializer(Hypercube cube) {
         super(cube)
-        jsonPrinter = printer()
     }
 
     @Override
@@ -227,8 +220,10 @@ class JsonObservationsSerializer extends AbstractObservationsSerializer {
                     return null
                 } else if (value instanceof Date) {
                     return value
+                } else if (value instanceof Number) {
+                    return new Date(value.longValue())
                 } else {
-                    throw new Exception("Type not supported: ${value?.class?.simpleName}.")
+                    return null
                 }
             case Type.DOUBLE:
                 if (value instanceof Float) {
@@ -244,7 +239,8 @@ class JsonObservationsSerializer extends AbstractObservationsSerializer {
                 } else if (value instanceof Number) {
                     return value
                 } else {
-                    throw new Exception("Type not supported: ${value?.class?.simpleName}.")
+                    Long id = value?.getAt('id') as Long
+                    return id
                 }
             case Type.ID:
                 Long id = value?.getAt('id') as Long
@@ -265,13 +261,12 @@ class JsonObservationsSerializer extends AbstractObservationsSerializer {
     protected Object buildDimensionElement(Dimension dim, Object dimElement) {
         def dimensionProperties = dimensionDeclarations[dim]
         if (dimensionProperties.type == Type.OBJECT) {
-            def value = [:]
+            if (dimElement == null) {
+                return null
+            }
+            def value = [:] as Map<String, Object>
             dimensionProperties.fields?.each { field ->
-                if (dim.class == StudyDimension) {
-                    value[field.name] = buildValue(field.type, dimElement[field.name])
-                } else {
-                    value[field.name] = buildValue(field.type, dimElement)
-                }
+                value[field.name] = buildValue(field.type, dimElement[field.name])
             }
             return value
         } else {
@@ -301,7 +296,8 @@ class JsonObservationsSerializer extends AbstractObservationsSerializer {
                 cell.inlineDimensions << buildDimensionElement(dim, dimElement)
             } else {
                 // Add index to footer element inline
-                cell.dimensionIndexes << determineFooterIndex(dim, dimElement)
+                def dimValue = buildDimensionElement(dim, dimElement)
+                cell.dimensionIndexes << determineFooterIndex(dim, dimValue)
             }
         }
         cell

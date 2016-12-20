@@ -45,8 +45,7 @@ class HighDimSpec extends RESTSpec {
         def biomarkers = 2
         def assays = 6
         def projections = 10
-        def metaRows = 2
-        assert responseData.size() == biomarkers * assays * projections + metaRows
+        assert responseData.cells.size() == biomarkers * assays * projections
     }
 
     /**
@@ -86,7 +85,7 @@ class HighDimSpec extends RESTSpec {
             assert [-6001,-6002,-6004,-6006,-6007,-6008].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
             assert ['sample1', 'sample2', 'sample4', 'sample6', 'sample7', 'sample8'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
 
-            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension'))
         }
     }
 
@@ -117,7 +116,7 @@ class HighDimSpec extends RESTSpec {
             assert [-6003,-6005,-6009].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
             assert ['sample3', 'sample5', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
 
-            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension'))
         }
     }
 
@@ -258,7 +257,7 @@ class HighDimSpec extends RESTSpec {
             assert [-6016,-6017,-6018, -6019].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
             assert ['sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
 
-            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension'))
         }
     }
 
@@ -288,7 +287,7 @@ class HighDimSpec extends RESTSpec {
             assert [-631,-637,-638, -639].contains(selector.select(it, 'AssayDimension', 'assay', 'Int'))
             assert ['sample1', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'AssayDimension', 'label', 'String'))
 
-            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension', 'String'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'ProjectionDimension'))
         }
     }
 

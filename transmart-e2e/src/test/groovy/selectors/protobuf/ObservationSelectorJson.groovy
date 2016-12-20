@@ -37,7 +37,7 @@ class ObservationSelectorJson {
             case 'String':
                 return result as String
             case 'Int':
-                return result as int
+                return result as Integer
             case 'Double':
                 return result as double
             case 'Date':
