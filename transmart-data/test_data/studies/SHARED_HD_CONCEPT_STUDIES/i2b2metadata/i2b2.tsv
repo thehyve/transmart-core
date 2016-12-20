@@ -9,14 +9,14 @@
   </UnitValues>
 </ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_B\Demography\Age\"	"trial:SHARED_HD_CONCEPTS_STUDY_B"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_B\Demography\Age\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_B"					"-1"
 "2"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_B\Vital Signs\"	"Vital Signs"	"N"	"FA "		"SCSB:DEM"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_B\Vital Signs\"	"trial:SHARED_HD_CONCEPTS_STUDY_B"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_B\Vital Signs\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_B"					"-1"
-"3"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_B\Vital Signs\Heart Rate\"	"Heart Rate"	"N"	"LA "		"VSIGN:HR"	"<ValueMetadata>
+"3"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_B\Vital Signs\Temperature\"	"Temperature"	"N"	"LA "		"VSIGN:HR"	"<ValueMetadata>
   <Version>3.02</Version>
   <CreationDateTime>Wed Nov 09 13:44:06 CET 2016</CreationDateTime>
   <Oktousevalues>Y</Oktousevalues>
   <UnitValues>
     <NormalUnits>ratio</NormalUnits>
   </UnitValues>
-</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Vital Signs\Heart Rate\"	"trial:SHARED_HD_CONCEPTS_STUDY_B"	"\Vital Signs\Heart Rate\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_B"					"-1"
+</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Vital Signs\Temperature\"	"trial:SHARED_HD_CONCEPTS_STUDY_B"	"\Vital Signs\Temperature\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_B"					"-1"
 "2"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\Demography\"	"Demography"	"N"	"FA "		"SCSCP:DEM"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\Demography\"	"trial:SHARED_HD_CONCEPTS_STUDY_C_PR"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\Demography\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_C_PR"					"-1"
 "1"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\"	"SHARED_HD_CONCEPTS_STUDY_C_PR"	"N"	"FAS"		"SCSCP"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\"	"trial:SHARED_HD_CONCEPTS_STUDY_C_PR"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_C_PR"					"-1"
 "3"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\Demography\Age\"	"Age"	"N"	"LA "		"SCSCP:DEM:AGE"	"<ValueMetadata>
@@ -28,14 +28,14 @@
   </UnitValues>
 </ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\Demography\Age\"	"trial:SHARED_HD_CONCEPTS_STUDY_C_PR"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\Demography\Age\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_C_PR"					"-1"
 "2"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\Vital Signs\"	"Vital Signs"	"N"	"FA "		"SCSCP:DEM"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\Vital Signs\"	"trial:SHARED_HD_CONCEPTS_STUDY_C_PR"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\Vital Signs\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_C_PR"					"-1"
-"3"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\Vital Signs\Heart Rate\"	"Heart Rate"	"N"	"LA "		"VSIGN:HR"	"<ValueMetadata>
+"3"	"\Private Studies\SHARED_HD_CONCEPTS_STUDY_C_PR\Vital Signs\Temperature\"	"Temperature"	"N"	"LA "		"VSIGN:HR"	"<ValueMetadata>
   <Version>3.02</Version>
   <CreationDateTime>Wed Nov 09 13:44:06 CET 2016</CreationDateTime>
   <Oktousevalues>Y</Oktousevalues>
   <UnitValues>
     <NormalUnits>ratio</NormalUnits>
   </UnitValues>
-</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Vital Signs\Heart Rate\"	"trial:SHARED_HD_CONCEPTS_STUDY_C_PR"	"\Vital Signs\Heart Rate\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_C_PR"					"-1"
+</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Vital Signs\Temperature\"	"trial:SHARED_HD_CONCEPTS_STUDY_C_PR"	"\Vital Signs\Temperature\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_C_PR"					"-1"
 "2"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\Demography\"	"Demography"	"N"	"FA "		"SCSA:DEM"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\Demography\"	"trial:SHARED_HD_CONCEPTS_STUDY_A"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\Demography\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_A"					"-1"
 "1"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\"	"SHARED_HD_CONCEPTS_STUDY_A"	"N"	"FAS"		"SCSA"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\"	"trial:SHARED_HD_CONCEPTS_STUDY_A"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_A"					"-1"
 "3"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\Demography\Age\"	"Age"	"N"	"LA "		"SCSA:DEM:AGE"	"<ValueMetadata>
@@ -47,11 +47,11 @@
   </UnitValues>
 </ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\Demography\Age\"	"trial:SHARED_HD_CONCEPTS_STUDY_A"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\Demography\Age\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_A"					"-1"
 "2"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\Vital Signs\"	"Vital Signs"	"N"	"FA "		"SCSA:DEM"		"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\Vital Signs\"	"trial:SHARED_HD_CONCEPTS_STUDY_A"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\Vital Signs\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_A"					"-1"
-"3"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\Vital Signs\Heart Rate\"	"Heart Rate"	"N"	"LA "		"VSIGN:HR"	"<ValueMetadata>
+"3"	"\Public Studies\SHARED_HD_CONCEPTS_STUDY_A\Vital Signs\Temperature\"	"Temperature"	"N"	"LA "		"VSIGN:HR"	"<ValueMetadata>
   <Version>3.02</Version>
   <CreationDateTime>Wed Nov 09 13:44:06 CET 2016</CreationDateTime>
   <Oktousevalues>Y</Oktousevalues>
   <UnitValues>
     <NormalUnits>ratio</NormalUnits>
   </UnitValues>
-</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Vital Signs\Heart Rate\"	"trial:SHARED_HD_CONCEPTS_STUDY_A"	"\Vital Signs\Heart Rate\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_A"					"-1"
+</ValueMetadata>"	"CONCEPT_CD"	"CONCEPT_DIMENSION"	"CONCEPT_PATH"	"T"	"LIKE"	"\Vital Signs\Temperature\"	"trial:SHARED_HD_CONCEPTS_STUDY_A"	"\Vital Signs\Temperature\"	"@"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"2016-11-09 13:44:06"	"SHARED_HD_CONCEPTS_STUDY_A"					"-1"
