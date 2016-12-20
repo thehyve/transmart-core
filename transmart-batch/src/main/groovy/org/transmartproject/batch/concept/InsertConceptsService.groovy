@@ -152,7 +152,7 @@ class InsertConceptsService {
                     c_columnname      : 'CONCEPT_PATH',
                     c_columndatatype  : 'T',
                     c_operator        : 'LIKE',
-                    c_dimcode         : it.conceptPath?.toString() ?: '',
+                    c_dimcode         : it.conceptPath?.toString() ?: '@',
                     c_tooltip         : it.path.toString(),
                     m_applied_path    : '@',
                     update_date       : now,
