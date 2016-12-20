@@ -1,4 +1,3 @@
-
 apply plugin: 'groovy'
 apply plugin: 'java'
 
@@ -25,5 +24,79 @@ dependencies {
 
     compile 'javax.servlet:javax.servlet-api:3.1.0'
 }
-
 tasks.withType(Test) { systemProperties = System.getProperties() }
+
+test {
+    maxHeapSize = '8G'
+}
+
+task startTransmartApp(type: ExecWait) {
+    command 'grails run-app'
+    ready 'Grails application running at'
+    directory '../transmartApp'
+}
+
+class ExecWait extends DefaultTask {
+    String command
+    String ready
+    String directory
+
+    @TaskAction
+    def spawnProcess() {
+
+        ProcessBuilder builder = new ProcessBuilder(command.split(' '))
+        builder.redirectErrorStream(true)
+        builder.directory(new File(directory))
+        Process process = builder.start()
+
+        InputStream stdout = process.getInputStream()
+        BufferedReader reader = new BufferedReader(new
+                InputStreamReader(stdout))
+
+        def line
+        while ((line = reader.readLine()) != null) {
+            println line
+            if (line.contains(ready)) {
+                println "$command is ready"
+                break;
+            }
+        }
+    }
+}
+
+task freeAllPorts << {
+    def ports = [8080]
+
+    ports.each { port ->
+        def cmd = "lsof -Fp -i :$port"
+        def process = cmd.execute()
+        process.in.eachLine { line ->
+            def killProcess = "kill -9 ${ line.substring(1) }".execute()
+            killProcess.waitFor()
+        }
+    }
+}
+
+gradle.addListener new TestLifecycleListener()
+
+class TestLifecycleListener implements TaskExecutionListener {
+
+    def servers = ['TransmartApp']
+
+    @Override
+    void beforeExecute(Task task) {
+        if (task.name == 'test') {
+            servers.each {
+                println "calling start$it"
+                task.project.tasks."start$it".execute()
+            }
+        }
+    }
+
+    @Override
+    void afterExecute(Task task, TaskState taskState) {
+        if (task.name == 'test') {
+            task.project.tasks.freeAllPorts.execute()
+        }
+    }
+}
