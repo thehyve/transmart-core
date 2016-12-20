@@ -325,10 +325,10 @@ class HypercubeValueImpl implements HypercubeValue {
         }
     }
 
-    int getDimElementIndex(Dimension dim) {
+    Integer getDimElementIndex(Dimension dim) {
         cube.checkDimension(dim)
         cube.checkIsDense(dim)
-        (int) dimensionElementIdxes[cube.getDimensionsIndex(dim)]
+        (Integer) dimensionElementIdxes[cube.getDimensionsIndex(dim)]
     }
 
     def getDimKey(Dimension dim) {

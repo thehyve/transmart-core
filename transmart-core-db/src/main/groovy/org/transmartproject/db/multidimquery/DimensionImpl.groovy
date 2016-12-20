@@ -175,7 +175,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 @CompileStatic @TupleConstructor
 class PropertyImpl implements Property {
     final String name; final String propertyName; final Class type
-    def get(element) { ((GroovyObject) element).getProperty(propertyName) }
+    def get(element) { element.getAt(propertyName) }
 }
 
 

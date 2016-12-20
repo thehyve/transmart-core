@@ -181,7 +181,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
             dimError(dim)
         }
 
-        int getDimElementIndex(Dimension dim) {
+        Integer getDimElementIndex(Dimension dim) {
             if(dim == biomarkerDim) return biomarkerIndex
             if(dim == assayDim) return assayIndex
             if(dim == patientDim) return assayIndex
