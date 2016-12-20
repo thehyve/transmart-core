@@ -5,6 +5,7 @@ import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
@@ -12,7 +13,8 @@ import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.TestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
-import org.transmartproject.rest.protobuf.ObservationsSerializer
+import org.transmartproject.rest.serialization.JsonObservationsSerializer
+import org.transmartproject.rest.serialization.ProtobufObservationsSerializer
 import spock.lang.Specification
 
 import static spock.util.matcher.HamcrestSupport.that
@@ -38,28 +40,29 @@ class ObservationsBuilderTests extends Specification {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
-        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON, null)
+        def builder = new JsonObservationsSerializer(mockedCube)
 
         when:
         def out = new ByteArrayOutputStream()
         builder.write(out)
         out.flush()
-        Collection result = new JsonSlurper().parse(out.toByteArray())
-        def dimElementsSize = result.last()['dimension'].size()
+        def result = new JsonSlurper().parse(out.toByteArray())
+        def header = result.header
+        def cells = result.cells
+        def footer = result.footer
+        def dimElementsSize = mockedCube.dimensions.findAll { it.density.isDense }.size()
 
         then:
-        result.size() == clinicalData.longitudinalClinicalFacts.size()+2
-        that result, everyItem(anyOf(
-                hasKey('dimensionDeclarations'),
-                hasKey('dimensionIndexes'),
-                hasKey('dimension')
-        ))
-        that result.first()['dimensionDeclarations'], hasSize(mockedCube.dimensions.size())
-        that result.first()['dimensionDeclarations']['name'],
+        cells.size() == clinicalData.longitudinalClinicalFacts.size()
+        that cells, everyItem(hasKey('dimensionIndexes'))
+        that header, hasKey('dimensionDeclarations')
+        that header.dimensionDeclarations, hasSize(mockedCube.dimensions.size())
+        that header.dimensionDeclarations['name'],
                 containsInAnyOrder(mockedCube.dimensions.collect{it.toString()}.toArray()
                 )
-        that result['dimension'].findAll(), everyItem(hasSize(dimElementsSize))
-        that result['dimensionIndexes'].findAll(), everyItem(hasSize(dimElementsSize))
+        that footer, hasKey('dimensions')
+        that footer.dimensions, hasSize(dimElementsSize)
+        that cells['dimensionIndexes'].findAll(), everyItem(hasSize(dimElementsSize))
     }
 
     public void testPackedDimsSerialization() {
@@ -67,25 +70,47 @@ class ObservationsBuilderTests extends Specification {
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.multidimsStudy], constraint: constraint)
         def patientDimension = DimensionImpl.PATIENT
-        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.JSON, patientDimension)
+        def builder = new ProtobufObservationsSerializer(mockedCube, patientDimension)
 
         when:
-        def out = new ByteArrayOutputStream()
-        builder.write(out)
-        out.flush()
-        Collection result = new JsonSlurper().parse(out.toByteArray())
-        def dimElementsSize = result.last()['dimension'].size()
-        def dimensionDeclarations = result.first()['dimensionDeclarations']
+        def s_out = new ByteArrayOutputStream()
+        builder.write(s_out)
+        s_out.flush()
+        def data = s_out.toByteArray()
+
+        then:
+        data != null
+        data.length > 0
+
+        when:
+        def s_in = new ByteArrayInputStream(data)
+        log.info "Reading header..."
+        def header = ObservationsProto.Header.parseDelimitedFrom(s_in)
+        def cells = []
+        int count = 0
+        while(true) {
+            count++
+            if (count > clinicalData.multidimsClinicalFacts.size()) {
+                throw new Exception("Expected previous message to be marked as 'last'.")
+            }
+            log.info "Reading cell..."
+            def cell = ObservationsProto.PackedObservation.parseDelimitedFrom(s_in)
+            cells << cell
+            if (cell.last) {
+                log.info "Last cell."
+                break
+            }
+        }
+        log.info "Reading footer..."
+        ObservationsProto.Footer.parseDelimitedFrom(s_in)
+
+        def dimensionDeclarations = header.dimensionDeclarationsList
+        def inlinedDimensionsSize = dimensionDeclarations.findAll { it.inline }.size()
         def notPackedDimensions = dimensionDeclarations.findAll { !it.inline && !it.packed }
         def notPackedDimensionsSize = notPackedDimensions.size()
 
         then:
-        result.size() == clinicalData.multidimsClinicalFacts.size() + 2
-        that result, everyItem(anyOf(
-                hasKey('dimensionDeclarations'),
-                hasKey('dimensionIndexes'),
-                hasKey('dimension')
-        ))
+        cells.size() == clinicalData.multidimsClinicalFacts.size()
         // declarations for all dimensions exist
         that dimensionDeclarations, hasSize(mockedCube.dimensions.size())
         that dimensionDeclarations['name'],
@@ -93,18 +118,18 @@ class ObservationsBuilderTests extends Specification {
                 )
         // at least one declaration of packed dimension exists
         that dimensionDeclarations['packed'], hasItem(true)
-        that result['stringValues'], hasSize(greaterThan(1))
+        that cells['stringValuesList'], hasSize(greaterThan(1))
 
         // indexes for all dense dimensions (dimension elements) exist
-        that result['dimension'].findAll(), everyItem(hasSize(dimElementsSize))
-        that result['dimensionIndexes'].findAll(), everyItem(hasSize(notPackedDimensionsSize))
+        that cells['inlineDimensionsList'].findAll(), everyItem(hasSize(inlinedDimensionsSize))
+        that cells['dimensionIndexesList'].findAll(), everyItem(hasSize(notPackedDimensionsSize))
     }
 
     public void testProtobufSerialization() {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
-        def builder = new ObservationsSerializer(mockedCube, ObservationsSerializer.Format.PROTOBUF, null)
+        def builder = new ProtobufObservationsSerializer(mockedCube, null)
 
         when:
         def s_out = new ByteArrayOutputStream()
