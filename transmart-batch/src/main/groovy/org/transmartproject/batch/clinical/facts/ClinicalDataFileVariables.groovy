@@ -122,6 +122,8 @@ class ClinicalDataFileVariables {
     String getTrialVisitLabel(ClinicalDataRow row) {
         if (trialVisitLabelVariable) {
             row[trialVisitLabelVariable.columnNumber]
+        } else {
+            'Default'
         }
     }
 

@@ -39,13 +39,13 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
     Tasklet validateTopNodePreexistenceTasklet
 
     @javax.annotation.Resource
-    Tasklet gatherCurrentConceptsTasklet
+    Tasklet gatherCurrentTreeNodesTasklet
 
     @Bean(name = 'TagsLoadJob')
     @Override
     Job job() {
         jobs.get(JOB_NAME)
-                .start(stepOf(this.&getGatherCurrentConceptsTasklet))
+                .start(stepOf(this.&getGatherCurrentTreeNodesTasklet))
                 .next(stepOf(this.&getValidateTopNodePreexistenceTasklet))
                 .next(tagsLoadStep(null, null))
                 .build()

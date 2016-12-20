@@ -10,6 +10,7 @@ final class ClinicalJobSpecification implements
         JobSpecification, ExternalJobParametersModule {
 
     public final static String COLUMN_MAP_FILE = 'COLUMN_MAP_FILE'
+    public final static String ONTOLOGY_MAP_FILE = 'ONTOLOGY_MAP_FILE'
     public final static String WORD_MAP_FILE = 'WORD_MAP_FILE'
     public final static String RECORD_EXCLUSION_FILE = 'RECORD_EXCLUSION_FILE'
     public final static String XTRIAL_FILE = 'XTRIAL_FILE'
@@ -24,6 +25,7 @@ final class ClinicalJobSpecification implements
 
     final Set<String> supportedParameters = ImmutableSet.of(
             COLUMN_MAP_FILE,
+            ONTOLOGY_MAP_FILE,
             WORD_MAP_FILE,
             RECORD_EXCLUSION_FILE,
             XTRIAL_FILE,
@@ -39,6 +41,7 @@ final class ClinicalJobSpecification implements
         ejp[COLUMN_MAP_FILE] = convertRelativePath ejp, COLUMN_MAP_FILE
 
         [WORD_MAP_FILE,
+         ONTOLOGY_MAP_FILE,
          RECORD_EXCLUSION_FILE,
          XTRIAL_FILE,
          TAGS_FILE].each { p ->

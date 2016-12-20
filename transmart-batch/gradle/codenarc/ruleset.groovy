@@ -108,7 +108,7 @@ ruleset {
 	PublicInstanceField
 	ReturnsNullInsteadOfEmptyArray
 	ReturnsNullInsteadOfEmptyCollection
-	SimpleDateFormatMissingLocale
+//	SimpleDateFormatMissingLocale
 	StatelessSingleton
 
 	// rulesets/dry.xml
@@ -276,7 +276,7 @@ ruleset {
 	ClassSize
 //	CrapMetric
 	CyclomaticComplexity
-	MethodCount
+//	MethodCount
 	MethodSize
 	NestedBlockDepth
 
@@ -312,7 +312,7 @@ ruleset {
 	UnnecessaryModOne
 	UnnecessaryNullCheck
 	UnnecessaryNullCheckBeforeInstanceOf
-	UnnecessaryObjectReferences
+//	UnnecessaryObjectReferences
 	UnnecessaryOverridingMethod
 	UnnecessaryPackageReference
 	UnnecessaryParenthesesForMethodCallWithClosure

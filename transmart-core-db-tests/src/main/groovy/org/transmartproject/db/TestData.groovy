@@ -20,6 +20,7 @@
 package org.transmartproject.db
 
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.db.arvados.ArvadosTestData
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.dataquery.highdim.acgh.AcghTestData
@@ -39,6 +40,7 @@ class TestData {
     AcghTestData acghData
     SampleBioMarkerTestData bioMarkerTestData
     StorageTestData storageTestData
+    ArvadosTestData arvadosTestData
 
     static void reset() {
         ClinicalTestData.reset()
@@ -67,6 +69,7 @@ class TestData {
         def mrnaData = new MrnaTestData('2', bioMarkerTestData) //concept code '2'
         def acghData = new AcghTestData('4', bioMarkerTestData) //concept code '4'
         def storageTestData = StorageTestData.createDefault()
+        def arvadosTestData = ArvadosTestData.createDefault()
 
         new TestData(
                 conceptData: conceptData,
@@ -77,6 +80,7 @@ class TestData {
                 acghData: acghData,
                 bioMarkerTestData: bioMarkerTestData,
                 storageTestData: storageTestData,
+                arvadosTestData: arvadosTestData,
         )
     }
 
@@ -134,5 +138,6 @@ class TestData {
         mrnaData?.updateDoubleScaledValues()
         acghData?.saveAll()
         storageTestData?.saveAll()
+        arvadosTestData?.saveAll()
     }
 }

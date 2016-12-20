@@ -25,13 +25,13 @@ class ValidateHighDimensionalConceptsTasklet implements Tasklet {
     @Autowired
     ConceptTree conceptTree
 
-    @Value("#{jobExecutionContext['gatherCurrentConceptsTasklet.listOfConcepts']}")
+    @Value("#{jobExecutionContext['gatherCurrentTreeNodesTasklet.listOfConcepts']}")
     Collection<ConceptPath> conceptPaths
 
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         conceptPaths.each {
-            conceptTree.getOrGenerate(it, ConceptType.HIGH_DIMENSIONAL)
+            conceptTree.getOrGenerate(it, null, ConceptType.HIGH_DIMENSIONAL)
         }
 
         RepeatStatus.FINISHED
