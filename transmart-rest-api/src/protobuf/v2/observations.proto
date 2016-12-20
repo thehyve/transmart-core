@@ -85,33 +85,25 @@ message PackedObservation {
     bool last = 7; // default: false
 }
 
-// Nullable long value type
-message IntValue {
-    oneof value {
-        sint64 val = 1;
-    }
-}
-
-// Nullable timestamp value type
-message TimestampValue {
-    oneof value {
-        sint64 val = 1;
-    }
-}
-
-// Nullable double value type
-message DoubleValue {
-    oneof value {
-        double val = 1;
-    }
-}
-
-// Nullable string value type
-message StringValue {
-    oneof value {
-        string val = 1;
-    }
-}
+//// Nullable long value type
+//message IntValue {
+//    sint64 val = 1;
+//}
+//
+//// Nullable timestamp value type
+//message TimestampValue {
+//    sint64 val = 1;
+//}
+//
+//// Nullable double value type
+//message DoubleValue {
+//    double val = 1;
+//}
+//
+//// Nullable string value type
+//message StringValue {
+//    string val = 1;
+//}
 
 // note: singular
 message DimensionElement {
@@ -120,18 +112,18 @@ message DimensionElement {
     // Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
     // nested message for every observation.
     repeated Value fields = 1;
-    IntValue intValue = 2;
-    DoubleValue doubleValue = 3;
-    StringValue stringValue = 4;
-    TimestampValue timestampValue = 5;
+    sint64 intValue = 2;
+    double doubleValue = 3;
+    string stringValue = 4;
+    int64 timestampValue = 5;
 }
 
 message Value {
     oneof value {
-        StringValue stringValue = 1;
-        DoubleValue doubleValue = 2;
-        IntValue intValue = 3;
-        TimestampValue timestampValue = 4;
+        string stringValue = 1;
+        double doubleValue = 2;
+        sint64 intValue = 3;
+        int64 timestampValue = 4;
     }
 }
 
@@ -145,17 +137,19 @@ message Footer {
 message DimensionElements { // Multiple dimension elements are stored in a "column oriented" format, with the fields
                             // as the columns.
 
+    string name = 3;
+
     // List of dimension elements field values (e.g. values for age, values for gender, etc)
-    repeated DimElementField fields = 1;
+    repeated DimensionElement fields = 1;
 
     // only used when this message is embedded in a packedObservations
     bool perSample = 2;
 }
 
-message DimElementField {
-    // Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-    repeated StringValue stringValue = 1;  // only One of these must be set! 'oneof' doesn't work for repeated fields.
-    repeated DoubleValue doubleValue = 2;
-    repeated IntValue intValue = 3;
-    repeated TimestampValue timestampValue = 4;
-}
+//message DimElementField {
+//    // Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
+//    repeated string stringValue = 1;  // only One of these must be set! 'oneof' doesn't work for repeated fields.
+//    repeated double doubleValue = 2;
+//    repeated sint64 intValue = 3;
+//    repeated int64 timestampValue = 4;
+//}
