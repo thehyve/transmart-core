@@ -217,9 +217,9 @@ abstract class RESTSpec extends Specification{
     }
 
     def parseHypercube(jsonHypercube){
-        def header = jsonHypercube.size() ? jsonHypercube[0] : []
-        def cells = jsonHypercube.size() ? jsonHypercube[1..jsonHypercube.size()-2] : []
-        def footer = jsonHypercube.size() ? jsonHypercube.last() : []
+        def header = jsonHypercube.header
+        def cells = jsonHypercube.cells
+        def footer = jsonHypercube.footer
         return new ObservationsMessageJson(header, cells, footer)
     }
 

@@ -48,10 +48,12 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
 
 
         then:
-        def headerAndFooter = 2
-        def cells = 117
-        assert responseData1.size() == cells + headerAndFooter
-        assert responseData1 == responseData2
+        def expectedCellCount = 117
+        assert responseData1.cells.size() == expectedCellCount
+        assert responseData2.cells.size() == expectedCellCount
+        responseData1.cells.eachWithIndex{ cell, i ->
+            assert cell == responseData2.cells[i]
+        }
     }
 
     /**
@@ -90,10 +92,9 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         ])
 
         then:
-        def headerAndFooter = 2
-        def cells = 117
-        assert responseData1.size() == cells + headerAndFooter
-        assert responseData1[0] == responseData2[0]
+        def expectedCellCount = 117
+        assert responseData1.cells.size() == expectedCellCount
+        assert responseData1.header == responseData2.header
         assert responseData1 != responseData2
     }
 
@@ -155,10 +156,9 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         ])
 
         then:
-        def headerAndFooter = 2
-        def cells = 234
-        assert responseData1.size() == cells + headerAndFooter
-        assert responseData1[0] == responseData2[0]
+        def expectedCellCount = 234
+        assert responseData1.cells.size() == expectedCellCount
+        assert responseData1.header == responseData2.header
         assert responseData1 != responseData2
     }
 
