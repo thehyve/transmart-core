@@ -24,6 +24,7 @@ $spec = [
         ['I2B2DEMODATA', 'QT_QUERY_RESULT_INSTANCE',  'WRITE', ''],
         ['I2B2DEMODATA', 'QT_PATIENT_SET_COLLECTION', 'WRITE', ''],
         ['I2B2DEMODATA', 'LINKED_FILE_COLLECTION',    'WRITE', ''],
+        ['I2B2DEMODATA', 'SUPPORTED_WORKFLOW',        'WRITE', ''],
         ['I2B2DEMODATA', 'STORAGE_SYSTEM',            'WRITE', ''],
         ['I2B2DEMODATA', 'ASYNC_JOB',                 'WRITE', ''],
         ['I2B2DEMODATA', '*SEQUENCE',                 'READ', ''],

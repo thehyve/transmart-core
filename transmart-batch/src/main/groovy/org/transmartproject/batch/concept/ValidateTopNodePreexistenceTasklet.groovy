@@ -35,10 +35,6 @@ class ValidateTopNodePreexistenceTasklet implements Tasklet {
                             "or doesn't belong to the study $studyId")
         }
 
-        if (node.type != ConceptType.CATEGORICAL) {
-            throw new IllegalStateException("Unexpected node type for $node")
-        }
-
         RepeatStatus.FINISHED
     }
 }

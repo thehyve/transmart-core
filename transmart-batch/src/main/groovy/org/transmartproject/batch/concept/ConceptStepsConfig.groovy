@@ -20,7 +20,10 @@ import org.transmartproject.batch.secureobject.SecureObjectConfig
  * Concept spring configuration
  */
 @Configuration
-@ComponentScan
+@ComponentScan([
+        'org.transmartproject.batch.concept',
+        'org.transmartproject.batch.clinical.ontology',
+])
 @Import([DbConfig, SecureObjectConfig])
 class ConceptStepsConfig implements StepBuildingConfigurationTrait {
 
@@ -28,8 +31,18 @@ class ConceptStepsConfig implements StepBuildingConfigurationTrait {
     DatabaseImplementationClassPicker picker
 
     @Bean
-    Step gatherCurrentConcepts(Tasklet gatherCurrentConceptsTasklet) {
-        allowStartStepOf('gatherCurrentConcepts', gatherCurrentConceptsTasklet)
+    Step gatherCurrentConceptCodes(Tasklet gatherCurrentConceptCodesTasklet) {
+        allowStartStepOf('gatherCurrentConceptsCodes', gatherCurrentConceptCodesTasklet)
+    }
+
+    @Bean
+    Step insertOntologyTree(Tasklet insertOntologyTreeTasklet) {
+        stepOf('insertOntologyTree', insertOntologyTreeTasklet)
+    }
+
+    @Bean
+    Step gatherCurrentTreeNodes(Tasklet gatherCurrentTreeNodesTasklet) {
+        allowStartStepOf('gatherCurrentTreeNodes', gatherCurrentTreeNodesTasklet)
     }
 
     @Bean

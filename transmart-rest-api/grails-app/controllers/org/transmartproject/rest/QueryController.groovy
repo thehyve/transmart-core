@@ -10,7 +10,8 @@ import org.transmartproject.db.metadata.LegacyStudyException
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
-import org.transmartproject.rest.protobuf.ObservationsSerializer
+
+import static org.transmartproject.rest.MultidimensionalDataSerialisationService.*
 
 @Slf4j
 class QueryController extends AbstractQueryController {
@@ -19,14 +20,14 @@ class QueryController extends AbstractQueryController {
 
     HighDimensionResourceService highDimensionResourceService
 
-    protected ObservationsSerializer.Format getContentFormat() {
-        ObservationsSerializer.Format format = ObservationsSerializer.Format.NONE
+    protected Format getContentFormat() {
+        Format format = Format.NONE
         withFormat {
             json {
-                format = ObservationsSerializer.Format.JSON
+                format = Format.JSON
             }
             protobuf {
-                format = ObservationsSerializer.Format.PROTOBUF
+                format = Format.PROTOBUF
             }
         }
         format
@@ -42,6 +43,12 @@ class QueryController extends AbstractQueryController {
      * satisfy the constraint.
      */
     def observationList() {
+        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint']
+        params.keySet().each { param ->
+            if (!acceptedParams.contains(param)) {
+                throw new InvalidArgumentsException("Parameter not supported: $param.")
+            }
+        }
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
@@ -60,11 +67,16 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def observations() {
+        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint']
+        params.keySet().each { param ->
+            if (!acceptedParams.contains(param)) {
+                throw new InvalidArgumentsException("Parameter not supported: $param.")
+            }
+        }
         def format = contentFormat
-        if (format == ObservationsSerializer.Format.NONE) {
+        if (format == Format.NONE) {
             throw new InvalidArgumentsException("Format not supported.")
         }
-
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
@@ -100,6 +112,12 @@ class QueryController extends AbstractQueryController {
      * @return a the number of observations that satisfy the constraint.
      */
     def count() {
+        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint']
+        params.keySet().each { param ->
+            if (!acceptedParams.contains(param)) {
+                throw new InvalidArgumentsException("Parameter not supported: $param.")
+            }
+        }
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
@@ -127,6 +145,12 @@ class QueryController extends AbstractQueryController {
      * @return a map with the aggregate type as key and the result as value.
      */
     def aggregate() {
+        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint', 'type']
+        params.keySet().each { param ->
+            if (!acceptedParams.contains(param)) {
+                throw new InvalidArgumentsException("Parameter not supported: $param.")
+            }
+        }
         if (!params.type) {
             throw new InvalidArgumentsException("Type parameter is missing.")
         }
@@ -134,7 +158,7 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        def aggregateType = AggregateType.forName(params.type)
+        def aggregateType = AggregateType.forName(params.type as String)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def aggregatedValue = queryService.aggregate(aggregateType, constraint, user)
         def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
@@ -154,6 +178,12 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
     def highDim() {
+        def acceptedParams = ['action', 'controller', 'apiVersion', 'assay_constraint', 'biomarker_constraint', 'projection']
+        params.keySet().each { param ->
+            if (!acceptedParams.contains(param)) {
+                throw new InvalidArgumentsException("Parameter not supported: $param.")
+            }
+        }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         Constraint assayConstraint = getConstraint('assay_constraint')
 
@@ -188,6 +218,12 @@ class QueryController extends AbstractQueryController {
      * @return the list of fields supported by {@link org.transmartproject.db.multidimquery.query.FieldConstraint}.
      */
     def supportedFields() {
+        def acceptedParams = ['action', 'controller', 'apiVersion']
+        params.keySet().each { param ->
+            if (!acceptedParams.contains(param)) {
+                throw new InvalidArgumentsException("Parameter not supported: $param.")
+            }
+        }
         List<Field> fields = DimensionMetadata.supportedFields
         render fields as JSON
     }

@@ -12,6 +12,7 @@ Parameters
 - `WORD_MAP_FILE` Points to the file with dictionary to be used.
 - `XTRIAL_FILE` Points to [the cross study concepts file](xtrial.md).
 - `TAGS_FILE` Points to [the concepts tags file](tags.md).
+- `ONTOLOGY_MAP_FILE` Points to [the ontology mapping file](ontology-mapping.md).
 
 You could also use [the study-specific parameters](study-params.md).
 

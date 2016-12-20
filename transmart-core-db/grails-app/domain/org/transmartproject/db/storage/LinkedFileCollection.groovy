@@ -18,6 +18,7 @@ class LinkedFileCollection {
 
     static mapping = {
         table          schema:   'I2B2DEMODATA'
+        id generator: 'sequence'
         version false
     }
 

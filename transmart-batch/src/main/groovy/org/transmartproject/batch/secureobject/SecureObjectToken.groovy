@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 /**
- * Whatever tranSMART calls a "secure object token". In practice, EXP: plus
- * either PUBLIC or a study id.
+ * Whatever tranSMART calls a "secure object token". In practice, PUBLIC or
+ * EXP: plus a study id.
  */
 @Component
 @JobScope
@@ -18,7 +18,13 @@ class SecureObjectToken {
     @Value("#{jobParameters['SECURITY_REQUIRED']}")
     String securityRequired // should be Y or N
 
+    Long experimentId
+
+    boolean isPublic() {
+        securityRequired != 'Y'
+    }
+
     String toString() {
-        securityRequired == 'Y' ? "EXP:$studyId" : 'EXP:PUBLIC'
+        this.public ? 'PUBLIC' : "EXP:$studyId"
     }
 }

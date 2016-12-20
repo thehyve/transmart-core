@@ -2,8 +2,8 @@ package config
 
 class Config {
     //Constants
-//    public static final String BASE_URL = 'http://localhost:8080/'
-    public static final String BASE_URL = 'http://transmart-pro-test.thehyve.net/'
+    //$ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
+    public static final String BASE_URL = System.getProperty('baseUrl') != null ? System.getProperty('baseUrl') : 'http://localhost:8080/'
     public static final String BAD_USERNAME = 'bad username'
     public static final String BAD_PASSWORD = 'bad password'
     public static final String DEFAULT_USERNAME = 'test-public-user-1'

@@ -1,18 +1,16 @@
 --
--- Name: storage_system; Type: TABLE; Schema: i2b2demodata; Owner: -
+-- Type: TABLE; Owner: I2B2DEMODATA; Name: STORAGE_SYSTEM
 --
-CREATE TABLE "i2b2demodata"."storage_system" (
-    id integer NOT NULL,
-    name character varying(50),
-    systemtype character varying(50),
-    url character varying(900),
-    system_version character varying(50),
-    single_file_collections boolean
-);
-
---
--- Name: storage_system_pkey; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
---
-ALTER TABLE ONLY "i2b2demodata"."storage_system"
-    ADD CONSTRAINT storage_system_pkey PRIMARY KEY (id);
-
+ CREATE TABLE "I2B2DEMODATA"."STORAGE_SYSTEM"
+  (	"ID" NUMBER(*,0) NOT NULL ENABLE,
+"NAME" VARCHAR2(50 BYTE),
+"SYSTEM_TYPE" VARCHAR2(50 BYTE),
+"URL" VARCHAR2(900 BYTE),
+"SYSTEM_VERSION" VARCHAR2(50 BYTE),
+"SINGLE_FILE_COLLECTIONS" CHAR(1 BYTE),
+ CONSTRAINT "STORAGE_SYSTEM_PKEY" PRIMARY KEY ("ID")
+ USING INDEX
+ TABLESPACE "TRANSMART"  ENABLE
+  ) SEGMENT CREATION IMMEDIATE
+NOCOMPRESS LOGGING
+ TABLESPACE "TRANSMART" ;

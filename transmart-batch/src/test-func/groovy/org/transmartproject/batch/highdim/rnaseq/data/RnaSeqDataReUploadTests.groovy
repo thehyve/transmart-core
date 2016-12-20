@@ -2,6 +2,7 @@ package org.transmartproject.batch.highdim.rnaseq.data
 
 import org.junit.AfterClass
 import org.junit.ClassRule
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -24,6 +25,8 @@ import static org.hamcrest.Matchers.is
  */
 @RunWith(SpringJUnit4ClassRunner)
 @ContextConfiguration(classes = GenericFunctionalTestConfiguration)
+// FIXME: Reinstate this test before the final release.
+@Ignore
 class RnaSeqDataReUploadTests implements JobRunningTestTrait {
 
     private final static String STUDY_ID = 'CLUC'
