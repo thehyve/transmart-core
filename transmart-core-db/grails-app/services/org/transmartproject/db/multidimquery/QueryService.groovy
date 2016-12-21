@@ -84,7 +84,7 @@ class QueryService {
             if (constraint.patientSetId) {
                 QueryResult queryResult = QtQueryResultInstance.findById(constraint.patientSetId)
                 if (queryResult == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
-                    throw new AccessDeniedException("Access denied to patient set: ${constraint.patientSetId}")
+                    throw new AccessDeniedException("Access denied to patient set or patient set does not exist: ${constraint.patientSetId}")
                 }
             }
         } else if (constraint instanceof FieldConstraint) {
@@ -114,11 +114,11 @@ class QueryService {
         } else if (constraint instanceof StudyNameConstraint) {
             def study = Study.findByStudyId(constraint.studyId)
             if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
-                throw new AccessDeniedException("Access denied to study: ${constraint.studyId}")
+                throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.studyId}")
             }
         } else if (constraint instanceof StudyObjectConstraint) {
             if (constraint.study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, constraint.study)) {
-                throw new AccessDeniedException("Access denied to study: ${constraint.study?.studyId}")
+                throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.study?.studyId}")
             }
         } else {
             throw new InvalidQueryException("Unknown constraint type: ${constraint?.class?.simpleName}.")
