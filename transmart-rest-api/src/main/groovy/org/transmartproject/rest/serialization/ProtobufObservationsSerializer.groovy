@@ -95,15 +95,15 @@ public class ProtobufObservationsSerializer extends AbstractObservationsSerializ
             switch(dim.class) {
                 case ModifierDimension:
                     def modifierDim = (ModifierDimension)dim
-                    switch (modifierDim.valueType) {
-                        case ObservationFact.TYPE_NUMBER:
+                    switch (modifierDim.elementType) {
+                        case Double:
                             builder.type = Type.DOUBLE
                             break
-                        case ObservationFact.TYPE_TEXT:
+                        case String:
                             builder.type = Type.STRING
                             break
                         default:
-                            throw new Exception("Unsupported value type for dimension ${dimensionName}: ${modifierDim.valueType}.")
+                            throw new Exception("Unsupported value type for dimension ${dimensionName}: ${modifierDim.elementType?.simpleName}.")
                     }
                     break
                 case StartTimeDimension:

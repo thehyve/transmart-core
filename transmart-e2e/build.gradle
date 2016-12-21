@@ -27,3 +27,5 @@ dependencies {
 }
 
 tasks.withType(Test) { systemProperties = System.getProperties() }
+
+test.testLogging.exceptionFormat = 'full'
