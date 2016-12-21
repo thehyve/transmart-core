@@ -2,10 +2,7 @@ package tests.rest.v2.storage
 
 import base.RESTSpec
 
-import static config.Config.ADMIN_PASSWORD
-import static config.Config.ADMIN_USERNAME
-import static config.Config.PATH_FILES
-import static config.Config.PATH_STORAGE
+import static config.Config.*
 
 class FilesSpec extends RESTSpec{
 
@@ -91,34 +88,97 @@ class FilesSpec extends RESTSpec{
     /**
      *  post invalid
      */
+    def "post invalid values"() {
+        given:
+        def new_file_link = [
+                'name'        : 'new file Link',
+                'sourceSystem': storageId,
+                'study'       : null,
+                'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
+        ]
+
+        when:
+        def responseData = post(PATH_FILES, toJSON(new_file_link))
+
+        then:
+        assert responseData.httpStatus == 500
+        assert responseData.message == 'No such property: transactionStatus for class: org.transmartproject.rest.StorageController'
+        assert responseData.type == 'MissingPropertyException'
+    }
 
     /**
      *  post empty
      */
+    def "post empty"() {
+        when:
+        def responseData = post(PATH_FILES, null)
 
-    /**
-     *  get invalid
-     */
+        then:
+        assert responseData.httpStatus == 500
+        assert responseData.message == 'No such property: transactionStatus for class: org.transmartproject.rest.StorageController'
+        assert responseData.type == 'MissingPropertyException'
+    }
 
     /**
      *  get nonexistent
      */
+    def "get nonexistent"() {
+        when:
+        def responseData = get(PATH_FILES + "/0")
+
+        then:
+        assert responseData.status == 404
+        assert responseData.error == 'Not Found'
+        assert responseData.message == 'No message available'
+        assert responseData.path == "/v2/files/0"
+    }
 
     /**
      *  put invalid
      */
+    def "put invalid"() {
+        given:
+        def new_file_link = [
+                'name'        : 'new file Link',
+                'sourceSystem': storageId,
+                'study'       : 'EHR',
+                'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
+        ]
+        def responseData = post(PATH_FILES, toJSON(new_file_link))
+        def id = responseData.id
+        new_file_link.uuid = null
+
+        when:
+        responseData = put(PATH_FILES +"/${id}", toJSON(new_file_link))
+
+        then:
+        assert responseData.errors.size() == 1
+        assert responseData.errors[0].field == 'uuid'
+        assert responseData.errors[0].message == 'Property [uuid] of class [class org.transmartproject.db.storage.LinkedFileCollection] cannot be null'
+        assert responseData.errors[0].'rejected-value' == null
+        assert responseData.errors[0].field == 'uuid'
+
+    }
 
     /**
      *  put nonexistent
      */
+    def "put nonexistent"() {
+        given:
+        def new_file_link = [
+                'name'        : 'new file Link',
+                'sourceSystem': storageId,
+                'study'       : 'EHR',
+                'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
+        ]
 
-    /**
-     *  get all
-     */
+        when:
+        responseData = put(PATH_FILES +"/0", toJSON(new_file_link))
 
-    /**
-     *  get single
-     */
-
-
+        then:
+        assert responseData.status == 404
+        assert responseData.error == 'Not Found'
+        assert responseData.message == 'No message available'
+        assert responseData.path == "/v2/files/0"
+    }
 }
