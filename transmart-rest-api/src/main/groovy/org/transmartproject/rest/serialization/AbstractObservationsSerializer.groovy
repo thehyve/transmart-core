@@ -13,10 +13,6 @@ abstract class AbstractObservationsSerializer {
     protected Hypercube cube
     protected Map<Dimension, List<Object>> dimensionElements = [:]
 
-    AbstractObservationsSerializer(Hypercube cube) {
-        this.cube = cube
-    }
-
     protected Long determineFooterIndex(Dimension dim, Object element) {
         if (dimensionElements[dim] == null) {
             dimensionElements[dim] = []
@@ -80,7 +76,10 @@ abstract class AbstractObservationsSerializer {
      *
      * @param out the stream to write to.
      */
-    void write(OutputStream out) {
+    void write(Map args, Hypercube cube, OutputStream out) {
+        assert args == [:]
+        this.cube = cube
+
         begin(out)
         Iterator<HypercubeValue> iterator = cube.iterator()
         if (!iterator.hasNext()) {

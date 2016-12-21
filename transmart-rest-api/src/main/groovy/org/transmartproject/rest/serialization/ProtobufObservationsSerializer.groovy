@@ -43,12 +43,6 @@ public class ProtobufObservationsSerializer extends AbstractObservationsSerializ
 
     protected Map<Dimension, DimensionDeclaration> dimensionDeclarations = [:]
 
-    ProtobufObservationsSerializer(Hypercube cube, Dimension packedDimension) {
-        super(cube)
-        this.packedDimension = packedDimension
-        this.packingEnabled = packedDimension != null
-    }
-
     protected boolean first = true
 
     protected void begin(OutputStream out) {
@@ -211,8 +205,8 @@ public class ProtobufObservationsSerializer extends AbstractObservationsSerializ
         }
     }
 
-    protected Observation.Builder createCell(HypercubeValue value) {
-        Observation.Builder builder = Observation.newBuilder()
+    protected Cell.Builder createCell(HypercubeValue value) {
+        Cell.Builder builder = Observation.newBuilder()
         if (value.value != null) {
             if (value.value instanceof Number) {
                 builder.numericValue = value.value as Double
@@ -233,8 +227,8 @@ public class ProtobufObservationsSerializer extends AbstractObservationsSerializ
         builder
     }
 
-    protected PackedObservation.Builder createPackedCell(List<HypercubeValue> values) {
-        PackedObservation.Builder builder = PackedObservation.newBuilder()
+    protected PackedCell.Builder createPackedCell(List<HypercubeValue> values) {
+        PackedCell.Builder builder = PackedObservation.newBuilder()
         assert values.size() > 0
         builder.numObervations = values.size()
         // make sure that packed dimension elements are added to the footer
@@ -272,106 +266,106 @@ public class ProtobufObservationsSerializer extends AbstractObservationsSerializ
 
     static buildValue(Type type, Object value) {
         def builder = Value.newBuilder()
-        switch (type) {
-            case Type.TIMESTAMP:
-                def timestampValue = TimestampValue.newBuilder()
-                if (value == null) {
-                    //
-                } else if (value instanceof Date) {
-                    timestampValue.val = value.time
-                } else {
-                    throw new Exception("Type not supported: ${value?.class?.simpleName}.")
-                }
-                builder.timestampValue = timestampValue.build()
-                break
-            case Type.DOUBLE:
-                def doubleValue = DoubleValue.newBuilder()
-                if (value instanceof Float) {
-                    doubleValue.val = value.doubleValue()
-                } else if (value instanceof Double) {
-                    doubleValue.val = value.doubleValue()
-                } else {
-                    throw new Exception("Type not supported: ${value?.class?.simpleName}.")
-                }
-                builder.doubleValue = doubleValue.build()
-                break
-            case Type.INT:
-                def intValue = IntValue.newBuilder()
-                if (value == null) {
-                    //
-                } else if (value instanceof Number) {
-                    intValue.val = value.longValue()
-                } else {
-                    Long id = value.getAt('id') as Long
-                    if (id != null) {
-                        intValue.val = id
-                    }
-                }
-                builder.intValue = intValue.build()
-                break
-            case Type.STRING:
-                def stringValue = StringValue.newBuilder()
-                if (value != null) {
-                    stringValue.val = value.toString()
-                }
-                builder.stringValue = stringValue.build()
-                break
-            default:
-                throw new Exception("Type not supported: ${type.name()}.")
-        }
+//        switch (type) {
+//            case Type.TIMESTAMP:
+//                def timestampValue = TimestampValue.newBuilder()
+//                if (value == null) {
+//                    //
+//                } else if (value instanceof Date) {
+//                    timestampValue.val = value.time
+//                } else {
+//                    throw new Exception("Type not supported: ${value?.class?.simpleName}.")
+//                }
+//                builder.timestampValue = timestampValue.build()
+//                break
+//            case Type.DOUBLE:
+//                def doubleValue = DoubleValue.newBuilder()
+//                if (value instanceof Float) {
+//                    doubleValue.val = value.doubleValue()
+//                } else if (value instanceof Double) {
+//                    doubleValue.val = value.doubleValue()
+//                } else {
+//                    throw new Exception("Type not supported: ${value?.class?.simpleName}.")
+//                }
+//                builder.doubleValue = doubleValue.build()
+//                break
+//            case Type.INT:
+//                def intValue = IntValue.newBuilder()
+//                if (value == null) {
+//                    //
+//                } else if (value instanceof Number) {
+//                    intValue.val = value.longValue()
+//                } else {
+//                    Long id = value.getAt('id') as Long
+//                    if (id != null) {
+//                        intValue.val = id
+//                    }
+//                }
+//                builder.intValue = intValue.build()
+//                break
+//            case Type.STRING:
+//                def stringValue = StringValue.newBuilder()
+//                if (value != null) {
+//                    stringValue.val = value.toString()
+//                }
+//                builder.stringValue = stringValue.build()
+//                break
+//            default:
+//                throw new Exception("Type not supported: ${type.name()}.")
+//        }
         builder.build()
     }
 
-    static addValue(DimElementField.Builder builder, Type type, Object value) {
-        switch (type) {
-            case Type.TIMESTAMP:
-                def timestampValue = TimestampValue.newBuilder()
-                if (value == null) {
-                    //
-                } else if (value instanceof Date) {
-                    timestampValue.val = value.time
-                } else {
-                    throw new Exception("Type not supported for type ${type.name()}: ${value?.class?.simpleName}.")
-                }
-                builder.addTimestampValue timestampValue.build()
-                break
-            case Type.DOUBLE:
-                def doubleValue = DoubleValue.newBuilder()
-                if (value == null) {
-                    // skip
-                } else if (value instanceof Float) {
-                    doubleValue.val = value.doubleValue()
-                } else if (value instanceof Double) {
-                    doubleValue.val = value.doubleValue()
-                } else {
-                    throw new Exception("Type not supported: ${value?.class?.simpleName} (value: ${value}, type: ${type.name()}).")
-                }
-                builder.addDoubleValue doubleValue.build()
-                break
-            case Type.INT:
-                def intValue = IntValue.newBuilder()
-                if (value == null) {
-                    // skip
-                } else if (value instanceof Number) {
-                    intValue.val = value.longValue()
-                } else {
-                    Long id = value.getAt('id') as Long
-                    if (id != null) {
-                        intValue.val = id
-                    }
-                }
-                builder.addIntValue intValue
-                break
-            case Type.STRING:
-                def stringValue = StringValue.newBuilder()
-                if (value != null) {
-                    stringValue.val = value.toString()
-                }
-                builder.addStringValue stringValue.build()
-                break
-            default:
-                throw new Exception("Type not supported: ${type.name()}.")
-        }
+    static addValue(builder, Type type, Object value) {
+//        switch (type) {
+//            case Type.TIMESTAMP:
+//                def timestampValue = TimestampValue.newBuilder()
+//                if (value == null) {
+//                    //
+//                } else if (value instanceof Date) {
+//                    timestampValue.val = value.time
+//                } else {
+//                    throw new Exception("Type not supported for type ${type.name()}: ${value?.class?.simpleName}.")
+//                }
+//                builder.addTimestampValue timestampValue.build()
+//                break
+//            case Type.DOUBLE:
+//                def doubleValue = DoubleValue.newBuilder()
+//                if (value == null) {
+//                    // skip
+//                } else if (value instanceof Float) {
+//                    doubleValue.val = value.doubleValue()
+//                } else if (value instanceof Double) {
+//                    doubleValue.val = value.doubleValue()
+//                } else {
+//                    throw new Exception("Type not supported: ${value?.class?.simpleName} (value: ${value}, type: ${type.name()}).")
+//                }
+//                builder.addDoubleValue doubleValue.build()
+//                break
+//            case Type.INT:
+//                def intValue = IntValue.newBuilder()
+//                if (value == null) {
+//                    // skip
+//                } else if (value instanceof Number) {
+//                    intValue.val = value.longValue()
+//                } else {
+//                    Long id = value.getAt('id') as Long
+//                    if (id != null) {
+//                        intValue.val = id
+//                    }
+//                }
+//                builder.addIntValue intValue
+//                break
+//            case Type.STRING:
+//                def stringValue = StringValue.newBuilder()
+//                if (value != null) {
+//                    stringValue.val = value.toString()
+//                }
+//                builder.addStringValue stringValue.build()
+//                break
+//            default:
+//                throw new Exception("Type not supported: ${type.name()}.")
+//        }
         builder.build()
     }
 

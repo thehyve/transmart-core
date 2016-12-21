@@ -2,11 +2,14 @@ package org.transmartproject.rest.protobuf
 
 import com.google.common.collect.PeekingIterator
 import com.google.protobuf.Message
+import grails.util.Pair
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.core.multidimquery.Property
+import org.transmartproject.db.util.IndexedArraySet
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 
@@ -24,9 +27,10 @@ class HypercubeProtobufSerializer {
     private List<Dimension> indexedDims
 
 
-    protected getDimensionsDefs() {
-        cube.dimensions.collect { dim ->
-            def builder = DimensionDeclaration.newBuilder()
+    protected List<DimensionDeclaration> getDimensionsDefs() {
+        cube.dimensions.collect { Dimension dim ->
+            DimensionDeclaration.Builder builder = DimensionDeclaration.newBuilder()
+
             builder.name = dim.name
             if (!dim.density.isDense) {
                 // Sparse dimensions are inlined, dense dimensions are referred to by indexes
@@ -80,8 +84,8 @@ class HypercubeProtobufSerializer {
         }
     }
 
-    protected Observation.Builder createCell(HypercubeValue value) {
-        Observation.Builder builder = Observation.newBuilder()
+    protected Cell.Builder createCell(HypercubeValue value) {
+        def builder = Cell.newBuilder()
         if (value.value != null) {
             if (value.value instanceof Number) {
                 builder.numericValue = ((Number) value.value).doubleValue()
@@ -106,8 +110,9 @@ class HypercubeProtobufSerializer {
     }
 
     Value.Builder transferValue = Value.newBuilder()
+
     private Value.Builder buildValue(Object value) {
-        Value.Builder builder = transferValue.clear()
+        def builder = transferValue.clear()
         builder.clear()
         switch (value) {
             case null:
@@ -127,7 +132,8 @@ class HypercubeProtobufSerializer {
         builder
     }
 
-    private DimensionElement.Builder transferDimElem
+    private DimensionElement.Builder transferDimElem = DimensionElement.newBuilder()
+
     DimensionElement buildDimensionElement(Dimension dim, Object value) {
         def builder = transferDimElem.clear()
         if (dim.elementsSerializable) {
@@ -145,21 +151,45 @@ class HypercubeProtobufSerializer {
     }
 
     protected DimensionElements buildDimensionElements(Dimension dim, List dimElements) {
-        DimensionElements.Builder builder = DimensionElements.newBuilder()
+        def builder = DimensionElements.newBuilder()
         builder.name = dim.name
         //builder.perSample = false //TODO: implement this
-        for(element in dimElements) {
-            builder.addFields(buildDimensionElement(dim, element))
+        for(prop in dim.elementFields.values()) {
+            builder.addFields(buildElementFields(prop, dimElements))
         }
+//        for(element in dimElements) {
+//            builder.addFields(buildDimensionElement(dim, element))
+//        }
+        builder.build()
+    }
+
+    private DimensionElementFieldColumn.Builder transferFieldColumn = DimensionElementFieldColumn.newBuilder()
+
+    protected DimensionElementFieldColumn buildElementFields(Property prop, List dimElements) {
+        def builder = transferFieldColumn.clear()
+        switch(prop.type) {
+            case String:
+                for(elem in dimElements) { builder.addStringValue((String) prop.get(elem)) }; break
+            case Integer:
+            case Long:
+            case Short:
+                for(elem in dimElements) { builder.addIntValue(((Number) prop.get(elem)).longValue()) }; break
+            case Double:
+            case Float:
+            case Number:
+                for(elem in dimElements) { builder.addDoubleValue(((Number) prop.get(elem)).doubleValue()) }; break
+            case Date:
+                for(elem in dimElements) { builder.addTimestampValue(((Date) prop.get(elem)).time) }; break
+            default:
+                throw new RuntimeException("Unknown type: ${prop.type}")
+        }
+
         builder.build()
     }
 
     protected Footer buildFooter() {
-        Footer.Builder builder = Footer.newBuilder()
-        if(packedDimension != null) {
-            builder.addDimension(buildDimensionElements(packedDimension, cube.dimensionElements(packedDimension)))
-        }
-        for(dim in indexedDims) {
+        def builder = Footer.newBuilder()
+        for(dim in cube.dimensions.findAll { it.density.isDense }) {
             builder.addDimension(buildDimensionElements(dim, cube.dimensionElements(dim)))
         }
         builder.build()
@@ -168,7 +198,7 @@ class HypercubeProtobufSerializer {
     void write(Map args, Hypercube cube, OutputStream out) {
         this.cube = cube
         this.out = out
-        this.packedDimension = args.packedDimension
+        this.packedDimension = (Dimension) args.packedDimension
         this.packingEnabled = packedDimension != null
 
         this.iterator = cube.iterator()
@@ -178,9 +208,8 @@ class HypercubeProtobufSerializer {
 
         buildHeader().writeDelimitedTo(out)
 
-        for(HypercubeValue value : iterator) {
-            Observation.Builder message = createCell(value)
-            message.last = !iterator.hasNext()
+        while(iterator.hasNext()) {
+            def message = createCell(iterator.next())
             message.build().writeDelimitedTo(out)
         }
 

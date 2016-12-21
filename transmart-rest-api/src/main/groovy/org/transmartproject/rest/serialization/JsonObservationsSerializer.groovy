@@ -186,10 +186,6 @@ class JsonObservationsSerializer extends AbstractObservationsSerializer {
     protected Writer writer
     protected Map<Dimension, DimensionProperties> dimensionDeclarations = [:]
 
-    JsonObservationsSerializer(Hypercube cube) {
-        super(cube)
-    }
-
     @Override
     protected void begin(OutputStream out) {
         writer = new PrintWriter(new BufferedOutputStream(out))

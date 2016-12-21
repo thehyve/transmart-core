@@ -45,14 +45,14 @@ class MultidimensionalDataSerialisationService {
         AbstractObservationsSerializer serializer
         switch (format) {
             case Format.JSON:
-                serializer = new JsonObservationsSerializer(hypercube)
+                serializer = new JsonObservationsSerializer()
                 break
             case Format.PROTOBUF:
-                serializer = new ProtobufObservationsSerializer(hypercube, null)
+                serializer = new ProtobufObservationsSerializer()
                 break
             default:
                 throw new Exception("Unsupported format: ${format}")
         }
-        serializer.write(out)
+        serializer.write(hypercube, out)
     }
 }
