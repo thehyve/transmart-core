@@ -1,4 +1,4 @@
-package org.transmartproject.rest.protobuf
+package org.transmartproject.rest.serialization
 
 import com.google.common.collect.PeekingIterator
 import com.google.protobuf.Message
