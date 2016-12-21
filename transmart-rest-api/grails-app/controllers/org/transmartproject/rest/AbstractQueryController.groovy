@@ -56,6 +56,9 @@ abstract class AbstractQueryController implements Controller {
         // check for parse errors
         if (constraint.hasErrors()) {
             response.status = 400
+            if(constraint.errors.fieldErrors.any()){
+                throw new InvalidArgumentsException(constraint.errors.fieldErrors.first().defaultMessage)
+            }
             render constraint.errors as JSON
             return null
         }
