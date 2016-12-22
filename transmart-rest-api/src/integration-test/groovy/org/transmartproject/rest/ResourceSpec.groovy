@@ -53,7 +53,7 @@ abstract class ResourceSpec extends Specification {
 
     void setup() {
         Holders.applicationContext.getBeansOfType(RendererRegistry.class).each {
-            log.info "RendererRegistry bean: ${it}"
+            log.debug "RendererRegistry bean: ${it}"
         }
         def rendererRegistry = Holders.applicationContext.getBean('rendererRegistry')
         assert rendererRegistry.class == TransmartRendererRegistry
