@@ -7,11 +7,12 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.Property
+import org.transmartproject.rest.hypercubeProto.ObservationsProto
+import org.transmartproject.rest.hypercubeProto.ObservationsProto.Type as ProtoType
 
 import javax.annotation.Nonnull
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
-import org.transmartproject.rest.hypercubeProto.ObservationsProto.Type as ProtoType
 
 @Slf4j
 @CompileStatic
@@ -27,7 +28,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     private List<Dimension> indexedDims
 
 
-    static protected enum SerializationType {
+    static protected enum Type {
         STRING {
             ProtoType getProtobufType() {ProtoType.STRING}
             def getValue(Property prop, elem) { prop.get(elem) }
@@ -76,7 +77,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         abstract void setValue(Value.Builder builder, elem)
 
 
-        static protected SerializationType get(Class cls) {
+        static protected Type get(Class cls) {
             switch (cls) {
                 case String:
                     return STRING
@@ -110,14 +111,14 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             if (dim == packedDimension) {
                 builder.packed = true
             }
-            builder.type = dim.elementsSerializable ? SerializationType.get(dim.elementType).protobufType : Type.OBJECT
+            builder.type = dim.elementsSerializable ? Type.get(dim.elementType).protobufType : ProtoType.OBJECT
 
             if(!dim.elementsSerializable) {
                 dim.elementFields.values().each { field ->
                     builder.addFields FieldDefinition.newBuilder().with {
                         name = field.name
-                        type = SerializationType.get(field.type).protobufType
-                        assert type != Type.OBJECT
+                        type = Type.get(field.type).protobufType
+                        assert type != ProtoType.OBJECT
                         build()
                     }
                 }
@@ -172,7 +173,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     private Value.Builder buildValue(@Nonnull value) {
         def builder = transferValue.clear()
         builder.clear()
-        SerializationType.get(value.class).setValue(builder, value)
+        Type.get(value.class).setValue(builder, value)
         builder
     }
 
@@ -228,7 +229,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     protected DimensionElementFieldColumn buildElementFields(Property prop, List dimElements) {
         DimensionElementFieldColumn.Builder builder = transferFieldColumn.clear()
 
-        SerializationType type = SerializationType.get(prop.type)
+        Type type = Type.get(prop.type)
 
         long absentCount = 0
         for(int i=0; i<dimElements.size(); i++) {
