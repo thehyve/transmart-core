@@ -2,7 +2,6 @@ package org.transmartproject.rest.serialization
 
 import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
-import groovy.transform.TupleConstructor
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
@@ -12,6 +11,7 @@ import org.transmartproject.core.multidimquery.Property
 import javax.annotation.Nonnull
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
+import org.transmartproject.rest.hypercubeProto.ObservationsProto.Type as ProtoType
 
 @Slf4j
 @CompileStatic
@@ -27,6 +27,76 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     private List<Dimension> indexedDims
 
 
+    static protected enum SerializationType {
+        STRING {
+            ProtoType getProtobufType() {ProtoType.STRING}
+            def getValue(Property prop, elem) { prop.get(elem) }
+            void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
+                builder.addStringValue((String) elem)
+            }
+            void setValue(Value.Builder builder, elem) {
+                builder.stringValue = (String) elem
+            }
+        },
+        INT {
+            ProtoType getProtobufType() {ProtoType.INT}
+            def getValue(Property prop, elem) { (Long) prop.get(elem) }
+            void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
+                builder.addIntValue((Long) elem)
+            }
+            void setValue(Value.Builder builder, elem) {
+                builder.intValue = (Long) elem
+            }
+        },
+        DOUBLE {
+            ProtoType getProtobufType() {ProtoType.DOUBLE}
+            def getValue(Property prop, elem) { (Double) prop.get(elem) }
+            void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
+                builder.addDoubleValue((Double) elem)
+            }
+            void setValue(Value.Builder builder, elem) {
+                builder.doubleValue = (Double) elem
+            }
+        },
+        TIMESTAMP {
+            ProtoType getProtobufType() {ProtoType.TIMESTAMP}
+            def getValue(Property prop, elem) { (Date) prop.get(elem) }
+            void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
+                builder.addTimestampValue(((Date) elem).time)
+            }
+            void setValue(Value.Builder builder, elem) {
+                builder.timestampValue = ((Date) elem).time
+            }
+        }
+
+        // Groovy didn't want to compile a 'type' field, so I use a method
+        abstract ProtoType getProtobufType()
+        abstract getValue(Property prop, element)
+        abstract void addToColumn(DimensionElementFieldColumn.Builder builder, elem)
+        abstract void setValue(Value.Builder builder, elem)
+
+
+        static protected SerializationType get(Class cls) {
+            switch (cls) {
+                case String:
+                    return STRING
+                case Integer:
+                case Long:
+                case Short:
+                    return INT
+                case Double:
+                case Float:
+                case Number:
+                    return DOUBLE
+                case Date:
+                    return TIMESTAMP
+                default:
+                    throw new RuntimeException("Unsupported type: $cls. This type is not serializable")
+            }
+        }
+    }
+
+
     protected List<DimensionDeclaration> getDimensionsDefs() {
         cube.dimensions.collect { Dimension dim ->
             DimensionDeclaration.Builder builder = DimensionDeclaration.newBuilder()
@@ -40,13 +110,13 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             if (dim == packedDimension) {
                 builder.packed = true
             }
-            builder.type = dim.elementsSerializable ? type(dim.elementType) : Type.OBJECT
+            builder.type = dim.elementsSerializable ? SerializationType.get(dim.elementType).protobufType : Type.OBJECT
 
             if(!dim.elementsSerializable) {
                 dim.elementFields.values().each { field ->
                     builder.addFields FieldDefinition.newBuilder().with {
                         name = field.name
-                        type = type(field.type)
+                        type = SerializationType.get(field.type).protobufType
                         assert type != Type.OBJECT
                         build()
                     }
@@ -54,25 +124,6 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             }
 
             builder.build()
-        }
-    }
-
-    static protected Type type(Class cls) {
-        switch (cls) {
-            case String:
-                return Type.STRING
-            case Integer:
-            case Long:
-            case Short:
-                return Type.INT
-            case Double:
-            case Float:
-            case Number:
-                return Type.DOUBLE
-            case Date:
-                return Type.TIMESTAMP
-            default:
-                return Type.OBJECT
         }
     }
 
@@ -112,6 +163,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                 builder.addAbsentInlineDimensions(i+1)
             }
         }
+        if(!iterator.hasNext()) builder.last = true
         builder
     }
 
@@ -120,21 +172,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     private Value.Builder buildValue(@Nonnull value) {
         def builder = transferValue.clear()
         builder.clear()
-        switch (value) {
-            case null:
-                return null
-            case String:
-                builder.stringValue = value; break
-            case Date:
-                builder.timestampValue = ((Date) value).time; break
-            case Integer:
-            case Long:
-                builder.intValue = ((Number) value).longValue(); break
-            case Number:
-                builder.doubleValue = ((Number) value).doubleValue(); break
-            default:
-                throw new RuntimeException("Type not supported: $value of type ${value.class}")
-        }
+        SerializationType.get(value.class).setValue(builder, value)
         builder
     }
 
@@ -185,71 +223,21 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     }
 
 
-    @TupleConstructor
-    static abstract class ColumnBuilder {
-        Property prop
-        DimensionElementFieldColumn.Builder builder
-
-        abstract def value(element)
-        abstract void addValue(item)
-    }
-
-    /* this method is part of the inner loop of the serializer, so preferably we shouldn't be using dynamic code
-    or closures here. This does lead to slightly ugly code to get the right behavior for different types.
-    Unfortunately Groovy doesn't do closures like java and also creates Reference's for final variables. In fact
-    Groovy will always try to resolve identifiers used within the anonymous class methods in the scope of this
-    function. The only way to prevent that and access the fields seems to be to explicitly qualify with 'this'.
-
-    While the  JVM should be able to stack-allocate and then optimize away the ColumnBuilder and the extra Reference's,
-    it doesn't hurt to prevent them, and doing so would not clean this code up significantly.
-    */
-    private static ColumnBuilder getColumnBuilder(Property prop, DimensionElementFieldColumn.Builder builder) {
-        switch(prop.type) {
-            case String:
-                return new ColumnBuilder(prop, builder) {
-                    // NB: `this` qualification is necessary, otherwise Groovy will allocate extra unneeded Reference's.
-                    def value(elem) { this.prop.get(elem) }
-                    void addValue(it) { this.builder.addStringValue((String) it) }
-                }
-            case Integer:
-            case Long:
-            case Short:
-                return new ColumnBuilder(prop, builder) {
-                    def value(elem) { ((Number) this.prop.get(elem))?.longValue() }
-                    void addValue(it) { this.builder.addIntValue((Long) it) }
-                }
-            case Double:
-            case Float:
-            case Number:
-                return new ColumnBuilder(prop, builder) {
-                    def value(elem) { ((Number) this.prop.get(elem))?.doubleValue() }
-                    void addValue(it) { this.builder.addDoubleValue((Double) it) }
-                }
-            case Date:
-                return new ColumnBuilder(prop, builder) {
-                    def value(elem) { ((Date) this.prop.get(elem))?.time }
-                    void addValue(it) { this.builder.addTimestampValue((Long) it) }
-                }
-            default:
-                throw new RuntimeException("Unknown type: ${prop.type}")
-        }
-    }
-
     private DimensionElementFieldColumn.Builder transferFieldColumn = DimensionElementFieldColumn.newBuilder()
 
     protected DimensionElementFieldColumn buildElementFields(Property prop, List dimElements) {
         DimensionElementFieldColumn.Builder builder = transferFieldColumn.clear()
 
-        ColumnBuilder b = getColumnBuilder(prop, builder)
+        SerializationType type = SerializationType.get(prop.type)
 
         long absentCount = 0
         for(int i=0; i<dimElements.size(); i++) {
-            def elem = b.value(dimElements[i])
+            def elem = type.getValue(prop, dimElements[i])
             if(elem == null) {
                 absentCount++
                 builder.addAbsentValueIndices(i+1)
             } else {
-                b.addValue(elem)
+                type.addToColumn(builder, elem)
             }
         }
 
