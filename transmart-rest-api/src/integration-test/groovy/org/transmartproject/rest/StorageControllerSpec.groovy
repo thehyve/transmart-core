@@ -82,23 +82,41 @@ class StorageControllerSpec extends ResourceSpec {
                 'systemVersion'        : '3.4',
                 'singleFileCollections': true,
         ] as JSON
-        def response = post "/$VERSION/storage", {
+        def postResponse = post "/$VERSION/storage", {
             contentType "application/json"
             json bodyContent
         }
-        def indexResponseAfter = get("/$VERSION/storage")
-        int itemsBefore = indexResponseBefore.json[STORAGE_SYSTEM_COLLECTION_NAME].size()
-        int itemsAfter = indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME].size()
         then:
-        response.status == 201
+        postResponse.status == 201
+        postResponse.json['id'] != null
+        postResponse.json['id'] instanceof Number
+
+        when:
+        def storageId = postResponse.json['id'] as Long
+        def objectResponse = get("/$VERSION/storage/${storageId}")
+        then:
+        objectResponse.status == 200
+        objectResponse.json['id'] == storageId
+        objectResponse.json['name'] == 'mongodb at The Hyve'
+        objectResponse.json['systemType'] == 'mongodb'
+        objectResponse.json['systemVersion'] == '3.4'
+        objectResponse.json['url'] == 'https://mongodb.thehyve.net:5467'
+        objectResponse.json['singleFileCollections'] == true
+
+        when:
+        def indexResponseAfter = get("/$VERSION/storage")
+        def itemsBefore = indexResponseBefore.json[STORAGE_SYSTEM_COLLECTION_NAME] as List
+        def itemsAfter = indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME] as List
+        then:
         indexResponseAfter.status == 200
         indexResponseBefore.status == 200
-        itemsAfter == (itemsBefore + 1)
-        indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME][2]['name'] == 'mongodb at The Hyve'
-        indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME][2]['systemType'] == 'mongodb'
-        indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME][2]['systemVersion'] == '3.4'
-        indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME][2]['url'] == 'https://mongodb.thehyve.net:5467'
-        indexResponseAfter.json[STORAGE_SYSTEM_COLLECTION_NAME][2]['singleFileCollections'] == true
+        itemsAfter.size() == (itemsBefore.size() + 1)
+        itemsAfter[2]['id'] == storageId
+        itemsAfter[2]['name'] == 'mongodb at The Hyve'
+        itemsAfter[2]['systemType'] == 'mongodb'
+        itemsAfter[2]['systemVersion'] == '3.4'
+        itemsAfter[2]['url'] == 'https://mongodb.thehyve.net:5467'
+        itemsAfter[2]['singleFileCollections'] == true
     }
 
     def LinkUpdateTest() {
