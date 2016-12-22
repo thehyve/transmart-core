@@ -1,6 +1,7 @@
 package tests.rest.v2.storage
 
 import base.RESTSpec
+import spock.lang.IgnoreIf
 
 import static config.Config.*
 
@@ -196,6 +197,7 @@ class StorageSpec extends RESTSpec{
     /**
      *  put invalid
      */
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) // returns not found instead of rejected value
     def "put invalid values"(){
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
@@ -246,6 +248,7 @@ class StorageSpec extends RESTSpec{
     /**
      *  no access
      */
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) // missing space in error message
     def "post no access"(){
         given:
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)

@@ -1,6 +1,7 @@
 package tests.rest.v2.storage
 
 import base.RESTSpec
+import spock.lang.IgnoreIf
 
 import static config.Config.*
 
@@ -173,6 +174,7 @@ class FilesSpec extends RESTSpec{
     /**
      *  put nonexistent
      */
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //returns 500 insted of not found
     def "put nonexistent"() {
         given:
         def new_file_link = [

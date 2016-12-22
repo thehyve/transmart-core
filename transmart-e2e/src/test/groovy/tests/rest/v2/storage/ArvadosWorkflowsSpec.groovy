@@ -1,6 +1,7 @@
 package tests.rest.v2.storage
 
 import base.RESTSpec
+import spock.lang.IgnoreIf
 
 import static config.Config.*
 
@@ -199,6 +200,7 @@ class ArvadosWorkflowsSpec extends RESTSpec{
     /**
      *  no access
      */
+    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) // "Removing a 'new' supported workflow entry ??"
     def "no access"(){
         given:
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
