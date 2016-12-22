@@ -341,15 +341,15 @@ class JsonObservationsSerializer extends AbstractObservationsSerializer {
             switch(dim.class) {
                 case ModifierDimension:
                     def modifierDim = (ModifierDimension)dim
-                    switch (modifierDim.valueType) {
-                        case ObservationFact.TYPE_NUMBER:
+                    switch (modifierDim.elementType) {
+                        case Double:
                             dimensionProperties.type = Type.DOUBLE
                             break
-                        case ObservationFact.TYPE_TEXT:
+                        case String:
                             dimensionProperties.type = Type.STRING
                             break
                         default:
-                            throw new Exception("Unsupported value type for dimension ${dimensionProperties.name}: ${modifierDim.valueType}.")
+                            throw new Exception("Unsupported value type for dimension ${dimensionProperties.name}: ${modifierDim.elementType}.")
                     }
                     break
                 case StartTimeDimension:

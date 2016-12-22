@@ -1,7 +1,6 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
-import grails.rest.Link
 import grails.web.mime.MimeType
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
@@ -9,7 +8,6 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
@@ -17,7 +15,6 @@ import org.transmartproject.db.user.User
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.PatientWrapper
 import org.transmartproject.rest.marshallers.QueryResultWrapper
-import org.transmartproject.rest.ontology.OntologyTermCategory
 
 class PatientQueryController extends AbstractQueryController {
 
@@ -33,12 +30,8 @@ class PatientQueryController extends AbstractQueryController {
      * which there are observations that satisfy the constraint.
      */
     def listPatients(@RequestParam('api_version') String apiVersion) {
-        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint']
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
-        }
+        checkParams(params, ['constraint'])
+
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
@@ -63,12 +56,8 @@ class PatientQueryController extends AbstractQueryController {
         if (id == null) {
             throw new InvalidArgumentsException("Parameter 'id' is missing.")
         }
-        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint']
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
-        }
+
+        checkParams(params, ['id'])
 
         Constraint constraint = new PatientSetConstraint(patientIds: [id])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
@@ -102,12 +91,8 @@ class PatientQueryController extends AbstractQueryController {
     def findPatientSet(
             @RequestParam('api_version') String apiVersion,
             @PathVariable('id') Long id) {
-        def acceptedParams = ['action', 'controller', 'apiVersion']
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
-        }
+        checkParams(params, ['id'])
+
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
         QueryResult patientSet = queryService.findPatientSet(id, user)
@@ -129,12 +114,6 @@ class PatientQueryController extends AbstractQueryController {
     def createPatientSet(
             @RequestParam('api_version') String apiVersion,
             @RequestParam('name') String name) {
-        def acceptedParams = ['action', 'controller', 'apiVersion', 'name', 'constraint']
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
-        }
         if (name) {
             name = URLDecoder.decode(name, 'UTF-8').trim()
         } else {
@@ -153,7 +132,7 @@ class PatientQueryController extends AbstractQueryController {
                     "${MimeType.JSON.name}; got ${mimeType}.")
         }
         def body = request.reader.lines().iterator().join('')
-        log.info "BODY: ${body}"
+        log.debug "BODY: ${body}"
         if (body.empty) {
             throw new InvalidRequestException('No constraint found in request body.')
         }
@@ -161,6 +140,8 @@ class PatientQueryController extends AbstractQueryController {
         if (constraint == null) {
             return null
         }
+
+        checkParams(params, ['name', 'constraint'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
