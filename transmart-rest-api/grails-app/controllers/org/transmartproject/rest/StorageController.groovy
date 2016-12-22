@@ -1,7 +1,7 @@
 package org.transmartproject.rest
 
 import grails.rest.RestfulController
-import grails.web.http.HttpHeaders
+import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
@@ -22,7 +22,7 @@ import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperat
  * Created by piotrzakrzewski on 02/12/2016.
  */
 @Slf4j
-class StorageController extends RestfulController {
+class StorageController extends RestfulController<LinkedFileCollection> {
 
     static responseFormats = ['json']
 
@@ -41,7 +41,7 @@ class StorageController extends RestfulController {
 
     @Override
     def show() {
-        def fileCollection = queryForResource(params.id)
+        def fileCollection = queryForResource(params.getLong('id'))
         if (fileCollection == null) {
             notFound()
             return
@@ -51,14 +51,15 @@ class StorageController extends RestfulController {
     }
 
     @Override
+    @Transactional
     def save() {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
             throw new AccessDeniedException("Creating new Linked File Collections " +
                     "is an admin action")
         }
-        def fields = request.JSON
-        def studyId = fields['study']
+        def fields = request.JSON as Map
+        def studyId = fields['study'] as String
         def study = Study.findByStudyId(studyId)
         fields['study'] = null
         def instance  = createResource fields
@@ -70,6 +71,7 @@ class StorageController extends RestfulController {
             return
         }
         saveResource instance
+        log.info "Linked file collection saved with id: ${instance.id}"
         respond instance, [status: CREATED, view:'show']
     }
 
@@ -80,6 +82,7 @@ class StorageController extends RestfulController {
             throw new AccessDeniedException("Listing all Linked File Collections " +
                     "is an admin action")
         }
+        log.info "Fetching linked file collections."
         def response = ['files': listAllResources(params)]
         respond response
     }
@@ -110,10 +113,10 @@ class StorageController extends RestfulController {
                     "is an admin action")
         }
         def fields = request.JSON
-        def studyId = fields['study']
+        def studyId = fields['study'] as String
         def study = Study.findByStudyId(studyId)
-        fields['study'] = study.id
-        def instance = queryForResource(params.id)
+        fields['study'] = study
+        def instance = queryForResource(params.getLong('id'))
         if (instance == null) {
             transactionStatus.setRollbackOnly()
             notFound()

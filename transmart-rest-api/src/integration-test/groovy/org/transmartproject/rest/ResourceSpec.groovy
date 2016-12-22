@@ -25,7 +25,6 @@
 
 package org.transmartproject.rest
 
-import grails.artefact.controller.RestResponder
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
 import grails.rest.render.RendererRegistry
