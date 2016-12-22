@@ -7,7 +7,6 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.Property
-import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.Type as ProtoType
 
 import javax.annotation.Nonnull
