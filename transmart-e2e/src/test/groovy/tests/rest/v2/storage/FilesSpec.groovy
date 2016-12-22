@@ -11,6 +11,16 @@ class FilesSpec extends RESTSpec{
 
     def setup(){
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
+        def responseDataAll = get(PATH_FILES)
+        responseDataAll.files.each{
+            delete(PATH_FILES + "/${it.id}")
+        }
+
+        responseDataAll = get(PATH_STORAGE)
+        responseDataAll.storageSystems.each{
+            delete(PATH_STORAGE + "/${it.id}")
+        }
+
         def sourceSystem = [
                 'name':'Arvbox at The Hyve',
                 'systemType':'Arvados',
@@ -81,7 +91,7 @@ class FilesSpec extends RESTSpec{
         assert responseData.status == 404
         assert responseData.error == 'Not Found'
         assert responseData.message == 'No message available'
-        assert responseData.path == "/v2/files/${id}"
+        assert responseData.path == "/${PATH_FILES}/${id}"
     }
 
 
@@ -130,7 +140,7 @@ class FilesSpec extends RESTSpec{
         assert responseData.status == 404
         assert responseData.error == 'Not Found'
         assert responseData.message == 'No message available'
-        assert responseData.path == "/v2/files/0"
+        assert responseData.path == "/${PATH_FILES}/0"
     }
 
     /**
@@ -156,7 +166,7 @@ class FilesSpec extends RESTSpec{
         assert responseData.errors[0].field == 'uuid'
         assert responseData.errors[0].message == 'Property [uuid] of class [class org.transmartproject.db.storage.LinkedFileCollection] cannot be null'
         assert responseData.errors[0].'rejected-value' == null
-        assert responseData.errors[0].field == 'uuid'
+        assert responseData.errors[0].object == 'org.transmartproject.db.storage.LinkedFileCollection'
 
     }
 
@@ -173,12 +183,52 @@ class FilesSpec extends RESTSpec{
         ]
 
         when:
-        responseData = put(PATH_FILES +"/0", toJSON(new_file_link))
+        def responseData = put(PATH_FILES +"/0", toJSON(new_file_link))
 
         then:
         assert responseData.status == 404
         assert responseData.error == 'Not Found'
         assert responseData.message == 'No message available'
-        assert responseData.path == "/v2/files/0"
+        assert responseData.path == "/${PATH_FILES}/0"
     }
+
+    /**
+     *  no access
+     */
+    def "no access"(){
+        given:
+        setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
+        def new_file_link = [
+                'name'        : 'new file Link',
+                'sourceSystem': storageId,
+                'study'       : 'EHR',
+                'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
+        ]
+
+        when:
+        def responseData = post(PATH_FILES, toJSON(new_file_link))
+
+        then:
+        assert responseData.httpStatus == 403
+        assert responseData.message == 'Creating new Linked File Collections is an admin action'
+        assert responseData.type == 'AccessDeniedException'
+
+        when:
+        new_file_link.name = 'new file Link renamed'
+        responseData = put(PATH_FILES + "/0", toJSON(new_file_link))
+
+        then:
+        assert responseData.httpStatus == 403
+        assert responseData.message == 'updating a linked file entry is an admin action'
+        assert responseData.type == 'AccessDeniedException'
+
+        when:
+        responseData = delete(PATH_FILES + "/0")
+
+        then:
+        assert responseData.httpStatus == 403
+        assert responseData.message == 'Removing a linked file entry is an admin action'
+        assert responseData.type == 'AccessDeniedException'
+    }
+
 }

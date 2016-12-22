@@ -6,9 +6,14 @@ import static config.Config.*
 
 class StorageSpec extends RESTSpec{
 
-    def cleanup() {
+    def setup() {
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def responseDataAll = get(PATH_STORAGE)
+        def responseDataAll = get(PATH_FILES)
+        responseDataAll.files.each{
+            delete(PATH_FILES + "/${it.id}")
+        }
+
+        responseDataAll = get(PATH_STORAGE)
         responseDataAll.storageSystems.each{
             delete(PATH_STORAGE + "/${it.id}")
         }
@@ -243,6 +248,7 @@ class StorageSpec extends RESTSpec{
      */
     def "post no access"(){
         given:
+        setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
         def sourceSystem = [
                 'name':'Arvbox at The Hyve',
                 'systemType':'Arvados',
