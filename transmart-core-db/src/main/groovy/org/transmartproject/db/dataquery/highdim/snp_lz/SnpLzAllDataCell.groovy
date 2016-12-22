@@ -68,7 +68,7 @@ class SnpLzAllDataCell implements Map<String, Object> {
     }
 
     String getLikelyGenotype() {
-        return likelyAllele1.concat(separator).concat(likelyAllele2)
+        return this.getLikelyAllele1().concat(separator).concat(this.getLikelyAllele2())
     }
 
     double getProbabilityA1A1() {
