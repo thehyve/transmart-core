@@ -13,8 +13,8 @@ import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.TestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
+import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.JsonObservationsSerializer
-import org.transmartproject.rest.serialization.ProtobufObservationsSerializer
 import spock.lang.Specification
 
 import static spock.util.matcher.HamcrestSupport.that
@@ -40,11 +40,11 @@ class ObservationsBuilderTests extends Specification {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
-        def builder = new JsonObservationsSerializer(mockedCube)
+        def builder = new JsonObservationsSerializer()
 
         when:
         def out = new ByteArrayOutputStream()
-        builder.write(out)
+        builder.write(mockedCube, out)
         out.flush()
         def result = new JsonSlurper().parse(out.toByteArray())
         def header = result.header
@@ -70,11 +70,11 @@ class ObservationsBuilderTests extends Specification {
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.multidimsStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.multidimsStudy], constraint: constraint)
         def patientDimension = DimensionImpl.PATIENT
-        def builder = new ProtobufObservationsSerializer(mockedCube, patientDimension)
+        def builder = new HypercubeProtobufSerializer()
 
         when:
         def s_out = new ByteArrayOutputStream()
-        builder.write(s_out)
+        builder.write(mockedCube, s_out, packedDimension: patientDimension)
         s_out.flush()
         def data = s_out.toByteArray()
 
@@ -129,11 +129,11 @@ class ObservationsBuilderTests extends Specification {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
-        def builder = new ProtobufObservationsSerializer(mockedCube, null)
+        def builder = new HypercubeProtobufSerializer()
 
         when:
         def s_out = new ByteArrayOutputStream()
-        builder.write(s_out)
+        builder.write(mockedCube, s_out)
         s_out.flush()
         def data = s_out.toByteArray()
 

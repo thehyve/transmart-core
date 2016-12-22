@@ -3100,7 +3100,7 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3109,7 +3109,7 @@ public final class ObservationsProto {
         getInlineDimensionsList();
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3117,7 +3117,7 @@ public final class ObservationsProto {
     org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElement getInlineDimensions(int index);
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3125,7 +3125,7 @@ public final class ObservationsProto {
     int getInlineDimensionsCount();
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3134,13 +3134,38 @@ public final class ObservationsProto {
         getInlineDimensionsOrBuilderList();
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
      */
     org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementOrBuilder getInlineDimensionsOrBuilder(
         int index);
+
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    java.util.List<java.lang.Integer> getAbsentInlineDimensionsList();
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    int getAbsentInlineDimensionsCount();
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    int getAbsentInlineDimensions(int index);
 
     /**
      * <code>optional string stringValue = 3;</code>
@@ -3182,6 +3207,7 @@ public final class ObservationsProto {
     private Cell() {
       dimensionIndexes_ = java.util.Collections.emptyList();
       inlineDimensions_ = java.util.Collections.emptyList();
+      absentInlineDimensions_ = java.util.Collections.emptyList();
       last_ = false;
     }
 
@@ -3251,6 +3277,27 @@ public final class ObservationsProto {
               value_ = input.readDouble();
               break;
             }
+            case 40: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                absentInlineDimensions_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              absentInlineDimensions_.add(input.readInt32());
+              break;
+            }
+            case 42: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004) && input.getBytesUntilLimit() > 0) {
+                absentInlineDimensions_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                absentInlineDimensions_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
             case 56: {
 
               last_ = input.readBool();
@@ -3269,6 +3316,9 @@ public final class ObservationsProto {
         }
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           inlineDimensions_ = java.util.Collections.unmodifiableList(inlineDimensions_);
+        }
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+          absentInlineDimensions_ = java.util.Collections.unmodifiableList(absentInlineDimensions_);
         }
         makeExtensionsImmutable();
       }
@@ -3372,7 +3422,7 @@ public final class ObservationsProto {
     private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElement> inlineDimensions_;
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3382,7 +3432,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3393,7 +3443,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3403,7 +3453,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3413,7 +3463,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3422,6 +3472,41 @@ public final class ObservationsProto {
         int index) {
       return inlineDimensions_.get(index);
     }
+
+    public static final int ABSENTINLINEDIMENSIONS_FIELD_NUMBER = 5;
+    private java.util.List<java.lang.Integer> absentInlineDimensions_;
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getAbsentInlineDimensionsList() {
+      return absentInlineDimensions_;
+    }
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    public int getAbsentInlineDimensionsCount() {
+      return absentInlineDimensions_.size();
+    }
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    public int getAbsentInlineDimensions(int index) {
+      return absentInlineDimensions_.get(index);
+    }
+    private int absentInlineDimensionsMemoizedSerializedSize = -1;
 
     public static final int STRINGVALUE_FIELD_NUMBER = 3;
     /**
@@ -3520,6 +3605,13 @@ public final class ObservationsProto {
         output.writeDouble(
             4, (double)((java.lang.Double) value_));
       }
+      if (getAbsentInlineDimensionsList().size() > 0) {
+        output.writeUInt32NoTag(42);
+        output.writeUInt32NoTag(absentInlineDimensionsMemoizedSerializedSize);
+      }
+      for (int i = 0; i < absentInlineDimensions_.size(); i++) {
+        output.writeInt32NoTag(absentInlineDimensions_.get(i));
+      }
       if (last_ != false) {
         output.writeBool(7, last_);
       }
@@ -3556,6 +3648,20 @@ public final class ObservationsProto {
           .computeDoubleSize(
               4, (double)((java.lang.Double) value_));
       }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < absentInlineDimensions_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(absentInlineDimensions_.get(i));
+        }
+        size += dataSize;
+        if (!getAbsentInlineDimensionsList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        absentInlineDimensionsMemoizedSerializedSize = dataSize;
+      }
       if (last_ != false) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(7, last_);
@@ -3580,6 +3686,8 @@ public final class ObservationsProto {
           .equals(other.getDimensionIndexesList());
       result = result && getInlineDimensionsList()
           .equals(other.getInlineDimensionsList());
+      result = result && getAbsentInlineDimensionsList()
+          .equals(other.getAbsentInlineDimensionsList());
       result = result && (getLast()
           == other.getLast());
       result = result && getValueCase().equals(
@@ -3616,6 +3724,10 @@ public final class ObservationsProto {
       if (getInlineDimensionsCount() > 0) {
         hash = (37 * hash) + INLINEDIMENSIONS_FIELD_NUMBER;
         hash = (53 * hash) + getInlineDimensionsList().hashCode();
+      }
+      if (getAbsentInlineDimensionsCount() > 0) {
+        hash = (37 * hash) + ABSENTINLINEDIMENSIONS_FIELD_NUMBER;
+        hash = (53 * hash) + getAbsentInlineDimensionsList().hashCode();
       }
       hash = (37 * hash) + LAST_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
@@ -3760,6 +3872,8 @@ public final class ObservationsProto {
         } else {
           inlineDimensionsBuilder_.clear();
         }
+        absentInlineDimensions_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
         last_ = false;
 
         valueCase_ = 0;
@@ -3802,6 +3916,11 @@ public final class ObservationsProto {
         } else {
           result.inlineDimensions_ = inlineDimensionsBuilder_.build();
         }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          absentInlineDimensions_ = java.util.Collections.unmodifiableList(absentInlineDimensions_);
+          bitField0_ = (bitField0_ & ~0x00000004);
+        }
+        result.absentInlineDimensions_ = absentInlineDimensions_;
         if (valueCase_ == 3) {
           result.value_ = value_;
         }
@@ -3887,6 +4006,16 @@ public final class ObservationsProto {
               inlineDimensionsBuilder_.addAllMessages(other.inlineDimensions_);
             }
           }
+        }
+        if (!other.absentInlineDimensions_.isEmpty()) {
+          if (absentInlineDimensions_.isEmpty()) {
+            absentInlineDimensions_ = other.absentInlineDimensions_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+          } else {
+            ensureAbsentInlineDimensionsIsMutable();
+            absentInlineDimensions_.addAll(other.absentInlineDimensions_);
+          }
+          onChanged();
         }
         if (other.getLast() != false) {
           setLast(other.getLast());
@@ -4077,7 +4206,7 @@ public final class ObservationsProto {
 
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4091,7 +4220,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4105,7 +4234,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4119,7 +4248,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4140,7 +4269,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4158,7 +4287,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4178,7 +4307,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4199,7 +4328,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4217,7 +4346,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4235,7 +4364,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4254,7 +4383,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4271,7 +4400,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4288,7 +4417,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4299,7 +4428,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4313,7 +4442,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4328,7 +4457,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4339,7 +4468,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4351,7 +4480,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4373,6 +4502,100 @@ public final class ObservationsProto {
           inlineDimensions_ = null;
         }
         return inlineDimensionsBuilder_;
+      }
+
+      private java.util.List<java.lang.Integer> absentInlineDimensions_ = java.util.Collections.emptyList();
+      private void ensureAbsentInlineDimensionsIsMutable() {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+          absentInlineDimensions_ = new java.util.ArrayList<java.lang.Integer>(absentInlineDimensions_);
+          bitField0_ |= 0x00000004;
+         }
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getAbsentInlineDimensionsList() {
+        return java.util.Collections.unmodifiableList(absentInlineDimensions_);
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public int getAbsentInlineDimensionsCount() {
+        return absentInlineDimensions_.size();
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public int getAbsentInlineDimensions(int index) {
+        return absentInlineDimensions_.get(index);
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public Builder setAbsentInlineDimensions(
+          int index, int value) {
+        ensureAbsentInlineDimensionsIsMutable();
+        absentInlineDimensions_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public Builder addAbsentInlineDimensions(int value) {
+        ensureAbsentInlineDimensionsIsMutable();
+        absentInlineDimensions_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public Builder addAllAbsentInlineDimensions(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureAbsentInlineDimensionsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, absentInlineDimensions_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public Builder clearAbsentInlineDimensions() {
+        absentInlineDimensions_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
       }
 
       /**
@@ -6359,6 +6582,36 @@ public final class ObservationsProto {
      * <code>optional int64 timestampValue = 5;</code>
      */
     long getTimestampValue();
+
+    /**
+     * <code>optional bool absent = 7;</code>
+     */
+    boolean getAbsent();
+
+    /**
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
+     */
+    java.util.List<java.lang.Integer> getAbsentFieldIndicesList();
+    /**
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
+     */
+    int getAbsentFieldIndicesCount();
+    /**
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
+     */
+    int getAbsentFieldIndices(int index);
   }
   /**
    * <pre>
@@ -6381,6 +6634,8 @@ public final class ObservationsProto {
       doubleValue_ = 0D;
       stringValue_ = "";
       timestampValue_ = 0L;
+      absent_ = false;
+      absentFieldIndices_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -6438,6 +6693,32 @@ public final class ObservationsProto {
               timestampValue_ = input.readInt64();
               break;
             }
+            case 48: {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+                absentFieldIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000040;
+              }
+              absentFieldIndices_.add(input.readInt32());
+              break;
+            }
+            case 50: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
+                absentFieldIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000040;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                absentFieldIndices_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 56: {
+
+              absent_ = input.readBool();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -6448,6 +6729,9 @@ public final class ObservationsProto {
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
           fields_ = java.util.Collections.unmodifiableList(fields_);
+        }
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+          absentFieldIndices_ = java.util.Collections.unmodifiableList(absentFieldIndices_);
         }
         makeExtensionsImmutable();
       }
@@ -6596,6 +6880,50 @@ public final class ObservationsProto {
       return timestampValue_;
     }
 
+    public static final int ABSENT_FIELD_NUMBER = 7;
+    private boolean absent_;
+    /**
+     * <code>optional bool absent = 7;</code>
+     */
+    public boolean getAbsent() {
+      return absent_;
+    }
+
+    public static final int ABSENTFIELDINDICES_FIELD_NUMBER = 6;
+    private java.util.List<java.lang.Integer> absentFieldIndices_;
+    /**
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getAbsentFieldIndicesList() {
+      return absentFieldIndices_;
+    }
+    /**
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
+     */
+    public int getAbsentFieldIndicesCount() {
+      return absentFieldIndices_.size();
+    }
+    /**
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
+     */
+    public int getAbsentFieldIndices(int index) {
+      return absentFieldIndices_.get(index);
+    }
+    private int absentFieldIndicesMemoizedSerializedSize = -1;
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -6608,6 +6936,7 @@ public final class ObservationsProto {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      getSerializedSize();
       for (int i = 0; i < fields_.size(); i++) {
         output.writeMessage(1, fields_.get(i));
       }
@@ -6622,6 +6951,16 @@ public final class ObservationsProto {
       }
       if (timestampValue_ != 0L) {
         output.writeInt64(5, timestampValue_);
+      }
+      if (getAbsentFieldIndicesList().size() > 0) {
+        output.writeUInt32NoTag(50);
+        output.writeUInt32NoTag(absentFieldIndicesMemoizedSerializedSize);
+      }
+      for (int i = 0; i < absentFieldIndices_.size(); i++) {
+        output.writeInt32NoTag(absentFieldIndices_.get(i));
+      }
+      if (absent_ != false) {
+        output.writeBool(7, absent_);
       }
     }
 
@@ -6648,6 +6987,24 @@ public final class ObservationsProto {
       if (timestampValue_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(5, timestampValue_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < absentFieldIndices_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(absentFieldIndices_.get(i));
+        }
+        size += dataSize;
+        if (!getAbsentFieldIndicesList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        absentFieldIndicesMemoizedSerializedSize = dataSize;
+      }
+      if (absent_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(7, absent_);
       }
       memoizedSize = size;
       return size;
@@ -6677,6 +7034,10 @@ public final class ObservationsProto {
           .equals(other.getStringValue());
       result = result && (getTimestampValue()
           == other.getTimestampValue());
+      result = result && (getAbsent()
+          == other.getAbsent());
+      result = result && getAbsentFieldIndicesList()
+          .equals(other.getAbsentFieldIndicesList());
       return result;
     }
 
@@ -6702,6 +7063,13 @@ public final class ObservationsProto {
       hash = (37 * hash) + TIMESTAMPVALUE_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           getTimestampValue());
+      hash = (37 * hash) + ABSENT_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getAbsent());
+      if (getAbsentFieldIndicesCount() > 0) {
+        hash = (37 * hash) + ABSENTFIELDINDICES_FIELD_NUMBER;
+        hash = (53 * hash) + getAbsentFieldIndicesList().hashCode();
+      }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -6839,6 +7207,10 @@ public final class ObservationsProto {
 
         timestampValue_ = 0L;
 
+        absent_ = false;
+
+        absentFieldIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
 
@@ -6876,6 +7248,12 @@ public final class ObservationsProto {
         result.doubleValue_ = doubleValue_;
         result.stringValue_ = stringValue_;
         result.timestampValue_ = timestampValue_;
+        result.absent_ = absent_;
+        if (((bitField0_ & 0x00000040) == 0x00000040)) {
+          absentFieldIndices_ = java.util.Collections.unmodifiableList(absentFieldIndices_);
+          bitField0_ = (bitField0_ & ~0x00000040);
+        }
+        result.absentFieldIndices_ = absentFieldIndices_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -6956,6 +7334,19 @@ public final class ObservationsProto {
         }
         if (other.getTimestampValue() != 0L) {
           setTimestampValue(other.getTimestampValue());
+        }
+        if (other.getAbsent() != false) {
+          setAbsent(other.getAbsent());
+        }
+        if (!other.absentFieldIndices_.isEmpty()) {
+          if (absentFieldIndices_.isEmpty()) {
+            absentFieldIndices_ = other.absentFieldIndices_;
+            bitField0_ = (bitField0_ & ~0x00000040);
+          } else {
+            ensureAbsentFieldIndicesIsMutable();
+            absentFieldIndices_.addAll(other.absentFieldIndices_);
+          }
+          onChanged();
         }
         onChanged();
         return this;
@@ -7493,6 +7884,126 @@ public final class ObservationsProto {
       public Builder clearTimestampValue() {
         
         timestampValue_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private boolean absent_ ;
+      /**
+       * <code>optional bool absent = 7;</code>
+       */
+      public boolean getAbsent() {
+        return absent_;
+      }
+      /**
+       * <code>optional bool absent = 7;</code>
+       */
+      public Builder setAbsent(boolean value) {
+        
+        absent_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool absent = 7;</code>
+       */
+      public Builder clearAbsent() {
+        
+        absent_ = false;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<java.lang.Integer> absentFieldIndices_ = java.util.Collections.emptyList();
+      private void ensureAbsentFieldIndicesIsMutable() {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+          absentFieldIndices_ = new java.util.ArrayList<java.lang.Integer>(absentFieldIndices_);
+          bitField0_ |= 0x00000040;
+         }
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getAbsentFieldIndicesList() {
+        return java.util.Collections.unmodifiableList(absentFieldIndices_);
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
+       */
+      public int getAbsentFieldIndicesCount() {
+        return absentFieldIndices_.size();
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
+       */
+      public int getAbsentFieldIndices(int index) {
+        return absentFieldIndices_.get(index);
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
+       */
+      public Builder setAbsentFieldIndices(
+          int index, int value) {
+        ensureAbsentFieldIndicesIsMutable();
+        absentFieldIndices_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
+       */
+      public Builder addAbsentFieldIndices(int value) {
+        ensureAbsentFieldIndicesIsMutable();
+        absentFieldIndices_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
+       */
+      public Builder addAllAbsentFieldIndices(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureAbsentFieldIndicesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, absentFieldIndices_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
+       */
+      public Builder clearAbsentFieldIndices() {
+        absentFieldIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000040);
         onChanged();
         return this;
       }
@@ -9252,7 +9763,8 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -9261,7 +9773,8 @@ public final class ObservationsProto {
         getFieldsList();
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -9269,7 +9782,8 @@ public final class ObservationsProto {
     org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn getFields(int index);
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -9277,7 +9791,8 @@ public final class ObservationsProto {
     int getFieldsCount();
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -9286,13 +9801,39 @@ public final class ObservationsProto {
         getFieldsOrBuilderList();
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
      */
     org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder getFieldsOrBuilder(
         int index);
+
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    java.util.List<java.lang.Integer> getAbsentFieldColumnIndicesList();
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    int getAbsentFieldColumnIndicesCount();
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    int getAbsentFieldColumnIndices(int index);
 
     /**
      * <pre>
@@ -9321,6 +9862,7 @@ public final class ObservationsProto {
     private DimensionElements() {
       name_ = "";
       fields_ = java.util.Collections.emptyList();
+      absentFieldColumnIndices_ = java.util.Collections.emptyList();
       perSample_ = false;
     }
 
@@ -9369,6 +9911,27 @@ public final class ObservationsProto {
               name_ = s;
               break;
             }
+            case 32: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                absentFieldColumnIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              absentFieldColumnIndices_.add(input.readInt32());
+              break;
+            }
+            case 34: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004) && input.getBytesUntilLimit() > 0) {
+                absentFieldColumnIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                absentFieldColumnIndices_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -9379,6 +9942,9 @@ public final class ObservationsProto {
       } finally {
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           fields_ = java.util.Collections.unmodifiableList(fields_);
+        }
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+          absentFieldColumnIndices_ = java.util.Collections.unmodifiableList(absentFieldColumnIndices_);
         }
         makeExtensionsImmutable();
       }
@@ -9442,7 +10008,8 @@ public final class ObservationsProto {
     private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn> fields_;
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -9452,7 +10019,8 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -9463,7 +10031,8 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -9473,7 +10042,8 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -9483,7 +10053,8 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -9492,6 +10063,41 @@ public final class ObservationsProto {
         int index) {
       return fields_.get(index);
     }
+
+    public static final int ABSENTFIELDCOLUMNINDICES_FIELD_NUMBER = 4;
+    private java.util.List<java.lang.Integer> absentFieldColumnIndices_;
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getAbsentFieldColumnIndicesList() {
+      return absentFieldColumnIndices_;
+    }
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    public int getAbsentFieldColumnIndicesCount() {
+      return absentFieldColumnIndices_.size();
+    }
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    public int getAbsentFieldColumnIndices(int index) {
+      return absentFieldColumnIndices_.get(index);
+    }
+    private int absentFieldColumnIndicesMemoizedSerializedSize = -1;
 
     public static final int PERSAMPLE_FIELD_NUMBER = 2;
     private boolean perSample_;
@@ -9518,6 +10124,7 @@ public final class ObservationsProto {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      getSerializedSize();
       for (int i = 0; i < fields_.size(); i++) {
         output.writeMessage(1, fields_.get(i));
       }
@@ -9526,6 +10133,13 @@ public final class ObservationsProto {
       }
       if (!getNameBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 3, name_);
+      }
+      if (getAbsentFieldColumnIndicesList().size() > 0) {
+        output.writeUInt32NoTag(34);
+        output.writeUInt32NoTag(absentFieldColumnIndicesMemoizedSerializedSize);
+      }
+      for (int i = 0; i < absentFieldColumnIndices_.size(); i++) {
+        output.writeInt32NoTag(absentFieldColumnIndices_.get(i));
       }
     }
 
@@ -9544,6 +10158,20 @@ public final class ObservationsProto {
       }
       if (!getNameBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, name_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < absentFieldColumnIndices_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(absentFieldColumnIndices_.get(i));
+        }
+        size += dataSize;
+        if (!getAbsentFieldColumnIndicesList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        absentFieldColumnIndicesMemoizedSerializedSize = dataSize;
       }
       memoizedSize = size;
       return size;
@@ -9565,6 +10193,8 @@ public final class ObservationsProto {
           .equals(other.getName());
       result = result && getFieldsList()
           .equals(other.getFieldsList());
+      result = result && getAbsentFieldColumnIndicesList()
+          .equals(other.getAbsentFieldColumnIndicesList());
       result = result && (getPerSample()
           == other.getPerSample());
       return result;
@@ -9582,6 +10212,10 @@ public final class ObservationsProto {
       if (getFieldsCount() > 0) {
         hash = (37 * hash) + FIELDS_FIELD_NUMBER;
         hash = (53 * hash) + getFieldsList().hashCode();
+      }
+      if (getAbsentFieldColumnIndicesCount() > 0) {
+        hash = (37 * hash) + ABSENTFIELDCOLUMNINDICES_FIELD_NUMBER;
+        hash = (53 * hash) + getAbsentFieldColumnIndicesList().hashCode();
       }
       hash = (37 * hash) + PERSAMPLE_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
@@ -9717,6 +10351,8 @@ public final class ObservationsProto {
         } else {
           fieldsBuilder_.clear();
         }
+        absentFieldColumnIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
         perSample_ = false;
 
         return this;
@@ -9753,6 +10389,11 @@ public final class ObservationsProto {
         } else {
           result.fields_ = fieldsBuilder_.build();
         }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          absentFieldColumnIndices_ = java.util.Collections.unmodifiableList(absentFieldColumnIndices_);
+          bitField0_ = (bitField0_ & ~0x00000004);
+        }
+        result.absentFieldColumnIndices_ = absentFieldColumnIndices_;
         result.perSample_ = perSample_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -9825,6 +10466,16 @@ public final class ObservationsProto {
               fieldsBuilder_.addAllMessages(other.fields_);
             }
           }
+        }
+        if (!other.absentFieldColumnIndices_.isEmpty()) {
+          if (absentFieldColumnIndices_.isEmpty()) {
+            absentFieldColumnIndices_ = other.absentFieldColumnIndices_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+          } else {
+            ensureAbsentFieldColumnIndicesIsMutable();
+            absentFieldColumnIndices_.addAll(other.absentFieldColumnIndices_);
+          }
+          onChanged();
         }
         if (other.getPerSample() != false) {
           setPerSample(other.getPerSample());
@@ -9959,7 +10610,8 @@ public final class ObservationsProto {
 
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -9973,7 +10625,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -9987,7 +10640,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10001,7 +10655,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10022,7 +10677,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10040,7 +10696,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10060,7 +10717,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10081,7 +10739,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10099,7 +10758,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10117,7 +10777,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10136,7 +10797,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10153,7 +10815,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10170,7 +10833,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10181,7 +10845,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10195,7 +10860,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10210,7 +10876,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10221,7 +10888,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10233,7 +10901,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
@@ -10255,6 +10924,100 @@ public final class ObservationsProto {
           fields_ = null;
         }
         return fieldsBuilder_;
+      }
+
+      private java.util.List<java.lang.Integer> absentFieldColumnIndices_ = java.util.Collections.emptyList();
+      private void ensureAbsentFieldColumnIndicesIsMutable() {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+          absentFieldColumnIndices_ = new java.util.ArrayList<java.lang.Integer>(absentFieldColumnIndices_);
+          bitField0_ |= 0x00000004;
+         }
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getAbsentFieldColumnIndicesList() {
+        return java.util.Collections.unmodifiableList(absentFieldColumnIndices_);
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public int getAbsentFieldColumnIndicesCount() {
+        return absentFieldColumnIndices_.size();
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public int getAbsentFieldColumnIndices(int index) {
+        return absentFieldColumnIndices_.get(index);
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public Builder setAbsentFieldColumnIndices(
+          int index, int value) {
+        ensureAbsentFieldColumnIndicesIsMutable();
+        absentFieldColumnIndices_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public Builder addAbsentFieldColumnIndices(int value) {
+        ensureAbsentFieldColumnIndicesIsMutable();
+        absentFieldColumnIndices_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public Builder addAllAbsentFieldColumnIndices(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureAbsentFieldColumnIndicesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, absentFieldColumnIndices_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public Builder clearAbsentFieldColumnIndices() {
+        absentFieldColumnIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
       }
 
       private boolean perSample_ ;
@@ -10420,6 +11183,19 @@ public final class ObservationsProto {
      * <code>repeated int64 timestampValue = 4;</code>
      */
     long getTimestampValue(int index);
+
+    /**
+     * <code>repeated int32 absentValueIndices = 5;</code>
+     */
+    java.util.List<java.lang.Integer> getAbsentValueIndicesList();
+    /**
+     * <code>repeated int32 absentValueIndices = 5;</code>
+     */
+    int getAbsentValueIndicesCount();
+    /**
+     * <code>repeated int32 absentValueIndices = 5;</code>
+     */
+    int getAbsentValueIndices(int index);
   }
   /**
    * Protobuf type {@code hypercube.DimensionElementFieldColumn}
@@ -10437,6 +11213,7 @@ public final class ObservationsProto {
       doubleValue_ = java.util.Collections.emptyList();
       intValue_ = java.util.Collections.emptyList();
       timestampValue_ = java.util.Collections.emptyList();
+      absentValueIndices_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -10536,6 +11313,27 @@ public final class ObservationsProto {
               input.popLimit(limit);
               break;
             }
+            case 40: {
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+                absentValueIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              absentValueIndices_.add(input.readInt32());
+              break;
+            }
+            case 42: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010) && input.getBytesUntilLimit() > 0) {
+                absentValueIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                absentValueIndices_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -10555,6 +11353,9 @@ public final class ObservationsProto {
         }
         if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           timestampValue_ = java.util.Collections.unmodifiableList(timestampValue_);
+        }
+        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+          absentValueIndices_ = java.util.Collections.unmodifiableList(absentValueIndices_);
         }
         makeExtensionsImmutable();
       }
@@ -10685,6 +11486,29 @@ public final class ObservationsProto {
     }
     private int timestampValueMemoizedSerializedSize = -1;
 
+    public static final int ABSENTVALUEINDICES_FIELD_NUMBER = 5;
+    private java.util.List<java.lang.Integer> absentValueIndices_;
+    /**
+     * <code>repeated int32 absentValueIndices = 5;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getAbsentValueIndicesList() {
+      return absentValueIndices_;
+    }
+    /**
+     * <code>repeated int32 absentValueIndices = 5;</code>
+     */
+    public int getAbsentValueIndicesCount() {
+      return absentValueIndices_.size();
+    }
+    /**
+     * <code>repeated int32 absentValueIndices = 5;</code>
+     */
+    public int getAbsentValueIndices(int index) {
+      return absentValueIndices_.get(index);
+    }
+    private int absentValueIndicesMemoizedSerializedSize = -1;
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -10721,6 +11545,13 @@ public final class ObservationsProto {
       }
       for (int i = 0; i < timestampValue_.size(); i++) {
         output.writeInt64NoTag(timestampValue_.get(i));
+      }
+      if (getAbsentValueIndicesList().size() > 0) {
+        output.writeUInt32NoTag(42);
+        output.writeUInt32NoTag(absentValueIndicesMemoizedSerializedSize);
+      }
+      for (int i = 0; i < absentValueIndices_.size(); i++) {
+        output.writeInt32NoTag(absentValueIndices_.get(i));
       }
     }
 
@@ -10776,6 +11607,20 @@ public final class ObservationsProto {
         }
         timestampValueMemoizedSerializedSize = dataSize;
       }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < absentValueIndices_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(absentValueIndices_.get(i));
+        }
+        size += dataSize;
+        if (!getAbsentValueIndicesList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        absentValueIndicesMemoizedSerializedSize = dataSize;
+      }
       memoizedSize = size;
       return size;
     }
@@ -10800,6 +11645,8 @@ public final class ObservationsProto {
           .equals(other.getIntValueList());
       result = result && getTimestampValueList()
           .equals(other.getTimestampValueList());
+      result = result && getAbsentValueIndicesList()
+          .equals(other.getAbsentValueIndicesList());
       return result;
     }
 
@@ -10825,6 +11672,10 @@ public final class ObservationsProto {
       if (getTimestampValueCount() > 0) {
         hash = (37 * hash) + TIMESTAMPVALUE_FIELD_NUMBER;
         hash = (53 * hash) + getTimestampValueList().hashCode();
+      }
+      if (getAbsentValueIndicesCount() > 0) {
+        hash = (37 * hash) + ABSENTVALUEINDICES_FIELD_NUMBER;
+        hash = (53 * hash) + getAbsentValueIndicesList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -10952,6 +11803,8 @@ public final class ObservationsProto {
         bitField0_ = (bitField0_ & ~0x00000004);
         timestampValue_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000008);
+        absentValueIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -10995,6 +11848,11 @@ public final class ObservationsProto {
           bitField0_ = (bitField0_ & ~0x00000008);
         }
         result.timestampValue_ = timestampValue_;
+        if (((bitField0_ & 0x00000010) == 0x00000010)) {
+          absentValueIndices_ = java.util.Collections.unmodifiableList(absentValueIndices_);
+          bitField0_ = (bitField0_ & ~0x00000010);
+        }
+        result.absentValueIndices_ = absentValueIndices_;
         onBuilt();
         return result;
       }
@@ -11073,6 +11931,16 @@ public final class ObservationsProto {
           } else {
             ensureTimestampValueIsMutable();
             timestampValue_.addAll(other.timestampValue_);
+          }
+          onChanged();
+        }
+        if (!other.absentValueIndices_.isEmpty()) {
+          if (absentValueIndices_.isEmpty()) {
+            absentValueIndices_ = other.absentValueIndices_;
+            bitField0_ = (bitField0_ & ~0x00000010);
+          } else {
+            ensureAbsentValueIndicesIsMutable();
+            absentValueIndices_.addAll(other.absentValueIndices_);
           }
           onChanged();
         }
@@ -11430,6 +12298,72 @@ public final class ObservationsProto {
         onChanged();
         return this;
       }
+
+      private java.util.List<java.lang.Integer> absentValueIndices_ = java.util.Collections.emptyList();
+      private void ensureAbsentValueIndicesIsMutable() {
+        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+          absentValueIndices_ = new java.util.ArrayList<java.lang.Integer>(absentValueIndices_);
+          bitField0_ |= 0x00000010;
+         }
+      }
+      /**
+       * <code>repeated int32 absentValueIndices = 5;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getAbsentValueIndicesList() {
+        return java.util.Collections.unmodifiableList(absentValueIndices_);
+      }
+      /**
+       * <code>repeated int32 absentValueIndices = 5;</code>
+       */
+      public int getAbsentValueIndicesCount() {
+        return absentValueIndices_.size();
+      }
+      /**
+       * <code>repeated int32 absentValueIndices = 5;</code>
+       */
+      public int getAbsentValueIndices(int index) {
+        return absentValueIndices_.get(index);
+      }
+      /**
+       * <code>repeated int32 absentValueIndices = 5;</code>
+       */
+      public Builder setAbsentValueIndices(
+          int index, int value) {
+        ensureAbsentValueIndicesIsMutable();
+        absentValueIndices_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 absentValueIndices = 5;</code>
+       */
+      public Builder addAbsentValueIndices(int value) {
+        ensureAbsentValueIndicesIsMutable();
+        absentValueIndices_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 absentValueIndices = 5;</code>
+       */
+      public Builder addAllAbsentValueIndices(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureAbsentValueIndicesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, absentValueIndices_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 absentValueIndices = 5;</code>
+       */
+      public Builder clearAbsentValueIndices() {
+        absentValueIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000010);
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -11547,32 +12481,36 @@ public final class ObservationsProto {
       "efinition\022\016\n\006inline\030\004 \001(\010\022\016\n\006packed\030\005 \001(" +
       "\010\022.\n\010elements\030\006 \001(\0132\034.hypercube.Dimensio" +
       "nElements\">\n\017FieldDefinition\022\014\n\004name\030\001 \001" +
-      "(\t\022\035\n\004type\030\002 \001(\0162\017.hypercube.Type\"\235\001\n\004Ce",
+      "(\t\022\035\n\004type\030\002 \001(\0162\017.hypercube.Type\"\275\001\n\004Ce",
       "ll\022\030\n\020dimensionIndexes\030\001 \003(\003\0225\n\020inlineDi" +
       "mensions\030\002 \003(\0132\033.hypercube.DimensionElem" +
-      "ent\022\025\n\013stringValue\030\003 \001(\tH\000\022\026\n\014numericVal" +
-      "ue\030\004 \001(\001H\000\022\014\n\004last\030\007 \001(\010B\007\n\005value\"\231\001\n\nPa" +
-      "ckedCell\022\030\n\020dimensionIndexes\030\001 \003(\003\0226\n\020in" +
-      "lineDimensions\030\002 \003(\0132\034.hypercube.Dimensi" +
-      "onElements\022\024\n\014stringValues\030\003 \003(\t\022\025\n\rnume" +
-      "ricValues\030\004 \003(\001\022\014\n\004last\030\007 \001(\010\"\210\001\n\020Dimens" +
-      "ionElement\022 \n\006fields\030\001 \003(\0132\020.hypercube.V" +
-      "alue\022\020\n\010intValue\030\002 \001(\022\022\023\n\013doubleValue\030\003 ",
-      "\001(\001\022\023\n\013stringValue\030\004 \001(\t\022\026\n\016timestampVal" +
-      "ue\030\005 \001(\003\"l\n\005Value\022\025\n\013stringValue\030\001 \001(\tH\000" +
-      "\022\025\n\013doubleValue\030\002 \001(\001H\000\022\022\n\010intValue\030\003 \001(" +
-      "\022H\000\022\030\n\016timestampValue\030\004 \001(\003H\000B\007\n\005value\"9" +
-      "\n\006Footer\022/\n\tdimension\030\001 \003(\0132\034.hypercube." +
-      "DimensionElements\"l\n\021DimensionElements\022\014" +
-      "\n\004name\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.hypercube" +
-      ".DimensionElementFieldColumn\022\021\n\tperSampl" +
-      "e\030\002 \001(\010\"q\n\033DimensionElementFieldColumn\022\023" +
-      "\n\013stringValue\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001",
-      "\022\020\n\010intValue\030\003 \003(\022\022\026\n\016timestampValue\030\004 \003" +
-      "(\003*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING\020\001\022\007\n\003IN" +
-      "T\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004B=\n(org.tr" +
-      "ansmartproject.rest.hypercubeProtoB\021Obse" +
-      "rvationsProtob\006proto3"
+      "ent\022\036\n\026absentInlineDimensions\030\005 \003(\005\022\025\n\013s" +
+      "tringValue\030\003 \001(\tH\000\022\026\n\014numericValue\030\004 \001(\001" +
+      "H\000\022\014\n\004last\030\007 \001(\010B\007\n\005value\"\231\001\n\nPackedCell" +
+      "\022\030\n\020dimensionIndexes\030\001 \003(\003\0226\n\020inlineDime" +
+      "nsions\030\002 \003(\0132\034.hypercube.DimensionElemen" +
+      "ts\022\024\n\014stringValues\030\003 \003(\t\022\025\n\rnumericValue" +
+      "s\030\004 \003(\001\022\014\n\004last\030\007 \001(\010\"\264\001\n\020DimensionEleme" +
+      "nt\022 \n\006fields\030\001 \003(\0132\020.hypercube.Value\022\020\n\010",
+      "intValue\030\002 \001(\022\022\023\n\013doubleValue\030\003 \001(\001\022\023\n\013s" +
+      "tringValue\030\004 \001(\t\022\026\n\016timestampValue\030\005 \001(\003" +
+      "\022\016\n\006absent\030\007 \001(\010\022\032\n\022absentFieldIndices\030\006" +
+      " \003(\005\"l\n\005Value\022\025\n\013stringValue\030\001 \001(\tH\000\022\025\n\013" +
+      "doubleValue\030\002 \001(\001H\000\022\022\n\010intValue\030\003 \001(\022H\000\022" +
+      "\030\n\016timestampValue\030\004 \001(\003H\000B\007\n\005value\"9\n\006Fo" +
+      "oter\022/\n\tdimension\030\001 \003(\0132\034.hypercube.Dime" +
+      "nsionElements\"\216\001\n\021DimensionElements\022\014\n\004n" +
+      "ame\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.hypercube.Di" +
+      "mensionElementFieldColumn\022 \n\030absentField",
+      "ColumnIndices\030\004 \003(\005\022\021\n\tperSample\030\002 \001(\010\"\215" +
+      "\001\n\033DimensionElementFieldColumn\022\023\n\013string" +
+      "Value\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010intV" +
+      "alue\030\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022\032\n\022ab" +
+      "sentValueIndices\030\005 \003(\005*B\n\004Type\022\n\n\006DOUBLE" +
+      "\020\000\022\n\n\006STRING\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n" +
+      "\n\006OBJECT\020\004B=\n(org.transmartproject.rest." +
+      "hypercubeProtoB\021ObservationsProtob\006proto" +
+      "3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -11609,7 +12547,7 @@ public final class ObservationsProto {
     internal_static_hypercube_Cell_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_Cell_descriptor,
-        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValue", "NumericValue", "Last", "Value", });
+        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "AbsentInlineDimensions", "StringValue", "NumericValue", "Last", "Value", });
     internal_static_hypercube_PackedCell_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_hypercube_PackedCell_fieldAccessorTable = new
@@ -11621,7 +12559,7 @@ public final class ObservationsProto {
     internal_static_hypercube_DimensionElement_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElement_descriptor,
-        new java.lang.String[] { "Fields", "IntValue", "DoubleValue", "StringValue", "TimestampValue", });
+        new java.lang.String[] { "Fields", "IntValue", "DoubleValue", "StringValue", "TimestampValue", "Absent", "AbsentFieldIndices", });
     internal_static_hypercube_Value_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_hypercube_Value_fieldAccessorTable = new
@@ -11639,13 +12577,13 @@ public final class ObservationsProto {
     internal_static_hypercube_DimensionElements_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElements_descriptor,
-        new java.lang.String[] { "Name", "Fields", "PerSample", });
+        new java.lang.String[] { "Name", "Fields", "AbsentFieldColumnIndices", "PerSample", });
     internal_static_hypercube_DimensionElementFieldColumn_descriptor =
       getDescriptor().getMessageTypes().get(9);
     internal_static_hypercube_DimensionElementFieldColumn_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElementFieldColumn_descriptor,
-        new java.lang.String[] { "StringValue", "DoubleValue", "IntValue", "TimestampValue", });
+        new java.lang.String[] { "StringValue", "DoubleValue", "IntValue", "TimestampValue", "AbsentValueIndices", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

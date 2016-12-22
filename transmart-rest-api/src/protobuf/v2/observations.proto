@@ -52,8 +52,11 @@ message Cell {
     // 'not present'.
     repeated int64 dimensionIndexes = 1; // `packed` is the default in proto3
 
-    // A single element for each inline dimension, in the order used in the header.
+    // A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
     repeated DimensionElement inlineDimensions = 2;
+    // indexes of absent dimensions (1-based)
+    repeated int32 absentInlineDimensions = 5;
+
     oneof value {
         string stringValue = 3;
         double numericValue = 4;
@@ -96,6 +99,9 @@ message DimensionElement {
     double doubleValue = 3;
     string stringValue = 4;
     int64 timestampValue = 5;
+
+    // 1-based list of indices of fields that are absent
+    repeated int32 absentFieldIndices = 6;
 }
 
 message Value {
@@ -120,8 +126,12 @@ message DimensionElements { // Multiple dimension elements are stored in a "colu
     // not used when a DimensionElements is embedded in a PackedObservation
     string name = 3;
 
-    // List of dimension elements field values (e.g. values for age, values for gender, etc)
+    // List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+    // field are absent on all encoded dimension elements, that list of field values is omitted entirely.
     repeated DimensionElementFieldColumn fields = 1;
+
+    // 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+    repeated int32 absentFieldColumnIndices = 4;
 
     // only used when this message is embedded in a packedObservations
     bool perSample = 2;
@@ -133,4 +143,6 @@ message DimensionElementFieldColumn {
     repeated double doubleValue = 2;
     repeated sint64 intValue = 3;
     repeated int64 timestampValue = 4;
+
+    repeated int32 absentValueIndices = 5;
 }
