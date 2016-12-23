@@ -19,12 +19,17 @@
 
 package org.transmartproject.db.ontology
 
-import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 
 class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
     BigDecimal   cTotalnum
+    /**
+     * Do not use cComment to store study identifiers, use
+     * it for comments instead.
+     */
+    @Deprecated
     String       cComment
     String       mAppliedPath
     Date         updateDate
@@ -70,6 +75,10 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
         AbstractI2b2Metadata.constraints()
     }
 
+    /**
+     * Please do not use the comment field for storing study ids.
+     */
+    @Deprecated
     String getStudyId() {
         def matcher = cComment =~ /(?<=^trial:).+/
         if (matcher.find()) {
@@ -79,27 +88,10 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
     @Override
     Study getStudy() {
-        def trial = studyId
-
-        if (!trial) {
-            return null
-        }
-
-        def query = sessionFactory.currentSession.createQuery '''
-                SELECT I
-                FROM I2b2 I, I2b2TrialNodes TN
-                WHERE (I.fullName = TN.fullName) AND
-                TN.trial = :trial'''
-
-        query.setParameter 'trial', trial
-
-        def res = query.list()
-        if (res.size() > 1) {
-            throw new UnexpectedResultException("More than one study with name $trial")
-        } else if (res.size() == 1) {
-            new StudyImpl(ontologyTerm: res[0], id: trial)
+        if (OntologyTerm.VisualAttributes.STUDY in visualAttributes) {
+            new StudyImpl(ontologyTerm: this, id: studyId)
         } else {
-            null
+            parent?.study
         }
     }
 

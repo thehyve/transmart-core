@@ -221,6 +221,11 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     }
 
     @Override
+    OntologyTerm getParent() {
+        null
+    }
+
+    @Override
     Study getStudy() {
         /* never has an associated tranSMART study;
          * in tranSMART table access will only have 'Public Studies' and
