@@ -39,6 +39,11 @@ class BioAssayAnalysisGwas implements IExcelProfile {
 	Long etlId
 	Long id
 	String ext_data
+	Double beta
+	Double standardError
+	String effectAllele
+	String otherAllele
+	String passFail
 	
 	static mapping = {
 	 table name:'BIO_ASSAY_ANALYSIS_GWAS', schema:'BIOMART'
@@ -52,8 +57,12 @@ class BioAssayAnalysisGwas implements IExcelProfile {
 		 logPValue column:'LOG_P_VALUE'
 		 etlId column:'ETL_ID'
 		 ext_data column:'EXT_DATA'
+		 beta column: 'BETA'
+		 standardError column: 'STANDARD_ERROR'
+		 effectAllele column: 'EFFECT_ALLELE'
+		 otherAllele column: 'OTHER_ALLELE' 
+		 passFail column: 'PASS_FAIL'
 		}
-	 	
 	}
 
 	/**

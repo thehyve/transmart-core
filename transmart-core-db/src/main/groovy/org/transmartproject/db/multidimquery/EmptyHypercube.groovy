@@ -1,9 +1,11 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.PeekingIterator
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.multidimquery.HypercubeValue
 
 class EmptyHypercube implements Hypercube {
 
@@ -32,15 +34,12 @@ class EmptyHypercube implements Hypercube {
 
     void preloadDimensions(){}
 
-    Iterator iterator() {
-        return new Iterator() {
-            @Override boolean hasNext() {
-                return false
-            }
-
-            @Override Object next() {
-                throw new NoSuchElementException()
-            }
+    PeekingIterator<HypercubeValue> iterator() {
+        return new PeekingIterator() {
+            @Override boolean hasNext() { return false }
+            @Override Object next() { throw new NoSuchElementException() }
+            @Override Object peek() { throw new NoSuchElementException() }
+            @Override void remove() { throw new UnsupportedOperationException() }
         }
     }
 

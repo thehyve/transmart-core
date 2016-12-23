@@ -43,12 +43,8 @@ class QueryController extends AbstractQueryController {
      * satisfy the constraint.
      */
     def observationList() {
-        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint']
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
-        }
+        checkParams(params, ['constraint'])
+
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
@@ -67,12 +63,8 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def observations() {
-        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint']
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
-        }
+        checkParams(params, ['constraint'])
+
         def format = contentFormat
         if (format == Format.NONE) {
             throw new InvalidArgumentsException("Format not supported.")
@@ -112,12 +104,8 @@ class QueryController extends AbstractQueryController {
      * @return a the number of observations that satisfy the constraint.
      */
     def count() {
-        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint']
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
-        }
+        checkParams(params, ['constraint'])
+
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
@@ -145,12 +133,8 @@ class QueryController extends AbstractQueryController {
      * @return a map with the aggregate type as key and the result as value.
      */
     def aggregate() {
-        def acceptedParams = ['action', 'controller', 'apiVersion', 'constraint', 'type']
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
-        }
+        checkParams(params, ['constraint', 'type'])
+
         if (!params.type) {
             throw new InvalidArgumentsException("Type parameter is missing.")
         }
@@ -178,12 +162,8 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
     def highDim() {
-        def acceptedParams = ['action', 'controller', 'apiVersion', 'assay_constraint', 'biomarker_constraint', 'projection']
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
-        }
+        checkParams(params, ['assay_constraint', 'biomarker_constraint', 'projection'])
+
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         Constraint assayConstraint = getConstraint('assay_constraint')
 
@@ -218,12 +198,8 @@ class QueryController extends AbstractQueryController {
      * @return the list of fields supported by {@link org.transmartproject.db.multidimquery.query.FieldConstraint}.
      */
     def supportedFields() {
-        def acceptedParams = ['action', 'controller', 'apiVersion']
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
-        }
+        checkParams(params, [])
+
         List<Field> fields = DimensionMetadata.supportedFields
         render fields as JSON
     }

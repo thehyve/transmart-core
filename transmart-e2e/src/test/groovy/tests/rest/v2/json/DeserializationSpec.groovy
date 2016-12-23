@@ -66,30 +66,30 @@ class DeserializationSpec extends RESTSpec{
 
 
     def CATEGORICAL_VALUES_OBSERVATIONS = [
-            ['sexCd': 'M', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CV:DEM:SEX:M', 'value' : 'Male', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'M', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Caucasian', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'M', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CV:DEM:AGE', 'value' : new BigDecimal(26), 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'M', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CV:DEM:SEX:M', 'value' : 'Male', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'M', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Latino', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'M', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CV:DEM:AGE', 'value' : new BigDecimal(24), 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'F', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CV:DEM:SEX:F', 'value' : 'Female', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'F', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Caucasian', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'F', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CV:DEM:AGE', 'value' : new BigDecimal(20), 'studyId' : 'CATEGORICAL_VALUES']
+            ['sexCd': 'Male', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CV:DEM:SEX:M', 'value' : 'Male', 'studyId' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'Male', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Caucasian', 'studyId' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'Male', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CV:DEM:AGE', 'value' : new BigDecimal(26), 'studyId' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'Male', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CV:DEM:SEX:M', 'value' : 'Male', 'studyId' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'Male', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Latino', 'studyId' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'Male', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CV:DEM:AGE', 'value' : new BigDecimal(24), 'studyId' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'Female', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CV:DEM:SEX:F', 'value' : 'Female', 'studyId' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'Female', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Caucasian', 'studyId' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'Female', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CV:DEM:AGE', 'value' : new BigDecimal(20), 'studyId' : 'CATEGORICAL_VALUES']
     ]
 
     def CLINICAL_TRIAL_OBSERVATIONS = [
-            ['sexCd': 'M', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CT:DEM:AGE', 'value' : new BigDecimal(26), 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'M', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(80), 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'M', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(90), 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'M', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(88), 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'M', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CT:DEM:AGE', 'value' : new BigDecimal(24), 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'M', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(56), 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'M', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(57), 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'F', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CT:DEM:AGE', 'value' : new BigDecimal(20), 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'F', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(66), 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'F', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(68), 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'F', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(56), 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'F', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(88), 'studyId' : 'CLINICAL_TRIAL']
+            ['sexCd': 'Male', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CT:DEM:AGE', 'value' : new BigDecimal(26), 'studyId' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'Male', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(80), 'studyId' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'Male', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(90), 'studyId' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'Male', 'race' : 'Caucasian', 'age': 26, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(88), 'studyId' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'Male', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CT:DEM:AGE', 'value' : new BigDecimal(24), 'studyId' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'Male', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(56), 'studyId' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'Male', 'race' : 'Latino', 'age': 24, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(57), 'studyId' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'Female', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CT:DEM:AGE', 'value' : new BigDecimal(20), 'studyId' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'Female', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(66), 'studyId' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'Female', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(68), 'studyId' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'Female', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(56), 'studyId' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'Female', 'race' : 'Caucasian', 'age': 20, 'conceptCode' : 'CT:VSIGN:HR', 'value' : new BigDecimal(88), 'studyId' : 'CLINICAL_TRIAL']
     ]
 
 }
