@@ -25,7 +25,6 @@
 
 package org.transmartproject.rest
 
-import grails.artefact.controller.RestResponder
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
 import grails.rest.render.RendererRegistry
@@ -53,7 +52,7 @@ abstract class ResourceSpec extends Specification {
 
     void setup() {
         Holders.applicationContext.getBeansOfType(RendererRegistry.class).each {
-            log.info "RendererRegistry bean: ${it}"
+            log.debug "RendererRegistry bean: ${it}"
         }
         def rendererRegistry = Holders.applicationContext.getBean('rendererRegistry')
         assert rendererRegistry.class == TransmartRendererRegistry
