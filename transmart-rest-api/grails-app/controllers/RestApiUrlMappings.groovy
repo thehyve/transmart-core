@@ -32,6 +32,15 @@ class RestApiUrlMappings {
         '/businessException/index'(controller: 'businessException', action: 'index')
 
         group "/v2", {
+            "/studies"(method: 'GET', controller: 'studyQuery', action: 'listStudies') {
+                apiVersion = 'v2'
+            }
+            "/studies/$id"(method: 'GET', controller: 'studyQuery', action: 'findStudy') {
+                apiVersion = 'v2'
+            }
+            "/studies/studyId/$studyId"(method: 'GET', controller: 'studyQuery', action: 'findStudyByStudyId') {
+                apiVersion = 'v2'
+            }
             "/observation_list"(method: 'GET', controller: 'query', action: 'observationList') {
                 apiVersion = 'v2'
             }
