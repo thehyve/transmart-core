@@ -1,8 +1,10 @@
 package com.recomdata.grails.plugin.gwas
 
+import org.apache.log4j.Logger
 import org.transmart.biomart.BioAssayAnalysisDataIdx
 
 class GwasSearchService {
+    static Logger log = Logger.getLogger(GwasSearchService.class)
 
     def getGwasData(analysisId) {
         getGwasData(analysisId, null)

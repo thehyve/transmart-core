@@ -82,3 +82,5 @@ grailsPublish {
 assets {
     packagePlugin = true
 }
+
+test.testLogging.exceptionFormat = 'full'

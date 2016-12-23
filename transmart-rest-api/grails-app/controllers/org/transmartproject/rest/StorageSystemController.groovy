@@ -11,7 +11,7 @@ import org.transmartproject.rest.misc.CurrentUser
 /**
  * Created by piotrzakrzewski on 09/12/2016.
  */
-class StorageSystemController extends RestfulController {
+class StorageSystemController extends RestfulController<StorageSystem> {
 
     StorageSystemController() {
         super(StorageSystem)
