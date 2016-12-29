@@ -139,7 +139,6 @@ grails {
         compile project(':Rmodules')
         compile project(':transmart-gwas-plugin')
         compile project(':folder-management-plugin')
-        compile project(':transmart-solr-indexing')
     }
 }
 
