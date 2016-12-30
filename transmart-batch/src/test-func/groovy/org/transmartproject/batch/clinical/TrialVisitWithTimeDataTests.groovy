@@ -28,6 +28,7 @@ class TrialVisitWithTimeDataTests implements JobRunningTestTrait {
 
     public static final NUMBER_OF_PATIENTS = 8L
     public static final NUMBER_OF_FACTS = 976L
+    public static final NUMBER_OF_ANNOTATED_FACTS = 1216L - NUMBER_OF_FACTS
     public static final NUMBER_OF_VISITS = 7L
 
     private static final BigDecimal DELTA = 0.005
@@ -62,10 +63,20 @@ class TrialVisitWithTimeDataTests implements JobRunningTestTrait {
     void testNumberOfFactsIsCorrect() {
         long numFacts = rowCounter.count(
                 Tables.OBSERVATION_FACT,
-                'sourcesystem_cd = :ss',
+                'sourcesystem_cd = :ss and modifier_cd = \'@\'',
                 ss: STUDY_ID)
 
         assertThat numFacts, is(NUMBER_OF_FACTS)
+    }
+
+    @Test
+    void testNumberOfAnnotatedFactsIsCorrect() {
+        long numFacts = rowCounter.count(
+                Tables.OBSERVATION_FACT,
+                'sourcesystem_cd = :ss and not modifier_cd = \'@\'',
+                ss: STUDY_ID)
+
+        assertThat numFacts, is(NUMBER_OF_ANNOTATED_FACTS)
     }
 
     @Test
@@ -148,7 +159,7 @@ class TrialVisitWithTimeDataTests implements JobRunningTestTrait {
                         concept_path: '\\Public Studies\\TEST_17_1\\Demography\\Sex\\',
                 ]
 
-        assertThat facts, everyItem(either(hasEntry('tval_char', 'M')).or(hasEntry('tval_char', 'F')))
+        assertThat facts, everyItem(either(hasEntry('tval_char', 'M')) | hasEntry('tval_char', 'F'))
     }
 
 }

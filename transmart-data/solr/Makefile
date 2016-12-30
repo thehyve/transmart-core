@@ -1,5 +1,8 @@
 include ../makefile.inc
 
+start: solr_home
+	java -jar start.jar
+
 include ../lib/makefile.inc
 
 SOLR_DL=http://files.thehyve.net/solr
@@ -43,16 +46,23 @@ solr/collection1:
 		-C solr solr-$(SOLR_VERSION)/example/solr/collection1
 	rm $@/core.properties #so solr doesn't see the dir as core
 
-CORE_TARGETS=solr/<core_name> solr/<core_name>/conf/schema.xml solr/<core_name>/conf/data-config.xml
-FOUND_CORES=$(patsubst data-config/$(DBSUBDIR)/data-config_%.xml.php,\
+CORE_TARGETS=solr/<core_name> solr/<core_name>/conf/schema.xml
+DATA_CONFIG_CORE_TARGETS=solr/<core_name>/conf/data-config.xml
+FOUND_CORES=$(patsubst schemas/schema_%.xml,\
             %,\
-            $(wildcard data-config/$(DBSUBDIR)/data-config_*.xml.php))
+            $(wildcard schemas/schema_*.xml))
 FOUND_CORE_TARGETS=$(foreach corename,$(FOUND_CORES),\
         $(subst <core_name>,$(corename),$(CORE_TARGETS)))
+
+FOUND_DATA_CONFIG_CORES=$(patsubst data-config/$(DBSUBDIR)/data-config_%.xml.php,\
+            %,\
+            $(wildcard data-config/$(DBSUBDIR)/data-config_*.xml.php))
+FOUND_DATA_CONFIG_CORE_TARGETS=$(foreach corename,$(FOUND_DATA_CONFIG_CORES),\
+        $(subst <core_name>,$(corename),$(DATA_CONFIG_CORE_TARGETS)))
 #$(info targets: $(FOUND_CORE_TARGETS))
 FOUND_CORE_DIRS=$(foreach corename,$(FOUND_CORES),solr/$(corename))
-FULL_IMPORT_TARGETS=$(foreach corename,$(FOUND_CORES),$(corename)_full_import)
-DELTA_IMPORT_TARGETS=$(foreach corename,$(FOUND_CORES),$(corename)_delta_import)
+FULL_IMPORT_TARGETS=$(foreach corename,$(FOUND_DATA_CONFIG_CORES),$(corename)_full_import)
+DELTA_IMPORT_TARGETS=$(foreach corename,$(FOUND_DATA_CONFIG_CORES),$(corename)_delta_import)
 
 $(FOUND_CORE_DIRS): solr/collection1 solrconfig.patch
 	rsync -a $</* $@
@@ -68,19 +78,7 @@ solr/%/conf/data-config.xml: data-config/$(DBSUBDIR)/data-config_%.xml.php
 	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
 	php -d variables_order=E $< > $@
 
-solr_home: $(EXAMPLE_FILES) $(DRIVER) $(FOUND_CORE_TARGETS) $(ROOT_FILES)
-
-start: solr_home
-	java -jar start.jar
-
-java := $(shell { which java; } 2>/dev/null )
-pwd := $(shell { pwd; } 2>/dev/null )
-start_solr: solr_home
-	test -x "$(java)" || { echo "Java not found."; exit 1; }
-	start-stop-daemon --background --make-pidfile --pidfile /tmp/solr.pid --start -d $(pwd) -a $(java) -- -jar start.jar
-
-stop_solr: solr_home
-	start-stop-daemon --pidfile /tmp/solr.pid --stop
+solr_home: $(EXAMPLE_FILES) $(DRIVER) $(FOUND_CORE_TARGETS) $(FOUND_DATA_CONFIG_CORE_TARGETS) $(ROOT_FILES)
 
 $(FULL_IMPORT_TARGETS):
 	curl -f "http://localhost:8983/solr/$(patsubst %_full_import,%,$@)/dataimport?command=full-import"

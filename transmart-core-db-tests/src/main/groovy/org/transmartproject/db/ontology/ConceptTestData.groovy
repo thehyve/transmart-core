@@ -208,7 +208,7 @@ class ConceptTestData {
                 def tag = new I2b2Tag()
                 tag.ontologyTermFullName = i2b2.fullName
                 tag.name = "${i2b2.code} name ${iteration}"
-                tag.description = "${i2b2.code} description ${iteration}"
+                tag.tag = "${i2b2.code} description ${iteration}"
                 //for reverse order
                 tag.position = number - iteration + 1
                 tag

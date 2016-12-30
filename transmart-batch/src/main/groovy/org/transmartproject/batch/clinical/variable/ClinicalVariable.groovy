@@ -3,6 +3,7 @@ package org.transmartproject.batch.clinical.variable
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.transmartproject.batch.concept.ConceptPath
+import org.transmartproject.batch.concept.ConceptType
 import org.transmartproject.batch.patient.DemographicVariable
 
 /**
@@ -60,6 +61,29 @@ class ClinicalVariable implements Serializable {
     public static final String CONCEPT_TYPE_CATEGORICAL = 'CATEGORICAL'
     public static final String CONCEPT_TYPE_NUMERICAL = 'NUMERICAL'
 
+    /**
+     * Get concept type for a variable, based on the concept type name as
+     * specified in the variable mapping file.
+     *
+     * @param var the clinical variable to fetch the concept type for.
+     * @return the concept type.
+     */
+    static final ConceptType conceptTypeFor(ClinicalVariable var) {
+        switch (var.conceptType) {
+            case CONCEPT_TYPE_CATEGORICAL:
+                return ConceptType.CATEGORICAL
+            case CONCEPT_TYPE_NUMERICAL:
+                return ConceptType.NUMERICAL
+            case null:
+            case '':
+                return ConceptType.UNKNOWN
+            default:
+                throw new IllegalArgumentException(
+                        "Invalid value for concept type column: $var.conceptType. This " +
+                                'should never happen (ought to have been validated)')
+        }
+    }
+
     /* can be filled directly from fields */
     String filename
 
@@ -71,6 +95,9 @@ class ClinicalVariable implements Serializable {
         this.columnNumber = columnNumber - 1 /* to make it 0-based */
     }
 
+    /**
+     * The label used as the name of the variable.
+     */
     String dataLabel
 
     String strictCategoricalVariable
@@ -90,11 +117,33 @@ class ClinicalVariable implements Serializable {
     }
 
     /**
-     * These are to be calculated
-     * @see ClinicalVariableFieldMapper */
+     * These are determined in the {@link ClinicalVariableFieldMapper}:
+     */
 
-    /** */
+    /**
+     * Path of the variable in the study tree.
+     */
+    ConceptPath path
+
+    /**
+     * Name of the concept.
+     */
+    String conceptName
+
+    /**
+     * Path of the concept in the concept dimension, referred to by this variable.
+     */
     ConceptPath conceptPath
+
+    /**
+     * Concept code of the concept in the concept dimension, referred to by this variable.
+     */
+    String conceptCode
+
+    /**
+     * Flag if this variable is associated with a shared ontology term
+     */
+    boolean ontologyNode = false
 
     DemographicVariable demographicVariable
 

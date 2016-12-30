@@ -18,6 +18,7 @@ class DeRnaseqTranscriptAnnot {
         id generator: "assigned"
         start column: 'start_bp'
         end column: 'end_bp'
+        platform column: 'gpl_id'
 
         version false
     }

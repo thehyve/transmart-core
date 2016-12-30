@@ -9,7 +9,7 @@ import org.springframework.batch.item.ExecutionContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import org.transmartproject.batch.concept.GatherCurrentConceptsTasklet
+import org.transmartproject.batch.concept.GatherCurrentTreeNodesTasklet
 import org.transmartproject.batch.highdim.platform.PlatformJobContextKeys
 
 /**
@@ -43,7 +43,7 @@ class PlatformAndConceptsContextPromoterListener implements StepExecutionListene
         try {
             executionContext.putString(PlatformJobContextKeys.PLATFORM,
                     assayMappingsRowStore.platform)
-            executionContext.put(GatherCurrentConceptsTasklet.LIST_OF_CONCEPTS_KEY,
+            executionContext.put(GatherCurrentTreeNodesTasklet.LIST_OF_CONCEPTS_KEY,
                     assayMappingsRowStore.allConceptPaths)
             stepExecution.exitStatus
         } catch (Exception e) {

@@ -272,7 +272,7 @@ class ConstraintSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             conceptCodes.add(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
         }
-        conceptCodes.containsAll(['CV:DEM:SEX:M', 'CV:DEM:SEX:F', 'CV:DEM:RACE', 'CV:DEM:AGE'])
+        assert conceptCodes.containsAll(['CV:DEM:SEX:M', 'CV:DEM:SEX:F', 'CV:DEM:RACE', 'CV:DEM:AGE'])
     }
 
 }

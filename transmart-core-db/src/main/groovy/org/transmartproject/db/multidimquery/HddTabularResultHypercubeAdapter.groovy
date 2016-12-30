@@ -2,6 +2,7 @@ package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 import groovy.transform.TailRecursive
@@ -18,7 +19,6 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
-import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
@@ -29,10 +29,10 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                 " implemented in HddTabularResultHypercubeAdapter")
     }
 
-    static Dimension biomarkerDim = DimensionDescription.dimensionsMap.biomarker
-    static Dimension assayDim = DimensionDescription.dimensionsMap.assay
-    static Dimension patientDim = DimensionDescription.dimensionsMap.patient
-    static Dimension projectionDim = DimensionDescription.dimensionsMap.projection
+    static Dimension biomarkerDim = DimensionImpl.BIOMARKER
+    static Dimension assayDim = DimensionImpl.ASSAY
+    static Dimension patientDim = DimensionImpl.PATIENT
+    static Dimension projectionDim = DimensionImpl.PROJECTION
 
     private TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ? /* depends on projection */>> table
     private TabularResultAdapterIterator iterator
@@ -92,11 +92,13 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     }
 
 
-    @Override Iterator<HypercubeValue> getIterator() {
+    @Override PeekingIterator<HypercubeValue> iterator() { (PeekingIterator) super.iterator() }
+    @Override PeekingIterator<HypercubeValue> getIterator() {
         iterator == null ? (iterator = new TabularResultAdapterIterator()) : iterator
     }
 
-    class TabularResultAdapterIterator extends AbstractIterator<HypercubeValue> {
+    class TabularResultAdapterIterator extends AbstractIterator<HypercubeValue> implements
+            PeekingIterator<HypercubeValue> {
         private Iterator<? extends DataRow<AssayColumn, ?>> tabularIter = table.getRows()
         private List<HypercubeValue> nextVals = []
         private Iterator<HypercubeValue> nextIter = nextVals.iterator()
@@ -137,10 +139,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                     ))
                 } else if(value instanceof Map) {
                     Map<String, Object> mapValue = (Map<String,Object>) value
-                    Map.Entry<String, Object> entry
-                    Iterator<Map.Entry> it = mapValue.entrySet().iterator()
-                    while(it.hasNext()) {
-                        entry = it.next()
+                    for(entry in mapValue.entrySet()) {
                         _projectionFields.add(entry.key)
                         nextVals.add(new TabularResultAdapterValue(
                                 getDimensions(), entry.value, bm, assay, entry.key,
@@ -182,7 +181,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
             dimError(dim)
         }
 
-        int getDimElementIndex(Dimension dim) {
+        Integer getDimElementIndex(Dimension dim) {
             if(dim == biomarkerDim) return biomarkerIndex
             if(dim == assayDim) return assayIndex
             if(dim == patientDim) return assayIndex

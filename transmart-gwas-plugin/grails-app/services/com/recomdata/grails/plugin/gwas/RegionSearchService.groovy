@@ -20,12 +20,15 @@
 
 package com.recomdata.grails.plugin.gwas
 
+import de.DeSNPInfo;
+
 class RegionSearchService {
 
     boolean transactional = true
 
     def dataSource
     def grailsApplication
+    def inLimit = 1000
 
     def geneLimitsSqlQuery = """
 
@@ -76,14 +79,15 @@ class RegionSearchService {
 		SELECT a.*
 		  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
 		                 info.pos AS pos, info.gene_name AS rsgene,
-		                 DATA.rs_id AS rsid, DATA.p_value AS pvalue,
+		                 DATA.rs_id AS rsid, DATA.p_value AS pvalue, DATA.p_value_char AS pvalue_char,
 		                 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata,
 		                 info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
 		                 ,
 		                 ROW_NUMBER () OVER (ORDER BY _orderclause_) AS row_nbr
+						 , DATA.beta as beta, DATA.standard_error as standard_error, DATA.EFFECT_ALLELE as effect_allele, DATA.OTHER_ALLELE as other_allele, info.strand as strand 
 		                 FROM biomart.bio_assay_analysis_gwas DATA
 		                 _analysisJoin_
-		                 JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
+		                 _leftJoinOrNot_ JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
 		                 WHERE 1=1
 	"""
     //changed query
@@ -91,14 +95,15 @@ class RegionSearchService {
 				SELECT a.*
 	  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
 					 info.pos AS pos, info.rsgene AS rsgene,
-					 DATA.rs_id AS rsid, DATA.p_value AS pvalue,
+					 DATA.rs_id AS rsid, DATA.p_value AS pvalue, DATA.p_value_char AS pvalue_char,
 					 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata,
 					 info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
 					 ,
 					 ROW_NUMBER () OVER (ORDER BY _orderclause_) AS row_nbr
+					 , DATA.beta as beta, DATA.standard_error as standard_error, DATA.EFFECT_ALLELE as effect_allele, DATA.OTHER_ALLELE as other_allele, info.strand as strand 
 					 FROM biomart.bio_assay_analysis_gwas DATA
 					 _analysisJoin_
-					 JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and ( _regionlist_ )
+					 _leftJoinOrNot_ JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and ( _regionlist_ )
 					 WHERE 1=1
 	
 """
@@ -106,14 +111,14 @@ class RegionSearchService {
 		SELECT a.*
 		  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
 		                 info.pos AS pos, info.gene_name AS rsgene,
-		                 DATA.rs_id AS rsid, DATA.p_value AS pvalue,
+		                 DATA.rs_id AS rsid, DATA.p_value AS pvalue, DATA.p_value_char AS pvalue_char,
 		                 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata, DATA.gene as gene,
-		                 info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
+		                 info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome, info.strand as strand 
 		                 ,
 		                 ROW_NUMBER () OVER (ORDER BY _orderclause_) AS row_nbr
 		                 FROM biomart.bio_assay_analysis_eqtl DATA
 		                 _analysisJoin_
-		                 JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
+		                 _leftJoinOrNot_ JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
 		                 WHERE 1=1
 	"""
 
@@ -121,36 +126,36 @@ class RegionSearchService {
 	SELECT a.*
 	  FROM (SELECT   _analysisSelect_ info.chrom AS chrom,
 					 info.pos AS pos, info.rsgene AS rsgene,
-					 DATA.rs_id AS rsid, DATA.p_value AS pvalue,
+					 DATA.rs_id AS rsid, DATA.p_value AS pvalue, DATA.p_value_char AS pvalue_char,
 					 DATA.log_p_value AS logpvalue, DATA.ext_data AS extdata, DATA.gene as gene,
-					 info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome
+					 info.exon_intron as intronexon, info.recombination_rate as recombinationrate, info.regulome_score as regulome, info.strand as strand 
 					 ,
 					 ROW_NUMBER () OVER (ORDER BY _orderclause_) AS row_nbr
 					 FROM biomart.bio_assay_analysis_eqtl DATA
 					 _analysisJoin_
-					 JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and (_regionlist_)
+					 _leftJoinOrNot_ JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and (_regionlist_)
 					 WHERE 1=1
 """
 
     def gwasSqlCountQuery = """
 		SELECT COUNT(*) AS TOTAL FROM biomart.Bio_Assay_Analysis_Gwas data 
-	     JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
+	     _leftJoinOrNot_ JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
 	     WHERE 1=1
 	"""
 
     def gwasHg19SqlCountQuery = """
 	SELECT COUNT(*) AS TOTAL FROM biomart.Bio_Assay_Analysis_Gwas data
-	 JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and (_regionlist_)
+	 _leftJoinOrNot_ JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and (_regionlist_)
 	 WHERE 1=1
 """
     def eqtlSqlCountQuery = """
 		SELECT COUNT(*) AS TOTAL FROM biomart.Bio_Assay_Analysis_Eqtl data
-	     JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
+	     _leftJoinOrNot_ JOIN deapp.de_rc_snp_info info ON DATA.rs_id = info.rs_id and (_regionlist_)
 	     WHERE 1=1
     """
     def eqtlHg19SqlCountQuery = """
 	SELECT COUNT(*) AS TOTAL FROM biomart.Bio_Assay_Analysis_Eqtl data
-	 JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and (_regionlist_)
+	 _leftJoinOrNot_ JOIN deapp.de_snp_info_hg19_mv info ON DATA.rs_id = info.rs_id and (_regionlist_)
 	 WHERE 1=1
 """
     def getGeneLimits(Long searchId, String ver, Long flankingRegion) {
@@ -285,6 +290,14 @@ class RegionSearchService {
                 analysisQuery = gwasHg19SqlQuery;
                 countQuery = gwasHg19SqlCountQuery
             }
+            if (!search && !ranges && !geneNames && !transcriptGeneNames ){
+                countQuery = countQuery.replace("_leftJoinOrNot_", "left");
+                analysisQuery = analysisQuery.replace("_leftJoinOrNot_", "left");
+            }
+            else {
+                countQuery = countQuery.replace("_leftJoinOrNot_", "");
+                analysisQuery = analysisQuery.replace("_leftJoinOrNot_", "");
+            }
         }
         else if (type.equals("eqtl")) {
             analysisQuery = eqtlSqlQuery
@@ -292,6 +305,14 @@ class RegionSearchService {
             if(hg19only){
                 analysisQuery = eqtlHg19SqlQuery
                 countQuery = eqtlHg19SqlCountQuery
+            }
+            if (!search && !ranges && !geneNames && !transcriptGeneNames ){
+                countQuery = countQuery.replace("_leftJoinOrNot_", "left");
+                analysisQuery = analysisQuery.replace("_leftJoinOrNot_", "left");
+            }
+            else {
+                countQuery = countQuery.replace("_leftJoinOrNot_", "");
+                analysisQuery = analysisQuery.replace("_leftJoinOrNot_", "");
             }
         }
         else {
@@ -338,11 +359,32 @@ class RegionSearchService {
 
         //Add analysis IDs
         if (analysisIds) {
-            analysisQCriteria.append(" AND data.BIO_ASSAY_ANALYSIS_ID IN (" + analysisIds[0]);
-            for (int i = 1; i < analysisIds.size(); i++) {
-                analysisQCriteria.append(", " + analysisIds[i]);
+            analysisQCriteria.append(" AND (data.BIO_ASSAY_ANALYSIS_ID IN (" + analysisIds[0]);
+            if (analysisIds.size() < inLimit) {
+                for (int i = 1; i < analysisIds.size(); i++) {
+                    analysisQCriteria.append(", " + analysisIds[i]);
+                }
             }
-            analysisQCriteria.append(") ")
+            else {
+                int totalAnalyses = analysisIds.size();
+
+                for (int i = 1; i < analysisIds.size(); i++) {
+                    boolean firstItemInInClause = false;
+
+                    if (i % inLimit == 0 && analysisIds.size() != i) {
+                        analysisQCriteria.append(") OR data.BIO_ASSAY_ANALYSIS_ID IN (");
+                        firstItemInInClause = true;
+                    }
+                    if (!firstItemInInClause) {
+                        analysisQCriteria.append(", ")
+                        firstItemInInClause = false;
+                    }
+
+                    analysisQCriteria.append(analysisIds[i]);
+                }
+            }
+
+            analysisQCriteria.append(") )")
             queryCriteria.append(analysisQCriteria.toString())
 
             //Originally we only selected the analysis name if there was a need to (more than one analysis) - but this query is much faster
@@ -423,7 +465,6 @@ class RegionSearchService {
 
         try {
             def nameQuery = analysisNameQuery + analysisQCriteria.toString();
-            log.debug(nameQuery)
             stmt = con.prepareStatement(nameQuery)
 
             rs = stmt.executeQuery();
@@ -461,10 +502,10 @@ class RegionSearchService {
             rs = stmt.executeQuery();
             while(rs.next()){
                 if ((type.equals("gwas"))) {
-                    results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"),analysisNameMap.get( rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome")]);
+                    results.push([rs.getString("rsid"), rs.getString("pvalue_char"), rs.getDouble("logpvalue"), rs.getString("extdata"),analysisNameMap.get( rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("beta"), rs.getString("standard_error"), rs.getString("effect_allele"), rs.getString("other_allele"), rs.getString("strand")]);
                 }
                 else {
-                    results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"), analysisNameMap.get(rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("gene")]);
+                    results.push([rs.getString("rsid"), rs.getString("pvalue_char"), rs.getDouble("logpvalue"), rs.getString("extdata"), analysisNameMap.get(rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("gene"), rs.getString("strand")]);
                 }
             }
         }
@@ -509,7 +550,7 @@ class RegionSearchService {
 
     def quickQueryGwas = """
 	
-		SELECT analysis, chrom, pos, rsgene, rsid, pvalue, logpvalue, extdata, intronexon, recombinationrate, regulome FROM biomart.BIO_ASY_ANALYSIS_GWAS_TOP50
+		SELECT analysis, chrom, pos, rsgene, rsid, pvalue, logpvalue, extdata, intronexon, recombinationrate, regulome, beta, standard_error, effect_allele, other_allele, strand FROM biomart.BIO_ASY_ANALYSIS_GWAS_TOP50
 		WHERE analysis = ?
 		ORDER BY logpvalue desc
 	
@@ -517,7 +558,7 @@ class RegionSearchService {
     // changed ORDER BY rnum by pvalue
     def quickQueryEqtl = """
 	
-		SELECT analysis, chrom, pos, rsgene, rsid, pvalue, logpvalue, extdata, intronexon, recombinationrate, regulome, gene FROM biomart.BIO_ASY_ANALYSIS_EQTL_TOP50
+		SELECT analysis, chrom, pos, rsgene, rsid, pvalue, logpvalue, extdata, intronexon, recombinationrate, regulome, gene, strand FROM biomart.BIO_ASY_ANALYSIS_EQTL_TOP50
 		WHERE analysis = ?
 		ORDER BY logpvalue desc
 	
@@ -545,12 +586,12 @@ class RegionSearchService {
             rs = stmt.executeQuery();
             if (type.equals("eqtl")) {
                 while(rs.next()){
-                    results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"), rs.getString("analysis"), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("gene")]);
+                    results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"), rs.getString("analysis"), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("gene"), rs.getString("strand")]);
                 }
             }
             else {
                 while(rs.next()){
-                    results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"), rs.getString("analysis"), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome")]);
+                    results.push([rs.getString("rsid"), rs.getDouble("pvalue"), rs.getDouble("logpvalue"), rs.getString("extdata"), rs.getString("analysis"), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("beta"), rs.getString("standard_error"), rs.getString("effect_allele"), rs.getString("other_allele"), rs.getString("strand")]);
                 }
             }
         }

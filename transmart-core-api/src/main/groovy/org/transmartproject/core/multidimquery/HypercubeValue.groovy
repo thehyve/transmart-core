@@ -9,7 +9,12 @@ interface HypercubeValue {
 
     def getAt(Dimension dim)
 
-    int getDimElementIndex(Dimension dim)
+    /**
+     * @param dim The dimension
+     * @return The index of the element for this dimension in the list returned by Hypercube.dimensionElements(dim).
+     * If this value does not have an element for this index, returns null.
+     */
+    Integer getDimElementIndex(Dimension dim)
 
     def getDimKey(Dimension dim)
 

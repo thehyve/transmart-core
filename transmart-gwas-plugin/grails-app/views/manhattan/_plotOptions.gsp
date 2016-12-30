@@ -1,4 +1,4 @@
-<!--  Yet, Another DIV for the manhattan plot options. -->
+<!--  Another DIV for the manhattan plot options. -->
 <div id="divPlotOptions" style="width:300px; display: none;">
     <table class="columndetail">
         <tr>
@@ -32,7 +32,7 @@
                     <p>When you click 'Plot', This dialog will launch a Java Web Start session by downloading a JNPL file.</p>
                     <p>Chances are that you will be presented with a security warning. The workaround
                     is to permit a security exception of the URL for this site. If you have trouble doing this,
-                    talk to your local it folk.</p>
+                    talk to your local IT folk.</p>
                     <p>To cancel this option, just close the dialog.</p>
                 </div>
             </td>

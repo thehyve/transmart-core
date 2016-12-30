@@ -78,7 +78,7 @@ class XtrialMappingCollection {
         if (!xtrialNode) {
             log.warn("Node $studyFragmentWithoutTopNode matched mapping " +
                     "$xtrialMapping, but the xtrial concept $xtrialNodeFragment " +
-                    'does not exit')
+                    'does not exist')
             return null
         }
 

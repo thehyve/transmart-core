@@ -4,6 +4,9 @@ i2b2demodata	qt_query_result_instance
 i2b2demodata	qt_patient_sample_collection
 i2b2demodata	qt_patient_set_collection
 i2b2demodata	async_job
+i2b2demodata	linked_file_collection
+i2b2demodata	storage_system
+i2b2demodata	supported_workflow
 deapp	de_saved_comparison
 biomart	bio_assay_analysis
 biomart	bio_assay_feature_group

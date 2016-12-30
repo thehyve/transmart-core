@@ -99,54 +99,59 @@ class ClinicalFactsRowSetFactory {
 
             def conceptNode = getOrGenerateConceptNode fileVariables, var, row
             def xtrialNode = getXtrialNodeFor(conceptNode)
-            result.addValue conceptNode, xtrialNode, value
+            result.addValue conceptNode, xtrialNode, value as String
         }
 
         result
     }
 
-    private ConceptNode getOrGenerateConceptNode(ClinicalDataFileVariables variables,
-                                                 ClinicalVariable var,
-                                                 ClinicalDataRow row) {
-        /*
-         * Concepts are created and assigned types and ids
-         */
-
-        ConceptType conceptType
-        ConceptPath conceptPath = getOrGenerateConceptPath(variables, var, row)
-        ConceptNode concept = tree[conceptPath]
-        String value = row[var.columnNumber]
-
-        // if the concept doesn't yet exist (ie first record)
-        if (!concept) {
-            conceptType = getConceptTypeFromColumnsFile(var)
+    /**
+     * Sets the concept type if it is not set ({@link ConceptType#UNKNOWN} and
+     * checks if the value is numerical if the concept is.
+     *
+     * @throw IllegalArgumentException if the concept type is numerical and the value
+     * is not numerical.
+     */
+    private static void updateConceptType(ConceptNode concept, ClinicalVariable var, String value) {
+        if (concept.type == ConceptType.UNKNOWN) {
+            def conceptType = ClinicalVariable.conceptTypeFor(var)
             if (conceptType == ConceptType.UNKNOWN) {
                 // if no conceptType is set in the column mapping file,
-                // try to detect the conceptType from the first record
-
+                // try to detect the conceptType from the value
                 conceptType = value.isDouble() ?
                         ConceptType.NUMERICAL : ConceptType.CATEGORICAL
             }
-
-            // has the side-effect of assigning type if it's unknown and
-            // creating the concept from scratch if it doesn't exist at all
-            concept = tree.getOrGenerate(conceptPath, conceptType)
-        } else { // the concept does already exist (ie not first record)
-            conceptType = concept.type
-
-            boolean curValIsNumerical = value.isDouble()
-
-            if (conceptType == ConceptType.NUMERICAL && !curValIsNumerical) {
-                throw new IllegalArgumentException("Variable $var inferred or specified " +
-                        "numerical, but got value '$value'. Patient id: " +
-                        "${variables.getPatientId(row)}.")
-            }
-
+            concept.type = conceptType
+            log.debug("Assigning type ${concept.type} to concept node ${concept.path}")
         }
+        if (concept.type == ConceptType.NUMERICAL && !value.isDouble()) {
+            throw new IllegalArgumentException("Variable $var inferred or specified " +
+                    "numerical, but got value '$value'.")
+        }
+    }
+
+    private ConceptNode getOrGenerateConceptNode(ClinicalDataFileVariables variables,
+                                                 ClinicalVariable var,
+                                                 ClinicalDataRow row) {
+        if (!var.conceptPath) {
+            /*
+             * Concepts are created and assigned types and ids
+             */
+            ConceptPath conceptPath = getOrGenerateConceptPath(variables, var, row)
+            var.conceptPath = conceptPath
+            var.path = conceptPath
+        }
+        ConceptNode concept = tree.conceptNodeForConceptPath(var.conceptPath)
+        // if the concept doesn't yet exist (ie first record)
+        concept = concept ?: tree.getOrGenerateConceptForVariable(var)
+
+        String value = row[var.columnNumber]
+
+        updateConceptType(concept, var, value)
 
         // we need a subnode if the variable is categorical
-        if (conceptType == ConceptType.CATEGORICAL && !'y'.equalsIgnoreCase(var.strictCategoricalVariable)) {
-            concept = tree.getOrGenerate(conceptPath + value, ConceptType.CATEGORICAL)
+        if (concept.type == ConceptType.CATEGORICAL && !'y'.equalsIgnoreCase(var.strictCategoricalVariable)) {
+            concept = tree.getOrGenerate(new ConceptPath(var.conceptPath) + value, var, ConceptType.CATEGORICAL)
         }
 
         concept
@@ -191,32 +196,6 @@ class ClinicalFactsRowSetFactory {
         topNodePath + relConceptPath
     }
 
-    private ConceptType getConceptTypeFromColumnsFile(ClinicalVariable var) {
-        ConceptType conceptType
-
-        switch (var.conceptType) {
-            case ClinicalVariable.CONCEPT_TYPE_CATEGORICAL:
-                conceptType = ConceptType.CATEGORICAL
-                break
-
-            case ClinicalVariable.CONCEPT_TYPE_NUMERICAL:
-                conceptType = ConceptType.NUMERICAL
-                break
-
-            case null:
-            case '':
-                conceptType = ConceptType.UNKNOWN
-                break
-
-            default:
-                throw new IllegalStateException(
-                        "Invalid value for concept type column: $var.conceptType. This " +
-                                'should never happen (ought to have been validated)')
-        }
-
-        conceptType
-    }
-
     XtrialNode getXtrialNodeFor(ConceptNode conceptNode) {
         if (conceptXtrialMap.containsKey(conceptNode)) {
             conceptXtrialMap[conceptNode]
@@ -228,10 +207,10 @@ class ClinicalFactsRowSetFactory {
     }
 
     private Map<String, ClinicalDataFileVariables> generateVariablesMap() {
-        Map<String, List<ClinicalVariable>> map = variables.groupBy { it.filename }
-        map.collectEntries {
-            [(it.key): ClinicalDataFileVariables.fromVariableList(it.value)]
-        }
+        Map<String, List<ClinicalVariable>> map = variables.groupBy { ClinicalVariable variable -> variable.filename }
+        map.collectEntries { String key, List<ClinicalVariable> value ->
+            [(key): ClinicalDataFileVariables.fromVariableList(value)]
+        } as Map<String, ClinicalDataFileVariables>
     }
 
 }

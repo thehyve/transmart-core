@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.Item
@@ -41,6 +42,7 @@ import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.db.i2b2data.ConceptDimension
+import org.transmartproject.db.ontology.AbstractI2b2Metadata
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User
 import org.transmartproject.db.util.StringUtils
@@ -81,7 +83,7 @@ class AccessControlChecks {
         if (user.admin) {
             /* administrators bypass all the checks */
             log.debug "Bypassing check for $protectedOperation on " +
-                    "${secure} for user ${this} because she is an " +
+                    "${secure.fullName} for user ${user.username} because she is an " +
                     "administrator"
             return true
         }
@@ -90,7 +92,7 @@ class AccessControlChecks {
         if (!token) {
             throw new UnexpectedResultException("Found i2b2secure object with empty token")
         }
-        log.debug "Token for $study is $token"
+        log.debug "Token for ${secure.fullName} is $token"
 
         /* if token is EXP:PUBLIC, always permit */
         if (token == PUBLIC_SOT) {
@@ -109,21 +111,21 @@ class AccessControlChecks {
         query.setParameter 'token', token
 
         List<AccessLevel> results = query.list()
-        log.debug("Got access levels for user $this, token $token: $results")
+        log.debug "Got access levels for user ${user.username}, token $token: $results"
 
         if (!results) {
-            log.info "No access level entries found for user $this and " +
+            log.info "No access level entries found for user ${user.username} and " +
                     "token $token; denying access"
             return false
         }
 
         if (results.any { protectedOperation in it }) {
-            log.debug("Access level of user $this for token $token " +
+            log.debug("Access level of user ${user.username} for token $token " +
                     "granted through permission " +
                     "${results.find { protectedOperation in it }}")
             true
         } else {
-            log.info("Permissions of user $this for token $token are " +
+            log.info("Permissions of user ${user.username} for token $token are " +
                     "only ${results as Set}; denying access")
             false
         }
@@ -229,13 +231,13 @@ class AccessControlChecks {
     }
 
     /* Study is included if the user has ANY kind of access */
-    Collection<org.transmartproject.db.i2b2data.Study> getDimensionStudiesForUser(User user) {
+    Collection<MDStudy> getDimensionStudiesForUser(User user) {
         if (user.admin) {
             return org.transmartproject.db.i2b2data.Study.findAll()
         }
 
         DetachedCriteria query = org.transmartproject.db.i2b2data.Study.where {
-            (secureObjectToken in [org.transmartproject.db.i2b2data.Study.PUBLIC, 'EXP:PUBLIC']) ||
+            (secureObjectToken in [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT]) ||
                     (secureObjectToken in SecuredObject.where {
                         def so = SecuredObject
                         dataType == 'BIO_CLINICAL_TRIAL'
@@ -260,7 +262,7 @@ class AccessControlChecks {
 
         DetachedCriteria query = org.transmartproject.db.i2b2data.Study.where {
             studyId == studyIdString
-            (secureObjectToken in [org.transmartproject.db.i2b2data.Study.PUBLIC, 'EXP:PUBLIC']) ||
+            (secureObjectToken in [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT]) ||
                     (secureObjectToken in SecuredObject.where {
                         def so = SecuredObject
                         dataType == 'BIO_CLINICAL_TRIAL'
@@ -314,7 +316,7 @@ class AccessControlChecks {
         }
 
         Collection<org.transmartproject.db.i2b2data.Study> studies = getDimensionStudiesForUser(user)
-        List<String> tokens = [org.transmartproject.db.i2b2data.Study.PUBLIC, 'EXP:PUBLIC'] + studies*.secureObjectToken
+        List<String> tokens = [org.transmartproject.db.i2b2data.Study.PUBLIC, PUBLIC_SOT] + studies*.secureObjectToken
 
         org.hibernate.criterion.DetachedCriteria conceptCriteria =
                 org.hibernate.criterion.DetachedCriteria.forClass(ConceptDimension)
@@ -356,10 +358,19 @@ class AccessControlChecks {
                 /* this could be optimized by adding a new method in
                  * StudiesResource */
                 def concept = conceptsResource.getByKey(item.conceptKey)
+                if (concept instanceof AbstractI2b2Metadata) {
+                    if (concept.dimensionCode != concept.fullName) {
+                        log.warn "Shared concepts not supported. Term: ${concept.fullName}, concept: ${concept.dimensionCode}"
+                        throw new AccessDeniedException("Shared concepts cannot be used for cohort selection.")
+                    }
+                } else {
+                    throw new AccessDeniedException("Node type not supported: ${concept?.class?.simpleName}.")
+                }
+
                 def study = concept.study
 
                 if (study == null) {
-                    log.info "User included concept with no study: $concept"
+                    log.info "User included concept with no study: ${concept.fullName}"
                 }
 
                 study
@@ -374,12 +385,12 @@ class AccessControlChecks {
         }
 
         if (!res) {
-            log.warn "User $user defined access for definition $definition " +
+            log.warn "User ${user.username} defined access for definition ${definition.name} " +
                     "because it doesn't include one non-inverted panel for" +
                     "which the user has permission in all the terms' studies"
         } else {
-            log.debug "Granting access to user $user to use " +
-                    "query definition $definition"
+            log.debug "Granting access to user ${user.username} to use " +
+                    "query definition ${definition.name}"
         }
 
         res
@@ -418,7 +429,7 @@ class AccessControlChecks {
                     "its creator (${result.username}) doesn't match the user " +
                     "(${user.username})"
         } else {
-            log.debug "Granting $user access to $result (usernames match)"
+            log.debug "Granting ${user.username} access to $result (usernames match)"
         }
 
         res

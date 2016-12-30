@@ -38,16 +38,15 @@ class MultipleObservationsSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it, "PatientDimension", "age", 'Int') == 30
-            assert [60.0, 59.0, 80.0].contains(selector.select(it))
+            assert [60, 59, 80].contains(selector.select(it) as int)
         }
     }
 
     /**
      *  given: "EHR is loaded"
      *  when: "I get all observations of that studie"
-     *  then: "7 observations have a valid startDate as timestamp value
+     *  then: "7 observations have a valid startDate as JSON date
      */
-//    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-125 protobuf sterilization, DATE fields missing from dimensions
     def "Start time of observations are exposed through REST API"(){
         given: "EHR is loaded"
 
@@ -57,16 +56,16 @@ class MultipleObservationsSpec extends RESTSpec{
         def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
         (0..<selector.cellCount).each {
-            println "TYPE: ${selector.select(it, 'StartTimeDimension', null, 'Timestamp')?.class?.simpleName}"
+            println "TYPE: ${selector.select(it, 'StartTimeDimension', null, 'Date')?.class?.simpleName}"
         }
 
         then: "7 observations have a valid startDate, all formated with a datestring"
 
         int validStartDate = 0
         (0..<selector.cellCount).each {
-            if (selector.select(it, 'StartTimeDimension', null, 'Timestamp') != null){
+            if (selector.select(it, 'StartTimeDimension', null, 'Date') != null){
                 validStartDate++
-                assert (selector.select(it, 'StartTimeDimension', null, 'Timestamp') as Long) instanceof Number
+                assert (selector.select(it, 'StartTimeDimension', null, 'Date') as Date) instanceof Date
             }
             assert (selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
                     selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:DEM:AGE')
@@ -77,9 +76,8 @@ class MultipleObservationsSpec extends RESTSpec{
     /**
      *  given: "EHR is loaded"
      *  when: "I get all observations of that studie"
-     *  then: "4 observations have a nonNUll endDate as timestamp value
+     *  then: "4 observations have a nonNUll endDate as JSON date
      */
-//    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-125 protobuf sterilization, DATE fields missing from dimensions
     def "end time of observations are exposed through REST API"(){
         given: "EHR is loaded"
 
@@ -92,9 +90,9 @@ class MultipleObservationsSpec extends RESTSpec{
 
         int nonNUllEndDate = 0
         (0..<selector.cellCount).each {
-            if (selector.select(it, 'EndTimeDimension', null, 'Timestamp') != null){
+            if (selector.select(it, 'EndTimeDimension', null, 'Date') != null){
                 nonNUllEndDate++
-                assert (selector.select(it, 'EndTimeDimension', null, 'Timestamp') as Long) instanceof Number
+                assert (selector.select(it, 'EndTimeDimension', null, 'Date') as Date) instanceof Date
             }
             assert (selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
                     selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:DEM:AGE')
@@ -130,7 +128,7 @@ class MultipleObservationsSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it, "PatientDimension", "age", 'Int') == (it < 3 ? 30 : 52)
-            assert [60.0, 59.0, 80.0, 78.0, 56.0, 102.0].contains(selector.select(it))
+            assert [60, 59, 80, 78, 56, 102].contains(selector.select(it) as int)
         }
     }
 }

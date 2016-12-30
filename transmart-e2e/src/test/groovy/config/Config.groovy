@@ -2,8 +2,8 @@ package config
 
 class Config {
     //Constants
-//    public static final String BASE_URL = 'http://localhost:8080/'
-    public static final String BASE_URL = 'http://transmart-pro-test.thehyve.net/'
+    //$ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
+    public static final String BASE_URL = System.getProperty('baseUrl') != null ? System.getProperty('baseUrl') : 'http://localhost:8080/'
     public static final String BAD_USERNAME = 'bad username'
     public static final String BAD_PASSWORD = 'bad password'
     public static final String DEFAULT_USERNAME = 'test-public-user-1'
@@ -30,6 +30,7 @@ class Config {
     public static final String SHARED_CONCEPTS_A_ID = 'SHARED_CONCEPTS_STUDY_A'
     public static final String SHARED_CONCEPTS_B_ID = 'SHARED_CONCEPTS_STUDY_B'
     public static final String SHARED_CONCEPTS_RESTRICTED_ID = 'SHARED_CONCEPTS_STUDY_C_PRIV'
+    public static final String RNASEQ_TRANSCRIPT_ID = 'RNASEQ_TRANSCRIPT'
 
     //settings
     public static final boolean OAUTH_NEEDED = true
@@ -45,4 +46,8 @@ class Config {
     public static final boolean TUMOR_NORMAL_SAMPLES_LOADED = true
     public static final boolean SHARED_CONCEPTS_LOADED = true
     public static final boolean SHARED_CONCEPTS_RESTRICTED_LOADED = true
+
+    //external ontology server
+    public static final String ONTOLOGY_SERVER_URL = 'http://localhost:8081/'
+    public static final String PATH_RECOMMENTED_CONCEPTS = "v2/recommended_concepts"
 }

@@ -1,6 +1,8 @@
 import inc.oracle.CsvLoader
 import inc.oracle.SqlProducer
+import java.util.Locale;
 
+Locale.setDefault(new Locale("en", "US"))
 def sql = SqlProducer.createFromEnv()
 
 System.in.eachLine { String line ->

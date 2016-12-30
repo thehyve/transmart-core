@@ -47,7 +47,7 @@ class TestDataHelper {
             }
         }
 
-        assertThat result.collect { it.aValue }, everyItem(isA(result[0].bValue.getClass()))
+        if(result) assertThat result.collect { it.aValue }, everyItem(isA(result[0].bValue.getClass()))
     }
 
 }
