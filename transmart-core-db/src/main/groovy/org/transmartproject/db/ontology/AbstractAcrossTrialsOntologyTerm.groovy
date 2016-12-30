@@ -119,6 +119,12 @@ abstract class AbstractAcrossTrialsOntologyTerm
                 "x-trial node not supported yet")
     }
 
+    @Override
+    int getPatientCount() {
+        throw new UnsupportedOperationException("Retrieving patients for " +
+                "x-trial node not supported yet")
+    }
+
     /* query specification methods */
 
     @Override

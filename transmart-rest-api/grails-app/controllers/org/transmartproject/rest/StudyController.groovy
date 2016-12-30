@@ -27,25 +27,50 @@ package org.transmartproject.rest
 
 import grails.rest.Link
 import grails.rest.render.util.AbstractLinkingRenderer
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.rest.misc.CurrentUser
 
 import javax.annotation.Resource
 
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
+import org.transmartproject.db.ontology.StudyAccessImpl
+
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.API_READ
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.EXPORT
 
 class StudyController {
 
     static responseFormats = ['json', 'hal']
 
     @Resource
-    StudiesResource studiesResourceService
+    private StudiesResource studiesResourceService
+
+    @Autowired
+    CurrentUser currentUser
+
+    private static final String VERSION = "v1"
 
     /** GET request on /v1/studies/
      *  This will return the list of studies, where each study will be rendered in its short format
     */
     def index() {
-        respond wrapStudies(studiesResourceService.studySet)
+        def studiesAccess = []
+        def studies = studiesResourceService.studySet
+        //Checks to which studies the user has access.
+        studies.each { study ->
+            boolean view = currentUser.canPerform(API_READ, study)
+            boolean export = currentUser.canPerform(EXPORT, study)
+            //Possibility of adding more access types.
+            StudyAccessImpl studyAccessImpl= new StudyAccessImpl(
+                    accessibleByUser:[
+                            view:view,
+                            export:export],
+                    study:study)
+            studiesAccess.add(studyAccessImpl)
+        }
+        respond wrapStudies(studiesAccess)
     }
 
     /** GET request on /v1/studies/${id}
@@ -54,7 +79,19 @@ class StudyController {
      *  @param name the name of the study
      */
     def show(String id) {
-        respond studiesResourceService.getStudyById(id)
+        def studyImpl =  studiesResourceService.getStudyById(id)
+        //Check if the user has access to the specific study.
+        boolean view = currentUser.canPerform(API_READ, studyImpl)
+        boolean export = currentUser.canPerform(EXPORT, studyImpl)
+        //Possibility of adding more access types.
+        Map accessibleByUser = [
+                view:view,
+                export:export]
+        StudyAccessImpl studyAccessImpl = new StudyAccessImpl(
+                accessibleByUser:accessibleByUser,
+                study:studyImpl,
+                )
+        respond studyAccessImpl
     }
     
     private wrapStudies(Object source) {
@@ -62,7 +99,7 @@ class StudyController {
         (
             container: source,
             componentType: Study,
-            links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/v1/studies") ]
+            links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/$VERSION/studies") ]
         )
     }
     
