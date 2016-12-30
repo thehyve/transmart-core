@@ -28,6 +28,7 @@ import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.db.util.StringUtils
+import org.transmartproject.db.i2b2data.PatientDimension
 
 import static org.transmartproject.db.util.StringUtils.asLikeLiteral
 
@@ -281,6 +282,11 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     @Override
     List<Patient> getPatients() {
         super.getPatients(this)
+    }
+
+    @Override
+    int getPatientCount() {
+        super.countPatients(this)
     }
 
     @Override

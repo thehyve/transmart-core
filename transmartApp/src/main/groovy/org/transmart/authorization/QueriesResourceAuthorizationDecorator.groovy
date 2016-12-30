@@ -11,6 +11,7 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryResultSummary
 import org.transmartproject.core.users.User
 
 import javax.annotation.Resource
@@ -63,6 +64,14 @@ class QueriesResourceAuthorizationDecorator
 
         res
     }
+
+    @Override
+    QueryResult disablingQuery(Long id,
+                               String username) throws InvalidRequestException
+    {
+        delegate.disablingQuery(id, username)
+    }
+
 
     static class LegacyQueryResultAccessCheckRequestCache {
         // should be request-scope bean
@@ -124,5 +133,10 @@ class QueriesResourceAuthorizationDecorator
         /* the gatekeeping is done when fetching the query result only.
          * Odd that this method is not in QueryResult anyway */
         delegate.getQueryDefinitionForResult(result)
+    }
+
+    @Override
+    List<QueryResultSummary> getQueryResultsSummaryByUsername(String username) {
+        delegate.getQueryResultsSummaryByUsername(username)
     }
 }

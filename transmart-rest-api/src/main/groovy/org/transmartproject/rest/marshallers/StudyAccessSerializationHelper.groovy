@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Janssen Research & Development, LLC.
+ * Copyright 2016 The Hyve B.V.
  *
  * This file is part of REST API: transMART's plugin exposing tranSMART's
  * data via an HTTP-accessible RESTful API.
@@ -27,33 +27,35 @@ package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.db.ontology.StudyAccessImpl
 import org.transmartproject.rest.StudyLoadingService
 
 import javax.annotation.Resource
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 
-class StudySerializationHelper extends AbstractHalOrJsonSerializationHelper<Study> {
+class StudyAccessSerializationHelper extends AbstractHalOrJsonSerializationHelper<StudyAccessImpl> {
 
-    final Class targetType = Study
+    final Class targetType = StudyAccessImpl
+    final String collectionName = 'studiesAccess'
+    private static final String VERSION = "v1"
 
-    final String collectionName = 'studies'
 
     @Override
-    Collection<Link> getLinks(Study study) {
-        [new Link(RELATIONSHIP_SELF, '/v1/studies/' +
-                study.id.toLowerCase(Locale.ENGLISH).encodeAsURL())]
+    Collection<Link> getLinks(StudyAccessImpl studyAccessImpl) {
+        [new Link(RELATIONSHIP_SELF, "/$VERSION/studies/" +
+                studyAccessImpl.study.id.toLowerCase(Locale.ENGLISH).encodeAsURL())]
     }
 
     @Override
-    Map<String, Object> convertToMap(Study study) {
-        def term = new OntologyTermWrapper(study.ontologyTerm, true)
-        def mapResponse = [id: study.id, ontologyTerm: term]
+    Map<String, Object> convertToMap(StudyAccessImpl studyAccessImpl) {
+        def term = new OntologyTermWrapper(studyAccessImpl.study.ontologyTerm, true)
+        def mapResponse = [id: studyAccessImpl.study.id, ontologyTerm: term, accessibleByUser: studyAccessImpl.accessibleByUser]
         mapResponse
     }
 
     @Override
-    Set<String> getEmbeddedEntities(Study object) {
+    Set<String> getEmbeddedEntities(StudyAccessImpl object) {
         ['ontologyTerm'] as Set
     }
 }

@@ -48,12 +48,11 @@ class PatientSetResourceTests extends ResourceSpec {
                                         inTrialId: 'SUBJ_ID_1',),
                                 hasSelfLink("/${VERSION}/studies/study_id_1/subjects/-101")))))
     }
-
     void testSaveAndLoad() {
         when:
         def response1 = post("/$VERSION/patient_sets") {
             header 'Accept', contentTypeForHAL
-            contentType MimeType.XML.name
+            contentType MimeType.TEXT_XML.name
             xml QUERY_DEFINITION
         }
 

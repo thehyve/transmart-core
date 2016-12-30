@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Janssen Research & Development, LLC.
+ * Copyright 2016 The Hyve B.V.
  *
  * This file is part of REST API: transMART's plugin exposing tranSMART's
  * data via an HTTP-accessible RESTful API.
@@ -32,13 +32,15 @@ import org.springframework.http.ResponseEntity
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 
-class StudyMarshallerSpec extends MarshallerSpec {
+class StudyAccessMarshallerSpec extends MarshallerSpec {
 
     public static final String VERSION = "v1"
     public static final String STUDY_ID = 'STUDY_ID_1'
     public static final String ONTOLOGY_TERM_NAME = 'study1'
     public static final String ONTOLOGY_KEY = '\\\\i2b2 main\\foo\\study1\\'
     public static final String ONTOLOGY_FULL_NAME = '\\foo\\study1\\'
+    private static final Map ACCESSIBLE_BY_USER = [ view : true,
+                                                    export : true ]
 
     void basicTest() {
         when:
@@ -57,7 +59,10 @@ class StudyMarshallerSpec extends MarshallerSpec {
                         hasEntry('name', ONTOLOGY_TERM_NAME),
                         hasEntry('fullName', ONTOLOGY_FULL_NAME),
                         hasEntry('key', ONTOLOGY_KEY),
-                )))
+                )),
+                hasEntry('accessibleByUser', ACCESSIBLE_BY_USER)
+        )
+
     }
 
     void testHal() {
@@ -74,16 +79,17 @@ class StudyMarshallerSpec extends MarshallerSpec {
                 hasEntry('id', STUDY_ID),
                 hasEntry(is('_links'),
                         hasEntry(is('self'),
-                                hasEntry('href', "/${VERSION}/studies/${STUDY_ID.toLowerCase()}".toString()))),
+                                hasEntry('href', "/$VERSION/studies/${STUDY_ID.toLowerCase()}".toString()))),
                 hasEntry(is('_embedded'),
                         hasEntry(is('ontologyTerm'), allOf(
                                 hasEntry(is('_links'),
                                         hasEntry(is('self'),
-                                                hasEntry('href', "/${VERSION}/studies/${STUDY_ID.toLowerCase()}/concepts/ROOT".toString()))),
+                                                hasEntry('href', "/$VERSION/studies/${STUDY_ID.toLowerCase()}/concepts/ROOT".toString()))),
                                 hasEntry('name', ONTOLOGY_TERM_NAME),
                                 hasEntry('fullName', ONTOLOGY_FULL_NAME),
                                 hasEntry('key', ONTOLOGY_KEY),
-                        ))))
+                        ))),
+                hasEntry('accessibleByUser', ACCESSIBLE_BY_USER),)
     }
 
 }
