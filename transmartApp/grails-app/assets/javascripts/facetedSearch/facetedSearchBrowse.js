@@ -38,7 +38,9 @@ function generateBrowseWindow(nodeClicked)
 	}
 	
 	//Load from the URL into a dialog window to capture the user input. We pass in a function that handles what happens after the user presses "Select".
-	jQuery('#divBrowsePopups').dialog("destroy");
+	if (jQuery('#divBrowsePopups').is(":visible")) {
+		jQuery('#divBrowsePopups').dialog("destroy");
+	}
 	jQuery('#divBrowsePopups').dialog(
 		{
 			modal: false,
