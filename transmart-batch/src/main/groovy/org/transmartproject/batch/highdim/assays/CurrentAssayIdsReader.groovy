@@ -28,7 +28,7 @@ import java.sql.ResultSet
 @Slf4j
 class CurrentAssayIdsReader implements ItemStreamReader<Long> {
 
-    @Value("#{jobExecutionContext['gatherCurrentConceptsTasklet.listOfConcepts']}")
+    @Value("#{jobExecutionContext['gatherCurrentTreeNodesTasklet.listOfConcepts']}")
     Collection<ConceptPath> conceptPaths
 
     @Autowired

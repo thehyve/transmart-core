@@ -11,9 +11,9 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
 import org.transmartproject.db.dataquery.MockTabularResult
-import org.transmartproject.db.metadata.DimensionDescription
 import spock.lang.Specification
 
+import static org.transmartproject.db.multidimquery.DimensionImpl.*
 import static org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter.*
 
 
@@ -103,7 +103,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         expect:
 
         values*.value == this.cubeValues
-        cube.dimensions as List == "biomarker assay patient".split().collect { DimensionDescription.dimensionsMap[it] }
+        cube.dimensions as List == [BIOMARKER, ASSAY, PATIENT]
         cube.dimensionElements(patientDim) == patients
         (0..2).each {
             assert cube.dimensionElement(assayDim, it) == assays[it]
@@ -132,7 +132,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         thrown InvalidArgumentsException
 
         when:
-        cube.dimensionElement(DimensionDescription.dimensionsMap.concept, 1)
+        cube.dimensionElement(CONCEPT, 1)
 
         then:
         thrown InvalidArgumentsException
@@ -163,8 +163,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         expect:
 
         values*.value == this.cubeValues
-        cube.dimensions as List == "biomarker assay patient projection".split().collect {
-            DimensionDescription.dimensionsMap[it] }
+        cube.dimensions as List == [BIOMARKER, ASSAY, PATIENT, PROJECTION]
         cube.dimensionElements(patientDim) == patients
         cube.dimensionElements(projectionDim) == projectionKeys
         (0..2).each {
@@ -196,7 +195,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         values[5].availableDimensions == cube.dimensions
 
         when:
-        cube.dimensionElement(DimensionDescription.dimensionsMap.concept, 1)
+        cube.dimensionElement(CONCEPT, 1)
 
         then:
         thrown InvalidArgumentsException

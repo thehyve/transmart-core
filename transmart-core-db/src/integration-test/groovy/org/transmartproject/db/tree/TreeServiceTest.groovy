@@ -56,9 +56,14 @@ class TreeServiceTest extends Specification {
                 'CLINICAL_TRIAL_HIGHDIM',
                 'EHR',
                 'EHR_HIGHDIM',
+                'MIX_HD',
+                'RNASEQ_TRANSCRIPT',
                 'SHARED_CONCEPTS_STUDY_A',
                 'SHARED_CONCEPTS_STUDY_B',
+                'SHARED_HD_CONCEPTS_STUDY_A',
+                'SHARED_HD_CONCEPTS_STUDY_B',
                 'TUMOR_NORMAL_SAMPLES'
+
         ]
     }
 
@@ -147,7 +152,7 @@ class TreeServiceTest extends Specification {
 
         then: "the top level should contain all root nodes"
         forest*.name == ['Private Studies']
-        forest[0].children*.name == ['SHARED_CONCEPTS_STUDY_C_PRIV']
+        forest[0].children*.name as Set == ['SHARED_HD_CONCEPTS_STUDY_C_PR', 'SHARED_CONCEPTS_STUDY_C_PRIV'] as Set
 
         when: "trying to access a private study as privileged user"
         rootKey = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\'

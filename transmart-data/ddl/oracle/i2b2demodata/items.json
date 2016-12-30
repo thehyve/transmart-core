@@ -510,6 +510,21 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
+      "name" : "LINKED_FILE_COLLECTION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STORAGE_SYSTEM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STUDY"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
       "name" : "MAP"
     },
     "parents" : [ ]
@@ -1145,6 +1160,17 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SOURCE_SYSTEM_ID_ID_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "LINKED_FILE_COLLECTION"
+    } ]
+  }, {
+    "child" : {
       "type" : "PROCEDURE",
       "owner" : "I2B2DEMODATA",
       "name" : "SP_XTAB"
@@ -1175,9 +1201,27 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
+      "name" : "STORAGE_SYSTEM"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
       "name" : "STUDY"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STUDY_ID_FK"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "LINKED_FILE_COLLECTION"
+    } ]
   }, {
     "child" : {
       "type" : "SEQUENCE",
@@ -1185,6 +1229,24 @@
       "name" : "STUDY_NUM_SEQ"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SUPPORTED_WORKFLOW"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SUPPORTED_WORKFLOW_INDEX1"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SUPPORTED_WORKFLOW"
+    } ]
   }, {
     "child" : {
       "type" : "PROCEDURE",
@@ -1397,6 +1459,36 @@
     "child" : {
       "type" : "TRIGGER",
       "owner" : "I2B2DEMODATA",
+      "name" : "TRG_STUDY_NUM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STUDY"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STUDY_NUM_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRG_TRIAL_VISIT_NUM"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRIAL_VISIT_DIMENSION"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRIAL_VISIT_NUM_SEQ"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "I2B2DEMODATA",
       "name" : "TRG_UPLOAD_STATUS_UPLOAD_ID"
     },
     "parents" : [ {
@@ -1430,6 +1522,13 @@
       "owner" : "I2B2DEMODATA",
       "name" : "TRIAL_VISIT_DIMENSION"
     } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRIAL_VISIT_NUM_SEQ"
+    },
+    "parents" : [ ]
   }, {
     "child" : {
       "type" : "TRIGGER",
@@ -1931,6 +2030,13 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
+      "name" : "LINKED_FILE_COLLECTION"
+    },
+    "file" : "i2b2demodata/linked_file_collection.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
       "name" : "MAP"
     },
     "file" : "i2b2demodata/map.sql"
@@ -2426,6 +2532,13 @@
     "file" : "i2b2demodata/source_master.sql"
   }, {
     "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SOURCE_SYSTEM_ID_ID_FK"
+    },
+    "file" : "i2b2demodata/linked_file_collection.sql"
+  }, {
+    "item" : {
       "type" : "PROCEDURE",
       "owner" : "I2B2DEMODATA",
       "name" : "SP_XTAB"
@@ -2456,16 +2569,44 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "I2B2DEMODATA",
+      "name" : "STORAGE_SYSTEM"
+    },
+    "file" : "i2b2demodata/storage_system.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
       "name" : "STUDY"
     },
     "file" : "i2b2demodata/study.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STUDY_ID_FK"
+    },
+    "file" : "i2b2demodata/linked_file_collection.sql"
   }, {
     "item" : {
       "type" : "SEQUENCE",
       "owner" : "I2B2DEMODATA",
       "name" : "STUDY_NUM_SEQ"
     },
-    "file" : "i2b2demodata/_misc.sql"
+    "file" : "i2b2demodata/study.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SUPPORTED_WORKFLOW"
+    },
+    "file" : "i2b2demodata/supported_workflow.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "I2B2DEMODATA",
+      "name" : "SUPPORTED_WORKFLOW_INDEX1"
+    },
+    "file" : "i2b2demodata/supported_workflow.sql"
   }, {
     "item" : {
       "type" : "PROCEDURE",
@@ -2582,6 +2723,20 @@
     "item" : {
       "type" : "TRIGGER",
       "owner" : "I2B2DEMODATA",
+      "name" : "TRG_STUDY_NUM"
+    },
+    "file" : "i2b2demodata/study.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRG_TRIAL_VISIT_NUM"
+    },
+    "file" : "i2b2demodata/trial_visit_dimension.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "I2B2DEMODATA",
       "name" : "TRG_UPLOAD_STATUS_UPLOAD_ID"
     },
     "file" : "i2b2demodata/upload_status.sql"
@@ -2597,6 +2752,13 @@
       "type" : "REF_CONSTRAINT",
       "owner" : "I2B2DEMODATA",
       "name" : "TRIAL_VISIT_DIMENSION_STUDY_FK"
+    },
+    "file" : "i2b2demodata/trial_visit_dimension.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "TRIAL_VISIT_NUM_SEQ"
     },
     "file" : "i2b2demodata/trial_visit_dimension.sql"
   }, {
@@ -2648,5 +2810,19 @@
       "name" : "VISIT_DIMENSION"
     },
     "file" : "i2b2demodata/visit_dimension.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "LINKED_FILE_COLLECTION"
+    },
+    "file" : "i2b2demodata/linked_file_collection.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "I2B2DEMODATA",
+      "name" : "STORAGE_SYSTEM"
+    },
+    "file" : "i2b2demodata/storage_system.sql"
   } ]
 }

@@ -5,8 +5,10 @@ import grails.transaction.Transactional
 import grails.util.Holders
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
+import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
@@ -36,8 +38,6 @@ import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 
-import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
-
 @Slf4j
 @Transactional
 class QueryService {
@@ -59,6 +59,8 @@ class QueryService {
     private final Field textValueField = new Field(dimension: ValueDimension, fieldName: 'textValue', type: Type.STRING)
     private final Field numberValueField =
             new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
+
+    private final Criterion defaultHDModifierCriterion = Restrictions.like('modifierCd', 'TRANSMART:HIGHDIM:%')
 
     private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
         assert 'user is required', user
@@ -82,7 +84,7 @@ class QueryService {
             if (constraint.patientSetId) {
                 QueryResult queryResult = QtQueryResultInstance.findById(constraint.patientSetId)
                 if (queryResult == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
-                    throw new AccessDeniedException("Access denied to patient set: ${constraint.patientSetId}")
+                    throw new AccessDeniedException("Access denied to patient set or patient set does not exist: ${constraint.patientSetId}")
                 }
             }
         } else if (constraint instanceof FieldConstraint) {
@@ -96,17 +98,27 @@ class QueryService {
                 }
             }
         } else if (constraint instanceof ConceptConstraint) {
-            if (!accessControlChecks.checkConceptAccess(user, conceptPath: constraint.path)) {
-                throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
+            if (constraint.path && constraint.conceptCode) {
+                throw new InvalidQueryException("Expected one of path and conceptCode, got both.")
+            } else if (!constraint.path && !constraint.conceptCode) {
+                throw new InvalidQueryException("Expected one of path and conceptCode, got none.")
+            } else if (constraint.path) {
+                if (!accessControlChecks.checkConceptAccess(user, conceptPath: constraint.path)) {
+                    throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
+                }
+            } else {
+                if (!accessControlChecks.checkConceptAccess(user, conceptCode: constraint.conceptCode)) {
+                    throw new AccessDeniedException("Access denied to concept code: ${constraint.conceptCode}")
+                }
             }
         } else if (constraint instanceof StudyNameConstraint) {
             def study = Study.findByStudyId(constraint.studyId)
             if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
-                throw new AccessDeniedException("Access denied to study: ${constraint.studyId}")
+                throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.studyId}")
             }
         } else if (constraint instanceof StudyObjectConstraint) {
             if (constraint.study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, constraint.study)) {
-                throw new AccessDeniedException("Access denied to study: ${constraint.study?.studyId}")
+                throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.study?.studyId}")
             }
         } else {
             throw new InvalidQueryException("Unknown constraint type: ${constraint?.class?.simpleName}.")
@@ -164,6 +176,21 @@ class QueryService {
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
         DetachedCriteria criteria = builder.buildCriteria(constraint)
+        getList(criteria)
+    }
+
+    /**
+     * @description Function for getting a list of observations that are specified by <code>query</code>.
+     * @param query
+     * @param user
+     */
+    List<ObservationFact> highDimObservationList(Constraint constraint, User user) {
+        checkAccess(constraint, user)
+        log.info "Studies: ${accessControlChecks.getDimensionStudiesForUser(user)*.studyId}"
+        def builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser(user)
+        )
+        DetachedCriteria criteria = builder.buildCriteria(constraint, defaultHDModifierCriterion)
         getList(criteria)
     }
 
@@ -415,18 +442,24 @@ class QueryService {
         return getAggregate(type, queryCriteria)
     }
 
-    Hypercube highDimension(User user,
-                            Constraint assayConstraint,
-                            BiomarkerConstraint biomarkerConstaint = new BiomarkerConstraint(),
-                            String projectionName = Projection.ALL_DATA_PROJECTION) {
+    Hypercube highDimension(
+            Constraint assayConstraint,
+            BiomarkerConstraint biomarkerConstraint = new BiomarkerConstraint(),
+            String projectionName = Projection.ALL_DATA_PROJECTION,
+            User user) {
         checkAccess(assayConstraint, user)
 
-        List<ObservationFact> observations = list(assayConstraint, user)
-        //TODO check for correct Observation fact row
-        List assayIds = observations
-                .findAll { it.modifierCd == '@' }
-                .collect { it.numberValue.toLong() }
+        List modifierCodes = highDimensionResourceService.knownMarkerTypes.collect { String dataTypeName ->
+        String highDimType = dataTypeName.toUpperCase()
+        "TRANSMART:HIGHDIM:${highDimType}".toString()
+        }
 
+        List<ObservationFact> observations = highDimObservationList(assayConstraint, user)
+        //TODO check for correct Observation fact row
+
+        List assayIds = observations
+                .findAll { it.modifierCd in modifierCodes && it.numberValue != null}
+                .collect { it.numberValue.toLong() }
 
 
         if (assayIds.empty){
@@ -449,8 +482,8 @@ class QueryService {
         HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)
 
         List<DataConstraint> dataConstraints = []
-        if (biomarkerConstaint?.biomarkerType) {
-            dataConstraints << typeResource.createDataConstraint(biomarkerConstaint.params, biomarkerConstaint.biomarkerType)
+        if (biomarkerConstraint?.biomarkerType) {
+            dataConstraints << typeResource.createDataConstraint(biomarkerConstraint.params, biomarkerConstraint.biomarkerType)
         }
         TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
         new HddTabularResultHypercubeAdapter(table)

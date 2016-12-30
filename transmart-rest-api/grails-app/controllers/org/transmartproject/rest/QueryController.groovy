@@ -1,25 +1,17 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
-import grails.web.mime.MimeType
 import groovy.util.logging.Slf4j
-import org.grails.web.converters.exceptions.ConverterException
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.users.UsersResource
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.metadata.LegacyStudyException
-import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
-import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
-import org.transmartproject.rest.misc.CurrentUser
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
-import org.transmartproject.rest.protobuf.ObservationsSerializer
+
+import static org.transmartproject.rest.MultidimensionalDataSerialisationService.*
 
 @Slf4j
 class QueryController extends AbstractQueryController {
@@ -28,14 +20,14 @@ class QueryController extends AbstractQueryController {
 
     HighDimensionResourceService highDimensionResourceService
 
-    protected ObservationsSerializer.Format getContentFormat() {
-        ObservationsSerializer.Format format = ObservationsSerializer.Format.NONE
+    protected Format getContentFormat() {
+        Format format = Format.NONE
         withFormat {
             json {
-                format = ObservationsSerializer.Format.JSON
+                format = Format.JSON
             }
             protobuf {
-                format = ObservationsSerializer.Format.PROTOBUF
+                format = Format.PROTOBUF
             }
         }
         format
@@ -51,6 +43,8 @@ class QueryController extends AbstractQueryController {
      * satisfy the constraint.
      */
     def observationList() {
+        checkParams(params, ['constraint'])
+
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
@@ -69,11 +63,12 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def observations() {
+        checkParams(params, ['constraint'])
+
         def format = contentFormat
-        if (format == ObservationsSerializer.Format.NONE) {
+        if (format == Format.NONE) {
             throw new InvalidArgumentsException("Format not supported.")
         }
-
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
@@ -109,6 +104,8 @@ class QueryController extends AbstractQueryController {
      * @return a the number of observations that satisfy the constraint.
      */
     def count() {
+        checkParams(params, ['constraint'])
+
         Constraint constraint = bindConstraint()
         if (constraint == null) {
             return
@@ -136,6 +133,8 @@ class QueryController extends AbstractQueryController {
      * @return a map with the aggregate type as key and the result as value.
      */
     def aggregate() {
+        checkParams(params, ['constraint', 'type'])
+
         if (!params.type) {
             throw new InvalidArgumentsException("Type parameter is missing.")
         }
@@ -143,7 +142,7 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        def aggregateType = AggregateType.forName(params.type)
+        def aggregateType = AggregateType.forName(params.type as String)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def aggregatedValue = queryService.aggregate(aggregateType, constraint, user)
         def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
@@ -163,6 +162,8 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
     def highDim() {
+        checkParams(params, ['assay_constraint', 'biomarker_constraint', 'projection'])
+
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         Constraint assayConstraint = getConstraint('assay_constraint')
 
@@ -173,9 +174,7 @@ class QueryController extends AbstractQueryController {
             biomarkerConstraint = constraint
         }
 
-        Hypercube hypercube = queryService.highDimension(user, assayConstraint,
-                biomarkerConstraint,
-                params.projection)
+        Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, params.projection, user)
 
         def format = contentFormat
         OutputStream out = new LazyOutputStreamDecorator(
@@ -199,6 +198,8 @@ class QueryController extends AbstractQueryController {
      * @return the list of fields supported by {@link org.transmartproject.db.multidimquery.query.FieldConstraint}.
      */
     def supportedFields() {
+        checkParams(params, [])
+
         List<Field> fields = DimensionMetadata.supportedFields
         render fields as JSON
     }

@@ -101,7 +101,11 @@ class DimensionMetadata {
 
     static final List<Field> getSupportedFields() {
         dimensionMetadataMap.values().collectMany {
-            (it.type in [DimensionFetchType.COLUMN, DimensionFetchType.TABLE]) ? it.fields : [] as List<Field> }
+            (it.type in [
+                    DimensionFetchType.COLUMN,
+                    DimensionFetchType.TABLE,
+                    DimensionFetchType.VISIT
+            ]) ? it.fields : [] as List<Field> }
     }
 
     DimensionFetchType type

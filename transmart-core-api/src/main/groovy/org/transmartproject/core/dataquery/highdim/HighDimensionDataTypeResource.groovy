@@ -66,6 +66,7 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
                                                  List<DataConstraint> dataConstraints,
                                                  Projection projection)
 
+
     /**
      * The list of {@link AssayConstraint} types supported by this data type,
      * identified by their name.

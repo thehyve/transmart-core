@@ -105,6 +105,10 @@ public interface OntologyTerm {
      * @return (all) children of this term, ordered by name
      */
     List<OntologyTerm> getAllDescendants(boolean showHidden, boolean showSynonyms)
+	
+	List<OntologyTerm> getHDforAllDescendants()
+	
+	List<String> getAllDescendantsForFacets()
 
     /**
      * Returns all the terms below that have this term as a parent.

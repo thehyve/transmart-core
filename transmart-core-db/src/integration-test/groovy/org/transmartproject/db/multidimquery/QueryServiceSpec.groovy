@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
@@ -16,11 +15,11 @@ import org.transmartproject.db.multidimquery.query.FieldConstraint
 import org.transmartproject.db.multidimquery.query.ModifierConstraint
 import org.transmartproject.db.multidimquery.query.Operator
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
+import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.multidimquery.query.TimeConstraint
 import org.transmartproject.db.multidimquery.query.Type
 import org.transmartproject.db.multidimquery.query.ValueConstraint
 import org.transmartproject.db.user.User
-import spock.lang.Ignore
 import spock.lang.Specification
 import java.text.SimpleDateFormat
 
@@ -31,17 +30,18 @@ class QueryServiceSpec extends Specification {
     @Autowired
     QueryService queryService
 
-    Dimension assayDim = DimensionDescription.dimensionsMap.assay
-    Dimension biomarkerDim = DimensionDescription.dimensionsMap.biomarker
-    Dimension projectionDim = DimensionDescription.dimensionsMap.projection
-    Dimension patientDim = DimensionDescription.dimensionsMap.patient
+    Dimension assayDim = DimensionImpl.ASSAY
+    Dimension biomarkerDim = DimensionImpl.BIOMARKER
+    Dimension projectionDim = DimensionImpl.PROJECTION
+    Dimension patientDim = DimensionImpl.PATIENT
+    Dimension visitDim = DimensionImpl.VISIT
 
     void 'get whole hd data for single node'() {
         User user = User.findByUsername('test-public-user-1')
         ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
         when:
-        Hypercube hypercube = queryService.highDimension(user, conceptConstraint)
+        Hypercube hypercube = queryService.highDimension(conceptConstraint, user)
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -68,7 +68,7 @@ class QueryServiceSpec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(user, combinationConstraint)
+        Hypercube hypercube = queryService.highDimension(combinationConstraint, user)
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -90,7 +90,7 @@ class QueryServiceSpec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(user, conceptConstraint, bioMarkerConstraint)
+        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user)
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -117,7 +117,7 @@ class QueryServiceSpec extends Specification {
         when:
         trialVisitConstraint.value = 'Baseline'
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
-        Hypercube hypercube = queryService.highDimension(user, combination)
+        Hypercube hypercube = queryService.highDimension(combination, user)
         hypercube.toList()
 
         then:
@@ -128,7 +128,7 @@ class QueryServiceSpec extends Specification {
         when:
         trialVisitConstraint.value = 'Week 1'
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
-        hypercube = queryService.highDimension(user, combination)
+        hypercube = queryService.highDimension(combination, user)
         hypercube.toList()
 
         then:
@@ -168,7 +168,7 @@ class QueryServiceSpec extends Specification {
         Hypercube hypercube
         when:
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, startDateTimeConstraint])
-        hypercube = queryService.highDimension(user, combination)
+        hypercube = queryService.highDimension(combination, user)
         hypercube.toList()
 
         then:
@@ -176,7 +176,7 @@ class QueryServiceSpec extends Specification {
 
         when:
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
-        hypercube = queryService.highDimension(user, combination)
+        hypercube = queryService.highDimension(combination, user)
         hypercube.toList()
 
         then:
@@ -184,7 +184,38 @@ class QueryServiceSpec extends Specification {
 
     }
 
-    @Ignore //vistDimension is not supported as Field?
+    void 'Clinical data selected on visit dimension'() {
+        def user = User.findByUsername('test-public-user-1')
+        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
+        def minDate = sdf.parse('2016-04-01 10:00:00')
+        def visitStartConstraint = new FieldConstraint(
+                operator: Operator.AFTER,
+                value: minDate,
+                field: new Field(
+                        dimension: VisitDimension,
+                        fieldName: 'startDate',
+                        type: 'DATE'
+                )
+        )
+        def studyNameConstraint = new StudyNameConstraint(
+                studyId: 'EHR'
+        )
+        def combination = new Combination(
+                args: [visitStartConstraint, studyNameConstraint],
+                operator: Operator.AND
+        )
+        when:
+        Hypercube hypercube = queryService.retrieveClinicalData(combination, user)
+        def observations = hypercube.toList()
+
+        then:
+        observations.size() == 2
+        hypercube.dimensionElements(visitDim).each {
+            assert (it.getAt('startDate') as Date) > minDate
+        }
+    }
+
+
     void 'HD data selected on visit dimension'() {
         def user = User.findByUsername('test-public-user-1')
         SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
@@ -192,7 +223,7 @@ class QueryServiceSpec extends Specification {
                 operator: Operator.AFTER,
                 value: sdf.parse('2016-05-05 10:00:00'),
                 field: new Field(
-                        dimension: 'VisitDimension',
+                        dimension: VisitDimension,
                         fieldName: 'endDate',
                         type: 'DATE'
                 )
@@ -206,7 +237,7 @@ class QueryServiceSpec extends Specification {
                 operator: Operator.AND
         )
         when:
-        Hypercube hypercube = queryService.highDimension(user, combination)
+        Hypercube hypercube = queryService.highDimension(combination, user)
         hypercube.toList()
 
         then:
@@ -257,10 +288,65 @@ class QueryServiceSpec extends Specification {
         )
         when:
         Combination combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
-        Hypercube hypercube = queryService.highDimension(user, combination)
+        Hypercube hypercube = queryService.highDimension(combination, user)
 
 
         then:
         hypercube.toList().empty
+    }
+
+    void 'get transcript data for selected patients and selected transcripts'() {
+        def user = User.findByUsername('test-public-user-1')
+        ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Breast\\')
+        def secondSubject = org.transmartproject.db.i2b2data.PatientDimension.find {
+            sourcesystemCd == 'RNASEQ_TRANSCRIPT:2'
+        }
+        Constraint assayConstraint = new PatientSetConstraint(patientIds: secondSubject*.id)
+        Constraint combinationConstraint = new Combination(
+                operator: Operator.AND,
+                args: [
+                        conceptConstraint,
+                        assayConstraint
+                ]
+        )
+        BiomarkerConstraint bioMarkerConstraint = new BiomarkerConstraint(
+                biomarkerType: DataConstraint.TRANSCRIPTS_CONSTRAINT,
+                params: [
+                        names: ['tr2']
+                ]
+        )
+
+        when:
+        Hypercube hypercube = queryService.highDimension(combinationConstraint, bioMarkerConstraint, user)
+
+        then:
+        hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
+                hypercube.dimensionElements(assayDim).size() *
+                hypercube.dimensionElements(projectionDim).size()
+        hypercube.dimensionElements(biomarkerDim).size() == 1
+        hypercube.dimensionElements(assayDim).size() == 1
+        hypercube.dimensionElements(projectionDim).size() == 13
+    }
+
+    void 'get transcript data for selected genes'() {
+        def user = User.findByUsername('test-public-user-1')
+        ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Breast\\')
+        BiomarkerConstraint bioMarkerConstraint = new BiomarkerConstraint(
+                biomarkerType: DataConstraint.GENES_CONSTRAINT,
+                params: [
+                        names: ['AURKA']
+                ]
+        )
+
+        when:
+        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user)
+
+        then:
+        hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
+                hypercube.dimensionElements(assayDim).size() *
+                hypercube.dimensionElements(projectionDim).size()
+        hypercube.dimensionElements(biomarkerDim).size() == 1
+        hypercube.dimensionElements(assayDim).size() == 3
+        hypercube.dimensionElements(projectionDim).size() == 13
     }
 }

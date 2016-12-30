@@ -4,3 +4,7 @@ services:
     tm_test_db:
         build: ./tm_test_db
         ports: ['6000:5432']
+    solr:
+        build: ./solr
+        ports: ['8983:8983']
+        depends_on: ['tm_test_db']

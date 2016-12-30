@@ -52,7 +52,7 @@ abstract class ResourceSpec extends Specification {
 
     void setup() {
         Holders.applicationContext.getBeansOfType(RendererRegistry.class).each {
-            log.info "RendererRegistry bean: ${it}"
+            log.debug "RendererRegistry bean: ${it}"
         }
         def rendererRegistry = Holders.applicationContext.getBean('rendererRegistry')
         assert rendererRegistry.class == TransmartRendererRegistry
@@ -73,6 +73,23 @@ abstract class ResourceSpec extends Specification {
 
     RestResponse get(String path, Closure paramSetup = {}) {
         rest.get("${baseURL}${path}", paramSetup)
+    }
+
+    RestResponse delete(String path, Closure paramSetup = {}) {
+        rest.delete("${baseURL}${path}", paramSetup)
+    }
+    /**
+    * An alias to put method
+    * @param path
+    * @param paramSetup
+    * @return
+    */
+    RestResponse update(String path, Closure paramSetup = {}) {
+        rest.put("${baseURL}${path}", paramSetup)
+    }
+
+    RestResponse put(String path, Closure paramSetup = {}) {
+        rest.put("${baseURL}${path}", paramSetup)
     }
 
     RestResponse post(String path, Closure paramSetup = {}) {

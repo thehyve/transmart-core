@@ -86,10 +86,9 @@ class ClinicalDataPublicStudyTests implements JobRunningTestTrait {
                 FROM ${Tables.SECURE_OBJECT} S
                 LEFT JOIN ${Tables.BIO_EXPERIMENT} B ON (S.bio_data_id = B.bio_experiment_id)
                 WHERE S.bio_data_unique_id = :sot"""
-        def res = queryForList(q, [sot: "EXP:PUBLIC" as String])
+        def res = queryForList(q, [sot: "PUBLIC" as String])
 
         assertThat res, hasSize(1)
-
     }
 
     @Test

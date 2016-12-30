@@ -64,6 +64,13 @@ class HighDimensionResourceService implements HighDimensionResource {
         dataTypeRegistry.keySet()
     }
 
+    Set<String> getKnownMarkerTypes() {
+        dataTypeRegistry.values().collect { Closure factory ->
+            def dataType  = factory()
+            dataType.module.platformMarkerTypes[0]
+        } as Set
+    }
+
     @Override
     HighDimensionDataTypeResource getSubResourceForType(String dataTypeName)
             throws NoSuchResourceException {

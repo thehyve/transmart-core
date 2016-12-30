@@ -63,6 +63,13 @@ $(DIC_SRC_FILES_FOLDER)/$(METABOLITE_DIC_SRC_FILE_ARCH): $(DIC_SRC_FILES_FOLDER)
 $(DIC_SRC_FILES_FOLDER)/$(METABOLITE_DIC_SRC_FOLDER): $(DIC_SRC_FILES_FOLDER)/$(METABOLITE_DIC_SRC_FILE_ARCH)
 	mkdir -p $@ && tar -C $@ -xJf $<
 
+TRANSCRIPT_DIC_SRC_FOLDER = transcript-dic
+TRANSCRIPT_DIC_SRC_FILE_ARCH = transcript.tar.xz
+$(DIC_SRC_FILES_FOLDER)/$(TRANSCRIPT_DIC_SRC_FILE_ARCH): $(DIC_SRC_FILES_FOLDER)
+	curl -f $(REMOTE_FILE_STORAGE)/dictionaries/$(TRANSCRIPT_DIC_SRC_FILE_ARCH) > $@
+$(DIC_SRC_FILES_FOLDER)/$(TRANSCRIPT_DIC_SRC_FOLDER): $(DIC_SRC_FILES_FOLDER)/$(TRANSCRIPT_DIC_SRC_FILE_ARCH)
+	mkdir -p $@ && tar -C $@ -xJf $<
+
 TRANSMART_LOADER = transmart-loader-latest-bamboo-snapshot
 TRANSMART_LOADER_JAR = loader-jar-with-dependencies.jar
 $(TRANSMART_LOADER):
@@ -92,7 +99,16 @@ load_metabolomics_dictionary: $(DIC_SRC_FILES_FOLDER)/$(METABOLITE_DIC_SRC_FOLDE
 	org.transmartproject.pipeline.dictionary.HMDBDictionary \
 	$(DIC_SRC_FILES_FOLDER)/$(METABOLITE_DIC_SRC_FOLDER)/Metabolite.tsv
 
-.PHONY: dump_schema_% load_schema_% load_proteomics_dictionary load_tworegion_sample load_mirna_dictionary load_metabolomics_dictionary
+load_transcript_dictionary: $(DIC_SRC_FILES_FOLDER)/$(TRANSCRIPT_DIC_SRC_FOLDER) $(TRANSMART_LOADER) $(ENV_DIR)/$(TRANSMART_LOADER)/conf/Common.properties
+	cd $(ENV_DIR)/$(TRANSMART_LOADER) \
+	&& java -cp $(TRANSMART_LOADER_JAR):../../lib/* \
+	org.transmartproject.pipeline.dictionary.TranscriptDictionary \
+	$(DIC_SRC_FILES_FOLDER)/$(TRANSCRIPT_DIC_SRC_FOLDER)/transcript_name_mapping.txt \
+	&& java -cp $(TRANSMART_LOADER_JAR):../../lib/* \
+	org.transmartproject.pipeline.dictionary.GeneTransDictionary \
+	$(DIC_SRC_FILES_FOLDER)/$(TRANSCRIPT_DIC_SRC_FOLDER)/transcript_gene_mapping.txt
+
+.PHONY: dump_schema_% load_schema_% load_proteomics_dictionary load_tworegion_sample load_mirna_dictionary load_transcript_dictionary load_metabolomics_dictionary
 .PRECIOUS: $(foreach d,$(TABLE_DIRS),$d)
 
 

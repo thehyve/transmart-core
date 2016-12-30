@@ -20,7 +20,7 @@
     <g:each in="${experiments.entrySet().sort{it.key.accession}}" status="ti" var="experimentresult">        
         <div class="${ (ti % 2) == 0 ? 'result-trial-odd' : 'result-trial-even'}" id="TrialDet_${experimentresult.key.id}_anchor">
         	<g:set var="safeTitle">${experimentresult.key.title.replace("'", "\\'")}</g:set>
-            <a href="#" onclick="javascript:showDetailDialog('${createLink(controller:'experimentAnalysis',action:'expDetail',id:experimentresult.key.id)}', '${experimentresult.key.accession}: ${safeTitle}', 600);">
+            <a href="#" onclick="javascript:gwasShowDetailDialog('${createLink(controller:'experimentAnalysis',action:'expDetail',id:experimentresult.key.id)}', '${experimentresult.key.accession}: ${safeTitle}', 600);">
                <span style="display:block; float:left;">
                    <asset:image alt="" src="view_detailed.png" />
                </span>

@@ -28,6 +28,7 @@ import org.transmartproject.batch.highdim.rnaseq.platform.RnaSeqAnnotationJobSpe
 import org.transmartproject.batch.highdim.rnaseq.transcript.data.RnaSeqTranscriptDataJobSpecification
 import org.transmartproject.batch.highdim.rnaseq.transcript.platform.RnaSeqTranscriptAnnotationJobSpecification
 import org.transmartproject.batch.i2b2.I2b2JobSpecification
+import org.transmartproject.batch.ontologymapping.FetchOntologyMappingJobSpecification
 import org.transmartproject.batch.support.StringUtils
 import org.transmartproject.batch.tag.TagsLoadJobSpecification
 
@@ -50,6 +51,7 @@ final class JobStartupDetails implements Comparable<JobStartupDetails> {
             'backout'                     : BackoutJobSpecification,
             'i2b2'                        : I2b2JobSpecification,
             'clinical'                    : ClinicalJobSpecification,
+            'ontologymapping'             : FetchOntologyMappingJobSpecification,
             //Legacy. Deprecated. Use mrna_annotation instead
             'annotation'                  : AnnotationJobSpecification,
             //New name for mrna platform. Unlike old platform data file, new file contains a header.

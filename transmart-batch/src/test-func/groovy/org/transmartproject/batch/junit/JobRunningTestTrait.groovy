@@ -25,17 +25,21 @@ trait JobRunningTestTrait {
     @Autowired
     NamedParameterJdbcTemplate jdbcTemplate
 
+    def getType() {
+        this.class
+    }
+
     @Rule
     @SuppressWarnings('PublicInstanceField')
     public final SkipIfJobFailedRule skipIfJobFailedRule = {
-        if (!owner.getClass().declaredFields.find {
+        if (!type.declaredFields.find {
             it.name == 'RUN_JOB_RULE' && isStatic(it.modifiers)
         }) {
             throw new NoSuchFieldException("Expected the class " +
-                    "${owner.getClass()} to have a static property 'RUN_JOB_RULE'")
+                    "${type} to have a static property 'RUN_JOB_RULE'")
         }
 
-        new SkipIfJobFailedRule(runJobRule: owner.getClass().RUN_JOB_RULE)
+        new SkipIfJobFailedRule(runJobRule: type.RUN_JOB_RULE)
     }()
 
     @Test
@@ -45,13 +49,13 @@ trait JobRunningTestTrait {
                 'The job completed successfully'
     }
 
-    private Map<String, Object> makeKeyLowerCase(Map<String, Object> map) {
+    static Map<String, Object> makeKeyLowerCase(Map<String, Object> map) {
         map.collectEntries { String key, Object value ->
             [ key.toLowerCase(), value ]
-        }
+        } as Map<String, Object>
     }
 
-    private List<Map<String, Object>> makeKeyLowerCase(List<Map<String, Object>> list) {
+    static List<Map<String, Object>> makeKeyLowerCase(List<Map<String, Object>> list) {
         list.collect { Map<String, Object> map -> makeKeyLowerCase(map) }
     }
 

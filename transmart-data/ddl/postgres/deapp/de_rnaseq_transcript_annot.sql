@@ -5,9 +5,9 @@ CREATE TABLE de_rnaseq_transcript_annot (
     id bigint NOT NULL,
     gpl_id character varying(50) NOT NULL,
     ref_id character varying(50) NOT NULL,
-    chromosome character varying(2) NOT NULL,
-    start_bp bigint NOT NULL,
-    end_bp bigint NOT NULL,
+    chromosome character varying(2),
+    start_bp bigint,
+    end_bp bigint,
     transcript character varying(100)
 );
 
