@@ -14,5 +14,10 @@ CREATE TABLE bio_asy_analysis_gwas_top50 (
     rnum bigint,
     intronexon character varying(10),
     regulome character varying(10),
-    recombinationrate numeric(18,6)
+    recombinationrate numeric(18, 6),
+    beta double precision,
+    standard_error double precision,
+    effect_allele character varying(30),
+    other_allele character varying(30),
+    strand character varying(1)
 );
