@@ -8,6 +8,9 @@ import spock.lang.Requires
 import static config.Config.*
 import static tests.rest.v2.constraints.ConceptConstraint
 
+/**
+ *  TMPREQ-8 Specifying user/group access by study
+ */
 @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
 class AccessLevelSpec extends RESTSpec{
 

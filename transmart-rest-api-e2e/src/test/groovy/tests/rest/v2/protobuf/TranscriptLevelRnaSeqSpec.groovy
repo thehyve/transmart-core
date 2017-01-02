@@ -9,6 +9,11 @@ import static config.Config.RNASEQ_TRANSCRIPT_ID
 import static tests.rest.v2.constraints.BiomarkerConstraint
 import static tests.rest.v2.constraints.StudyNameConstraint
 
+/**
+ *  TMPREQ-4 Storing transcript level RNA-Seq data
+ *  TMPREQ-13 Retrieving transcript level RNA-Seq data via the REST API
+ *  TMPREQ-15 Retrieving data filtered by proteins, transcripts, and genes using standard ontologies via the API
+ */
 class TranscriptLevelRnaSeqSpec extends RESTSpec {
 
     /**

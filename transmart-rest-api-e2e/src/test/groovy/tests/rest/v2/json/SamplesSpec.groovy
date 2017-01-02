@@ -10,6 +10,9 @@ import static tests.rest.v2.ValueType.STRING
 import static tests.rest.v2.constraints.ModifierConstraint
 import static tests.rest.v2.constraints.ValueConstraint
 
+/**
+ *   TMPREQ-12 Support storing and fetching multiple samples.
+ */
 class SamplesSpec extends RESTSpec{
 
     /**

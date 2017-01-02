@@ -7,6 +7,9 @@ import static config.Config.*
 
 import base.RESTSpec
 
+/**
+ *  TMPREQ-6 Building a tree where concepts are study-specific
+ */
 class TreeNodesSpec extends  RESTSpec{
 
     /**

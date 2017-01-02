@@ -9,6 +9,9 @@ import static config.Config.*
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.constraints.*
 
+/**
+ *  TMPREQ-9 Support storing and fetching timeseries data: allow multiple observations with start and end time.
+ */
 @Requires({EHR_LOADED})
 class MultipleObservationsSpec extends RESTSpec{
 

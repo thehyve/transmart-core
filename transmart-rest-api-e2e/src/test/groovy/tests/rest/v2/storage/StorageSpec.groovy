@@ -5,6 +5,10 @@ import spock.lang.IgnoreIf
 
 import static config.Config.*
 
+/**
+ *  external storage
+ *  TMPREQ-19 Support linking to external data in Arvados from tranSMART API
+ */
 class StorageSpec extends RESTSpec{
 
     def setup() {

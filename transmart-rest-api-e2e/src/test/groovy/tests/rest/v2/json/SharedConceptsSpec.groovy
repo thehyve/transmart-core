@@ -8,6 +8,9 @@ import static config.Config.*
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.constraints.*
 
+/**
+ *  TMPREQ-5 Building a generic concept tree across studies
+ */
 @Requires({SHARED_CONCEPTS_LOADED})
 class SharedConceptsSpec extends RESTSpec {
 

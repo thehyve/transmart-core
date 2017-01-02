@@ -5,6 +5,10 @@ import spock.lang.IgnoreIf
 
 import static config.Config.*
 
+/**
+ *  Creating ArvadosWorkflows
+ *  TMPREQ-31 Starting an Arvados workflow from tranSMART API.
+ */
 class ArvadosWorkflowsSpec extends RESTSpec{
 
 
