@@ -56,6 +56,48 @@ abstract class RESTSpec extends Specification{
         return oauth2token.get(user.'username')
     }
 
+    def put(String path, requestBody){
+        http.request(Method.PUT, ContentType.JSON){
+            uri.path = path
+            body = requestBody
+            headers.Accept = contentTypeForJSON
+            if (OAUTH_NEEDED) {
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
+            response.success = { resp, reader ->
+                assert resp.statusLine.statusCode in 200..<400
+                assert resp.headers.'Content-Type'.contains(contentTypeForJSON) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
+                if (DEBUG){
+                    println "Got response: ${resp.statusLine}"
+                    println "Content-Type: ${resp.headers.'Content-Type'}"
+                    def result = reader
+                    println result
+                    return result
+                }
+                return reader
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode >= 400
+                if (DEBUG){
+                    println "Got response: ${resp.statusLine}"
+                    println "Content-Type: ${resp.headers.'Content-Type'}"
+                    def result = reader
+                    println result
+                    return result
+                }
+
+                return reader
+            }
+        }
+    }
+
+    def post(String path, requestBody){
+        return post(path, contentTypeForJSON, null, requestBody)
+    }
+
     /**
      *
      * a convenience method to keep the tests readable by removing as much code as possible
@@ -108,6 +150,44 @@ abstract class RESTSpec extends Specification{
 
     }
 
+    def delete(String path, String AcceptHeader = contentTypeForJSON, queryMap = null){
+        http.request(Method.DELETE, ContentType.JSON) { req ->
+            uri.path = path
+            uri.query = queryMap
+            headers.Accept = AcceptHeader
+            if (OAUTH_NEEDED){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
+            response.success = { resp, reader ->
+                assert resp.statusLine.statusCode in 200..<400
+                assert resp.headers.'Content-Type'.contains(AcceptHeader) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
+                if (DEBUG){
+                    println "Got response: ${resp.statusLine}"
+                    println "Content-Type: ${resp.headers.'Content-Type'}"
+                    def result = reader
+                    println result
+                    return result
+                }
+                return reader
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode >= 400
+                if (DEBUG){
+                    println "Got response: ${resp.statusLine}"
+                    println "Content-Type: ${resp.headers.'Content-Type'}"
+                    def result = reader
+                    println result
+                    return result
+                }
+
+                return reader
+            }
+        }
+    }
+
     /**
      * a convenience method to keep the tests readable by removing as much code as possible
      *
@@ -116,7 +196,7 @@ abstract class RESTSpec extends Specification{
      * @param queryMap
      * @return
      */
-    def get(String path, String AcceptHeader, queryMap = null){
+    def get(String path, String AcceptHeader = contentTypeForJSON, queryMap = null){
         http.request(Method.GET, ContentType.JSON) { req ->
             uri.path = path
             uri.query = queryMap
