@@ -1,6 +1,5 @@
-package selectors.protobuf
+package selectors
 
-import protobuf.ObservationsMessageProto
 import protobuf.ObservationsProto
 
 class ObservationSelector {

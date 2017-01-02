@@ -1,6 +1,4 @@
-package selectors.protobuf
-
-import grails.converters.JSON
+package selectors
 
 class ObservationSelectorJson {
     final ObservationsMessageJson hyperCubeMessage

@@ -2,7 +2,7 @@ package tests.rest.v2.json
 
 import base.RESTSpec
 import groovy.json.JsonBuilder
-import selectors.protobuf.ObservationSelectorJson
+import selectors.ObservationSelectorJson
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 

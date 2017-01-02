@@ -2,8 +2,8 @@ package tests.rest.v2.protobuf
 
 import base.RESTSpec
 import groovy.json.JsonBuilder
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
+import selectors.ObservationsMessageProto
+import selectors.ObservationSelector
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 

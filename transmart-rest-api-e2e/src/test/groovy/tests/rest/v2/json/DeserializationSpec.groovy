@@ -1,7 +1,7 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
-import selectors.protobuf.ObservationSelectorJson
+import selectors.ObservationSelectorJson
 
 import static config.Config.*
 import static tests.rest.v2.Operator.OR

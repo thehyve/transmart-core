@@ -2,7 +2,7 @@ package tests.rest.v2.protobuf
 
 import base.RESTSpec
 import groovy.json.JsonBuilder
-import selectors.protobuf.ObservationSelector
+import selectors.ObservationSelector
 
 import static config.Config.PATH_HIGH_DIM
 import static config.Config.RNASEQ_TRANSCRIPT_ID

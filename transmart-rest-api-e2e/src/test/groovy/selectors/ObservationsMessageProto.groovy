@@ -1,4 +1,6 @@
-package protobuf
+package selectors
+
+import protobuf.ObservationsProto
 
 class ObservationsMessageProto {
     public final ObservationsProto.Header header

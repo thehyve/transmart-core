@@ -1,8 +1,8 @@
 package tests.rest.v2.protobuf
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
+import selectors.ObservationsMessageProto
+import selectors.ObservationSelector
 
 import static config.Config.EHR_ID
 import static config.Config.PATH_OBSERVATIONS

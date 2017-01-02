@@ -1,4 +1,4 @@
-package selectors.protobuf
+package selectors
 
 class ObservationsMessageJson {
 

@@ -1,7 +1,7 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
-import selectors.protobuf.ObservationSelectorJson
+import selectors.ObservationSelectorJson
 
 import static config.Config.EHR_ID
 import static config.Config.PATH_OBSERVATIONS

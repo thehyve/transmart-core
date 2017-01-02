@@ -1,8 +1,8 @@
 package tests.rest.v2.protobuf
 
 import base.RESTSpec
-import protobuf.ObservationsMessageProto
-import selectors.protobuf.ObservationSelector
+import selectors.ObservationsMessageProto
+import selectors.ObservationSelector
 import spock.lang.Requires
 
 import static config.Config.*

@@ -6,9 +6,9 @@ import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
-import protobuf.ObservationsMessageProto
+import selectors.ObservationsMessageProto
 import protobuf.ObservationsProto
-import selectors.protobuf.ObservationsMessageJson
+import selectors.ObservationsMessageJson
 import spock.lang.Shared
 import spock.lang.Specification
 

@@ -1,7 +1,7 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
-import selectors.protobuf.ObservationSelectorJson
+import selectors.ObservationSelectorJson
 import spock.lang.Requires
 
 import static config.Config.CATEGORICAL_VALUES_LOADED
