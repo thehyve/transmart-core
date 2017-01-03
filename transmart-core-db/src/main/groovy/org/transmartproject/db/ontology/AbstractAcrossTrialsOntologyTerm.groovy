@@ -81,6 +81,16 @@ abstract class AbstractAcrossTrialsOntologyTerm
     List<OntologyTerm> getAllDescendants(boolean showHidden, boolean showSynonyms) {
         getAllDescendants(true, showHidden, showSynonyms)
     }
+	
+	@Override
+	List<OntologyTerm> getHDforAllDescendants() {
+		getAllDescendants(true, false, false)
+	}
+
+	@Override
+	List<OntologyTerm> getAllDescendantsForFacets() {
+		getAllDescendants()
+	}
 
     private List<OntologyTerm> getDescendants(boolean allDescendants,
                                               boolean showHidden = false /* ignored */,

@@ -29,6 +29,8 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.db.util.StringUtils
 
+import static org.transmartproject.db.util.StringUtils.asLikeLiteral
+
 @EqualsAndHashCode(includes = [ 'fullName', 'name' ])
 abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         implements OntologyTerm {
@@ -168,12 +170,55 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
                                          boolean showSynonyms = false) {
         getDescendants(true, showHidden, showSynonyms)
     }
+										 
+	@Override
+	List<OntologyTerm> getHDforAllDescendants() {
+		getHDDescendants(true, false, false, false)
+	}
+										 
+    //@Override
+    List<String> getAllDescendantsForFacets() {
+        getDescendantsFullName(true, false, false, false)
+    }
+	
+	private List<OntologyTerm> getHDDescendants(boolean allDescendants,
+			boolean showHidden = false,
+			boolean showSynonyms = false,
+			boolean isOrdered = true) {
+		HibernateCriteriaBuilder c
+		def fullNameSearch = asLikeLiteral(this.conceptKey.conceptFullName.toString()) + '%'
+
+		c = createCriteria()
+		def ret = c.list {
+			and {
+				like 'fullName', fullNameSearch
+				if (allDescendants) {
+					gt 'level', level
+				} else {
+					eq 'level', level + 1
+				}
+
+				if (!showHidden) {
+					not { like 'cVisualattributes', '_H%' }
+				}
+				if (!showSynonyms) {
+					eq 'cSynonymCd', 'N' as char
+				}
+				like 'cVisualattributes', '__H%'
+			}
+			if (isOrdered)
+				order('name')
+		}
+		ret.each { it.setTableCode(getTableCode()) }
+		ret
+	}
 
     private List<OntologyTerm> getDescendants(boolean allDescendants,
                                               boolean showHidden = false,
-                                              boolean showSynonyms = false) {
+                                              boolean showSynonyms = false,
+											  boolean isOrdered = true) {
         HibernateCriteriaBuilder c
-        def fullNameSearch = this.conceptKey.conceptFullName.toString()
+        def fullNameSearch = asLikeLiteral(this.conceptKey.conceptFullName.toString()) + '%'
 
         c = createCriteria()
         def ret = c.list {
@@ -192,11 +237,46 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
                     eq 'cSynonymCd', 'N' as char
                 }
             }
+			if (isOrdered)
             order('name')
         }
         ret.each { it.setTableCode(getTableCode()) }
         ret
     }
+											  
+	private List<String> getDescendantsFullName(boolean allDescendants,
+												  boolean showHidden = false,
+												  boolean showSynonyms = false,
+												  boolean isOrdered = true) {
+			HibernateCriteriaBuilder c
+			def fullNameSearch = asLikeLiteral(this.conceptKey.conceptFullName.toString()) + '%'
+	
+			c = createCriteria()
+			def ret = c.list {
+				projections {
+					property('fullName')
+				}
+				and {
+					like 'fullName', fullNameSearch
+					if (allDescendants) {
+						gt 'level', level
+					} else {
+						eq 'level', level + 1
+					}
+	
+					if (!showHidden) {
+						not { like 'cVisualattributes', '_H%' }
+					}
+					if (!showSynonyms) {
+						eq 'cSynonymCd', 'N' as char
+					}
+				}
+				if (isOrdered)
+				order('name')
+			}
+			ret.each { it.setTableCode(getTableCode()) }
+			ret
+		}
 
     @Override
     List<Patient> getPatients() {
