@@ -187,9 +187,9 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
 			boolean showSynonyms = false,
 			boolean isOrdered = true) {
 		HibernateCriteriaBuilder c
-		def fullNameSearch = asLikeLiteral(this.conceptKey.conceptFullName.toString()) + '%'
+		def fullNameSearch = this.conceptKey.conceptFullName.toString()
 
-		c = createCriteria()
+        c = createCriteria()
 		def ret = c.list {
 			and {
 				like 'fullName', fullNameSearch
@@ -207,8 +207,9 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
 				}
 				like 'cVisualattributes', '__H%'
 			}
-			if (isOrdered)
-				order('name')
+			if (isOrdered) {
+                order('name')
+            }
 		}
 		ret.each { it.setTableCode(getTableCode()) }
 		ret
@@ -219,7 +220,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
                                               boolean showSynonyms = false,
 											  boolean isOrdered = true) {
         HibernateCriteriaBuilder c
-        def fullNameSearch = asLikeLiteral(this.conceptKey.conceptFullName.toString()) + '%'
+        def fullNameSearch =  this.conceptKey.conceptFullName.toString()
 
         c = createCriteria()
         def ret = c.list {
@@ -238,8 +239,9 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
                     eq 'cSynonymCd', 'N' as char
                 }
             }
-			if (isOrdered)
-            order('name')
+			if (isOrdered) {
+                order('name')
+            }
         }
         ret.each { it.setTableCode(getTableCode()) }
         ret
