@@ -1,4 +1,4 @@
-{
+var spec = {
     "swagger": "2.0",
     "info": {
         "version": "17.1.0",
