@@ -41,7 +41,34 @@ var spec = {
                     "200": {
                         "description": "Successful response",
                         "schema": {
-                            "$ref": "#/definitions/StudyResponse"
+                            "type": "object",
+                            "properties": {
+                                "studies": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/jsonStudy"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/studies(hal+json)": {
+            "get": {
+                "description": "Gets all `Study` objects.\n",
+                "produces": [
+                    "application/hal+json"
+                ],
+                "tags": [
+                    "v1"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "$ref": "#/definitions/hal+jsonStudys"
                         }
                     }
                 }
@@ -66,24 +93,7 @@ var spec = {
                     "200": {
                         "description": "Successful response",
                         "schema": {
-                            "title": "StudiesResponse",
-                            "type": "object",
-                            "items": {
-                                "title": "StudyArray",
-                                "type": "array",
-                                "items": {
-                                    "title": "study",
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "single": {
-                                            "type": "boolean"
-                                        }
-                                    }
-                                }
-                            }
+                            "$ref": "#/definitions/jsonStudy"
                         }
                     }
                 }
@@ -108,21 +118,12 @@ var spec = {
                     "200": {
                         "description": "Successful response",
                         "schema": {
-                            "title": "ConceptsResponse",
                             "type": "object",
-                            "items": {
-                                "title": "ConceptArray",
-                                "type": "array",
-                                "items": {
-                                    "title": "study",
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "single": {
-                                            "type": "boolean"
-                                        }
+                            "properties": {
+                                "ontology_terms": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/ontologyTerm"
                                     }
                                 }
                             }
@@ -157,24 +158,7 @@ var spec = {
                     "200": {
                         "description": "Successful response",
                         "schema": {
-                            "title": "ConceptsResponse",
-                            "type": "object",
-                            "items": {
-                                "title": "ConceptArray",
-                                "type": "array",
-                                "items": {
-                                    "title": "study",
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "single": {
-                                            "type": "boolean"
-                                        }
-                                    }
-                                }
-                            }
+                            "$ref": "#/definitions/ontologyTerm"
                         }
                     }
                 }
@@ -199,21 +183,12 @@ var spec = {
                     "200": {
                         "description": "Successful response",
                         "schema": {
-                            "title": "ConceptsResponse",
                             "type": "object",
-                            "items": {
-                                "title": "ConceptArray",
-                                "type": "array",
-                                "items": {
-                                    "title": "study",
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "single": {
-                                            "type": "boolean"
-                                        }
+                            "properties": {
+                                "subjects": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/patient"
                                     }
                                 }
                             }
@@ -248,24 +223,7 @@ var spec = {
                     "200": {
                         "description": "Successful response",
                         "schema": {
-                            "title": "ConceptsResponse",
-                            "type": "object",
-                            "items": {
-                                "title": "ConceptArray",
-                                "type": "array",
-                                "items": {
-                                    "title": "study",
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "single": {
-                                            "type": "boolean"
-                                        }
-                                    }
-                                }
-                            }
+                            "$ref": "#/definitions/patient"
                         }
                     }
                 }
@@ -297,21 +255,12 @@ var spec = {
                     "200": {
                         "description": "Successful response",
                         "schema": {
-                            "title": "ConceptsResponse",
                             "type": "object",
-                            "items": {
-                                "title": "ConceptArray",
-                                "type": "array",
-                                "items": {
-                                    "title": "study",
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "single": {
-                                            "type": "boolean"
-                                        }
+                            "properties": {
+                                "subjects": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/patient"
                                     }
                                 }
                             }
@@ -339,23 +288,9 @@ var spec = {
                     "200": {
                         "description": "Successful response",
                         "schema": {
-                            "title": "ConceptsResponse",
-                            "type": "object",
+                            "type": "array",
                             "items": {
-                                "title": "ConceptArray",
-                                "type": "array",
-                                "items": {
-                                    "title": "study",
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "single": {
-                                            "type": "boolean"
-                                        }
-                                    }
-                                }
+                                "$ref": "#/definitions/v1observation"
                             }
                         }
                     }
@@ -369,7 +304,13 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful response"
+                        "description": "Successful response",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/v1observation"
+                            }
+                        }
                     }
                 }
             }
@@ -397,7 +338,13 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful response"
+                        "description": "Successful response",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/v1observation"
+                            }
+                        }
                     }
                 }
             }
@@ -407,10 +354,12 @@ var spec = {
                 "parameters": [
                     {
                         "name": "i2b2query_xml",
-                        "in": "query",
-                        "description": "user to add to the system",
+                        "in": "body",
+                        "description": "body should be query definition in a subset of i2b2s XML schema.",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "tags": [
@@ -1262,6 +1211,170 @@ var spec = {
         }
     },
     "definitions": {
+        "v1observation": {
+            "type": "object",
+            "properties": {
+                "subject": {
+                    "$ref": "#/definitions/patient"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "ontologyTerm": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "fullName": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "jsonStudy": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ontologyTerm": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "key": {
+                            "type": "string"
+                        },
+                        "fullName": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "hal+jsonStudy": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "_links": {
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "type": "object",
+                            "properties": {
+                                "href": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "_embedded": {
+                    "type": "object",
+                    "properties": {
+                        "ontologyTerm": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "key": {
+                                    "type": "string"
+                                },
+                                "fullName": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "default": "STUDY"
+                                },
+                                "_links": {
+                                    "type": "object",
+                                    "properties": {
+                                        "self": {
+                                            "type": "object",
+                                            "properties": {
+                                                "href": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "observations": {
+                                            "type": "object",
+                                            "properties": {
+                                                "href": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "children": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "href": {
+                                                        "type": "string"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "hal+jsonStudys": {
+            "type": "object",
+            "properties": {
+                "_links": {
+                    "type": "object",
+                    "properties": {
+                        "self": {
+                            "type": "object",
+                            "properties": {
+                                "href": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "_embedded": {
+                    "type": "object",
+                    "properties": {
+                        "studies": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/hal+jsonStudy"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "storageSystem": {
             "type": "object",
             "properties": {
@@ -1521,56 +1634,6 @@ var spec = {
         "dimensionValue": {
             "type": "object",
             "description": "the structure of this value is described in the header. The order of the dimensionValues is determent by the order of the dimensionDeclaration in the header"
-        },
-        "StudyResponse": {
-            "title": "StudiesResponse",
-            "type": "object",
-            "items": {
-                "title": "StudyArray",
-                "type": "array",
-                "items": {
-                    "title": "study",
-                    "type": "object",
-                    "properties": {
-                        "id": {
-                            "type": "string"
-                        },
-                        "accessibleByUser": {
-                            "type": "object",
-                            "properties": {
-                                "view": {
-                                    "type": "boolean"
-                                },
-                                "export": {
-                                    "type": "boolean"
-                                }
-                            }
-                        },
-                        "_embedded": {
-                            "type": "object",
-                            "properties": {
-                                "ontologyTerm": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "key": {
-                                            "type": "string"
-                                        },
-                                        "fullName": {
-                                            "type": "string"
-                                        },
-                                        "patientCount": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }

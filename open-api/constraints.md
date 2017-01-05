@@ -48,7 +48,7 @@ Evaluate if an observation is of a particular Concept. Either by 'path' or 'conc
 ```json
 {
   "type":"ConceptConstraint",
-  "path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+  "path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\",
   "conceptCode":"HR"
 }
 ```
@@ -111,7 +111,7 @@ Example:
 ```json
 {
     "type":"PatientSetConstraint",
-    "patientSetId":28820
+    "patientSetId":28820,
     "patientIds":[-62,-63]
 }
 ```
@@ -171,7 +171,7 @@ Example:
 ```json
 {
     "type":"ModifierConstraint",
-    "modifierCode":"TNS:SMPL"
+    "modifierCode":"TNS:SMPL",
     "path":"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
     "values":{
         "type":"ValueConstraint",
@@ -195,7 +195,7 @@ Example:
         }
 }
 ```
-returns all observations not liked to patient with id -62, -52 or -42
+returns all observations not linked to patient with id -62, -52 or -42
 
 ##<a name="TrueConstraint">TrueConstraint</a>
 **!!WARNING!!** Use mainly for testing.  
