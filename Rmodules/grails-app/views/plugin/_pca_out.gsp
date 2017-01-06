@@ -1,6 +1,6 @@
 <h2>Component Summary</h2>
 
-${summaryTable}
+${raw(summaryTable)}
 
 <br />
 
@@ -12,7 +12,7 @@ ${summaryTable}
 
 <h2>Gene list by proximity to Component</h2>
 
-${geneListTable}
+${raw(geneListTable)}
 
 <br />
 <g:if test="${zipLink}">
