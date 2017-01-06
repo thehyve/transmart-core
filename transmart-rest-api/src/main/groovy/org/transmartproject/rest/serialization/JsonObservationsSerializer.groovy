@@ -174,7 +174,7 @@ class JsonObservationsSerializer extends AbstractObservationsSerializer {
                     inlineDimensions: inlineDimensions,
                     dimensionIndexes: dimensionIndexes
             ] as Map<String, Object>
-            if (numericValue) {
+            if (numericValue != null) {
                 map['numericValue'] = numericValue
             } else if (stringValue) {
                 map['stringValue'] = stringValue
