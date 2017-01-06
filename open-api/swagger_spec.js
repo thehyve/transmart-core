@@ -2,10 +2,12 @@ var spec = {
     "swagger": "2.0",
     "info": {
         "version": "17.1.0",
-        "title": "Transmart"
+        "title": "Transmart",
+        "description": "### oauth2\nAll calls need Authorization. A Authorization:Bearer {token} headed should be provided when doing a request.\n\n### Constraints\nThe v2 API makes use of [constraints](https://github.com/thehyve/transmart-upgrade/blob/swagger-doc/open-api/constraints.md). Read the documentation on github or the [code](https://github.com/thehyve/transmart-upgrade/blob/master/transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy) to found out how to use them.\n\n### application/json\nAll calls support json. however this might not always be the best option. You will find schema's for the responses in this documentation.\n\n### application/hal+json\nOnly the tree_node endpoint supports the application/hal+json format.\n\n### application/x-protobuf\nCalls that return observations support brotobuf as a more efficient binary format. The description of the protobuf object can be found in the [observations.proto](https://github.com/thehyve/transmart-upgrade/blob/master/transmart-rest-api/src/protobuf/v2/observations.proto). Information on [google protobuf](https://developers.google.com/protocol-buffers/).\n"
     },
     "schemes": [
-        "http"
+        "http",
+        "https"
     ],
     "consumes": [
         "application/json"
@@ -55,7 +57,7 @@ var spec = {
                 }
             }
         },
-        "/v1/studies(hal+json)": {
+        "/v1/studies (hal+json)": {
             "get": {
                 "description": "Gets all `Study` objects.\n",
                 "produces": [
@@ -461,8 +463,7 @@ var spec = {
         },
         "/v2/observations": {
             "get": {
-                "summary": "",
-                "description": "",
+                "description": "Gets all `observations` that evaluate to true for the given constaint. Only observations the calling user has acces to are returned.\n",
                 "tags": [
                     "v2"
                 ],
@@ -481,7 +482,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "return the observations that match the constaint",
+                        "description": "Dimentions are described in the `header`. The order in which they appear in the header, determens the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`\n",
                         "schema": {
                             "$ref": "#/definitions/observations"
                         }
@@ -491,8 +492,7 @@ var spec = {
         },
         "/v2/observations/aggregate": {
             "get": {
-                "summary": "",
-                "description": "",
+                "description": "calculates and returns the requested aggregate value\n",
                 "tags": [
                     "v2"
                 ],
@@ -514,7 +514,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "return the result in json Example: {min:56}",
+                        "description": "return the result in a json object Example: {min:56}",
                         "schema": {
                             "type": "object",
                             "description": "only the value from the type in the request will be present",
@@ -536,8 +536,7 @@ var spec = {
         },
         "/v2/patients": {
             "get": {
-                "summary": "",
-                "description": "",
+                "description": "Gets all `patients` that have an observation that evaluate to true for the given constaint. Only patients the calling user has acces to are returned.\n",
                 "tags": [
                     "v2"
                 ],
@@ -570,8 +569,7 @@ var spec = {
         },
         "/v2/patient_sets": {
             "post": {
-                "summary": "",
-                "description": "",
+                "description": "creates a `patientSet` with all patients that have an observation that evaluate to true for constaint given in the body. The set will only have patients the calling user acces to.\n",
                 "tags": [
                     "v2"
                 ],
@@ -584,17 +582,17 @@ var spec = {
                     },
                     {
                         "name": "constraint",
+                        "description": "json that describes the set, Example: {\"type\":\"StudyNameConstraint\",\"studyId\":\"EHR\"}",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "description": "json that describes the set, Example: {\"type\":\"StudyNameConstraint\",\"studyId\":\"EHR\"}",
                             "type": "string"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "an object with the created patient_set or error.\n",
                         "schema": {
                             "type": "object",
                             "properties": {
@@ -602,7 +600,6 @@ var spec = {
                                     "type": "string"
                                 },
                                 "errorMessage": {
-                                    "description": "null if there are no errors",
                                     "type": "string"
                                 },
                                 "id": {
@@ -625,8 +622,7 @@ var spec = {
         },
         "/v2/high_dim": {
             "get": {
-                "summary": "",
-                "description": "",
+                "description": "Gets all high dimensional `observations` that evaluate to true for the given constaint. Only observations the calling user has acces to are returned.\n",
                 "produces": [
                     "application/json",
                     "application/x-protobuf"
@@ -657,7 +653,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "return the observations that match the constaint",
+                        "description": "Dimentions are described in the `header`. The order in which they appear in the header, determens the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`\n",
                         "schema": {
                             "$ref": "#/definitions/observations"
                         }
@@ -667,8 +663,11 @@ var spec = {
         },
         "/v2/tree_nodes": {
             "get": {
-                "summary": "",
-                "description": "",
+                "description": "Gets all `tree_nodes`. Number of nodes can be limited by changing the `root` path and max `depth`. `counts` and `tags` will be omitted if not requested.\n",
+                "produces": [
+                    "application/json",
+                    "application/hal+json"
+                ],
                 "tags": [
                     "v2"
                 ],
@@ -700,7 +699,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "a forist stucture if there are several root nodes. For example when there are Public Studies, Private Studies and shared concepts.\n",
                         "schema": {
                             "type": "object",
                             "properties": {
@@ -718,14 +717,13 @@ var spec = {
         },
         "/v2/storage": {
             "get": {
-                "summary": "",
-                "description": "",
+                "description": "Gets a list of all `storage_System`\n",
                 "tags": [
                     "v2"
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "an object that contains an array with all `storage_System`\n",
                         "schema": {
                             "type": "object",
                             "properties": {
@@ -741,8 +739,7 @@ var spec = {
                 }
             },
             "post": {
-                "summary": "",
-                "description": "",
+                "description": "Posts a new `storage_System` with the properties of the storage_System object in the body. Calling user must have `admin` premissions\n",
                 "tags": [
                     "v2"
                 ],
@@ -775,7 +772,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
+                        "description": "returns a object that discribes the created `storage_System`\n",
                         "schema": {
                             "$ref": "#/definitions/storageSystem"
                         }
@@ -785,8 +782,7 @@ var spec = {
         },
         "/v2/storage/{id}": {
             "get": {
-                "summary": "",
-                "description": "",
+                "description": "Gets the `storage_System` with the given `id`\n",
                 "tags": [
                     "v2"
                 ],
@@ -800,7 +796,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
+                        "description": "returns a object that discribes the `storage_System`\n",
                         "schema": {
                             "$ref": "#/definitions/storageSystem"
                         }
@@ -808,8 +804,7 @@ var spec = {
                 }
             },
             "put": {
-                "summary": "",
-                "description": "",
+                "description": "Replaces the `storage_System` with given id with the of the storage_System object in the body. Calling user must have `admin` premissions\n",
                 "tags": [
                     "v2"
                 ],
@@ -848,7 +843,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
+                        "description": "returns a object that discribes the modified `storage_System`\n",
                         "schema": {
                             "$ref": "#/definitions/storageSystem"
                         }
@@ -856,8 +851,7 @@ var spec = {
                 }
             },
             "delete": {
-                "summary": "",
-                "description": "",
+                "description": "Deletes the `storage_System` with the given id\n",
                 "tags": [
                     "v2"
                 ],
@@ -878,14 +872,13 @@ var spec = {
         },
         "/v2/files": {
             "get": {
-                "summary": "",
-                "description": "",
+                "description": "Gets a list of all `file_links`\n",
                 "tags": [
                     "v2"
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "an object that contains an array with all `file_links`\n",
                         "schema": {
                             "type": "object",
                             "properties": {
@@ -901,8 +894,7 @@ var spec = {
                 }
             },
             "post": {
-                "summary": "",
-                "description": "",
+                "description": "Posts a new `file_link` with the properties of the file_link object in the body. Calling user must have `admin` premissions\n",
                 "tags": [
                     "v2"
                 ],
@@ -932,7 +924,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "returns a object that discribes the created `file_link`\n",
                         "schema": {
                             "$ref": "#/definitions/fileLink"
                         }
@@ -942,8 +934,7 @@ var spec = {
         },
         "/v2/files/{id}": {
             "get": {
-                "summary": "",
-                "description": "",
+                "description": "Gets the `file_link` with the given `id`\n",
                 "tags": [
                     "v2"
                 ],
@@ -957,7 +948,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
+                        "description": "returns a object that discribes the `file_link`\n",
                         "schema": {
                             "$ref": "#/definitions/fileLink"
                         }
@@ -965,8 +956,7 @@ var spec = {
                 }
             },
             "put": {
-                "summary": "",
-                "description": "",
+                "description": "Replaces the `file_link` with given id with the of the file_link object in the body. Calling user must have `admin` premissions\n",
                 "tags": [
                     "v2"
                 ],
@@ -1002,7 +992,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
+                        "description": "returns a object that discribes the modified `file_link`\n",
                         "schema": {
                             "$ref": "#/definitions/fileLink"
                         }
@@ -1010,8 +1000,7 @@ var spec = {
                 }
             },
             "delete": {
-                "summary": "",
-                "description": "",
+                "description": "Deletes the `file_link` with the given id.\n",
                 "tags": [
                     "v2"
                 ],
@@ -1032,15 +1021,14 @@ var spec = {
         },
         "/v2/arvados/workflows": {
             "get": {
-                "summary": "",
-                "description": "",
+                "description": "Gets a list of all `supported_Workflows`\n",
                 "tags": [
                     "v2",
                     "arvados"
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "an object that contains an array with all `supported_Workflows`\n",
                         "schema": {
                             "type": "object",
                             "properties": {
@@ -1056,8 +1044,7 @@ var spec = {
                 }
             },
             "post": {
-                "summary": "",
-                "description": "",
+                "description": "Posts a new `supported_Workflow` with the properties of the supported_Workflow object in the body. Calling user must have `admin` premissions\n",
                 "tags": [
                     "v2",
                     "arvados"
@@ -1070,9 +1057,6 @@ var spec = {
                         "schema": {
                             "type": "object",
                             "properties": {
-                                "id": {
-                                    "type": "integer"
-                                },
                                 "name": {
                                     "type": "string"
                                 },
@@ -1098,7 +1082,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "returns a object that discribes the created `supported_Workflow`\n",
                         "schema": {
                             "$ref": "#/definitions/supportedWorkflow"
                         }
@@ -1108,8 +1092,7 @@ var spec = {
         },
         "/v2/arvados/workflows/{id}": {
             "get": {
-                "summary": "",
-                "description": "",
+                "description": "Gets the `supported_Workflow` with the given `id`\n",
                 "tags": [
                     "v2",
                     "arvados"
@@ -1124,7 +1107,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
+                        "description": "returns a object that discribes the `supported_Workflow`\n",
                         "schema": {
                             "$ref": "#/definitions/supportedWorkflow"
                         }
@@ -1132,8 +1115,7 @@ var spec = {
                 }
             },
             "put": {
-                "summary": "",
-                "description": "",
+                "description": "Replaces the `supported_Workflow` with given id with the supported_Workflow object in the body. Calling user must have `admin` premissions\n",
                 "tags": [
                     "v2",
                     "arvados"
@@ -1152,9 +1134,6 @@ var spec = {
                         "schema": {
                             "type": "object",
                             "properties": {
-                                "id": {
-                                    "type": "integer"
-                                },
                                 "name": {
                                     "type": "string"
                                 },
@@ -1180,7 +1159,7 @@ var spec = {
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
+                        "description": "returns a object that discribes the modified `supported_Workflow`\n",
                         "schema": {
                             "$ref": "#/definitions/supportedWorkflow"
                         }
@@ -1188,8 +1167,7 @@ var spec = {
                 }
             },
             "delete": {
-                "summary": "",
-                "description": "",
+                "description": "Deletes the `supportedWorkflow` with the given id.\n",
                 "tags": [
                     "v2",
                     "arvados"

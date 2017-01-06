@@ -6,14 +6,29 @@ swagger: '2.0'
 info:
   version: "17.1.0"
   title: Transmart
-  
+  description: |
+    ### oauth2
+    All calls need Authorization. A Authorization:Bearer {token} headed should be provided when doing a request.
+    
+    ### Constraints
+    The v2 API makes use of [constraints](https://github.com/thehyve/transmart-upgrade/blob/swagger-doc/open-api/constraints.md). Read the documentation on github or the [code](https://github.com/thehyve/transmart-upgrade/blob/master/transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy) to found out how to use them.
+    
+    ### application/json
+    All calls support json. however this might not always be the best option. You will find schema's for the responses in this documentation.
+    
+    ### application/hal+json
+    Only the tree_node endpoint supports the application/hal+json format.
+    
+    ### application/x-protobuf
+    Calls that return observations support brotobuf as a more efficient binary format. The description of the protobuf object can be found in the [observations.proto](https://github.com/thehyve/transmart-upgrade/blob/master/transmart-rest-api/src/protobuf/v2/observations.proto). Information on [google protobuf](https://developers.google.com/protocol-buffers/).
+
 schemes:
   - http
+  - https
 consumes:
   - application/json
 produces:
   - application/json
-
 securityDefinitions:
   oauth:
     type: oauth2
@@ -42,7 +57,7 @@ paths:
                 type: array
                 items: 
                   $ref: "#/definitions/jsonStudy"
-  /v1/studies(hal+json):
+  /v1/studies (hal+json):
     get:
       description: |
         Gets all `Study` objects.
@@ -331,8 +346,8 @@ paths:
 
   /v2/observations:
     get:
-      summary: ''
-      description: ''
+      description: |
+        Gets all `observations` that evaluate to true for the given constaint. Only observations the calling user has acces to are returned.
       tags:
         - v2
       produces:
@@ -346,13 +361,14 @@ paths:
           type: string
       responses:
         200:
-          description: 'return the observations that match the constaint'
+          description: |
+            Dimentions are described in the `header`. The order in which they appear in the header, determens the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`
           schema:
             $ref: '#/definitions/observations'
   /v2/observations/aggregate:
     get:
-      summary: ''
-      description: ''
+      description: |
+        calculates and returns the requested aggregate value
       tags:
         - v2
       parameters:
@@ -368,7 +384,7 @@ paths:
           type: string
       responses:
         200:
-          description: 'return the result in json Example: {min:56}'
+          description: 'return the result in a json object Example: {min:56}'
           schema:
             type: object
             description: 'only the value from the type in the request will be present'
@@ -381,8 +397,8 @@ paths:
                 type: number
   /v2/patients:
     get:
-      summary: ''
-      description: ''
+      description: |
+        Gets all `patients` that have an observation that evaluate to true for the given constaint. Only patients the calling user has acces to are returned.
       tags:
         - v2
       parameters:
@@ -403,8 +419,8 @@ paths:
                   $ref: '#/definitions/patient'
   /v2/patient_sets:
     post:
-      summary: ''
-      description: ''
+      description: |
+        creates a `patientSet` with all patients that have an observation that evaluate to true for constaint given in the body. The set will only have patients the calling user acces to.
       tags:
         - v2
       parameters:
@@ -413,21 +429,21 @@ paths:
           in: query
           type: string
         - name: constraint
+          description: 'json that describes the set, Example: {"type":"StudyNameConstraint","studyId":"EHR"}'
           in: body
           required: true
           schema:
-            description: 'json that describes the set, Example: {"type":"StudyNameConstraint","studyId":"EHR"}'
             type: string
       responses:
         200:
-          description: OK
+          description: |
+            an object with the created patient_set or error.
           schema:
             type: object
             properties:
               description:
                 type: string
               errorMessage:
-                description: 'null if there are no errors'
                 type: string
               id:
                 type: integer
@@ -439,8 +455,8 @@ paths:
                 type: string
   /v2/high_dim:
     get:
-      summary: ''
-      description: ''
+      description: |
+        Gets all high dimensional `observations` that evaluate to true for the given constaint. Only observations the calling user has acces to are returned.
       produces:
         - application/json
         - application/x-protobuf
@@ -462,13 +478,17 @@ paths:
           type: string
       responses:
         200:
-          description: 'return the observations that match the constaint'
+          description: |
+            Dimentions are described in the `header`. The order in which they appear in the header, determens the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`
           schema:
             $ref: '#/definitions/observations'
   /v2/tree_nodes:
     get:
-      summary: ''
-      description: ''
+      description: |
+        Gets all `tree_nodes`. Number of nodes can be limited by changing the `root` path and max `depth`. `counts` and `tags` will be omitted if not requested.
+      produces:
+        - application/json
+        - application/hal+json
       tags:
         - v2
       parameters:
@@ -490,7 +510,8 @@ paths:
           description: 'tags will be in the response if set to true'
       responses:
         200:
-          description: OK
+          description: |
+            a forist stucture if there are several root nodes. For example when there are Public Studies, Private Studies and shared concepts.
           schema:
             type: object
             properties:
@@ -500,13 +521,14 @@ paths:
                   $ref: '#/definitions/treeNode'
   /v2/storage:
     get:
-      summary: ''
-      description: ''
+      description: |
+        Gets a list of all `storage_System`
       tags:
         - v2
       responses:
         200:
-          description: OK
+          description: |
+            an object that contains an array with all `storage_System`
           schema:
             type: object
             properties:
@@ -515,8 +537,8 @@ paths:
                 items:
                   $ref: '#/definitions/storageSystem'
     post:
-      summary: ''
-      description: ''
+      description: |
+        Posts a new `storage_System` with the properties of the storage_System object in the body. Calling user must have `admin` premissions
       tags:
         - v2
       parameters:
@@ -538,13 +560,14 @@ paths:
                 type: boolean
       responses:
         200:
-          description: ''
+          description: |
+            returns a object that discribes the created `storage_System`
           schema:
             $ref: '#/definitions/storageSystem'
   /v2/storage/{id}:
     get:
-      summary: ''
-      description: ''
+      description: |
+        Gets the `storage_System` with the given `id`
       tags:
         - v2
       parameters:
@@ -554,12 +577,13 @@ paths:
           type: integer
       responses:
         200:
-          description: ''
+          description: |
+            returns a object that discribes the `storage_System`
           schema:
             $ref: '#/definitions/storageSystem'
     put:
-      summary: ''
-      description: ''
+      description: |
+        Replaces the `storage_System` with given id with the of the storage_System object in the body. Calling user must have `admin` premissions
       tags:
         - v2
       parameters:
@@ -585,12 +609,13 @@ paths:
                 type: boolean
       responses:
         200:
-          description: ''
+          description: |
+            returns a object that discribes the modified `storage_System`
           schema:
             $ref: '#/definitions/storageSystem'
     delete:
-      summary: '' 
-      description: ''
+      description: |
+        Deletes the `storage_System` with the given id
       tags:
         - v2
       parameters:
@@ -603,13 +628,14 @@ paths:
           description: 'returns null'
   /v2/files:
     get:
-      summary: ''
-      description: ''
+      description: |
+        Gets a list of all `file_links`
       tags:
         - v2
       responses:
         200:
-          description: OK
+          description: |
+            an object that contains an array with all `file_links`
           schema:
             type: object
             properties:
@@ -618,8 +644,8 @@ paths:
                 items:
                   $ref: '#/definitions/fileLink'
     post:
-      summary: ''
-      description: ''
+      description: |
+        Posts a new `file_link` with the properties of the file_link object in the body. Calling user must have `admin` premissions
       tags:
         - v2
       parameters:
@@ -639,13 +665,14 @@ paths:
                 type: string
       responses:
         200:
-          description: OK
+          description: |
+            returns a object that discribes the created `file_link`
           schema:
             $ref: '#/definitions/fileLink'
   /v2/files/{id}:
     get:
-      summary: ''
-      description: ''
+      description: |
+        Gets the `file_link` with the given `id`
       tags:
         - v2
       parameters:
@@ -655,12 +682,13 @@ paths:
           type: integer
       responses:
         200:
-          description: ''
+          description: |
+            returns a object that discribes the `file_link`
           schema:
             $ref: '#/definitions/fileLink'
     put:
-      summary: ''
-      description: ''
+      description: |
+        Replaces the `file_link` with given id with the of the file_link object in the body. Calling user must have `admin` premissions
       tags:
         - v2
       parameters:
@@ -684,12 +712,13 @@ paths:
                 type: string
       responses:
         200:
-          description: ''
+          description: |
+            returns a object that discribes the modified `file_link`
           schema:
             $ref: '#/definitions/fileLink'
     delete:
-      summary: ''
-      description: ''
+      description: |
+        Deletes the `file_link` with the given id.
       tags:
         - v2
       parameters:
@@ -702,14 +731,15 @@ paths:
           description: 'returns null'
   /v2/arvados/workflows:
     get:
-      summary: ''
-      description: ''
+      description: |
+        Gets a list of all `supported_Workflows`
       tags:
         - v2
         - arvados
       responses:
         200:
-          description: OK
+          description: |
+            an object that contains an array with all `supported_Workflows`
           schema:
             type: object
             properties:
@@ -718,8 +748,8 @@ paths:
                 items:
                   $ref: '#/definitions/supportedWorkflow'
     post:
-      summary: ''
-      description: ''
+      description: |
+        Posts a new `supported_Workflow` with the properties of the supported_Workflow object in the body. Calling user must have `admin` premissions
       tags:
         - v2
         - arvados
@@ -730,8 +760,6 @@ paths:
           schema:
             type: object
             properties:
-              id:
-                type: integer
               name:
                 type: string
               arvadosInstanceUrl:
@@ -747,13 +775,14 @@ paths:
                 type: object
       responses:
         200:
-          description: OK
+          description: |
+            returns a object that discribes the created `supported_Workflow`
           schema:
             $ref: '#/definitions/supportedWorkflow'
   /v2/arvados/workflows/{id}:
     get:
-      summary: ''
-      description: ''
+      description: |
+        Gets the `supported_Workflow` with the given `id`
       tags:
         - v2
         - arvados
@@ -764,12 +793,13 @@ paths:
           type: integer
       responses:
         200:
-          description: ''
+          description: |
+            returns a object that discribes the `supported_Workflow`
           schema:
             $ref: '#/definitions/supportedWorkflow'
     put:
-      summary: ''
-      description: ''
+      description: |
+        Replaces the `supported_Workflow` with given id with the supported_Workflow object in the body. Calling user must have `admin` premissions
       tags:
         - v2
         - arvados
@@ -784,8 +814,6 @@ paths:
           schema:
             type: object
             properties:
-              id:
-                type: integer
               name:
                 type: string
               arvadosInstanceUrl:
@@ -801,12 +829,13 @@ paths:
                 type: object
       responses:
         200:
-          description: ''
+          description: |
+            returns a object that discribes the modified `supported_Workflow`
           schema:
             $ref: '#/definitions/supportedWorkflow'
     delete:
-      summary: ''
-      description: ''
+      description: |
+        Deletes the `supportedWorkflow` with the given id.
       tags:
         - v2
         - arvados
