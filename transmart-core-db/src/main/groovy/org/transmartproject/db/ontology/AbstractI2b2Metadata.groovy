@@ -171,23 +171,23 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
                                          boolean showSynonyms = false) {
         getDescendants(true, showHidden, showSynonyms)
     }
-										 
+
 	@Override
 	List<OntologyTerm> getHDforAllDescendants() {
 		getHDDescendants(true, false, false, false)
 	}
-										 
+
     //@Override
     List<String> getAllDescendantsForFacets() {
         getDescendantsFullName(true, false, false, false)
     }
-	
+
 	private List<OntologyTerm> getHDDescendants(boolean allDescendants,
 			boolean showHidden = false,
 			boolean showSynonyms = false,
 			boolean isOrdered = true) {
 		HibernateCriteriaBuilder c
-		def fullNameSearch = this.conceptKey.conceptFullName.toString()
+		def fullNameSearch =  this.conceptKey.conceptFullName.toString()
 
 		c = createCriteria()
 		def ret = c.list {
@@ -220,7 +220,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
                                               boolean showSynonyms = false,
 											  boolean isOrdered = true) {
         HibernateCriteriaBuilder c
-        def fullNameSearch = this.conceptKey.conceptFullName.toString()
+        def fullNameSearch =  this.conceptKey.conceptFullName.toString()
 
 
         c = createCriteria()
@@ -247,14 +247,14 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         ret.each { it.setTableCode(getTableCode()) }
         ret
     }
-											  
+
 	private List<String> getDescendantsFullName(boolean allDescendants,
 												  boolean showHidden = false,
 												  boolean showSynonyms = false,
 												  boolean isOrdered = true) {
 			HibernateCriteriaBuilder c
 			def fullNameSearch = asLikeLiteral(this.conceptKey.conceptFullName.toString()) + '%'
-	
+
 			c = createCriteria()
 			def ret = c.list {
 				projections {
@@ -267,7 +267,7 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
 					} else {
 						eq 'level', level + 1
 					}
-	
+
 					if (!showHidden) {
 						not { like 'cVisualattributes', '_H%' }
 					}

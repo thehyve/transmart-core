@@ -31,6 +31,7 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.db.TransmartSpecification
+import spock.lang.Ignore
 
 import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.test.Matchers.hasSameInterfaceProperties
@@ -167,11 +168,13 @@ class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
         assert dataQueryResult.indicesList*.sampleCode == testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM]*.sampleCode
 
         // test correspondence between testData and dataQueryResult rows
-        rows.each { row ->
+        rows.collect { row ->
             dataMatcherFor(row, testData.annotations, testData.orderedAssays)
         }
     }
 
+    //No more retrieveAssays in HighDimensionDataTypeResourceImpl, therefore this test is ignored for now.
+    @Ignore
     void testRetrieveAssaysEqualsIndicesList() {
         setupData()
         dataQueryResult = snpLzResource.retrieveData(
@@ -186,6 +189,7 @@ class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
         assert dataQueryResult.indicesList*.id == testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM]*.id
 
         def assays = snpLzResource.retrieveAssays([trialConstraint, conceptConstraint0])
+
         /*
          * Test if retrieveAssays returns the same list as indicesList in the
          * TabularResult.
@@ -243,7 +247,7 @@ class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
 
         List rows = Lists.newArrayList(dataQueryResult.rows)
 
-        rows.each { row ->
+        rows.collect { row ->
             dataMatcherFor(row, testData.annotations, [selectedAssay])
         }
     }
@@ -263,7 +267,7 @@ class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
         expect:
         // test correspondence between testData and dataQueryResult rows
         rows.each { row ->
-        dataMatcherFor(row, [selectedAnnotation], testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])
+            dataMatcherFor(row, [selectedAnnotation], testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])
         }
     }
 
@@ -282,7 +286,9 @@ class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
 
         expect:
         // test correspondence between testData and dataQueryResult rows
-        that rows, dataMatcherFor([selectedAnnotation], testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])
+        rows.each { row ->
+            dataMatcherFor(row, [selectedAnnotation], testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])
+        }
     }
 
     void testFetchFilterByChromosomeLocation() {
@@ -298,7 +304,9 @@ class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
         expect:
         that rows, hasSize(2)
         // test correspondence between testData and dataQueryResult rows
-        that rows, dataMatcherFor(testData.annotations[0..1], testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])
+        rows.each { row ->
+            dataMatcherFor(row, testData.annotations[0..1], testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])
+        }
     }
 
     void testFindsAssays() {
@@ -389,6 +397,8 @@ class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
     }
 
     // for all data projection only
+    // Old way of testing the structure used groovy inside Hamcrest, this did not work anymore.
+    // Therefore it now tests if the retrieved data is inside the specific testdata.
     def dataMatcherFor(row, annotations, assays) {
         def orderedSampleCodes = assays.findAll { it.platform.id == SnpLzTestData.PLATFORM }*.sampleCode
 
@@ -396,52 +406,60 @@ class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
                 .findAll { it.bioAssayGenoPlatform.bioAssayPlatform.accession == SnpLzTestData.PLATFORM }
                 .grep { it.genotypeProbeAnnotation.id in annotations*.id }
                 .sort { it.genotypeProbeAnnotation.id }
-        def genotypeProbeData = orderedSnpData.collect { it.genotypeProbeAnnotation }
-        def dataRow = row.collect()
 
+        def genotypeProbeData = orderedSnpData.collect { it.genotypeProbeAnnotation }
         assert row.probeData['snpName'] in genotypeProbeData.collect { it['snpName'] }
         assert row.probeData['chromosome'] in genotypeProbeData.collect { it['chromosome'] }
         assert row.probeData['position'] in genotypeProbeData.collect { it['pos'] }
 
-        /*
-            orderedSnpData.collect { SnpDataByProbeCoreDb snpData ->
-                orderedSampleCodes.collect { sampleCode ->
-                    def gps = testData.sampleGps
-                            .get(sampleCode, snpData.genotypeProbeAnnotation.snpName)
-                            .split(' ')
-                            .collect { it as Double }
-                    def gts = testData.sampleGts
-                            .get(sampleCode, snpData.genotypeProbeAnnotation.snpName)
-                            .split(' ')
-                    def doses = testData.sampleDoses
-                            .get(sampleCode, snpData.genotypeProbeAnnotation.snpName)
-                    assert dataRow['probabilityA1A1'] == gps[0]
-                    assert dataRow['probabilityA1A2'] == gps[1]
-                    assert dataRow['probabilityA2A2'] == gps[2]
-                    assert dataRow['likelyGenotype'] in gts
-                    assert row.collect{it['minorAlleleDose']} in doses
-
-                }
+        def dataRow = row.collect()
+        def gps = []
+        def gts = []
+        def doses = []
+        orderedSnpData.collect { SnpDataByProbeCoreDb snpData ->
+            orderedSampleCodes.collect { sampleCode ->
+                gps.add(testData.sampleGps
+                        .get(sampleCode, snpData.genotypeProbeAnnotation.snpName)
+                        .split(' ')
+                        .collect { it as Double })
+                gts.add(testData.sampleGts
+                        .get(sampleCode, snpData.genotypeProbeAnnotation.snpName)
+                        .split(' '))
+                doses.add(testData.sampleDoses
+                        .get(sampleCode, snpData.genotypeProbeAnnotation.snpName) as double)
             }
+        }
 
-        */
+        if (dataRow.size() > 1) {
+            dataRow.each { it ->
+                checkBlob(it, gps, gts, doses)
+            }
+        } else {
+            checkBlob(dataRow, gps, gts, doses)
+        }
     }
 
-/*
-        contains(
-                orderedSnpData.collect { SnpDataByProbeCoreDb snpData ->
-                    containsInAnyOrder(
-                            hasProperty('probabilityA1A1', closeTo(gps[0] as Double, DELTA)),
-                            hasProperty('probabilityA1A2', closeTo(gps[1] as Double, DELTA)),
-                            hasProperty('probabilityA2A2', closeTo(gps[2] as Double, DELTA)),
-
-                            hasProperty('likelyGenotype', is("${gts[0]}_${gts[1]}" as String)),
-
-                            hasProperty('minorAlleleDose', closeTo(doses as Double, DELTA)),
-                    )
-                }
-        )
-        */
+    def checkBlob(dataRow, gps, gts, doses) {
+        //Work around because when a putAt() is called on dataRow for testFetchFilterBySample, it is returning a list
+        // with one element, while the others return it not within a list. Could be caused by some backend problem.
+        List dataRowCheck = []
+        boolean check = false
+        dataRowCheck += dataRow['probabilityA1A1']
+        dataRowCheck += dataRow['probabilityA1A2']
+        dataRowCheck += dataRow['probabilityA2A2']
+        assert dataRowCheck in gps
+        gts.each { it ->
+            dataRowCheck = []
+            dataRowCheck += dataRow['likelyGenotype']
+            if (dataRowCheck[0].split("_") == it) {
+                check = true
+            }
+        }
+        assert check
+        dataRowCheck = []
+        dataRowCheck += dataRow['minorAlleleDose']
+        assert dataRowCheck[0] in doses
+    }
 
 }
 

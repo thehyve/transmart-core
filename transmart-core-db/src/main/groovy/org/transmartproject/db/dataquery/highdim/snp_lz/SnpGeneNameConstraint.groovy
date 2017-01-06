@@ -19,6 +19,8 @@
 
 package org.transmartproject.db.dataquery.highdim.snp_lz
 
+import groovy.util.logging.Slf4j
+
 import java.util.List;
 
 import grails.orm.HibernateCriteriaBuilder
@@ -40,6 +42,8 @@ import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataCon
  *
  * @author gijs@thehyve.nl
  */
+
+@Slf4j
 class SnpGeneNameConstraint implements CriteriaDataConstraint {
 
     String property
