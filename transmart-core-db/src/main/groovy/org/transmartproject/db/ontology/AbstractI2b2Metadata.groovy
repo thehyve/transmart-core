@@ -187,9 +187,9 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
 			boolean showSynonyms = false,
 			boolean isOrdered = true) {
 		HibernateCriteriaBuilder c
-		def fullNameSearch =  this.conceptKey.conceptFullName.toString()
+		def fullNameSearch = this.conceptKey.conceptFullName.toString()
 
-		c = createCriteria()
+        c = createCriteria()
 		def ret = c.list {
 			and {
 				like 'fullName', fullNameSearch
@@ -221,7 +221,6 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
 											  boolean isOrdered = true) {
         HibernateCriteriaBuilder c
         def fullNameSearch =  this.conceptKey.conceptFullName.toString()
-
 
         c = createCriteria()
         def ret = c.list {
