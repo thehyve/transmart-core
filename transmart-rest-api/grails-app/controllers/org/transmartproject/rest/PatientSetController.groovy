@@ -6,14 +6,11 @@ import grails.web.mime.MimeType
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.querytool.QueriesResource
-import org.transmartproject.core.querytool.QueryDefinition
-import org.transmartproject.core.querytool.QueryDefinitionXmlConverter
-import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.querytool.QueryResultSummary
-import org.transmartproject.rest.marshallers.QueryResultWrapper
+import org.transmartproject.core.querytool.*
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
+import org.transmartproject.rest.marshallers.QueryResultWrapper
 import org.transmartproject.rest.misc.CurrentUser
+
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.READ
 
@@ -41,8 +38,8 @@ class PatientSetController {
      * GET /v1/patient_sets
      */
     def index() {
-        List result = queriesResource.getQueryResultsSummaryByUsername(currentUser.getUsername() )
-        respond wrapQueryResultSummary(result)
+        List result = queriesResource.getQueryResultsSummaryByUsername(currentUser.getUsername())
+        respond wrapPatients(result)
     }
 
     /**
@@ -88,13 +85,13 @@ class PatientSetController {
                 queryResult: queriesResource.runQuery(queryDefinition, currentUser.username),
                 embedPatients: true
         ),
-        [status: 201]
+                [status: 201]
     }
 
     /**
      * Disable created patient set.
      *
-     * POST /patient_sets/<result_instance_id>
+     * DELETE /patient_sets/<result_instance_id>
      */
     def disable(Long id) {
         queriesResource.disablingQuery(id, currentUser.username)
@@ -106,7 +103,15 @@ class PatientSetController {
                 (
                         container: source,
                         componentType: QueryResultSummary,
-                        links: [ new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "$VERSION/patient_sets") ]
+                        links: [new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "$VERSION/patient_sets")]
                 )
+    }
+
+    private wrapPatients(Object source) {
+        new ContainerResponseWrapper(
+                container: source,
+                componentType: Patient,
+                links: [new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/patient_sets")]
+        )
     }
 }
