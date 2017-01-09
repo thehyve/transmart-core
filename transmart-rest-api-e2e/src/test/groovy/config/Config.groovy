@@ -18,6 +18,7 @@ class Config {
     public static final String PATH_AGGREGATE = "v2/observations/aggregate"
     public static final String PATH_PATIENTS = "v2/patients"
     public static final String PATH_TREE_NODES = "v2/tree_nodes"
+    public static final String PATH_STUDIES = "v2/studies"
     public static final String PATH_PATIENT_SET = "v2/patient_sets"
     public static final String PATH_STORAGE = "v2/storage"
     public static final String PATH_FILES = "v2/files"
@@ -31,8 +32,11 @@ class Config {
     public static final String CATEGORICAL_VALUES_ID = 'CATEGORICAL_VALUES'
     public static final String TUMOR_NORMAL_SAMPLES_ID = 'TUMOR_NORMAL_SAMPLES'
     public static final String SHARED_CONCEPTS_A_ID = 'SHARED_CONCEPTS_STUDY_A'
+    public static final Long SHARED_CONCEPTS_A_DB_ID = -27L
     public static final String SHARED_CONCEPTS_B_ID = 'SHARED_CONCEPTS_STUDY_B'
+    public static final Long SHARED_CONCEPTS_B_DB_ID = -28L
     public static final String SHARED_CONCEPTS_RESTRICTED_ID = 'SHARED_CONCEPTS_STUDY_C_PRIV'
+    public static final Long SHARED_CONCEPTS_RESTRICTED_DB_ID = -29L
     public static final String RNASEQ_TRANSCRIPT_ID = 'RNASEQ_TRANSCRIPT'
 
     //settings
