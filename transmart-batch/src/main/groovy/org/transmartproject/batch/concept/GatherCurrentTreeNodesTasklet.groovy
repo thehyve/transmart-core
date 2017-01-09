@@ -55,11 +55,11 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         String sql = '''
-                SELECT c_fullname, c_hlevel, c_name, c_dimcode, c_metadataxml, c_visualattributes
+                SELECT c_fullname, c_hlevel, c_name, c_tablename, c_columnname, c_dimcode, c_metadataxml, c_visualattributes
                 FROM i2b2metadata.i2b2
                 WHERE
-                c_tablename LIKE 'CONCEPT_DIMENSION' AND
-                c_columnname LIKE 'CONCEPT_PATH' AND
+                c_tablename IN ('CONCEPT_DIMENSION', 'STUDY') AND
+                c_columnname IN ('CONCEPT_PATH', 'STUDY_ID') AND
                 c_operator IN ('=', 'LIKE') AND (
                 c_fullname IN (:rootPathFullNames) OR '''
 
@@ -130,8 +130,11 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
     private static ConceptNode resultRowToConceptNode(ResultSet rs, int rowNum) {
         def path = new ConceptPath(rs.getString('c_fullname'))
         def dimCode = rs.getString('c_dimcode')
+        def tableName = rs.getString('c_tablename').trim().toLowerCase()
+        def columnName = rs.getString('c_columnname').trim().toLowerCase()
         def conceptPath = null
-        if (dimCode?.trim() && dimCode != '@') {
+        if (tableName == 'concept_dimension' && columnName == 'concept_path' &&
+                dimCode?.trim() && dimCode != '@') {
             conceptPath = new ConceptPath(dimCode)
         }
         new ConceptNode(

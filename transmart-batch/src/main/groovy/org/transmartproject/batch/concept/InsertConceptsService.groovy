@@ -138,21 +138,21 @@ class InsertConceptsService {
 
         newConcepts.each {
             String visualAttributes = visualAttributesFor(it)
-
+            boolean isStudyNode = topNode.path == it.path.path
             Map i2b2Row = [
                     c_hlevel          : it.level,
                     c_fullname        : it.path.toString(),
-                    c_basecode        : it.code,
+                    c_basecode        : isStudyNode ? '' : it.code,
                     c_name            : it.name,
                     c_synonym_cd      : 'N',
                     c_visualattributes: visualAttributes,
                     c_metadataxml     : metadataXmlFor(it),
-                    c_facttablecolumn : 'CONCEPT_CD',
-                    c_tablename       : 'CONCEPT_DIMENSION',
-                    c_columnname      : 'CONCEPT_PATH',
+                    c_facttablecolumn : isStudyNode ? '' : 'CONCEPT_CD',
+                    c_tablename       : isStudyNode ? 'STUDY' : 'CONCEPT_DIMENSION',
+                    c_columnname      : isStudyNode ? 'STUDY_ID' : 'CONCEPT_PATH',
                     c_columndatatype  : 'T',
-                    c_operator        : 'LIKE',
-                    c_dimcode         : it.conceptPath?.toString() ?: '@',
+                    c_operator        : isStudyNode ? '=' : 'LIKE',
+                    c_dimcode         : isStudyNode ? studyId : (it.conceptPath?.toString() ?: '@'),
                     c_tooltip         : it.path.toString(),
                     m_applied_path    : '@',
                     update_date       : now,
