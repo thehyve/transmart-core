@@ -1,6 +1,8 @@
 syntax = "proto3";
 package hypercube;
 
+// NB: this package is used in transmart-rest-api but also through a symlink in transmart-rest-api-e2e
+// If you change the java package or class name, also update the transmart-rest-api-e2e usages of this!
 option java_package = "org.transmartproject.rest.hypercubeProto";
 option java_outer_classname = "ObservationsProto";
 

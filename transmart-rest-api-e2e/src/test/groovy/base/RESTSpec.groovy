@@ -7,7 +7,7 @@ import groovyx.net.http.Method
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import selectors.ObservationsMessageProto
-import protobuf.ObservationsProto
+import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import selectors.ObservationsMessageJson
 import spock.lang.Shared
 import spock.lang.Specification

@@ -1,6 +1,6 @@
 package selectors
 
-import protobuf.ObservationsProto
+import org.transmartproject.rest.hypercubeProto.ObservationsProto
 
 class ObservationSelector {
 
