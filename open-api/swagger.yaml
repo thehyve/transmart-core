@@ -7,19 +7,218 @@ info:
   version: "17.1.0"
   title: Transmart
   description: |
-    ### oauth2
-    All calls need Authorization. A Authorization:Bearer {token} headed should be provided when doing a request.
     
-    ### Constraints
-    The v2 API makes use of [constraints](https://github.com/thehyve/transmart-upgrade/blob/swagger-doc/open-api/constraints.md). Read the documentation on github or the [code](https://github.com/thehyve/transmart-upgrade/blob/master/transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy) to found out how to use them.
+    # oauth2
+    All calls need an Authorization header. 
+    ```
+    Authorization:Bearer {token}
+    ```
     
-    ### application/json
+    # Constraints
+    Constraints are used to build queries and are required in the v2 rest API. They consist of a Type and that type's specific arguments. They live in org.transmartproject.db.multidimquery.query.Constraint.groovy
+    
+    ## Combination
+    Most often a combination of constraints is needed to get the right result. This can be done by a constraint with type combination.
+    It takes an op 'operator' and a list 'args' with constraints. All args will be evaluated together on each observation. So a 'and' operator with a 'PatientSetConstraint' and a 'ConceptConstraint' will return all observations for the given concept linkt to the patientset.
+    However a 'and' operator with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.
+    
+    Example:
+    ```json
+    {"type":"Combination",
+     "operator":"and",
+     "args":[
+        {"type":"PatientSetConstraint","patientIds":-62},
+        {"type":"ConceptConstraint","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
+        ]
+    }
+    ```
+    
+    ## StudyNameConstraint
+    Evaluate if an observation is part of a particular study
+    
+    Example:
+    ```json
+    {
+      "type":"StudyNameConstraint",
+      "studyId":"EHR"
+    }
+    ```
+    
+    ## ConceptConstraint
+    Evaluate if an observation is of a particular Concept. Either by 'path' or 'conceptCode'.
+    
+    ```json
+    {
+      "type":"ConceptConstraint",
+      "path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\",
+      "conceptCode":"HR"
+    }
+    ```
+    
+    ## ValueConstraint
+    Evaluate if the value of an observation is within the given parameters. It needs a 'valueType', 'operator' and 'value'.
+      valueType: [\"NUMERIC\", \"STRING\"]
+      operator: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains]
+    
+    Example:
+    ```json
+    {
+      "type":"ValueConstraint",
+      "valueType":"NUMERIC",
+      "operator":"=","value":176
+    }
+    ```
+    
+    ## FieldConstraint
+    Evaluate if a specific field of an observation is within the given parameters. it needs a 'field', 'operator' and 'value'.
+      operator: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains`]
+    
+    Example:
+    ```json
+    {
+      "type":"FieldConstraint",
+      "field":{
+          "dimension":"PatientDimension",
+          "fieldName":"age",
+          "type":"NUMERIC"
+          },
+      "operator":"!=",
+      "value":100
+    }
+    ```
+    
+    ## TimeConstraint
+    Evaluate if an observation is within the specified time period. It needs a 'field' the type of which needs to be 'DATE'. It needs a time relevant 'operator' and a list of 'values'.
+    The list must hold one date for the before(<-) and after(->) operator. It must hold two dates for the between(<-->) operator. If the given date field for an observation is empty, the observation will be ignored.
+    operator: ["&lt;-", "-&gt;", "&lt;--&gt;"]
+    
+    Example:
+    ```json
+    {
+      "type":"TimeConstraint",
+      "field":{
+          "dimension":"StartTimeDimension",
+          "fieldName":"startDate",
+          "type":"DATE"
+          },
+      "operator":"->",
+      "values":["2016-01-01T00:00:00Z"]
+    }
+    ```
+    
+    ## PatientSetConstraint
+    Evaluate if an observation is liked to a patient in the set. It needs either a 'patientSetId' or a list of 'patientIds'.
+    
+    Example:
+    ```json
+    {
+        "type":"PatientSetConstraint",
+        "patientSetId":28820,
+        "patientIds":[-62,-63]
+    }
+    ```
+    
+    ## TemporalConstraint
+    Evaluate if an observation happened before or after an event. It needs an 'operator' and an 'eventConstraint'. Any constraint can be used as an eventConstraint. Most likely a combination.
+    operator: ["&lt;-", "-&gt;", "exists"]
+    
+    Example:
+    ```json
+    {
+        "type":"TemporalConstraint",
+        "operator":"exists",
+        "eventConstraint":{
+              "type":"ValueConstraint",
+              "valueType":"NUMERIC",
+              "operator":"=",
+              "value":60
+              }
+    }
+    ```
+    
+    ## NullConstraint
+    Evaluate if an specific field of an observation is null. It needs a field.
+    
+    Example:
+    ```json
+    {
+        "type":"NullConstraint",
+        "field":{
+            "dimension":"EndTimeDimension",
+            "fieldName":"endDate",
+            "type":"DATE"
+            }
+    }
+    ```
+    
+    ## ModifierConstraint
+    Evaluate if an observation is linked to the specified modifier. Optionaly if that modifier has the specific value. It must have a 'path' or 'modifierCode' and may have 'values' in the form of a ValueConstraint.
+    
+    Example:
+    ```json
+    {
+        "type":"ModifierConstraint",
+        "modifierCode":"TNS:SMPL",
+        "path":"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+        "values":{
+            "type":"ValueConstraint",
+            "valueType":"STRING",
+            "operator":"=",
+            "value":"Tumor"
+            }
+    }
+    ```
+    
+    ## Negation
+    Evaluate if for an observation the given 'arg' is false. 'arg' is a constraint
+    
+    Example:
+    ```json
+    {
+        "type":"Negation",
+        "arg":{
+            "type":"PatientSetConstraint",
+            "patientIds":[-62,-52,-42]
+            }
+    }
+    ```
+    returns all observations not linked to patient with id -62, -52 or -42
+    
+    ## BiomarkerConstraint
+    Used to evaluate hiDim observations. It needs a 'biomarkerType' and a 'params' object. It should only be used with  /v2/hidim 
+    biomarkerType: ["transcripts", "genes"]
+    
+    Example:
+    ```json
+    {
+        "type":"BiomarkerConstraint",
+        "biomarkerType":"genes",
+        "params":{
+            "names":["TP53"]
+            }
+    }
+    ```
+    
+    ## TrueConstraint
+    **!!WARNING!!** Use mainly for testing.  
+    The most basic of constraints. Evaluates to true for all observations. This returns all observations the requesting user has access to.
+    
+    Example:
+    ```json
+    {
+        "type":"TrueConstraint"
+    }
+    ```
+    
+    
+    # response types
+    #### application/json
     All calls support json. however this might not always be the best option. You will find schema's for the responses in this documentation.
     
-    ### application/hal+json
+    #### application/hal+json
     Only the tree_node endpoint supports the application/hal+json format.
     
-    ### application/x-protobuf
+    #### application/x-protobuf
     Calls that return observations support brotobuf as a more efficient binary format. The description of the protobuf object can be found in the [observations.proto](https://github.com/thehyve/transmart-upgrade/blob/master/transmart-rest-api/src/protobuf/v2/observations.proto). Information on [google protobuf](https://developers.google.com/protocol-buffers/).
 
 schemes:
@@ -982,8 +1181,10 @@ definitions:
       name:
         type: string
       sourceSystem:
+        description: 'sourceSystem field is an integer ID representing #storage_system from /v2/storage'
         type: integer
       study:
+        description: 'Short case insensitive String identifying tranSMART study,usually study name, given during ETL, can be retrieved by /studies'
         type: string
       uuid:
         type: string
