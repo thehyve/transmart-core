@@ -45,7 +45,7 @@ $(LOAD_USER_TARGETS):
 	$(RUN_SQL) GLOBAL/$(patsubst load_user_%,%,$@).sql
 
 load_users:
-	$(RUN_SQL) $(foreach u,$(SCHEMAS),-f GLOBAL/$(u).sql)
+	$(RUN_SQL) -j 3 $(foreach u,$(SCHEMAS),-f GLOBAL/$(u).sql)
 	$(MAKE) load_passwords
 
 load_passwords:
