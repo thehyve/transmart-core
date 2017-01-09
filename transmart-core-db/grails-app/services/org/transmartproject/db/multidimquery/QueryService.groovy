@@ -205,8 +205,8 @@ class QueryService {
     }
 
     @Cacheable('org.transmartproject.db.dataquery2.QueryService')
-    Long cachedCountForConcept(String path, User user) {
-        count(new ConceptConstraint(path: path), user)
+    Long cachedCountForConstraint(Constraint constraint, User user) {
+        count(constraint, user)
     }
 
     /**
@@ -331,8 +331,8 @@ class QueryService {
     }
 
     @Cacheable('org.transmartproject.db.dataquery2.QueryService')
-    Long cachedPatientCountForConcept(String path, User user) {
-        patientCount(new ConceptConstraint(path: path), user)
+    Long cachedPatientCountForConstraint(Constraint constraint, User user) {
+        patientCount(constraint, user)
     }
 
     static List<StudyNameConstraint> findStudyNameConstraints(Constraint constraint) {
