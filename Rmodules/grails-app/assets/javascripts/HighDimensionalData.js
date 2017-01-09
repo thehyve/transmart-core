@@ -300,7 +300,7 @@ HighDimensionalData.prototype.generate_view = function () {
             ],
             resizable: false,
             autoLoad: {
-                url: pageInfo.basePath + '/static/panels/highDimensionalWindow.html',
+                url: pageInfo.basePath + '/panels/highDimensionalWindow.html',
                 scripts: true,
                 nocache: true,
                 discardUrl: true,
@@ -393,24 +393,25 @@ HighDimensionalData.prototype.gather_high_dimensional_data = function (divId, hi
     var formValidator = new FormValidator(inputArray);
 
     if (formValidator.validateInputForm()) {
-      this.fetchNodeDetails( divId, function( result ) {
-        _this.data = JSON.parse(result.responseText);
+        this.fetchNodeDetails(divId, function (result) {
 
-        if (doValidatePlatforms) {
-          platforms = _this.getPlatformValidator(_this.getPlatforms(_this.data));
-          var formValidator = new FormValidator(platforms);
+            _this.data = result;
 
-          if (formValidator.validateInputForm()) {
-            _this.display_high_dimensional_popup();
-          } else {
-            formValidator.display_errors();
-          }
-        }
-        else {
-          _this.display_high_dimensional_popup();
-        }
+            if (doValidatePlatforms) {
+                var platforms = _this.getPlatformValidator(_this.getPlatforms(_this.data));
+                var formValidator = new FormValidator(platforms);
 
-      });
+                if (formValidator.validateInputForm()) {
+                    _this.display_high_dimensional_popup();
+                } else {
+                    formValidator.display_errors();
+                }
+            }
+            else {
+                _this.display_high_dimensional_popup();
+            }
+
+        });
     } else { // something is not correct in the validation
         // display the error message
         formValidator.display_errors();
@@ -454,20 +455,18 @@ HighDimensionalData.prototype.fetchNodeDetails = function( divId, callback ) {
         _conceptPaths.push(_str_key);
     }
 
-    // Retrieve node details
-    Ext.Ajax.request({
-        url: pageInfo.basePath + "/HighDimension/nodeDetails",
-        method: 'POST',
-        timeout: '10000',
-        params: Ext.urlEncode({
-            conceptKeys: _conceptPaths
-        }),
-        success: callback,
-        failure: function () {
-            Ext.Msg.alert("Error", "Cannot retrieve high dimensional node details");
-        }
-    }); 
-}
+    jQuery.ajax({
+            method: "POST",
+            url: pageInfo.basePath + "/HighDimension/nodeDetails",
+            data: Ext.urlEncode({
+                conceptKeys: _conceptPaths
+            })
+        })
+    .done(callback)
+    .fail(function () {
+        Ext.Msg.alert("Error", "Cannot retrieve high dimensional node details");
+    });
+};
 
 HighDimensionalData.prototype.load_parameters = function (formParams) {
     //These will tell tranSMART what data types we need to retrieve.
