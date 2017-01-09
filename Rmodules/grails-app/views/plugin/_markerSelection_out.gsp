@@ -23,7 +23,7 @@
         </g:if>
     </div>
 
-    ${markerSelectionTable}
+    ${raw(markerSelectionTable)}
 
     <g:if test="${zipLink}">
         <a class='AnalysisLink' class='downloadLink' href="${resource(file: zipLink)}">Download raw R data</a>
