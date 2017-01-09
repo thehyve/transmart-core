@@ -38,6 +38,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                 builder.stringValue = (String) elem
             }
         },
+
         INT {
             ProtoType getProtobufType() {ProtoType.INT}
             def getValue(Property prop, elem) { (Long) prop.get(elem) }
@@ -48,6 +49,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                 builder.intValue = (Long) elem
             }
         },
+
         DOUBLE {
             ProtoType getProtobufType() {ProtoType.DOUBLE}
             def getValue(Property prop, elem) { (Double) prop.get(elem) }
@@ -58,6 +60,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                 builder.doubleValue = (Double) elem
             }
         },
+
         TIMESTAMP {
             ProtoType getProtobufType() {ProtoType.TIMESTAMP}
             def getValue(Property prop, elem) { (Date) prop.get(elem) }
@@ -69,10 +72,25 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             }
         }
 
+        /**
+         * @return the protobuf type (ObservationsProto.Type) corresponding to this enum type. This enum can be
+         * considered a wrapper around ObservationsProto.Type that adds extra methods.
+         */
         // Groovy didn't want to compile a 'type' field, so I use a method
         abstract ProtoType getProtobufType()
+        /**
+         * Get the prop property form element. The value is assumed to be compatible with this Type.
+         */
         abstract getValue(Property prop, element)
+
+        /**
+         * Add a value compatible with this Type to a DimensionElementFieldColumn
+         */
         abstract void addToColumn(DimensionElementFieldColumn.Builder builder, elem)
+
+        /**
+         * Set a value compatible with this Type on a Value.Builder
+         */
         abstract void setValue(Value.Builder builder, elem)
 
 
