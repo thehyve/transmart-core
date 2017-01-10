@@ -13,6 +13,7 @@ import org.transmartproject.batch.biodata.BioExperimentDAO
 import org.transmartproject.batch.clinical.db.objects.Sequences
 import org.transmartproject.batch.clinical.db.objects.Tables
 import org.transmartproject.batch.db.SequenceReserver
+import org.transmartproject.batch.facts.ClinicalFactsRowSet
 
 /**
  * Creation/deletion of secure objects.
@@ -38,6 +39,15 @@ class SecureObjectDAO {
     @Value(Tables.STUDY)
     private SimpleJdbcInsert studyInsert
 
+    @Value(Tables.STUDY_DIM_DESCRIPTIONS)
+    private SimpleJdbcInsert studyDimensionDescriptionsInsert
+
+    @Value(Tables.DIMENSION_DESCRIPTION)
+    private SimpleJdbcInsert dimensionDescriptionInsert
+
+    @Value(Tables.MODIFIER_DIM)
+    private SimpleJdbcInsert modifierInsert
+
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate
 
@@ -45,13 +55,14 @@ class SecureObjectDAO {
     private BioExperimentDAO bioExperimentDAO
 
     void createSecureObject(String displayName,
-                            SecureObjectToken token) {
+                            SecureObjectToken token,
+                            boolean hasOntologyMapping) {
 
         // Find or create bio experiment object
         long bioExperimentId = bioExperimentDAO.findOrCreateBioExperiment(token.studyId)
 
         // Find or create study object
-        Map studyValues = findOrCreateStudy(token.studyId, token, bioExperimentId)
+        Map studyValues = findOrCreateStudy(token.studyId, token, bioExperimentId, hasOntologyMapping)
         if (studyValues['secure_obj_token'] != token.toString()) {
             throw new IllegalStateException("Study found " +
                     "($studyValues) does not have expected " +
@@ -126,6 +137,15 @@ class SecureObjectDAO {
                     "id associated witht the secure object) in " +
                     Tables.BIO_DATA_UID)
         }
+
+        log.debug("About to delete ${Tables.STUDY_DIM_DESCRIPTIONS} for bio_experiment_id=${experimentId}")
+        affected = jdbcTemplate.update("""
+                DELETE FROM ${Tables.STUDY_DIM_DESCRIPTIONS}
+                WHERE study_id IN (
+                  SELECT study_num FROM ${Tables.STUDY}
+                  WHERE bio_experiment_id = :id)""",
+                [id: experimentId])
+        log.debug("$affected row(s) affected")
 
         log.debug("About to delete ${Tables.STUDY} with bio_experiment_id=${experimentId}")
         affected = jdbcTemplate.update("""
@@ -268,7 +288,8 @@ class SecureObjectDAO {
         queryResult.size() > 0 ? queryResult.first() : null
     }
 
-    private Map findOrCreateStudy(String studyId, SecureObjectToken secureObjectToken, Long experimentId) {
+    private Map findOrCreateStudy(String studyId, SecureObjectToken secureObjectToken,
+                                  Long experimentId, boolean hasOntologyMapping) {
         def study = findStudy(studyId)
         if (study != null) {
             return study
@@ -282,7 +303,141 @@ class SecureObjectDAO {
                 bio_experiment_id   : experimentId] as Map
         studyInsert.execute(study)
         log.info "Inserted new study: ${study.toMapString()}"
+        createStudyDimensionDescriptions(id, hasOntologyMapping)
         study
+    }
+
+    public static final List<String> BUILT_IN_DIMENSIONS = [
+            "study",
+            "concept",
+            "patient",
+            "visit",
+            "start time",
+            "end time",
+            "location",
+            "trial visit",
+            "provider",
+            "biomarker",
+            "assay",
+            "projection"
+    ]
+
+    public static final String ORIGINAL_VARIABLE_DIMENSION_NAME = 'original_variable'
+
+    /**
+     * Find or create built-in dimensions {@link #BUILT_IN_DIMENSIONS} and
+     * a dimension {@link #ORIGINAL_VARIABLE_DIMENSION_NAME} that contains original variable names,
+     * used when generic ontology codes are replacing variable names at data loading time.
+     * The ontology codes are used as concept codes, the original variable names
+     * are stored using the modifier with code {@link ClinicalFactsRowSet#ORIGINAL_VARIABLE_NAME_MODIFIER}.
+     */
+    private List createStudyDimensionDescriptions(Long studyNum, boolean hasOntologyMapping) {
+        List<Long> dimensionIds = []
+        for (String dimensionName: BUILT_IN_DIMENSIONS) {
+            def dimension = findOrCreateDimension(dimensionName, null)
+            dimensionIds << (dimension.id as Long)
+        }
+        if (hasOntologyMapping) {
+            findOrCreateOriginalVariableModifier()
+            def originalVariableDimension = findOrCreateDimension(
+                    ORIGINAL_VARIABLE_DIMENSION_NAME, ClinicalFactsRowSet.ORIGINAL_VARIABLE_NAME_MODIFIER)
+            dimensionIds << (originalVariableDimension.id as Long)
+        }
+        dimensionIds.each { dimensionId ->
+            studyDimensionDescriptionsInsert.execute([
+                    dimension_description_id: dimensionId,
+                    study_id: studyNum
+            ] as Map)
+        }
+        log.info "Inserted dimension descriptions for study: ${dimensionIds.size()}."
+    }
+
+    private Map findDimension(String dimensionName) {
+        def queryResult = jdbcTemplate.queryForList """
+                SELECT id,
+                    modifier_code,
+                    value_type,
+                    name,
+                    density,
+                    packable,
+                    size_cd
+                FROM ${Tables.DIMENSION_DESCRIPTION}
+                WHERE name = :name
+                """, [name: dimensionName]
+
+        if (queryResult.size() > 1) {
+            throw new IncorrectResultSizeDataAccessException("Expected to get " +
+                    "only one dimension description with name = " +
+                    "${dimensionName}, but found: $queryResult", 1)
+        }
+
+        queryResult.size() > 0 ? queryResult.first() : null
+    }
+
+    /**
+     * Find or create a dimension with the specified name. For non built-in
+     * dimensions, a modifier is expected.
+     */
+    private Map findOrCreateDimension(String dimensionName, String modifierCode) {
+        def dimension = findDimension(dimensionName)
+        if (dimension != null) {
+            return dimension
+        }
+        Long id = sequenceReserver.getNext(Sequences.DIMENSION_DESCRIPTION)
+        dimension = [
+                id: id,
+                name: dimensionName,
+                modifier_code: modifierCode,
+                value_type: modifierCode ? 'T' : null,
+                density: modifierCode ? 'DENSE' : null,
+                packable: modifierCode ? 'NOT_PACKABLE' : null,
+                size_cd: modifierCode ? 'SMALL' : null
+        ] as Map
+        dimensionDescriptionInsert.execute(dimension)
+        log.info "Inserted new dimension description: ${dimension.toMapString()}"
+        dimension
+    }
+
+    private Map findOriginalVariableModifier() {
+        def queryResult = jdbcTemplate.queryForList """
+                SELECT modifier_path,
+                    modifier_cd,
+                    name_char,
+                    modifier_blob,
+                    update_date,
+                    download_date,
+                    import_date,
+                    sourcesystem_cd,
+                    upload_id,
+                    modifier_level,
+                    modifier_node_type
+                FROM ${Tables.MODIFIER_DIM}
+                WHERE modifier_cd = :modifier_cd
+                """, [modifier_cd: ClinicalFactsRowSet.ORIGINAL_VARIABLE_NAME_MODIFIER]
+
+        if (queryResult.size() > 1) {
+            throw new IncorrectResultSizeDataAccessException("Expected to get " +
+                    "only one modifier with code = " +
+                    "${ClinicalFactsRowSet.ORIGINAL_VARIABLE_NAME_MODIFIER}, but found: $queryResult", 1)
+        }
+
+        queryResult.size() > 0 ? queryResult.first() : null
+    }
+
+    private Map findOrCreateOriginalVariableModifier() {
+        def originalVariableModifier = findOriginalVariableModifier()
+        if (originalVariableModifier != null) {
+            return originalVariableModifier
+        }
+        originalVariableModifier = [
+                modifier_path: '\\' + ClinicalFactsRowSet.ORIGINAL_VARIABLE_NAME_MODIFIER,
+                modifier_cd: ClinicalFactsRowSet.ORIGINAL_VARIABLE_NAME_MODIFIER,
+                name_char: ORIGINAL_VARIABLE_DIMENSION_NAME,
+                import_date: new Date(),
+        ] as Map
+        modifierInsert.execute(originalVariableModifier)
+        log.info "Inserted new modifier: ${originalVariableModifier.toMapString()}"
+        originalVariableModifier
     }
 
 }
