@@ -87,7 +87,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         def elem = dimensionElement(dim, idx)
         if(elem instanceof String) return elem
         else if(elem instanceof DataColumn) return ((DataColumn) elem).label
-        else if(elem instanceof Patient) return ((Patient) elem).id
+        else if(elem instanceof Patient) return ((Patient) elem).id.toString()
         else throw new RuntimeException("unexpected element type ${elem.class}. Expected a String, Patient, or Assay")
     }
 
