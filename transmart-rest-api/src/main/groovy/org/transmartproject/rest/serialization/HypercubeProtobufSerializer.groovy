@@ -30,7 +30,6 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     static protected enum Type {
         STRING {
             ProtoType getProtobufType() {ProtoType.STRING}
-            def getValue(Property prop, elem) { prop.get(elem) }
             void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
                 builder.addStringValue((String) elem)
             }
@@ -41,7 +40,6 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         INT {
             ProtoType getProtobufType() {ProtoType.INT}
-            def getValue(Property prop, elem) { (Long) prop.get(elem) }
             void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
                 builder.addIntValue((Long) elem)
             }
@@ -52,7 +50,6 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         DOUBLE {
             ProtoType getProtobufType() {ProtoType.DOUBLE}
-            def getValue(Property prop, elem) { (Double) prop.get(elem) }
             void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
                 builder.addDoubleValue((Double) elem)
             }
@@ -63,7 +60,6 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         TIMESTAMP {
             ProtoType getProtobufType() {ProtoType.TIMESTAMP}
-            def getValue(Property prop, elem) { (Date) prop.get(elem) }
             void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
                 builder.addTimestampValue(((Date) elem).time)
             }
@@ -78,10 +74,6 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
          */
         // Groovy didn't want to compile a 'type' field, so I use a method
         abstract ProtoType getProtobufType()
-        /**
-         * Get the prop property form element. The value is assumed to be compatible with this Type.
-         */
-        abstract getValue(Property prop, element)
 
         /**
          * Add a value compatible with this Type to a DimensionElementFieldColumn
@@ -250,7 +242,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         long absentCount = 0
         for(int i=0; i<dimElements.size(); i++) {
-            def elem = type.getValue(prop, dimElements[i])
+            def elem = prop.get(dimElements[i])
             if(elem == null) {
                 absentCount++
                 builder.addAbsentValueIndices(i+1)
