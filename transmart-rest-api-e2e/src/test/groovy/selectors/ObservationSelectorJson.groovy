@@ -9,26 +9,28 @@ class ObservationSelectorJson {
     ObservationSelectorJson(ObservationsMessageJson hyperCubeMessage) {
         this.hyperCubeMessage = hyperCubeMessage
         this.cellCount = hyperCubeMessage.cells.size()
-        hyperCubeMessage.header.'dimensionDeclarations'.each
-                {it -> if(it.inline){
-                    inlined.add(it.name)
-                } else {
-                    notInlined.add(it.name)
-                }}
+        hyperCubeMessage.dimensionDeclarations.each {
+            if(it.inline){
+                inlined.add(it.name)
+            } else {
+                notInlined.add(it.name)
+            }
+        }
     }
 
     def select(cellIndex, dimension, fieldName, valueType) {
         def result
-        if (inlined.contains(dimension)){
-            def index = inlined.indexOf(dimension)
+        int index = inlined.indexOf(dimension)
+        if (index != -1){
             def dimObject = hyperCubeMessage.cells[cellIndex].inlineDimensions[index]
-            result = fieldName ? dimObject[fieldName] : dimObject
+            result = fieldName ? dimObject?.getAt(fieldName) : dimObject
         } else {
             // non inline
-            def index = notInlined.indexOf(dimension)
+            index = notInlined.indexOf(dimension)
             def valueIndex = hyperCubeMessage.cells[cellIndex].dimensionIndexes[index]
-            def dimElements = hyperCubeMessage.footer.dimensions[index]
-            result = fieldName ? dimElements[fieldName][valueIndex] : dimElements[valueIndex]
+            if(valueIndex == null) return null
+            def dimElement = hyperCubeMessage.dimensionElements[dimension]?.getAt(valueIndex)
+            result = fieldName ? dimElement?.getAt(fieldName) : dimElement
         }
 
         switch (valueType){
@@ -37,7 +39,7 @@ class ObservationSelectorJson {
             case 'Int':
                 return result as Integer
             case 'Double':
-                return result as double
+                return result as Double
             case 'Date':
                 return result ? Date.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", result) : null
             default:
@@ -46,10 +48,16 @@ class ObservationSelectorJson {
     }
 
     def select(cellIndex, dimension){
-        def index = notInlined.indexOf(dimension)
-        def valueIndex = hyperCubeMessage.cells[cellIndex].dimensionIndexes[index]
-        // return the object at position valueIndex of inlined dimension index.
-        return hyperCubeMessage.footer.dimensions[index][valueIndex]
+        int index = notInlined.indexOf(dimension)
+        if(index != -1) {
+            def valueIndex = hyperCubeMessage.cells[cellIndex].dimensionIndexes[index]
+            // return the object at position valueIndex of inlined dimension index.
+            return hyperCubeMessage.dimensionElements[index][valueIndex]
+        } else {
+            index = inlined.indexOf(dimension)
+            assert index != -1, "Dimension $dimension not found"
+            return hyperCubeMessage.cells[cellIndex].inlineDimensions[index]
+        }
     }
 
     /**

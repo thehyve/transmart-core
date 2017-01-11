@@ -2,13 +2,13 @@ package selectors
 
 class ObservationsMessageJson {
 
-    public final header
+    public final dimensionDeclarations
     public final cells
-    public final footer
+    public final dimensionElements
 
-    ObservationsMessageJson(header, cells, footer) {
-        this.header = header
+    ObservationsMessageJson(dimensionDeclarations, cells, dimensionElements) {
+        this.dimensionDeclarations = dimensionDeclarations
         this.cells = cells
-        this.footer = footer
+        this.dimensionElements = dimensionElements
     }
 }
