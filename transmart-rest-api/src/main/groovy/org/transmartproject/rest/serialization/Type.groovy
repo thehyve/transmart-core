@@ -24,7 +24,7 @@ enum Type {
     },
 
     INT {
-        String getJsonType() {"Integer"}
+        String getJsonType() {"Int"}
         ObservationsProto.Type getProtobufType() {ObservationsProto.Type.INT}
         void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
             builder.addIntValue((Long) elem)
@@ -46,7 +46,7 @@ enum Type {
     },
 
     TIMESTAMP {
-        String getJsonType() {"Date"}
+        String getJsonType() {"Timestamp"}
         ObservationsProto.Type getProtobufType() {ObservationsProto.Type.TIMESTAMP}
         void addToColumn(DimensionElementFieldColumn.Builder builder, elem) {
             builder.addTimestampValue(((Date) elem).time)

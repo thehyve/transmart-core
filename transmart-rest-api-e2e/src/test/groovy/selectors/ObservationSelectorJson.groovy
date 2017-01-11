@@ -18,7 +18,10 @@ class ObservationSelectorJson {
         }
     }
 
+    final static Set<String> validValueTypes = (["Double", "String", "Int", "Timestamp"] as HashSet).asImmutable()
+
     def select(cellIndex, dimension, fieldName, valueType) {
+        assert valueType in validValueTypes
         def result
         int index = inlined.indexOf(dimension)
         if (index != -1){
@@ -40,7 +43,7 @@ class ObservationSelectorJson {
                 return result as Integer
             case 'Double':
                 return result as Double
-            case 'Date':
+            case 'Timestamp':
                 return result ? Date.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", result) : null
             default:
                 return result
