@@ -60,7 +60,7 @@ class PatientsSpec extends RESTSpec{
                         [type: ConceptConstraint, path:"\\Public Studies\\CLINICAL_TRIAL\\Vital Signs\\Heart Rate\\"],
                         [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:60],
                         [type: FieldConstraint,
-                         field: [dimension: 'TrialVisitDimension',
+                         field: [dimension: 'trial visit',
                                  fieldName: 'relTime',
                                  type: NUMERIC ],
                          operator: GREATER_THAN,

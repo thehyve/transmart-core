@@ -38,7 +38,7 @@ class SamplesSpec extends RESTSpec{
 
         assert selector.cellCount == 8
         (0..<selector.cellCount).each {
-            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "concept", "conceptCode", 'String'))
             assert selector.select(it) != null
         }
     }
@@ -65,7 +65,7 @@ class SamplesSpec extends RESTSpec{
 
         assert selector.cellCount == 16
         (0..<selector.cellCount).each {
-            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "concept", "conceptCode", 'String'))
             assert selector.select(it) != null
         }
     }

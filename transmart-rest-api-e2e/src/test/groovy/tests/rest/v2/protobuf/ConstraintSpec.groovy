@@ -58,7 +58,7 @@ class ConstraintSpec extends RESTSpec{
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String')
+            assert selector.select(it, "concept", "conceptCode", 'String')
         }
     }
 
@@ -78,7 +78,7 @@ class ConstraintSpec extends RESTSpec{
         then:
         assert selector.cellCount == 8
         (0..<selector.cellCount).each {
-            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "concept", "conceptCode", 'String'))
             assert selector.select(it) != null
         }
 
@@ -93,14 +93,14 @@ class ConstraintSpec extends RESTSpec{
         then:
         assert selector.cellCount == 8
         (0..<selector.cellCount).each {
-            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "concept", "conceptCode", 'String'))
             assert selector.select(it) != null
         }
     }
 
     def "FieldConstraint.class"(){
         def constraintMap = [type: FieldConstraint,
-                             field: [dimension: 'PatientDimension',
+                             field: [dimension: 'patient',
                                      fieldName: 'age',
                                      type: NUMERIC ],
                              operator: LESS_THAN,
@@ -111,7 +111,7 @@ class ConstraintSpec extends RESTSpec{
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
         (0..<selector.cellCount).each {
-            assert selector.select(it, "PatientDimension", "age", 'Int') < 100
+            assert selector.select(it, "patient", "age", 'Int') < 100
         }
     }
 
@@ -131,7 +131,7 @@ class ConstraintSpec extends RESTSpec{
     def "TimeConstraint.class"(){
         def date = toDateString("01-01-2016Z")
         def constraintMap = [type: TimeConstraint,
-                             field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: DATE ],
+                             field: [dimension: 'start time', fieldName: 'startDate', type: DATE ],
                              operator: AFTER,
                              values: [date]]
         when:
@@ -141,7 +141,7 @@ class ConstraintSpec extends RESTSpec{
         ObservationSelector selector = new ObservationSelector(responseData)
 
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') != ''
+            assert selector.select(it, "concept", "conceptCode", 'String') != ''
         }
     }
 
@@ -156,7 +156,7 @@ class ConstraintSpec extends RESTSpec{
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') != ''
+            assert selector.select(it, "concept", "conceptCode", 'String') != ''
         }
 
         when:
@@ -166,7 +166,7 @@ class ConstraintSpec extends RESTSpec{
 
         then:
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String') != ''
+            assert selector.select(it, "concept", "conceptCode", 'String') != ''
         }
     }
 
@@ -181,7 +181,7 @@ class ConstraintSpec extends RESTSpec{
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
         (0..<selector.cellCount).each {
-            assert !selector.select(it, "StudyDimension", "studyId", 'String').equals('EHR')
+            assert !selector.select(it, "study", "studyId", 'String').equals('EHR')
         }
     }
 
@@ -201,7 +201,7 @@ class ConstraintSpec extends RESTSpec{
         ObservationSelector selector = new ObservationSelector(responseData)
 
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
         }
     }
 
@@ -224,7 +224,7 @@ class ConstraintSpec extends RESTSpec{
 
         HashSet conceptCodes = []
         (0..<selector.cellCount).each {
-            conceptCodes.add selector.select(it, "ConceptDimension", "conceptCode", 'String')
+            conceptCodes.add selector.select(it, "concept", "conceptCode", 'String')
         }
         assert conceptCodes.size() == 4
         assert conceptCodes.containsAll("EHR:VSIGN:HR","EHRHD:VSIGN:HR","EHRHD:HD:EXPLUNG","EHRHD:HD:EXPBREAST")
@@ -239,7 +239,7 @@ class ConstraintSpec extends RESTSpec{
         ObservationSelector selector = new ObservationSelector(responseData)
 
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
         }
     }
 
@@ -252,14 +252,14 @@ class ConstraintSpec extends RESTSpec{
         ObservationSelector selector = new ObservationSelector(responseData)
 
         (0..<selector.cellCount).each {
-            assert selector.select(it, "StudyDimension", "studyId", 'String').equals('EHR')
+            assert selector.select(it, "study", "studyId", 'String').equals('EHR')
         }
     }
 
     def "NullConstraint.class"(){
         def constraintMap = [
                 type: NullConstraint,
-                field: [dimension: 'EndTimeDimension', fieldName: 'endDate', type: DATE ]
+                field: [dimension: 'end time', fieldName: 'endDate', type: DATE ]
         ]
 
         when:
@@ -270,7 +270,7 @@ class ConstraintSpec extends RESTSpec{
 
         HashSet conceptCodes= []
         (0..<selector.cellCount).each {
-            conceptCodes.add(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            conceptCodes.add(selector.select(it, "concept", "conceptCode", 'String'))
         }
         assert conceptCodes.containsAll(['CV:DEM:SEX:M', 'CV:DEM:SEX:F', 'CV:DEM:RACE', 'CV:DEM:AGE'])
     }

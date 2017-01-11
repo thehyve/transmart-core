@@ -54,7 +54,7 @@ class CategoricalVariablesSpec extends RESTSpec{
         ObservationSelector selector = new ObservationSelector(responseData)
 
         assert selector.cellCount == 1
-        assert (selector.select(0, "ConceptDimension", "conceptCode", 'String') == 'CV:DEM:SEX:F')
+        assert (selector.select(0, "concept", "conceptCode", 'String') == 'CV:DEM:SEX:F')
         assert selector.select(0) == 'Female'
     }
 
@@ -76,7 +76,7 @@ class CategoricalVariablesSpec extends RESTSpec{
 
         assert selector.cellCount == 3
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CV:DEM:RACE')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('CV:DEM:RACE')
         }
     }
 
@@ -105,7 +105,7 @@ class CategoricalVariablesSpec extends RESTSpec{
 
         assert selector.cellCount == 2
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CV:DEM:RACE')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('CV:DEM:RACE')
             assert selector.select(it) == 'Caucasian'
         }
     }

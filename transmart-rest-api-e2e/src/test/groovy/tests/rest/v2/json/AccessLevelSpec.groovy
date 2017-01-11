@@ -49,7 +49,7 @@ class AccessLevelSpec extends RESTSpec{
 
         assert selector.cellCount == 2
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('SCSCP:DEM:AGE')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('SCSCP:DEM:AGE')
         }
     }
 
@@ -71,7 +71,7 @@ class AccessLevelSpec extends RESTSpec{
 
         assert selector.cellCount == 2
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('SCSCP:DEM:AGE')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('SCSCP:DEM:AGE')
         }
     }
 }

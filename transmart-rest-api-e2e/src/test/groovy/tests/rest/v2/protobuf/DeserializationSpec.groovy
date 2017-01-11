@@ -21,11 +21,11 @@ class DeserializationSpec extends RESTSpec{
 
         (0..<selector.cellCount).each {
             def temp = [
-                    'sexCd' : selector.select(it, "PatientDimension", "sexCd", 'String'),
-                    'race' : selector.select(it, "PatientDimension", "race", 'String'),
-                    'age' : selector.select(it, "PatientDimension", "age", 'Int'),
-                    'studyId' : selector.select(it, "StudyDimension", "studyId", 'String'),
-                    'conceptCode' : selector.select(it, "ConceptDimension", "conceptCode", 'String'),
+                    'sexCd' : selector.select(it, "patient", "sexCd", 'String'),
+                    'race' : selector.select(it, "patient", "race", 'String'),
+                    'age' : selector.select(it, "patient", "age", 'Int'),
+                    'studyId' : selector.select(it, "study", "studyId", 'String'),
+                    'conceptCode' : selector.select(it, "concept", "conceptCode", 'String'),
                     'value' : selector.select(it)
             ]
             assert CATEGORICAL_VALUES_OBSERVATIONS.contains(temp)
@@ -54,11 +54,11 @@ class DeserializationSpec extends RESTSpec{
 
         (0..<selector.cellCount).each {
             def temp = [
-                    'sexCd' : selector.select(it, "PatientDimension", "sexCd", 'String'),
-                    'race' : selector.select(it, "PatientDimension", "race", 'String'),
-                    'age' : selector.select(it, "PatientDimension", "age", 'Int'),
-                    'studyId' : selector.select(it, "StudyDimension", "studyId", 'String'),
-                    'conceptCode' : selector.select(it, "ConceptDimension", "conceptCode", 'String'),
+                    'sexCd' : selector.select(it, "patient", "sexCd", 'String'),
+                    'race' : selector.select(it, "patient", "race", 'String'),
+                    'age' : selector.select(it, "patient", "age", 'Int'),
+                    'studyId' : selector.select(it, "study", "studyId", 'String'),
+                    'conceptCode' : selector.select(it, "concept", "conceptCode", 'String'),
                     'value' : selector.select(it)
             ]
             assert map.contains(temp)
