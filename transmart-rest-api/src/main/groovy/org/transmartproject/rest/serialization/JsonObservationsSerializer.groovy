@@ -58,58 +58,6 @@ import org.transmartproject.db.multidimquery.query.DimensionMetadata
 class JsonObservationsSerializer extends HypercubeSerializer {
 
     /**
-     * Type of dimensions and fields to serialize.
-     */
-    static enum Type {
-        DOUBLE('Double'),
-        INTEGER('Integer'),
-        STRING('String'),
-        DATE('Date'),
-        OBJECT('Object'),
-        ID('Id')
-
-        String typeName
-
-        Type(String typeName) {
-            this.typeName = typeName
-        }
-
-
-        String toString() {
-            typeName
-        }
-    }
-
-    /**
-     * Determines the type of a field based on its declared class.
-     *
-     * Numeric types {@link Float} and {@link Double} are mapped to {@link Type#DOUBLE};
-     * other values of type {@link Number} to {@link Type#INTEGER.
-     * {@link Date} maps to {@link Type#DATE}, String to {@link Type#STRING}.
-     * Others map to {@link Type#ID}, which means that the <code>id</code> field (assumed to
-     * be numeric) will be used as serialization.
-     *
-     * @param type the declared type of the field in the class where it is declared.
-     * @return the serialization type.
-     */
-    static Type getFieldType(Class type) {
-        if (Float.isAssignableFrom(type)) {
-            return Type.DOUBLE
-        } else if (Double.isAssignableFrom(type)) {
-            return Type.DOUBLE
-        } else if (Number.isAssignableFrom(type)) {
-            return Type.INTEGER
-        } else if (Date.isAssignableFrom(type)) {
-            return Type.DATE
-        } else if (String.isAssignableFrom(type)) {
-            return Type.STRING
-        } else {
-            // refer to objects by their identifier
-            return Type.ID
-        }
-    }
-
-    /**
      * Contains information about a field of a dimension
      */
     static class Field {
@@ -119,7 +67,7 @@ class JsonObservationsSerializer extends HypercubeSerializer {
         final Map<String, Object> toMap() {
             [
                     name: name,
-                    type: type
+                    type: type.jsonType
             ] as Map<String, Object>
         }
     }
@@ -136,7 +84,7 @@ class JsonObservationsSerializer extends HypercubeSerializer {
         final Map<String, Object> toMap() {
             def map = [
                     name: name,
-                    type: type
+                    type: type?.jsonType ?: "Object"
             ] as Map<String, Object>
             if (fields) {
                 map['fields'] = fields.collect { it.toMap() }
@@ -153,13 +101,13 @@ class JsonObservationsSerializer extends HypercubeSerializer {
      */
     static class Cell {
         /**
-         * The list of inlined values of this observation.
+         * The list of inlined values of this observation. This may contain nulls
          */
         List<Object> inlineDimensions = []
         /**
-         * The list of indexes of indexed values of this observation.
+         * The list of indexes of indexed values of this observation. This may contain nulls.
          */
-        List<Long> dimensionIndexes = []
+        List<Integer> dimensionIndexes = []
         /**
          * The numeric value of this observation if it is numeric.
          */
@@ -184,29 +132,14 @@ class JsonObservationsSerializer extends HypercubeSerializer {
     }
 
     protected Hypercube cube
-    protected Map<Dimension, List<Object>> dimensionElements = [:]
-
-    protected Long determineFooterIndex(Dimension dim, Object element) {
-        if (dimensionElements[dim] == null) {
-            dimensionElements[dim] = []
-        }
-        int index = dimensionElements[dim].indexOf(element)
-        if (index == -1) {
-            dimensionElements[dim].add(element)
-            index = dimensionElements[dim].indexOf(element)
-        }
-        index
-    }
-
     protected Writer writer
-    protected Map<Dimension, DimensionProperties> dimensionDeclarations = [:]
+//    protected Map<Dimension, DimensionProperties> dimensionDeclarations = [:]
 
     /**
      * Begins the output message.
      * @param out the stream to write to.
      */
-    protected void begin(OutputStream out) {
-        writer = new PrintWriter(new BufferedOutputStream(out))
+    protected void begin() {
         writer.print('{\n')
     }
 
@@ -214,62 +147,9 @@ class JsonObservationsSerializer extends HypercubeSerializer {
      * Ends the output message.
      * @param out the stream to write to.
      */
-    protected void end(OutputStream out) {
+    protected void end() {
         writer.print('\n}\n')
         writer.flush()
-    }
-
-    /**
-     * Writes an empty message.
-     * @param out the stream to write to.
-     */
-    protected void writeEmptyMessage(OutputStream out) {
-        // skip
-    }
-
-    /**
-     * Build a value object based on the dimension or field type and its value.
-     * Checks if the value is of a supported type.
-     * Uses the <code>id</code> field if the
-     * @return
-     */
-    static Object buildValue(Type type, Object value) {
-        switch (type) {
-            case Type.DATE:
-                if (value == null) {
-                    return null
-                } else if (value instanceof Date) {
-                    return value
-                } else if (value instanceof Number) {
-                    return new Date(value.longValue())
-                } else {
-                    return null
-                }
-            case Type.DOUBLE:
-                if (value instanceof Float) {
-                    return value
-                } else if (value instanceof Double) {
-                    return value
-                } else {
-                    throw new Exception("Type not supported: ${value?.class?.simpleName}.")
-                }
-            case Type.INTEGER:
-                if (value == null) {
-                    return null
-                } else if (value instanceof Number) {
-                    return value
-                } else {
-                    Long id = value?.getAt('id') as Long
-                    return id
-                }
-            case Type.ID:
-                Long id = value?.getAt('id') as Long
-                return id
-            case Type.STRING:
-                return value?.toString()
-            default:
-                throw new Exception("Type not supported: ${type.name()}.")
-        }
     }
 
     /**
@@ -279,18 +159,15 @@ class JsonObservationsSerializer extends HypercubeSerializer {
      * @return an object to use for writing.
      */
     protected Object buildDimensionElement(Dimension dim, Object dimElement) {
-        def dimensionProperties = dimensionDeclarations[dim]
-        if (dimensionProperties.type == Type.OBJECT) {
-            if (dimElement == null) {
-                return null
-            }
+        if (dimElement == null) return null
+        if (dim.elementsSerializable) {
+            return dimElement
+        } else {
             def value = [:] as Map<String, Object>
-            dimensionProperties.fields?.each { field ->
-                value[field.name] = buildValue(field.type, dimElement[field.name])
+            for(prop in dim.elementFields.values()) {
+                value[prop.name] = prop.get(dimElement)
             }
             return value
-        } else {
-            return buildValue(dimensionProperties.type, dimElement)
         }
     }
 
@@ -310,14 +187,12 @@ class JsonObservationsSerializer extends HypercubeSerializer {
             }
         }
         for (Dimension dim : cube.dimensions) {
-            Object dimElement = value[dim]
-            if (dim.density == Dimension.Density.SPARSE) {
+            if (!dim.density.isDense) {
                 // Add the value element inline
-                cell.inlineDimensions << buildDimensionElement(dim, dimElement)
+                cell.inlineDimensions << buildDimensionElement(dim, value[dim])
             } else {
-                // Add index to footer element inline
-                def dimValue = buildDimensionElement(dim, dimElement)
-                cell.dimensionIndexes << determineFooterIndex(dim, dimValue)
+                // Add index to footer element inline. This may be null.
+                cell.dimensionIndexes << value.getDimElementIndex(dim)
             }
         }
         cell
@@ -329,14 +204,14 @@ class JsonObservationsSerializer extends HypercubeSerializer {
      * @param out the stream to write to.
      * @param valueIterator an iterator for the values to serialize.
      */
-    protected void writeCells(OutputStream out, Iterator<HypercubeValue> it) {
+    protected void writeCells() {
+        Iterator<HypercubeValue> it = cube.iterator()
         writer.print('"cells": [')
         while (it.hasNext()) {
-            HypercubeValue value = it.next()
-            def message = createCell(value)
+            def message = createCell(it.next())
+            writer.print("\n")
             writer.print(message.toMap() as JSON)
-            def last = !it.hasNext()
-            if (!last) {
+            if (it.hasNext()) {
                 writer.print(',')
             }
         }
@@ -345,62 +220,21 @@ class JsonObservationsSerializer extends HypercubeSerializer {
 
     /**
      * Build the list of {@link DimensionProperties} to be serialized in the header.
-     * Also, the {@link #dimensionDeclarations} map is populated, which is used during
-     * serialization of the cells.
      * @return a list of dimension declarations.
      */
     protected List<DimensionProperties> buildDimensionDeclarations() {
         def declarations = cube.dimensions.collect { dim ->
-            def dimensionProperties = new DimensionProperties()
-            if (dim instanceof ModifierDimension) {
-                dimensionProperties.name = dim.name
+            // Sparse dimensions are inlined, dense dimensions are referred to by indexes
+            // (referring to objects in the footer message).
+            def dimensionProperties = new DimensionProperties(name: dim.name, inline: dim.density.isDense)
+            if(dim.elementsSerializable) {
+                dimensionProperties.type = Type.get(dim.elementType)
             } else {
-                dimensionProperties.name = dim.toString()
+                dimensionProperties.fields = dim.elementFields.values().asList().collect {
+                    new Field(name: it.name, type: Type.get(it.type))
+                }
             }
-            if (dim.density == Dimension.Density.SPARSE) {
-                // Sparse dimensions are inlined, dense dimensions are referred to by indexes
-                // (referring to objects in the footer message).
-                dimensionProperties.inline = true
-            }
-            def publicFacingFields = SerializableProperties.SERIALIZABLES.get(dimensionProperties.name)
-            switch(dim.class) {
-                case ModifierDimension:
-                    def modifierDim = (ModifierDimension)dim
-                    switch (modifierDim.elementType) {
-                        case Double:
-                            dimensionProperties.type = Type.DOUBLE
-                            break
-                        case String:
-                            dimensionProperties.type = Type.STRING
-                            break
-                        default:
-                            throw new Exception("Unsupported value type for dimension ${dimensionProperties.name}: ${modifierDim.elementType}.")
-                    }
-                    break
-                case StartTimeDimension:
-                case EndTimeDimension:
-                    dimensionProperties.type = Type.DATE
-                    break
-                case ProviderDimension:
-                case LocationDimension:
-                case ProjectionDimension:
-                    dimensionProperties.type = Type.STRING
-                    break
-                default:
-                    dimensionProperties.type = Type.OBJECT
-                    def metadata = DimensionMetadata.forDimension(dim.class)
-                    dimensionProperties.fields = metadata.fields.findAll { field ->
-                        field.fieldName in publicFacingFields
-                    }.collect { field ->
-                        Class valueType = metadata.fieldTypes[field.fieldName]
-                        new Field(
-                                name: field.fieldName,
-                                type: getFieldType(valueType)
-                        )
-                    }
-                    break
-            }
-            dimensionDeclarations[dim] = dimensionProperties
+
             dimensionProperties
         }
         declarations
@@ -411,13 +245,10 @@ class JsonObservationsSerializer extends HypercubeSerializer {
      * will be written.
      * @param out the stream to write to.
      */
-    protected void writeHeader(OutputStream out) {
-        writer.print('"header": ')
-        def declarations = buildDimensionDeclarations()
-        def headerContents = [
-                dimensionDeclarations: declarations.collect { it.toMap() }
-        ]
-        writer.print(headerContents as JSON)
+    protected void writeHeader() {
+        writer.print('"dimensionDeclarations": ')
+        def declarations = buildDimensionDeclarations().collect { it.toMap() }
+        writer.print(declarations as JSON)
         writer.print(',\n')
     }
 
@@ -426,25 +257,19 @@ class JsonObservationsSerializer extends HypercubeSerializer {
      * messages.
      * @param out the stream to write to.
      */
-    protected void writeFooter(OutputStream out) {
-        writer.print('"footer": ')
-        def dimensionElementsList = cube.dimensions.findAll({
-            it.density != Dimension.Density.SPARSE
-        }).collect { dim ->
-            dimensionElements[dim]
+    protected void writeFooter() {
+        writer.print('"dimensionElements": ')
+        def dimensionElements= [:]
+        for(dim in cube.dimensions.findAll { it.density.isDense }) {
+            dimensionElements[dim.name] = cube.dimensionElements(dim).collect { buildDimensionElement(dim, it) }
         }
-        def footerContents = [
-                dimensions: dimensionElementsList
-        ]
-        writer.print(footerContents as JSON)
+        writer.print(dimensionElements as JSON)
     }
 
     /**
      * Writes a message or sequence of messages serializing the data in the hybercube
      * {@link #cube}.
-     * Starts with {@link #begin} and ends with {@link #end}.
-     * If the cube does not contain any values, an empty message is written ({@link #writeEmptyMessage}.
-     * Otherwise, first the header is written ({@link #writeHeader}, then the cells serializing
+     * First the header is written ({@link #writeHeader}, then the cells serializing
      * the values in the cube ({@link #writeCells}), then the footer containing referenced objects
      * (@link #writeFooter).
      *
@@ -454,16 +279,12 @@ class JsonObservationsSerializer extends HypercubeSerializer {
         assert args == [:]
         this.cube = cube
 
-        begin(out)
-        Iterator<HypercubeValue> iterator = cube.iterator()
-        if (!iterator.hasNext()) {
-            writeEmptyMessage(out)
-        }
-        else {
-            writeHeader(out)
-            writeCells(out, iterator)
-            writeFooter(out)
-        }
-        end(out)
+        writer = new PrintWriter(new BufferedOutputStream(out))
+
+        begin()
+        writeHeader()
+        writeCells()
+        writeFooter()
+        end()
     }
 }
