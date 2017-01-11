@@ -23,6 +23,12 @@ message Header { // header is sent without chunking in a one message
     repeated DimensionDeclaration dimensionDeclarations = 1;
     // same meaning as in Observation
     bool last = 2; //default: false
+
+
+    // If an error happens while streaming of the result has already started, this field can be set with the error message.
+    // If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+    // these error fields generally indicates an internal application bug or a database consistency issue.
+    string error = 99;
 }
 
 message DimensionDeclaration { // each dimension present in the output is declared with this message
@@ -40,10 +46,13 @@ message DimensionDeclaration { // each dimension present in the output is declar
                                DimensionElements elements = 6;
 }
 
-message FieldDefinition { // each field (dimension element) has its definition specifying type of its value
+message FieldDefinition { // A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
+                          // message defines the name and type of a DimensionElement field.
                           // Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
                           // age, gender, race, etc.
                           string name = 1;
+                          // In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+                          // (Support for nested compound types could be added in the future)
                           Type type = 2;
 }
 
@@ -66,6 +75,10 @@ message Cell {
 
     // Set to true on the last observation, the last observation is followed by a footer.
     bool last = 7; // [default=false];
+
+
+    // see Header.error
+    string error = 99;
 }
 
 message PackedCell {
@@ -88,14 +101,18 @@ message PackedCell {
     //int32 numObervations = 5;
 
     bool last = 7; // default: false
+
+
+    // see Header.error
+    string error = 99;
 }
 
 // note: singular
 message DimensionElement {
-    // Only one of these can be set. If this dimension element only has one field, use the
-    // int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-    // Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-    // nested message for every observation.
+    // Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+    // int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+    // Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+    // nested message for every inline dimension in each observation.
     repeated Value fields = 1;
     sint64 intValue = 2;
     double doubleValue = 3;
@@ -119,6 +136,10 @@ message Value {
 message Footer {
     // List of dimensions (e.g. patients, concepts, trialVisits, etc)
     repeated DimensionElements dimension = 1;
+
+
+    // see Header.error
+    string error = 99;
 }
 
 // note: plural
@@ -147,4 +168,13 @@ message DimensionElementFieldColumn {
     repeated int64 timestampValue = 4;
 
     repeated int32 absentValueIndices = 5;
+}
+
+
+// This message is a generic error message that can be sent in place of any of the other root messages.
+// As long as the error field in all interchanged messages (Header, Cell, PackedCell, Footer, Error) has the same type
+// and number, this message can be interchanged with the other root message types.
+message Error {
+    // see Header.error
+    string error = 99;
 }

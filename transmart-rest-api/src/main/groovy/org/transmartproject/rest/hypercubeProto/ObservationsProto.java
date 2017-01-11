@@ -175,6 +175,28 @@ public final class ObservationsProto {
      * <code>optional bool last = 2;</code>
      */
     boolean getLast();
+
+    /**
+     * <pre>
+     * If an error happens while streaming of the result has already started, this field can be set with the error message.
+     * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    java.lang.String getError();
+    /**
+     * <pre>
+     * If an error happens while streaming of the result has already started, this field can be set with the error message.
+     * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorBytes();
   }
   /**
    * <pre>
@@ -194,6 +216,7 @@ public final class ObservationsProto {
     private Header() {
       dimensionDeclarations_ = java.util.Collections.emptyList();
       last_ = false;
+      error_ = "";
     }
 
     @java.lang.Override
@@ -233,6 +256,12 @@ public final class ObservationsProto {
             case 16: {
 
               last_ = input.readBool();
+              break;
+            }
+            case 794: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              error_ = s;
               break;
             }
           }
@@ -310,6 +339,52 @@ public final class ObservationsProto {
       return last_;
     }
 
+    public static final int ERROR_FIELD_NUMBER = 99;
+    private volatile java.lang.Object error_;
+    /**
+     * <pre>
+     * If an error happens while streaming of the result has already started, this field can be set with the error message.
+     * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public java.lang.String getError() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        error_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * If an error happens while streaming of the result has already started, this field can be set with the error message.
+     * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorBytes() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        error_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -328,6 +403,9 @@ public final class ObservationsProto {
       if (last_ != false) {
         output.writeBool(2, last_);
       }
+      if (!getErrorBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
+      }
     }
 
     public int getSerializedSize() {
@@ -342,6 +420,9 @@ public final class ObservationsProto {
       if (last_ != false) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(2, last_);
+      }
+      if (!getErrorBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
       }
       memoizedSize = size;
       return size;
@@ -363,6 +444,8 @@ public final class ObservationsProto {
           .equals(other.getDimensionDeclarationsList());
       result = result && (getLast()
           == other.getLast());
+      result = result && getError()
+          .equals(other.getError());
       return result;
     }
 
@@ -380,6 +463,8 @@ public final class ObservationsProto {
       hash = (37 * hash) + LAST_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getLast());
+      hash = (37 * hash) + ERROR_FIELD_NUMBER;
+      hash = (53 * hash) + getError().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -511,6 +596,8 @@ public final class ObservationsProto {
         }
         last_ = false;
 
+        error_ = "";
+
         return this;
       }
 
@@ -545,6 +632,7 @@ public final class ObservationsProto {
           result.dimensionDeclarations_ = dimensionDeclarationsBuilder_.build();
         }
         result.last_ = last_;
+        result.error_ = error_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -615,6 +703,10 @@ public final class ObservationsProto {
         }
         if (other.getLast() != false) {
           setLast(other.getLast());
+        }
+        if (!other.getError().isEmpty()) {
+          error_ = other.error_;
+          onChanged();
         }
         onChanged();
         return this;
@@ -917,6 +1009,105 @@ public final class ObservationsProto {
       public Builder clearLast() {
         
         last_ = false;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object error_ = "";
+      /**
+       * <pre>
+       * If an error happens while streaming of the result has already started, this field can be set with the error message.
+       * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public java.lang.String getError() {
+        java.lang.Object ref = error_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          error_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * If an error happens while streaming of the result has already started, this field can be set with the error message.
+       * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrorBytes() {
+        java.lang.Object ref = error_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          error_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * If an error happens while streaming of the result has already started, this field can be set with the error message.
+       * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setError(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        error_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * If an error happens while streaming of the result has already started, this field can be set with the error message.
+       * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder clearError() {
+        
+        error_ = getDefaultInstance().getError();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * If an error happens while streaming of the result has already started, this field can be set with the error message.
+       * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setErrorBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        error_ = value;
         onChanged();
         return this;
       }
@@ -2418,6 +2609,7 @@ public final class ObservationsProto {
 
     /**
      * <pre>
+     * message defines the name and type of a DimensionElement field.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2427,6 +2619,7 @@ public final class ObservationsProto {
     java.lang.String getName();
     /**
      * <pre>
+     * message defines the name and type of a DimensionElement field.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2437,17 +2630,27 @@ public final class ObservationsProto {
         getNameBytes();
 
     /**
+     * <pre>
+     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+     * (Support for nested compound types could be added in the future)
+     * </pre>
+     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     int getTypeValue();
     /**
+     * <pre>
+     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+     * (Support for nested compound types could be added in the future)
+     * </pre>
+     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType();
   }
   /**
    * <pre>
-   * each field (dimension element) has its definition specifying type of its value
+   * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
    * </pre>
    *
    * Protobuf type {@code hypercube.FieldDefinition}
@@ -2529,6 +2732,7 @@ public final class ObservationsProto {
     private volatile java.lang.Object name_;
     /**
      * <pre>
+     * message defines the name and type of a DimensionElement field.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2549,6 +2753,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
+     * message defines the name and type of a DimensionElement field.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2572,12 +2777,22 @@ public final class ObservationsProto {
     public static final int TYPE_FIELD_NUMBER = 2;
     private int type_;
     /**
+     * <pre>
+     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+     * (Support for nested compound types could be added in the future)
+     * </pre>
+     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     public int getTypeValue() {
       return type_;
     }
     /**
+     * <pre>
+     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+     * (Support for nested compound types could be added in the future)
+     * </pre>
+     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     public org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType() {
@@ -2734,7 +2949,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * each field (dimension element) has its definition specifying type of its value
+     * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
      * </pre>
      *
      * Protobuf type {@code hypercube.FieldDefinition}
@@ -2877,6 +3092,7 @@ public final class ObservationsProto {
       private java.lang.Object name_ = "";
       /**
        * <pre>
+       * message defines the name and type of a DimensionElement field.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -2897,6 +3113,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
+       * message defines the name and type of a DimensionElement field.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -2918,6 +3135,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
+       * message defines the name and type of a DimensionElement field.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -2936,6 +3154,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
+       * message defines the name and type of a DimensionElement field.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -2950,6 +3169,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
+       * message defines the name and type of a DimensionElement field.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -2970,12 +3190,22 @@ public final class ObservationsProto {
 
       private int type_ = 0;
       /**
+       * <pre>
+       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+       * (Support for nested compound types could be added in the future)
+       * </pre>
+       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public int getTypeValue() {
         return type_;
       }
       /**
+       * <pre>
+       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+       * (Support for nested compound types could be added in the future)
+       * </pre>
+       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public Builder setTypeValue(int value) {
@@ -2984,6 +3214,11 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+       * (Support for nested compound types could be added in the future)
+       * </pre>
+       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType() {
@@ -2991,6 +3226,11 @@ public final class ObservationsProto {
         return result == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.UNRECOGNIZED : result;
       }
       /**
+       * <pre>
+       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+       * (Support for nested compound types could be added in the future)
+       * </pre>
+       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public Builder setType(org.transmartproject.rest.hypercubeProto.ObservationsProto.Type value) {
@@ -3003,6 +3243,11 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+       * (Support for nested compound types could be added in the future)
+       * </pre>
+       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public Builder clearType() {
@@ -3191,6 +3436,24 @@ public final class ObservationsProto {
      */
     boolean getLast();
 
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    java.lang.String getError();
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorBytes();
+
     public org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell.ValueCase getValueCase();
   }
   /**
@@ -3209,6 +3472,7 @@ public final class ObservationsProto {
       inlineDimensions_ = java.util.Collections.emptyList();
       absentInlineDimensions_ = java.util.Collections.emptyList();
       last_ = false;
+      error_ = "";
     }
 
     @java.lang.Override
@@ -3301,6 +3565,12 @@ public final class ObservationsProto {
             case 56: {
 
               last_ = input.readBool();
+              break;
+            }
+            case 794: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              error_ = s;
               break;
             }
           }
@@ -3575,6 +3845,48 @@ public final class ObservationsProto {
       return last_;
     }
 
+    public static final int ERROR_FIELD_NUMBER = 99;
+    private volatile java.lang.Object error_;
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public java.lang.String getError() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        error_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorBytes() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        error_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -3614,6 +3926,9 @@ public final class ObservationsProto {
       }
       if (last_ != false) {
         output.writeBool(7, last_);
+      }
+      if (!getErrorBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
       }
     }
 
@@ -3666,6 +3981,9 @@ public final class ObservationsProto {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(7, last_);
       }
+      if (!getErrorBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
+      }
       memoizedSize = size;
       return size;
     }
@@ -3690,6 +4008,8 @@ public final class ObservationsProto {
           .equals(other.getAbsentInlineDimensionsList());
       result = result && (getLast()
           == other.getLast());
+      result = result && getError()
+          .equals(other.getError());
       result = result && getValueCase().equals(
           other.getValueCase());
       if (!result) return false;
@@ -3732,6 +4052,8 @@ public final class ObservationsProto {
       hash = (37 * hash) + LAST_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getLast());
+      hash = (37 * hash) + ERROR_FIELD_NUMBER;
+      hash = (53 * hash) + getError().hashCode();
       switch (valueCase_) {
         case 3:
           hash = (37 * hash) + STRINGVALUE_FIELD_NUMBER;
@@ -3876,6 +4198,8 @@ public final class ObservationsProto {
         bitField0_ = (bitField0_ & ~0x00000004);
         last_ = false;
 
+        error_ = "";
+
         valueCase_ = 0;
         value_ = null;
         return this;
@@ -3928,6 +4252,7 @@ public final class ObservationsProto {
           result.value_ = value_;
         }
         result.last_ = last_;
+        result.error_ = error_;
         result.bitField0_ = to_bitField0_;
         result.valueCase_ = valueCase_;
         onBuilt();
@@ -4019,6 +4344,10 @@ public final class ObservationsProto {
         }
         if (other.getLast() != false) {
           setLast(other.getLast());
+        }
+        if (!other.getError().isEmpty()) {
+          error_ = other.error_;
+          onChanged();
         }
         switch (other.getValueCase()) {
           case STRINGVALUE: {
@@ -4745,6 +5074,95 @@ public final class ObservationsProto {
         onChanged();
         return this;
       }
+
+      private java.lang.Object error_ = "";
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public java.lang.String getError() {
+        java.lang.Object ref = error_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          error_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrorBytes() {
+        java.lang.Object ref = error_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          error_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setError(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        error_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder clearError() {
+        
+        error_ = getDefaultInstance().getError();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setErrorBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        error_ = value;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -4946,6 +5364,24 @@ public final class ObservationsProto {
      * <code>optional bool last = 7;</code>
      */
     boolean getLast();
+
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    java.lang.String getError();
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorBytes();
   }
   /**
    * Protobuf type {@code hypercube.PackedCell}
@@ -4964,6 +5400,7 @@ public final class ObservationsProto {
       stringValues_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       numericValues_ = java.util.Collections.emptyList();
       last_ = false;
+      error_ = "";
     }
 
     @java.lang.Override
@@ -5054,6 +5491,12 @@ public final class ObservationsProto {
             case 56: {
 
               last_ = input.readBool();
+              break;
+            }
+            case 794: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              error_ = s;
               break;
             }
           }
@@ -5286,6 +5729,48 @@ public final class ObservationsProto {
       return last_;
     }
 
+    public static final int ERROR_FIELD_NUMBER = 99;
+    private volatile java.lang.Object error_;
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public java.lang.String getError() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        error_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorBytes() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        error_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -5321,6 +5806,9 @@ public final class ObservationsProto {
       }
       if (last_ != false) {
         output.writeBool(7, last_);
+      }
+      if (!getErrorBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
       }
     }
 
@@ -5370,6 +5858,9 @@ public final class ObservationsProto {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(7, last_);
       }
+      if (!getErrorBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
+      }
       memoizedSize = size;
       return size;
     }
@@ -5396,6 +5887,8 @@ public final class ObservationsProto {
           .equals(other.getNumericValuesList());
       result = result && (getLast()
           == other.getLast());
+      result = result && getError()
+          .equals(other.getError());
       return result;
     }
 
@@ -5425,6 +5918,8 @@ public final class ObservationsProto {
       hash = (37 * hash) + LAST_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getLast());
+      hash = (37 * hash) + ERROR_FIELD_NUMBER;
+      hash = (53 * hash) + getError().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -5558,6 +6053,8 @@ public final class ObservationsProto {
         bitField0_ = (bitField0_ & ~0x00000008);
         last_ = false;
 
+        error_ = "";
+
         return this;
       }
 
@@ -5607,6 +6104,7 @@ public final class ObservationsProto {
         }
         result.numericValues_ = numericValues_;
         result.last_ = last_;
+        result.error_ = error_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -5707,6 +6205,10 @@ public final class ObservationsProto {
         }
         if (other.getLast() != false) {
           setLast(other.getLast());
+        }
+        if (!other.getError().isEmpty()) {
+          error_ = other.error_;
+          onChanged();
         }
         onChanged();
         return this;
@@ -6446,6 +6948,95 @@ public final class ObservationsProto {
         onChanged();
         return this;
       }
+
+      private java.lang.Object error_ = "";
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public java.lang.String getError() {
+        java.lang.Object ref = error_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          error_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrorBytes() {
+        java.lang.Object ref = error_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          error_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setError(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        error_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder clearError() {
+        
+        error_ = getDefaultInstance().getError();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setErrorBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        error_ = value;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -6501,10 +7092,10 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -6513,10 +7104,10 @@ public final class ObservationsProto {
         getFieldsList();
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -6524,10 +7115,10 @@ public final class ObservationsProto {
     org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getFields(int index);
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -6535,10 +7126,10 @@ public final class ObservationsProto {
     int getFieldsCount();
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -6547,10 +7138,10 @@ public final class ObservationsProto {
         getFieldsOrBuilderList();
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -6582,11 +7173,6 @@ public final class ObservationsProto {
      * <code>optional int64 timestampValue = 5;</code>
      */
     long getTimestampValue();
-
-    /**
-     * <code>optional bool absent = 7;</code>
-     */
-    boolean getAbsent();
 
     /**
      * <pre>
@@ -6634,7 +7220,6 @@ public final class ObservationsProto {
       doubleValue_ = 0D;
       stringValue_ = "";
       timestampValue_ = 0L;
-      absent_ = false;
       absentFieldIndices_ = java.util.Collections.emptyList();
     }
 
@@ -6694,9 +7279,9 @@ public final class ObservationsProto {
               break;
             }
             case 48: {
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
                 absentFieldIndices_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000020;
               }
               absentFieldIndices_.add(input.readInt32());
               break;
@@ -6704,19 +7289,14 @@ public final class ObservationsProto {
             case 50: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020) && input.getBytesUntilLimit() > 0) {
                 absentFieldIndices_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000020;
               }
               while (input.getBytesUntilLimit() > 0) {
                 absentFieldIndices_.add(input.readInt32());
               }
               input.popLimit(limit);
-              break;
-            }
-            case 56: {
-
-              absent_ = input.readBool();
               break;
             }
           }
@@ -6730,7 +7310,7 @@ public final class ObservationsProto {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
           fields_ = java.util.Collections.unmodifiableList(fields_);
         }
-        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
           absentFieldIndices_ = java.util.Collections.unmodifiableList(absentFieldIndices_);
         }
         makeExtensionsImmutable();
@@ -6753,10 +7333,10 @@ public final class ObservationsProto {
     private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> fields_;
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -6766,10 +7346,10 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -6780,10 +7360,10 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -6793,10 +7373,10 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -6806,10 +7386,10 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -6878,15 +7458,6 @@ public final class ObservationsProto {
      */
     public long getTimestampValue() {
       return timestampValue_;
-    }
-
-    public static final int ABSENT_FIELD_NUMBER = 7;
-    private boolean absent_;
-    /**
-     * <code>optional bool absent = 7;</code>
-     */
-    public boolean getAbsent() {
-      return absent_;
     }
 
     public static final int ABSENTFIELDINDICES_FIELD_NUMBER = 6;
@@ -6959,9 +7530,6 @@ public final class ObservationsProto {
       for (int i = 0; i < absentFieldIndices_.size(); i++) {
         output.writeInt32NoTag(absentFieldIndices_.get(i));
       }
-      if (absent_ != false) {
-        output.writeBool(7, absent_);
-      }
     }
 
     public int getSerializedSize() {
@@ -7002,10 +7570,6 @@ public final class ObservationsProto {
         }
         absentFieldIndicesMemoizedSerializedSize = dataSize;
       }
-      if (absent_ != false) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(7, absent_);
-      }
       memoizedSize = size;
       return size;
     }
@@ -7034,8 +7598,6 @@ public final class ObservationsProto {
           .equals(other.getStringValue());
       result = result && (getTimestampValue()
           == other.getTimestampValue());
-      result = result && (getAbsent()
-          == other.getAbsent());
       result = result && getAbsentFieldIndicesList()
           .equals(other.getAbsentFieldIndicesList());
       return result;
@@ -7063,9 +7625,6 @@ public final class ObservationsProto {
       hash = (37 * hash) + TIMESTAMPVALUE_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           getTimestampValue());
-      hash = (37 * hash) + ABSENT_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getAbsent());
       if (getAbsentFieldIndicesCount() > 0) {
         hash = (37 * hash) + ABSENTFIELDINDICES_FIELD_NUMBER;
         hash = (53 * hash) + getAbsentFieldIndicesList().hashCode();
@@ -7207,10 +7766,8 @@ public final class ObservationsProto {
 
         timestampValue_ = 0L;
 
-        absent_ = false;
-
         absentFieldIndices_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -7248,10 +7805,9 @@ public final class ObservationsProto {
         result.doubleValue_ = doubleValue_;
         result.stringValue_ = stringValue_;
         result.timestampValue_ = timestampValue_;
-        result.absent_ = absent_;
-        if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((bitField0_ & 0x00000020) == 0x00000020)) {
           absentFieldIndices_ = java.util.Collections.unmodifiableList(absentFieldIndices_);
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000020);
         }
         result.absentFieldIndices_ = absentFieldIndices_;
         result.bitField0_ = to_bitField0_;
@@ -7335,13 +7891,10 @@ public final class ObservationsProto {
         if (other.getTimestampValue() != 0L) {
           setTimestampValue(other.getTimestampValue());
         }
-        if (other.getAbsent() != false) {
-          setAbsent(other.getAbsent());
-        }
         if (!other.absentFieldIndices_.isEmpty()) {
           if (absentFieldIndices_.isEmpty()) {
             absentFieldIndices_ = other.absentFieldIndices_;
-            bitField0_ = (bitField0_ & ~0x00000040);
+            bitField0_ = (bitField0_ & ~0x00000020);
           } else {
             ensureAbsentFieldIndicesIsMutable();
             absentFieldIndices_.addAll(other.absentFieldIndices_);
@@ -7389,10 +7942,10 @@ public final class ObservationsProto {
 
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7406,10 +7959,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7423,10 +7976,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7440,10 +7993,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7464,10 +8017,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7485,10 +8038,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7508,10 +8061,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7532,10 +8085,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7553,10 +8106,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7574,10 +8127,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7596,10 +8149,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7616,10 +8169,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7636,10 +8189,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7650,10 +8203,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7667,10 +8220,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7685,10 +8238,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7699,10 +8252,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7714,10 +8267,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -7888,37 +8441,11 @@ public final class ObservationsProto {
         return this;
       }
 
-      private boolean absent_ ;
-      /**
-       * <code>optional bool absent = 7;</code>
-       */
-      public boolean getAbsent() {
-        return absent_;
-      }
-      /**
-       * <code>optional bool absent = 7;</code>
-       */
-      public Builder setAbsent(boolean value) {
-        
-        absent_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional bool absent = 7;</code>
-       */
-      public Builder clearAbsent() {
-        
-        absent_ = false;
-        onChanged();
-        return this;
-      }
-
       private java.util.List<java.lang.Integer> absentFieldIndices_ = java.util.Collections.emptyList();
       private void ensureAbsentFieldIndicesIsMutable() {
-        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
           absentFieldIndices_ = new java.util.ArrayList<java.lang.Integer>(absentFieldIndices_);
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000020;
          }
       }
       /**
@@ -8003,7 +8530,7 @@ public final class ObservationsProto {
        */
       public Builder clearAbsentFieldIndices() {
         absentFieldIndices_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         onChanged();
         return this;
       }
@@ -8939,6 +9466,24 @@ public final class ObservationsProto {
      */
     org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementsOrBuilder getDimensionOrBuilder(
         int index);
+
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    java.lang.String getError();
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorBytes();
   }
   /**
    * Protobuf type {@code hypercube.Footer}
@@ -8953,6 +9498,7 @@ public final class ObservationsProto {
     }
     private Footer() {
       dimension_ = java.util.Collections.emptyList();
+      error_ = "";
     }
 
     @java.lang.Override
@@ -8989,6 +9535,12 @@ public final class ObservationsProto {
                   input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements.parser(), extensionRegistry));
               break;
             }
+            case 794: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              error_ = s;
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -9015,6 +9567,7 @@ public final class ObservationsProto {
               org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer.Builder.class);
     }
 
+    private int bitField0_;
     public static final int DIMENSION_FIELD_NUMBER = 1;
     private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements> dimension_;
     /**
@@ -9070,6 +9623,48 @@ public final class ObservationsProto {
       return dimension_.get(index);
     }
 
+    public static final int ERROR_FIELD_NUMBER = 99;
+    private volatile java.lang.Object error_;
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public java.lang.String getError() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        error_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorBytes() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        error_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -9085,6 +9680,9 @@ public final class ObservationsProto {
       for (int i = 0; i < dimension_.size(); i++) {
         output.writeMessage(1, dimension_.get(i));
       }
+      if (!getErrorBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
+      }
     }
 
     public int getSerializedSize() {
@@ -9095,6 +9693,9 @@ public final class ObservationsProto {
       for (int i = 0; i < dimension_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, dimension_.get(i));
+      }
+      if (!getErrorBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
       }
       memoizedSize = size;
       return size;
@@ -9114,6 +9715,8 @@ public final class ObservationsProto {
       boolean result = true;
       result = result && getDimensionList()
           .equals(other.getDimensionList());
+      result = result && getError()
+          .equals(other.getError());
       return result;
     }
 
@@ -9128,6 +9731,8 @@ public final class ObservationsProto {
         hash = (37 * hash) + DIMENSION_FIELD_NUMBER;
         hash = (53 * hash) + getDimensionList().hashCode();
       }
+      hash = (37 * hash) + ERROR_FIELD_NUMBER;
+      hash = (53 * hash) + getError().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -9253,6 +9858,8 @@ public final class ObservationsProto {
         } else {
           dimensionBuilder_.clear();
         }
+        error_ = "";
+
         return this;
       }
 
@@ -9276,6 +9883,7 @@ public final class ObservationsProto {
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer buildPartial() {
         org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer(this);
         int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         if (dimensionBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
             dimension_ = java.util.Collections.unmodifiableList(dimension_);
@@ -9285,6 +9893,8 @@ public final class ObservationsProto {
         } else {
           result.dimension_ = dimensionBuilder_.build();
         }
+        result.error_ = error_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -9351,6 +9961,10 @@ public final class ObservationsProto {
               dimensionBuilder_.addAllMessages(other.dimension_);
             }
           }
+        }
+        if (!other.getError().isEmpty()) {
+          error_ = other.error_;
+          onChanged();
         }
         onChanged();
         return this;
@@ -9689,6 +10303,95 @@ public final class ObservationsProto {
           dimension_ = null;
         }
         return dimensionBuilder_;
+      }
+
+      private java.lang.Object error_ = "";
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public java.lang.String getError() {
+        java.lang.Object ref = error_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          error_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrorBytes() {
+        java.lang.Object ref = error_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          error_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setError(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        error_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder clearError() {
+        
+        error_ = getDefaultInstance().getError();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setErrorBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        error_ = value;
+        onChanged();
+        return this;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -12413,6 +13116,557 @@ public final class ObservationsProto {
 
   }
 
+  public interface ErrorOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:hypercube.Error)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    java.lang.String getError();
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorBytes();
+  }
+  /**
+   * <pre>
+   * This message is a generic error message that can be sent in place of any of the other root messages.
+   * As long as the error field in all interchanged messages (Header, Cell, PackedCell, Footer, Error) has the same type
+   * and number, this message can be interchanged with the other root message types.
+   * </pre>
+   *
+   * Protobuf type {@code hypercube.Error}
+   */
+  public  static final class Error extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:hypercube.Error)
+      ErrorOrBuilder {
+    // Use Error.newBuilder() to construct.
+    private Error(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private Error() {
+      error_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private Error(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 794: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              error_ = s;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Error_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Error_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.Builder.class);
+    }
+
+    public static final int ERROR_FIELD_NUMBER = 99;
+    private volatile java.lang.Object error_;
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public java.lang.String getError() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        error_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorBytes() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        error_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getErrorBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getErrorBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.Error)) {
+        return super.equals(obj);
+      }
+      org.transmartproject.rest.hypercubeProto.ObservationsProto.Error other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.Error) obj;
+
+      boolean result = true;
+      result = result && getError()
+          .equals(other.getError());
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      hash = (37 * hash) + ERROR_FIELD_NUMBER;
+      hash = (53 * hash) + getError().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.Error prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * This message is a generic error message that can be sent in place of any of the other root messages.
+     * As long as the error field in all interchanged messages (Header, Cell, PackedCell, Footer, Error) has the same type
+     * and number, this message can be interchanged with the other root message types.
+     * </pre>
+     *
+     * Protobuf type {@code hypercube.Error}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:hypercube.Error)
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.ErrorOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Error_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Error_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.Builder.class);
+      }
+
+      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        error_ = "";
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Error_descriptor;
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Error getDefaultInstanceForType() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.getDefaultInstance();
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Error build() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.Error result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Error buildPartial() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.Error result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Error(this);
+        result.error_ = error_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.Error) {
+          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.Error)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.Error other) {
+        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.getDefaultInstance()) return this;
+        if (!other.getError().isEmpty()) {
+          error_ = other.error_;
+          onChanged();
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.Error) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object error_ = "";
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public java.lang.String getError() {
+        java.lang.Object ref = error_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          error_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrorBytes() {
+        java.lang.Object ref = error_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          error_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setError(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        error_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder clearError() {
+        
+        error_ = getDefaultInstance().getError();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setErrorBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        error_ = value;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:hypercube.Error)
+    }
+
+    // @@protoc_insertion_point(class_scope:hypercube.Error)
+    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.Error DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Error();
+    }
+
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Error>
+        PARSER = new com.google.protobuf.AbstractParser<Error>() {
+      public Error parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new Error(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Error> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Error> getParserForType() {
+      return PARSER;
+    }
+
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Error getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_hypercube_Header_descriptor;
   private static final 
@@ -12463,6 +13717,11 @@ public final class ObservationsProto {
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_hypercube_DimensionElementFieldColumn_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_hypercube_Error_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_hypercube_Error_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -12473,44 +13732,45 @@ public final class ObservationsProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\"src/protobuf/v2/observations.proto\022\thy" +
-      "percube\"V\n\006Header\022>\n\025dimensionDeclaratio" +
+      "percube\"e\n\006Header\022>\n\025dimensionDeclaratio" +
       "ns\030\001 \003(\0132\037.hypercube.DimensionDeclaratio" +
-      "n\022\014\n\004last\030\002 \001(\010\"\277\001\n\024DimensionDeclaration" +
-      "\022\014\n\004name\030\001 \001(\t\022\035\n\004type\030\002 \001(\0162\017.hypercube" +
-      ".Type\022*\n\006fields\030\003 \003(\0132\032.hypercube.FieldD" +
-      "efinition\022\016\n\006inline\030\004 \001(\010\022\016\n\006packed\030\005 \001(" +
-      "\010\022.\n\010elements\030\006 \001(\0132\034.hypercube.Dimensio" +
-      "nElements\">\n\017FieldDefinition\022\014\n\004name\030\001 \001" +
-      "(\t\022\035\n\004type\030\002 \001(\0162\017.hypercube.Type\"\275\001\n\004Ce",
-      "ll\022\030\n\020dimensionIndexes\030\001 \003(\003\0225\n\020inlineDi" +
-      "mensions\030\002 \003(\0132\033.hypercube.DimensionElem" +
-      "ent\022\036\n\026absentInlineDimensions\030\005 \003(\005\022\025\n\013s" +
-      "tringValue\030\003 \001(\tH\000\022\026\n\014numericValue\030\004 \001(\001" +
-      "H\000\022\014\n\004last\030\007 \001(\010B\007\n\005value\"\231\001\n\nPackedCell" +
-      "\022\030\n\020dimensionIndexes\030\001 \003(\003\0226\n\020inlineDime" +
-      "nsions\030\002 \003(\0132\034.hypercube.DimensionElemen" +
-      "ts\022\024\n\014stringValues\030\003 \003(\t\022\025\n\rnumericValue" +
-      "s\030\004 \003(\001\022\014\n\004last\030\007 \001(\010\"\264\001\n\020DimensionEleme" +
-      "nt\022 \n\006fields\030\001 \003(\0132\020.hypercube.Value\022\020\n\010",
-      "intValue\030\002 \001(\022\022\023\n\013doubleValue\030\003 \001(\001\022\023\n\013s" +
-      "tringValue\030\004 \001(\t\022\026\n\016timestampValue\030\005 \001(\003" +
-      "\022\016\n\006absent\030\007 \001(\010\022\032\n\022absentFieldIndices\030\006" +
-      " \003(\005\"l\n\005Value\022\025\n\013stringValue\030\001 \001(\tH\000\022\025\n\013" +
-      "doubleValue\030\002 \001(\001H\000\022\022\n\010intValue\030\003 \001(\022H\000\022" +
-      "\030\n\016timestampValue\030\004 \001(\003H\000B\007\n\005value\"9\n\006Fo" +
-      "oter\022/\n\tdimension\030\001 \003(\0132\034.hypercube.Dime" +
-      "nsionElements\"\216\001\n\021DimensionElements\022\014\n\004n" +
-      "ame\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.hypercube.Di" +
-      "mensionElementFieldColumn\022 \n\030absentField",
-      "ColumnIndices\030\004 \003(\005\022\021\n\tperSample\030\002 \001(\010\"\215" +
-      "\001\n\033DimensionElementFieldColumn\022\023\n\013string" +
-      "Value\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010intV" +
-      "alue\030\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022\032\n\022ab" +
-      "sentValueIndices\030\005 \003(\005*B\n\004Type\022\n\n\006DOUBLE" +
-      "\020\000\022\n\n\006STRING\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n" +
-      "\n\006OBJECT\020\004B=\n(org.transmartproject.rest." +
-      "hypercubeProtoB\021ObservationsProtob\006proto" +
-      "3"
+      "n\022\014\n\004last\030\002 \001(\010\022\r\n\005error\030c \001(\t\"\277\001\n\024Dimen" +
+      "sionDeclaration\022\014\n\004name\030\001 \001(\t\022\035\n\004type\030\002 " +
+      "\001(\0162\017.hypercube.Type\022*\n\006fields\030\003 \003(\0132\032.h" +
+      "ypercube.FieldDefinition\022\016\n\006inline\030\004 \001(\010" +
+      "\022\016\n\006packed\030\005 \001(\010\022.\n\010elements\030\006 \001(\0132\034.hyp" +
+      "ercube.DimensionElements\">\n\017FieldDefinit" +
+      "ion\022\014\n\004name\030\001 \001(\t\022\035\n\004type\030\002 \001(\0162\017.hyperc",
+      "ube.Type\"\314\001\n\004Cell\022\030\n\020dimensionIndexes\030\001 " +
+      "\003(\003\0225\n\020inlineDimensions\030\002 \003(\0132\033.hypercub" +
+      "e.DimensionElement\022\036\n\026absentInlineDimens" +
+      "ions\030\005 \003(\005\022\025\n\013stringValue\030\003 \001(\tH\000\022\026\n\014num" +
+      "ericValue\030\004 \001(\001H\000\022\014\n\004last\030\007 \001(\010\022\r\n\005error" +
+      "\030c \001(\tB\007\n\005value\"\250\001\n\nPackedCell\022\030\n\020dimens" +
+      "ionIndexes\030\001 \003(\003\0226\n\020inlineDimensions\030\002 \003" +
+      "(\0132\034.hypercube.DimensionElements\022\024\n\014stri" +
+      "ngValues\030\003 \003(\t\022\025\n\rnumericValues\030\004 \003(\001\022\014\n" +
+      "\004last\030\007 \001(\010\022\r\n\005error\030c \001(\t\"\244\001\n\020Dimension",
+      "Element\022 \n\006fields\030\001 \003(\0132\020.hypercube.Valu" +
+      "e\022\020\n\010intValue\030\002 \001(\022\022\023\n\013doubleValue\030\003 \001(\001" +
+      "\022\023\n\013stringValue\030\004 \001(\t\022\026\n\016timestampValue\030" +
+      "\005 \001(\003\022\032\n\022absentFieldIndices\030\006 \003(\005\"l\n\005Val" +
+      "ue\022\025\n\013stringValue\030\001 \001(\tH\000\022\025\n\013doubleValue" +
+      "\030\002 \001(\001H\000\022\022\n\010intValue\030\003 \001(\022H\000\022\030\n\016timestam" +
+      "pValue\030\004 \001(\003H\000B\007\n\005value\"H\n\006Footer\022/\n\tdim" +
+      "ension\030\001 \003(\0132\034.hypercube.DimensionElemen" +
+      "ts\022\r\n\005error\030c \001(\t\"\216\001\n\021DimensionElements\022" +
+      "\014\n\004name\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.hypercub",
+      "e.DimensionElementFieldColumn\022 \n\030absentF" +
+      "ieldColumnIndices\030\004 \003(\005\022\021\n\tperSample\030\002 \001" +
+      "(\010\"\215\001\n\033DimensionElementFieldColumn\022\023\n\013st" +
+      "ringValue\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010" +
+      "intValue\030\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022\032" +
+      "\n\022absentValueIndices\030\005 \003(\005\"\026\n\005Error\022\r\n\005e" +
+      "rror\030c \001(\t*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING" +
+      "\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004B=" +
+      "\n(org.transmartproject.rest.hypercubePro" +
+      "toB\021ObservationsProtob\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -12529,7 +13789,7 @@ public final class ObservationsProto {
     internal_static_hypercube_Header_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_Header_descriptor,
-        new java.lang.String[] { "DimensionDeclarations", "Last", });
+        new java.lang.String[] { "DimensionDeclarations", "Last", "Error", });
     internal_static_hypercube_DimensionDeclaration_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_hypercube_DimensionDeclaration_fieldAccessorTable = new
@@ -12547,19 +13807,19 @@ public final class ObservationsProto {
     internal_static_hypercube_Cell_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_Cell_descriptor,
-        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "AbsentInlineDimensions", "StringValue", "NumericValue", "Last", "Value", });
+        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "AbsentInlineDimensions", "StringValue", "NumericValue", "Last", "Error", "Value", });
     internal_static_hypercube_PackedCell_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_hypercube_PackedCell_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_PackedCell_descriptor,
-        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValues", "NumericValues", "Last", });
+        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValues", "NumericValues", "Last", "Error", });
     internal_static_hypercube_DimensionElement_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_hypercube_DimensionElement_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElement_descriptor,
-        new java.lang.String[] { "Fields", "IntValue", "DoubleValue", "StringValue", "TimestampValue", "Absent", "AbsentFieldIndices", });
+        new java.lang.String[] { "Fields", "IntValue", "DoubleValue", "StringValue", "TimestampValue", "AbsentFieldIndices", });
     internal_static_hypercube_Value_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_hypercube_Value_fieldAccessorTable = new
@@ -12571,7 +13831,7 @@ public final class ObservationsProto {
     internal_static_hypercube_Footer_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_Footer_descriptor,
-        new java.lang.String[] { "Dimension", });
+        new java.lang.String[] { "Dimension", "Error", });
     internal_static_hypercube_DimensionElements_descriptor =
       getDescriptor().getMessageTypes().get(8);
     internal_static_hypercube_DimensionElements_fieldAccessorTable = new
@@ -12584,6 +13844,12 @@ public final class ObservationsProto {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElementFieldColumn_descriptor,
         new java.lang.String[] { "StringValue", "DoubleValue", "IntValue", "TimestampValue", "AbsentValueIndices", });
+    internal_static_hypercube_Error_descriptor =
+      getDescriptor().getMessageTypes().get(10);
+    internal_static_hypercube_Error_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_hypercube_Error_descriptor,
+        new java.lang.String[] { "Error", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

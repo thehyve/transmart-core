@@ -8,6 +8,7 @@ import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.Property
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.Type as ProtoType
+import org.transmartproject.rest.hypercubeProto.ObservationsProto.Error
 
 import javax.annotation.Nonnull
 
@@ -156,12 +157,8 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         }
         for (int i=0; i<indexedDims.size(); i++) {
             Integer idx = value.getDimElementIndex(indexedDims[i])
-            if(idx != null) {
-                builder.addDimensionIndexes(value.getDimElementIndex(indexedDims[i]))
-            } else {
-                //FIXME: add support for this in the protobuf format
-                throw new UnsupportedOperationException("No dimension element for value $value, dimension ${indexedDims[i]}")
-            }
+            // convert to 1-based values, 0 means not present
+            builder.addDimensionIndexes(idx == null ? 0 : idx+1)
         }
         for (int i=0; i<inlineDims.size(); i++) {
             Dimension dim = inlineDims[i]
@@ -217,18 +214,37 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         if(setName) builder.name = dim.name
         //builder.perSample = false //TODO: implement this
 
-        def properties = dim.elementFields.values().asList()
-        for(int i=0; i<properties.size(); i++) {
-            def fieldColumn = buildElementFields(properties[i], dimElements)
-            if(fieldColumn == null) {
-                builder.addAbsentFieldColumnIndices(i+1)
+        if(dim.elementsSerializable) {
+            def fieldColumnBuilder = transferFieldColumn.clear()
+            Type type = Type.get(dim.elementType)
+            boolean allEmpty = true
+            for(int i=0; i<dimElements.size(); i++) {
+                def element = dimElements[i]
+                if(element != null) {
+                    allEmpty = false
+                    type.addToColumn(fieldColumnBuilder, element)
+                } else {
+                    fieldColumnBuilder.addAbsentValueIndices(i+1)
+                }
+            }
+            if(allEmpty) {
+                builder.addAbsentFieldColumnIndices(1)
             } else {
-                builder.addFields(fieldColumn)
+                builder.addFields(fieldColumnBuilder.build())
+            }
+
+        } else { // dimension elements are compound
+            def properties = dim.elementFields.values().asList()
+            for(int i=0; i<properties.size(); i++) {
+                def fieldColumn = buildElementFields(properties[i], dimElements)
+                if(fieldColumn == null) {
+                    builder.addAbsentFieldColumnIndices(i+1)
+                } else {
+                    builder.addFields(fieldColumn)
+                }
             }
         }
-//        for(element in dimElements) {
-//            builder.addFields(buildDimensionElement(dim, element))
-//        }
+
         builder.build()
     }
 
@@ -266,6 +282,10 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         builder.build()
     }
 
+    protected Error createError(String error) {
+        Error.newBuilder().setError(error).build()
+    }
+
     void write(Map args, Hypercube cube, OutputStream out) {
         this.cube = cube
         this.out = out
@@ -276,15 +296,35 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         this.inlineDims = cube.dimensions.findAll { it != packedDimension && !it.density.isDense }
         this.indexedDims = cube.dimensions.findAll { it != packedDimension && it.density.isDense }
 
+        try {
+            buildHeader().writeDelimitedTo(out)
 
-        buildHeader().writeDelimitedTo(out)
+            while(iterator.hasNext()) {
+                def message = createCell(iterator.next())
+                message.build().writeDelimitedTo(out)
+            }
 
-        while(iterator.hasNext()) {
-            def message = createCell(iterator.next())
-            message.build().writeDelimitedTo(out)
+            buildFooter().writeDelimitedTo(out)
+
+        } catch(Exception e) {
+
+            log.error("Exception while writing protobuf result", e)
+
+            try {
+                // The Error message is compatible with Header, Footer, Cell and PackedCell so we can send that in stead
+                // of any of those. This does assume that an exception is not thrown while a partial message has been
+                // written. However the protobuf implementation tries its best to write full messages in one go.
+                createError(e.toString()).writeDelimitedTo(out)
+            } catch(Exception e2) {
+                // If they're both IOException's they are probably due to the same problem. Although theoretically
+                // the database i/o or some other i/o might cause the first IOException.
+                if(!(e instanceof IOException && e2 instanceof IOException)) {
+                    log.error("Unable to write previous error to the protobuf result stream", e2)
+                }
+            }
+
+            throw e
         }
-
-        buildFooter().writeDelimitedTo(out)
     }
 }
 
