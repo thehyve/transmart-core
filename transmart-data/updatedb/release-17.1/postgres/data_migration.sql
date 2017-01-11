@@ -210,3 +210,5 @@ update i2b2demodata.observation_fact set trial_visit_num =
         inner join i2b2demodata.study s on s.study_num = tv.study_num and s.study_id = observation_fact.sourcesystem_cd 
         where tv.rel_time_label = 'General')
 where trial_visit_num is null;
+
+ALTER TABLE ONLY i2b2demodata.observation_fact ALTER COLUMN trial_visit_num SET NOT NULL;

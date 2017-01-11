@@ -16,3 +16,7 @@ ALTER TABLE ONLY deapp.de_rnaseq_transcript_annot
 
 ALTER TABLE ONLY deapp.de_rnaseq_transcript_annot
     ADD CONSTRAINT de_rnaseq_transcript_annot_gpl_id_fkey FOREIGN KEY (gpl_id) REFERENCES deapp.de_gpl_info(platform);
+
+GRANT SELECT ON TABLE deapp.de_rnaseq_transcript_annot TO biomart_user;
+GRANT ALL ON TABLE deapp.de_rnaseq_transcript_annot TO deapp;
+GRANT ALL ON TABLE deapp.de_rnaseq_transcript_annot TO tm_cz;

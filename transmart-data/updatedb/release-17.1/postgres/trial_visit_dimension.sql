@@ -26,3 +26,7 @@ ALTER TABLE ONLY i2b2demodata.trial_visit_dimension
     ADD CONSTRAINT trial_visit_dimension_study_fk FOREIGN KEY (study_num) REFERENCES i2b2demodata.study(study_num);
 
 ALTER SEQUENCE i2b2demodata.trial_visit_num_seq OWNED BY i2b2demodata.trial_visit_dimension.trial_visit_num;
+
+GRANT SELECT ON TABLE i2b2demodata.trial_visit_dimension TO biomart_user;
+GRANT ALL ON TABLE i2b2demodata.trial_visit_dimension TO i2b2demodata;
+GRANT ALL ON TABLE i2b2demodata.trial_visit_dimension TO tm_cz;

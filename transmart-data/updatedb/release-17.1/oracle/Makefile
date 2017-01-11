@@ -1,6 +1,6 @@
 include ../../../lib/makefile.inc
 
-TABLES = \
+FILES = \
 	study \
 	trial_visit_dimension \
 	observation_fact \
@@ -16,4 +16,4 @@ TABLES = \
 RUN_SQL   = groovy -cp '$(CP_ORA)' ../../../ddl/oracle/_scripts/run_sql.groovy
 
 upgrade:
-	$(RUN_SQL) --sequential $(foreach u,$(TABLES),-f $(u).sql)
+	$(RUN_SQL) --sequential $(foreach u,$(FILES),-f $(u).sql)

@@ -21,3 +21,7 @@ ALTER TABLE ONLY i2b2metadata.dimension_description
     ADD CONSTRAINT dimension_description_pkey PRIMARY KEY (id);
 
 ALTER SEQUENCE i2b2metadata.dimension_description_id_seq OWNED BY i2b2metadata.dimension_description.id;
+
+GRANT SELECT ON TABLE i2b2metadata.dimension_description TO biomart_user;
+GRANT ALL ON TABLE i2b2metadata.dimension_description TO i2b2metadata;
+GRANT ALL ON TABLE i2b2metadata.dimension_description TO tm_cz;

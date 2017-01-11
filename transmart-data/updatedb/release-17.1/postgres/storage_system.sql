@@ -9,3 +9,7 @@ CREATE TABLE i2b2demodata.storage_system (
 
 ALTER TABLE ONLY i2b2demodata.storage_system
     ADD CONSTRAINT storage_system_pkey PRIMARY KEY (id);
+
+GRANT DELETE, UPDATE, SELECT, INSERT ON TABLE i2b2demodata.storage_system TO biomart_user;
+GRANT ALL ON TABLE i2b2demodata.storage_system TO i2b2demodata;
+GRANT ALL ON TABLE i2b2demodata.storage_system TO tm_cz;

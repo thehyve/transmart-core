@@ -1,4 +1,4 @@
-TABLES = \
+FILES = \
 	study \
 	trial_visit_dimension \
 	observation_fact \
@@ -12,4 +12,4 @@ TABLES = \
 	data_migration
 
 upgrade:
-	$(PGSQL_BIN)/psql $(foreach u,$(TABLES),-f $(u).sql)
+	$(PGSQL_BIN)/psql $(foreach u,$(FILES),-f $(u).sql)
