@@ -4,4 +4,5 @@ include 'transmart-core-db', 'transmart-core-db-tests', 'transmart-core-api', 't
         'transmart-data',
         'transmart-batch',
         'transmart-gwas-plugin',
-        'transmart-e2e'
+        'transmart-rest-api-e2e',
+        'ontology-service'

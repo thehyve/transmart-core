@@ -65,6 +65,57 @@ class RestApiUrlMappings {
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
                 apiVersion = 'v2'
             }
+            "/files"(method: 'GET', controller: 'storage', action: 'index') {
+                apiVersion = "v2"
+            }
+            "/files/$id"(method: 'GET', controller: 'storage', action: 'show') {
+                apiVersion = "v2"
+            }
+            "/files"(method: 'POST', controller: 'storage', action: 'save') {
+                apiVersion = "v2"
+            }
+            "/files/$id"(method: 'PUT', controller: 'storage', action: 'update') {
+                apiVersion = "v2"
+            }
+            "/files/$id"(method: 'DELETE', controller: 'storage', action: 'delete') {
+                apiVersion = "v2"
+            }
+            "/studies/$studyId/files"(method: 'GET', controller: 'storage', action: 'indexStudy') {
+                apiVersion = "v2"
+            }
+            "/storage"(method: 'GET', controller: 'storageSystem', action: 'index') {
+                apiVersion = "v2"
+            }
+            "/storage/$id"(method: 'GET', controller: 'storageSystem', action: 'show') {
+                apiVersion = "v2"
+            }
+            "/storage"(method: 'POST', controller: 'storageSystem', action: 'save') {
+                apiVersion = "v2"
+            }
+            "/storage/$id"(method: 'DELETE', controller: 'storageSystem', action: 'delete') {
+                apiVersion = "v2"
+            }
+            "/storage/$id"(method: 'PUT', controller: 'storageSystem', action: 'update') {
+                apiVersion = "v2"
+            }
+            "/arvados/workflows"(method: 'GET', controller: 'arvados', action: 'index') {
+                apiVersion = "v2"
+            }
+            "/arvados/workflows/$id"(method: 'GET', controller: 'arvados', action: 'show') {
+                apiVersion = "v2"
+            }
+            "/arvados/workflows"(method: 'POST', controller: 'arvados', action: 'save') {
+                apiVersion = "v2"
+            }
+            "/arvados/workflows/$id"(method: 'DELETE', controller: 'arvados', action: 'delete') {
+                apiVersion = "v2"
+            }
+            "/arvados/workflows/$id"(method: 'PUT', controller: 'arvados', action: 'update') {
+                apiVersion = "v2"
+            }
+            "/recommended_concepts/$conceptCode"(method: 'GET', controller: 'concept', action: 'showRecommended') {
+                apiVersion = 'v2'
+            }
         }
 
         group "/v1", {

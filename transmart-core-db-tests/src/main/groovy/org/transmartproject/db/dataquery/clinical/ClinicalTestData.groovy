@@ -19,6 +19,7 @@
 
 package org.transmartproject.db.dataquery.clinical
 
+import com.google.common.collect.Iterators
 import org.codehaus.groovy.runtime.InvokerHelper
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.StudyTestData
@@ -34,6 +35,8 @@ import org.transmartproject.db.querytool.QtQueryMaster
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
 
+import static com.google.common.collect.Iterators.cycle
+import static com.google.common.collect.Iterators.peekingIterator
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.LEAF
 import static org.transmartproject.db.querytool.QueryResultData.createQueryResult
 import static org.transmartproject.db.querytool.QueryResultData.getQueryResultFromMaster
@@ -236,6 +239,35 @@ class ClinicalTestData {
         createObservationFact(concept.conceptCode, patient, encounterId, value)
     }
 
+    static ObservationFact createObservationFact(Map args) {
+        [
+            modifierCd: '@',
+            providerId: 'fakeProviderId',
+            encounterNum: DUMMY_ENCOUNTER_ID,
+            startDate: new Date(),
+            instanceNum: DUMMY_INSTANCE_ID,
+            trialVisit: defaultTrialVisit
+        ].each { prop, val -> args.putIfAbsent(prop, val) }
+
+        def value = args.remove('value')
+        TrialVisit tv = args.remove('trialVisit')
+        
+        def of = new ObservationFact(args)
+
+        tv.addToObservationFacts(of)
+
+        if (value instanceof Number) {
+            of.valueType = ObservationFact.TYPE_NUMBER
+            of.textValue = 'E' //equal to
+            of.numberValue = value as BigDecimal
+        } else if (value != null) {
+            of.valueType = ObservationFact.TYPE_TEXT
+            of.textValue = value as String
+        }
+
+        of
+    }
+    
     static ObservationFact createObservationFact(String conceptCode,
                                                  PatientDimension patient,
                                                  BigDecimal encounterId,
@@ -357,20 +389,32 @@ class ClinicalTestData {
                                                          List<String> locations, List<String> providers){
 
         def factList = []
-        factList << createObservationFact(concept[0].conceptCode, patients[0], DUMMY_ENCOUNTER_ID, 'Homo sapiens', 1, createTrialVisit('day', 2, 'label_1', study))
-        factList << createObservationFact(concept[1].conceptCode, patients[1], DUMMY_ENCOUNTER_ID, 'not specified', 1, createTrialVisit('day', 4, 'label_2', study))
-        factList << createObservationFact(concept[0].conceptCode, patients[2], DUMMY_ENCOUNTER_ID, 45.0, 1, createTrialVisit('week', 2, 'label_3', study))
 
-        extendObservationFactList(factList, startDates, endDates, locations, providers)
+        def v = 45.0
+        def instancenum = 1
+        def trialVisits = [createTrialVisit('day', 0, 'baseline', study),
+                           createTrialVisit('day', 10, 'after 10 days', study),
+                           createTrialVisit('day', 35, 'after 5 weeks', study)]
+        patients.each { p ->
+            trialVisits.each { tv ->
+                factList << createObservationFact(concept[0].conceptCode, p, DUMMY_ENCOUNTER_ID, v++, instancenum++, tv)
+                factList << createObservationFact(concept[1].conceptCode, p, DUMMY_ENCOUNTER_ID, "Homo Sapiens ${v++}", instancenum++, tv)
+            }
+        }
+
+        //extendObservationFactList(factList, startDates, endDates, locations, providers)
+        factList
     }
 
     static List<ObservationFact> createSampleFacts(ConceptDimension concept, List<PatientDimension> patients,
                                                    Study study, List<Date> startDates, List<Date> endDates,
                                                    List<String> locations, List<String> providers){
 
-        def trialVisit = createTrialVisit(null, 0, 'baseline', study)
+        def trialVisit = createTrialVisit(null, null, 'baseline', study)
         def factList = []
-        patients.each { patient ->
+        // Sort by ascending patient id (-103, -102, -101), so that the sort that the hypercube does due to the
+        // modifiers doesn't change the order
+        patients.sort({it.id}).each { patient ->
             def fact1 = createObservationFact(concept.conceptCode, patient, DUMMY_ENCOUNTER_ID, 'first sample', 1, trialVisit)
             def fact2 = createObservationFact(concept.conceptCode, patient, DUMMY_ENCOUNTER_ID, 'second sample', 2, trialVisit)
             String tissueCode = 'TEST:TISSUETYPE'
@@ -399,19 +443,54 @@ class ClinicalTestData {
         extendObservationFactList(ehrFacts, startDates, endDates, locations, providers)
     }
 
+
     static List<ObservationFact> createMultidimensionalFacts (List<ConceptDimension> concept, List<VisitDimension> visits,
                                                          Study study, List<Date> startDates, List<Date> endDates,
                                                          List<String> locations, List<String> providers){
 
+        // These trialVisits don't really make sense, since different trial visits share the same visit, but it works
+        // fine for testing
+        def trialVisits = [createTrialVisit('day', 0, 'baseline', study),
+                           createTrialVisit('day', 10, 'after 10 days', study),
+                           createTrialVisit('day', 35, 'after 5 weeks', study)]
+        def istartDates = peekingIterator(cycle(startDates))
+        def iendDates = peekingIterator(cycle(endDates))
+        def ilocations = peekingIterator(cycle(locations))
+        def iproviders = peekingIterator(cycle(providers))
         def factList = []
+        def val = 42.1
+        def instanceNum = 1
+        visits.each { visit -> trialVisits.each { tv ->
+            factList << createObservationFact(
+                    conceptCode: concept[0].conceptCode, 
+                    patient: visit.patient, 
+                    encounterNum: visit.encounterNum, 
+                    value: val++,
+                    instanceNum: instanceNum++, 
+                    trialVisit: tv,
+                    startDate: istartDates.peek(),
+                    endDate: iendDates.peek(),
+                    locationCd: ilocations.peek(),
+                    providerId: iproviders.peek(),
+                )
+            factList << createObservationFact(
+                    conceptCode: concept[1].conceptCode,
+                    patient: visit.patient,
+                    encounterNum: visit.encounterNum,
+                    value: "measurement ${val++}",
+                    instanceNum: instanceNum++,
+                    trialVisit: tv,
+                    startDate: istartDates.next(),
+                    endDate: iendDates.next(),
+                    locationCd: ilocations.next(),
+                    providerId: iproviders.next(),
+            )
+        }}
 
-        factList << createObservationFact(concept[0].conceptCode, visits[0].patient, visits[0].encounterNum, 'HCaucasian', 1, createTrialVisit('day', 5, 'label_1', study))
-        factList << createObservationFact(concept[1].conceptCode, visits[1].patient, visits[1].encounterNum, 'not specified', 1, createTrialVisit('week', 1, 'label_2', study))
-        factList << createObservationFact(concept[0].conceptCode, visits[2].patient, DUMMY_ENCOUNTER_ID, 77.0, 1, createTrialVisit('month', 1, 'label_3', study))
-        extendObservationFactList(factList, startDates, endDates, locations, providers)
+        factList
     }
 
-    static TrialVisit createTrialVisit(String relTimeUnit, int relTime, String relTimeLabel, Study study) {
+    static TrialVisit createTrialVisit(String relTimeUnit, Integer relTime, String relTimeLabel, Study study) {
         def tv = new TrialVisit(
                 relTimeUnit: relTimeUnit,
                 relTime: relTime,
@@ -433,17 +512,6 @@ class ClinicalTestData {
                     encounterNum: (DUMMY_ENCOUNTER_ID + (i +1)).setScale(2, RoundingMode.HALF_EVEN),
                     startDate: startDate + (10*i),
                     endDate: endDate + (10*i),
-//                activeStatusCd: ActiveStatus.ACTIVE,
-//                inoutCd: 'inout_cd',
-//                locationCd: 'location_cd',
-//                locationPath: 'location_path',
-//                lengthOfStay: 1,
-//                visitBlob: 'visit_blob',
-//                updateDate: new Date(),
-//                downloadDate: new Date(),
-//                importDate: new Date(),
-//                sourcesystemCd: 'sourcesystem_cd',
-//                uploadId: 'upload_id'
             )
             visit
         }

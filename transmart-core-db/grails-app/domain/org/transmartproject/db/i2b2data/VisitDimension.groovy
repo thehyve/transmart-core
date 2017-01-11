@@ -61,6 +61,10 @@ class VisitDimension implements Serializable{
         sourcesystemCd    nullable:   true,   maxSize:   50
         uploadId          nullable:   true
     }
+
+    String getPatientInTrialId() {
+        patient.inTrialId
+    }
 }
 
 

@@ -3,12 +3,12 @@ package org.transmartproject.db.multidimquery
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
+import com.google.common.collect.PeekingIterator
 import com.google.common.collect.UnmodifiableIterator
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.StatelessSessionImpl
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -17,10 +17,8 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
-import static org.transmartproject.db.metadata.DimensionDescription.dimensionsMap
 import static org.transmartproject.db.multidimquery.ModifierDimension.modifierCodeField
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
-import static java.util.AbstractMap.SimpleImmutableEntry
 
 /**
  *
@@ -58,7 +56,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     private final Map<Dimension,IndexedArraySet<Object>> dimensionElementKeys
 
     // A map that stores the actual dimension elements once they are loaded
-    private Map<Dimension, List<Object>> dimensionElements = new HashMap()
+    private Map<Dimension, ImmutableList<Object>> dimensionElements = new HashMap()
 
     // false if there may be dimension element keys for which the values are not loaded
     private boolean _dimensionsLoaded = false
@@ -82,26 +80,24 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         modifierDimensions = ImmutableList.copyOf((List) this.dimensions.findAll {it instanceof ModifierDimension})
     }
 
-    Iterator getIterator() {
+    @Override PeekingIterator<HypercubeValueImpl> iterator() { (PeekingIterator) super.iterator() }
+    @Override PeekingIterator<HypercubeValueImpl> getIterator() {
         new ResultIterator()
     }
 
-    class ResultIterator implements Iterator<HypercubeValueImpl> {
+    class ResultIterator extends AbstractIterator<HypercubeValueImpl> implements PeekingIterator<HypercubeValueImpl> {
         final Iterator<? extends Map<String,Object>> resultIterator = (hasModifiers
                 ? new ModifierResultIterator(modifierDimensions, aliases, results)
                 : new ProjectionMapIterator(aliases, results)
         )
 
-        @Override boolean hasNext() {
+        @Override HypercubeValueImpl computeNext() {
             if (!resultIterator.hasNext()) {
                 close()
                 if (autoloadDimensions) loadDimensions()
-                return false
+                return endOfData()
             }
-            true
-        }
 
-        @Override HypercubeValueImpl next() {
             Map<String,Object> result = resultIterator.next()
             _dimensionsLoaded = false
 
@@ -119,7 +115,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
                 def dimElementKey = d.getElementKey(result)
                 if(dimElementKey == null) {
                     dimensionElementIdxes[i] = null
-                } else if(d.density == Dimension.Density.DENSE) {
+                } else if(d.density.isDense) {
                     IndexedArraySet<Object> elementKeys = dimensionElementKeys[d]
                     int dimElementIdx = elementKeys.indexOf(dimElementKey)
                     if(dimElementIdx == -1) {
@@ -136,14 +132,6 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         }
     }
 
-    ImmutableList<Object> dimensionElements(Dimension dim) {
-        checkDimension(dim)
-        checkIsDense(dim)
-        List ret = ImmutableList.copyOf(dim.resolveElements(dimensionElementKeys[dim] ?: []))
-        dimensionElements[dim] = ret
-        return ret
-    }
-
     static protected void checkIsDense(Dimension dim) {
         if(dim.density != Dimension.Density.DENSE) {
             throw new UnsupportedOperationException("Cannot get dimension element for sparse dimension "+
@@ -152,7 +140,24 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     }
 
     protected void checkDimension(Dimension dim) {
-        if(!(dim in dimensions)) throw new InvalidArgumentsException("Dimension $dim is not part of this result")
+        if(!(dim in dimensions)) throw new IllegalArgumentException("Dimension $dim is not part of this result")
+    }
+
+    protected int getDimensionsIndex(Dimension dim) {
+        Integer i = dimensionsIndex[dim]
+        if(i == null) throw new IllegalArgumentException("Dimension $dim is not part of this result")
+        i
+    }
+
+    ImmutableList<Object> dimensionElements(Dimension dim) {
+        checkDimension(dim)
+        checkIsDense(dim)
+        if(_dimensionsLoaded) return dimensionElements[dim]
+        // if _dimensionsLoaded is not set, new element keys may have been added so we need to load or re-load even
+        // if there is already a result in dimensionElements[dim]
+        def ret = ImmutableList.copyOf(dim.resolveElements(dimensionElementKeys[dim] ?: []))
+        dimensionElements[dim] = ret
+        return ret
     }
 
     Object dimensionElement(Dimension dim, Integer idx) {
@@ -162,10 +167,11 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         if(!_dimensionsLoaded) {
             loadDimensions()
         }
-        if (dimensionElements[dim] == null) {
+        List thisDimensionElements = dimensionElements[dim]
+        if (thisDimensionElements == null) {
             throw new Exception("No dimension elements for dimension ${dim?.class?.simpleName}")
         }
-        return dimensionElements[dim][idx]
+        return thisDimensionElements[idx]
     }
 
     Object dimensionElementKey(Dimension dim, Integer idx) {
@@ -187,7 +193,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         // worth implementing.
         if(_dimensionsLoaded) return
         dimensions.each {
-            if(it.density == Dimension.Density.DENSE) dimensionElements(it)
+            if(it.density.isDense) dimensionElements(it)
         }
         _dimensionsLoaded = true
     }
@@ -211,9 +217,6 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     // If we don't extend a Java object but just implement Iterator, the Groovy type checker will barf on the
     // ResultIterator constructor. (Groovy 3.1.10)
     static class ModifierResultIterator extends UnmodifiableIterator<Map<String, Object>> {
-        static String alias(String dimName) {
-            ((I2b2Dimension) dimensionsMap[dimName]).alias
-        }
 
         static final List<String> primaryKey = ImmutableList.of(
                 // excludes modifierCd as we want to group them
@@ -242,8 +245,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
             Map result = group['@']?.toMutable() ?:
                     [valueType: ObservationFact.TYPE_TEXT, textValue: null]
 
-            for(int i=0; i<modifierDimensions.size(); i++) {
-                ModifierDimension dim = modifierDimensions[i]
+            for(dim in modifierDimensions) {
                 ProjectionMap modResult = group[dim.modifierCode]
                 if(modResult != null) {
                     dim.addModifierValue(result, modResult)
@@ -317,24 +319,24 @@ class HypercubeValueImpl implements HypercubeValue {
     def getDimElement(Dimension dim) {
         cube.checkDimension(dim)
         if(dim.density.isDense) {
-            cube.dimensionElement(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
+            cube.dimensionElement(dim, (Integer) dimensionElementIdxes[cube.getDimensionsIndex(dim)])
         } else {
-            dim.resolveElement(dimensionElementIdxes[cube.dimensionsIndex[dim]])
+            dim.resolveElement(dimensionElementIdxes[cube.getDimensionsIndex(dim)])
         }
     }
 
-    int getDimElementIndex(Dimension dim) {
+    Integer getDimElementIndex(Dimension dim) {
         cube.checkDimension(dim)
         cube.checkIsDense(dim)
-        (int) dimensionElementIdxes[cube.dimensionsIndex[dim]]
+        (Integer) dimensionElementIdxes[cube.getDimensionsIndex(dim)]
     }
 
     def getDimKey(Dimension dim) {
         cube.checkDimension(dim)
         if(dim.density.isDense) {
-            cube.dimensionElementKey(dim, (Integer) dimensionElementIdxes[cube.dimensionsIndex[dim]])
+            cube.dimensionElementKey(dim, (Integer) dimensionElementIdxes[cube.getDimensionsIndex(dim)])
         } else {
-            dimensionElementIdxes[cube.dimensionsIndex[dim]]
+            dimensionElementIdxes[cube.getDimensionsIndex(dim)]
         }
     }
 
@@ -371,10 +373,8 @@ class ProjectionMap extends AbstractMap<String,Object> {
 
     HashMap<String,Object> toMutable() {
         HashMap<String,Object> map = new HashMap()
-        List<Map.Entry<String,Integer>> mappingEntries = mapping.entrySet().asList()
-        for(int i=0; i<mappingEntries.size(); i++) {
-            Map.Entry<String,Integer> entry = mappingEntries[i]
-            map.put(entry.key, tuple[entry.value])
+        for(entry in mapping.entrySet()) {
+            map[entry.key] = tuple[entry.value]
         }
         map
     }
@@ -399,7 +399,7 @@ class ProjectionMap extends AbstractMap<String,Object> {
 
                 @Override Map.Entry<String,Object> next() {
                     Map.Entry<String,Integer> mappingEntry = mappingIterator.next()
-                    new SimpleImmutableEntry(mappingEntry.key, tuple[mappingEntry.value])
+                    new AbstractMap.SimpleImmutableEntry(mappingEntry.key, tuple[mappingEntry.value])
                 }
             }
         }

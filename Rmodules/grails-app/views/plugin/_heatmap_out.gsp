@@ -7,13 +7,13 @@
     </div>
 
     <g:each var="location" in="${imageLocations}">
-        <a onclick="window.open('${resource(file: location, dir: "images")}', '_blank')">
-            <g:img file="${location}" class="img-result-size"></g:img>
+        <a onclick="window.open('${location}', '_blank')">
+            <img src="${location}" class="img-result-size"/> <br/>
         </a>
     </g:each>
 
     <g:if test="${zipLink}">
-        <a class='AnalysisLink' class='downloadLink' href="${resource(file: zipLink)}">Download raw R data</a>
+        <a class='AnalysisLink' class='downloadLink' href="${zipLink}">Download raw R data</a>
     </g:if>
 </p>
 

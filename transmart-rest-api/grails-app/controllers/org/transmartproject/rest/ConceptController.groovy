@@ -24,9 +24,7 @@
  */
 
 package org.transmartproject.rest
-
 import grails.rest.Link
-import groovy.transform.TypeChecked
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.OntologyTermWrapper
