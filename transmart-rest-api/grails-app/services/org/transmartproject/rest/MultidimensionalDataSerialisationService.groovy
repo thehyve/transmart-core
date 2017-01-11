@@ -5,7 +5,7 @@ import groovy.transform.CompileStatic
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeSerializer
-import org.transmartproject.rest.serialization.JsonObservationsSerializer
+import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 
 @Transactional
 class MultidimensionalDataSerialisationService {
@@ -46,7 +46,7 @@ class MultidimensionalDataSerialisationService {
         HypercubeSerializer serializer
         switch (format) {
             case Format.JSON:
-                serializer = new JsonObservationsSerializer()
+                serializer = new HypercubeJsonSerializer()
                 break
             case Format.PROTOBUF:
                 serializer = new HypercubeProtobufSerializer()

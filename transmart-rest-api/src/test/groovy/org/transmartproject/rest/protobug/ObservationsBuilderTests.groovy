@@ -5,7 +5,6 @@ import grails.transaction.Rollback
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
 import org.transmartproject.db.multidimquery.DimensionImpl
@@ -14,7 +13,7 @@ import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.TestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
-import org.transmartproject.rest.serialization.JsonObservationsSerializer
+import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import spock.lang.Ignore
 import spock.lang.Specification
 
@@ -41,7 +40,7 @@ class ObservationsBuilderTests extends Specification {
         setupData()
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData('clinical', [clinicalData.longitudinalStudy], constraint: constraint)
-        def builder = new JsonObservationsSerializer()
+        def builder = new HypercubeJsonSerializer()
 
         when:
         def out = new ByteArrayOutputStream()

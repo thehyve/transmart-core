@@ -55,7 +55,7 @@ import org.transmartproject.db.multidimquery.query.DimensionMetadata
  * Serializes a {@link Hypercube} to JSON format.
  */
 @CompileStatic
-class JsonObservationsSerializer extends HypercubeSerializer {
+class HypercubeJsonSerializer extends HypercubeSerializer {
 
     /**
      * Contains information about a field of a dimension
