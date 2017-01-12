@@ -29,3 +29,6 @@ dependencies {
 tasks.withType(Test) { systemProperties = System.getProperties() }
 
 test.testLogging.exceptionFormat = 'full'
+
+// Uncomment to show standard out/error output
+//test.testLogging.showStandardStreams = true
