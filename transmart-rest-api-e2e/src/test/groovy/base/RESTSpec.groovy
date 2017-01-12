@@ -297,10 +297,10 @@ abstract class RESTSpec extends Specification{
     }
 
     def parseHypercube(jsonHypercube){
-        def header = jsonHypercube.header
+        def dimensionDeclarations = jsonHypercube.dimensionDeclarations
         def cells = jsonHypercube.cells
-        def footer = jsonHypercube.footer
-        return new ObservationsMessageJson(header, cells, footer)
+        def dimensionElements = jsonHypercube.dimensionElements
+        return new ObservationsMessageJson(dimensionDeclarations, cells, dimensionElements)
     }
 
     def parseProto(s_in){

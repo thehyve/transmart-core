@@ -226,7 +226,7 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         def declarations = cube.dimensions.collect { dim ->
             // Sparse dimensions are inlined, dense dimensions are referred to by indexes
             // (referring to objects in the footer message).
-            def dimensionProperties = new DimensionProperties(name: dim.name, inline: dim.density.isDense)
+            def dimensionProperties = new DimensionProperties(name: dim.name, inline: dim.density.isSparse)
             if(dim.elementsSerializable) {
                 dimensionProperties.type = Type.get(dim.elementType)
             } else {

@@ -109,7 +109,7 @@ class QueryServiceSpec extends TransmartSpecification {
                         ],
                         [
                                 type    : 'FieldConstraint',
-                                field   : [dimension: 'PatientDimension', fieldName: 'sourcesystemCd'],
+                                field   : [dimension: 'patient', fieldName: 'sourcesystemCd'],
                                 operator: 'contains',
                                 value   : 'SUBJ_ID_2'
                         ]

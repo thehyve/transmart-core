@@ -55,10 +55,10 @@ class QueryService {
     @Autowired
     ConceptsResource conceptsResource
 
-    private final Field valueTypeField = new Field(dimension: ValueDimension, fieldName: 'valueType', type: Type.STRING)
-    private final Field textValueField = new Field(dimension: ValueDimension, fieldName: 'textValue', type: Type.STRING)
+    private final Field valueTypeField = new Field(dimension: ConstraintDimension.Value, fieldName: 'valueType', type: Type.STRING)
+    private final Field textValueField = new Field(dimension: ConstraintDimension.Value, fieldName: 'textValue', type: Type.STRING)
     private final Field numberValueField =
-            new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
+            new Field(dimension: ConstraintDimension.Value, fieldName: 'numberValue', type: Type.NUMERIC)
 
     private final Criterion defaultHDModifierCriterion = Restrictions.like('modifierCd', 'TRANSMART:HIGHDIM:%')
 
@@ -88,11 +88,11 @@ class QueryService {
                 }
             }
         } else if (constraint instanceof FieldConstraint) {
-            if (constraint.field.dimension == ConceptDimension) {
+            if (constraint.field.dimension == ConstraintDimension.Concept) {
                 throw new AccessDeniedException("Access denied. Concept dimension not allowed in field constraints. Use a ConceptConstraint instead.")
-            } else if (constraint.field.dimension == StudyDimension) {
+            } else if (constraint.field.dimension == ConstraintDimension.Study) {
                 throw new AccessDeniedException("Access denied. Study dimension not allowed in field constraints. Use a StudyConstraint instead.")
-            } else if (constraint.field.dimension == TrialVisitDimension) {
+            } else if (constraint.field.dimension == ConstraintDimension.TrialVisit) {
                 if (constraint.field.fieldName == 'study') {
                     throw new AccessDeniedException("Access denied. Field 'study' of trial visit dimension not allowed in field constraints. Use a StudyConstraint instead.")
                 }
