@@ -36,3 +36,14 @@ CREATE TABLE i2b2_secure (
 --
 CREATE INDEX idx_i2b2_secure_fullname ON i2b2_secure USING btree (c_fullname);
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2metadata.i2b2_secure IS 'the same as i2b2 but with added security token';
+
+COMMENT ON COLUMN i2b2_secure.c_hlevel IS 'Number that represents the depth of the node. 0 for root';
+COMMENT ON COLUMN i2b2_secure.c_fullname IS 'Full path to the node. E.g. \Vital Signs\Heart Rate\ ';
+COMMENT ON COLUMN i2b2_secure.c_name IS 'Name of the node. E.g. Heart Rate';
+COMMENT ON COLUMN i2b2_secure.c_basecode IS 'code that represents node. E.g. VSIGN:HR';
+COMMENT ON COLUMN i2b2_secure.c_visualattributes IS 'Visualattributes describes how a ui should show this node';
+COMMENT ON COLUMN i2b2_secure.secure_obj_token IS 'Token needed to access the node. E.g. PUBLIC EXP:SCSCP';

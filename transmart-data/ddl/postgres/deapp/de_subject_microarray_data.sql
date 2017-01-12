@@ -23,3 +23,15 @@ CREATE TABLE de_subject_microarray_data (
 --
 ALTER TABLE ONLY de_subject_microarray_data
     ADD CONSTRAINT de_subject_microarray_data_pk PRIMARY KEY (assay_id, probeset_id);
+
+--
+-- add documentation
+--
+COMMENT ON TABLE deapp.de_subject_microarray_data IS 'Table holds microarray Highdim values';
+
+COMMENT ON COLUMN de_subject_microarray_data.trial_name IS 'Name of the triel. E.g. SHARED_HD_CONCEPTS_STUDY_C_PR';
+COMMENT ON COLUMN de_subject_microarray_data.assay_id IS 'Id used to link highdim data to patients via the de_subject_sample_mapping tabble';
+COMMENT ON COLUMN de_subject_microarray_data.patient_id IS 'The patient id linking to the patient_dimension';
+COMMENT ON COLUMN de_subject_microarray_data.raw_intensity IS 'raw projection';
+COMMENT ON COLUMN de_subject_microarray_data.log_intensity IS 'log projection';
+COMMENT ON COLUMN de_subject_microarray_data.zscore IS 'zscore projection';

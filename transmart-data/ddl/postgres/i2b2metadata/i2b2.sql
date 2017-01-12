@@ -74,3 +74,13 @@ CREATE SEQUENCE i2b2_id_seq
     NO MAXVALUE
     CACHE 1;
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2metadata.i2b2 IS 'Holds all nodes in the i2b2 tree';
+
+COMMENT ON COLUMN i2b2_secure.c_hlevel IS 'Number that represents the depth of the node. 0 for root';
+COMMENT ON COLUMN i2b2_secure.c_fullname IS 'Full path to the node. E.g. \Vital Signs\Heart Rate\ ';
+COMMENT ON COLUMN i2b2_secure.c_name IS 'Name of the node. E.g. Heart Rate';
+COMMENT ON COLUMN i2b2_secure.c_basecode IS 'code that represents node. E.g. VSIGN:HR';
+COMMENT ON COLUMN i2b2_secure.c_visualattributes IS 'Visualattributes describes how a ui should show this node';

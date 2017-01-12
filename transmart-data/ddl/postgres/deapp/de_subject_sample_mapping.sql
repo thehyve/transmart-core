@@ -47,3 +47,15 @@ CREATE INDEX de_subject_smpl_mpng_idx2 ON de_subject_sample_mapping USING btree 
 --
 CREATE INDEX idx_de_subj_smpl_trial_ccode ON de_subject_sample_mapping USING btree (trial_name, concept_code);
 
+--
+-- add documentation
+--
+COMMENT ON TABLE deapp.de_subject_sample_mapping IS 'Table links patients to Highdim samples';
+
+COMMENT ON COLUMN de_subject_sample_mapping.patient_id IS 'The patient id linking the patient_dimension';
+COMMENT ON COLUMN de_subject_sample_mapping.subject_id IS 'links to subject_id in de_subject_microarray_data';
+COMMENT ON COLUMN de_subject_sample_mapping.concept_code IS 'The highdim concept code. E.g. CTHD:HD:EXPLUNG';
+COMMENT ON COLUMN de_subject_sample_mapping.assay_id IS 'Id that links to assay_id in highdim tables like de_subject_microarray_data and de_rnaseq_transcript_data';
+COMMENT ON COLUMN de_subject_sample_mapping.trial_name IS 'Name of the trial this sample is part of.';
+COMMENT ON COLUMN de_subject_sample_mapping.gpl_id IS 'id of the GPL platform for this sample. links to de_gpl_info table';
+COMMENT ON COLUMN de_subject_sample_mapping.sample_cd IS 'Code linking to the sample';
