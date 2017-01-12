@@ -40,3 +40,10 @@ CREATE INDEX visitdim_en_pn_lp_io_sd_idx ON visit_dimension USING btree (encount
 --
 CREATE INDEX visitdim_std_edd_idx ON visit_dimension USING btree (start_date, end_date);
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.visit_dimension IS 'Table holds the descriptions of visits in real time';
+
+COMMENT ON COLUMN visit_dimension.encounter_num IS 'Primary key. A number representing the visit. linked to the encounter_num in observation_fact table';
+COMMENT ON COLUMN visit_dimension.patient_num IS 'Primary key. A number linking to a patient_num in the patient_dimension';

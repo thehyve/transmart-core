@@ -35,3 +35,11 @@ CREATE SEQUENCE concept_id
     NO MAXVALUE
     CACHE 1;
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.concept_dimension IS 'Table hold the concepts that describe observations';
+
+COMMENT ON COLUMN concept_dimension.concept_path IS 'REQUIRED, A code that represents the concept';
+COMMENT ON COLUMN concept_dimension.concept_cd IS 'Primary key. A path that delineates the concept\'s hierarchy';
+COMMENT ON COLUMN concept_dimension.name_char IS 'REQUIRED, The name of the concept';

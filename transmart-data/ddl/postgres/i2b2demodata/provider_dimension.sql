@@ -29,3 +29,10 @@ CREATE INDEX pd_idx_name_char ON provider_dimension USING btree (provider_id, na
 --
 CREATE INDEX prod_uploadid_idx ON provider_dimension USING btree (upload_id);
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.provider_dimension IS 'Table that holds providers, E.g. physicians';
+
+COMMENT ON COLUMN provider_dimension.provider_id IS 'Primary key.';
+COMMENT ON COLUMN provider_dimension.provider_path IS 'Primary key. the path that describes how the provider fits into the institutional hierarchy. ';
