@@ -131,7 +131,7 @@ class InsertConceptsService {
             return new int[0]
         }
 
-        log.debug("Inserting ${newConcepts.size()} new concepts (i2b2/i2b2secure)")
+        log.info("Inserting ${newConcepts.size()} new tree nodes (i2b2/i2b2secure)")
 
         List<Map> i2b2Rows = []
         List<Map> i2b2SecureRows = []
