@@ -146,7 +146,7 @@ class HighDimSpec extends RESTSpec {
         ])
 
         then:
-        assert responseData == [:]
+        assert responseData.cells == []
     }
 
     /**
