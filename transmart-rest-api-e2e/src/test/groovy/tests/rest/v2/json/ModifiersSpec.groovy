@@ -27,9 +27,8 @@ class ModifiersSpec extends RESTSpec {
         HashSet modifierDimension = []
         (0..<selector.cellCount).each {
             modifierDimension.add(selector.select(it, "sample_type"))
-            assert selector.select(it, "study", "studyId", 'String').equals(TUMOR_NORMAL_SAMPLES_ID)
+            assert selector.select(it, "study", "name", 'String').equals(TUMOR_NORMAL_SAMPLES_ID)
         }
-        assert modifierDimension.size() == 3
-        assert modifierDimension.containsAll(null, 'Tumor', 'Normal')
+        assert modifierDimension == [null, 'Tumor', 'Normal'] as HashSet
     }
 }

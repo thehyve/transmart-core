@@ -81,6 +81,7 @@ class SamplesSpec extends RESTSpec{
         def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "0 observations are returned"
-        assert responseData == [:]
+        assert responseData.cells == []
+        assert responseData.dimensionElements.values().every { it == [] }
     }
 }

@@ -187,7 +187,7 @@ class ConstraintSpec extends RESTSpec{
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         (0..<selector.cellCount).each {
-            assert !selector.select(it, "study", "studyId", 'String').equals('EHR')
+            assert !selector.select(it, "study", "name", 'String').equals('EHR')
         }
     }
 
@@ -258,7 +258,7 @@ class ConstraintSpec extends RESTSpec{
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         (0..<selector.cellCount).each {
-            assert selector.select(it, "study", "studyId", 'String').equals('EHR')
+            assert selector.select(it, "study", "name", 'String').equals('EHR')
         }
     }
 

@@ -24,7 +24,7 @@ class DeserializationSpec extends RESTSpec{
                     'sexCd' : selector.select(it, "patient", "sexCd", 'String'),
                     'race' : selector.select(it, "patient", "race", 'String'),
                     'age' : selector.select(it, "patient", "age", 'Int'),
-                    'studyId' : selector.select(it, "study", "studyId", 'String'),
+                    'studyId' : selector.select(it, "study", "name", 'String'),
                     'conceptCode' : selector.select(it, "concept", "conceptCode", 'String'),
                     'value' : selector.select(it)
             ]
@@ -57,7 +57,7 @@ class DeserializationSpec extends RESTSpec{
                     'sexCd' : selector.select(it, "patient", "sexCd", 'String'),
                     'race' : selector.select(it, "patient", "race", 'String'),
                     'age' : selector.select(it, "patient", "age", 'Int'),
-                    'studyId' : selector.select(it, "study", "studyId", 'String'),
+                    'study' : selector.select(it, "study", "name", 'String'),
                     'conceptCode' : selector.select(it, "concept", "conceptCode", 'String'),
                     'value' : selector.select(it)
             ]
@@ -67,30 +67,30 @@ class DeserializationSpec extends RESTSpec{
 
 
     def CATEGORICAL_VALUES_OBSERVATIONS = [
-            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CV:DEM:SEX:M', 'value' : 'Male', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Caucasian', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CV:DEM:AGE', 'value' : 26.0D, 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CV:DEM:SEX:M', 'value' : 'Male', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Latino', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CV:DEM:AGE', 'value' : 24.0D, 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CV:DEM:SEX:F', 'value' : 'Female', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Caucasian', 'studyId' : 'CATEGORICAL_VALUES'],
-            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CV:DEM:AGE', 'value' : 20.0D, 'studyId' : 'CATEGORICAL_VALUES']
+            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CV:DEM:SEX:M', 'value' : 'Male', 'study' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Caucasian', 'study' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CV:DEM:AGE', 'value' : 26.0D, 'study' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CV:DEM:SEX:M', 'value' : 'Male', 'study' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Latino', 'study' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CV:DEM:AGE', 'value' : 24.0D, 'study' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CV:DEM:SEX:F', 'value' : 'Female', 'study' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CV:DEM:RACE', 'value' : 'Caucasian', 'study' : 'CATEGORICAL_VALUES'],
+            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CV:DEM:AGE', 'value' : 20.0D, 'study' : 'CATEGORICAL_VALUES']
     ]
 
     def CLINICAL_TRIAL_OBSERVATIONS = [
-            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CT:DEM:AGE', 'value' : 26.0D, 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 80.0D, 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 90.0D, 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 88.0D, 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CT:DEM:AGE', 'value' : 24.0D, 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 56.0D, 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 57.0D, 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CT:DEM:AGE', 'value' : 20.0D, 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 66.0D, 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 68.0D, 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 56.0D, 'studyId' : 'CLINICAL_TRIAL'],
-            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 88.0D, 'studyId' : 'CLINICAL_TRIAL']
+            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CT:DEM:AGE', 'value' : 26.0D, 'study' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 80.0D, 'study' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 90.0D, 'study' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'male', 'race' : 'Caucasian', 'age': 26L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 88.0D, 'study' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CT:DEM:AGE', 'value' : 24.0D, 'study' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 56.0D, 'study' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'male', 'race' : 'Latino', 'age': 24L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 57.0D, 'study' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CT:DEM:AGE', 'value' : 20.0D, 'study' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 66.0D, 'study' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 68.0D, 'study' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 56.0D, 'study' : 'CLINICAL_TRIAL'],
+            ['sexCd': 'female', 'race' : 'Caucasian', 'age': 20L, 'conceptCode' : 'CT:VSIGN:HR', 'value' : 88.0D, 'study' : 'CLINICAL_TRIAL']
     ]
 
 }

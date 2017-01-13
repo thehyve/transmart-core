@@ -181,7 +181,7 @@ class ConstraintSpec extends RESTSpec{
         then:
         ObservationSelector selector = new ObservationSelector(responseData)
         (0..<selector.cellCount).each {
-            assert !selector.select(it, "study", "studyId", 'String').equals('EHR')
+            assert !selector.select(it, "study", "name", 'String').equals('EHR')
         }
     }
 
@@ -252,7 +252,7 @@ class ConstraintSpec extends RESTSpec{
         ObservationSelector selector = new ObservationSelector(responseData)
 
         (0..<selector.cellCount).each {
-            assert selector.select(it, "study", "studyId", 'String').equals('EHR')
+            assert selector.select(it, "study", "name", 'String').equals('EHR')
         }
     }
 

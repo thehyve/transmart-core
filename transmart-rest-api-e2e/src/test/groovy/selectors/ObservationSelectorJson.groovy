@@ -54,8 +54,9 @@ class ObservationSelectorJson {
         int index = notInlined.indexOf(dimension)
         if(index != -1) {
             def valueIndex = hyperCubeMessage.cells[cellIndex].dimensionIndexes[index]
+            if(valueIndex == null) return null
             // return the object at position valueIndex of inlined dimension index.
-            return hyperCubeMessage.dimensionElements[index][valueIndex]
+            return hyperCubeMessage.dimensionElements[dimension][valueIndex]
         } else {
             index = inlined.indexOf(dimension)
             assert index != -1, "Dimension $dimension not found"
