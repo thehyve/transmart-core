@@ -11,5 +11,5 @@ FILES = \
 	linked_file_collection \
 	data_migration
 
-upgrade:
+migrate:
 	$(PGSQL_BIN)/psql $(foreach u,$(FILES),-f $(u).sql)

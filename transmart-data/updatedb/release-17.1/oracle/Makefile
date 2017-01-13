@@ -15,5 +15,5 @@ FILES = \
 
 RUN_SQL   = groovy -cp '$(CP_ORA)' ../../../ddl/oracle/_scripts/run_sql.groovy
 
-upgrade:
+migrate:
 	$(RUN_SQL) --sequential $(foreach u,$(FILES),-f $(u).sql)
