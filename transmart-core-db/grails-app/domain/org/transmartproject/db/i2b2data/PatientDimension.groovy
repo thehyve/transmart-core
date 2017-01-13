@@ -21,6 +21,7 @@ package org.transmartproject.db.i2b2data
 
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.Sex
+import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
 class PatientDimension implements Patient {
@@ -106,7 +107,14 @@ class PatientDimension implements Patient {
 
     @Override
     Sex getSex() {
-        Sex.fromString sexCd
+        switch(sexCd) {
+            case null: return null
+            case 'M': return Sex.MALE
+            case 'F': return Sex.FEMALE
+            // FIXME: check if the code for unknown is in fact 'U', this is just a guess
+            case 'U': return Sex.UNKNOWN
+            default: throw new DataInconsistencyException("unknown code '$sexCd' in patient_dimension.sex_cd")
+        }
     }
 
 }

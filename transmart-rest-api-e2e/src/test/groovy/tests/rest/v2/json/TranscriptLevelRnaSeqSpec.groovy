@@ -215,7 +215,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
             assert ['sample1', 'sample2', 'sample3', 'sample4', 'sample5', 'sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'label', 'String'))
             assert [40I, 42I, 52I].contains(selector.select(it, 'patient', 'age', 'Int'))
             assert ['Caucasian', 'Latino'].contains(selector.select(it, 'patient', 'race', 'String'))
-            assert ['Male', 'Female'].contains(selector.select(it, 'patient', 'sexCd', 'String'))
+            assert ['Male', 'Female'].contains(selector.select(it, 'patient', 'sex', 'String'))
 
             assert ZSCORE.contains(selector.select(it))
         }
