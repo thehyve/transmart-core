@@ -34,7 +34,8 @@ class CategoricalVariablesSpec extends RESTSpec{
         ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
 
         then: "no observations are returned"
-        assert responseData.header == null
+        assert responseData.cells == []
+        responseData.footer.dimensionList.each { assert it.fieldsCount == 0 }
     }
 
     /**

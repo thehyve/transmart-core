@@ -54,6 +54,7 @@ class ObservationSelector {
                     }
                 }
             }
+            assert fieldsIndex != null, "field $fieldName not present on dimension $dimension"
         } else {
             fieldsIndex = 0
         }

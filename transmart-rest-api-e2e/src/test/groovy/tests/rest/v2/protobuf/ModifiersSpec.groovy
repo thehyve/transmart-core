@@ -31,6 +31,6 @@ class ModifiersSpec extends RESTSpec {
             assert selector.select(it, "study", "name", 'String').equals(TUMOR_NORMAL_SAMPLES_ID)
         }
         assert modifierDimension.size() == 3
-        assert modifierDimension.containsAll('', 'Tumor', 'Normal')
+        assert modifierDimension.containsAll(null, 'Tumor', 'Normal')
     }
 }
