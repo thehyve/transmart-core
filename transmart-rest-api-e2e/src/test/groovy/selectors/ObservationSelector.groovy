@@ -88,7 +88,7 @@ class ObservationSelector {
             fieldColumn = elements.absentFieldColumnIndicesList == [1] ? null : elements.getFields(0)
         }
 
-        return retrieveNullable(fieldColumn?.invokeMethod("get${valueType}ValueList", null), dimIndex, fieldColumn.absentValueIndicesList)
+        return retrieveNullable(fieldColumn?.invokeMethod("get${valueType}ValueList", null), dimIndex, fieldColumn?.absentValueIndicesList)
     }
 
     /**

@@ -10,7 +10,7 @@ class FieldSerializationHelper extends AbstractHalOrJsonSerializationHelper<Fiel
 
     @Override
     Map<String, Object> convertToMap(Field field) {
-        [dimension: field.dimension?.simpleName, fieldName: field.fieldName, type: field.type]
+        [dimension: field.dimension?.name, fieldName: field.fieldName, type: field.type]
     }
 
 }

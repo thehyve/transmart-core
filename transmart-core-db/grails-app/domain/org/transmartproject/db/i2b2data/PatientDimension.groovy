@@ -110,7 +110,7 @@ class PatientDimension implements Patient {
     Sex getSex() {
         // The usage of sexCd in the database is a total mess, different studies and organisations often use
         // different values. This should catch most of them.
-        switch(sexCd.toLowerCase()) {
+        switch(sexCd?.toLowerCase()) {
             case 'm': return Sex.MALE
             case 'male': return Sex.MALE
             case 'f': return Sex.FEMALE

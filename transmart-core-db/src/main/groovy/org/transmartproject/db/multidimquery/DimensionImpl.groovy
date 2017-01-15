@@ -9,6 +9,7 @@ import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
@@ -557,16 +558,29 @@ class ProviderDimension extends I2b2NullablePKDimension<String,String> implement
 }
 
 @CompileStatic @InheritConstructors
-class AssayDimension extends HighDimDimension<Long,Long> implements SerializableElemDim<Long> {
-    Class elemType = Long
+class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeElemDim<Assay, Long> {
+    Class elemType = Assay
+    List elemFields = ['id', 'sampleCode',
+        new PropertyImpl('sampleTypeName', null, String) {
+            def get(element) { ((Assay) element).sampleType?.label } },
+        new PropertyImpl('platform', null, String) {
+            def get(element) { ((Assay) element).platform?.id } },
+    ]
     String name = 'assay'
 }
+
+// TODO: Expose the other Assay properties as the proper dimensions. Their structure should as much as possible be
+// the same as the dimensional structure of native hypercube highdim implementations. We currently only do that with
+// the patient.
+// The tabular assay also includes timepointName and tissueTypeName in the rest api serialization
+
+// TODO: Expose type-specific biomarker properties. E.g. ProbeRow has a probe, geneSymbol and geneId property
 
 @CompileStatic @InheritConstructors
 class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> implements
         CompositeElemDim<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> {
     Class elemType = HddTabularResultHypercubeAdapter.BioMarkerAdapter
-    List elemFields = ['label', 'bioMarker']
+    List elemFields = ['label', 'biomarker']
     String name = 'biomarker'
 }
 

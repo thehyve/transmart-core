@@ -209,13 +209,13 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         then:
         assert selector.cellCount == 9
         (0..<selector.cellCount).each {
-            assert ['tr1'].contains(selector.select(it, 'biomarker', 'bioMarker', 'String'))
+            assert ['tr1'].contains(selector.select(it, 'biomarker', 'biomarker', 'String'))
 
-            assert [-641I, -642I, -643I, -644I, -645I, -646I, -647I, -648I, -649I].contains(selector.select(it, 'assay', 'assay', 'Int'))
-            assert ['sample1', 'sample2', 'sample3', 'sample4', 'sample5', 'sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'label', 'String'))
+            assert [-641I, -642I, -643I, -644I, -645I, -646I, -647I, -648I, -649I].contains(selector.select(it, 'assay', 'id', 'Int'))
+            assert ['sample1', 'sample2', 'sample3', 'sample4', 'sample5', 'sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
             assert [40I, 42I, 52I].contains(selector.select(it, 'patient', 'age', 'Int'))
             assert ['Caucasian', 'Latino'].contains(selector.select(it, 'patient', 'race', 'String'))
-            assert ['Male', 'Female'].contains(selector.select(it, 'patient', 'sex', 'String'))
+            assert ['male', 'female'].contains(selector.select(it, 'patient', 'sex', 'String'))
 
             assert ZSCORE.contains(selector.select(it))
         }

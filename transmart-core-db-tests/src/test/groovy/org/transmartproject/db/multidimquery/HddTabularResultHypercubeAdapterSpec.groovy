@@ -116,7 +116,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         cube.dimensionsPreloaded == false
         [cube.dimensionElements(biomarkerDim), biomarkers].transpose().each { BioMarker actual, String expectedLabel ->
             assert actual.label == expectedLabel
-            assert actual.bioMarker == "bio$expectedLabel".toString()
+            assert actual.biomarker == "bio$expectedLabel".toString()
         }
 
         (0..2).each {
@@ -179,7 +179,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         cube.dimensionsPreloaded == false
         [cube.dimensionElements(biomarkerDim), biomarkers].transpose().each { BioMarker actual, String expectedLabel ->
             assert actual.label == expectedLabel
-            assert actual.bioMarker == "bio$expectedLabel".toString()
+            assert actual.biomarker == "bio$expectedLabel".toString()
         }
 
         (0..2).each {

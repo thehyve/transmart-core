@@ -47,21 +47,19 @@ class ObservationsBuilderTests extends Specification {
         builder.write(mockedCube, out)
         out.flush()
         def result = new JsonSlurper().parse(out.toByteArray())
-        def header = result.header
+        def declarations = result.dimensionDeclarations
         def cells = result.cells
-        def footer = result.footer
+        def dimensionElements = result.dimensionElements
         def dimElementsSize = mockedCube.dimensions.findAll { it.density.isDense }.size()
 
         then:
         cells.size() == clinicalData.longitudinalClinicalFacts.size()
         that cells, everyItem(hasKey('dimensionIndexes'))
-        that header, hasKey('dimensionDeclarations')
-        that header.dimensionDeclarations, hasSize(mockedCube.dimensions.size())
-        that header.dimensionDeclarations['name'],
-                containsInAnyOrder(mockedCube.dimensions.collect{it.toString()}.toArray()
-                )
-        that footer, hasKey('dimensions')
-        that footer.dimensions, hasSize(dimElementsSize)
+        declarations != null
+        declarations.size() == mockedCube.dimensions.size()
+        that declarations*.name, containsInAnyOrder(mockedCube.dimensions.collect{it.name}.toArray())
+        dimensionElements != null
+        dimensionElements.size() == dimElementsSize
         that cells['dimensionIndexes'].findAll(), everyItem(hasSize(dimElementsSize))
     }
 

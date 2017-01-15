@@ -80,10 +80,10 @@ class HighDimSpec extends RESTSpec {
         (0..<selector.cellCount).each {
 
             assert ['117_at', '1007_s_at'].contains(selector.select(it, 'biomarker', 'label', 'String'))
-            assert selector.select(it, 'biomarker', 'bioMarker', 'String') == 'null'
+            assert selector.select(it, 'biomarker', 'biomarker', 'String') == null
 
-            assert [-6001,-6002,-6004,-6006,-6007,-6008].contains(selector.select(it, 'assay', 'assay', 'Int'))
-            assert ['sample1', 'sample2', 'sample4', 'sample6', 'sample7', 'sample8'].contains(selector.select(it, 'assay', 'label', 'String'))
+            assert [-6001,-6002,-6004,-6006,-6007,-6008].contains(selector.select(it, 'assay', 'id', 'Int'))
+            assert ['sample1', 'sample2', 'sample4', 'sample6', 'sample7', 'sample8'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
 
             assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection'))
         }
@@ -111,10 +111,10 @@ class HighDimSpec extends RESTSpec {
         (0..<selector.cellCount).each {
 
             assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'biomarker', 'label', 'String'))
-            assert selector.select(it, 'biomarker', 'bioMarker', 'String') == 'null'
+            assert selector.select(it, 'biomarker', 'biomarker', 'String') == null
 
-            assert [-6003,-6005,-6009].contains(selector.select(it, 'assay', 'assay', 'Int'))
-            assert ['sample3', 'sample5', 'sample9'].contains(selector.select(it, 'assay', 'label', 'String'))
+            assert [-6003,-6005,-6009].contains(selector.select(it, 'assay', 'id', 'Int'))
+            assert ['sample3', 'sample5', 'sample9'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
 
             assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection'))
         }
@@ -252,10 +252,10 @@ class HighDimSpec extends RESTSpec {
         (0..<selector.cellCount).each {
 
             assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'biomarker', 'label', 'String'))
-            assert selector.select(it, 'biomarker', 'bioMarker', 'String') == 'null'
+            assert selector.select(it, 'biomarker', 'biomarker', 'String') == null
 
-            assert [-6016,-6017,-6018, -6019].contains(selector.select(it, 'assay', 'assay', 'Int'))
-            assert ['sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'label', 'String'))
+            assert [-6016,-6017,-6018, -6019].contains(selector.select(it, 'assay', 'id', 'Int'))
+            assert ['sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
 
             assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection'))
         }
@@ -282,10 +282,10 @@ class HighDimSpec extends RESTSpec {
         (0..<selector.cellCount).each {
 
             assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'biomarker', 'label', 'String'))
-            assert selector.select(it, 'biomarker', 'bioMarker', 'String') == 'null'
+            assert selector.select(it, 'biomarker', 'biomarker', 'String') == null
 
-            assert [-631,-637,-638, -639].contains(selector.select(it, 'assay', 'assay', 'Int'))
-            assert ['sample1', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'label', 'String'))
+            assert [-631,-637,-638, -639].contains(selector.select(it, 'assay', 'id', 'Int'))
+            assert ['sample1', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
 
             assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection'))
         }
