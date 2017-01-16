@@ -6,7 +6,7 @@ package org.transmartproject.rest.serialization
 class SerializableProperties {
     public static final Set<String> PATIENT = ["id", "birthDate", "deathDate",
                                                         "age", "race", "maritalStatus",
-                                                        "religion", "sourcesystemCd", "sexCd"]
+                                                        "religion", "sourcesystemCd", "sexCd", "inTrialId"]
     public static final Set<String> CONCEPT = ["conceptPath", "conceptCode"]
     public static final Set<String> STUDY = ["studyId"]
     public static final Set<String> TRIAL_VISIT = ["id", "relTimeUnit", "relTime", "relTimeLabel"]

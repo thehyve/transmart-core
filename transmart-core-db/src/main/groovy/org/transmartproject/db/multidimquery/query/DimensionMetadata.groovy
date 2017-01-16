@@ -147,6 +147,9 @@ class DimensionMetadata {
                 this.domainClass = field.type
                 this.dimensionMapping = GrailsDomainBinder.getMapping(domainClass)
                 this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
+                if (this.domainClass == org.transmartproject.db.i2b2data.PatientDimension) {
+                    this.fields << getMappedField('inTrialId')
+                }
             }
         } else if (type == DimensionFetchType.STUDY) {
             this.domainClass = Study
