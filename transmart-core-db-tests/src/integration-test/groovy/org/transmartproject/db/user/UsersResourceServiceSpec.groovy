@@ -19,29 +19,35 @@
 
 package org.transmartproject.db.user
 
-import grails.test.mixin.Mock
-import grails.test.mixin.TestFor
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import spock.lang.Specification
+import org.transmartproject.db.TransmartSpecification
 
-@TestFor(UsersResourceService)
-@Mock(User)
-class UsersResourceServiceSpec extends Specification {
+@Integration
+@Rollback
+class UsersResourceServiceSpec extends TransmartSpecification {
+
+    @Autowired
+    UsersResourceService usersResourceService
 
     void basicTest() {
         def username = 'foobar'
         def user = new User(username: username)
         user.id = -1
-        user.save(failOnError: true)
+        user.save(failOnError: true, flush: true)
 
         expect:
-        service.getUserFromUsername(username) == user
+        usersResourceService.getUserFromUsername(username) == user
     }
 
     void testFetchUnknownUser() {
-        shouldFail NoSuchResourceException, {
-            service.getUserFromUsername('non_existing_user')
-        }
+        when:
+        usersResourceService.getUserFromUsername('non_existing_user')
+
+        then:
+        thrown(NoSuchResourceException)
     }
 
 }

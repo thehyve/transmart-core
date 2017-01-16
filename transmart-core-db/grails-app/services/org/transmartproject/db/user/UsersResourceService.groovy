@@ -48,6 +48,9 @@ class UsersResourceService implements UsersResource {
 
                 users[0]
             } else {
+                // FIXME: This branch can probably be removed, testing this service should work normally as
+                // integration test using the first branch.
+
                 // in case hibernate is not in use (unit tests)
                 def user = User.findByUsername username
                 user?.roles
