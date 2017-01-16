@@ -2,7 +2,6 @@ package fm
 
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
-import org.apache.tools.ant.filters.StringInputStream
 import org.junit.Test
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -22,12 +21,12 @@ class FmFolderControllerTests {
                 originalName: originalFilename,
                 fileSize: fileSize,
         )
-        assertNotNull file.save()
+        assert file.save()
         controller.fmFolderService = new FmFolderService()
         controller.fmFolderService.metaClass.getFile = { FmFile f ->
             def bogusFile = new File('bogus')
             bogusFile.metaClass.newInputStream = { ->
-                new StringInputStream('foobar')
+                new ByteArrayInputStream('foobar'.getBytes('UTF-8'))
             }
             bogusFile
         }
@@ -35,10 +34,9 @@ class FmFolderControllerTests {
         params.id = file.id
         controller.downloadFile()
 
-        assertThat response.headers('Content-disposition'), hasSize(1)
-        assertThat response.header('Content-disposition').decodeURL(),
-                equalTo("attachment; filename*=UTF-8''$originalFilename".toString())
-        assertEquals response.header('Content-length'), fileSize as String
-        assertEquals response.text, 'foobar'
+        assert response.headers('Content-disposition').size() == 1
+        assert response.header('Content-disposition').decodeURL() == "attachment; filename*=UTF-8''$originalFilename"
+        assert response.header('Content-length') == fileSize as String
+        assert response.text == 'foobar'
     }
 }
