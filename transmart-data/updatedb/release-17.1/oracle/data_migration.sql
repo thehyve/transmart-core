@@ -220,7 +220,7 @@ update i2b2demodata.observation_fact set trial_visit_num =
       (select 
           tv.trial_visit_num
         from i2b2demodata.trial_visit_dimension tv
-        inner join i2b2demodata.study s on s.study_num = tv.study_num and s.study_id = observation_fact.sourcesystem_cd 
+        inner join i2b2demodata.study s on s.study_num = tv.study_num and (s.study_id = observation_fact.sourcesystem_cd or observation_fact.sourcesystem_cd like s.study_id || ':%') 
         where tv.rel_time_label = 'General')
 where trial_visit_num is null;
 
