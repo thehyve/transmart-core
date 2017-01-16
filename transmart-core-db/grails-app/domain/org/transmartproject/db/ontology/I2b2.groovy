@@ -21,6 +21,7 @@ package org.transmartproject.db.ontology
 
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.db.util.GormWorkarounds
 
 class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
@@ -54,6 +55,8 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
     }
 
     static constraints = {
+        GormWorkarounds.fixupClassPropertyFetcher(I2b2)
+
         cTotalnum      nullable: true
         cComment       nullable: true
         mAppliedPath   nullable: false, maxSize: 700

@@ -1,6 +1,8 @@
 package org.transmartproject.db.util
 
 import grails.orm.HibernateCriteriaBuilder
+import groovy.transform.CompileStatic
+import org.grails.core.util.ClassPropertyFetcher
 import org.grails.datastore.mapping.query.api.QueryableCriteria
 import org.grails.orm.hibernate.query.HibernateQuery
 import org.hibernate.criterion.Criterion
@@ -13,6 +15,9 @@ import org.hibernate.internal.CriteriaImpl
  */
 class GormWorkarounds {
 
+    /*
+     * Workaround to force the usage of a specific session, e.g. to use a stateless session instead of the default
+     */
     final static HibernateCriteriaBuilder createCriteriaBuilder(
             Class targetClass,
             String alias,
@@ -51,29 +56,66 @@ class GormWorkarounds {
         Subqueries.propertyIn(property, hibDetachedCriteria)
     }
 
+    @Deprecated //use getHibernateDetachedCriteria, original bug has been fixed as of grails 3.1
     final static org.hibernate.criterion.DetachedCriteria getHibernateDetachedCriteria(
             QueryableCriteria<?> queryableCriteria) {
 
-        String alias = queryableCriteria.getAlias()
-        def persistentEntity = queryableCriteria.persistentEntity
-        Class targetClass = persistentEntity.javaClass
-        org.hibernate.criterion.DetachedCriteria detachedCriteria
+        HibernateCriteriaBuilder.getHibernateDetachedCriteria(null, queryableCriteria)
+//        String alias = queryableCriteria.getAlias()
+//        def persistentEntity = queryableCriteria.persistentEntity
+//        Class targetClass = persistentEntity.javaClass
+//        org.hibernate.criterion.DetachedCriteria detachedCriteria
+//
+//        if(alias != null) {
+//            detachedCriteria = org.hibernate.criterion.DetachedCriteria.forClass(targetClass, alias)
+//        }
+//        else {
+//            detachedCriteria = org.hibernate.criterion.DetachedCriteria.forClass(targetClass)
+//        }
+//        def hq = new HibernateQuery(detachedCriteria, persistentEntity)
+//        //To escape NPE we have to set this private field
+//        //This fix is the main reason to have this method @{see HibernateCriteriaBuilder.getHibernateDetachedCriteria}
+//        //hq.entity = persistentEntity
+//        HibernateCriteriaBuilder.populateHibernateDetachedCriteria(
+//                hq,
+//                detachedCriteria,
+//                queryableCriteria)
+//
+//        detachedCriteria;
+    }
 
-        if(alias != null) {
-            detachedCriteria = org.hibernate.criterion.DetachedCriteria.forClass(targetClass, alias)
-        }
-        else {
-            detachedCriteria = org.hibernate.criterion.DetachedCriteria.forClass(targetClass)
-        }
-        def hq = new HibernateQuery(detachedCriteria, persistentEntity)
-        //To escape NPE we have to set this private field
-        //This fix is the main reason to have this method @{see HibernateCriteriaBuilder.getHibernateDetachedCriteria}
-        hq.entity = persistentEntity
-        HibernateCriteriaBuilder.populateHibernateDetachedCriteria(
-                hq,
-                detachedCriteria,
-                queryableCriteria)
+    /**
+     * Fix a bug in Grails 3.2.3 that the getters of properties declared as e.g. cProtectedAccess are not correctly
+     * identified as such by the ClassPropertyFetcher.
+     *
+     * Properties like cProtectedAccess have a getter named getcProtectedAccess. Grails recognizes getters by
+     * starting with 'get' and having the fourth letter capitalized, so it misses these. If this bug is fixed in
+     * grails this workaround can be dropped.
+     *
+     * This workaround only fixes instance properties, not static properties.
+     *
+     * The problems from this Gorm bug manifested itself in that the loading of TestData in an integration test in
+     * transmart-core-db-tests would result in a java.lang.IllegalArgumentException: "object is not an instance of
+     * declaring class" at groovy.lang.MetaBeanProperty.getProperty(MetaBeanProperty.java:62), which is called
+     * indirectly from the 'constraints' closure in domain classes which have affected properties.
+     *
+     * If loading of TestData works without this workaround, this can be removed.
+     *
+     * NB: not thread safe! But if called once from a class-to-fix's static initializer the chance of hitting a bad
+     * race should be minimal.
+     *
+     * @param cls the class of which fix the property getter
+     */
+    static void fixupClassPropertyFetcher(Class cls) {
+        ClassPropertyFetcher cpf = ClassPropertyFetcher.forClass(cls)
+        Map<String, ClassPropertyFetcher.PropertyFetcher> instanceFetchers = cpf.instanceFetchers
 
-        detachedCriteria;
+        Set<String> toFix = instanceFetchers.keySet().findAll { String it ->
+            it.length() >= 5 && it.startsWith("get") &&
+            Character.isLowerCase(it.charAt(3)) && Character.isUpperCase(it.charAt(4))
+        }
+        toFix.each {
+            instanceFetchers[it.substring(3)] = instanceFetchers.remove(it)
+        }
     }
 }
