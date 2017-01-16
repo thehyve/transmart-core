@@ -17,7 +17,7 @@ public class DeleteDataFilesProcessor {
             .getLogger(DeleteDataFilesProcessor.class);
 
     @SuppressWarnings("rawtypes")
-    private static final Map config = Holders.getFlatConfig();
+    private static final Map config = Holders.getConfig();
     private static final String TEMP_DIR = (String) config.get("com.recomdata.plugins.tempFolderDirectory");
 
     public boolean deleteDataFile(String fileToDelete, String directoryToDelete) {
