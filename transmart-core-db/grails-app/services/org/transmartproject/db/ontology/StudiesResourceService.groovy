@@ -50,7 +50,7 @@ class StudiesResourceService implements StudiesResource {
         def normalizedStudyId = id.toUpperCase(Locale.ENGLISH)
         def criteria = DetachedCriteria.forClass(I2b2)
                 .add(StringUtils.like('cVisualattributes', 'S', MatchMode.ANYWHERE))
-                .add(Restrictions.eq('cComment', "trial:${normalizedStudyId}".toString()))
+                .add(Restrictions.like('cComment', "trial:${normalizedStudyId}".toString()))
         List<I2b2> studyNodes = criteria.getExecutableCriteria(sessionFactory.currentSession).list()
 
         if (studyNodes.empty) {
