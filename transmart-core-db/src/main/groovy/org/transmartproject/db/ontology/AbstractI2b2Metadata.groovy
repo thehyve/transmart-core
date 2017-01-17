@@ -36,6 +36,12 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     Integer      level
     String       fullName
     String       name
+    /**
+     * Please do not rely on the 'basecode' for any references to concepts,
+     * the {@link #dimensionCode} field is for that (if {@link #dimensionTableName}
+     * ~= 'concept_dimension').
+     */
+    @Deprecated
     String       code
     String       tooltip
     String       metadataxml
@@ -154,6 +160,26 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         // since Study (in this sense) is a transmart concept, this only makes
         // sense for objects from tranSMART's i2b2 metadata table: I2b2
         null
+    }
+
+    @Override
+    OntologyTerm getParent() {
+        HibernateCriteriaBuilder c
+        def fullNameSearch = this.conceptKey.conceptFullName.parent.toString()
+
+        c = createCriteria()
+        List<AbstractI2b2Metadata> ret = c.list {
+            and {
+                eq 'fullName', fullNameSearch
+                eq 'level', level - 1
+            }
+        }
+        if (!ret || ret.empty) {
+            return null
+        }
+        def parentNode = ret[0]
+        parentNode.setTableCode(getTableCode())
+        parentNode
     }
 
     @Override

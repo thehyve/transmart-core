@@ -7,6 +7,7 @@ import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.MatchMode
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
@@ -37,6 +38,7 @@ import org.transmartproject.db.querytool.QtQueryInstance
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
+import org.transmartproject.db.util.StringUtils
 
 @Slf4j
 @Transactional
@@ -60,7 +62,7 @@ class QueryService {
     private final Field numberValueField =
             new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
 
-    private final Criterion defaultHDModifierCriterion = Restrictions.like('modifierCd', 'TRANSMART:HIGHDIM:%')
+    private final Criterion defaultHDModifierCriterion = StringUtils.like('modifierCd', 'TRANSMART:HIGHDIM:', MatchMode.START)
 
     private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
         assert 'user is required', user
@@ -203,8 +205,8 @@ class QueryService {
     }
 
     @Cacheable('org.transmartproject.db.dataquery2.QueryService')
-    Long cachedCountForConcept(String path, User user) {
-        count(new ConceptConstraint(path: path), user)
+    Long cachedCountForConstraint(Constraint constraint, User user) {
+        count(constraint, user)
     }
 
     /**
@@ -329,8 +331,8 @@ class QueryService {
     }
 
     @Cacheable('org.transmartproject.db.dataquery2.QueryService')
-    Long cachedPatientCountForConcept(String path, User user) {
-        patientCount(new ConceptConstraint(path: path), user)
+    Long cachedPatientCountForConstraint(Constraint constraint, User user) {
+        patientCount(constraint, user)
     }
 
     static List<StudyNameConstraint> findStudyNameConstraints(Constraint constraint) {

@@ -5,9 +5,11 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermType
 import org.transmartproject.db.multidimquery.TrialVisitDimension
+import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
 import org.transmartproject.db.multidimquery.query.FieldConstraint
 import org.transmartproject.db.multidimquery.query.ModifierConstraint
+import org.transmartproject.db.multidimquery.query.Operator
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.ontology.I2b2Secure
@@ -45,36 +47,65 @@ class TreeNode {
         this.children = children
     }
 
-    boolean hasOperator(List<String> operators) {
+    final boolean hasOperator(List<String> operators) {
         delegate.operator.toLowerCase().trim() in operators
     }
 
-    String getDimensionCode () {
+    final String getDimensionCode () {
         delegate.dimensionCode
     }
 
-    String getTableName() {
+    final String getTableName() {
         delegate.dimensionTableName.toLowerCase().trim()
     }
 
-    String getColumnName() {
+    final String getColumnName() {
         delegate.columnName.toLowerCase().trim()
     }
 
     /**
      * Create a constraint object for the query that this node represents.
-     * @return
+     *
+     * Supports study, concept, modifier, patient and trial visit nodes.
+     *
+     * @return the constraint map for this node.
      */
-    Map getConstraint() {
+    final Map getConstraint() {
         def constraint = [:] as Map
+        if (studyNode && studyId) {
+            return [
+                type: StudyNameConstraint.simpleName,
+                studyId: studyId
+            ] as Map
+        }
         if (!(LEAF in visualAttributes || MODIFIER_LEAF in visualAttributes)) {
             return null
         }
         switch (tableName) {
             case 'concept_dimension':
                 if (columnName == 'concept_path' && hasOperator(['=', 'like'])) {
-                    constraint.type = ConceptConstraint.simpleName
-                    constraint.path = dimensionCode
+                    // constraint for the concept
+                    def conceptConstraint = [
+                            type: ConceptConstraint.simpleName,
+                            path: dimensionCode
+                    ] as Map
+                    // lookup study for this node
+                    def parentStudyId = study?.studyId
+                    if (!parentStudyId) {
+                        // not a study specific node, return concept constraint only
+                        return conceptConstraint
+                    }
+                    // combine concept constraint with study constraint
+                    def studyConstraint =                             [
+                            type: StudyNameConstraint.simpleName,
+                            studyId: parentStudyId
+                    ]
+                    constraint.type = Combination.simpleName
+                    constraint.operator = Operator.AND.symbol
+                    constraint.args = [
+                            conceptConstraint,
+                            studyConstraint
+                    ]
                     return constraint
                 }
                 return null
@@ -155,17 +186,47 @@ class TreeNode {
         }
     }
 
-    boolean isHighDim() {
+    /**
+     * Retrieves the dimension code as study id if the node is a study node,
+     * the table name is 'study' and the column name is 'study_id';
+     * null otherwise.
+     */
+    final String getStudyId() {
+        if (!studyNode) {
+            return null
+        }
+        if (tableName == 'study' && columnName == 'study_id' && hasOperator(['=', 'like'])) {
+            return dimensionCode
+        }
+        return null
+    }
+
+    /**
+     * Returns the node itself if itself is a study node or an ancestry study node if it exists.
+     */
+    final TreeNode getStudy() {
+        if (studyNode) {
+            this
+        } else {
+            parent?.study
+        }
+    }
+
+    final boolean isStudyNode() {
+        STUDY in visualAttributes
+    }
+
+    final boolean isHighDim() {
         HIGH_DIMENSIONAL in visualAttributes
     }
 
-    List<TreeNode> getChildren() {
+    final List<TreeNode> getChildren() {
         children
     }
 
     private Map<String, Object> metadataMap
 
-    Map<String, Object> getMetadata() {
+    final Map<String, Object> getMetadata() {
         if (!delegate.metadataxml)
             return null
 
@@ -193,7 +254,7 @@ class TreeNode {
         metadataMap
     }
 
-    OntologyTermType getOntologyTermType() {
+    final OntologyTermType getOntologyTermType() {
         if (highDim) {
             OntologyTermType.HIGH_DIMENSIONAL
         } else if (STUDY in visualAttributes) {
