@@ -32,6 +32,7 @@ import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVaria
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.support.ChoppedInQueryCondition
 
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
@@ -76,7 +77,8 @@ class TerminalConceptVariablesDataQuery {
             criteriaBuilder.in('patient', Lists.newArrayList(patients))
         }
 
-        criteriaBuilder.in('conceptCode', clinicalVariables*.code)
+        new ChoppedInQueryCondition('conceptCode', clinicalVariables*.code)
+                .addConstraintsToCriteriaByFieldName(criteriaBuilder)
 
         criteriaBuilder.eq('modifierCd', ObservationFact.EMPTY_MODIFIER_CODE)
 
@@ -115,21 +117,22 @@ class TerminalConceptVariablesDataQuery {
         }
 
         // find the concepts
-        def res = ConceptDimension.withCriteria {
+        def builder = ConceptDimension.createCriteria()
+        builder.with {
             projections {
                 property 'conceptPath'
                 property 'conceptCode'
             }
-
-            or {
-                if (conceptPaths.keySet()) {
-                    'in' 'conceptPath', conceptPaths.keySet()
-                }
-                if (conceptCodes.keySet()) {
-                    'in' 'conceptCode', conceptCodes.keySet()
-                }
-            }
         }
+        if (conceptPaths.keySet()) {
+            new ChoppedInQueryCondition('conceptPath', conceptPaths.keySet() as List)
+                    .addConstraintsToCriteriaByFieldName(builder)
+        }
+        if (conceptCodes.keySet()) {
+            new ChoppedInQueryCondition('conceptCode', conceptCodes.keySet() as List)
+                    .addConstraintsToCriteriaByFieldName(builder)
+        }
+        def res = builder.instance.list()
 
         for (concept in res) {
             String conceptPath = concept[0],

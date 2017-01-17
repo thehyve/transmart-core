@@ -4,6 +4,7 @@ import grails.gorm.DetachedCriteria
 import org.grails.datastore.mapping.query.api.Criteria
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.querytool.QtPatientSetCollection
+import org.transmartproject.db.support.ChoppedInQueryCondition
 
 class PatientSetsConstraint implements PatientConstraint {
 
@@ -19,7 +20,8 @@ class PatientSetsConstraint implements PatientConstraint {
     void addToCriteria(Criteria criteria) {
         def subCriteria = new DetachedCriteria(QtPatientSetCollection)
                 .property('patient.id')
-                .in('resultInstance.id', this.queryResults*.id)
+        new ChoppedInQueryCondition('resultInstance.id', this.queryResults*.id)
+                .addConstraintsToCriteriaByFieldName(subCriteria)
         criteria.in('id', subCriteria)
     }
 

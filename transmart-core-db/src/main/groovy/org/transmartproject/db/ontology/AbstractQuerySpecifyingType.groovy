@@ -21,12 +21,14 @@
 
 package org.transmartproject.db.ontology
 
+import grails.orm.HibernateCriteriaBuilder
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.support.ChoppedInQueryCondition
 import org.transmartproject.db.user.User
 
 /**
@@ -83,7 +85,11 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
         if (patientIdList.size() > 0 && patientIdList[0].getClass() != Long) {
             patientIdList = patientIdList.collect( {it as Long} )
         }
-        PatientDimension.findAllByIdInList(patientIdList)
+
+        HibernateCriteriaBuilder builder = PatientDimension.createCriteria()
+        def choppedInQueryCondition = new ChoppedInQueryCondition('id', patientIdList)
+        choppedInQueryCondition.addConstraintsToCriteriaByFieldName(builder)
+        choppedInQueryCondition.getResultList(builder)
     }
 
     @Override

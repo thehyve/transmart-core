@@ -1,13 +1,14 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableMap
+import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.Immutable
 import groovy.transform.InheritConstructors
 import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
+import org.hibernate.SessionFactory
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.assay.Assay
@@ -24,6 +25,8 @@ import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.ConceptDimension as I2b2ConceptDimensions
 import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
 import org.transmartproject.db.i2b2data.PatientDimension as I2b2PatientDimension
+import org.transmartproject.db.i2b2data.Study as I2B2Study
+import org.transmartproject.db.support.ChoppedInQueryCondition
 
 import static org.transmartproject.core.multidimquery.Dimension.*
 import static org.transmartproject.core.multidimquery.Dimension.Size.*
@@ -269,6 +272,7 @@ trait CompositeElemDim<ELT,ELKey> {
 
 @CompileStatic @InheritConstructors
 abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
+    SessionFactory sessionFactory
     abstract String getAlias()
     abstract String getColumnName()
 
@@ -410,17 +414,20 @@ class PatientDimension extends I2b2Dimension<Patient, Long> implements Composite
 
     @CompileDynamic
     @Override List<Patient> doResolveElements(List<Long> elementKeys) {
-        org.transmartproject.db.i2b2data.PatientDimension.getAll(elementKeys)
-//        List<I2b2PatientDimension> res = I2b2PatientDimension.findAllByIdInList(elementKeys)
-//        Map<Long,I2b2PatientDimension> ids = new HashMap(res.size(), 1.0f)
-//        for (object in res) {
-//            ids[object.id] = object
-//        }
-//        res.clear()
-//        for (key in elementKeys) {
-//            res << ids[key]
-//        }
-//        res
+        HibernateCriteriaBuilder builder = org.transmartproject.db.i2b2data.PatientDimension.createCriteria()
+        def choppedInQueryCondition = new ChoppedInQueryCondition('patient_num', elementKeys)
+        choppedInQueryCondition.addConstraintsToCriteriaByColumnName(builder)
+        def res = choppedInQueryCondition.getResultList(builder)
+
+        Map<Long,I2b2PatientDimension> ids = new HashMap(res.size(), 1.0f)
+        for (object in res) {
+            ids[object.id] = object
+        }
+        res.clear()
+        for (key in elementKeys) {
+            res << ids[key]
+        }
+        res
     }
 }
 
@@ -436,9 +443,12 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 
     @CompileDynamic
     @Override List<I2b2ConceptDimensions> doResolveElements(List<String> elementKeys) {
-        List<I2b2ConceptDimensions> elements = I2b2ConceptDimensions.findAllByConceptCodeInList(elementKeys)
-        elements.sort { elementKeys.indexOf(it.conceptCode) }
-        elements
+        HibernateCriteriaBuilder builder = I2b2ConceptDimensions.createCriteria()
+        def choppedInQueryCondition = new ChoppedInQueryCondition('concept_cd', elementKeys)
+        choppedInQueryCondition.addConstraintsToCriteriaByColumnName(builder)
+        def res = choppedInQueryCondition.getResultList(builder)
+        res.sort{ elementKeys.indexOf(it.conceptCode) }
+        res
     }
 }
 
@@ -452,7 +462,12 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
 
     @CompileDynamic
     @Override List<TrialVisit> doResolveElements(List<Long> elementKeys) {
-        TrialVisit.getAll(elementKeys)
+        HibernateCriteriaBuilder builder = TrialVisit.createCriteria()
+        def choppedInQueryCondition = new ChoppedInQueryCondition('trial_visit_num', elementKeys)
+        choppedInQueryCondition.addConstraintsToCriteriaByColumnName(builder)
+        def res = choppedInQueryCondition.getResultList(builder)
+        res.sort{ elementKeys.indexOf(it.id) }
+        res
     }
 }
 
@@ -475,7 +490,12 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
 
     @CompileDynamic
     @Override List<MDStudy> doResolveElements(List<Long> elementKeys) {
-        org.transmartproject.db.i2b2data.Study.getAll(elementKeys)
+        HibernateCriteriaBuilder builder = I2B2Study.createCriteria()
+        def choppedInQueryCondition = new ChoppedInQueryCondition('study_num', elementKeys)
+        choppedInQueryCondition.addConstraintsToCriteriaByColumnName(builder)
+        def res = choppedInQueryCondition.getResultList(builder)
+        res.sort{ elementKeys.indexOf(it.id) }
+        res
     }
 }
 
