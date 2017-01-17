@@ -41,10 +41,8 @@ class AmTagDisplayValue implements Serializable {
         table 'am_tag_display_vw'
         version false
         cache true
-        sort "value"
         id composite: ["subjectUid", "objectUid", "amTagItem"]
         amTagItem column: 'tag_item_id'
-
     }
 
     static constraints = {
