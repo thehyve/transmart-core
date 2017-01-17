@@ -14,6 +14,7 @@ postgres_drop:
 postgres_test:
 	$(MAKE) -C ddl/postgres/GLOBAL createdb
 	$(MAKE) -C ddl/postgres load
+	$(MAKE) -C data/postgres load_schema_amapp
 	$(MAKE) -C test_data/ postgres_test_data
 
 oracle:
@@ -22,6 +23,7 @@ oracle:
 
 oracle_test:
 	$(MAKE) -C ddl/oracle load
+	$(MAKE) -C data/oracle load_schema_amapp
 	$(MAKE) -C test_data/ oracle_test_data
 
 oracle_drop:
