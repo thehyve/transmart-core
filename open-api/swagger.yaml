@@ -78,7 +78,7 @@ info:
     {
       "type":"FieldConstraint",
       "field":{
-          "dimension":"PatientDimension",
+          "dimension":"patient",
           "fieldName":"age",
           "type":"NUMERIC"
           },
@@ -97,7 +97,7 @@ info:
     {
       "type":"TimeConstraint",
       "field":{
-          "dimension":"StartTimeDimension",
+          "dimension":"start time",
           "fieldName":"startDate",
           "type":"DATE"
           },
@@ -219,7 +219,7 @@ info:
     Only the tree_node endpoint supports the application/hal+json format.
     
     #### application/x-protobuf
-    Calls that return observations support brotobuf as a more efficient binary format. The description of the protobuf object can be found in the [observations.proto](https://github.com/thehyve/transmart-upgrade/blob/master/transmart-rest-api/src/protobuf/v2/observations.proto). Information on [google protobuf](https://developers.google.com/protocol-buffers/).
+    Calls that return observations support brotobuf as a more efficient binary format. The description of the protobuf object can be found in the observations.proto]transmart-rest-api/src/protobuf/v2/. Information on [google protobuf](https://developers.google.com/protocol-buffers/).
 
 schemes:
   - http
@@ -278,7 +278,7 @@ paths:
       parameters:
         - name: studyid
           in: path
-          description: username to fetch
+          description: studyid to fetch
           required: true
           type: string
       responses:
@@ -542,7 +542,89 @@ paths:
       responses:
         200:
           description: Successful response
-
+          
+  /v2/studies:
+    get:
+      description: |
+        Gets all `observations` that evaluate to true for the given constaint. Only observations the calling user has acces to are returned.
+      tags:
+        - v2
+      produces:
+        - application/json
+      parameters:
+        - name: constraint
+          required: true
+          in: query
+          description: 'json that describes the request, Example: {"type":"StudyNameConstraint","studyId":"EHR"}'
+          type: string
+      responses:
+        200:
+          description: |
+            Returns a list of studies
+          schema:
+            type: object
+            properties:
+              studies:
+                type: array
+                items:
+                  $ref: '#/definitions/v2Study'
+  /v2/studies/{id}:
+    get:
+      description: |
+        Gets all `Study` objects.
+      tags:
+        - v2
+      parameters:
+        - name: id
+          in: path
+          description: id to fetch
+          required: true
+          type: string
+      responses:
+        200:
+          description: |
+            Returns one study
+          schema:
+            $ref: "#/definitions/v2Study"
+  /v2/studyId/{studyId}:
+    get:
+      description: |
+        Gets all `Study` objects.
+      tags:
+        - v2
+      parameters:
+        - name: studyId
+          in: path
+          description: studyId to fetch
+          required: true
+          type: string
+      responses:
+        200:
+          description: |
+            Returns one study
+          schema:
+            $ref: "#/definitions/v2Study"
+  /v2/supported_fields:
+    get:
+      description: |
+        Gets all supported `fields`. These are the fields that can be used in constraints.
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            Returns a list of supported fields
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                dimension:
+                  type: string
+                fieldName:
+                  type: string
+                type:
+                  type: string
   /v2/observations:
     get:
       description: |
@@ -594,6 +676,45 @@ paths:
                 type: number
               average:
                 type: number
+  /v2/observations/count:
+    get:
+      description: |
+        counts the number of observations there are for the given constraint.
+      tags:
+        - v2
+      parameters:
+        - name: constraint
+          required: true
+          in: query
+          description: 'json that describes the request, Example: {"type":"ConceptConstraint","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}'
+          type: string
+      responses:
+        200:
+          description: 'return the result in a json object Example: {count:56}'
+          schema:
+            type: object
+            properties:
+              count:
+                type: integer
+  /v2/observation_list:
+    get:
+      description: |
+        Gets all `observations` that evaluate to true for the given constaint in list form.
+      tags:
+        - v2
+      parameters:
+        - name: constraint
+          required: true
+          in: query
+          description: 'json that describes the request, Example: {"type":"ConceptConstraint","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}'
+          type: string
+      responses:
+        200:
+          description: 'return a list with observation objects'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/observation'
   /v2/patients:
     get:
       description: |
@@ -616,6 +737,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/patient'
+  /v2/patients/{id}:
+    get:
+      description: |
+        Gets one patient object.
+      tags:
+        - v2
+      parameters:
+        - name: id
+          in: path
+          description: id to fetch
+          required: true
+          type: string
+      responses:
+        200:
+          description: |
+            Returns one patient
+          schema:
+            $ref: '#/definitions/patient'
   /v2/patient_sets:
     post:
       description: |
@@ -928,6 +1067,28 @@ paths:
       responses:
         204:
           description: 'returns null'
+  /v2/studies/{studyId}/files:
+    get:
+      description: |
+        Gets a list of all `file_links` related to a study
+      tags:
+        - v2
+      parameters:
+        - name: studyId
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: |
+            an object that contains an array with all `file_links` related to a study
+          schema:
+            type: object
+            properties:
+              files:
+                type: array
+                items:
+                  $ref: '#/definitions/fileLink'
   /v2/arvados/workflows:
     get:
       description: |
@@ -1246,6 +1407,20 @@ definitions:
           path:
             description: 'Example: \Public Studies\CLINICAL_TRIAL\Demography\Age\ '
             type: string
+  
+  v2Study:
+    type: object
+    properties:
+      id:
+        type: integer
+      studyID:
+        type: string
+      bioExperimentId:
+        type: integer
+      dimensions:
+        type: array
+        items:
+          type: string
         
   patient:
     type: object
@@ -1272,7 +1447,49 @@ definitions:
         type: string
       trial:
         type: string
-        
+  
+  observation:
+    type: object
+    properties:
+      conceptCode:
+        type: string
+      encounterNum:
+        type: integer
+      endDate:
+        type: string
+        format: datetime
+      instanceNum:
+        type: integer
+      locationCd:
+        type: string
+      modifierCd:
+        type: string
+      numberValue:
+        type: integer
+      patient:
+        type: object
+        properties:
+          id:
+            type: integer
+      providerId:
+        type: string
+      sourcesystemCd:
+        type: string
+      startDate:
+        type: string
+        format: datetime
+      textValue:
+        type: string
+      trialVisit:
+        type: object
+        properties:
+          id:
+            type: integer
+      valueFlag:
+        type: string
+      valueType:
+        type: string
+            
   observations:
     type: object
     properties:

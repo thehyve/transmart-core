@@ -3,7 +3,7 @@ var spec = {
     "info": {
         "version": "17.1.0",
         "title": "Transmart",
-        "description": "\n# oauth2\nAll calls need an Authorization header. \n```\nAuthorization:Bearer {token}\n```\n\n# Constraints\nConstraints are used to build queries and are required in the v2 rest API. They consist of a Type and that type's specific arguments. They live in org.transmartproject.db.multidimquery.query.Constraint.groovy\n\n## Combination\nMost often a combination of constraints is needed to get the right result. This can be done by a constraint with type combination.\nIt takes an op 'operator' and a list 'args' with constraints. All args will be evaluated together on each observation. So a 'and' operator with a 'PatientSetConstraint' and a 'ConceptConstraint' will return all observations for the given concept linkt to the patientset.\nHowever a 'and' operator with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.\n\nExample:\n```json\n{\"type\":\"Combination\",\n \"operator\":\"and\",\n \"args\":[\n    {\"type\":\"PatientSetConstraint\",\"patientIds\":-62},\n    {\"type\":\"ConceptConstraint\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}\n    ]\n}\n```\n\n## StudyNameConstraint\nEvaluate if an observation is part of a particular study\n\nExample:\n```json\n{\n  \"type\":\"StudyNameConstraint\",\n  \"studyId\":\"EHR\"\n}\n```\n\n## ConceptConstraint\nEvaluate if an observation is of a particular Concept. Either by 'path' or 'conceptCode'.\n\n```json\n{\n  \"type\":\"ConceptConstraint\",\n  \"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\",\n  \"conceptCode\":\"HR\"\n}\n```\n\n## ValueConstraint\nEvaluate if the value of an observation is within the given parameters. It needs a 'valueType', 'operator' and 'value'.\n  valueType: [\\\"NUMERIC\\\", \\\"STRING\\\"]\n  operator: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains]\n\nExample:\n```json\n{\n  \"type\":\"ValueConstraint\",\n  \"valueType\":\"NUMERIC\",\n  \"operator\":\"=\",\"value\":176\n}\n```\n\n## FieldConstraint\nEvaluate if a specific field of an observation is within the given parameters. it needs a 'field', 'operator' and 'value'.\n  operator: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains`]\n\nExample:\n```json\n{\n  \"type\":\"FieldConstraint\",\n  \"field\":{\n      \"dimension\":\"PatientDimension\",\n      \"fieldName\":\"age\",\n      \"type\":\"NUMERIC\"\n      },\n  \"operator\":\"!=\",\n  \"value\":100\n}\n```\n\n## TimeConstraint\nEvaluate if an observation is within the specified time period. It needs a 'field' the type of which needs to be 'DATE'. It needs a time relevant 'operator' and a list of 'values'.\nThe list must hold one date for the before(<-) and after(->) operator. It must hold two dates for the between(<-->) operator. If the given date field for an observation is empty, the observation will be ignored.\noperator: [\"&lt;-\", \"-&gt;\", \"&lt;--&gt;\"]\n\nExample:\n```json\n{\n  \"type\":\"TimeConstraint\",\n  \"field\":{\n      \"dimension\":\"StartTimeDimension\",\n      \"fieldName\":\"startDate\",\n      \"type\":\"DATE\"\n      },\n  \"operator\":\"->\",\n  \"values\":[\"2016-01-01T00:00:00Z\"]\n}\n```\n\n## PatientSetConstraint\nEvaluate if an observation is liked to a patient in the set. It needs either a 'patientSetId' or a list of 'patientIds'.\n\nExample:\n```json\n{\n    \"type\":\"PatientSetConstraint\",\n    \"patientSetId\":28820,\n    \"patientIds\":[-62,-63]\n}\n```\n\n## TemporalConstraint\nEvaluate if an observation happened before or after an event. It needs an 'operator' and an 'eventConstraint'. Any constraint can be used as an eventConstraint. Most likely a combination.\noperator: [\"&lt;-\", \"-&gt;\", \"exists\"]\n\nExample:\n```json\n{\n    \"type\":\"TemporalConstraint\",\n    \"operator\":\"exists\",\n    \"eventConstraint\":{\n          \"type\":\"ValueConstraint\",\n          \"valueType\":\"NUMERIC\",\n          \"operator\":\"=\",\n          \"value\":60\n          }\n}\n```\n\n## NullConstraint\nEvaluate if an specific field of an observation is null. It needs a field.\n\nExample:\n```json\n{\n    \"type\":\"NullConstraint\",\n    \"field\":{\n        \"dimension\":\"EndTimeDimension\",\n        \"fieldName\":\"endDate\",\n        \"type\":\"DATE\"\n        }\n}\n```\n\n## ModifierConstraint\nEvaluate if an observation is linked to the specified modifier. Optionaly if that modifier has the specific value. It must have a 'path' or 'modifierCode' and may have 'values' in the form of a ValueConstraint.\n\nExample:\n```json\n{\n    \"type\":\"ModifierConstraint\",\n    \"modifierCode\":\"TNS:SMPL\",\n    \"path\":\"\\\\Public Studies\\\\TUMOR_NORMAL_SAMPLES\\\\Sample Type\\\\\",\n    \"values\":{\n        \"type\":\"ValueConstraint\",\n        \"valueType\":\"STRING\",\n        \"operator\":\"=\",\n        \"value\":\"Tumor\"\n        }\n}\n```\n\n## Negation\nEvaluate if for an observation the given 'arg' is false. 'arg' is a constraint\n\nExample:\n```json\n{\n    \"type\":\"Negation\",\n    \"arg\":{\n        \"type\":\"PatientSetConstraint\",\n        \"patientIds\":[-62,-52,-42]\n        }\n}\n```\nreturns all observations not linked to patient with id -62, -52 or -42\n\n## BiomarkerConstraint\nUsed to evaluate hiDim observations. It needs a 'biomarkerType' and a 'params' object. It should only be used with  /v2/hidim \nbiomarkerType: [\"transcripts\", \"genes\"]\n\nExample:\n```json\n{\n    \"type\":\"BiomarkerConstraint\",\n    \"biomarkerType\":\"genes\",\n    \"params\":{\n        \"names\":[\"TP53\"]\n        }\n}\n```\n\n## TrueConstraint\n**!!WARNING!!** Use mainly for testing.  \nThe most basic of constraints. Evaluates to true for all observations. This returns all observations the requesting user has access to.\n\nExample:\n```json\n{\n    \"type\":\"TrueConstraint\"\n}\n```\n\n\n# response types\n#### application/json\nAll calls support json. however this might not always be the best option. You will find schema's for the responses in this documentation.\n\n#### application/hal+json\nOnly the tree_node endpoint supports the application/hal+json format.\n\n#### application/x-protobuf\nCalls that return observations support brotobuf as a more efficient binary format. The description of the protobuf object can be found in the [observations.proto](https://github.com/thehyve/transmart-upgrade/blob/master/transmart-rest-api/src/protobuf/v2/observations.proto). Information on [google protobuf](https://developers.google.com/protocol-buffers/).\n"
+        "description": "\n# oauth2\nAll calls need an Authorization header. \n```\nAuthorization:Bearer {token}\n```\n\n# Constraints\nConstraints are used to build queries and are required in the v2 rest API. They consist of a Type and that type's specific arguments. They live in org.transmartproject.db.multidimquery.query.Constraint.groovy\n\n## Combination\nMost often a combination of constraints is needed to get the right result. This can be done by a constraint with type combination.\nIt takes an op 'operator' and a list 'args' with constraints. All args will be evaluated together on each observation. So a 'and' operator with a 'PatientSetConstraint' and a 'ConceptConstraint' will return all observations for the given concept linkt to the patientset.\nHowever a 'and' operator with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.\n\nExample:\n```json\n{\"type\":\"Combination\",\n \"operator\":\"and\",\n \"args\":[\n    {\"type\":\"PatientSetConstraint\",\"patientIds\":-62},\n    {\"type\":\"ConceptConstraint\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}\n    ]\n}\n```\n\n## StudyNameConstraint\nEvaluate if an observation is part of a particular study\n\nExample:\n```json\n{\n  \"type\":\"StudyNameConstraint\",\n  \"studyId\":\"EHR\"\n}\n```\n\n## ConceptConstraint\nEvaluate if an observation is of a particular Concept. Either by 'path' or 'conceptCode'.\n\n```json\n{\n  \"type\":\"ConceptConstraint\",\n  \"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\",\n  \"conceptCode\":\"HR\"\n}\n```\n\n## ValueConstraint\nEvaluate if the value of an observation is within the given parameters. It needs a 'valueType', 'operator' and 'value'.\n  valueType: [\\\"NUMERIC\\\", \\\"STRING\\\"]\n  operator: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains]\n\nExample:\n```json\n{\n  \"type\":\"ValueConstraint\",\n  \"valueType\":\"NUMERIC\",\n  \"operator\":\"=\",\"value\":176\n}\n```\n\n## FieldConstraint\nEvaluate if a specific field of an observation is within the given parameters. it needs a 'field', 'operator' and 'value'.\n  operator: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains`]\n\nExample:\n```json\n{\n  \"type\":\"FieldConstraint\",\n  \"field\":{\n      \"dimension\":\"patient\",\n      \"fieldName\":\"age\",\n      \"type\":\"NUMERIC\"\n      },\n  \"operator\":\"!=\",\n  \"value\":100\n}\n```\n\n## TimeConstraint\nEvaluate if an observation is within the specified time period. It needs a 'field' the type of which needs to be 'DATE'. It needs a time relevant 'operator' and a list of 'values'.\nThe list must hold one date for the before(<-) and after(->) operator. It must hold two dates for the between(<-->) operator. If the given date field for an observation is empty, the observation will be ignored.\noperator: [\"&lt;-\", \"-&gt;\", \"&lt;--&gt;\"]\n\nExample:\n```json\n{\n  \"type\":\"TimeConstraint\",\n  \"field\":{\n      \"dimension\":\"start time\",\n      \"fieldName\":\"startDate\",\n      \"type\":\"DATE\"\n      },\n  \"operator\":\"->\",\n  \"values\":[\"2016-01-01T00:00:00Z\"]\n}\n```\n\n## PatientSetConstraint\nEvaluate if an observation is liked to a patient in the set. It needs either a 'patientSetId' or a list of 'patientIds'.\n\nExample:\n```json\n{\n    \"type\":\"PatientSetConstraint\",\n    \"patientSetId\":28820,\n    \"patientIds\":[-62,-63]\n}\n```\n\n## TemporalConstraint\nEvaluate if an observation happened before or after an event. It needs an 'operator' and an 'eventConstraint'. Any constraint can be used as an eventConstraint. Most likely a combination.\noperator: [\"&lt;-\", \"-&gt;\", \"exists\"]\n\nExample:\n```json\n{\n    \"type\":\"TemporalConstraint\",\n    \"operator\":\"exists\",\n    \"eventConstraint\":{\n          \"type\":\"ValueConstraint\",\n          \"valueType\":\"NUMERIC\",\n          \"operator\":\"=\",\n          \"value\":60\n          }\n}\n```\n\n## NullConstraint\nEvaluate if an specific field of an observation is null. It needs a field.\n\nExample:\n```json\n{\n    \"type\":\"NullConstraint\",\n    \"field\":{\n        \"dimension\":\"EndTimeDimension\",\n        \"fieldName\":\"endDate\",\n        \"type\":\"DATE\"\n        }\n}\n```\n\n## ModifierConstraint\nEvaluate if an observation is linked to the specified modifier. Optionaly if that modifier has the specific value. It must have a 'path' or 'modifierCode' and may have 'values' in the form of a ValueConstraint.\n\nExample:\n```json\n{\n    \"type\":\"ModifierConstraint\",\n    \"modifierCode\":\"TNS:SMPL\",\n    \"path\":\"\\\\Public Studies\\\\TUMOR_NORMAL_SAMPLES\\\\Sample Type\\\\\",\n    \"values\":{\n        \"type\":\"ValueConstraint\",\n        \"valueType\":\"STRING\",\n        \"operator\":\"=\",\n        \"value\":\"Tumor\"\n        }\n}\n```\n\n## Negation\nEvaluate if for an observation the given 'arg' is false. 'arg' is a constraint\n\nExample:\n```json\n{\n    \"type\":\"Negation\",\n    \"arg\":{\n        \"type\":\"PatientSetConstraint\",\n        \"patientIds\":[-62,-52,-42]\n        }\n}\n```\nreturns all observations not linked to patient with id -62, -52 or -42\n\n## BiomarkerConstraint\nUsed to evaluate hiDim observations. It needs a 'biomarkerType' and a 'params' object. It should only be used with  /v2/hidim \nbiomarkerType: [\"transcripts\", \"genes\"]\n\nExample:\n```json\n{\n    \"type\":\"BiomarkerConstraint\",\n    \"biomarkerType\":\"genes\",\n    \"params\":{\n        \"names\":[\"TP53\"]\n        }\n}\n```\n\n## TrueConstraint\n**!!WARNING!!** Use mainly for testing.  \nThe most basic of constraints. Evaluates to true for all observations. This returns all observations the requesting user has access to.\n\nExample:\n```json\n{\n    \"type\":\"TrueConstraint\"\n}\n```\n\n\n# response types\n#### application/json\nAll calls support json. however this might not always be the best option. You will find schema's for the responses in this documentation.\n\n#### application/hal+json\nOnly the tree_node endpoint supports the application/hal+json format.\n\n#### application/x-protobuf\nCalls that return observations support brotobuf as a more efficient binary format. The description of the protobuf object can be found in the observations.proto]transmart-rest-api/src/protobuf/v2/. Information on [google protobuf](https://developers.google.com/protocol-buffers/).\n"
     },
     "schemes": [
         "http",
@@ -86,7 +86,7 @@ var spec = {
                     {
                         "name": "studyid",
                         "in": "path",
-                        "description": "username to fetch",
+                        "description": "studyid to fetch",
                         "required": true,
                         "type": "string"
                     }
@@ -461,6 +461,122 @@ var spec = {
                 }
             }
         },
+        "/v2/studies": {
+            "get": {
+                "description": "Gets all `observations` that evaluate to true for the given constaint. Only observations the calling user has acces to are returned.\n",
+                "tags": [
+                    "v2"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "constraint",
+                        "required": true,
+                        "in": "query",
+                        "description": "json that describes the request, Example: {\"type\":\"StudyNameConstraint\",\"studyId\":\"EHR\"}",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of studies\n",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "studies": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/v2Study"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/studies/{id}": {
+            "get": {
+                "description": "Gets all `Study` objects.\n",
+                "tags": [
+                    "v2"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id to fetch",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns one study\n",
+                        "schema": {
+                            "$ref": "#/definitions/v2Study"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/studyId/{studyId}": {
+            "get": {
+                "description": "Gets all `Study` objects.\n",
+                "tags": [
+                    "v2"
+                ],
+                "parameters": [
+                    {
+                        "name": "studyId",
+                        "in": "path",
+                        "description": "studyId to fetch",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns one study\n",
+                        "schema": {
+                            "$ref": "#/definitions/v2Study"
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/supported_fields": {
+            "get": {
+                "description": "Gets all supported `fields`. These are the fields that can be used in constraints.\n",
+                "tags": [
+                    "v2"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of supported fields\n",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "dimension": {
+                                        "type": "string"
+                                    },
+                                    "fieldName": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v2/observations": {
             "get": {
                 "description": "Gets all `observations` that evaluate to true for the given constaint. Only observations the calling user has acces to are returned.\n",
@@ -534,6 +650,64 @@ var spec = {
                 }
             }
         },
+        "/v2/observations/count": {
+            "get": {
+                "description": "counts the number of observations there are for the given constraint.\n",
+                "tags": [
+                    "v2"
+                ],
+                "parameters": [
+                    {
+                        "name": "constraint",
+                        "required": true,
+                        "in": "query",
+                        "description": "json that describes the request, Example: {\"type\":\"ConceptConstraint\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "return the result in a json object Example: {count:56}",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/observation_list": {
+            "get": {
+                "description": "Gets all `observations` that evaluate to true for the given constaint in list form.\n",
+                "tags": [
+                    "v2"
+                ],
+                "parameters": [
+                    {
+                        "name": "constraint",
+                        "required": true,
+                        "in": "query",
+                        "description": "json that describes the request, Example: {\"type\":\"ConceptConstraint\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "return a list with observation objects",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/observation"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v2/patients": {
             "get": {
                 "description": "Gets all `patients` that have an observation that evaluate to true for the given constaint. Only patients the calling user has acces to are returned.\n",
@@ -562,6 +736,31 @@ var spec = {
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/v2/patients/{id}": {
+            "get": {
+                "description": "Gets one patient object.\n",
+                "tags": [
+                    "v2"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id to fetch",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns one patient\n",
+                        "schema": {
+                            "$ref": "#/definitions/patient"
                         }
                     }
                 }
@@ -1015,6 +1214,38 @@ var spec = {
                 "responses": {
                     "204": {
                         "description": "returns null"
+                    }
+                }
+            }
+        },
+        "/v2/studies/{studyId}/files": {
+            "get": {
+                "description": "Gets a list of all `file_links` related to a study\n",
+                "tags": [
+                    "v2"
+                ],
+                "parameters": [
+                    {
+                        "name": "studyId",
+                        "in": "path",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "an object that contains an array with all `file_links` related to a study\n",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "files": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/fileLink"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1478,6 +1709,26 @@ var spec = {
                 }
             }
         },
+        "v2Study": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "studyID": {
+                    "type": "string"
+                },
+                "bioExperimentId": {
+                    "type": "integer"
+                },
+                "dimensions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "patient": {
             "type": "object",
             "properties": {
@@ -1511,6 +1762,68 @@ var spec = {
                     "type": "string"
                 },
                 "trial": {
+                    "type": "string"
+                }
+            }
+        },
+        "observation": {
+            "type": "object",
+            "properties": {
+                "conceptCode": {
+                    "type": "string"
+                },
+                "encounterNum": {
+                    "type": "integer"
+                },
+                "endDate": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "instanceNum": {
+                    "type": "integer"
+                },
+                "locationCd": {
+                    "type": "string"
+                },
+                "modifierCd": {
+                    "type": "string"
+                },
+                "numberValue": {
+                    "type": "integer"
+                },
+                "patient": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "providerId": {
+                    "type": "string"
+                },
+                "sourcesystemCd": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "textValue": {
+                    "type": "string"
+                },
+                "trialVisit": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "valueFlag": {
+                    "type": "string"
+                },
+                "valueType": {
                     "type": "string"
                 }
             }
