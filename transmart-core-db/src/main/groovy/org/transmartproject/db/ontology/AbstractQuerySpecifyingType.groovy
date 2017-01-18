@@ -87,8 +87,8 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
         }
 
         HibernateCriteriaBuilder builder = PatientDimension.createCriteria()
-        def choppedInQueryCondition = new ChoppedInQueryCondition('id', patientIdList)
-        choppedInQueryCondition.addConstraintsToCriteriaByFieldName(builder)
+        def choppedInQueryCondition = new ChoppedInQueryCondition('patient_num', patientIdList)
+        choppedInQueryCondition.addConstraintsToCriteriaByColumnName(builder)
         choppedInQueryCondition.getResultList(builder)
     }
 

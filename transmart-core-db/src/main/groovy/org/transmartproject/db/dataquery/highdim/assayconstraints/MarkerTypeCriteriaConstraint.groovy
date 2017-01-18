@@ -21,8 +21,6 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 
 import groovy.transform.Canonical
 import org.grails.datastore.mapping.query.api.Criteria
-import grails.gorm.DetachedCriteria
-import org.transmartproject.db.support.ChoppedInQueryCondition
 
 @Canonical
 class MarkerTypeCriteriaConstraint implements AssayCriteriaConstraint {
@@ -32,7 +30,11 @@ class MarkerTypeCriteriaConstraint implements AssayCriteriaConstraint {
     @Override
     void addToCriteria(Criteria criteria) {
         /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
-        new ChoppedInQueryCondition('markerType', platformNames)
-                .addConstraintsToCriteriaByFieldName(criteria.platform)
+        // This criteria does not work with ChoppedInQueryCondition wrapper
+        // because of the 'platform' addition. It is very unlikely to have more than 1000 platform names,
+        // so for now it will not cause problems.
+        criteria.platform {
+            'in' 'markerType', platformNames
+        }
     }
 }

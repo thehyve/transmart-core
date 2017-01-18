@@ -53,7 +53,7 @@ class ChoppedInQueryConditionTest {
     void tesEmptyIds() {
         def condition = new ChoppedInQueryCondition('patient_num', [])
         assertThat condition.parametersValues, equalTo([:])
-        assertThat condition.queryConditionTemplate, equalTo("(1=1)")
+        assertThat condition.queryConditionTemplate, equalTo("(0=1)")
     }
 
 }

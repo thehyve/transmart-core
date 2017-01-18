@@ -20,6 +20,7 @@ class ChoppedInQueryCondition {
 
     static final int MAX_LIST_SIZE = 1000
     static final String ALWAYS_TRUE_CONDITION = '1=1'
+    static final String ALWAYS_FALSE_CONDITION = '0=1'
 
     private final String fieldName
     private final List inItems
@@ -29,61 +30,79 @@ class ChoppedInQueryCondition {
         this.inItems = inItems
     }
 
-    @Lazy Map parametersValues = {
-        if(!inItems) return [:]
+    @Lazy
+    Map parametersValues = {
+        if (!inItems) return [:]
         def chunks = inItems.collate(MAX_LIST_SIZE)
         (0..<chunks.size()).collectEntries { index -> ["_${index}".toString(), chunks[index]] }
     }()
 
-    @Lazy String queryConditionTemplate = {
-        constructChoppedInQueryCondition { parVals -> ":${parVals.key}"}
+    @Lazy
+    String queryConditionTemplate = {
+        constructChoppedInQueryCondition { parVals -> ":${parVals.key}" }
     }()
 
     /**
      * You should prefer using queryConditionTemplate instead.
      */
-    @Lazy String populatedQueryCondition = {
+    @Lazy
+    String populatedQueryCondition = {
         constructChoppedInQueryCondition { parVals ->
             //Note that single quotes always added. Disregard the fact whether value is number or string. AFAIK It's fine with SQL.
-            parVals.value.collect{"'${StringEscapeUtils.escapeSql(it.toString())}'"}.join(',')}
+            parVals.value.collect { "'${StringEscapeUtils.escapeSql(it.toString())}'" }.join(',')
+        }
     }()
 
     void addConstraintsToCriteriaByFieldName(HibernateCriteriaBuilder builder) throws InvalidRequestException {
         builder.with {
-            or {
-                parametersValues.collect { parVal ->
-                    'in' fieldName, parVal.value
+            if (parametersValues.size() > 0) {
+                or {
+                    parametersValues.collect { parVal ->
+                        'in' fieldName, parVal.value
+                    }
+                }
+            } else {
+                and {
+                    'in' fieldName, []
                 }
             }
         }
     }
 
+
     void addConstraintsToCriteriaByFieldName(Criteria criteria) throws InvalidRequestException {
-        criteria.or {
+        if (parametersValues.size() > 0) {
+            criteria.or {
                 parametersValues.collect { parVal ->
                     'in' fieldName, parVal.value
                 }
             }
+        } else {
+            criteria.and {
+                'in' fieldName, []
+            }
         }
+    }
 
 
     void addConstraintsToCriteriaByColumnName(HibernateCriteriaBuilder builder) throws InvalidRequestException {
-        builder.add (
-            Restrictions.sqlRestriction(populatedQueryCondition)
+        builder.add(
+                Restrictions.sqlRestriction(populatedQueryCondition)
         )
     }
 
     private String constructChoppedInQueryCondition(Closure<String> constructValues) {
         def subCondition = parametersValues.collect { parVal ->
-            "${fieldName} IN (${constructValues(parVal)})"}.join(' OR ')
-        "(${subCondition ?: ALWAYS_TRUE_CONDITION})".toString()
+            "${fieldName} IN (${constructValues(parVal)})"
+        }.join(' OR ')
+        "(${subCondition ?: ALWAYS_FALSE_CONDITION})".toString()
     }
 
-    List getResultList(HibernateCriteriaBuilder builder){
-            builder.instance.list()
+    static List getResultList(HibernateCriteriaBuilder builder) {
+        builder.instance.list()
     }
 
-    List getResultList(Criteria criteria){
+    static List getResultList(Criteria criteria) {
         criteria.list()
     }
 }
