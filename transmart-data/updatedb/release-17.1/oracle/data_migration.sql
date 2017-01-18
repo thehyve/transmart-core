@@ -134,13 +134,12 @@ where not exists(select * from i2b2demodata.trial_visit_dimension tvd where tvd.
 insert into i2b2demodata.trial_visit_dimension(
   study_num,
   rel_time_label
-)
-select
+) select distinct
   s.study_num,
   ssm.timepoint as rel_time_label
 from deapp.de_subject_sample_mapping ssm
 inner join i2b2demodata.study s on s.study_id = ssm.trial_name
-where ssm.timepoint is not null and not exists(select * from i2b2demodata.trial_visit_dimension tvd where tvd.study_num = s.study_num and tvd.rel_time_label = ssm.timepoint);
+where ssm.timepoint is not null and ssm.timepoint <> '' and not exists(select * from i2b2demodata.trial_visit_dimension tvd where tvd.study_num = s.study_num and tvd.rel_time_label = ssm.timepoint);
 
 -- Regenerate HD observations
 --- 1. Remove existin HD observations.
