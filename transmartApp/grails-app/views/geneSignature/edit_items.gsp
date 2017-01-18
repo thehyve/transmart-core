@@ -4,7 +4,7 @@
     <meta name="layout" content="genesigmain" />
     <title>Edit Gene Signature Items</title>
 
-    <script type="text/javascript">
+    <asset:script type="text/javascript">
 
         // hide inidcated row
         function removeNewItem(rowNum) {
@@ -26,7 +26,7 @@
             rowItem.style.display="none";
         }
 
-    </script>
+    </asset:script>
 </head>
 
 <body>

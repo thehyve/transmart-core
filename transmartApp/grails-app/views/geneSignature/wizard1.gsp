@@ -9,7 +9,7 @@
         <title>Gene Signature Create</title>
     </g:else>
 
-    <script type="text/javascript">
+    <asset:script type="text/javascript">
         function validate() {
             // list name required
             if(document.geneSignatureFrm.name.value=="") {
@@ -18,7 +18,7 @@
             }
             return true;
         }
-    </script>
+    </asset:script>
 </head>
 
 <body>

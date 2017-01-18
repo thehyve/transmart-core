@@ -16,13 +16,11 @@
 }
 </style>
 
-<asset:javascript src="extjs.min.js"/>
-
-<script type="text/javascript">
+<asset:script type="text/javascript">
 
     function handleActionItem(actionItem, id) {
         var action = actionItem.value;
-        var url
+        var url;
         if(action=="") return false;
 
         // clone existing object and bring into edit wizard
@@ -75,11 +73,11 @@
         window.location.href=url;
     }
 
-</script>
+</asset:script>
 <asset:javascript src="help/D2H_ctxt.js"/>
-<script type="text/javascript">
-    helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
-</script>
+<asset:script type="text/javascript">
+    var helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
+</asset:script>
 </head>
 <body>
 <div class="body">
@@ -169,7 +167,7 @@
                 </tr>
 
                 <g:each var="gs" in="${myListItems}" status="idx">
-                    <g:render template="/geneSignature/list_summary_record" model="[gs:gs, idx: idx]" />
+                    <g:render template="/geneSignature/summary_record" model="[gs:gs, idx: idx]" />
                 </g:each>
             </tbody>
         </table>
@@ -187,7 +185,7 @@
                 </tr>
 
                 <g:each var="gs" in="${pubListItems}" status="idx">
-                    <g:render template="/geneSignature/list_summary_record" model="[gs:gs, idx: idx]" />
+                    <g:render template="/geneSignature/summary_record" model="[gs:gs, idx: idx]" />
                 </g:each>
             </tbody>
         </table>
