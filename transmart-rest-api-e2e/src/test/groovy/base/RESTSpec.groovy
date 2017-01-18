@@ -4,6 +4,7 @@ import groovy.json.JsonBuilder
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
+import groovyx.net.http.URIBuilder
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import selectors.ObservationsMessageProto
@@ -19,9 +20,11 @@ import static org.hamcrest.Matchers.*
 
 abstract class RESTSpec extends Specification{
 
-    def contentTypeForHAL = 'application/hal+json'
-    def contentTypeForJSON = 'application/json'
-    def contentTypeForProtobuf = 'application/x-protobuf'
+    def static contentTypeForHAL = 'application/hal+json'
+    def static contentTypeForJSON = 'application/json'
+    def static contentTypeForProtobuf = 'application/x-protobuf'
+    def static contentTypeForoctetStream = 'application/octet-stream'
+    def static contentTypeForXML = 'application/xml'
 
     private static HashMap<String, String> oauth2token = [:]
 
@@ -187,6 +190,78 @@ abstract class RESTSpec extends Specification{
             }
         }
     }
+
+    def post(RestCall restCall){
+        http.request(Method.POST, restCall.acceptType) { req ->
+            uri.path = restCall.path
+            uri.query = restCall.query
+            headers.Accept = restCall.acceptType
+            headers.'Content-Type' = restCall.contentType
+            body = restCall.body
+            if (restCall.oauth){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(uri.toString())
+            response.success = { resp, reader ->
+                assert resp.statusLine.statusCode == restCall.statusCode
+                assert resp.headers.'Content-Type'.contains(restCall.acceptType) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
+                if (DEBUG){
+                    def result = reader
+                    println result
+                    return result
+                }
+                return reader
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode == restCall.statusCode
+                if (DEBUG){
+                    def result = reader
+                    println result
+                    return result
+                }
+                return reader
+            }
+        }
+    }
+
+    def get(RestCall restCall){
+        http.request(Method.GET, restCall.acceptType) { req ->
+            uri.path = restCall.path
+            uri.query = restCall.query
+            headers.Accept = restCall.acceptType
+            if (restCall.oauth){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(uri.toString())
+            response.success = { resp, reader ->
+                assert resp.statusLine.statusCode == restCall.statusCode
+                assert resp.headers.'Content-Type'.contains(restCall.acceptType) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
+                if (DEBUG){
+                    def result = reader
+                    println result
+                    return result
+                }
+                return reader
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode == restCall.statusCode
+                if (DEBUG){
+                    def result = reader
+                    println result
+                    return result
+                }
+                return reader
+            }
+        }
+    }
+
+
+
+
 
     /**
      * a convenience method to keep the tests readable by removing as much code as possible

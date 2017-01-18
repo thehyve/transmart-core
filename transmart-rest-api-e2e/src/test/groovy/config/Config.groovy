@@ -13,6 +13,10 @@ class Config {
     public static final String ADMIN_USERNAME = 'admin'
     public static final String ADMIN_PASSWORD = 'admin'
 
+    public static final String V1_PATH_STUDIES = "v1/studies"
+    public static final String V1_PATH_observations = "v1/observations"
+    public static final String V1_PATH_PATIENT_SETS = "v1/patient_sets"
+
     public static final String PATH_OBSERVATIONS = "v2/observations"
     public static final String PATH_HIGH_DIM = "v2/high_dim"
     public static final String PATH_AGGREGATE = "v2/observations/aggregate"
@@ -23,9 +27,9 @@ class Config {
     public static final String PATH_STORAGE = "v2/storage"
     public static final String PATH_FILES = "v2/files"
     public static final String PATH_ARVADOS_WORKFLOWS = "v2/arvados/workflows"
-    public static final String REGEXDATE = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"
 
     //study ids
+    public static final String CELL_LINE_ID = 'CELL-LINE'
     public static final String EHR_ID = 'EHR'
     public static final String EHR_HIGHDIM_ID = 'EHR_HIGHDIM'
     public static final String CLINICAL_TRIAL_ID = 'CLINICAL_TRIAL'
@@ -46,6 +50,7 @@ class Config {
     public static final boolean SUPPRESS_UNIMPLEMENTED = true
 
     //test studies loaded
+    public static final boolean CELL_LINE_LOADED = false
     public static final boolean EHR_LOADED = true
     public static final boolean EHR_HIGHDIM_LOADED = true
     public static final boolean CLINICAL_TRIAL_LOADED = true
