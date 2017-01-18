@@ -494,7 +494,14 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
         def choppedInQueryCondition = new ChoppedInQueryCondition('study_num', elementKeys)
         choppedInQueryCondition.addConstraintsToCriteriaByColumnName(builder)
         def res = choppedInQueryCondition.getResultList(builder)
-        res.sort{ elementKeys.indexOf(it.id) }
+        Map<Long,I2B2Study> ids = new HashMap(res.size(), 1.0f)
+        for (object in res) {
+            ids[object.id] = object
+        }
+        res.clear()
+        for (key in elementKeys) {
+            res << ids[key]
+        }
         res
     }
 }
