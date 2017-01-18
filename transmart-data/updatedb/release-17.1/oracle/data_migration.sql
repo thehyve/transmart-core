@@ -224,3 +224,7 @@ update i2b2demodata.observation_fact set trial_visit_num =
 where trial_visit_num is null;
 
 ALTER TABLE "I2B2DEMODATA"."OBSERVATION_FACT" MODIFY "TRIAL_VISIT_NUM" NOT NULL;
+
+-- Fix referencial consistency for the visit dimension.
+update i2b2demodata.observation_fact set encounter_num = -1
+where encounter_num <> -1 and not exists(select * from i2b2demodata.visit_dimension v where v.encounter_num = observation_fact.encounter_num);
