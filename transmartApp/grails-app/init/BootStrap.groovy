@@ -94,6 +94,9 @@ class BootStrap {
 
             if (Environment.current == Environment.PRODUCTION) {
                 rmoduleScriptDir = ctx.getResource('WEB-INF/Rscripts').getFile()
+                if (!rmoduleScriptDir || !rmoduleScriptDir.isDirectory()) {
+                    rmoduleScriptDir = ctx.getResource('classpath:Rscripts').getFile()
+                }
             } else {
                 rmoduleScriptDir = new File('../Rmodules/src/main/resources/Rscripts')
             }
