@@ -8,7 +8,7 @@ import groovyx.net.http.URIBuilder
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import selectors.ObservationsMessageProto
-import protobuf.ObservationsProto
+import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import selectors.ObservationsMessageJson
 import spock.lang.Shared
 import spock.lang.Specification
@@ -372,34 +372,33 @@ abstract class RESTSpec extends Specification{
     }
 
     def parseHypercube(jsonHypercube){
-        def header = jsonHypercube.header
+        def dimensionDeclarations = jsonHypercube.dimensionDeclarations
         def cells = jsonHypercube.cells
-        def footer = jsonHypercube.footer
-        return new ObservationsMessageJson(header, cells, footer)
+        def dimensionElements = jsonHypercube.dimensionElements
+        return new ObservationsMessageJson(dimensionDeclarations, cells, dimensionElements)
     }
 
     def parseProto(s_in){
         def header = ObservationsProto.Header.parseDelimitedFrom(s_in)
+        if(header.error) throw new RuntimeException("Error in protobuf header message: "+header.error)
         if (header.dimensionDeclarationsCount == 0){
             return new ObservationsMessageProto()
         }
         if (DEBUG){println('proto header = ' + header)}
+        boolean last = header.last
         def cells = []
         int count = 0
-        while(true) {
+        while(!last) {
             count++
-            def cell = ObservationsProto.Observation.parseDelimitedFrom(s_in)
-            if (header.toString() == "" && cell == null) {
-                break
-            }
-            assert cell != null, "proto buf message is incomplete. no cell with last=true found. cell ${count} was null"
+            def cell = ObservationsProto.Cell.parseDelimitedFrom(s_in)
+            assert cell != null, "null cell found"
+            if(cell.error) throw new RuntimeException("Error in protobuf cell message: "+cell.error)
+            last = cell.last
             cells << cell
-            if (cell.last) {
-                break
-            }
         }
         if (DEBUG){println('proto cells = ' + cells)}
         def footer = ObservationsProto.Footer.parseDelimitedFrom(s_in)
+        if(footer.error) throw new RuntimeException("Error in protobuf footer message: "+footer.error)
         if (DEBUG){println('proto footer = ' + footer)}
 
         return new ObservationsMessageProto(header, cells, footer)

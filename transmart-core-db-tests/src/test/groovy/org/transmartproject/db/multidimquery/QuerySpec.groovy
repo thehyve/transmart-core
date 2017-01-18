@@ -1,7 +1,6 @@
 package org.transmartproject.db.multidimquery
 
 import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.Integration
 import grails.test.mixin.web.ControllerUnitTestMixin
 import org.transmartproject.db.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.Operator
@@ -9,13 +8,15 @@ import org.transmartproject.db.multidimquery.query.Type
 import org.transmartproject.db.multidimquery.query.FieldConstraint
 import spock.lang.Specification
 
+import static org.transmartproject.db.multidimquery.query.ConstraintDimension.*
+
 @TestMixin(ControllerUnitTestMixin)
 class QuerySpec extends Specification {
 
     Field patientIdField
 
     void setupData() {
-        patientIdField = new Field(dimension: PatientDimension, fieldName: 'patientId', type: Type.NUMERIC)
+        patientIdField = new Field(dimension: Patient, fieldName: 'patientId', type: Type.NUMERIC)
     }
 
     void 'test observation query class'() {

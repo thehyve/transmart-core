@@ -1,6 +1,8 @@
 syntax = "proto3";
 package hypercube;
 
+// NB: this package is used in transmart-rest-api but also through a symlink in transmart-rest-api-e2e
+// If you change the java package or class name, also update the transmart-rest-api-e2e usages of this!
 option java_package = "org.transmartproject.rest.hypercubeProto";
 option java_outer_classname = "ObservationsProto";
 
@@ -21,39 +23,56 @@ message Header { // header is sent without chunking in a one message
     repeated DimensionDeclaration dimensionDeclarations = 1;
     // same meaning as in Observation
     bool last = 2; //default: false
+
+
+    // If an error happens while streaming of the result has already started, this field can be set with the error message.
+    // If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+    // these error fields generally indicates an internal application bug or a database consistency issue. Any errors
+    // that can be detected before writing to the response stream has started will be and will cause an HTTP error
+    // to be returned with a textual or json error message in the body.
+    string error = 99;
 }
 
-message DimensionDeclaration { // each dimension present in the output is declared with this message
-                               string name = 1;
-                               /* A description of the elements of the dimension. */
-                               Type type = 2;
-                               repeated FieldDefinition fields = 3;
-                               /* If true, the dimension elements will be stored in the
-                                  observation cell instead of the footer. */
-                               bool inline = 4;
-                               /* If true, observations are packed along this dimension. Only one dimension can have
-                               this flag set, and this flag is mutually exclusive with the 'inline' flag.*/
-                               bool packed = 5;
-                               /* Only used if the dimension elements are sent in the header instead of the footer. */
-                               DimensionElements elements = 6;
+message DimensionDeclaration {
+    // each dimension present in the output is declared with this message
+    string name = 1;
+    /* A description of the elements of the dimension. 'fields' is only set if type is
+    OBJECT */
+    Type type = 2;
+    repeated FieldDefinition fields = 3;
+    /* If true, the dimension elements will be stored in the
+      observation cell instead of the footer. */
+    bool inline = 4;
+    /* If true, observations are packed along this dimension. Only one dimension can have
+    this flag set, and this flag is mutually exclusive with the 'inline' flag.*/
+    bool packed = 5;
+    /* Only used if the dimension elements are sent in the header instead of the footer. */
+    DimensionElements elements = 6;
 }
 
-message FieldDefinition { // each field (dimension element) has its definition specifying type of its value
-                          // Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
-                          // age, gender, race, etc.
-                          string name = 1;
-                          Type type = 2;
+message FieldDefinition {
+    // A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
+    // This message defines the name and type of a DimensionElement field or a DimensionElements.fields field column.
+    // Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
+    // age, gender, race, etc.
+    string name = 1;
+    // In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+    // (Support for nested compound types could be added in the future)
+    Type type = 2;
 }
 
-message Observation {
+message Cell {
     // This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
     // dimension along which observations are packed, if packing is used) and follows their
     // order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
     // 'not present'.
     repeated int64 dimensionIndexes = 1; // `packed` is the default in proto3
 
-    // A single element for each inline dimension, in the order used in the header.
+    // A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
     repeated DimensionElement inlineDimensions = 2;
+    // indexes of absent dimensions (1-based)
+    repeated int32 absentInlineDimensions = 5;
+
     oneof value {
         string stringValue = 3;
         double numericValue = 4;
@@ -61,9 +80,13 @@ message Observation {
 
     // Set to true on the last observation, the last observation is followed by a footer.
     bool last = 7; // [default=false];
+
+
+    // see Header.error
+    string error = 99;
 }
 
-message PackedObservation {
+message PackedCell {
     // same as in observation
     repeated int64 dimensionIndexes = 1;
     // A dimension element for each observation for each inline dimension
@@ -80,58 +103,37 @@ message PackedObservation {
 
     // The number of entries in either stringValues or numericValues, i.e., the number of observations represented
     // by this message.
-    int32 numObervations = 5;
+    //int32 numObervations = 5;
 
     bool last = 7; // default: false
-}
 
-// Nullable long value type
-message IntValue {
-    oneof value {
-        sint64 val = 1;
-    }
-}
 
-// Nullable timestamp value type
-message TimestampValue {
-    oneof value {
-        sint64 val = 1;
-    }
-}
-
-// Nullable double value type
-message DoubleValue {
-    oneof value {
-        double val = 1;
-    }
-}
-
-// Nullable string value type
-message StringValue {
-    oneof value {
-        string val = 1;
-    }
+    // see Header.error
+    string error = 99;
 }
 
 // note: singular
 message DimensionElement {
-    // Only one of these can be set. If this dimension element only has one field, use the
-    // int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-    // Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-    // nested message for every observation.
+    // Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+    // int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+    // Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+    // nested message for every inline dimension in each observation.
     repeated Value fields = 1;
-    IntValue intValue = 2;
-    DoubleValue doubleValue = 3;
-    StringValue stringValue = 4;
-    TimestampValue timestampValue = 5;
+    sint64 intValue = 2;
+    double doubleValue = 3;
+    string stringValue = 4;
+    int64 timestampValue = 5;
+
+    // 1-based list of indices of fields that are absent
+    repeated int32 absentFieldIndices = 6;
 }
 
 message Value {
     oneof value {
-        StringValue stringValue = 1;
-        DoubleValue doubleValue = 2;
-        IntValue intValue = 3;
-        TimestampValue timestampValue = 4;
+        string stringValue = 1;
+        double doubleValue = 2;
+        sint64 intValue = 3;
+        int64 timestampValue = 4;
     }
 }
 
@@ -139,23 +141,45 @@ message Value {
 message Footer {
     // List of dimensions (e.g. patients, concepts, trialVisits, etc)
     repeated DimensionElements dimension = 1;
+
+
+    // see Header.error
+    string error = 99;
 }
 
 // note: plural
 message DimensionElements { // Multiple dimension elements are stored in a "column oriented" format, with the fields
                             // as the columns.
 
-    // List of dimension elements field values (e.g. values for age, values for gender, etc)
-    repeated DimElementField fields = 1;
+    // not used when a DimensionElements is embedded in a PackedObservation
+    string name = 3;
+
+    // List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+    // field are absent on all encoded dimension elements, that list of field values is omitted entirely.
+    repeated DimensionElementFieldColumn fields = 1;
+
+    // 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+    repeated int32 absentFieldColumnIndices = 4;
 
     // only used when this message is embedded in a packedObservations
     bool perSample = 2;
 }
 
-message DimElementField {
+message DimensionElementFieldColumn {
     // Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-    repeated StringValue stringValue = 1;  // only One of these must be set! 'oneof' doesn't work for repeated fields.
-    repeated DoubleValue doubleValue = 2;
-    repeated IntValue intValue = 3;
-    repeated TimestampValue timestampValue = 4;
+    repeated string stringValue = 1;  // only One of these must be set! 'oneof' doesn't work for repeated fields.
+    repeated double doubleValue = 2;
+    repeated sint64 intValue = 3;
+    repeated int64 timestampValue = 4;
+
+    repeated int32 absentValueIndices = 5;
+}
+
+
+// This message is a generic error message that can be sent in place of any of the other root messages.
+// As long as the error field in all interchanged messages (Header, Cell, PackedCell, Footer, Error) has the same type
+// and number, this message can be interchanged with the other root message types.
+message Error {
+    // see Header.error
+    string error = 99;
 }

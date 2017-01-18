@@ -175,6 +175,28 @@ public final class ObservationsProto {
      * <code>optional bool last = 2;</code>
      */
     boolean getLast();
+
+    /**
+     * <pre>
+     * If an error happens while streaming of the result has already started, this field can be set with the error message.
+     * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    java.lang.String getError();
+    /**
+     * <pre>
+     * If an error happens while streaming of the result has already started, this field can be set with the error message.
+     * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorBytes();
   }
   /**
    * <pre>
@@ -194,6 +216,7 @@ public final class ObservationsProto {
     private Header() {
       dimensionDeclarations_ = java.util.Collections.emptyList();
       last_ = false;
+      error_ = "";
     }
 
     @java.lang.Override
@@ -233,6 +256,12 @@ public final class ObservationsProto {
             case 16: {
 
               last_ = input.readBool();
+              break;
+            }
+            case 794: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              error_ = s;
               break;
             }
           }
@@ -310,6 +339,52 @@ public final class ObservationsProto {
       return last_;
     }
 
+    public static final int ERROR_FIELD_NUMBER = 99;
+    private volatile java.lang.Object error_;
+    /**
+     * <pre>
+     * If an error happens while streaming of the result has already started, this field can be set with the error message.
+     * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public java.lang.String getError() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        error_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * If an error happens while streaming of the result has already started, this field can be set with the error message.
+     * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorBytes() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        error_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -328,6 +403,9 @@ public final class ObservationsProto {
       if (last_ != false) {
         output.writeBool(2, last_);
       }
+      if (!getErrorBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
+      }
     }
 
     public int getSerializedSize() {
@@ -342,6 +420,9 @@ public final class ObservationsProto {
       if (last_ != false) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(2, last_);
+      }
+      if (!getErrorBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
       }
       memoizedSize = size;
       return size;
@@ -363,6 +444,8 @@ public final class ObservationsProto {
           .equals(other.getDimensionDeclarationsList());
       result = result && (getLast()
           == other.getLast());
+      result = result && getError()
+          .equals(other.getError());
       return result;
     }
 
@@ -380,6 +463,8 @@ public final class ObservationsProto {
       hash = (37 * hash) + LAST_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getLast());
+      hash = (37 * hash) + ERROR_FIELD_NUMBER;
+      hash = (53 * hash) + getError().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -511,6 +596,8 @@ public final class ObservationsProto {
         }
         last_ = false;
 
+        error_ = "";
+
         return this;
       }
 
@@ -545,6 +632,7 @@ public final class ObservationsProto {
           result.dimensionDeclarations_ = dimensionDeclarationsBuilder_.build();
         }
         result.last_ = last_;
+        result.error_ = error_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -615,6 +703,10 @@ public final class ObservationsProto {
         }
         if (other.getLast() != false) {
           setLast(other.getLast());
+        }
+        if (!other.getError().isEmpty()) {
+          error_ = other.error_;
+          onChanged();
         }
         onChanged();
         return this;
@@ -920,6 +1012,105 @@ public final class ObservationsProto {
         onChanged();
         return this;
       }
+
+      private java.lang.Object error_ = "";
+      /**
+       * <pre>
+       * If an error happens while streaming of the result has already started, this field can be set with the error message.
+       * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public java.lang.String getError() {
+        java.lang.Object ref = error_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          error_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * If an error happens while streaming of the result has already started, this field can be set with the error message.
+       * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrorBytes() {
+        java.lang.Object ref = error_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          error_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * If an error happens while streaming of the result has already started, this field can be set with the error message.
+       * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setError(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        error_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * If an error happens while streaming of the result has already started, this field can be set with the error message.
+       * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder clearError() {
+        
+        error_ = getDefaultInstance().getError();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * If an error happens while streaming of the result has already started, this field can be set with the error message.
+       * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
+       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setErrorBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        error_ = value;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -1036,7 +1227,8 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * If true, observations are packed along this dimension. 
+     * If true, observations are packed along this dimension. Only one dimension can have
+     *this flag set, and this flag is mutually exclusive with the 'inline' flag.
      * </pre>
      *
      * <code>optional bool packed = 5;</code>
@@ -1298,7 +1490,8 @@ public final class ObservationsProto {
     private boolean packed_;
     /**
      * <pre>
-     * If true, observations are packed along this dimension. 
+     * If true, observations are packed along this dimension. Only one dimension can have
+     *this flag set, and this flag is mutually exclusive with the 'inline' flag.
      * </pre>
      *
      * <code>optional bool packed = 5;</code>
@@ -2171,7 +2364,8 @@ public final class ObservationsProto {
       private boolean packed_ ;
       /**
        * <pre>
-       * If true, observations are packed along this dimension. 
+       * If true, observations are packed along this dimension. Only one dimension can have
+       *this flag set, and this flag is mutually exclusive with the 'inline' flag.
        * </pre>
        *
        * <code>optional bool packed = 5;</code>
@@ -2181,7 +2375,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * If true, observations are packed along this dimension. 
+       * If true, observations are packed along this dimension. Only one dimension can have
+       *this flag set, and this flag is mutually exclusive with the 'inline' flag.
        * </pre>
        *
        * <code>optional bool packed = 5;</code>
@@ -2194,7 +2389,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * If true, observations are packed along this dimension. 
+       * If true, observations are packed along this dimension. Only one dimension can have
+       *this flag set, and this flag is mutually exclusive with the 'inline' flag.
        * </pre>
        *
        * <code>optional bool packed = 5;</code>
@@ -2413,6 +2609,7 @@ public final class ObservationsProto {
 
     /**
      * <pre>
+     * message defines the name and type of a DimensionElement field.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2422,6 +2619,7 @@ public final class ObservationsProto {
     java.lang.String getName();
     /**
      * <pre>
+     * message defines the name and type of a DimensionElement field.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2432,17 +2630,27 @@ public final class ObservationsProto {
         getNameBytes();
 
     /**
+     * <pre>
+     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+     * (Support for nested compound types could be added in the future)
+     * </pre>
+     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     int getTypeValue();
     /**
+     * <pre>
+     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+     * (Support for nested compound types could be added in the future)
+     * </pre>
+     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType();
   }
   /**
    * <pre>
-   * each field (dimension element) has its definition specifying type of its value
+   * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
    * </pre>
    *
    * Protobuf type {@code hypercube.FieldDefinition}
@@ -2524,6 +2732,7 @@ public final class ObservationsProto {
     private volatile java.lang.Object name_;
     /**
      * <pre>
+     * message defines the name and type of a DimensionElement field.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2544,6 +2753,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
+     * message defines the name and type of a DimensionElement field.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2567,12 +2777,22 @@ public final class ObservationsProto {
     public static final int TYPE_FIELD_NUMBER = 2;
     private int type_;
     /**
+     * <pre>
+     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+     * (Support for nested compound types could be added in the future)
+     * </pre>
+     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     public int getTypeValue() {
       return type_;
     }
     /**
+     * <pre>
+     * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+     * (Support for nested compound types could be added in the future)
+     * </pre>
+     *
      * <code>optional .hypercube.Type type = 2;</code>
      */
     public org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType() {
@@ -2729,7 +2949,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * each field (dimension element) has its definition specifying type of its value
+     * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
      * </pre>
      *
      * Protobuf type {@code hypercube.FieldDefinition}
@@ -2872,6 +3092,7 @@ public final class ObservationsProto {
       private java.lang.Object name_ = "";
       /**
        * <pre>
+       * message defines the name and type of a DimensionElement field.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -2892,6 +3113,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
+       * message defines the name and type of a DimensionElement field.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -2913,6 +3135,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
+       * message defines the name and type of a DimensionElement field.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -2931,6 +3154,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
+       * message defines the name and type of a DimensionElement field.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -2945,6 +3169,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
+       * message defines the name and type of a DimensionElement field.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -2965,12 +3190,22 @@ public final class ObservationsProto {
 
       private int type_ = 0;
       /**
+       * <pre>
+       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+       * (Support for nested compound types could be added in the future)
+       * </pre>
+       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public int getTypeValue() {
         return type_;
       }
       /**
+       * <pre>
+       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+       * (Support for nested compound types could be added in the future)
+       * </pre>
+       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public Builder setTypeValue(int value) {
@@ -2979,6 +3214,11 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+       * (Support for nested compound types could be added in the future)
+       * </pre>
+       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType() {
@@ -2986,6 +3226,11 @@ public final class ObservationsProto {
         return result == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.UNRECOGNIZED : result;
       }
       /**
+       * <pre>
+       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+       * (Support for nested compound types could be added in the future)
+       * </pre>
+       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public Builder setType(org.transmartproject.rest.hypercubeProto.ObservationsProto.Type value) {
@@ -2998,6 +3243,11 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * In the current protobuf version, this must be a non-compound type, so this cannot be OBJECT
+       * (Support for nested compound types could be added in the future)
+       * </pre>
+       *
        * <code>optional .hypercube.Type type = 2;</code>
        */
       public Builder clearType() {
@@ -3055,8 +3305,8 @@ public final class ObservationsProto {
 
   }
 
-  public interface ObservationOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:hypercube.Observation)
+  public interface CellOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:hypercube.Cell)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -3095,7 +3345,7 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3104,7 +3354,7 @@ public final class ObservationsProto {
         getInlineDimensionsList();
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3112,7 +3362,7 @@ public final class ObservationsProto {
     org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElement getInlineDimensions(int index);
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3120,7 +3370,7 @@ public final class ObservationsProto {
     int getInlineDimensionsCount();
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3129,13 +3379,38 @@ public final class ObservationsProto {
         getInlineDimensionsOrBuilderList();
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
      */
     org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementOrBuilder getInlineDimensionsOrBuilder(
         int index);
+
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    java.util.List<java.lang.Integer> getAbsentInlineDimensionsList();
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    int getAbsentInlineDimensionsCount();
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    int getAbsentInlineDimensions(int index);
 
     /**
      * <code>optional string stringValue = 3;</code>
@@ -3161,23 +3436,43 @@ public final class ObservationsProto {
      */
     boolean getLast();
 
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation.ValueCase getValueCase();
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    java.lang.String getError();
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorBytes();
+
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell.ValueCase getValueCase();
   }
   /**
-   * Protobuf type {@code hypercube.Observation}
+   * Protobuf type {@code hypercube.Cell}
    */
-  public  static final class Observation extends
+  public  static final class Cell extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:hypercube.Observation)
-      ObservationOrBuilder {
-    // Use Observation.newBuilder() to construct.
-    private Observation(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      // @@protoc_insertion_point(message_implements:hypercube.Cell)
+      CellOrBuilder {
+    // Use Cell.newBuilder() to construct.
+    private Cell(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-    private Observation() {
+    private Cell() {
       dimensionIndexes_ = java.util.Collections.emptyList();
       inlineDimensions_ = java.util.Collections.emptyList();
+      absentInlineDimensions_ = java.util.Collections.emptyList();
       last_ = false;
+      error_ = "";
     }
 
     @java.lang.Override
@@ -3185,7 +3480,7 @@ public final class ObservationsProto {
     getUnknownFields() {
       return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
-    private Observation(
+    private Cell(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -3246,9 +3541,36 @@ public final class ObservationsProto {
               value_ = input.readDouble();
               break;
             }
+            case 40: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                absentInlineDimensions_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              absentInlineDimensions_.add(input.readInt32());
+              break;
+            }
+            case 42: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004) && input.getBytesUntilLimit() > 0) {
+                absentInlineDimensions_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                absentInlineDimensions_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
             case 56: {
 
               last_ = input.readBool();
+              break;
+            }
+            case 794: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              error_ = s;
               break;
             }
           }
@@ -3265,19 +3587,22 @@ public final class ObservationsProto {
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           inlineDimensions_ = java.util.Collections.unmodifiableList(inlineDimensions_);
         }
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+          absentInlineDimensions_ = java.util.Collections.unmodifiableList(absentInlineDimensions_);
+        }
         makeExtensionsImmutable();
       }
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Observation_descriptor;
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Cell_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Observation_fieldAccessorTable
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Cell_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation.Builder.class);
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell.Builder.class);
     }
 
     private int bitField0_;
@@ -3367,7 +3692,7 @@ public final class ObservationsProto {
     private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElement> inlineDimensions_;
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3377,7 +3702,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3388,7 +3713,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3398,7 +3723,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3408,7 +3733,7 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * A single element for each inline dimension, in the order used in the header.
+     * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
      * </pre>
      *
      * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -3417,6 +3742,41 @@ public final class ObservationsProto {
         int index) {
       return inlineDimensions_.get(index);
     }
+
+    public static final int ABSENTINLINEDIMENSIONS_FIELD_NUMBER = 5;
+    private java.util.List<java.lang.Integer> absentInlineDimensions_;
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getAbsentInlineDimensionsList() {
+      return absentInlineDimensions_;
+    }
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    public int getAbsentInlineDimensionsCount() {
+      return absentInlineDimensions_.size();
+    }
+    /**
+     * <pre>
+     * indexes of absent dimensions (1-based)
+     * </pre>
+     *
+     * <code>repeated int32 absentInlineDimensions = 5;</code>
+     */
+    public int getAbsentInlineDimensions(int index) {
+      return absentInlineDimensions_.get(index);
+    }
+    private int absentInlineDimensionsMemoizedSerializedSize = -1;
 
     public static final int STRINGVALUE_FIELD_NUMBER = 3;
     /**
@@ -3485,6 +3845,48 @@ public final class ObservationsProto {
       return last_;
     }
 
+    public static final int ERROR_FIELD_NUMBER = 99;
+    private volatile java.lang.Object error_;
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public java.lang.String getError() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        error_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorBytes() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        error_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -3515,8 +3917,18 @@ public final class ObservationsProto {
         output.writeDouble(
             4, (double)((java.lang.Double) value_));
       }
+      if (getAbsentInlineDimensionsList().size() > 0) {
+        output.writeUInt32NoTag(42);
+        output.writeUInt32NoTag(absentInlineDimensionsMemoizedSerializedSize);
+      }
+      for (int i = 0; i < absentInlineDimensions_.size(); i++) {
+        output.writeInt32NoTag(absentInlineDimensions_.get(i));
+      }
       if (last_ != false) {
         output.writeBool(7, last_);
+      }
+      if (!getErrorBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
       }
     }
 
@@ -3551,9 +3963,26 @@ public final class ObservationsProto {
           .computeDoubleSize(
               4, (double)((java.lang.Double) value_));
       }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < absentInlineDimensions_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(absentInlineDimensions_.get(i));
+        }
+        size += dataSize;
+        if (!getAbsentInlineDimensionsList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        absentInlineDimensionsMemoizedSerializedSize = dataSize;
+      }
       if (last_ != false) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(7, last_);
+      }
+      if (!getErrorBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
       }
       memoizedSize = size;
       return size;
@@ -3565,18 +3994,22 @@ public final class ObservationsProto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation)) {
+      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell)) {
         return super.equals(obj);
       }
-      org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation) obj;
+      org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell) obj;
 
       boolean result = true;
       result = result && getDimensionIndexesList()
           .equals(other.getDimensionIndexesList());
       result = result && getInlineDimensionsList()
           .equals(other.getInlineDimensionsList());
+      result = result && getAbsentInlineDimensionsList()
+          .equals(other.getAbsentInlineDimensionsList());
       result = result && (getLast()
           == other.getLast());
+      result = result && getError()
+          .equals(other.getError());
       result = result && getValueCase().equals(
           other.getValueCase());
       if (!result) return false;
@@ -3612,9 +4045,15 @@ public final class ObservationsProto {
         hash = (37 * hash) + INLINEDIMENSIONS_FIELD_NUMBER;
         hash = (53 * hash) + getInlineDimensionsList().hashCode();
       }
+      if (getAbsentInlineDimensionsCount() > 0) {
+        hash = (37 * hash) + ABSENTINLINEDIMENSIONS_FIELD_NUMBER;
+        hash = (53 * hash) + getAbsentInlineDimensionsList().hashCode();
+      }
       hash = (37 * hash) + LAST_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getLast());
+      hash = (37 * hash) + ERROR_FIELD_NUMBER;
+      hash = (53 * hash) + getError().hashCode();
       switch (valueCase_) {
         case 3:
           hash = (37 * hash) + STRINGVALUE_FIELD_NUMBER;
@@ -3633,58 +4072,58 @@ public final class ObservationsProto {
       return hash;
     }
 
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation parseFrom(byte[] data)
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation parseFrom(java.io.InputStream input)
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation parseDelimitedFrom(java.io.InputStream input)
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation parseDelimitedFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -3696,7 +4135,7 @@ public final class ObservationsProto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation prototype) {
+    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -3711,25 +4150,25 @@ public final class ObservationsProto {
       return builder;
     }
     /**
-     * Protobuf type {@code hypercube.Observation}
+     * Protobuf type {@code hypercube.Cell}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:hypercube.Observation)
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.ObservationOrBuilder {
+        // @@protoc_insertion_point(builder_implements:hypercube.Cell)
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.CellOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Observation_descriptor;
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Cell_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Observation_fieldAccessorTable
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Cell_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation.Builder.class);
+                org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell.Builder.class);
       }
 
-      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation.newBuilder()
+      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -3755,7 +4194,11 @@ public final class ObservationsProto {
         } else {
           inlineDimensionsBuilder_.clear();
         }
+        absentInlineDimensions_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
         last_ = false;
+
+        error_ = "";
 
         valueCase_ = 0;
         value_ = null;
@@ -3764,23 +4207,23 @@ public final class ObservationsProto {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Observation_descriptor;
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Cell_descriptor;
       }
 
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation getDefaultInstanceForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation.getDefaultInstance();
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell getDefaultInstanceForType() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell.getDefaultInstance();
       }
 
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation build() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation result = buildPartial();
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell build() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation buildPartial() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation(this);
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell buildPartial() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
@@ -3797,6 +4240,11 @@ public final class ObservationsProto {
         } else {
           result.inlineDimensions_ = inlineDimensionsBuilder_.build();
         }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          absentInlineDimensions_ = java.util.Collections.unmodifiableList(absentInlineDimensions_);
+          bitField0_ = (bitField0_ & ~0x00000004);
+        }
+        result.absentInlineDimensions_ = absentInlineDimensions_;
         if (valueCase_ == 3) {
           result.value_ = value_;
         }
@@ -3804,6 +4252,7 @@ public final class ObservationsProto {
           result.value_ = value_;
         }
         result.last_ = last_;
+        result.error_ = error_;
         result.bitField0_ = to_bitField0_;
         result.valueCase_ = valueCase_;
         onBuilt();
@@ -3837,16 +4286,16 @@ public final class ObservationsProto {
         return (Builder) super.addRepeatedField(field, value);
       }
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation) {
-          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation)other);
+        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell) {
+          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation other) {
-        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation.getDefaultInstance()) return this;
+      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell other) {
+        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell.getDefaultInstance()) return this;
         if (!other.dimensionIndexes_.isEmpty()) {
           if (dimensionIndexes_.isEmpty()) {
             dimensionIndexes_ = other.dimensionIndexes_;
@@ -3883,8 +4332,22 @@ public final class ObservationsProto {
             }
           }
         }
+        if (!other.absentInlineDimensions_.isEmpty()) {
+          if (absentInlineDimensions_.isEmpty()) {
+            absentInlineDimensions_ = other.absentInlineDimensions_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+          } else {
+            ensureAbsentInlineDimensionsIsMutable();
+            absentInlineDimensions_.addAll(other.absentInlineDimensions_);
+          }
+          onChanged();
+        }
         if (other.getLast() != false) {
           setLast(other.getLast());
+        }
+        if (!other.getError().isEmpty()) {
+          error_ = other.error_;
+          onChanged();
         }
         switch (other.getValueCase()) {
           case STRINGVALUE: {
@@ -3913,11 +4376,11 @@ public final class ObservationsProto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation parsedMessage = null;
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation) e.getUnfinishedMessage();
+          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -4072,7 +4535,7 @@ public final class ObservationsProto {
 
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4086,7 +4549,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4100,7 +4563,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4114,7 +4577,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4135,7 +4598,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4153,7 +4616,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4173,7 +4636,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4194,7 +4657,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4212,7 +4675,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4230,7 +4693,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4249,7 +4712,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4266,7 +4729,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4283,7 +4746,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4294,7 +4757,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4308,7 +4771,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4323,7 +4786,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4334,7 +4797,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4346,7 +4809,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A single element for each inline dimension, in the order used in the header.
+       * A single element for each inline dimension, in the order used in the header. Absent dimensions are skipped.
        * </pre>
        *
        * <code>repeated .hypercube.DimensionElement inlineDimensions = 2;</code>
@@ -4368,6 +4831,100 @@ public final class ObservationsProto {
           inlineDimensions_ = null;
         }
         return inlineDimensionsBuilder_;
+      }
+
+      private java.util.List<java.lang.Integer> absentInlineDimensions_ = java.util.Collections.emptyList();
+      private void ensureAbsentInlineDimensionsIsMutable() {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+          absentInlineDimensions_ = new java.util.ArrayList<java.lang.Integer>(absentInlineDimensions_);
+          bitField0_ |= 0x00000004;
+         }
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getAbsentInlineDimensionsList() {
+        return java.util.Collections.unmodifiableList(absentInlineDimensions_);
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public int getAbsentInlineDimensionsCount() {
+        return absentInlineDimensions_.size();
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public int getAbsentInlineDimensions(int index) {
+        return absentInlineDimensions_.get(index);
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public Builder setAbsentInlineDimensions(
+          int index, int value) {
+        ensureAbsentInlineDimensionsIsMutable();
+        absentInlineDimensions_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public Builder addAbsentInlineDimensions(int value) {
+        ensureAbsentInlineDimensionsIsMutable();
+        absentInlineDimensions_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public Builder addAllAbsentInlineDimensions(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureAbsentInlineDimensionsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, absentInlineDimensions_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * indexes of absent dimensions (1-based)
+       * </pre>
+       *
+       * <code>repeated int32 absentInlineDimensions = 5;</code>
+       */
+      public Builder clearAbsentInlineDimensions() {
+        absentInlineDimensions_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
       }
 
       /**
@@ -4517,6 +5074,95 @@ public final class ObservationsProto {
         onChanged();
         return this;
       }
+
+      private java.lang.Object error_ = "";
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public java.lang.String getError() {
+        java.lang.Object ref = error_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          error_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrorBytes() {
+        java.lang.Object ref = error_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          error_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setError(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        error_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder clearError() {
+        
+        error_ = getDefaultInstance().getError();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setErrorBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        error_ = value;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -4528,46 +5174,46 @@ public final class ObservationsProto {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:hypercube.Observation)
+      // @@protoc_insertion_point(builder_scope:hypercube.Cell)
     }
 
-    // @@protoc_insertion_point(class_scope:hypercube.Observation)
-    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:hypercube.Cell)
+    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation();
+      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell();
     }
 
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation getDefaultInstance() {
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<Observation>
-        PARSER = new com.google.protobuf.AbstractParser<Observation>() {
-      public Observation parsePartialFrom(
+    private static final com.google.protobuf.Parser<Cell>
+        PARSER = new com.google.protobuf.AbstractParser<Cell>() {
+      public Cell parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-          return new Observation(input, extensionRegistry);
+          return new Cell(input, extensionRegistry);
       }
     };
 
-    public static com.google.protobuf.Parser<Observation> parser() {
+    public static com.google.protobuf.Parser<Cell> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<Observation> getParserForType() {
+    public com.google.protobuf.Parser<Cell> getParserForType() {
       return PARSER;
     }
 
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Observation getDefaultInstanceForType() {
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Cell getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
   }
 
-  public interface PackedObservationOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:hypercube.PackedObservation)
+  public interface PackedCellOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:hypercube.PackedCell)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -4712,41 +5358,49 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * The number of entries in either stringValues or numericValues, i.e., the number of observations represented
-     * by this message.
-     * </pre>
-     *
-     * <code>optional int32 numObervations = 5;</code>
-     */
-    int getNumObervations();
-
-    /**
-     * <pre>
      * default: false
      * </pre>
      *
      * <code>optional bool last = 7;</code>
      */
     boolean getLast();
+
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    java.lang.String getError();
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorBytes();
   }
   /**
-   * Protobuf type {@code hypercube.PackedObservation}
+   * Protobuf type {@code hypercube.PackedCell}
    */
-  public  static final class PackedObservation extends
+  public  static final class PackedCell extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:hypercube.PackedObservation)
-      PackedObservationOrBuilder {
-    // Use PackedObservation.newBuilder() to construct.
-    private PackedObservation(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      // @@protoc_insertion_point(message_implements:hypercube.PackedCell)
+      PackedCellOrBuilder {
+    // Use PackedCell.newBuilder() to construct.
+    private PackedCell(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-    private PackedObservation() {
+    private PackedCell() {
       dimensionIndexes_ = java.util.Collections.emptyList();
       inlineDimensions_ = java.util.Collections.emptyList();
       stringValues_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       numericValues_ = java.util.Collections.emptyList();
-      numObervations_ = 0;
       last_ = false;
+      error_ = "";
     }
 
     @java.lang.Override
@@ -4754,7 +5408,7 @@ public final class ObservationsProto {
     getUnknownFields() {
       return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
-    private PackedObservation(
+    private PackedCell(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -4834,14 +5488,15 @@ public final class ObservationsProto {
               input.popLimit(limit);
               break;
             }
-            case 40: {
-
-              numObervations_ = input.readInt32();
-              break;
-            }
             case 56: {
 
               last_ = input.readBool();
+              break;
+            }
+            case 794: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              error_ = s;
               break;
             }
           }
@@ -4869,14 +5524,14 @@ public final class ObservationsProto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_PackedObservation_descriptor;
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_PackedCell_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_PackedObservation_fieldAccessorTable
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_PackedCell_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation.Builder.class);
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell.Builder.class);
     }
 
     private int bitField0_;
@@ -5061,20 +5716,6 @@ public final class ObservationsProto {
     }
     private int numericValuesMemoizedSerializedSize = -1;
 
-    public static final int NUMOBERVATIONS_FIELD_NUMBER = 5;
-    private int numObervations_;
-    /**
-     * <pre>
-     * The number of entries in either stringValues or numericValues, i.e., the number of observations represented
-     * by this message.
-     * </pre>
-     *
-     * <code>optional int32 numObervations = 5;</code>
-     */
-    public int getNumObervations() {
-      return numObervations_;
-    }
-
     public static final int LAST_FIELD_NUMBER = 7;
     private boolean last_;
     /**
@@ -5086,6 +5727,48 @@ public final class ObservationsProto {
      */
     public boolean getLast() {
       return last_;
+    }
+
+    public static final int ERROR_FIELD_NUMBER = 99;
+    private volatile java.lang.Object error_;
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public java.lang.String getError() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        error_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorBytes() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        error_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     private byte memoizedIsInitialized = -1;
@@ -5121,11 +5804,11 @@ public final class ObservationsProto {
       for (int i = 0; i < numericValues_.size(); i++) {
         output.writeDoubleNoTag(numericValues_.get(i));
       }
-      if (numObervations_ != 0) {
-        output.writeInt32(5, numObervations_);
-      }
       if (last_ != false) {
         output.writeBool(7, last_);
+      }
+      if (!getErrorBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
       }
     }
 
@@ -5171,13 +5854,12 @@ public final class ObservationsProto {
         }
         numericValuesMemoizedSerializedSize = dataSize;
       }
-      if (numObervations_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(5, numObervations_);
-      }
       if (last_ != false) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(7, last_);
+      }
+      if (!getErrorBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
       }
       memoizedSize = size;
       return size;
@@ -5189,10 +5871,10 @@ public final class ObservationsProto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation)) {
+      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell)) {
         return super.equals(obj);
       }
-      org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation) obj;
+      org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell) obj;
 
       boolean result = true;
       result = result && getDimensionIndexesList()
@@ -5203,10 +5885,10 @@ public final class ObservationsProto {
           .equals(other.getStringValuesList());
       result = result && getNumericValuesList()
           .equals(other.getNumericValuesList());
-      result = result && (getNumObervations()
-          == other.getNumObervations());
       result = result && (getLast()
           == other.getLast());
+      result = result && getError()
+          .equals(other.getError());
       return result;
     }
 
@@ -5233,68 +5915,68 @@ public final class ObservationsProto {
         hash = (37 * hash) + NUMERICVALUES_FIELD_NUMBER;
         hash = (53 * hash) + getNumericValuesList().hashCode();
       }
-      hash = (37 * hash) + NUMOBERVATIONS_FIELD_NUMBER;
-      hash = (53 * hash) + getNumObervations();
       hash = (37 * hash) + LAST_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
           getLast());
+      hash = (37 * hash) + ERROR_FIELD_NUMBER;
+      hash = (53 * hash) + getError().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
     }
 
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation parseFrom(byte[] data)
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation parseFrom(java.io.InputStream input)
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation parseDelimitedFrom(java.io.InputStream input)
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation parseDelimitedFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -5306,7 +5988,7 @@ public final class ObservationsProto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation prototype) {
+    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -5321,25 +6003,25 @@ public final class ObservationsProto {
       return builder;
     }
     /**
-     * Protobuf type {@code hypercube.PackedObservation}
+     * Protobuf type {@code hypercube.PackedCell}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:hypercube.PackedObservation)
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservationOrBuilder {
+        // @@protoc_insertion_point(builder_implements:hypercube.PackedCell)
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCellOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_PackedObservation_descriptor;
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_PackedCell_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_PackedObservation_fieldAccessorTable
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_PackedCell_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation.Builder.class);
+                org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell.Builder.class);
       }
 
-      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation.newBuilder()
+      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -5369,32 +6051,32 @@ public final class ObservationsProto {
         bitField0_ = (bitField0_ & ~0x00000004);
         numericValues_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000008);
-        numObervations_ = 0;
-
         last_ = false;
+
+        error_ = "";
 
         return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_PackedObservation_descriptor;
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_PackedCell_descriptor;
       }
 
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation getDefaultInstanceForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation.getDefaultInstance();
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell getDefaultInstanceForType() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell.getDefaultInstance();
       }
 
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation build() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation result = buildPartial();
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell build() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation buildPartial() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation(this);
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell buildPartial() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
@@ -5421,8 +6103,8 @@ public final class ObservationsProto {
           bitField0_ = (bitField0_ & ~0x00000008);
         }
         result.numericValues_ = numericValues_;
-        result.numObervations_ = numObervations_;
         result.last_ = last_;
+        result.error_ = error_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -5455,16 +6137,16 @@ public final class ObservationsProto {
         return (Builder) super.addRepeatedField(field, value);
       }
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation) {
-          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation)other);
+        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell) {
+          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation other) {
-        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation.getDefaultInstance()) return this;
+      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell other) {
+        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell.getDefaultInstance()) return this;
         if (!other.dimensionIndexes_.isEmpty()) {
           if (dimensionIndexes_.isEmpty()) {
             dimensionIndexes_ = other.dimensionIndexes_;
@@ -5521,11 +6203,12 @@ public final class ObservationsProto {
           }
           onChanged();
         }
-        if (other.getNumObervations() != 0) {
-          setNumObervations(other.getNumObervations());
-        }
         if (other.getLast() != false) {
           setLast(other.getLast());
+        }
+        if (!other.getError().isEmpty()) {
+          error_ = other.error_;
+          onChanged();
         }
         onChanged();
         return this;
@@ -5539,11 +6222,11 @@ public final class ObservationsProto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation parsedMessage = null;
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation) e.getUnfinishedMessage();
+          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -6228,47 +6911,6 @@ public final class ObservationsProto {
         return this;
       }
 
-      private int numObervations_ ;
-      /**
-       * <pre>
-       * The number of entries in either stringValues or numericValues, i.e., the number of observations represented
-       * by this message.
-       * </pre>
-       *
-       * <code>optional int32 numObervations = 5;</code>
-       */
-      public int getNumObervations() {
-        return numObervations_;
-      }
-      /**
-       * <pre>
-       * The number of entries in either stringValues or numericValues, i.e., the number of observations represented
-       * by this message.
-       * </pre>
-       *
-       * <code>optional int32 numObervations = 5;</code>
-       */
-      public Builder setNumObervations(int value) {
-        
-        numObervations_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       * The number of entries in either stringValues or numericValues, i.e., the number of observations represented
-       * by this message.
-       * </pre>
-       *
-       * <code>optional int32 numObervations = 5;</code>
-       */
-      public Builder clearNumObervations() {
-        
-        numObervations_ = 0;
-        onChanged();
-        return this;
-      }
-
       private boolean last_ ;
       /**
        * <pre>
@@ -6306,2179 +6948,92 @@ public final class ObservationsProto {
         onChanged();
         return this;
       }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
 
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:hypercube.PackedObservation)
-    }
-
-    // @@protoc_insertion_point(class_scope:hypercube.PackedObservation)
-    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation();
-    }
-
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<PackedObservation>
-        PARSER = new com.google.protobuf.AbstractParser<PackedObservation>() {
-      public PackedObservation parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-          return new PackedObservation(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<PackedObservation> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<PackedObservation> getParserForType() {
-      return PARSER;
-    }
-
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedObservation getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface IntValueOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:hypercube.IntValue)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>optional sint64 val = 1;</code>
-     */
-    long getVal();
-
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.ValueCase getValueCase();
-  }
-  /**
-   * <pre>
-   * Nullable long value type
-   * </pre>
-   *
-   * Protobuf type {@code hypercube.IntValue}
-   */
-  public  static final class IntValue extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:hypercube.IntValue)
-      IntValueOrBuilder {
-    // Use IntValue.newBuilder() to construct.
-    private IntValue(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private IntValue() {
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-    }
-    private IntValue(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      int mutable_bitField0_ = 0;
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!input.skipField(tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 8: {
-              valueCase_ = 1;
-              value_ = input.readSInt64();
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_IntValue_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_IntValue_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder.class);
-    }
-
-    private int valueCase_ = 0;
-    private java.lang.Object value_;
-    public enum ValueCase
-        implements com.google.protobuf.Internal.EnumLite {
-      VAL(1),
-      VALUE_NOT_SET(0);
-      private final int value;
-      private ValueCase(int value) {
-        this.value = value;
-      }
+      private java.lang.Object error_ = "";
       /**
-       * @deprecated Use {@link #forNumber(int)} instead.
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
        */
-      @java.lang.Deprecated
-      public static ValueCase valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static ValueCase forNumber(int value) {
-        switch (value) {
-          case 1: return VAL;
-          case 0: return VALUE_NOT_SET;
-          default: return null;
-        }
-      }
-      public int getNumber() {
-        return this.value;
-      }
-    };
-
-    public ValueCase
-    getValueCase() {
-      return ValueCase.forNumber(
-          valueCase_);
-    }
-
-    public static final int VAL_FIELD_NUMBER = 1;
-    /**
-     * <code>optional sint64 val = 1;</code>
-     */
-    public long getVal() {
-      if (valueCase_ == 1) {
-        return (java.lang.Long) value_;
-      }
-      return 0L;
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (valueCase_ == 1) {
-        output.writeSInt64(
-            1, (long)((java.lang.Long) value_));
-      }
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (valueCase_ == 1) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeSInt64Size(
-              1, (long)((java.lang.Long) value_));
-      }
-      memoizedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue)) {
-        return super.equals(obj);
-      }
-      org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) obj;
-
-      boolean result = true;
-      result = result && getValueCase().equals(
-          other.getValueCase());
-      if (!result) return false;
-      switch (valueCase_) {
-        case 1:
-          result = result && (getVal()
-              == other.getVal());
-          break;
-        case 0:
-        default:
-      }
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
-      switch (valueCase_) {
-        case 1:
-          hash = (37 * hash) + VAL_FIELD_NUMBER;
-          hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-              getVal());
-          break;
-        case 0:
-        default:
-      }
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * <pre>
-     * Nullable long value type
-     * </pre>
-     *
-     * Protobuf type {@code hypercube.IntValue}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:hypercube.IntValue)
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_IntValue_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_IntValue_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder.class);
-      }
-
-      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        valueCase_ = 0;
-        value_ = null;
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_IntValue_descriptor;
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getDefaultInstanceForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance();
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue build() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue buildPartial() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue(this);
-        if (valueCase_ == 1) {
-          result.value_ = value_;
-        }
-        result.valueCase_ = valueCase_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) {
-          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue other) {
-        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance()) return this;
-        switch (other.getValueCase()) {
-          case VAL: {
-            setVal(other.getVal());
-            break;
-          }
-          case VALUE_NOT_SET: {
-            break;
-          }
-        }
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int valueCase_ = 0;
-      private java.lang.Object value_;
-      public ValueCase
-          getValueCase() {
-        return ValueCase.forNumber(
-            valueCase_);
-      }
-
-      public Builder clearValue() {
-        valueCase_ = 0;
-        value_ = null;
-        onChanged();
-        return this;
-      }
-
-
-      /**
-       * <code>optional sint64 val = 1;</code>
-       */
-      public long getVal() {
-        if (valueCase_ == 1) {
-          return (java.lang.Long) value_;
-        }
-        return 0L;
-      }
-      /**
-       * <code>optional sint64 val = 1;</code>
-       */
-      public Builder setVal(long value) {
-        valueCase_ = 1;
-        value_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional sint64 val = 1;</code>
-       */
-      public Builder clearVal() {
-        if (valueCase_ == 1) {
-          valueCase_ = 0;
-          value_ = null;
-          onChanged();
-        }
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:hypercube.IntValue)
-    }
-
-    // @@protoc_insertion_point(class_scope:hypercube.IntValue)
-    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue();
-    }
-
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<IntValue>
-        PARSER = new com.google.protobuf.AbstractParser<IntValue>() {
-      public IntValue parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-          return new IntValue(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<IntValue> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<IntValue> getParserForType() {
-      return PARSER;
-    }
-
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface TimestampValueOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:hypercube.TimestampValue)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>optional sint64 val = 1;</code>
-     */
-    long getVal();
-
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.ValueCase getValueCase();
-  }
-  /**
-   * <pre>
-   * Nullable timestamp value type
-   * </pre>
-   *
-   * Protobuf type {@code hypercube.TimestampValue}
-   */
-  public  static final class TimestampValue extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:hypercube.TimestampValue)
-      TimestampValueOrBuilder {
-    // Use TimestampValue.newBuilder() to construct.
-    private TimestampValue(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private TimestampValue() {
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-    }
-    private TimestampValue(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      int mutable_bitField0_ = 0;
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!input.skipField(tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 8: {
-              valueCase_ = 1;
-              value_ = input.readSInt64();
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_TimestampValue_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_TimestampValue_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder.class);
-    }
-
-    private int valueCase_ = 0;
-    private java.lang.Object value_;
-    public enum ValueCase
-        implements com.google.protobuf.Internal.EnumLite {
-      VAL(1),
-      VALUE_NOT_SET(0);
-      private final int value;
-      private ValueCase(int value) {
-        this.value = value;
-      }
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static ValueCase valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static ValueCase forNumber(int value) {
-        switch (value) {
-          case 1: return VAL;
-          case 0: return VALUE_NOT_SET;
-          default: return null;
-        }
-      }
-      public int getNumber() {
-        return this.value;
-      }
-    };
-
-    public ValueCase
-    getValueCase() {
-      return ValueCase.forNumber(
-          valueCase_);
-    }
-
-    public static final int VAL_FIELD_NUMBER = 1;
-    /**
-     * <code>optional sint64 val = 1;</code>
-     */
-    public long getVal() {
-      if (valueCase_ == 1) {
-        return (java.lang.Long) value_;
-      }
-      return 0L;
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (valueCase_ == 1) {
-        output.writeSInt64(
-            1, (long)((java.lang.Long) value_));
-      }
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (valueCase_ == 1) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeSInt64Size(
-              1, (long)((java.lang.Long) value_));
-      }
-      memoizedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue)) {
-        return super.equals(obj);
-      }
-      org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) obj;
-
-      boolean result = true;
-      result = result && getValueCase().equals(
-          other.getValueCase());
-      if (!result) return false;
-      switch (valueCase_) {
-        case 1:
-          result = result && (getVal()
-              == other.getVal());
-          break;
-        case 0:
-        default:
-      }
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
-      switch (valueCase_) {
-        case 1:
-          hash = (37 * hash) + VAL_FIELD_NUMBER;
-          hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-              getVal());
-          break;
-        case 0:
-        default:
-      }
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * <pre>
-     * Nullable timestamp value type
-     * </pre>
-     *
-     * Protobuf type {@code hypercube.TimestampValue}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:hypercube.TimestampValue)
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_TimestampValue_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_TimestampValue_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder.class);
-      }
-
-      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        valueCase_ = 0;
-        value_ = null;
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_TimestampValue_descriptor;
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getDefaultInstanceForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance();
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue build() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue buildPartial() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue(this);
-        if (valueCase_ == 1) {
-          result.value_ = value_;
-        }
-        result.valueCase_ = valueCase_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) {
-          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue other) {
-        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance()) return this;
-        switch (other.getValueCase()) {
-          case VAL: {
-            setVal(other.getVal());
-            break;
-          }
-          case VALUE_NOT_SET: {
-            break;
-          }
-        }
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int valueCase_ = 0;
-      private java.lang.Object value_;
-      public ValueCase
-          getValueCase() {
-        return ValueCase.forNumber(
-            valueCase_);
-      }
-
-      public Builder clearValue() {
-        valueCase_ = 0;
-        value_ = null;
-        onChanged();
-        return this;
-      }
-
-
-      /**
-       * <code>optional sint64 val = 1;</code>
-       */
-      public long getVal() {
-        if (valueCase_ == 1) {
-          return (java.lang.Long) value_;
-        }
-        return 0L;
-      }
-      /**
-       * <code>optional sint64 val = 1;</code>
-       */
-      public Builder setVal(long value) {
-        valueCase_ = 1;
-        value_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional sint64 val = 1;</code>
-       */
-      public Builder clearVal() {
-        if (valueCase_ == 1) {
-          valueCase_ = 0;
-          value_ = null;
-          onChanged();
-        }
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:hypercube.TimestampValue)
-    }
-
-    // @@protoc_insertion_point(class_scope:hypercube.TimestampValue)
-    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue();
-    }
-
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<TimestampValue>
-        PARSER = new com.google.protobuf.AbstractParser<TimestampValue>() {
-      public TimestampValue parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-          return new TimestampValue(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<TimestampValue> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<TimestampValue> getParserForType() {
-      return PARSER;
-    }
-
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface DoubleValueOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:hypercube.DoubleValue)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>optional double val = 1;</code>
-     */
-    double getVal();
-
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.ValueCase getValueCase();
-  }
-  /**
-   * <pre>
-   * Nullable double value type
-   * </pre>
-   *
-   * Protobuf type {@code hypercube.DoubleValue}
-   */
-  public  static final class DoubleValue extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:hypercube.DoubleValue)
-      DoubleValueOrBuilder {
-    // Use DoubleValue.newBuilder() to construct.
-    private DoubleValue(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private DoubleValue() {
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-    }
-    private DoubleValue(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      int mutable_bitField0_ = 0;
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!input.skipField(tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 9: {
-              valueCase_ = 1;
-              value_ = input.readDouble();
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DoubleValue_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DoubleValue_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder.class);
-    }
-
-    private int valueCase_ = 0;
-    private java.lang.Object value_;
-    public enum ValueCase
-        implements com.google.protobuf.Internal.EnumLite {
-      VAL(1),
-      VALUE_NOT_SET(0);
-      private final int value;
-      private ValueCase(int value) {
-        this.value = value;
-      }
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static ValueCase valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static ValueCase forNumber(int value) {
-        switch (value) {
-          case 1: return VAL;
-          case 0: return VALUE_NOT_SET;
-          default: return null;
-        }
-      }
-      public int getNumber() {
-        return this.value;
-      }
-    };
-
-    public ValueCase
-    getValueCase() {
-      return ValueCase.forNumber(
-          valueCase_);
-    }
-
-    public static final int VAL_FIELD_NUMBER = 1;
-    /**
-     * <code>optional double val = 1;</code>
-     */
-    public double getVal() {
-      if (valueCase_ == 1) {
-        return (java.lang.Double) value_;
-      }
-      return 0D;
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (valueCase_ == 1) {
-        output.writeDouble(
-            1, (double)((java.lang.Double) value_));
-      }
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (valueCase_ == 1) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(
-              1, (double)((java.lang.Double) value_));
-      }
-      memoizedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue)) {
-        return super.equals(obj);
-      }
-      org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) obj;
-
-      boolean result = true;
-      result = result && getValueCase().equals(
-          other.getValueCase());
-      if (!result) return false;
-      switch (valueCase_) {
-        case 1:
-          result = result && (
-              java.lang.Double.doubleToLongBits(getVal())
-              == java.lang.Double.doubleToLongBits(
-                  other.getVal()));
-          break;
-        case 0:
-        default:
-      }
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
-      switch (valueCase_) {
-        case 1:
-          hash = (37 * hash) + VAL_FIELD_NUMBER;
-          hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-              java.lang.Double.doubleToLongBits(getVal()));
-          break;
-        case 0:
-        default:
-      }
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * <pre>
-     * Nullable double value type
-     * </pre>
-     *
-     * Protobuf type {@code hypercube.DoubleValue}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:hypercube.DoubleValue)
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DoubleValue_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DoubleValue_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder.class);
-      }
-
-      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        valueCase_ = 0;
-        value_ = null;
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DoubleValue_descriptor;
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDefaultInstanceForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance();
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue build() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue buildPartial() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue(this);
-        if (valueCase_ == 1) {
-          result.value_ = value_;
-        }
-        result.valueCase_ = valueCase_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) {
-          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue other) {
-        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance()) return this;
-        switch (other.getValueCase()) {
-          case VAL: {
-            setVal(other.getVal());
-            break;
-          }
-          case VALUE_NOT_SET: {
-            break;
-          }
-        }
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int valueCase_ = 0;
-      private java.lang.Object value_;
-      public ValueCase
-          getValueCase() {
-        return ValueCase.forNumber(
-            valueCase_);
-      }
-
-      public Builder clearValue() {
-        valueCase_ = 0;
-        value_ = null;
-        onChanged();
-        return this;
-      }
-
-
-      /**
-       * <code>optional double val = 1;</code>
-       */
-      public double getVal() {
-        if (valueCase_ == 1) {
-          return (java.lang.Double) value_;
-        }
-        return 0D;
-      }
-      /**
-       * <code>optional double val = 1;</code>
-       */
-      public Builder setVal(double value) {
-        valueCase_ = 1;
-        value_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional double val = 1;</code>
-       */
-      public Builder clearVal() {
-        if (valueCase_ == 1) {
-          valueCase_ = 0;
-          value_ = null;
-          onChanged();
-        }
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:hypercube.DoubleValue)
-    }
-
-    // @@protoc_insertion_point(class_scope:hypercube.DoubleValue)
-    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue();
-    }
-
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<DoubleValue>
-        PARSER = new com.google.protobuf.AbstractParser<DoubleValue>() {
-      public DoubleValue parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-          return new DoubleValue(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<DoubleValue> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<DoubleValue> getParserForType() {
-      return PARSER;
-    }
-
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface StringValueOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:hypercube.StringValue)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>optional string val = 1;</code>
-     */
-    java.lang.String getVal();
-    /**
-     * <code>optional string val = 1;</code>
-     */
-    com.google.protobuf.ByteString
-        getValBytes();
-
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.ValueCase getValueCase();
-  }
-  /**
-   * <pre>
-   * Nullable string value type
-   * </pre>
-   *
-   * Protobuf type {@code hypercube.StringValue}
-   */
-  public  static final class StringValue extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:hypercube.StringValue)
-      StringValueOrBuilder {
-    // Use StringValue.newBuilder() to construct.
-    private StringValue(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private StringValue() {
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-    }
-    private StringValue(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      int mutable_bitField0_ = 0;
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!input.skipField(tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 10: {
-              java.lang.String s = input.readStringRequireUtf8();
-              valueCase_ = 1;
-              value_ = s;
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_StringValue_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_StringValue_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder.class);
-    }
-
-    private int valueCase_ = 0;
-    private java.lang.Object value_;
-    public enum ValueCase
-        implements com.google.protobuf.Internal.EnumLite {
-      VAL(1),
-      VALUE_NOT_SET(0);
-      private final int value;
-      private ValueCase(int value) {
-        this.value = value;
-      }
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static ValueCase valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static ValueCase forNumber(int value) {
-        switch (value) {
-          case 1: return VAL;
-          case 0: return VALUE_NOT_SET;
-          default: return null;
-        }
-      }
-      public int getNumber() {
-        return this.value;
-      }
-    };
-
-    public ValueCase
-    getValueCase() {
-      return ValueCase.forNumber(
-          valueCase_);
-    }
-
-    public static final int VAL_FIELD_NUMBER = 1;
-    /**
-     * <code>optional string val = 1;</code>
-     */
-    public java.lang.String getVal() {
-      java.lang.Object ref = "";
-      if (valueCase_ == 1) {
-        ref = value_;
-      }
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (valueCase_ == 1) {
-          value_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string val = 1;</code>
-     */
-    public com.google.protobuf.ByteString
-        getValBytes() {
-      java.lang.Object ref = "";
-      if (valueCase_ == 1) {
-        ref = value_;
-      }
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        if (valueCase_ == 1) {
-          value_ = b;
-        }
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (valueCase_ == 1) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, value_);
-      }
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (valueCase_ == 1) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, value_);
-      }
-      memoizedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue)) {
-        return super.equals(obj);
-      }
-      org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) obj;
-
-      boolean result = true;
-      result = result && getValueCase().equals(
-          other.getValueCase());
-      if (!result) return false;
-      switch (valueCase_) {
-        case 1:
-          result = result && getVal()
-              .equals(other.getVal());
-          break;
-        case 0:
-        default:
-      }
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
-      switch (valueCase_) {
-        case 1:
-          hash = (37 * hash) + VAL_FIELD_NUMBER;
-          hash = (53 * hash) + getVal().hashCode();
-          break;
-        case 0:
-        default:
-      }
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * <pre>
-     * Nullable string value type
-     * </pre>
-     *
-     * Protobuf type {@code hypercube.StringValue}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:hypercube.StringValue)
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_StringValue_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_StringValue_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder.class);
-      }
-
-      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        valueCase_ = 0;
-        value_ = null;
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_StringValue_descriptor;
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getDefaultInstanceForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance();
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue build() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue buildPartial() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue(this);
-        if (valueCase_ == 1) {
-          result.value_ = value_;
-        }
-        result.valueCase_ = valueCase_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) {
-          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue other) {
-        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance()) return this;
-        switch (other.getValueCase()) {
-          case VAL: {
-            valueCase_ = 1;
-            value_ = other.value_;
-            onChanged();
-            break;
-          }
-          case VALUE_NOT_SET: {
-            break;
-          }
-        }
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int valueCase_ = 0;
-      private java.lang.Object value_;
-      public ValueCase
-          getValueCase() {
-        return ValueCase.forNumber(
-            valueCase_);
-      }
-
-      public Builder clearValue() {
-        valueCase_ = 0;
-        value_ = null;
-        onChanged();
-        return this;
-      }
-
-
-      /**
-       * <code>optional string val = 1;</code>
-       */
-      public java.lang.String getVal() {
-        java.lang.Object ref = "";
-        if (valueCase_ == 1) {
-          ref = value_;
-        }
+      public java.lang.String getError() {
+        java.lang.Object ref = error_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (valueCase_ == 1) {
-            value_ = s;
-          }
+          error_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
       /**
-       * <code>optional string val = 1;</code>
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
        */
       public com.google.protobuf.ByteString
-          getValBytes() {
-        java.lang.Object ref = "";
-        if (valueCase_ == 1) {
-          ref = value_;
-        }
+          getErrorBytes() {
+        java.lang.Object ref = error_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          if (valueCase_ == 1) {
-            value_ = b;
-          }
+          error_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>optional string val = 1;</code>
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
        */
-      public Builder setVal(
+      public Builder setError(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  valueCase_ = 1;
-        value_ = value;
+  
+        error_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string val = 1;</code>
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
        */
-      public Builder clearVal() {
-        if (valueCase_ == 1) {
-          valueCase_ = 0;
-          value_ = null;
-          onChanged();
-        }
+      public Builder clearError() {
+        
+        error_ = getDefaultInstance().getError();
+        onChanged();
         return this;
       }
       /**
-       * <code>optional string val = 1;</code>
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
        */
-      public Builder setValBytes(
+      public Builder setErrorBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
-        valueCase_ = 1;
-        value_ = value;
+        
+        error_ = value;
         onChanged();
         return this;
       }
@@ -8493,39 +7048,39 @@ public final class ObservationsProto {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:hypercube.StringValue)
+      // @@protoc_insertion_point(builder_scope:hypercube.PackedCell)
     }
 
-    // @@protoc_insertion_point(class_scope:hypercube.StringValue)
-    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:hypercube.PackedCell)
+    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue();
+      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell();
     }
 
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getDefaultInstance() {
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<StringValue>
-        PARSER = new com.google.protobuf.AbstractParser<StringValue>() {
-      public StringValue parsePartialFrom(
+    private static final com.google.protobuf.Parser<PackedCell>
+        PARSER = new com.google.protobuf.AbstractParser<PackedCell>() {
+      public PackedCell parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-          return new StringValue(input, extensionRegistry);
+          return new PackedCell(input, extensionRegistry);
       }
     };
 
-    public static com.google.protobuf.Parser<StringValue> parser() {
+    public static com.google.protobuf.Parser<PackedCell> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<StringValue> getParserForType() {
+    public com.google.protobuf.Parser<PackedCell> getParserForType() {
       return PARSER;
     }
 
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getDefaultInstanceForType() {
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.PackedCell getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -8537,10 +7092,10 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -8549,10 +7104,10 @@ public final class ObservationsProto {
         getFieldsList();
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -8560,10 +7115,10 @@ public final class ObservationsProto {
     org.transmartproject.rest.hypercubeProto.ObservationsProto.Value getFields(int index);
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -8571,10 +7126,10 @@ public final class ObservationsProto {
     int getFieldsCount();
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -8583,10 +7138,10 @@ public final class ObservationsProto {
         getFieldsOrBuilderList();
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -8595,56 +7150,54 @@ public final class ObservationsProto {
         int index);
 
     /**
-     * <code>optional .hypercube.IntValue intValue = 2;</code>
+     * <code>optional sint64 intValue = 2;</code>
      */
-    boolean hasIntValue();
-    /**
-     * <code>optional .hypercube.IntValue intValue = 2;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getIntValue();
-    /**
-     * <code>optional .hypercube.IntValue intValue = 2;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder getIntValueOrBuilder();
+    long getIntValue();
 
     /**
-     * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
+     * <code>optional double doubleValue = 3;</code>
      */
-    boolean hasDoubleValue();
-    /**
-     * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDoubleValue();
-    /**
-     * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder getDoubleValueOrBuilder();
+    double getDoubleValue();
 
     /**
-     * <code>optional .hypercube.StringValue stringValue = 4;</code>
+     * <code>optional string stringValue = 4;</code>
      */
-    boolean hasStringValue();
+    java.lang.String getStringValue();
     /**
-     * <code>optional .hypercube.StringValue stringValue = 4;</code>
+     * <code>optional string stringValue = 4;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getStringValue();
-    /**
-     * <code>optional .hypercube.StringValue stringValue = 4;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder getStringValueOrBuilder();
+    com.google.protobuf.ByteString
+        getStringValueBytes();
 
     /**
-     * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
+     * <code>optional int64 timestampValue = 5;</code>
      */
-    boolean hasTimestampValue();
+    long getTimestampValue();
+
     /**
-     * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getTimestampValue();
+    java.util.List<java.lang.Integer> getAbsentFieldIndicesList();
     /**
-     * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder getTimestampValueOrBuilder();
+    int getAbsentFieldIndicesCount();
+    /**
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
+     */
+    int getAbsentFieldIndices(int index);
   }
   /**
    * <pre>
@@ -8663,6 +7216,11 @@ public final class ObservationsProto {
     }
     private DimensionElement() {
       fields_ = java.util.Collections.emptyList();
+      intValue_ = 0L;
+      doubleValue_ = 0D;
+      stringValue_ = "";
+      timestampValue_ = 0L;
+      absentFieldIndices_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -8699,56 +7257,46 @@ public final class ObservationsProto {
                   input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.parser(), extensionRegistry));
               break;
             }
-            case 18: {
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder subBuilder = null;
-              if (intValue_ != null) {
-                subBuilder = intValue_.toBuilder();
-              }
-              intValue_ = input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(intValue_);
-                intValue_ = subBuilder.buildPartial();
-              }
+            case 16: {
 
+              intValue_ = input.readSInt64();
               break;
             }
-            case 26: {
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder subBuilder = null;
-              if (doubleValue_ != null) {
-                subBuilder = doubleValue_.toBuilder();
-              }
-              doubleValue_ = input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(doubleValue_);
-                doubleValue_ = subBuilder.buildPartial();
-              }
+            case 25: {
 
+              doubleValue_ = input.readDouble();
               break;
             }
             case 34: {
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder subBuilder = null;
-              if (stringValue_ != null) {
-                subBuilder = stringValue_.toBuilder();
-              }
-              stringValue_ = input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(stringValue_);
-                stringValue_ = subBuilder.buildPartial();
-              }
+              java.lang.String s = input.readStringRequireUtf8();
 
+              stringValue_ = s;
               break;
             }
-            case 42: {
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder subBuilder = null;
-              if (timestampValue_ != null) {
-                subBuilder = timestampValue_.toBuilder();
-              }
-              timestampValue_ = input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(timestampValue_);
-                timestampValue_ = subBuilder.buildPartial();
-              }
+            case 40: {
 
+              timestampValue_ = input.readInt64();
+              break;
+            }
+            case 48: {
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+                absentFieldIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000020;
+              }
+              absentFieldIndices_.add(input.readInt32());
+              break;
+            }
+            case 50: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020) && input.getBytesUntilLimit() > 0) {
+                absentFieldIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000020;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                absentFieldIndices_.add(input.readInt32());
+              }
+              input.popLimit(limit);
               break;
             }
           }
@@ -8761,6 +7309,9 @@ public final class ObservationsProto {
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
           fields_ = java.util.Collections.unmodifiableList(fields_);
+        }
+        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+          absentFieldIndices_ = java.util.Collections.unmodifiableList(absentFieldIndices_);
         }
         makeExtensionsImmutable();
       }
@@ -8782,10 +7333,10 @@ public final class ObservationsProto {
     private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> fields_;
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -8795,10 +7346,10 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -8809,10 +7360,10 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -8822,10 +7373,10 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -8835,10 +7386,10 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * Only one of these can be set. If this dimension element only has one field, use the
-     * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-     * nested message for every observation.
+     * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+     * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+     * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+     * nested message for every inline dimension in each observation.
      * </pre>
      *
      * <code>repeated .hypercube.Value fields = 1;</code>
@@ -8849,88 +7400,100 @@ public final class ObservationsProto {
     }
 
     public static final int INTVALUE_FIELD_NUMBER = 2;
-    private org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue intValue_;
+    private long intValue_;
     /**
-     * <code>optional .hypercube.IntValue intValue = 2;</code>
+     * <code>optional sint64 intValue = 2;</code>
      */
-    public boolean hasIntValue() {
-      return intValue_ != null;
-    }
-    /**
-     * <code>optional .hypercube.IntValue intValue = 2;</code>
-     */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getIntValue() {
-      return intValue_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance() : intValue_;
-    }
-    /**
-     * <code>optional .hypercube.IntValue intValue = 2;</code>
-     */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder getIntValueOrBuilder() {
-      return getIntValue();
+    public long getIntValue() {
+      return intValue_;
     }
 
     public static final int DOUBLEVALUE_FIELD_NUMBER = 3;
-    private org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue doubleValue_;
+    private double doubleValue_;
     /**
-     * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
+     * <code>optional double doubleValue = 3;</code>
      */
-    public boolean hasDoubleValue() {
-      return doubleValue_ != null;
-    }
-    /**
-     * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
-     */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDoubleValue() {
-      return doubleValue_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance() : doubleValue_;
-    }
-    /**
-     * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
-     */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder getDoubleValueOrBuilder() {
-      return getDoubleValue();
+    public double getDoubleValue() {
+      return doubleValue_;
     }
 
     public static final int STRINGVALUE_FIELD_NUMBER = 4;
-    private org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue stringValue_;
+    private volatile java.lang.Object stringValue_;
     /**
-     * <code>optional .hypercube.StringValue stringValue = 4;</code>
+     * <code>optional string stringValue = 4;</code>
      */
-    public boolean hasStringValue() {
-      return stringValue_ != null;
+    public java.lang.String getStringValue() {
+      java.lang.Object ref = stringValue_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        stringValue_ = s;
+        return s;
+      }
     }
     /**
-     * <code>optional .hypercube.StringValue stringValue = 4;</code>
+     * <code>optional string stringValue = 4;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getStringValue() {
-      return stringValue_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance() : stringValue_;
-    }
-    /**
-     * <code>optional .hypercube.StringValue stringValue = 4;</code>
-     */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder getStringValueOrBuilder() {
-      return getStringValue();
+    public com.google.protobuf.ByteString
+        getStringValueBytes() {
+      java.lang.Object ref = stringValue_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        stringValue_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     public static final int TIMESTAMPVALUE_FIELD_NUMBER = 5;
-    private org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue timestampValue_;
+    private long timestampValue_;
     /**
-     * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
+     * <code>optional int64 timestampValue = 5;</code>
      */
-    public boolean hasTimestampValue() {
-      return timestampValue_ != null;
+    public long getTimestampValue() {
+      return timestampValue_;
+    }
+
+    public static final int ABSENTFIELDINDICES_FIELD_NUMBER = 6;
+    private java.util.List<java.lang.Integer> absentFieldIndices_;
+    /**
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getAbsentFieldIndicesList() {
+      return absentFieldIndices_;
     }
     /**
-     * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getTimestampValue() {
-      return timestampValue_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance() : timestampValue_;
+    public int getAbsentFieldIndicesCount() {
+      return absentFieldIndices_.size();
     }
     /**
-     * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
+     * <pre>
+     * 1-based list of indices of fields that are absent
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldIndices = 6;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder getTimestampValueOrBuilder() {
-      return getTimestampValue();
+    public int getAbsentFieldIndices(int index) {
+      return absentFieldIndices_.get(index);
     }
+    private int absentFieldIndicesMemoizedSerializedSize = -1;
 
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -8944,20 +7507,28 @@ public final class ObservationsProto {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      getSerializedSize();
       for (int i = 0; i < fields_.size(); i++) {
         output.writeMessage(1, fields_.get(i));
       }
-      if (intValue_ != null) {
-        output.writeMessage(2, getIntValue());
+      if (intValue_ != 0L) {
+        output.writeSInt64(2, intValue_);
       }
-      if (doubleValue_ != null) {
-        output.writeMessage(3, getDoubleValue());
+      if (doubleValue_ != 0D) {
+        output.writeDouble(3, doubleValue_);
       }
-      if (stringValue_ != null) {
-        output.writeMessage(4, getStringValue());
+      if (!getStringValueBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, stringValue_);
       }
-      if (timestampValue_ != null) {
-        output.writeMessage(5, getTimestampValue());
+      if (timestampValue_ != 0L) {
+        output.writeInt64(5, timestampValue_);
+      }
+      if (getAbsentFieldIndicesList().size() > 0) {
+        output.writeUInt32NoTag(50);
+        output.writeUInt32NoTag(absentFieldIndicesMemoizedSerializedSize);
+      }
+      for (int i = 0; i < absentFieldIndices_.size(); i++) {
+        output.writeInt32NoTag(absentFieldIndices_.get(i));
       }
     }
 
@@ -8970,21 +7541,34 @@ public final class ObservationsProto {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, fields_.get(i));
       }
-      if (intValue_ != null) {
+      if (intValue_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, getIntValue());
+          .computeSInt64Size(2, intValue_);
       }
-      if (doubleValue_ != null) {
+      if (doubleValue_ != 0D) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, getDoubleValue());
+          .computeDoubleSize(3, doubleValue_);
       }
-      if (stringValue_ != null) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(4, getStringValue());
+      if (!getStringValueBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, stringValue_);
       }
-      if (timestampValue_ != null) {
+      if (timestampValue_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(5, getTimestampValue());
+          .computeInt64Size(5, timestampValue_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < absentFieldIndices_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(absentFieldIndices_.get(i));
+        }
+        size += dataSize;
+        if (!getAbsentFieldIndicesList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        absentFieldIndicesMemoizedSerializedSize = dataSize;
       }
       memoizedSize = size;
       return size;
@@ -9004,26 +7588,18 @@ public final class ObservationsProto {
       boolean result = true;
       result = result && getFieldsList()
           .equals(other.getFieldsList());
-      result = result && (hasIntValue() == other.hasIntValue());
-      if (hasIntValue()) {
-        result = result && getIntValue()
-            .equals(other.getIntValue());
-      }
-      result = result && (hasDoubleValue() == other.hasDoubleValue());
-      if (hasDoubleValue()) {
-        result = result && getDoubleValue()
-            .equals(other.getDoubleValue());
-      }
-      result = result && (hasStringValue() == other.hasStringValue());
-      if (hasStringValue()) {
-        result = result && getStringValue()
-            .equals(other.getStringValue());
-      }
-      result = result && (hasTimestampValue() == other.hasTimestampValue());
-      if (hasTimestampValue()) {
-        result = result && getTimestampValue()
-            .equals(other.getTimestampValue());
-      }
+      result = result && (getIntValue()
+          == other.getIntValue());
+      result = result && (
+          java.lang.Double.doubleToLongBits(getDoubleValue())
+          == java.lang.Double.doubleToLongBits(
+              other.getDoubleValue()));
+      result = result && getStringValue()
+          .equals(other.getStringValue());
+      result = result && (getTimestampValue()
+          == other.getTimestampValue());
+      result = result && getAbsentFieldIndicesList()
+          .equals(other.getAbsentFieldIndicesList());
       return result;
     }
 
@@ -9038,21 +7614,20 @@ public final class ObservationsProto {
         hash = (37 * hash) + FIELDS_FIELD_NUMBER;
         hash = (53 * hash) + getFieldsList().hashCode();
       }
-      if (hasIntValue()) {
-        hash = (37 * hash) + INTVALUE_FIELD_NUMBER;
-        hash = (53 * hash) + getIntValue().hashCode();
-      }
-      if (hasDoubleValue()) {
-        hash = (37 * hash) + DOUBLEVALUE_FIELD_NUMBER;
-        hash = (53 * hash) + getDoubleValue().hashCode();
-      }
-      if (hasStringValue()) {
-        hash = (37 * hash) + STRINGVALUE_FIELD_NUMBER;
-        hash = (53 * hash) + getStringValue().hashCode();
-      }
-      if (hasTimestampValue()) {
-        hash = (37 * hash) + TIMESTAMPVALUE_FIELD_NUMBER;
-        hash = (53 * hash) + getTimestampValue().hashCode();
+      hash = (37 * hash) + INTVALUE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getIntValue());
+      hash = (37 * hash) + DOUBLEVALUE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          java.lang.Double.doubleToLongBits(getDoubleValue()));
+      hash = (37 * hash) + STRINGVALUE_FIELD_NUMBER;
+      hash = (53 * hash) + getStringValue().hashCode();
+      hash = (37 * hash) + TIMESTAMPVALUE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getTimestampValue());
+      if (getAbsentFieldIndicesCount() > 0) {
+        hash = (37 * hash) + ABSENTFIELDINDICES_FIELD_NUMBER;
+        hash = (53 * hash) + getAbsentFieldIndicesList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -9183,30 +7758,16 @@ public final class ObservationsProto {
         } else {
           fieldsBuilder_.clear();
         }
-        if (intValueBuilder_ == null) {
-          intValue_ = null;
-        } else {
-          intValue_ = null;
-          intValueBuilder_ = null;
-        }
-        if (doubleValueBuilder_ == null) {
-          doubleValue_ = null;
-        } else {
-          doubleValue_ = null;
-          doubleValueBuilder_ = null;
-        }
-        if (stringValueBuilder_ == null) {
-          stringValue_ = null;
-        } else {
-          stringValue_ = null;
-          stringValueBuilder_ = null;
-        }
-        if (timestampValueBuilder_ == null) {
-          timestampValue_ = null;
-        } else {
-          timestampValue_ = null;
-          timestampValueBuilder_ = null;
-        }
+        intValue_ = 0L;
+
+        doubleValue_ = 0D;
+
+        stringValue_ = "";
+
+        timestampValue_ = 0L;
+
+        absentFieldIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -9240,26 +7801,15 @@ public final class ObservationsProto {
         } else {
           result.fields_ = fieldsBuilder_.build();
         }
-        if (intValueBuilder_ == null) {
-          result.intValue_ = intValue_;
-        } else {
-          result.intValue_ = intValueBuilder_.build();
+        result.intValue_ = intValue_;
+        result.doubleValue_ = doubleValue_;
+        result.stringValue_ = stringValue_;
+        result.timestampValue_ = timestampValue_;
+        if (((bitField0_ & 0x00000020) == 0x00000020)) {
+          absentFieldIndices_ = java.util.Collections.unmodifiableList(absentFieldIndices_);
+          bitField0_ = (bitField0_ & ~0x00000020);
         }
-        if (doubleValueBuilder_ == null) {
-          result.doubleValue_ = doubleValue_;
-        } else {
-          result.doubleValue_ = doubleValueBuilder_.build();
-        }
-        if (stringValueBuilder_ == null) {
-          result.stringValue_ = stringValue_;
-        } else {
-          result.stringValue_ = stringValueBuilder_.build();
-        }
-        if (timestampValueBuilder_ == null) {
-          result.timestampValue_ = timestampValue_;
-        } else {
-          result.timestampValue_ = timestampValueBuilder_.build();
-        }
+        result.absentFieldIndices_ = absentFieldIndices_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -9328,17 +7878,28 @@ public final class ObservationsProto {
             }
           }
         }
-        if (other.hasIntValue()) {
-          mergeIntValue(other.getIntValue());
+        if (other.getIntValue() != 0L) {
+          setIntValue(other.getIntValue());
         }
-        if (other.hasDoubleValue()) {
-          mergeDoubleValue(other.getDoubleValue());
+        if (other.getDoubleValue() != 0D) {
+          setDoubleValue(other.getDoubleValue());
         }
-        if (other.hasStringValue()) {
-          mergeStringValue(other.getStringValue());
+        if (!other.getStringValue().isEmpty()) {
+          stringValue_ = other.stringValue_;
+          onChanged();
         }
-        if (other.hasTimestampValue()) {
-          mergeTimestampValue(other.getTimestampValue());
+        if (other.getTimestampValue() != 0L) {
+          setTimestampValue(other.getTimestampValue());
+        }
+        if (!other.absentFieldIndices_.isEmpty()) {
+          if (absentFieldIndices_.isEmpty()) {
+            absentFieldIndices_ = other.absentFieldIndices_;
+            bitField0_ = (bitField0_ & ~0x00000020);
+          } else {
+            ensureAbsentFieldIndicesIsMutable();
+            absentFieldIndices_.addAll(other.absentFieldIndices_);
+          }
+          onChanged();
         }
         onChanged();
         return this;
@@ -9381,10 +7942,10 @@ public final class ObservationsProto {
 
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9398,10 +7959,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9415,10 +7976,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9432,10 +7993,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9456,10 +8017,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9477,10 +8038,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9500,10 +8061,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9524,10 +8085,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9545,10 +8106,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9566,10 +8127,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9588,10 +8149,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9608,10 +8169,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9628,10 +8189,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9642,10 +8203,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9659,10 +8220,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9677,10 +8238,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9691,10 +8252,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9706,10 +8267,10 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * Only one of these can be set. If this dimension element only has one field, use the
-       * int/double/stringValues. If this dimension element has fields of multiple types, use 'fields'.
-       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a/
-       * nested message for every observation.
+       * Only one of these can be set. If this dimension element is a primitive (non-OBJECT), use the
+       * int/double/stringValues. If this dimension element is compound (of type OBJECT), use 'fields'.
+       * Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
+       * nested message for every inline dimension in each observation.
        * </pre>
        *
        * <code>repeated .hypercube.Value fields = 1;</code>
@@ -9733,472 +8294,245 @@ public final class ObservationsProto {
         return fieldsBuilder_;
       }
 
-      private org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue intValue_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder> intValueBuilder_;
+      private long intValue_ ;
       /**
-       * <code>optional .hypercube.IntValue intValue = 2;</code>
+       * <code>optional sint64 intValue = 2;</code>
        */
-      public boolean hasIntValue() {
-        return intValueBuilder_ != null || intValue_ != null;
+      public long getIntValue() {
+        return intValue_;
       }
       /**
-       * <code>optional .hypercube.IntValue intValue = 2;</code>
+       * <code>optional sint64 intValue = 2;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getIntValue() {
-        if (intValueBuilder_ == null) {
-          return intValue_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance() : intValue_;
-        } else {
-          return intValueBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .hypercube.IntValue intValue = 2;</code>
-       */
-      public Builder setIntValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue value) {
-        if (intValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          intValue_ = value;
-          onChanged();
-        } else {
-          intValueBuilder_.setMessage(value);
-        }
-
+      public Builder setIntValue(long value) {
+        
+        intValue_ = value;
+        onChanged();
         return this;
       }
       /**
-       * <code>optional .hypercube.IntValue intValue = 2;</code>
-       */
-      public Builder setIntValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder builderForValue) {
-        if (intValueBuilder_ == null) {
-          intValue_ = builderForValue.build();
-          onChanged();
-        } else {
-          intValueBuilder_.setMessage(builderForValue.build());
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.IntValue intValue = 2;</code>
-       */
-      public Builder mergeIntValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue value) {
-        if (intValueBuilder_ == null) {
-          if (intValue_ != null) {
-            intValue_ =
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.newBuilder(intValue_).mergeFrom(value).buildPartial();
-          } else {
-            intValue_ = value;
-          }
-          onChanged();
-        } else {
-          intValueBuilder_.mergeFrom(value);
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.IntValue intValue = 2;</code>
+       * <code>optional sint64 intValue = 2;</code>
        */
       public Builder clearIntValue() {
-        if (intValueBuilder_ == null) {
-          intValue_ = null;
-          onChanged();
-        } else {
-          intValue_ = null;
-          intValueBuilder_ = null;
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.IntValue intValue = 2;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder getIntValueBuilder() {
         
+        intValue_ = 0L;
         onChanged();
-        return getIntValueFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .hypercube.IntValue intValue = 2;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder getIntValueOrBuilder() {
-        if (intValueBuilder_ != null) {
-          return intValueBuilder_.getMessageOrBuilder();
-        } else {
-          return intValue_ == null ?
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance() : intValue_;
-        }
-      }
-      /**
-       * <code>optional .hypercube.IntValue intValue = 2;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder> 
-          getIntValueFieldBuilder() {
-        if (intValueBuilder_ == null) {
-          intValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder>(
-                  getIntValue(),
-                  getParentForChildren(),
-                  isClean());
-          intValue_ = null;
-        }
-        return intValueBuilder_;
+        return this;
       }
 
-      private org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue doubleValue_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder> doubleValueBuilder_;
+      private double doubleValue_ ;
       /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
+       * <code>optional double doubleValue = 3;</code>
        */
-      public boolean hasDoubleValue() {
-        return doubleValueBuilder_ != null || doubleValue_ != null;
+      public double getDoubleValue() {
+        return doubleValue_;
       }
       /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
+       * <code>optional double doubleValue = 3;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDoubleValue() {
-        if (doubleValueBuilder_ == null) {
-          return doubleValue_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance() : doubleValue_;
-        } else {
-          return doubleValueBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
-       */
-      public Builder setDoubleValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue value) {
-        if (doubleValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          doubleValue_ = value;
-          onChanged();
-        } else {
-          doubleValueBuilder_.setMessage(value);
-        }
-
+      public Builder setDoubleValue(double value) {
+        
+        doubleValue_ = value;
+        onChanged();
         return this;
       }
       /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
-       */
-      public Builder setDoubleValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder builderForValue) {
-        if (doubleValueBuilder_ == null) {
-          doubleValue_ = builderForValue.build();
-          onChanged();
-        } else {
-          doubleValueBuilder_.setMessage(builderForValue.build());
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
-       */
-      public Builder mergeDoubleValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue value) {
-        if (doubleValueBuilder_ == null) {
-          if (doubleValue_ != null) {
-            doubleValue_ =
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.newBuilder(doubleValue_).mergeFrom(value).buildPartial();
-          } else {
-            doubleValue_ = value;
-          }
-          onChanged();
-        } else {
-          doubleValueBuilder_.mergeFrom(value);
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
+       * <code>optional double doubleValue = 3;</code>
        */
       public Builder clearDoubleValue() {
-        if (doubleValueBuilder_ == null) {
-          doubleValue_ = null;
-          onChanged();
-        } else {
-          doubleValue_ = null;
-          doubleValueBuilder_ = null;
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder getDoubleValueBuilder() {
         
+        doubleValue_ = 0D;
         onChanged();
-        return getDoubleValueFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder getDoubleValueOrBuilder() {
-        if (doubleValueBuilder_ != null) {
-          return doubleValueBuilder_.getMessageOrBuilder();
-        } else {
-          return doubleValue_ == null ?
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance() : doubleValue_;
-        }
-      }
-      /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 3;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder> 
-          getDoubleValueFieldBuilder() {
-        if (doubleValueBuilder_ == null) {
-          doubleValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder>(
-                  getDoubleValue(),
-                  getParentForChildren(),
-                  isClean());
-          doubleValue_ = null;
-        }
-        return doubleValueBuilder_;
-      }
-
-      private org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue stringValue_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder> stringValueBuilder_;
-      /**
-       * <code>optional .hypercube.StringValue stringValue = 4;</code>
-       */
-      public boolean hasStringValue() {
-        return stringValueBuilder_ != null || stringValue_ != null;
-      }
-      /**
-       * <code>optional .hypercube.StringValue stringValue = 4;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getStringValue() {
-        if (stringValueBuilder_ == null) {
-          return stringValue_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance() : stringValue_;
-        } else {
-          return stringValueBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .hypercube.StringValue stringValue = 4;</code>
-       */
-      public Builder setStringValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue value) {
-        if (stringValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          stringValue_ = value;
-          onChanged();
-        } else {
-          stringValueBuilder_.setMessage(value);
-        }
-
         return this;
       }
+
+      private java.lang.Object stringValue_ = "";
       /**
-       * <code>optional .hypercube.StringValue stringValue = 4;</code>
+       * <code>optional string stringValue = 4;</code>
+       */
+      public java.lang.String getStringValue() {
+        java.lang.Object ref = stringValue_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          stringValue_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string stringValue = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getStringValueBytes() {
+        java.lang.Object ref = stringValue_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          stringValue_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string stringValue = 4;</code>
        */
       public Builder setStringValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder builderForValue) {
-        if (stringValueBuilder_ == null) {
-          stringValue_ = builderForValue.build();
-          onChanged();
-        } else {
-          stringValueBuilder_.setMessage(builderForValue.build());
-        }
-
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        stringValue_ = value;
+        onChanged();
         return this;
       }
       /**
-       * <code>optional .hypercube.StringValue stringValue = 4;</code>
-       */
-      public Builder mergeStringValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue value) {
-        if (stringValueBuilder_ == null) {
-          if (stringValue_ != null) {
-            stringValue_ =
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.newBuilder(stringValue_).mergeFrom(value).buildPartial();
-          } else {
-            stringValue_ = value;
-          }
-          onChanged();
-        } else {
-          stringValueBuilder_.mergeFrom(value);
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.StringValue stringValue = 4;</code>
+       * <code>optional string stringValue = 4;</code>
        */
       public Builder clearStringValue() {
-        if (stringValueBuilder_ == null) {
-          stringValue_ = null;
-          onChanged();
-        } else {
-          stringValue_ = null;
-          stringValueBuilder_ = null;
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.StringValue stringValue = 4;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder getStringValueBuilder() {
         
+        stringValue_ = getDefaultInstance().getStringValue();
         onChanged();
-        return getStringValueFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .hypercube.StringValue stringValue = 4;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder getStringValueOrBuilder() {
-        if (stringValueBuilder_ != null) {
-          return stringValueBuilder_.getMessageOrBuilder();
-        } else {
-          return stringValue_ == null ?
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance() : stringValue_;
-        }
-      }
-      /**
-       * <code>optional .hypercube.StringValue stringValue = 4;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder> 
-          getStringValueFieldBuilder() {
-        if (stringValueBuilder_ == null) {
-          stringValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder>(
-                  getStringValue(),
-                  getParentForChildren(),
-                  isClean());
-          stringValue_ = null;
-        }
-        return stringValueBuilder_;
-      }
-
-      private org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue timestampValue_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder> timestampValueBuilder_;
-      /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
-       */
-      public boolean hasTimestampValue() {
-        return timestampValueBuilder_ != null || timestampValue_ != null;
-      }
-      /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getTimestampValue() {
-        if (timestampValueBuilder_ == null) {
-          return timestampValue_ == null ? org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance() : timestampValue_;
-        } else {
-          return timestampValueBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
-       */
-      public Builder setTimestampValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue value) {
-        if (timestampValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          timestampValue_ = value;
-          onChanged();
-        } else {
-          timestampValueBuilder_.setMessage(value);
-        }
-
         return this;
       }
       /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
+       * <code>optional string stringValue = 4;</code>
        */
-      public Builder setTimestampValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder builderForValue) {
-        if (timestampValueBuilder_ == null) {
-          timestampValue_ = builderForValue.build();
-          onChanged();
-        } else {
-          timestampValueBuilder_.setMessage(builderForValue.build());
-        }
+      public Builder setStringValueBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        stringValue_ = value;
+        onChanged();
+        return this;
+      }
 
+      private long timestampValue_ ;
+      /**
+       * <code>optional int64 timestampValue = 5;</code>
+       */
+      public long getTimestampValue() {
+        return timestampValue_;
+      }
+      /**
+       * <code>optional int64 timestampValue = 5;</code>
+       */
+      public Builder setTimestampValue(long value) {
+        
+        timestampValue_ = value;
+        onChanged();
         return this;
       }
       /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
-       */
-      public Builder mergeTimestampValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue value) {
-        if (timestampValueBuilder_ == null) {
-          if (timestampValue_ != null) {
-            timestampValue_ =
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.newBuilder(timestampValue_).mergeFrom(value).buildPartial();
-          } else {
-            timestampValue_ = value;
-          }
-          onChanged();
-        } else {
-          timestampValueBuilder_.mergeFrom(value);
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
+       * <code>optional int64 timestampValue = 5;</code>
        */
       public Builder clearTimestampValue() {
-        if (timestampValueBuilder_ == null) {
-          timestampValue_ = null;
-          onChanged();
-        } else {
-          timestampValue_ = null;
-          timestampValueBuilder_ = null;
-        }
+        
+        timestampValue_ = 0L;
+        onChanged();
+        return this;
+      }
 
+      private java.util.List<java.lang.Integer> absentFieldIndices_ = java.util.Collections.emptyList();
+      private void ensureAbsentFieldIndicesIsMutable() {
+        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
+          absentFieldIndices_ = new java.util.ArrayList<java.lang.Integer>(absentFieldIndices_);
+          bitField0_ |= 0x00000020;
+         }
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getAbsentFieldIndicesList() {
+        return java.util.Collections.unmodifiableList(absentFieldIndices_);
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
+       */
+      public int getAbsentFieldIndicesCount() {
+        return absentFieldIndices_.size();
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
+       */
+      public int getAbsentFieldIndices(int index) {
+        return absentFieldIndices_.get(index);
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
+       */
+      public Builder setAbsentFieldIndices(
+          int index, int value) {
+        ensureAbsentFieldIndicesIsMutable();
+        absentFieldIndices_.set(index, value);
+        onChanged();
         return this;
       }
       /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder getTimestampValueBuilder() {
-        
+      public Builder addAbsentFieldIndices(int value) {
+        ensureAbsentFieldIndicesIsMutable();
+        absentFieldIndices_.add(value);
         onChanged();
-        return getTimestampValueFieldBuilder().getBuilder();
+        return this;
       }
       /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder getTimestampValueOrBuilder() {
-        if (timestampValueBuilder_ != null) {
-          return timestampValueBuilder_.getMessageOrBuilder();
-        } else {
-          return timestampValue_ == null ?
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance() : timestampValue_;
-        }
+      public Builder addAllAbsentFieldIndices(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureAbsentFieldIndicesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, absentFieldIndices_);
+        onChanged();
+        return this;
       }
       /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 5;</code>
+       * <pre>
+       * 1-based list of indices of fields that are absent
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldIndices = 6;</code>
        */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder> 
-          getTimestampValueFieldBuilder() {
-        if (timestampValueBuilder_ == null) {
-          timestampValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder>(
-                  getTimestampValue(),
-                  getParentForChildren(),
-                  isClean());
-          timestampValue_ = null;
-        }
-        return timestampValueBuilder_;
+      public Builder clearAbsentFieldIndices() {
+        absentFieldIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000020);
+        onChanged();
+        return this;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -10254,40 +8588,29 @@ public final class ObservationsProto {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional .hypercube.StringValue stringValue = 1;</code>
+     * <code>optional string stringValue = 1;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getStringValue();
+    java.lang.String getStringValue();
     /**
-     * <code>optional .hypercube.StringValue stringValue = 1;</code>
+     * <code>optional string stringValue = 1;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder getStringValueOrBuilder();
+    com.google.protobuf.ByteString
+        getStringValueBytes();
 
     /**
-     * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
+     * <code>optional double doubleValue = 2;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDoubleValue();
-    /**
-     * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder getDoubleValueOrBuilder();
+    double getDoubleValue();
 
     /**
-     * <code>optional .hypercube.IntValue intValue = 3;</code>
+     * <code>optional sint64 intValue = 3;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getIntValue();
-    /**
-     * <code>optional .hypercube.IntValue intValue = 3;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder getIntValueOrBuilder();
+    long getIntValue();
 
     /**
-     * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
+     * <code>optional int64 timestampValue = 4;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getTimestampValue();
-    /**
-     * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder getTimestampValueOrBuilder();
+    long getTimestampValue();
 
     public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.ValueCase getValueCase();
   }
@@ -10331,59 +8654,24 @@ public final class ObservationsProto {
               break;
             }
             case 10: {
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder subBuilder = null;
-              if (valueCase_ == 1) {
-                subBuilder = ((org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) value_).toBuilder();
-              }
-              value_ =
-                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) value_);
-                value_ = subBuilder.buildPartial();
-              }
+              java.lang.String s = input.readStringRequireUtf8();
               valueCase_ = 1;
+              value_ = s;
               break;
             }
-            case 18: {
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder subBuilder = null;
-              if (valueCase_ == 2) {
-                subBuilder = ((org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) value_).toBuilder();
-              }
-              value_ =
-                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) value_);
-                value_ = subBuilder.buildPartial();
-              }
+            case 17: {
               valueCase_ = 2;
+              value_ = input.readDouble();
               break;
             }
-            case 26: {
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder subBuilder = null;
-              if (valueCase_ == 3) {
-                subBuilder = ((org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) value_).toBuilder();
-              }
-              value_ =
-                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) value_);
-                value_ = subBuilder.buildPartial();
-              }
+            case 24: {
               valueCase_ = 3;
+              value_ = input.readSInt64();
               break;
             }
-            case 34: {
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder subBuilder = null;
-              if (valueCase_ == 4) {
-                subBuilder = ((org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) value_).toBuilder();
-              }
-              value_ =
-                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) value_);
-                value_ = subBuilder.buildPartial();
-              }
+            case 32: {
               valueCase_ = 4;
+              value_ = input.readInt64();
               break;
             }
           }
@@ -10453,82 +8741,78 @@ public final class ObservationsProto {
 
     public static final int STRINGVALUE_FIELD_NUMBER = 1;
     /**
-     * <code>optional .hypercube.StringValue stringValue = 1;</code>
+     * <code>optional string stringValue = 1;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getStringValue() {
+    public java.lang.String getStringValue() {
+      java.lang.Object ref = "";
       if (valueCase_ == 1) {
-         return (org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) value_;
+        ref = value_;
       }
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance();
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (valueCase_ == 1) {
+          value_ = s;
+        }
+        return s;
+      }
     }
     /**
-     * <code>optional .hypercube.StringValue stringValue = 1;</code>
+     * <code>optional string stringValue = 1;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder getStringValueOrBuilder() {
+    public com.google.protobuf.ByteString
+        getStringValueBytes() {
+      java.lang.Object ref = "";
       if (valueCase_ == 1) {
-         return (org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) value_;
+        ref = value_;
       }
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance();
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        if (valueCase_ == 1) {
+          value_ = b;
+        }
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     public static final int DOUBLEVALUE_FIELD_NUMBER = 2;
     /**
-     * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
+     * <code>optional double doubleValue = 2;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDoubleValue() {
+    public double getDoubleValue() {
       if (valueCase_ == 2) {
-         return (org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) value_;
+        return (java.lang.Double) value_;
       }
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance();
-    }
-    /**
-     * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
-     */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder getDoubleValueOrBuilder() {
-      if (valueCase_ == 2) {
-         return (org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) value_;
-      }
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance();
+      return 0D;
     }
 
     public static final int INTVALUE_FIELD_NUMBER = 3;
     /**
-     * <code>optional .hypercube.IntValue intValue = 3;</code>
+     * <code>optional sint64 intValue = 3;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getIntValue() {
+    public long getIntValue() {
       if (valueCase_ == 3) {
-         return (org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) value_;
+        return (java.lang.Long) value_;
       }
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance();
-    }
-    /**
-     * <code>optional .hypercube.IntValue intValue = 3;</code>
-     */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder getIntValueOrBuilder() {
-      if (valueCase_ == 3) {
-         return (org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) value_;
-      }
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance();
+      return 0L;
     }
 
     public static final int TIMESTAMPVALUE_FIELD_NUMBER = 4;
     /**
-     * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
+     * <code>optional int64 timestampValue = 4;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getTimestampValue() {
+    public long getTimestampValue() {
       if (valueCase_ == 4) {
-         return (org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) value_;
+        return (java.lang.Long) value_;
       }
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance();
-    }
-    /**
-     * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
-     */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder getTimestampValueOrBuilder() {
-      if (valueCase_ == 4) {
-         return (org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) value_;
-      }
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance();
+      return 0L;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -10544,16 +8828,19 @@ public final class ObservationsProto {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       if (valueCase_ == 1) {
-        output.writeMessage(1, (org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) value_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, value_);
       }
       if (valueCase_ == 2) {
-        output.writeMessage(2, (org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) value_);
+        output.writeDouble(
+            2, (double)((java.lang.Double) value_));
       }
       if (valueCase_ == 3) {
-        output.writeMessage(3, (org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) value_);
+        output.writeSInt64(
+            3, (long)((java.lang.Long) value_));
       }
       if (valueCase_ == 4) {
-        output.writeMessage(4, (org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) value_);
+        output.writeInt64(
+            4, (long)((java.lang.Long) value_));
       }
     }
 
@@ -10563,20 +8850,22 @@ public final class ObservationsProto {
 
       size = 0;
       if (valueCase_ == 1) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, (org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) value_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, value_);
       }
       if (valueCase_ == 2) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, (org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) value_);
+          .computeDoubleSize(
+              2, (double)((java.lang.Double) value_));
       }
       if (valueCase_ == 3) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, (org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) value_);
+          .computeSInt64Size(
+              3, (long)((java.lang.Long) value_));
       }
       if (valueCase_ == 4) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(4, (org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) value_);
+          .computeInt64Size(
+              4, (long)((java.lang.Long) value_));
       }
       memoizedSize = size;
       return size;
@@ -10603,16 +8892,18 @@ public final class ObservationsProto {
               .equals(other.getStringValue());
           break;
         case 2:
-          result = result && getDoubleValue()
-              .equals(other.getDoubleValue());
+          result = result && (
+              java.lang.Double.doubleToLongBits(getDoubleValue())
+              == java.lang.Double.doubleToLongBits(
+                  other.getDoubleValue()));
           break;
         case 3:
-          result = result && getIntValue()
-              .equals(other.getIntValue());
+          result = result && (getIntValue()
+              == other.getIntValue());
           break;
         case 4:
-          result = result && getTimestampValue()
-              .equals(other.getTimestampValue());
+          result = result && (getTimestampValue()
+              == other.getTimestampValue());
           break;
         case 0:
         default:
@@ -10634,15 +8925,18 @@ public final class ObservationsProto {
           break;
         case 2:
           hash = (37 * hash) + DOUBLEVALUE_FIELD_NUMBER;
-          hash = (53 * hash) + getDoubleValue().hashCode();
+          hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+              java.lang.Double.doubleToLongBits(getDoubleValue()));
           break;
         case 3:
           hash = (37 * hash) + INTVALUE_FIELD_NUMBER;
-          hash = (53 * hash) + getIntValue().hashCode();
+          hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+              getIntValue());
           break;
         case 4:
           hash = (37 * hash) + TIMESTAMPVALUE_FIELD_NUMBER;
-          hash = (53 * hash) + getTimestampValue().hashCode();
+          hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+              getTimestampValue());
           break;
         case 0:
         default:
@@ -10790,32 +9084,16 @@ public final class ObservationsProto {
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.Value buildPartial() {
         org.transmartproject.rest.hypercubeProto.ObservationsProto.Value result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Value(this);
         if (valueCase_ == 1) {
-          if (stringValueBuilder_ == null) {
-            result.value_ = value_;
-          } else {
-            result.value_ = stringValueBuilder_.build();
-          }
+          result.value_ = value_;
         }
         if (valueCase_ == 2) {
-          if (doubleValueBuilder_ == null) {
-            result.value_ = value_;
-          } else {
-            result.value_ = doubleValueBuilder_.build();
-          }
+          result.value_ = value_;
         }
         if (valueCase_ == 3) {
-          if (intValueBuilder_ == null) {
-            result.value_ = value_;
-          } else {
-            result.value_ = intValueBuilder_.build();
-          }
+          result.value_ = value_;
         }
         if (valueCase_ == 4) {
-          if (timestampValueBuilder_ == null) {
-            result.value_ = value_;
-          } else {
-            result.value_ = timestampValueBuilder_.build();
-          }
+          result.value_ = value_;
         }
         result.valueCase_ = valueCase_;
         onBuilt();
@@ -10861,19 +9139,21 @@ public final class ObservationsProto {
         if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.Value.getDefaultInstance()) return this;
         switch (other.getValueCase()) {
           case STRINGVALUE: {
-            mergeStringValue(other.getStringValue());
+            valueCase_ = 1;
+            value_ = other.value_;
+            onChanged();
             break;
           }
           case DOUBLEVALUE: {
-            mergeDoubleValue(other.getDoubleValue());
+            setDoubleValue(other.getDoubleValue());
             break;
           }
           case INTVALUE: {
-            mergeIntValue(other.getIntValue());
+            setIntValue(other.getIntValue());
             break;
           }
           case TIMESTAMPVALUE: {
-            mergeTimestampValue(other.getTimestampValue());
+            setTimestampValue(other.getTimestampValue());
             break;
           }
           case VALUE_NOT_SET: {
@@ -10921,524 +9201,174 @@ public final class ObservationsProto {
       }
 
 
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder> stringValueBuilder_;
       /**
-       * <code>optional .hypercube.StringValue stringValue = 1;</code>
+       * <code>optional string stringValue = 1;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getStringValue() {
-        if (stringValueBuilder_ == null) {
+      public java.lang.String getStringValue() {
+        java.lang.Object ref = "";
+        if (valueCase_ == 1) {
+          ref = value_;
+        }
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
           if (valueCase_ == 1) {
-            return (org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) value_;
+            value_ = s;
           }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance();
+          return s;
         } else {
-          if (valueCase_ == 1) {
-            return stringValueBuilder_.getMessage();
-          }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance();
+          return (java.lang.String) ref;
         }
       }
       /**
-       * <code>optional .hypercube.StringValue stringValue = 1;</code>
+       * <code>optional string stringValue = 1;</code>
        */
-      public Builder setStringValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue value) {
-        if (stringValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          value_ = value;
-          onChanged();
-        } else {
-          stringValueBuilder_.setMessage(value);
+      public com.google.protobuf.ByteString
+          getStringValueBytes() {
+        java.lang.Object ref = "";
+        if (valueCase_ == 1) {
+          ref = value_;
         }
-        valueCase_ = 1;
-        return this;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          if (valueCase_ == 1) {
+            value_ = b;
+          }
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
       }
       /**
-       * <code>optional .hypercube.StringValue stringValue = 1;</code>
+       * <code>optional string stringValue = 1;</code>
        */
       public Builder setStringValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder builderForValue) {
-        if (stringValueBuilder_ == null) {
-          value_ = builderForValue.build();
-          onChanged();
-        } else {
-          stringValueBuilder_.setMessage(builderForValue.build());
-        }
-        valueCase_ = 1;
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  valueCase_ = 1;
+        value_ = value;
+        onChanged();
         return this;
       }
       /**
-       * <code>optional .hypercube.StringValue stringValue = 1;</code>
-       */
-      public Builder mergeStringValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue value) {
-        if (stringValueBuilder_ == null) {
-          if (valueCase_ == 1 &&
-              value_ != org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance()) {
-            value_ = org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.newBuilder((org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) value_)
-                .mergeFrom(value).buildPartial();
-          } else {
-            value_ = value;
-          }
-          onChanged();
-        } else {
-          if (valueCase_ == 1) {
-            stringValueBuilder_.mergeFrom(value);
-          }
-          stringValueBuilder_.setMessage(value);
-        }
-        valueCase_ = 1;
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.StringValue stringValue = 1;</code>
+       * <code>optional string stringValue = 1;</code>
        */
       public Builder clearStringValue() {
-        if (stringValueBuilder_ == null) {
-          if (valueCase_ == 1) {
-            valueCase_ = 0;
-            value_ = null;
-            onChanged();
-          }
-        } else {
-          if (valueCase_ == 1) {
-            valueCase_ = 0;
-            value_ = null;
-          }
-          stringValueBuilder_.clear();
+        if (valueCase_ == 1) {
+          valueCase_ = 0;
+          value_ = null;
+          onChanged();
         }
         return this;
       }
       /**
-       * <code>optional .hypercube.StringValue stringValue = 1;</code>
+       * <code>optional string stringValue = 1;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder getStringValueBuilder() {
-        return getStringValueFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .hypercube.StringValue stringValue = 1;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder getStringValueOrBuilder() {
-        if ((valueCase_ == 1) && (stringValueBuilder_ != null)) {
-          return stringValueBuilder_.getMessageOrBuilder();
-        } else {
-          if (valueCase_ == 1) {
-            return (org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) value_;
-          }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance();
-        }
-      }
-      /**
-       * <code>optional .hypercube.StringValue stringValue = 1;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder> 
-          getStringValueFieldBuilder() {
-        if (stringValueBuilder_ == null) {
-          if (!(valueCase_ == 1)) {
-            value_ = org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance();
-          }
-          stringValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder>(
-                  (org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue) value_,
-                  getParentForChildren(),
-                  isClean());
-          value_ = null;
-        }
+      public Builder setStringValueBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
         valueCase_ = 1;
-        onChanged();;
-        return stringValueBuilder_;
+        value_ = value;
+        onChanged();
+        return this;
       }
 
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder> doubleValueBuilder_;
       /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
+       * <code>optional double doubleValue = 2;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDoubleValue() {
-        if (doubleValueBuilder_ == null) {
-          if (valueCase_ == 2) {
-            return (org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) value_;
-          }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance();
-        } else {
-          if (valueCase_ == 2) {
-            return doubleValueBuilder_.getMessage();
-          }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance();
+      public double getDoubleValue() {
+        if (valueCase_ == 2) {
+          return (java.lang.Double) value_;
         }
+        return 0D;
       }
       /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
+       * <code>optional double doubleValue = 2;</code>
        */
-      public Builder setDoubleValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue value) {
-        if (doubleValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          value_ = value;
-          onChanged();
-        } else {
-          doubleValueBuilder_.setMessage(value);
-        }
+      public Builder setDoubleValue(double value) {
         valueCase_ = 2;
+        value_ = value;
+        onChanged();
         return this;
       }
       /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public Builder setDoubleValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder builderForValue) {
-        if (doubleValueBuilder_ == null) {
-          value_ = builderForValue.build();
-          onChanged();
-        } else {
-          doubleValueBuilder_.setMessage(builderForValue.build());
-        }
-        valueCase_ = 2;
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public Builder mergeDoubleValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue value) {
-        if (doubleValueBuilder_ == null) {
-          if (valueCase_ == 2 &&
-              value_ != org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance()) {
-            value_ = org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.newBuilder((org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) value_)
-                .mergeFrom(value).buildPartial();
-          } else {
-            value_ = value;
-          }
-          onChanged();
-        } else {
-          if (valueCase_ == 2) {
-            doubleValueBuilder_.mergeFrom(value);
-          }
-          doubleValueBuilder_.setMessage(value);
-        }
-        valueCase_ = 2;
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
+       * <code>optional double doubleValue = 2;</code>
        */
       public Builder clearDoubleValue() {
-        if (doubleValueBuilder_ == null) {
-          if (valueCase_ == 2) {
-            valueCase_ = 0;
-            value_ = null;
-            onChanged();
-          }
-        } else {
-          if (valueCase_ == 2) {
-            valueCase_ = 0;
-            value_ = null;
-          }
-          doubleValueBuilder_.clear();
+        if (valueCase_ == 2) {
+          valueCase_ = 0;
+          value_ = null;
+          onChanged();
         }
         return this;
-      }
-      /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder getDoubleValueBuilder() {
-        return getDoubleValueFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder getDoubleValueOrBuilder() {
-        if ((valueCase_ == 2) && (doubleValueBuilder_ != null)) {
-          return doubleValueBuilder_.getMessageOrBuilder();
-        } else {
-          if (valueCase_ == 2) {
-            return (org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) value_;
-          }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance();
-        }
-      }
-      /**
-       * <code>optional .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder> 
-          getDoubleValueFieldBuilder() {
-        if (doubleValueBuilder_ == null) {
-          if (!(valueCase_ == 2)) {
-            value_ = org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance();
-          }
-          doubleValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder>(
-                  (org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue) value_,
-                  getParentForChildren(),
-                  isClean());
-          value_ = null;
-        }
-        valueCase_ = 2;
-        onChanged();;
-        return doubleValueBuilder_;
       }
 
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder> intValueBuilder_;
       /**
-       * <code>optional .hypercube.IntValue intValue = 3;</code>
+       * <code>optional sint64 intValue = 3;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getIntValue() {
-        if (intValueBuilder_ == null) {
-          if (valueCase_ == 3) {
-            return (org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) value_;
-          }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance();
-        } else {
-          if (valueCase_ == 3) {
-            return intValueBuilder_.getMessage();
-          }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance();
+      public long getIntValue() {
+        if (valueCase_ == 3) {
+          return (java.lang.Long) value_;
         }
+        return 0L;
       }
       /**
-       * <code>optional .hypercube.IntValue intValue = 3;</code>
+       * <code>optional sint64 intValue = 3;</code>
        */
-      public Builder setIntValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue value) {
-        if (intValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          value_ = value;
-          onChanged();
-        } else {
-          intValueBuilder_.setMessage(value);
-        }
+      public Builder setIntValue(long value) {
         valueCase_ = 3;
+        value_ = value;
+        onChanged();
         return this;
       }
       /**
-       * <code>optional .hypercube.IntValue intValue = 3;</code>
-       */
-      public Builder setIntValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder builderForValue) {
-        if (intValueBuilder_ == null) {
-          value_ = builderForValue.build();
-          onChanged();
-        } else {
-          intValueBuilder_.setMessage(builderForValue.build());
-        }
-        valueCase_ = 3;
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.IntValue intValue = 3;</code>
-       */
-      public Builder mergeIntValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue value) {
-        if (intValueBuilder_ == null) {
-          if (valueCase_ == 3 &&
-              value_ != org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance()) {
-            value_ = org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.newBuilder((org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) value_)
-                .mergeFrom(value).buildPartial();
-          } else {
-            value_ = value;
-          }
-          onChanged();
-        } else {
-          if (valueCase_ == 3) {
-            intValueBuilder_.mergeFrom(value);
-          }
-          intValueBuilder_.setMessage(value);
-        }
-        valueCase_ = 3;
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.IntValue intValue = 3;</code>
+       * <code>optional sint64 intValue = 3;</code>
        */
       public Builder clearIntValue() {
-        if (intValueBuilder_ == null) {
-          if (valueCase_ == 3) {
-            valueCase_ = 0;
-            value_ = null;
-            onChanged();
-          }
-        } else {
-          if (valueCase_ == 3) {
-            valueCase_ = 0;
-            value_ = null;
-          }
-          intValueBuilder_.clear();
+        if (valueCase_ == 3) {
+          valueCase_ = 0;
+          value_ = null;
+          onChanged();
         }
         return this;
-      }
-      /**
-       * <code>optional .hypercube.IntValue intValue = 3;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder getIntValueBuilder() {
-        return getIntValueFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .hypercube.IntValue intValue = 3;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder getIntValueOrBuilder() {
-        if ((valueCase_ == 3) && (intValueBuilder_ != null)) {
-          return intValueBuilder_.getMessageOrBuilder();
-        } else {
-          if (valueCase_ == 3) {
-            return (org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) value_;
-          }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance();
-        }
-      }
-      /**
-       * <code>optional .hypercube.IntValue intValue = 3;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder> 
-          getIntValueFieldBuilder() {
-        if (intValueBuilder_ == null) {
-          if (!(valueCase_ == 3)) {
-            value_ = org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance();
-          }
-          intValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder>(
-                  (org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue) value_,
-                  getParentForChildren(),
-                  isClean());
-          value_ = null;
-        }
-        valueCase_ = 3;
-        onChanged();;
-        return intValueBuilder_;
       }
 
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder> timestampValueBuilder_;
       /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>optional int64 timestampValue = 4;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getTimestampValue() {
-        if (timestampValueBuilder_ == null) {
-          if (valueCase_ == 4) {
-            return (org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) value_;
-          }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance();
-        } else {
-          if (valueCase_ == 4) {
-            return timestampValueBuilder_.getMessage();
-          }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance();
+      public long getTimestampValue() {
+        if (valueCase_ == 4) {
+          return (java.lang.Long) value_;
         }
+        return 0L;
       }
       /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>optional int64 timestampValue = 4;</code>
        */
-      public Builder setTimestampValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue value) {
-        if (timestampValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          value_ = value;
-          onChanged();
-        } else {
-          timestampValueBuilder_.setMessage(value);
-        }
+      public Builder setTimestampValue(long value) {
         valueCase_ = 4;
+        value_ = value;
+        onChanged();
         return this;
       }
       /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public Builder setTimestampValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder builderForValue) {
-        if (timestampValueBuilder_ == null) {
-          value_ = builderForValue.build();
-          onChanged();
-        } else {
-          timestampValueBuilder_.setMessage(builderForValue.build());
-        }
-        valueCase_ = 4;
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public Builder mergeTimestampValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue value) {
-        if (timestampValueBuilder_ == null) {
-          if (valueCase_ == 4 &&
-              value_ != org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance()) {
-            value_ = org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.newBuilder((org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) value_)
-                .mergeFrom(value).buildPartial();
-          } else {
-            value_ = value;
-          }
-          onChanged();
-        } else {
-          if (valueCase_ == 4) {
-            timestampValueBuilder_.mergeFrom(value);
-          }
-          timestampValueBuilder_.setMessage(value);
-        }
-        valueCase_ = 4;
-        return this;
-      }
-      /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>optional int64 timestampValue = 4;</code>
        */
       public Builder clearTimestampValue() {
-        if (timestampValueBuilder_ == null) {
-          if (valueCase_ == 4) {
-            valueCase_ = 0;
-            value_ = null;
-            onChanged();
-          }
-        } else {
-          if (valueCase_ == 4) {
-            valueCase_ = 0;
-            value_ = null;
-          }
-          timestampValueBuilder_.clear();
+        if (valueCase_ == 4) {
+          valueCase_ = 0;
+          value_ = null;
+          onChanged();
         }
         return this;
-      }
-      /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder getTimestampValueBuilder() {
-        return getTimestampValueFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder getTimestampValueOrBuilder() {
-        if ((valueCase_ == 4) && (timestampValueBuilder_ != null)) {
-          return timestampValueBuilder_.getMessageOrBuilder();
-        } else {
-          if (valueCase_ == 4) {
-            return (org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) value_;
-          }
-          return org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance();
-        }
-      }
-      /**
-       * <code>optional .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder> 
-          getTimestampValueFieldBuilder() {
-        if (timestampValueBuilder_ == null) {
-          if (!(valueCase_ == 4)) {
-            value_ = org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance();
-          }
-          timestampValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder>(
-                  (org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue) value_,
-                  getParentForChildren(),
-                  isClean());
-          value_ = null;
-        }
-        valueCase_ = 4;
-        onChanged();;
-        return timestampValueBuilder_;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -11536,6 +9466,24 @@ public final class ObservationsProto {
      */
     org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementsOrBuilder getDimensionOrBuilder(
         int index);
+
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    java.lang.String getError();
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorBytes();
   }
   /**
    * Protobuf type {@code hypercube.Footer}
@@ -11550,6 +9498,7 @@ public final class ObservationsProto {
     }
     private Footer() {
       dimension_ = java.util.Collections.emptyList();
+      error_ = "";
     }
 
     @java.lang.Override
@@ -11586,6 +9535,12 @@ public final class ObservationsProto {
                   input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements.parser(), extensionRegistry));
               break;
             }
+            case 794: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              error_ = s;
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -11612,6 +9567,7 @@ public final class ObservationsProto {
               org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer.Builder.class);
     }
 
+    private int bitField0_;
     public static final int DIMENSION_FIELD_NUMBER = 1;
     private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements> dimension_;
     /**
@@ -11667,6 +9623,48 @@ public final class ObservationsProto {
       return dimension_.get(index);
     }
 
+    public static final int ERROR_FIELD_NUMBER = 99;
+    private volatile java.lang.Object error_;
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public java.lang.String getError() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        error_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorBytes() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        error_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -11682,6 +9680,9 @@ public final class ObservationsProto {
       for (int i = 0; i < dimension_.size(); i++) {
         output.writeMessage(1, dimension_.get(i));
       }
+      if (!getErrorBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
+      }
     }
 
     public int getSerializedSize() {
@@ -11692,6 +9693,9 @@ public final class ObservationsProto {
       for (int i = 0; i < dimension_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, dimension_.get(i));
+      }
+      if (!getErrorBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
       }
       memoizedSize = size;
       return size;
@@ -11711,6 +9715,8 @@ public final class ObservationsProto {
       boolean result = true;
       result = result && getDimensionList()
           .equals(other.getDimensionList());
+      result = result && getError()
+          .equals(other.getError());
       return result;
     }
 
@@ -11725,6 +9731,8 @@ public final class ObservationsProto {
         hash = (37 * hash) + DIMENSION_FIELD_NUMBER;
         hash = (53 * hash) + getDimensionList().hashCode();
       }
+      hash = (37 * hash) + ERROR_FIELD_NUMBER;
+      hash = (53 * hash) + getError().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -11850,6 +9858,8 @@ public final class ObservationsProto {
         } else {
           dimensionBuilder_.clear();
         }
+        error_ = "";
+
         return this;
       }
 
@@ -11873,6 +9883,7 @@ public final class ObservationsProto {
       public org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer buildPartial() {
         org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Footer(this);
         int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         if (dimensionBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
             dimension_ = java.util.Collections.unmodifiableList(dimension_);
@@ -11882,6 +9893,8 @@ public final class ObservationsProto {
         } else {
           result.dimension_ = dimensionBuilder_.build();
         }
+        result.error_ = error_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -11948,6 +9961,10 @@ public final class ObservationsProto {
               dimensionBuilder_.addAllMessages(other.dimension_);
             }
           }
+        }
+        if (!other.getError().isEmpty()) {
+          error_ = other.error_;
+          onChanged();
         }
         onChanged();
         return this;
@@ -12287,6 +10304,95 @@ public final class ObservationsProto {
         }
         return dimensionBuilder_;
       }
+
+      private java.lang.Object error_ = "";
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public java.lang.String getError() {
+        java.lang.Object ref = error_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          error_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrorBytes() {
+        java.lang.Object ref = error_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          error_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setError(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        error_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder clearError() {
+        
+        error_ = getDefaultInstance().getError();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setErrorBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        error_ = value;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -12342,47 +10448,95 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * not used when a DimensionElements is embedded in a PackedObservation
      * </pre>
      *
-     * <code>repeated .hypercube.DimElementField fields = 1;</code>
+     * <code>optional string name = 3;</code>
      */
-    java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField> 
+    java.lang.String getName();
+    /**
+     * <pre>
+     * not used when a DimensionElements is embedded in a PackedObservation
+     * </pre>
+     *
+     * <code>optional string name = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+
+    /**
+     * <pre>
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
+     * </pre>
+     *
+     * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
+     */
+    java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn> 
         getFieldsList();
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
-     * <code>repeated .hypercube.DimElementField fields = 1;</code>
+     * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField getFields(int index);
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn getFields(int index);
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
-     * <code>repeated .hypercube.DimElementField fields = 1;</code>
+     * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
      */
     int getFieldsCount();
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
-     * <code>repeated .hypercube.DimElementField fields = 1;</code>
+     * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
      */
-    java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementFieldOrBuilder> 
+    java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder> 
         getFieldsOrBuilderList();
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
-     * <code>repeated .hypercube.DimElementField fields = 1;</code>
+     * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementFieldOrBuilder getFieldsOrBuilder(
+    org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder getFieldsOrBuilder(
         int index);
+
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    java.util.List<java.lang.Integer> getAbsentFieldColumnIndicesList();
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    int getAbsentFieldColumnIndicesCount();
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    int getAbsentFieldColumnIndices(int index);
 
     /**
      * <pre>
@@ -12409,7 +10563,9 @@ public final class ObservationsProto {
       super(builder);
     }
     private DimensionElements() {
+      name_ = "";
       fields_ = java.util.Collections.emptyList();
+      absentFieldColumnIndices_ = java.util.Collections.emptyList();
       perSample_ = false;
     }
 
@@ -12439,17 +10595,44 @@ public final class ObservationsProto {
               break;
             }
             case 10: {
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                fields_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField>();
-                mutable_bitField0_ |= 0x00000001;
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                fields_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn>();
+                mutable_bitField0_ |= 0x00000002;
               }
               fields_.add(
-                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.parser(), extensionRegistry));
+                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.parser(), extensionRegistry));
               break;
             }
             case 16: {
 
               perSample_ = input.readBool();
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              name_ = s;
+              break;
+            }
+            case 32: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                absentFieldColumnIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              absentFieldColumnIndices_.add(input.readInt32());
+              break;
+            }
+            case 34: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004) && input.getBytesUntilLimit() > 0) {
+                absentFieldColumnIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                absentFieldColumnIndices_.add(input.readInt32());
+              }
+              input.popLimit(limit);
               break;
             }
           }
@@ -12460,8 +10643,11 @@ public final class ObservationsProto {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           fields_ = java.util.Collections.unmodifiableList(fields_);
+        }
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+          absentFieldColumnIndices_ = java.util.Collections.unmodifiableList(absentFieldColumnIndices_);
         }
         makeExtensionsImmutable();
       }
@@ -12479,60 +10665,142 @@ public final class ObservationsProto {
     }
 
     private int bitField0_;
-    public static final int FIELDS_FIELD_NUMBER = 1;
-    private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField> fields_;
+    public static final int NAME_FIELD_NUMBER = 3;
+    private volatile java.lang.Object name_;
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * not used when a DimensionElements is embedded in a PackedObservation
      * </pre>
      *
-     * <code>repeated .hypercube.DimElementField fields = 1;</code>
+     * <code>optional string name = 3;</code>
      */
-    public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField> getFieldsList() {
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        name_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * not used when a DimensionElements is embedded in a PackedObservation
+     * </pre>
+     *
+     * <code>optional string name = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int FIELDS_FIELD_NUMBER = 1;
+    private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn> fields_;
+    /**
+     * <pre>
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
+     * </pre>
+     *
+     * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
+     */
+    public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn> getFieldsList() {
       return fields_;
     }
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
-     * <code>repeated .hypercube.DimElementField fields = 1;</code>
+     * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
      */
-    public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementFieldOrBuilder> 
+    public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder> 
         getFieldsOrBuilderList() {
       return fields_;
     }
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
-     * <code>repeated .hypercube.DimElementField fields = 1;</code>
+     * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
      */
     public int getFieldsCount() {
       return fields_.size();
     }
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
-     * <code>repeated .hypercube.DimElementField fields = 1;</code>
+     * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField getFields(int index) {
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn getFields(int index) {
       return fields_.get(index);
     }
     /**
      * <pre>
-     * List of dimension elements field values (e.g. values for age, values for gender, etc)
+     * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+     * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
      * </pre>
      *
-     * <code>repeated .hypercube.DimElementField fields = 1;</code>
+     * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementFieldOrBuilder getFieldsOrBuilder(
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder getFieldsOrBuilder(
         int index) {
       return fields_.get(index);
     }
+
+    public static final int ABSENTFIELDCOLUMNINDICES_FIELD_NUMBER = 4;
+    private java.util.List<java.lang.Integer> absentFieldColumnIndices_;
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getAbsentFieldColumnIndicesList() {
+      return absentFieldColumnIndices_;
+    }
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    public int getAbsentFieldColumnIndicesCount() {
+      return absentFieldColumnIndices_.size();
+    }
+    /**
+     * <pre>
+     * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+     * </pre>
+     *
+     * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+     */
+    public int getAbsentFieldColumnIndices(int index) {
+      return absentFieldColumnIndices_.get(index);
+    }
+    private int absentFieldColumnIndicesMemoizedSerializedSize = -1;
 
     public static final int PERSAMPLE_FIELD_NUMBER = 2;
     private boolean perSample_;
@@ -12559,11 +10827,22 @@ public final class ObservationsProto {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      getSerializedSize();
       for (int i = 0; i < fields_.size(); i++) {
         output.writeMessage(1, fields_.get(i));
       }
       if (perSample_ != false) {
         output.writeBool(2, perSample_);
+      }
+      if (!getNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, name_);
+      }
+      if (getAbsentFieldColumnIndicesList().size() > 0) {
+        output.writeUInt32NoTag(34);
+        output.writeUInt32NoTag(absentFieldColumnIndicesMemoizedSerializedSize);
+      }
+      for (int i = 0; i < absentFieldColumnIndices_.size(); i++) {
+        output.writeInt32NoTag(absentFieldColumnIndices_.get(i));
       }
     }
 
@@ -12579,6 +10858,23 @@ public final class ObservationsProto {
       if (perSample_ != false) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(2, perSample_);
+      }
+      if (!getNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, name_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < absentFieldColumnIndices_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(absentFieldColumnIndices_.get(i));
+        }
+        size += dataSize;
+        if (!getAbsentFieldColumnIndicesList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        absentFieldColumnIndicesMemoizedSerializedSize = dataSize;
       }
       memoizedSize = size;
       return size;
@@ -12596,8 +10892,12 @@ public final class ObservationsProto {
       org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements) obj;
 
       boolean result = true;
+      result = result && getName()
+          .equals(other.getName());
       result = result && getFieldsList()
           .equals(other.getFieldsList());
+      result = result && getAbsentFieldColumnIndicesList()
+          .equals(other.getAbsentFieldColumnIndicesList());
       result = result && (getPerSample()
           == other.getPerSample());
       return result;
@@ -12610,9 +10910,15 @@ public final class ObservationsProto {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptorForType().hashCode();
+      hash = (37 * hash) + NAME_FIELD_NUMBER;
+      hash = (53 * hash) + getName().hashCode();
       if (getFieldsCount() > 0) {
         hash = (37 * hash) + FIELDS_FIELD_NUMBER;
         hash = (53 * hash) + getFieldsList().hashCode();
+      }
+      if (getAbsentFieldColumnIndicesCount() > 0) {
+        hash = (37 * hash) + ABSENTFIELDCOLUMNINDICES_FIELD_NUMBER;
+        hash = (53 * hash) + getAbsentFieldColumnIndicesList().hashCode();
       }
       hash = (37 * hash) + PERSAMPLE_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
@@ -12740,12 +11046,16 @@ public final class ObservationsProto {
       }
       public Builder clear() {
         super.clear();
+        name_ = "";
+
         if (fieldsBuilder_ == null) {
           fields_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
         } else {
           fieldsBuilder_.clear();
         }
+        absentFieldColumnIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
         perSample_ = false;
 
         return this;
@@ -12772,15 +11082,21 @@ public final class ObservationsProto {
         org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
+        result.name_ = name_;
         if (fieldsBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
             fields_ = java.util.Collections.unmodifiableList(fields_);
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000002);
           }
           result.fields_ = fields_;
         } else {
           result.fields_ = fieldsBuilder_.build();
         }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          absentFieldColumnIndices_ = java.util.Collections.unmodifiableList(absentFieldColumnIndices_);
+          bitField0_ = (bitField0_ & ~0x00000004);
+        }
+        result.absentFieldColumnIndices_ = absentFieldColumnIndices_;
         result.perSample_ = perSample_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -12824,11 +11140,15 @@ public final class ObservationsProto {
 
       public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements other) {
         if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements.getDefaultInstance()) return this;
+        if (!other.getName().isEmpty()) {
+          name_ = other.name_;
+          onChanged();
+        }
         if (fieldsBuilder_ == null) {
           if (!other.fields_.isEmpty()) {
             if (fields_.isEmpty()) {
               fields_ = other.fields_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
             } else {
               ensureFieldsIsMutable();
               fields_.addAll(other.fields_);
@@ -12841,7 +11161,7 @@ public final class ObservationsProto {
               fieldsBuilder_.dispose();
               fieldsBuilder_ = null;
               fields_ = other.fields_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
               fieldsBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getFieldsFieldBuilder() : null;
@@ -12849,6 +11169,16 @@ public final class ObservationsProto {
               fieldsBuilder_.addAllMessages(other.fields_);
             }
           }
+        }
+        if (!other.absentFieldColumnIndices_.isEmpty()) {
+          if (absentFieldColumnIndices_.isEmpty()) {
+            absentFieldColumnIndices_ = other.absentFieldColumnIndices_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+          } else {
+            ensureAbsentFieldColumnIndicesIsMutable();
+            absentFieldColumnIndices_.addAll(other.absentFieldColumnIndices_);
+          }
+          onChanged();
         }
         if (other.getPerSample() != false) {
           setPerSample(other.getPerSample());
@@ -12880,26 +11210,116 @@ public final class ObservationsProto {
       }
       private int bitField0_;
 
-      private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField> fields_ =
+      private java.lang.Object name_ = "";
+      /**
+       * <pre>
+       * not used when a DimensionElements is embedded in a PackedObservation
+       * </pre>
+       *
+       * <code>optional string name = 3;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          name_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * not used when a DimensionElements is embedded in a PackedObservation
+       * </pre>
+       *
+       * <code>optional string name = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * not used when a DimensionElements is embedded in a PackedObservation
+       * </pre>
+       *
+       * <code>optional string name = 3;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * not used when a DimensionElements is embedded in a PackedObservation
+       * </pre>
+       *
+       * <code>optional string name = 3;</code>
+       */
+      public Builder clearName() {
+        
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * not used when a DimensionElements is embedded in a PackedObservation
+       * </pre>
+       *
+       * <code>optional string name = 3;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn> fields_ =
         java.util.Collections.emptyList();
       private void ensureFieldsIsMutable() {
-        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          fields_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField>(fields_);
-          bitField0_ |= 0x00000001;
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          fields_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn>(fields_);
+          bitField0_ |= 0x00000002;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementFieldOrBuilder> fieldsBuilder_;
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder> fieldsBuilder_;
 
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField> getFieldsList() {
+      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn> getFieldsList() {
         if (fieldsBuilder_ == null) {
           return java.util.Collections.unmodifiableList(fields_);
         } else {
@@ -12908,10 +11328,11 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
       public int getFieldsCount() {
         if (fieldsBuilder_ == null) {
@@ -12922,12 +11343,13 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField getFields(int index) {
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn getFields(int index) {
         if (fieldsBuilder_ == null) {
           return fields_.get(index);
         } else {
@@ -12936,13 +11358,14 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
       public Builder setFields(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField value) {
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn value) {
         if (fieldsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -12957,13 +11380,14 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
       public Builder setFields(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder builderForValue) {
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder builderForValue) {
         if (fieldsBuilder_ == null) {
           ensureFieldsIsMutable();
           fields_.set(index, builderForValue.build());
@@ -12975,12 +11399,13 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
-      public Builder addFields(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField value) {
+      public Builder addFields(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn value) {
         if (fieldsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -12995,13 +11420,14 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
       public Builder addFields(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField value) {
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn value) {
         if (fieldsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -13016,13 +11442,14 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
       public Builder addFields(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder builderForValue) {
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder builderForValue) {
         if (fieldsBuilder_ == null) {
           ensureFieldsIsMutable();
           fields_.add(builderForValue.build());
@@ -13034,13 +11461,14 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
       public Builder addFields(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder builderForValue) {
+          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder builderForValue) {
         if (fieldsBuilder_ == null) {
           ensureFieldsIsMutable();
           fields_.add(index, builderForValue.build());
@@ -13052,13 +11480,14 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
       public Builder addAllFields(
-          java.lang.Iterable<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField> values) {
+          java.lang.Iterable<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn> values) {
         if (fieldsBuilder_ == null) {
           ensureFieldsIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -13071,15 +11500,16 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
       public Builder clearFields() {
         if (fieldsBuilder_ == null) {
           fields_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
           onChanged();
         } else {
           fieldsBuilder_.clear();
@@ -13088,10 +11518,11 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
       public Builder removeFields(int index) {
         if (fieldsBuilder_ == null) {
@@ -13105,23 +11536,25 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder getFieldsBuilder(
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder getFieldsBuilder(
           int index) {
         return getFieldsFieldBuilder().getBuilder(index);
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementFieldOrBuilder getFieldsOrBuilder(
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder getFieldsOrBuilder(
           int index) {
         if (fieldsBuilder_ == null) {
           return fields_.get(index);  } else {
@@ -13130,12 +11563,13 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
-      public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementFieldOrBuilder> 
+      public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder> 
            getFieldsOrBuilderList() {
         if (fieldsBuilder_ != null) {
           return fieldsBuilder_.getMessageOrBuilderList();
@@ -13145,51 +11579,148 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder addFieldsBuilder() {
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder addFieldsBuilder() {
         return getFieldsFieldBuilder().addBuilder(
-            org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.getDefaultInstance());
+            org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.getDefaultInstance());
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder addFieldsBuilder(
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder addFieldsBuilder(
           int index) {
         return getFieldsFieldBuilder().addBuilder(
-            index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.getDefaultInstance());
+            index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.getDefaultInstance());
       }
       /**
        * <pre>
-       * List of dimension elements field values (e.g. values for age, values for gender, etc)
+       * List of dimension elements field values (e.g. values for age, values for gender, etc). If values for a certain
+       * field are absent on all encoded dimension elements, that list of field values is omitted entirely.
        * </pre>
        *
-       * <code>repeated .hypercube.DimElementField fields = 1;</code>
+       * <code>repeated .hypercube.DimensionElementFieldColumn fields = 1;</code>
        */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder> 
+      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder> 
            getFieldsBuilderList() {
         return getFieldsFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementFieldOrBuilder> 
+          org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder> 
           getFieldsFieldBuilder() {
         if (fieldsBuilder_ == null) {
           fieldsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementFieldOrBuilder>(
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder>(
                   fields_,
-                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
                   isClean());
           fields_ = null;
         }
         return fieldsBuilder_;
+      }
+
+      private java.util.List<java.lang.Integer> absentFieldColumnIndices_ = java.util.Collections.emptyList();
+      private void ensureAbsentFieldColumnIndicesIsMutable() {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+          absentFieldColumnIndices_ = new java.util.ArrayList<java.lang.Integer>(absentFieldColumnIndices_);
+          bitField0_ |= 0x00000004;
+         }
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getAbsentFieldColumnIndicesList() {
+        return java.util.Collections.unmodifiableList(absentFieldColumnIndices_);
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public int getAbsentFieldColumnIndicesCount() {
+        return absentFieldColumnIndices_.size();
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public int getAbsentFieldColumnIndices(int index) {
+        return absentFieldColumnIndices_.get(index);
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public Builder setAbsentFieldColumnIndices(
+          int index, int value) {
+        ensureAbsentFieldColumnIndicesIsMutable();
+        absentFieldColumnIndices_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public Builder addAbsentFieldColumnIndices(int value) {
+        ensureAbsentFieldColumnIndicesIsMutable();
+        absentFieldColumnIndices_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public Builder addAllAbsentFieldColumnIndices(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureAbsentFieldColumnIndicesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, absentFieldColumnIndices_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices for which the fields are absent in all dimension elements encoded here.
+       * </pre>
+       *
+       * <code>repeated int32 absentFieldColumnIndices = 4;</code>
+       */
+      public Builder clearAbsentFieldColumnIndices() {
+        absentFieldColumnIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
       }
 
       private boolean perSample_ ;
@@ -13278,8 +11809,8 @@ public final class ObservationsProto {
 
   }
 
-  public interface DimElementFieldOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:hypercube.DimElementField)
+  public interface DimensionElementFieldColumnOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:hypercube.DimensionElementFieldColumn)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -13287,24 +11818,16 @@ public final class ObservationsProto {
      * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
      * </pre>
      *
-     * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
-    java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue> 
+    java.util.List<java.lang.String>
         getStringValueList();
     /**
      * <pre>
      * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
      * </pre>
      *
-     * <code>repeated .hypercube.StringValue stringValue = 1;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getStringValue(int index);
-    /**
-     * <pre>
-     * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-     * </pre>
-     *
-     * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
     int getStringValueCount();
     /**
@@ -13312,108 +11835,88 @@ public final class ObservationsProto {
      * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
      * </pre>
      *
-     * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
-    java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder> 
-        getStringValueOrBuilderList();
+    java.lang.String getStringValue(int index);
     /**
      * <pre>
      * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
      * </pre>
      *
-     * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder getStringValueOrBuilder(
-        int index);
+    com.google.protobuf.ByteString
+        getStringValueBytes(int index);
 
     /**
-     * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+     * <code>repeated double doubleValue = 2;</code>
      */
-    java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue> 
-        getDoubleValueList();
+    java.util.List<java.lang.Double> getDoubleValueList();
     /**
-     * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDoubleValue(int index);
-    /**
-     * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+     * <code>repeated double doubleValue = 2;</code>
      */
     int getDoubleValueCount();
     /**
-     * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+     * <code>repeated double doubleValue = 2;</code>
      */
-    java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder> 
-        getDoubleValueOrBuilderList();
-    /**
-     * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder getDoubleValueOrBuilder(
-        int index);
+    double getDoubleValue(int index);
 
     /**
-     * <code>repeated .hypercube.IntValue intValue = 3;</code>
+     * <code>repeated sint64 intValue = 3;</code>
      */
-    java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue> 
-        getIntValueList();
+    java.util.List<java.lang.Long> getIntValueList();
     /**
-     * <code>repeated .hypercube.IntValue intValue = 3;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getIntValue(int index);
-    /**
-     * <code>repeated .hypercube.IntValue intValue = 3;</code>
+     * <code>repeated sint64 intValue = 3;</code>
      */
     int getIntValueCount();
     /**
-     * <code>repeated .hypercube.IntValue intValue = 3;</code>
+     * <code>repeated sint64 intValue = 3;</code>
      */
-    java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder> 
-        getIntValueOrBuilderList();
-    /**
-     * <code>repeated .hypercube.IntValue intValue = 3;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder getIntValueOrBuilder(
-        int index);
+    long getIntValue(int index);
 
     /**
-     * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+     * <code>repeated int64 timestampValue = 4;</code>
      */
-    java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue> 
-        getTimestampValueList();
+    java.util.List<java.lang.Long> getTimestampValueList();
     /**
-     * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
-     */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getTimestampValue(int index);
-    /**
-     * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+     * <code>repeated int64 timestampValue = 4;</code>
      */
     int getTimestampValueCount();
     /**
-     * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+     * <code>repeated int64 timestampValue = 4;</code>
      */
-    java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder> 
-        getTimestampValueOrBuilderList();
+    long getTimestampValue(int index);
+
     /**
-     * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+     * <code>repeated int32 absentValueIndices = 5;</code>
      */
-    org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder getTimestampValueOrBuilder(
-        int index);
+    java.util.List<java.lang.Integer> getAbsentValueIndicesList();
+    /**
+     * <code>repeated int32 absentValueIndices = 5;</code>
+     */
+    int getAbsentValueIndicesCount();
+    /**
+     * <code>repeated int32 absentValueIndices = 5;</code>
+     */
+    int getAbsentValueIndices(int index);
   }
   /**
-   * Protobuf type {@code hypercube.DimElementField}
+   * Protobuf type {@code hypercube.DimensionElementFieldColumn}
    */
-  public  static final class DimElementField extends
+  public  static final class DimensionElementFieldColumn extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:hypercube.DimElementField)
-      DimElementFieldOrBuilder {
-    // Use DimElementField.newBuilder() to construct.
-    private DimElementField(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      // @@protoc_insertion_point(message_implements:hypercube.DimensionElementFieldColumn)
+      DimensionElementFieldColumnOrBuilder {
+    // Use DimensionElementFieldColumn.newBuilder() to construct.
+    private DimensionElementFieldColumn(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-    private DimElementField() {
-      stringValue_ = java.util.Collections.emptyList();
+    private DimensionElementFieldColumn() {
+      stringValue_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       doubleValue_ = java.util.Collections.emptyList();
       intValue_ = java.util.Collections.emptyList();
       timestampValue_ = java.util.Collections.emptyList();
+      absentValueIndices_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -13421,7 +11924,7 @@ public final class ObservationsProto {
     getUnknownFields() {
       return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
-    private DimElementField(
+    private DimensionElementFieldColumn(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -13442,39 +11945,96 @@ public final class ObservationsProto {
               break;
             }
             case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                stringValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue>();
+                stringValue_ = new com.google.protobuf.LazyStringArrayList();
                 mutable_bitField0_ |= 0x00000001;
               }
-              stringValue_.add(
-                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.parser(), extensionRegistry));
+              stringValue_.add(s);
+              break;
+            }
+            case 17: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                doubleValue_ = new java.util.ArrayList<java.lang.Double>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              doubleValue_.add(input.readDouble());
               break;
             }
             case 18: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                doubleValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue>();
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
+                doubleValue_ = new java.util.ArrayList<java.lang.Double>();
                 mutable_bitField0_ |= 0x00000002;
               }
-              doubleValue_.add(
-                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.parser(), extensionRegistry));
+              while (input.getBytesUntilLimit() > 0) {
+                doubleValue_.add(input.readDouble());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 24: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                intValue_ = new java.util.ArrayList<java.lang.Long>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              intValue_.add(input.readSInt64());
               break;
             }
             case 26: {
-              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                intValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue>();
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004) && input.getBytesUntilLimit() > 0) {
+                intValue_ = new java.util.ArrayList<java.lang.Long>();
                 mutable_bitField0_ |= 0x00000004;
               }
-              intValue_.add(
-                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.parser(), extensionRegistry));
+              while (input.getBytesUntilLimit() > 0) {
+                intValue_.add(input.readSInt64());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 32: {
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+                timestampValue_ = new java.util.ArrayList<java.lang.Long>();
+                mutable_bitField0_ |= 0x00000008;
+              }
+              timestampValue_.add(input.readInt64());
               break;
             }
             case 34: {
-              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                timestampValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue>();
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008) && input.getBytesUntilLimit() > 0) {
+                timestampValue_ = new java.util.ArrayList<java.lang.Long>();
                 mutable_bitField0_ |= 0x00000008;
               }
-              timestampValue_.add(
-                  input.readMessage(org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.parser(), extensionRegistry));
+              while (input.getBytesUntilLimit() > 0) {
+                timestampValue_.add(input.readInt64());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 40: {
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+                absentValueIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              absentValueIndices_.add(input.readInt32());
+              break;
+            }
+            case 42: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010) && input.getBytesUntilLimit() > 0) {
+                absentValueIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                absentValueIndices_.add(input.readInt32());
+              }
+              input.popLimit(limit);
               break;
             }
           }
@@ -13486,7 +12046,7 @@ public final class ObservationsProto {
             e).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-          stringValue_ = java.util.Collections.unmodifiableList(stringValue_);
+          stringValue_ = stringValue_.getUnmodifiableView();
         }
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           doubleValue_ = java.util.Collections.unmodifiableList(doubleValue_);
@@ -13497,31 +12057,35 @@ public final class ObservationsProto {
         if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           timestampValue_ = java.util.Collections.unmodifiableList(timestampValue_);
         }
+        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+          absentValueIndices_ = java.util.Collections.unmodifiableList(absentValueIndices_);
+        }
         makeExtensionsImmutable();
       }
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DimElementField_descriptor;
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DimensionElementFieldColumn_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DimElementField_fieldAccessorTable
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DimensionElementFieldColumn_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder.class);
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder.class);
     }
 
     public static final int STRINGVALUE_FIELD_NUMBER = 1;
-    private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue> stringValue_;
+    private com.google.protobuf.LazyStringList stringValue_;
     /**
      * <pre>
      * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
      * </pre>
      *
-     * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
-    public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue> getStringValueList() {
+    public com.google.protobuf.ProtocolStringList
+        getStringValueList() {
       return stringValue_;
     }
     /**
@@ -13529,18 +12093,7 @@ public final class ObservationsProto {
      * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
      * </pre>
      *
-     * <code>repeated .hypercube.StringValue stringValue = 1;</code>
-     */
-    public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder> 
-        getStringValueOrBuilderList() {
-      return stringValue_;
-    }
-    /**
-     * <pre>
-     * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-     * </pre>
-     *
-     * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
     public int getStringValueCount() {
       return stringValue_.size();
@@ -13550,9 +12103,9 @@ public final class ObservationsProto {
      * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
      * </pre>
      *
-     * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getStringValue(int index) {
+    public java.lang.String getStringValue(int index) {
       return stringValue_.get(index);
     }
     /**
@@ -13560,117 +12113,104 @@ public final class ObservationsProto {
      * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
      * </pre>
      *
-     * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+     * <code>repeated string stringValue = 1;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder getStringValueOrBuilder(
-        int index) {
-      return stringValue_.get(index);
+    public com.google.protobuf.ByteString
+        getStringValueBytes(int index) {
+      return stringValue_.getByteString(index);
     }
 
     public static final int DOUBLEVALUE_FIELD_NUMBER = 2;
-    private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue> doubleValue_;
+    private java.util.List<java.lang.Double> doubleValue_;
     /**
-     * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+     * <code>repeated double doubleValue = 2;</code>
      */
-    public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue> getDoubleValueList() {
+    public java.util.List<java.lang.Double>
+        getDoubleValueList() {
       return doubleValue_;
     }
     /**
-     * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-     */
-    public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder> 
-        getDoubleValueOrBuilderList() {
-      return doubleValue_;
-    }
-    /**
-     * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+     * <code>repeated double doubleValue = 2;</code>
      */
     public int getDoubleValueCount() {
       return doubleValue_.size();
     }
     /**
-     * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+     * <code>repeated double doubleValue = 2;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDoubleValue(int index) {
+    public double getDoubleValue(int index) {
       return doubleValue_.get(index);
     }
-    /**
-     * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-     */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder getDoubleValueOrBuilder(
-        int index) {
-      return doubleValue_.get(index);
-    }
+    private int doubleValueMemoizedSerializedSize = -1;
 
     public static final int INTVALUE_FIELD_NUMBER = 3;
-    private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue> intValue_;
+    private java.util.List<java.lang.Long> intValue_;
     /**
-     * <code>repeated .hypercube.IntValue intValue = 3;</code>
+     * <code>repeated sint64 intValue = 3;</code>
      */
-    public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue> getIntValueList() {
+    public java.util.List<java.lang.Long>
+        getIntValueList() {
       return intValue_;
     }
     /**
-     * <code>repeated .hypercube.IntValue intValue = 3;</code>
-     */
-    public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder> 
-        getIntValueOrBuilderList() {
-      return intValue_;
-    }
-    /**
-     * <code>repeated .hypercube.IntValue intValue = 3;</code>
+     * <code>repeated sint64 intValue = 3;</code>
      */
     public int getIntValueCount() {
       return intValue_.size();
     }
     /**
-     * <code>repeated .hypercube.IntValue intValue = 3;</code>
+     * <code>repeated sint64 intValue = 3;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getIntValue(int index) {
+    public long getIntValue(int index) {
       return intValue_.get(index);
     }
-    /**
-     * <code>repeated .hypercube.IntValue intValue = 3;</code>
-     */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder getIntValueOrBuilder(
-        int index) {
-      return intValue_.get(index);
-    }
+    private int intValueMemoizedSerializedSize = -1;
 
     public static final int TIMESTAMPVALUE_FIELD_NUMBER = 4;
-    private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue> timestampValue_;
+    private java.util.List<java.lang.Long> timestampValue_;
     /**
-     * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+     * <code>repeated int64 timestampValue = 4;</code>
      */
-    public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue> getTimestampValueList() {
+    public java.util.List<java.lang.Long>
+        getTimestampValueList() {
       return timestampValue_;
     }
     /**
-     * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
-     */
-    public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder> 
-        getTimestampValueOrBuilderList() {
-      return timestampValue_;
-    }
-    /**
-     * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+     * <code>repeated int64 timestampValue = 4;</code>
      */
     public int getTimestampValueCount() {
       return timestampValue_.size();
     }
     /**
-     * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+     * <code>repeated int64 timestampValue = 4;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getTimestampValue(int index) {
+    public long getTimestampValue(int index) {
       return timestampValue_.get(index);
+    }
+    private int timestampValueMemoizedSerializedSize = -1;
+
+    public static final int ABSENTVALUEINDICES_FIELD_NUMBER = 5;
+    private java.util.List<java.lang.Integer> absentValueIndices_;
+    /**
+     * <code>repeated int32 absentValueIndices = 5;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getAbsentValueIndicesList() {
+      return absentValueIndices_;
     }
     /**
-     * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+     * <code>repeated int32 absentValueIndices = 5;</code>
      */
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder getTimestampValueOrBuilder(
-        int index) {
-      return timestampValue_.get(index);
+    public int getAbsentValueIndicesCount() {
+      return absentValueIndices_.size();
     }
+    /**
+     * <code>repeated int32 absentValueIndices = 5;</code>
+     */
+    public int getAbsentValueIndices(int index) {
+      return absentValueIndices_.get(index);
+    }
+    private int absentValueIndicesMemoizedSerializedSize = -1;
 
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -13684,17 +12224,37 @@ public final class ObservationsProto {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      getSerializedSize();
       for (int i = 0; i < stringValue_.size(); i++) {
-        output.writeMessage(1, stringValue_.get(i));
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, stringValue_.getRaw(i));
+      }
+      if (getDoubleValueList().size() > 0) {
+        output.writeUInt32NoTag(18);
+        output.writeUInt32NoTag(doubleValueMemoizedSerializedSize);
       }
       for (int i = 0; i < doubleValue_.size(); i++) {
-        output.writeMessage(2, doubleValue_.get(i));
+        output.writeDoubleNoTag(doubleValue_.get(i));
+      }
+      if (getIntValueList().size() > 0) {
+        output.writeUInt32NoTag(26);
+        output.writeUInt32NoTag(intValueMemoizedSerializedSize);
       }
       for (int i = 0; i < intValue_.size(); i++) {
-        output.writeMessage(3, intValue_.get(i));
+        output.writeSInt64NoTag(intValue_.get(i));
+      }
+      if (getTimestampValueList().size() > 0) {
+        output.writeUInt32NoTag(34);
+        output.writeUInt32NoTag(timestampValueMemoizedSerializedSize);
       }
       for (int i = 0; i < timestampValue_.size(); i++) {
-        output.writeMessage(4, timestampValue_.get(i));
+        output.writeInt64NoTag(timestampValue_.get(i));
+      }
+      if (getAbsentValueIndicesList().size() > 0) {
+        output.writeUInt32NoTag(42);
+        output.writeUInt32NoTag(absentValueIndicesMemoizedSerializedSize);
+      }
+      for (int i = 0; i < absentValueIndices_.size(); i++) {
+        output.writeInt32NoTag(absentValueIndices_.get(i));
       }
     }
 
@@ -13703,21 +12263,66 @@ public final class ObservationsProto {
       if (size != -1) return size;
 
       size = 0;
-      for (int i = 0; i < stringValue_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, stringValue_.get(i));
+      {
+        int dataSize = 0;
+        for (int i = 0; i < stringValue_.size(); i++) {
+          dataSize += computeStringSizeNoTag(stringValue_.getRaw(i));
+        }
+        size += dataSize;
+        size += 1 * getStringValueList().size();
       }
-      for (int i = 0; i < doubleValue_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, doubleValue_.get(i));
+      {
+        int dataSize = 0;
+        dataSize = 8 * getDoubleValueList().size();
+        size += dataSize;
+        if (!getDoubleValueList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        doubleValueMemoizedSerializedSize = dataSize;
       }
-      for (int i = 0; i < intValue_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, intValue_.get(i));
+      {
+        int dataSize = 0;
+        for (int i = 0; i < intValue_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeSInt64SizeNoTag(intValue_.get(i));
+        }
+        size += dataSize;
+        if (!getIntValueList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        intValueMemoizedSerializedSize = dataSize;
       }
-      for (int i = 0; i < timestampValue_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(4, timestampValue_.get(i));
+      {
+        int dataSize = 0;
+        for (int i = 0; i < timestampValue_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt64SizeNoTag(timestampValue_.get(i));
+        }
+        size += dataSize;
+        if (!getTimestampValueList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        timestampValueMemoizedSerializedSize = dataSize;
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < absentValueIndices_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(absentValueIndices_.get(i));
+        }
+        size += dataSize;
+        if (!getAbsentValueIndicesList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        absentValueIndicesMemoizedSerializedSize = dataSize;
       }
       memoizedSize = size;
       return size;
@@ -13729,10 +12334,10 @@ public final class ObservationsProto {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField)) {
+      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn)) {
         return super.equals(obj);
       }
-      org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField) obj;
+      org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn) obj;
 
       boolean result = true;
       result = result && getStringValueList()
@@ -13743,6 +12348,8 @@ public final class ObservationsProto {
           .equals(other.getIntValueList());
       result = result && getTimestampValueList()
           .equals(other.getTimestampValueList());
+      result = result && getAbsentValueIndicesList()
+          .equals(other.getAbsentValueIndicesList());
       return result;
     }
 
@@ -13769,63 +12376,67 @@ public final class ObservationsProto {
         hash = (37 * hash) + TIMESTAMPVALUE_FIELD_NUMBER;
         hash = (53 * hash) + getTimestampValueList().hashCode();
       }
+      if (getAbsentValueIndicesCount() > 0) {
+        hash = (37 * hash) + ABSENTVALUEINDICES_FIELD_NUMBER;
+        hash = (53 * hash) + getAbsentValueIndicesList().hashCode();
+      }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
     }
 
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField parseFrom(byte[] data)
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField parseFrom(java.io.InputStream input)
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField parseDelimitedFrom(java.io.InputStream input)
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField parseDelimitedFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField parseFrom(
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -13837,7 +12448,7 @@ public final class ObservationsProto {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField prototype) {
+    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -13852,25 +12463,25 @@ public final class ObservationsProto {
       return builder;
     }
     /**
-     * Protobuf type {@code hypercube.DimElementField}
+     * Protobuf type {@code hypercube.DimensionElementFieldColumn}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:hypercube.DimElementField)
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementFieldOrBuilder {
+        // @@protoc_insertion_point(builder_implements:hypercube.DimensionElementFieldColumn)
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DimElementField_descriptor;
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DimensionElementFieldColumn_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DimElementField_fieldAccessorTable
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DimensionElementFieldColumn_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.Builder.class);
+                org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.Builder.class);
       }
 
-      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.newBuilder()
+      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -13883,97 +12494,68 @@ public final class ObservationsProto {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
-          getStringValueFieldBuilder();
-          getDoubleValueFieldBuilder();
-          getIntValueFieldBuilder();
-          getTimestampValueFieldBuilder();
         }
       }
       public Builder clear() {
         super.clear();
-        if (stringValueBuilder_ == null) {
-          stringValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
-        } else {
-          stringValueBuilder_.clear();
-        }
-        if (doubleValueBuilder_ == null) {
-          doubleValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
-        } else {
-          doubleValueBuilder_.clear();
-        }
-        if (intValueBuilder_ == null) {
-          intValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000004);
-        } else {
-          intValueBuilder_.clear();
-        }
-        if (timestampValueBuilder_ == null) {
-          timestampValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000008);
-        } else {
-          timestampValueBuilder_.clear();
-        }
+        stringValue_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        doubleValue_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        intValue_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        timestampValue_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000008);
+        absentValueIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DimElementField_descriptor;
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_DimensionElementFieldColumn_descriptor;
       }
 
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField getDefaultInstanceForType() {
-        return org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.getDefaultInstance();
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn getDefaultInstanceForType() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.getDefaultInstance();
       }
 
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField build() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField result = buildPartial();
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn build() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField buildPartial() {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField(this);
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn buildPartial() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn(this);
         int from_bitField0_ = bitField0_;
-        if (stringValueBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            stringValue_ = java.util.Collections.unmodifiableList(stringValue_);
-            bitField0_ = (bitField0_ & ~0x00000001);
-          }
-          result.stringValue_ = stringValue_;
-        } else {
-          result.stringValue_ = stringValueBuilder_.build();
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          stringValue_ = stringValue_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000001);
         }
-        if (doubleValueBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) == 0x00000002)) {
-            doubleValue_ = java.util.Collections.unmodifiableList(doubleValue_);
-            bitField0_ = (bitField0_ & ~0x00000002);
-          }
-          result.doubleValue_ = doubleValue_;
-        } else {
-          result.doubleValue_ = doubleValueBuilder_.build();
+        result.stringValue_ = stringValue_;
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          doubleValue_ = java.util.Collections.unmodifiableList(doubleValue_);
+          bitField0_ = (bitField0_ & ~0x00000002);
         }
-        if (intValueBuilder_ == null) {
-          if (((bitField0_ & 0x00000004) == 0x00000004)) {
-            intValue_ = java.util.Collections.unmodifiableList(intValue_);
-            bitField0_ = (bitField0_ & ~0x00000004);
-          }
-          result.intValue_ = intValue_;
-        } else {
-          result.intValue_ = intValueBuilder_.build();
+        result.doubleValue_ = doubleValue_;
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          intValue_ = java.util.Collections.unmodifiableList(intValue_);
+          bitField0_ = (bitField0_ & ~0x00000004);
         }
-        if (timestampValueBuilder_ == null) {
-          if (((bitField0_ & 0x00000008) == 0x00000008)) {
-            timestampValue_ = java.util.Collections.unmodifiableList(timestampValue_);
-            bitField0_ = (bitField0_ & ~0x00000008);
-          }
-          result.timestampValue_ = timestampValue_;
-        } else {
-          result.timestampValue_ = timestampValueBuilder_.build();
+        result.intValue_ = intValue_;
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          timestampValue_ = java.util.Collections.unmodifiableList(timestampValue_);
+          bitField0_ = (bitField0_ & ~0x00000008);
         }
+        result.timestampValue_ = timestampValue_;
+        if (((bitField0_ & 0x00000010) == 0x00000010)) {
+          absentValueIndices_ = java.util.Collections.unmodifiableList(absentValueIndices_);
+          bitField0_ = (bitField0_ & ~0x00000010);
+        }
+        result.absentValueIndices_ = absentValueIndices_;
         onBuilt();
         return result;
       }
@@ -14005,119 +12587,65 @@ public final class ObservationsProto {
         return (Builder) super.addRepeatedField(field, value);
       }
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField) {
-          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField)other);
+        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn) {
+          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField other) {
-        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField.getDefaultInstance()) return this;
-        if (stringValueBuilder_ == null) {
-          if (!other.stringValue_.isEmpty()) {
-            if (stringValue_.isEmpty()) {
-              stringValue_ = other.stringValue_;
-              bitField0_ = (bitField0_ & ~0x00000001);
-            } else {
-              ensureStringValueIsMutable();
-              stringValue_.addAll(other.stringValue_);
-            }
-            onChanged();
+      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn other) {
+        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn.getDefaultInstance()) return this;
+        if (!other.stringValue_.isEmpty()) {
+          if (stringValue_.isEmpty()) {
+            stringValue_ = other.stringValue_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+          } else {
+            ensureStringValueIsMutable();
+            stringValue_.addAll(other.stringValue_);
           }
-        } else {
-          if (!other.stringValue_.isEmpty()) {
-            if (stringValueBuilder_.isEmpty()) {
-              stringValueBuilder_.dispose();
-              stringValueBuilder_ = null;
-              stringValue_ = other.stringValue_;
-              bitField0_ = (bitField0_ & ~0x00000001);
-              stringValueBuilder_ = 
-                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                   getStringValueFieldBuilder() : null;
-            } else {
-              stringValueBuilder_.addAllMessages(other.stringValue_);
-            }
-          }
+          onChanged();
         }
-        if (doubleValueBuilder_ == null) {
-          if (!other.doubleValue_.isEmpty()) {
-            if (doubleValue_.isEmpty()) {
-              doubleValue_ = other.doubleValue_;
-              bitField0_ = (bitField0_ & ~0x00000002);
-            } else {
-              ensureDoubleValueIsMutable();
-              doubleValue_.addAll(other.doubleValue_);
-            }
-            onChanged();
+        if (!other.doubleValue_.isEmpty()) {
+          if (doubleValue_.isEmpty()) {
+            doubleValue_ = other.doubleValue_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+          } else {
+            ensureDoubleValueIsMutable();
+            doubleValue_.addAll(other.doubleValue_);
           }
-        } else {
-          if (!other.doubleValue_.isEmpty()) {
-            if (doubleValueBuilder_.isEmpty()) {
-              doubleValueBuilder_.dispose();
-              doubleValueBuilder_ = null;
-              doubleValue_ = other.doubleValue_;
-              bitField0_ = (bitField0_ & ~0x00000002);
-              doubleValueBuilder_ = 
-                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                   getDoubleValueFieldBuilder() : null;
-            } else {
-              doubleValueBuilder_.addAllMessages(other.doubleValue_);
-            }
-          }
+          onChanged();
         }
-        if (intValueBuilder_ == null) {
-          if (!other.intValue_.isEmpty()) {
-            if (intValue_.isEmpty()) {
-              intValue_ = other.intValue_;
-              bitField0_ = (bitField0_ & ~0x00000004);
-            } else {
-              ensureIntValueIsMutable();
-              intValue_.addAll(other.intValue_);
-            }
-            onChanged();
+        if (!other.intValue_.isEmpty()) {
+          if (intValue_.isEmpty()) {
+            intValue_ = other.intValue_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+          } else {
+            ensureIntValueIsMutable();
+            intValue_.addAll(other.intValue_);
           }
-        } else {
-          if (!other.intValue_.isEmpty()) {
-            if (intValueBuilder_.isEmpty()) {
-              intValueBuilder_.dispose();
-              intValueBuilder_ = null;
-              intValue_ = other.intValue_;
-              bitField0_ = (bitField0_ & ~0x00000004);
-              intValueBuilder_ = 
-                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                   getIntValueFieldBuilder() : null;
-            } else {
-              intValueBuilder_.addAllMessages(other.intValue_);
-            }
-          }
+          onChanged();
         }
-        if (timestampValueBuilder_ == null) {
-          if (!other.timestampValue_.isEmpty()) {
-            if (timestampValue_.isEmpty()) {
-              timestampValue_ = other.timestampValue_;
-              bitField0_ = (bitField0_ & ~0x00000008);
-            } else {
-              ensureTimestampValueIsMutable();
-              timestampValue_.addAll(other.timestampValue_);
-            }
-            onChanged();
+        if (!other.timestampValue_.isEmpty()) {
+          if (timestampValue_.isEmpty()) {
+            timestampValue_ = other.timestampValue_;
+            bitField0_ = (bitField0_ & ~0x00000008);
+          } else {
+            ensureTimestampValueIsMutable();
+            timestampValue_.addAll(other.timestampValue_);
           }
-        } else {
-          if (!other.timestampValue_.isEmpty()) {
-            if (timestampValueBuilder_.isEmpty()) {
-              timestampValueBuilder_.dispose();
-              timestampValueBuilder_ = null;
-              timestampValue_ = other.timestampValue_;
-              bitField0_ = (bitField0_ & ~0x00000008);
-              timestampValueBuilder_ = 
-                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
-                   getTimestampValueFieldBuilder() : null;
-            } else {
-              timestampValueBuilder_.addAllMessages(other.timestampValue_);
-            }
+          onChanged();
+        }
+        if (!other.absentValueIndices_.isEmpty()) {
+          if (absentValueIndices_.isEmpty()) {
+            absentValueIndices_ = other.absentValueIndices_;
+            bitField0_ = (bitField0_ & ~0x00000010);
+          } else {
+            ensureAbsentValueIndicesIsMutable();
+            absentValueIndices_.addAll(other.absentValueIndices_);
           }
+          onChanged();
         }
         onChanged();
         return this;
@@ -14131,11 +12659,11 @@ public final class ObservationsProto {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField parsedMessage = null;
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField) e.getUnfinishedMessage();
+          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -14146,97 +12674,70 @@ public final class ObservationsProto {
       }
       private int bitField0_;
 
-      private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue> stringValue_ =
-        java.util.Collections.emptyList();
+      private com.google.protobuf.LazyStringList stringValue_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       private void ensureStringValueIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          stringValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue>(stringValue_);
+          stringValue_ = new com.google.protobuf.LazyStringArrayList(stringValue_);
           bitField0_ |= 0x00000001;
          }
       }
-
-      private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder> stringValueBuilder_;
-
       /**
        * <pre>
        * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
        * </pre>
        *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue> getStringValueList() {
-        if (stringValueBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(stringValue_);
-        } else {
-          return stringValueBuilder_.getMessageList();
-        }
+      public com.google.protobuf.ProtocolStringList
+          getStringValueList() {
+        return stringValue_.getUnmodifiableView();
       }
       /**
        * <pre>
        * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
        * </pre>
        *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
       public int getStringValueCount() {
-        if (stringValueBuilder_ == null) {
-          return stringValue_.size();
-        } else {
-          return stringValueBuilder_.getCount();
-        }
+        return stringValue_.size();
       }
       /**
        * <pre>
        * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
        * </pre>
        *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue getStringValue(int index) {
-        if (stringValueBuilder_ == null) {
-          return stringValue_.get(index);
-        } else {
-          return stringValueBuilder_.getMessage(index);
-        }
+      public java.lang.String getStringValue(int index) {
+        return stringValue_.get(index);
       }
       /**
        * <pre>
        * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
        * </pre>
        *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
-      public Builder setStringValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue value) {
-        if (stringValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureStringValueIsMutable();
-          stringValue_.set(index, value);
-          onChanged();
-        } else {
-          stringValueBuilder_.setMessage(index, value);
-        }
-        return this;
+      public com.google.protobuf.ByteString
+          getStringValueBytes(int index) {
+        return stringValue_.getByteString(index);
       }
       /**
        * <pre>
        * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
        * </pre>
        *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
       public Builder setStringValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder builderForValue) {
-        if (stringValueBuilder_ == null) {
-          ensureStringValueIsMutable();
-          stringValue_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          stringValueBuilder_.setMessage(index, builderForValue.build());
-        }
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureStringValueIsMutable();
+        stringValue_.set(index, value);
+        onChanged();
         return this;
       }
       /**
@@ -14244,40 +12745,16 @@ public final class ObservationsProto {
        * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
        * </pre>
        *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
-       */
-      public Builder addStringValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue value) {
-        if (stringValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureStringValueIsMutable();
-          stringValue_.add(value);
-          onChanged();
-        } else {
-          stringValueBuilder_.addMessage(value);
-        }
-        return this;
-      }
-      /**
-       * <pre>
-       * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-       * </pre>
-       *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
       public Builder addStringValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue value) {
-        if (stringValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureStringValueIsMutable();
-          stringValue_.add(index, value);
-          onChanged();
-        } else {
-          stringValueBuilder_.addMessage(index, value);
-        }
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureStringValueIsMutable();
+        stringValue_.add(value);
+        onChanged();
         return this;
       }
       /**
@@ -14285,54 +12762,14 @@ public final class ObservationsProto {
        * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
        * </pre>
        *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
-       */
-      public Builder addStringValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder builderForValue) {
-        if (stringValueBuilder_ == null) {
-          ensureStringValueIsMutable();
-          stringValue_.add(builderForValue.build());
-          onChanged();
-        } else {
-          stringValueBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <pre>
-       * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-       * </pre>
-       *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
-       */
-      public Builder addStringValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder builderForValue) {
-        if (stringValueBuilder_ == null) {
-          ensureStringValueIsMutable();
-          stringValue_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          stringValueBuilder_.addMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <pre>
-       * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-       * </pre>
-       *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
       public Builder addAllStringValue(
-          java.lang.Iterable<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue> values) {
-        if (stringValueBuilder_ == null) {
-          ensureStringValueIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, stringValue_);
-          onChanged();
-        } else {
-          stringValueBuilder_.addAllMessages(values);
-        }
+          java.lang.Iterable<java.lang.String> values) {
+        ensureStringValueIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, stringValue_);
+        onChanged();
         return this;
       }
       /**
@@ -14340,16 +12777,12 @@ public final class ObservationsProto {
        * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
        * </pre>
        *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
       public Builder clearStringValue() {
-        if (stringValueBuilder_ == null) {
-          stringValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
-          onChanged();
-        } else {
-          stringValueBuilder_.clear();
-        }
+        stringValue_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
         return this;
       }
       /**
@@ -14357,825 +12790,282 @@ public final class ObservationsProto {
        * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
        * </pre>
        *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
+       * <code>repeated string stringValue = 1;</code>
        */
-      public Builder removeStringValue(int index) {
-        if (stringValueBuilder_ == null) {
-          ensureStringValueIsMutable();
-          stringValue_.remove(index);
-          onChanged();
-        } else {
-          stringValueBuilder_.remove(index);
-        }
+      public Builder addStringValueBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        ensureStringValueIsMutable();
+        stringValue_.add(value);
+        onChanged();
         return this;
-      }
-      /**
-       * <pre>
-       * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-       * </pre>
-       *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder getStringValueBuilder(
-          int index) {
-        return getStringValueFieldBuilder().getBuilder(index);
-      }
-      /**
-       * <pre>
-       * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-       * </pre>
-       *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder getStringValueOrBuilder(
-          int index) {
-        if (stringValueBuilder_ == null) {
-          return stringValue_.get(index);  } else {
-          return stringValueBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      /**
-       * <pre>
-       * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-       * </pre>
-       *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
-       */
-      public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder> 
-           getStringValueOrBuilderList() {
-        if (stringValueBuilder_ != null) {
-          return stringValueBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(stringValue_);
-        }
-      }
-      /**
-       * <pre>
-       * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-       * </pre>
-       *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder addStringValueBuilder() {
-        return getStringValueFieldBuilder().addBuilder(
-            org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance());
-      }
-      /**
-       * <pre>
-       * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-       * </pre>
-       *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder addStringValueBuilder(
-          int index) {
-        return getStringValueFieldBuilder().addBuilder(
-            index, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.getDefaultInstance());
-      }
-      /**
-       * <pre>
-       * Values for one field of all dimension elements, e.g. values for the 'age' field of all the patients in intValue.
-       * </pre>
-       *
-       * <code>repeated .hypercube.StringValue stringValue = 1;</code>
-       */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder> 
-           getStringValueBuilderList() {
-        return getStringValueFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder> 
-          getStringValueFieldBuilder() {
-        if (stringValueBuilder_ == null) {
-          stringValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.StringValueOrBuilder>(
-                  stringValue_,
-                  ((bitField0_ & 0x00000001) == 0x00000001),
-                  getParentForChildren(),
-                  isClean());
-          stringValue_ = null;
-        }
-        return stringValueBuilder_;
       }
 
-      private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue> doubleValue_ =
-        java.util.Collections.emptyList();
+      private java.util.List<java.lang.Double> doubleValue_ = java.util.Collections.emptyList();
       private void ensureDoubleValueIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          doubleValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue>(doubleValue_);
+          doubleValue_ = new java.util.ArrayList<java.lang.Double>(doubleValue_);
           bitField0_ |= 0x00000002;
          }
       }
-
-      private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder> doubleValueBuilder_;
-
       /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+       * <code>repeated double doubleValue = 2;</code>
        */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue> getDoubleValueList() {
-        if (doubleValueBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(doubleValue_);
-        } else {
-          return doubleValueBuilder_.getMessageList();
-        }
+      public java.util.List<java.lang.Double>
+          getDoubleValueList() {
+        return java.util.Collections.unmodifiableList(doubleValue_);
       }
       /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+       * <code>repeated double doubleValue = 2;</code>
        */
       public int getDoubleValueCount() {
-        if (doubleValueBuilder_ == null) {
-          return doubleValue_.size();
-        } else {
-          return doubleValueBuilder_.getCount();
-        }
+        return doubleValue_.size();
       }
       /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+       * <code>repeated double doubleValue = 2;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue getDoubleValue(int index) {
-        if (doubleValueBuilder_ == null) {
-          return doubleValue_.get(index);
-        } else {
-          return doubleValueBuilder_.getMessage(index);
-        }
+      public double getDoubleValue(int index) {
+        return doubleValue_.get(index);
       }
       /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+       * <code>repeated double doubleValue = 2;</code>
        */
       public Builder setDoubleValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue value) {
-        if (doubleValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureDoubleValueIsMutable();
-          doubleValue_.set(index, value);
-          onChanged();
-        } else {
-          doubleValueBuilder_.setMessage(index, value);
-        }
+          int index, double value) {
+        ensureDoubleValueIsMutable();
+        doubleValue_.set(index, value);
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+       * <code>repeated double doubleValue = 2;</code>
        */
-      public Builder setDoubleValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder builderForValue) {
-        if (doubleValueBuilder_ == null) {
-          ensureDoubleValueIsMutable();
-          doubleValue_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          doubleValueBuilder_.setMessage(index, builderForValue.build());
-        }
+      public Builder addDoubleValue(double value) {
+        ensureDoubleValueIsMutable();
+        doubleValue_.add(value);
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public Builder addDoubleValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue value) {
-        if (doubleValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureDoubleValueIsMutable();
-          doubleValue_.add(value);
-          onChanged();
-        } else {
-          doubleValueBuilder_.addMessage(value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public Builder addDoubleValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue value) {
-        if (doubleValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureDoubleValueIsMutable();
-          doubleValue_.add(index, value);
-          onChanged();
-        } else {
-          doubleValueBuilder_.addMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public Builder addDoubleValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder builderForValue) {
-        if (doubleValueBuilder_ == null) {
-          ensureDoubleValueIsMutable();
-          doubleValue_.add(builderForValue.build());
-          onChanged();
-        } else {
-          doubleValueBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public Builder addDoubleValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder builderForValue) {
-        if (doubleValueBuilder_ == null) {
-          ensureDoubleValueIsMutable();
-          doubleValue_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          doubleValueBuilder_.addMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+       * <code>repeated double doubleValue = 2;</code>
        */
       public Builder addAllDoubleValue(
-          java.lang.Iterable<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue> values) {
-        if (doubleValueBuilder_ == null) {
-          ensureDoubleValueIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, doubleValue_);
-          onChanged();
-        } else {
-          doubleValueBuilder_.addAllMessages(values);
-        }
+          java.lang.Iterable<? extends java.lang.Double> values) {
+        ensureDoubleValueIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, doubleValue_);
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
+       * <code>repeated double doubleValue = 2;</code>
        */
       public Builder clearDoubleValue() {
-        if (doubleValueBuilder_ == null) {
-          doubleValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
-          onChanged();
-        } else {
-          doubleValueBuilder_.clear();
-        }
+        doubleValue_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
         return this;
-      }
-      /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public Builder removeDoubleValue(int index) {
-        if (doubleValueBuilder_ == null) {
-          ensureDoubleValueIsMutable();
-          doubleValue_.remove(index);
-          onChanged();
-        } else {
-          doubleValueBuilder_.remove(index);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder getDoubleValueBuilder(
-          int index) {
-        return getDoubleValueFieldBuilder().getBuilder(index);
-      }
-      /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder getDoubleValueOrBuilder(
-          int index) {
-        if (doubleValueBuilder_ == null) {
-          return doubleValue_.get(index);  } else {
-          return doubleValueBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder> 
-           getDoubleValueOrBuilderList() {
-        if (doubleValueBuilder_ != null) {
-          return doubleValueBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(doubleValue_);
-        }
-      }
-      /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder addDoubleValueBuilder() {
-        return getDoubleValueFieldBuilder().addBuilder(
-            org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder addDoubleValueBuilder(
-          int index) {
-        return getDoubleValueFieldBuilder().addBuilder(
-            index, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .hypercube.DoubleValue doubleValue = 2;</code>
-       */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder> 
-           getDoubleValueBuilderList() {
-        return getDoubleValueFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder> 
-          getDoubleValueFieldBuilder() {
-        if (doubleValueBuilder_ == null) {
-          doubleValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.DoubleValueOrBuilder>(
-                  doubleValue_,
-                  ((bitField0_ & 0x00000002) == 0x00000002),
-                  getParentForChildren(),
-                  isClean());
-          doubleValue_ = null;
-        }
-        return doubleValueBuilder_;
       }
 
-      private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue> intValue_ =
-        java.util.Collections.emptyList();
+      private java.util.List<java.lang.Long> intValue_ = java.util.Collections.emptyList();
       private void ensureIntValueIsMutable() {
         if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          intValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue>(intValue_);
+          intValue_ = new java.util.ArrayList<java.lang.Long>(intValue_);
           bitField0_ |= 0x00000004;
          }
       }
-
-      private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder> intValueBuilder_;
-
       /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
+       * <code>repeated sint64 intValue = 3;</code>
        */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue> getIntValueList() {
-        if (intValueBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(intValue_);
-        } else {
-          return intValueBuilder_.getMessageList();
-        }
+      public java.util.List<java.lang.Long>
+          getIntValueList() {
+        return java.util.Collections.unmodifiableList(intValue_);
       }
       /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
+       * <code>repeated sint64 intValue = 3;</code>
        */
       public int getIntValueCount() {
-        if (intValueBuilder_ == null) {
-          return intValue_.size();
-        } else {
-          return intValueBuilder_.getCount();
-        }
+        return intValue_.size();
       }
       /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
+       * <code>repeated sint64 intValue = 3;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue getIntValue(int index) {
-        if (intValueBuilder_ == null) {
-          return intValue_.get(index);
-        } else {
-          return intValueBuilder_.getMessage(index);
-        }
+      public long getIntValue(int index) {
+        return intValue_.get(index);
       }
       /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
+       * <code>repeated sint64 intValue = 3;</code>
        */
       public Builder setIntValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue value) {
-        if (intValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureIntValueIsMutable();
-          intValue_.set(index, value);
-          onChanged();
-        } else {
-          intValueBuilder_.setMessage(index, value);
-        }
+          int index, long value) {
+        ensureIntValueIsMutable();
+        intValue_.set(index, value);
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
+       * <code>repeated sint64 intValue = 3;</code>
        */
-      public Builder setIntValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder builderForValue) {
-        if (intValueBuilder_ == null) {
-          ensureIntValueIsMutable();
-          intValue_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          intValueBuilder_.setMessage(index, builderForValue.build());
-        }
+      public Builder addIntValue(long value) {
+        ensureIntValueIsMutable();
+        intValue_.add(value);
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
-       */
-      public Builder addIntValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue value) {
-        if (intValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureIntValueIsMutable();
-          intValue_.add(value);
-          onChanged();
-        } else {
-          intValueBuilder_.addMessage(value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
-       */
-      public Builder addIntValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue value) {
-        if (intValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureIntValueIsMutable();
-          intValue_.add(index, value);
-          onChanged();
-        } else {
-          intValueBuilder_.addMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
-       */
-      public Builder addIntValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder builderForValue) {
-        if (intValueBuilder_ == null) {
-          ensureIntValueIsMutable();
-          intValue_.add(builderForValue.build());
-          onChanged();
-        } else {
-          intValueBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
-       */
-      public Builder addIntValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder builderForValue) {
-        if (intValueBuilder_ == null) {
-          ensureIntValueIsMutable();
-          intValue_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          intValueBuilder_.addMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
+       * <code>repeated sint64 intValue = 3;</code>
        */
       public Builder addAllIntValue(
-          java.lang.Iterable<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue> values) {
-        if (intValueBuilder_ == null) {
-          ensureIntValueIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, intValue_);
-          onChanged();
-        } else {
-          intValueBuilder_.addAllMessages(values);
-        }
+          java.lang.Iterable<? extends java.lang.Long> values) {
+        ensureIntValueIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, intValue_);
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
+       * <code>repeated sint64 intValue = 3;</code>
        */
       public Builder clearIntValue() {
-        if (intValueBuilder_ == null) {
-          intValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000004);
-          onChanged();
-        } else {
-          intValueBuilder_.clear();
-        }
+        intValue_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
         return this;
-      }
-      /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
-       */
-      public Builder removeIntValue(int index) {
-        if (intValueBuilder_ == null) {
-          ensureIntValueIsMutable();
-          intValue_.remove(index);
-          onChanged();
-        } else {
-          intValueBuilder_.remove(index);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder getIntValueBuilder(
-          int index) {
-        return getIntValueFieldBuilder().getBuilder(index);
-      }
-      /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder getIntValueOrBuilder(
-          int index) {
-        if (intValueBuilder_ == null) {
-          return intValue_.get(index);  } else {
-          return intValueBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
-       */
-      public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder> 
-           getIntValueOrBuilderList() {
-        if (intValueBuilder_ != null) {
-          return intValueBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(intValue_);
-        }
-      }
-      /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder addIntValueBuilder() {
-        return getIntValueFieldBuilder().addBuilder(
-            org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder addIntValueBuilder(
-          int index) {
-        return getIntValueFieldBuilder().addBuilder(
-            index, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .hypercube.IntValue intValue = 3;</code>
-       */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder> 
-           getIntValueBuilderList() {
-        return getIntValueFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder> 
-          getIntValueFieldBuilder() {
-        if (intValueBuilder_ == null) {
-          intValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.IntValueOrBuilder>(
-                  intValue_,
-                  ((bitField0_ & 0x00000004) == 0x00000004),
-                  getParentForChildren(),
-                  isClean());
-          intValue_ = null;
-        }
-        return intValueBuilder_;
       }
 
-      private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue> timestampValue_ =
-        java.util.Collections.emptyList();
+      private java.util.List<java.lang.Long> timestampValue_ = java.util.Collections.emptyList();
       private void ensureTimestampValueIsMutable() {
         if (!((bitField0_ & 0x00000008) == 0x00000008)) {
-          timestampValue_ = new java.util.ArrayList<org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue>(timestampValue_);
+          timestampValue_ = new java.util.ArrayList<java.lang.Long>(timestampValue_);
           bitField0_ |= 0x00000008;
          }
       }
-
-      private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder> timestampValueBuilder_;
-
       /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>repeated int64 timestampValue = 4;</code>
        */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue> getTimestampValueList() {
-        if (timestampValueBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(timestampValue_);
-        } else {
-          return timestampValueBuilder_.getMessageList();
-        }
+      public java.util.List<java.lang.Long>
+          getTimestampValueList() {
+        return java.util.Collections.unmodifiableList(timestampValue_);
       }
       /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>repeated int64 timestampValue = 4;</code>
        */
       public int getTimestampValueCount() {
-        if (timestampValueBuilder_ == null) {
-          return timestampValue_.size();
-        } else {
-          return timestampValueBuilder_.getCount();
-        }
+        return timestampValue_.size();
       }
       /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>repeated int64 timestampValue = 4;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue getTimestampValue(int index) {
-        if (timestampValueBuilder_ == null) {
-          return timestampValue_.get(index);
-        } else {
-          return timestampValueBuilder_.getMessage(index);
-        }
+      public long getTimestampValue(int index) {
+        return timestampValue_.get(index);
       }
       /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>repeated int64 timestampValue = 4;</code>
        */
       public Builder setTimestampValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue value) {
-        if (timestampValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureTimestampValueIsMutable();
-          timestampValue_.set(index, value);
-          onChanged();
-        } else {
-          timestampValueBuilder_.setMessage(index, value);
-        }
+          int index, long value) {
+        ensureTimestampValueIsMutable();
+        timestampValue_.set(index, value);
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>repeated int64 timestampValue = 4;</code>
        */
-      public Builder setTimestampValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder builderForValue) {
-        if (timestampValueBuilder_ == null) {
-          ensureTimestampValueIsMutable();
-          timestampValue_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          timestampValueBuilder_.setMessage(index, builderForValue.build());
-        }
+      public Builder addTimestampValue(long value) {
+        ensureTimestampValueIsMutable();
+        timestampValue_.add(value);
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public Builder addTimestampValue(org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue value) {
-        if (timestampValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureTimestampValueIsMutable();
-          timestampValue_.add(value);
-          onChanged();
-        } else {
-          timestampValueBuilder_.addMessage(value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public Builder addTimestampValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue value) {
-        if (timestampValueBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureTimestampValueIsMutable();
-          timestampValue_.add(index, value);
-          onChanged();
-        } else {
-          timestampValueBuilder_.addMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public Builder addTimestampValue(
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder builderForValue) {
-        if (timestampValueBuilder_ == null) {
-          ensureTimestampValueIsMutable();
-          timestampValue_.add(builderForValue.build());
-          onChanged();
-        } else {
-          timestampValueBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public Builder addTimestampValue(
-          int index, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder builderForValue) {
-        if (timestampValueBuilder_ == null) {
-          ensureTimestampValueIsMutable();
-          timestampValue_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          timestampValueBuilder_.addMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>repeated int64 timestampValue = 4;</code>
        */
       public Builder addAllTimestampValue(
-          java.lang.Iterable<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue> values) {
-        if (timestampValueBuilder_ == null) {
-          ensureTimestampValueIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, timestampValue_);
-          onChanged();
-        } else {
-          timestampValueBuilder_.addAllMessages(values);
-        }
+          java.lang.Iterable<? extends java.lang.Long> values) {
+        ensureTimestampValueIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, timestampValue_);
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>repeated int64 timestampValue = 4;</code>
        */
       public Builder clearTimestampValue() {
-        if (timestampValueBuilder_ == null) {
-          timestampValue_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000008);
-          onChanged();
-        } else {
-          timestampValueBuilder_.clear();
-        }
+        timestampValue_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<java.lang.Integer> absentValueIndices_ = java.util.Collections.emptyList();
+      private void ensureAbsentValueIndicesIsMutable() {
+        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+          absentValueIndices_ = new java.util.ArrayList<java.lang.Integer>(absentValueIndices_);
+          bitField0_ |= 0x00000010;
+         }
+      }
+      /**
+       * <code>repeated int32 absentValueIndices = 5;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getAbsentValueIndicesList() {
+        return java.util.Collections.unmodifiableList(absentValueIndices_);
+      }
+      /**
+       * <code>repeated int32 absentValueIndices = 5;</code>
+       */
+      public int getAbsentValueIndicesCount() {
+        return absentValueIndices_.size();
+      }
+      /**
+       * <code>repeated int32 absentValueIndices = 5;</code>
+       */
+      public int getAbsentValueIndices(int index) {
+        return absentValueIndices_.get(index);
+      }
+      /**
+       * <code>repeated int32 absentValueIndices = 5;</code>
+       */
+      public Builder setAbsentValueIndices(
+          int index, int value) {
+        ensureAbsentValueIndicesIsMutable();
+        absentValueIndices_.set(index, value);
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>repeated int32 absentValueIndices = 5;</code>
        */
-      public Builder removeTimestampValue(int index) {
-        if (timestampValueBuilder_ == null) {
-          ensureTimestampValueIsMutable();
-          timestampValue_.remove(index);
-          onChanged();
-        } else {
-          timestampValueBuilder_.remove(index);
-        }
+      public Builder addAbsentValueIndices(int value) {
+        ensureAbsentValueIndicesIsMutable();
+        absentValueIndices_.add(value);
+        onChanged();
         return this;
       }
       /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>repeated int32 absentValueIndices = 5;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder getTimestampValueBuilder(
-          int index) {
-        return getTimestampValueFieldBuilder().getBuilder(index);
+      public Builder addAllAbsentValueIndices(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureAbsentValueIndicesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, absentValueIndices_);
+        onChanged();
+        return this;
       }
       /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
+       * <code>repeated int32 absentValueIndices = 5;</code>
        */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder getTimestampValueOrBuilder(
-          int index) {
-        if (timestampValueBuilder_ == null) {
-          return timestampValue_.get(index);  } else {
-          return timestampValueBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public java.util.List<? extends org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder> 
-           getTimestampValueOrBuilderList() {
-        if (timestampValueBuilder_ != null) {
-          return timestampValueBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(timestampValue_);
-        }
-      }
-      /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder addTimestampValueBuilder() {
-        return getTimestampValueFieldBuilder().addBuilder(
-            org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder addTimestampValueBuilder(
-          int index) {
-        return getTimestampValueFieldBuilder().addBuilder(
-            index, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .hypercube.TimestampValue timestampValue = 4;</code>
-       */
-      public java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder> 
-           getTimestampValueBuilderList() {
-        return getTimestampValueFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilderV3<
-          org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder> 
-          getTimestampValueFieldBuilder() {
-        if (timestampValueBuilder_ == null) {
-          timestampValueBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValue.Builder, org.transmartproject.rest.hypercubeProto.ObservationsProto.TimestampValueOrBuilder>(
-                  timestampValue_,
-                  ((bitField0_ & 0x00000008) == 0x00000008),
-                  getParentForChildren(),
-                  isClean());
-          timestampValue_ = null;
-        }
-        return timestampValueBuilder_;
+      public Builder clearAbsentValueIndices() {
+        absentValueIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000010);
+        onChanged();
+        return this;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -15188,39 +13078,590 @@ public final class ObservationsProto {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:hypercube.DimElementField)
+      // @@protoc_insertion_point(builder_scope:hypercube.DimensionElementFieldColumn)
     }
 
-    // @@protoc_insertion_point(class_scope:hypercube.DimElementField)
-    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:hypercube.DimensionElementFieldColumn)
+    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField();
+      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn();
     }
 
-    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField getDefaultInstance() {
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<DimElementField>
-        PARSER = new com.google.protobuf.AbstractParser<DimElementField>() {
-      public DimElementField parsePartialFrom(
+    private static final com.google.protobuf.Parser<DimensionElementFieldColumn>
+        PARSER = new com.google.protobuf.AbstractParser<DimensionElementFieldColumn>() {
+      public DimensionElementFieldColumn parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-          return new DimElementField(input, extensionRegistry);
+          return new DimensionElementFieldColumn(input, extensionRegistry);
       }
     };
 
-    public static com.google.protobuf.Parser<DimElementField> parser() {
+    public static com.google.protobuf.Parser<DimensionElementFieldColumn> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<DimElementField> getParserForType() {
+    public com.google.protobuf.Parser<DimensionElementFieldColumn> getParserForType() {
       return PARSER;
     }
 
-    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimElementField getDefaultInstanceForType() {
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumn getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface ErrorOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:hypercube.Error)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    java.lang.String getError();
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorBytes();
+  }
+  /**
+   * <pre>
+   * This message is a generic error message that can be sent in place of any of the other root messages.
+   * As long as the error field in all interchanged messages (Header, Cell, PackedCell, Footer, Error) has the same type
+   * and number, this message can be interchanged with the other root message types.
+   * </pre>
+   *
+   * Protobuf type {@code hypercube.Error}
+   */
+  public  static final class Error extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:hypercube.Error)
+      ErrorOrBuilder {
+    // Use Error.newBuilder() to construct.
+    private Error(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private Error() {
+      error_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private Error(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 794: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              error_ = s;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Error_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Error_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.Builder.class);
+    }
+
+    public static final int ERROR_FIELD_NUMBER = 99;
+    private volatile java.lang.Object error_;
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public java.lang.String getError() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        error_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * see Header.error
+     * </pre>
+     *
+     * <code>optional string error = 99;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorBytes() {
+      java.lang.Object ref = error_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        error_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getErrorBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getErrorBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.Error)) {
+        return super.equals(obj);
+      }
+      org.transmartproject.rest.hypercubeProto.ObservationsProto.Error other = (org.transmartproject.rest.hypercubeProto.ObservationsProto.Error) obj;
+
+      boolean result = true;
+      result = result && getError()
+          .equals(other.getError());
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      hash = (37 * hash) + ERROR_FIELD_NUMBER;
+      hash = (53 * hash) + getError().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.transmartproject.rest.hypercubeProto.ObservationsProto.Error prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * This message is a generic error message that can be sent in place of any of the other root messages.
+     * As long as the error field in all interchanged messages (Header, Cell, PackedCell, Footer, Error) has the same type
+     * and number, this message can be interchanged with the other root message types.
+     * </pre>
+     *
+     * Protobuf type {@code hypercube.Error}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:hypercube.Error)
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.ErrorOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Error_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Error_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.class, org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.Builder.class);
+      }
+
+      // Construct using org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        error_ = "";
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.internal_static_hypercube_Error_descriptor;
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Error getDefaultInstanceForType() {
+        return org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.getDefaultInstance();
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Error build() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.Error result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.transmartproject.rest.hypercubeProto.ObservationsProto.Error buildPartial() {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.Error result = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Error(this);
+        result.error_ = error_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.transmartproject.rest.hypercubeProto.ObservationsProto.Error) {
+          return mergeFrom((org.transmartproject.rest.hypercubeProto.ObservationsProto.Error)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.transmartproject.rest.hypercubeProto.ObservationsProto.Error other) {
+        if (other == org.transmartproject.rest.hypercubeProto.ObservationsProto.Error.getDefaultInstance()) return this;
+        if (!other.getError().isEmpty()) {
+          error_ = other.error_;
+          onChanged();
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.transmartproject.rest.hypercubeProto.ObservationsProto.Error parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.transmartproject.rest.hypercubeProto.ObservationsProto.Error) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object error_ = "";
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public java.lang.String getError() {
+        java.lang.Object ref = error_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          error_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrorBytes() {
+        java.lang.Object ref = error_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          error_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setError(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        error_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder clearError() {
+        
+        error_ = getDefaultInstance().getError();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * see Header.error
+       * </pre>
+       *
+       * <code>optional string error = 99;</code>
+       */
+      public Builder setErrorBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        error_ = value;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:hypercube.Error)
+    }
+
+    // @@protoc_insertion_point(class_scope:hypercube.Error)
+    private static final org.transmartproject.rest.hypercubeProto.ObservationsProto.Error DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.transmartproject.rest.hypercubeProto.ObservationsProto.Error();
+    }
+
+    public static org.transmartproject.rest.hypercubeProto.ObservationsProto.Error getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Error>
+        PARSER = new com.google.protobuf.AbstractParser<Error>() {
+      public Error parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new Error(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Error> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Error> getParserForType() {
+      return PARSER;
+    }
+
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.Error getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -15242,35 +13683,15 @@ public final class ObservationsProto {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_hypercube_FieldDefinition_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_hypercube_Observation_descriptor;
+    internal_static_hypercube_Cell_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_hypercube_Observation_fieldAccessorTable;
+      internal_static_hypercube_Cell_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_hypercube_PackedObservation_descriptor;
+    internal_static_hypercube_PackedCell_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_hypercube_PackedObservation_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_hypercube_IntValue_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_hypercube_IntValue_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_hypercube_TimestampValue_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_hypercube_TimestampValue_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_hypercube_DoubleValue_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_hypercube_DoubleValue_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_hypercube_StringValue_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_hypercube_StringValue_fieldAccessorTable;
+      internal_static_hypercube_PackedCell_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_hypercube_DimensionElement_descriptor;
   private static final 
@@ -15292,10 +13713,15 @@ public final class ObservationsProto {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_hypercube_DimensionElements_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_hypercube_DimElementField_descriptor;
+    internal_static_hypercube_DimensionElementFieldColumn_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_hypercube_DimElementField_fieldAccessorTable;
+      internal_static_hypercube_DimensionElementFieldColumn_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_hypercube_Error_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_hypercube_Error_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -15306,51 +13732,45 @@ public final class ObservationsProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\"src/protobuf/v2/observations.proto\022\thy" +
-      "percube\"V\n\006Header\022>\n\025dimensionDeclaratio" +
+      "percube\"e\n\006Header\022>\n\025dimensionDeclaratio" +
       "ns\030\001 \003(\0132\037.hypercube.DimensionDeclaratio" +
-      "n\022\014\n\004last\030\002 \001(\010\"\277\001\n\024DimensionDeclaration" +
-      "\022\014\n\004name\030\001 \001(\t\022\035\n\004type\030\002 \001(\0162\017.hypercube" +
-      ".Type\022*\n\006fields\030\003 \003(\0132\032.hypercube.FieldD" +
-      "efinition\022\016\n\006inline\030\004 \001(\010\022\016\n\006packed\030\005 \001(" +
-      "\010\022.\n\010elements\030\006 \001(\0132\034.hypercube.Dimensio" +
-      "nElements\">\n\017FieldDefinition\022\014\n\004name\030\001 \001" +
-      "(\t\022\035\n\004type\030\002 \001(\0162\017.hypercube.Type\"\244\001\n\013Ob",
-      "servation\022\030\n\020dimensionIndexes\030\001 \003(\003\0225\n\020i" +
-      "nlineDimensions\030\002 \003(\0132\033.hypercube.Dimens" +
-      "ionElement\022\025\n\013stringValue\030\003 \001(\tH\000\022\026\n\014num" +
-      "ericValue\030\004 \001(\001H\000\022\014\n\004last\030\007 \001(\010B\007\n\005value" +
-      "\"\270\001\n\021PackedObservation\022\030\n\020dimensionIndex" +
-      "es\030\001 \003(\003\0226\n\020inlineDimensions\030\002 \003(\0132\034.hyp" +
-      "ercube.DimensionElements\022\024\n\014stringValues" +
-      "\030\003 \003(\t\022\025\n\rnumericValues\030\004 \003(\001\022\026\n\016numOber" +
-      "vations\030\005 \001(\005\022\014\n\004last\030\007 \001(\010\"\"\n\010IntValue\022" +
-      "\r\n\003val\030\001 \001(\022H\000B\007\n\005value\"(\n\016TimestampValu",
-      "e\022\r\n\003val\030\001 \001(\022H\000B\007\n\005value\"%\n\013DoubleValue" +
-      "\022\r\n\003val\030\001 \001(\001H\000B\007\n\005value\"%\n\013StringValue\022" +
-      "\r\n\003val\030\001 \001(\tH\000B\007\n\005value\"\350\001\n\020DimensionEle" +
-      "ment\022 \n\006fields\030\001 \003(\0132\020.hypercube.Value\022%" +
-      "\n\010intValue\030\002 \001(\0132\023.hypercube.IntValue\022+\n" +
-      "\013doubleValue\030\003 \001(\0132\026.hypercube.DoubleVal" +
-      "ue\022+\n\013stringValue\030\004 \001(\0132\026.hypercube.Stri" +
-      "ngValue\0221\n\016timestampValue\030\005 \001(\0132\031.hyperc" +
-      "ube.TimestampValue\"\314\001\n\005Value\022-\n\013stringVa" +
-      "lue\030\001 \001(\0132\026.hypercube.StringValueH\000\022-\n\013d",
-      "oubleValue\030\002 \001(\0132\026.hypercube.DoubleValue" +
-      "H\000\022\'\n\010intValue\030\003 \001(\0132\023.hypercube.IntValu" +
-      "eH\000\0223\n\016timestampValue\030\004 \001(\0132\031.hypercube." +
-      "TimestampValueH\000B\007\n\005value\"9\n\006Footer\022/\n\td" +
-      "imension\030\001 \003(\0132\034.hypercube.DimensionElem" +
-      "ents\"R\n\021DimensionElements\022*\n\006fields\030\001 \003(" +
-      "\0132\032.hypercube.DimElementField\022\021\n\tperSamp" +
-      "le\030\002 \001(\010\"\305\001\n\017DimElementField\022+\n\013stringVa" +
-      "lue\030\001 \003(\0132\026.hypercube.StringValue\022+\n\013dou" +
-      "bleValue\030\002 \003(\0132\026.hypercube.DoubleValue\022%",
-      "\n\010intValue\030\003 \003(\0132\023.hypercube.IntValue\0221\n" +
-      "\016timestampValue\030\004 \003(\0132\031.hypercube.Timest" +
-      "ampValue*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING\020\001" +
-      "\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004B=\n(" +
-      "org.transmartproject.rest.hypercubeProto" +
-      "B\021ObservationsProtob\006proto3"
+      "n\022\014\n\004last\030\002 \001(\010\022\r\n\005error\030c \001(\t\"\277\001\n\024Dimen" +
+      "sionDeclaration\022\014\n\004name\030\001 \001(\t\022\035\n\004type\030\002 " +
+      "\001(\0162\017.hypercube.Type\022*\n\006fields\030\003 \003(\0132\032.h" +
+      "ypercube.FieldDefinition\022\016\n\006inline\030\004 \001(\010" +
+      "\022\016\n\006packed\030\005 \001(\010\022.\n\010elements\030\006 \001(\0132\034.hyp" +
+      "ercube.DimensionElements\">\n\017FieldDefinit" +
+      "ion\022\014\n\004name\030\001 \001(\t\022\035\n\004type\030\002 \001(\0162\017.hyperc",
+      "ube.Type\"\314\001\n\004Cell\022\030\n\020dimensionIndexes\030\001 " +
+      "\003(\003\0225\n\020inlineDimensions\030\002 \003(\0132\033.hypercub" +
+      "e.DimensionElement\022\036\n\026absentInlineDimens" +
+      "ions\030\005 \003(\005\022\025\n\013stringValue\030\003 \001(\tH\000\022\026\n\014num" +
+      "ericValue\030\004 \001(\001H\000\022\014\n\004last\030\007 \001(\010\022\r\n\005error" +
+      "\030c \001(\tB\007\n\005value\"\250\001\n\nPackedCell\022\030\n\020dimens" +
+      "ionIndexes\030\001 \003(\003\0226\n\020inlineDimensions\030\002 \003" +
+      "(\0132\034.hypercube.DimensionElements\022\024\n\014stri" +
+      "ngValues\030\003 \003(\t\022\025\n\rnumericValues\030\004 \003(\001\022\014\n" +
+      "\004last\030\007 \001(\010\022\r\n\005error\030c \001(\t\"\244\001\n\020Dimension",
+      "Element\022 \n\006fields\030\001 \003(\0132\020.hypercube.Valu" +
+      "e\022\020\n\010intValue\030\002 \001(\022\022\023\n\013doubleValue\030\003 \001(\001" +
+      "\022\023\n\013stringValue\030\004 \001(\t\022\026\n\016timestampValue\030" +
+      "\005 \001(\003\022\032\n\022absentFieldIndices\030\006 \003(\005\"l\n\005Val" +
+      "ue\022\025\n\013stringValue\030\001 \001(\tH\000\022\025\n\013doubleValue" +
+      "\030\002 \001(\001H\000\022\022\n\010intValue\030\003 \001(\022H\000\022\030\n\016timestam" +
+      "pValue\030\004 \001(\003H\000B\007\n\005value\"H\n\006Footer\022/\n\tdim" +
+      "ension\030\001 \003(\0132\034.hypercube.DimensionElemen" +
+      "ts\022\r\n\005error\030c \001(\t\"\216\001\n\021DimensionElements\022" +
+      "\014\n\004name\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.hypercub",
+      "e.DimensionElementFieldColumn\022 \n\030absentF" +
+      "ieldColumnIndices\030\004 \003(\005\022\021\n\tperSample\030\002 \001" +
+      "(\010\"\215\001\n\033DimensionElementFieldColumn\022\023\n\013st" +
+      "ringValue\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010" +
+      "intValue\030\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022\032" +
+      "\n\022absentValueIndices\030\005 \003(\005\"\026\n\005Error\022\r\n\005e" +
+      "rror\030c \001(\t*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING" +
+      "\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004B=" +
+      "\n(org.transmartproject.rest.hypercubePro" +
+      "toB\021ObservationsProtob\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -15369,7 +13789,7 @@ public final class ObservationsProto {
     internal_static_hypercube_Header_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_Header_descriptor,
-        new java.lang.String[] { "DimensionDeclarations", "Last", });
+        new java.lang.String[] { "DimensionDeclarations", "Last", "Error", });
     internal_static_hypercube_DimensionDeclaration_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_hypercube_DimensionDeclaration_fieldAccessorTable = new
@@ -15382,72 +13802,54 @@ public final class ObservationsProto {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_FieldDefinition_descriptor,
         new java.lang.String[] { "Name", "Type", });
-    internal_static_hypercube_Observation_descriptor =
+    internal_static_hypercube_Cell_descriptor =
       getDescriptor().getMessageTypes().get(3);
-    internal_static_hypercube_Observation_fieldAccessorTable = new
+    internal_static_hypercube_Cell_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_hypercube_Observation_descriptor,
-        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValue", "NumericValue", "Last", "Value", });
-    internal_static_hypercube_PackedObservation_descriptor =
+        internal_static_hypercube_Cell_descriptor,
+        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "AbsentInlineDimensions", "StringValue", "NumericValue", "Last", "Error", "Value", });
+    internal_static_hypercube_PackedCell_descriptor =
       getDescriptor().getMessageTypes().get(4);
-    internal_static_hypercube_PackedObservation_fieldAccessorTable = new
+    internal_static_hypercube_PackedCell_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_hypercube_PackedObservation_descriptor,
-        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValues", "NumericValues", "NumObervations", "Last", });
-    internal_static_hypercube_IntValue_descriptor =
-      getDescriptor().getMessageTypes().get(5);
-    internal_static_hypercube_IntValue_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_hypercube_IntValue_descriptor,
-        new java.lang.String[] { "Val", "Value", });
-    internal_static_hypercube_TimestampValue_descriptor =
-      getDescriptor().getMessageTypes().get(6);
-    internal_static_hypercube_TimestampValue_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_hypercube_TimestampValue_descriptor,
-        new java.lang.String[] { "Val", "Value", });
-    internal_static_hypercube_DoubleValue_descriptor =
-      getDescriptor().getMessageTypes().get(7);
-    internal_static_hypercube_DoubleValue_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_hypercube_DoubleValue_descriptor,
-        new java.lang.String[] { "Val", "Value", });
-    internal_static_hypercube_StringValue_descriptor =
-      getDescriptor().getMessageTypes().get(8);
-    internal_static_hypercube_StringValue_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_hypercube_StringValue_descriptor,
-        new java.lang.String[] { "Val", "Value", });
+        internal_static_hypercube_PackedCell_descriptor,
+        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValues", "NumericValues", "Last", "Error", });
     internal_static_hypercube_DimensionElement_descriptor =
-      getDescriptor().getMessageTypes().get(9);
+      getDescriptor().getMessageTypes().get(5);
     internal_static_hypercube_DimensionElement_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElement_descriptor,
-        new java.lang.String[] { "Fields", "IntValue", "DoubleValue", "StringValue", "TimestampValue", });
+        new java.lang.String[] { "Fields", "IntValue", "DoubleValue", "StringValue", "TimestampValue", "AbsentFieldIndices", });
     internal_static_hypercube_Value_descriptor =
-      getDescriptor().getMessageTypes().get(10);
+      getDescriptor().getMessageTypes().get(6);
     internal_static_hypercube_Value_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_Value_descriptor,
         new java.lang.String[] { "StringValue", "DoubleValue", "IntValue", "TimestampValue", "Value", });
     internal_static_hypercube_Footer_descriptor =
-      getDescriptor().getMessageTypes().get(11);
+      getDescriptor().getMessageTypes().get(7);
     internal_static_hypercube_Footer_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_Footer_descriptor,
-        new java.lang.String[] { "Dimension", });
+        new java.lang.String[] { "Dimension", "Error", });
     internal_static_hypercube_DimensionElements_descriptor =
-      getDescriptor().getMessageTypes().get(12);
+      getDescriptor().getMessageTypes().get(8);
     internal_static_hypercube_DimensionElements_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElements_descriptor,
-        new java.lang.String[] { "Fields", "PerSample", });
-    internal_static_hypercube_DimElementField_descriptor =
-      getDescriptor().getMessageTypes().get(13);
-    internal_static_hypercube_DimElementField_fieldAccessorTable = new
+        new java.lang.String[] { "Name", "Fields", "AbsentFieldColumnIndices", "PerSample", });
+    internal_static_hypercube_DimensionElementFieldColumn_descriptor =
+      getDescriptor().getMessageTypes().get(9);
+    internal_static_hypercube_DimensionElementFieldColumn_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_hypercube_DimElementField_descriptor,
-        new java.lang.String[] { "StringValue", "DoubleValue", "IntValue", "TimestampValue", });
+        internal_static_hypercube_DimensionElementFieldColumn_descriptor,
+        new java.lang.String[] { "StringValue", "DoubleValue", "IntValue", "TimestampValue", "AbsentValueIndices", });
+    internal_static_hypercube_Error_descriptor =
+      getDescriptor().getMessageTypes().get(10);
+    internal_static_hypercube_Error_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_hypercube_Error_descriptor,
+        new java.lang.String[] { "Error", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

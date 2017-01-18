@@ -25,6 +25,10 @@ interface Dimension {
         SPARSE(isDense: false),
 
         boolean isDense
+
+        boolean isIsSparse() {
+            !isDense
+        }
     }
 
     enum Packable {

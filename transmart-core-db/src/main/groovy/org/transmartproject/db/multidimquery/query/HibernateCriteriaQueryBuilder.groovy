@@ -10,15 +10,14 @@ import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
-import org.transmartproject.db.multidimquery.PatientDimension
-import org.transmartproject.db.multidimquery.StartTimeDimension
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.multidimquery.VisitDimension
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 import org.transmartproject.db.util.StringUtils
+
+import static ConstraintDimension.*
 
 /**
  * QueryBuilder that produces a {@link DetachedCriteria} object representing
@@ -37,12 +36,12 @@ import org.transmartproject.db.util.StringUtils
 @Slf4j
 class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedCriteria> {
 
-    final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(ValueDimension)
+    final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(Value)
     final Field valueTypeField = valueMetadata.fields.find { it.fieldName == 'valueType' }
     final Field numberValueField = valueMetadata.fields.find { it.fieldName == 'numberValue' }
     final Field textValueField = valueMetadata.fields.find { it.fieldName == 'textValue' }
-    final Field patientIdField = new Field(dimension: PatientDimension, fieldName: 'id', type: Type.ID)
-    final Field startTimeField = new Field(dimension: StartTimeDimension, fieldName: 'startDate', type: Type.DATE)
+    final Field patientIdField = new Field(dimension: Patient, fieldName: 'id', type: Type.ID)
+    final Field startTimeField = new Field(dimension: StartTime, fieldName: 'startDate', type: Type.DATE)
 
     public static final Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
 
@@ -351,7 +350,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             }
         }
         constraint.value = convertValue(constraint.field, constraint.value)
-        if (constraint.field.dimension == VisitDimension) {
+        if (constraint.field.dimension == Visit) {
             /**
              * special case that requires a subquery, because there is no proper
              * reference to the visit dimension in {@link ObservationFact}.

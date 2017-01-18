@@ -40,8 +40,8 @@ class MultipleObservationsSpec extends RESTSpec{
 
         assert selector.cellCount == 3
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-            assert selector.select(it, "PatientDimension", "age", 'Int') == 30
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it, "patient", "age", 'Int') == 30
             assert [60.0D, 59.0D, 80.0D].contains(selector.select(it))
         }
     }
@@ -66,12 +66,12 @@ class MultipleObservationsSpec extends RESTSpec{
 
         int validStartDate = 0
         (0..<selector.cellCount).each {
-            if (selector.select(it, 'StartTimeDimension', null, 'Timestamp') != null){
+            if (selector.select(it, 'start time', null, 'Timestamp') != null){
                 validStartDate++
-                assert selector.select(it, 'StartTimeDimension', null, 'Timestamp') instanceof Number
+                assert selector.select(it, 'start time', null, 'Timestamp') instanceof Number
             }
-            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
-                    selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:DEM:AGE')
+            assert (selector.select(it, "concept", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
+                    selector.select(it, "concept", "conceptCode", 'String') == 'EHR:DEM:AGE')
         }
         assert validStartDate == 7
     }
@@ -95,12 +95,12 @@ class MultipleObservationsSpec extends RESTSpec{
 
         int nonNUllEndDate = 0
         (0..<selector.cellCount).each {
-            if (selector.select(it, 'EndTimeDimension', null, 'Timestamp') != null){
+            if (selector.select(it, 'end time', null, 'Timestamp') != null){
                 nonNUllEndDate++
-                assert selector.select(it, 'EndTimeDimension', null, 'Timestamp') instanceof Number
+                assert selector.select(it, 'end time', null, 'Timestamp') instanceof Number
             }
-            assert (selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
-                    selector.select(it, "ConceptDimension", "conceptCode", 'String') == 'EHR:DEM:AGE')
+            assert (selector.select(it, "concept", "conceptCode", 'String') == 'EHR:VSIGN:HR' ||
+                    selector.select(it, "concept", "conceptCode", 'String') == 'EHR:DEM:AGE')
         }
         assert nonNUllEndDate == 4
     }
@@ -132,8 +132,8 @@ class MultipleObservationsSpec extends RESTSpec{
 
         assert selector.cellCount == 6
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
-            assert selector.select(it, "PatientDimension", "age", 'Int') == (it < 3 ? 30 : 52)
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it, "patient", "age", 'Int') == (it < 3 ? 30 : 52)
             assert [60.0D, 59.0D, 80.0D, 78.0D, 56.0D, 102.0D].contains(selector.select(it))
         }
     }

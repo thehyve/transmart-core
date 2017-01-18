@@ -4,5 +4,5 @@ interface BioMarker {
 
     String getLabel()
 
-    String getBioMarker()
+    String getBiomarker()
 }

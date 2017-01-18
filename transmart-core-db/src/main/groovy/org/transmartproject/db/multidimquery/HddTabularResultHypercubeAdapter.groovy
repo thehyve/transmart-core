@@ -190,7 +190,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         }
 
         def getDimKey(Dimension dim) {
-            if(dim == biomarkerDim) return biomarker.bioMarker ?: biomarker.label
+            if(dim == biomarkerDim) return biomarker.biomarker ?: biomarker.label
             if(dim == assayDim) return assay.sampleCode
             if(dim == patientDim) return patient.id
             if(dim == projectionDim && projectionKey) return projectionKey
@@ -201,7 +201,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     @Immutable
     static class BioMarkerAdapter implements BioMarker {
         final String label
-        final String bioMarker
+        final String biomarker
     }
 
 

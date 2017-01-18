@@ -133,7 +133,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     }
 
     static protected void checkIsDense(Dimension dim) {
-        if(dim.density != Dimension.Density.DENSE) {
+        if(!dim.density.isDense) {
             throw new UnsupportedOperationException("Cannot get dimension element for sparse dimension "+
                     dim.class.simpleName)
         }

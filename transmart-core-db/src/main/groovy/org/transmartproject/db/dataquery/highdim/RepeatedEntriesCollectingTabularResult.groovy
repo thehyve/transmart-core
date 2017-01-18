@@ -75,4 +75,17 @@ class RepeatedEntriesCollectingTabularResult<T extends AbstractDataRow> implemen
             (T) resultItem.call(collected)
         }
     }
+
+    // A helper function that's needed in several subclasses of this
+    @CompileStatic
+    static String safeJoin(List<String> items, String sep) {
+        if(items.size() == 0) return null
+        // null if the list contains only nulls
+        for(i in items) {
+            if(i != null) {
+                return items.join(sep)
+            }
+        }
+        return null
+    }
 }
