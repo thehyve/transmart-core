@@ -85,8 +85,8 @@ class GormWorkarounds {
     }
 
     /**
-     * Fix a bug in Grails 3.2.3 that the getters of properties declared as e.g. cProtectedAccess are not correctly
-     * identified as such by the ClassPropertyFetcher.
+     * Workaround for bug https://github.com/grails/grails-core/issues/10403 in Grails 3.2.3 that the getters of
+     * properties declared as e.g. cProtectedAccess are not correctly identified as such by the ClassPropertyFetcher.
      *
      * Properties like cProtectedAccess have a getter named getcProtectedAccess. Grails recognizes getters by
      * starting with 'get' and having the fourth letter capitalized, so it misses these. If this bug is fixed in
