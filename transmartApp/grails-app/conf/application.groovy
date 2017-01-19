@@ -142,6 +142,10 @@ com.recomdata.analysis.genepattern.file.dir = "data"; // Relative to the app roo
 
 com.recomdata.analysis.data.file.dir = "data"; // Relative to the app root "web-app"
 
+// Directories to write R scripts to for use by RServe. Resources are copied at startup.
+org.transmartproject.rmodules.deployment.rscripts = new File(System.getProperty("user.home"), '.grails/transmart-rscripts')
+org.transmartproject.rmodules.deployment.dataexportRscripts = new File(System.getProperty("user.home"), '.grails/transmart-dataexport-rscripts')
+
 // Disclaimer
 StringBuilder disclaimer = new StringBuilder()
 disclaimer.append("<p></p>")

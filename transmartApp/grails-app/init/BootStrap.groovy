@@ -5,6 +5,7 @@ import grails.util.Environment
 import org.grails.core.exceptions.GrailsConfigurationException
 import org.slf4j.LoggerFactory
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
+import org.springframework.web.context.support.ServletContextResource
 
 class BootStrap {
 
@@ -54,6 +55,47 @@ class BootStrap {
         }
     }
 
+    private boolean copyResources(String root, File targetDirectory) {
+        log.info "Copying resources from ${root} to ${targetDirectory.absolutePath} ..."
+        def ctx = grailsApplication.getMainContext()
+        def resources = ctx.getResources("${root}/**")
+        try {
+            if (!targetDirectory.exists()) {
+                log.debug "Creating directory ${targetDirectory.absolutePath}"
+                targetDirectory.mkdir()
+            }
+            for (res in resources) {
+                def resource = res as ServletContextResource
+                def targetPath = resource.path - root
+                def target = new File(targetDirectory, targetPath)
+                if (target.exists()) {
+                    log.debug "Path already exists: ${target.absolutePath}"
+                } else {
+                    if (targetPath.endsWith('/')) {
+                        log.debug "Creating directory ${target.absolutePath}"
+                        target.mkdir()
+                    } else {
+                        target.createNewFile()
+                        if (!target.canWrite()) {
+                            log.error("File ${target.absolutePath} not writeable.")
+                            return false
+                        } else {
+                            log.debug "Copying resource: ${resource.path} to ${target.absolutePath}"
+                            target.withOutputStream { out_s ->
+                                out_s << resource.inputStream
+                                out_s.flush()
+                            }
+                        }
+                    }
+                }
+            }
+        } catch(IOException e) {
+            log.error "Error while copying: ${e.message}"
+            return false
+        }
+        return true
+    }
+
     private void fixupConfig() {
         def c = grailsApplication.config
         def val
@@ -66,12 +108,13 @@ class BootStrap {
                     "should not be explicitly set, value '$val' ignored")
         }
 
-        def ctx = grailsApplication.getMainContext()
-
         try { // find location of data export R scripts
             def tsAppRScriptsDir
             if (Environment.current == Environment.PRODUCTION) {
-                tsAppRScriptsDir = ctx.getResource("WEB-INF/dataExportRScripts").getFile()
+                def targetDirectory = c.org.transmartproject.rmodules.deployment.dataexportRscripts as File
+                if (copyResources('WEB-INF/dataExportRScripts', targetDirectory)) {
+                    tsAppRScriptsDir = targetDirectory
+                }
             } else {
                 tsAppRScriptsDir = new File("src/main/resources/dataExportRScripts")
             }
@@ -93,9 +136,9 @@ class BootStrap {
             def rmoduleScriptDir
 
             if (Environment.current == Environment.PRODUCTION) {
-                rmoduleScriptDir = ctx.getResource('WEB-INF/Rscripts').getFile()
-                if (!rmoduleScriptDir || !rmoduleScriptDir.isDirectory()) {
-                    rmoduleScriptDir = ctx.getResource('classpath:Rscripts').getFile()
+                def targetDirectory = c.org.transmartproject.rmodules.deployment.rscripts as File
+                if (copyResources('WEB-INF/Rscripts', targetDirectory)) {
+                    rmoduleScriptDir = targetDirectory
                 }
             } else {
                 rmoduleScriptDir = new File('../Rmodules/src/main/resources/Rscripts')
