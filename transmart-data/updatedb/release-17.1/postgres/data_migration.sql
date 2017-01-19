@@ -48,7 +48,7 @@ select 'projection'
 where not exists(select * from i2b2metadata.dimension_description where name = 'projection');
 
 insert into i2b2metadata.dimension_description(density, modifier_code, value_type, name, packable, size_cd)
-select 'DENSE', 'TNS:SMPL', 'T', 'sample_type', 'NOT_PACKABLE', 'SMALL'
+select 'DENSE', 'TRANSMART:SMPL', 'T', 'sample_type', 'NOT_PACKABLE', 'SMALL'
 where not exists(select * from i2b2metadata.dimension_description where name = 'sample_type');
 
 -- Insert bio experiments for missing studies
