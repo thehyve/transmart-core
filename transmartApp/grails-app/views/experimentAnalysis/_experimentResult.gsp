@@ -52,7 +52,7 @@
                                             id="TrialDet_${expAnalysisResult.experiment.id}_anchor">
                                         <a onclick="javascript:if (divIsEmpty('${expAnalysisResult.experiment.id}_detail')) {
                                             var ldiv = '${expAnalysisResult.experiment.id}_detail_loading';
-                                            ${remoteFunction(action:'getAnalysis',controller:'experimentAnalysis', id:expAnalysisResult.experiment.id, before:'toggleVisible(ldiv)',onComplete:'toggleVisible(ldiv)', update:expAnalysisResult.experiment.id+'_detail')}
+                                            ${legacy.remoteFunction(action:'getAnalysis',controller:'experimentAnalysis', id:expAnalysisResult.experiment.id, before:'toggleVisible(ldiv)',onComplete:'toggleVisible(ldiv)', update:expAnalysisResult.experiment.id+'_detail')}
                                         }
                                         ;
                                         toggleDetail('${expAnalysisResult.experiment.id}')">
