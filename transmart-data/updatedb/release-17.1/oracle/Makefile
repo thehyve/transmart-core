@@ -11,7 +11,8 @@ FILES = \
 	supported_workflow \
 	storage_system \
 	linked_file_collection \
-	data_migration
+	data_migration \
+	sample
 
 RUN_SQL   = groovy -cp '$(CP_ORA)' ../../../ddl/oracle/_scripts/run_sql.groovy
 
