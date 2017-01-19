@@ -196,6 +196,14 @@ war {
             from 'src/main/resources/dataExportRScripts'
             into 'dataExportRScripts'
         })
+        with copySpec({
+            from 'src/main/resources/public'
+            into 'classes/public'
+        })
+        with copySpec({
+            from '../Rmodules/src/main/resources/public'
+            into 'classes/public'
+        })
     } //Rscripts from Rmodules into WEB-INF dir.
 }
 
