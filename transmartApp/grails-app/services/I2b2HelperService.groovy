@@ -969,7 +969,7 @@ class I2b2HelperService {
                 WHERE
                     f.modifier_cd in ( """ + listToIN(modifierList.asList()) +  """ )
                     AND f.concept_cd != 'SECURITY'
-                ) subjectList
+                )
         """
 
 		log.trace "sql text ="
@@ -1013,8 +1013,7 @@ class I2b2HelperService {
         log.trace("\tresult_instance_id = " + result_instance_id)
         Sql sql = new Sql(dataSource);
         String sqlt = """
-            select count(*) from (
-                select distinct patient_num
+                select count(distinct patient_num)
                 FROM i2b2demodata.observation_fact
                 WHERE concept_cd IN (
                         select concept_cd
@@ -1024,7 +1023,6 @@ class I2b2HelperService {
                         select distinct patient_num
                         from qt_patient_set_collection
                         where result_instance_id = ?)
-            ) as subjectList
         """
         log.trace(sqlt);
         sql.eachRow(sqlt, [
