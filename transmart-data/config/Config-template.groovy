@@ -105,7 +105,6 @@ com.recomdata.appTitle = "tranSMART v" + grails.util.Metadata.current.getApplica
 // Currently, these are distribution with transmart,
 // so it can also point to that location copy.
 com.recomdata.adminHelpURL = "$transmartURL/help/adminHelp/default.htm"
-grails.resources.pattern = '/**'
 
 environments { development {
     com.recomdata.bugreportURL = 'https://jira.transmartfoundation.org'

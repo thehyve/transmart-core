@@ -300,7 +300,7 @@ HighDimensionalData.prototype.generate_view = function () {
             ],
             resizable: false,
             autoLoad: {
-                url: pageInfo.basePath + '/static/panels/highDimensionalWindow.html',
+                url: pageInfo.basePath + '/panels/highDimensionalWindow.html',
                 scripts: true,
                 nocache: true,
                 discardUrl: true,
