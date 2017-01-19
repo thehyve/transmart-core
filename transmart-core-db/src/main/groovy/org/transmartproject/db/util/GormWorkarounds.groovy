@@ -48,42 +48,6 @@ class GormWorkarounds {
         builder
     }
 
-    final static Criterion getHibernateInCriterion(
-            String property,
-            QueryableCriteria<?> queryableCriteria) {
-
-        def hibDetachedCriteria = getHibernateDetachedCriteria(queryableCriteria)
-        Subqueries.propertyIn(property, hibDetachedCriteria)
-    }
-
-    @Deprecated //use getHibernateDetachedCriteria, original bug has been fixed as of grails 3.1
-    final static org.hibernate.criterion.DetachedCriteria getHibernateDetachedCriteria(
-            QueryableCriteria<?> queryableCriteria) {
-
-        HibernateCriteriaBuilder.getHibernateDetachedCriteria(null, queryableCriteria)
-//        String alias = queryableCriteria.getAlias()
-//        def persistentEntity = queryableCriteria.persistentEntity
-//        Class targetClass = persistentEntity.javaClass
-//        org.hibernate.criterion.DetachedCriteria detachedCriteria
-//
-//        if(alias != null) {
-//            detachedCriteria = org.hibernate.criterion.DetachedCriteria.forClass(targetClass, alias)
-//        }
-//        else {
-//            detachedCriteria = org.hibernate.criterion.DetachedCriteria.forClass(targetClass)
-//        }
-//        def hq = new HibernateQuery(detachedCriteria, persistentEntity)
-//        //To escape NPE we have to set this private field
-//        //This fix is the main reason to have this method @{see HibernateCriteriaBuilder.getHibernateDetachedCriteria}
-//        //hq.entity = persistentEntity
-//        HibernateCriteriaBuilder.populateHibernateDetachedCriteria(
-//                hq,
-//                detachedCriteria,
-//                queryableCriteria)
-//
-//        detachedCriteria;
-    }
-
     /**
      * Workaround for bug https://github.com/grails/grails-core/issues/10403 in Grails 3.2.3 that the getters of
      * properties declared as e.g. cProtectedAccess are not correctly identified as such by the ClassPropertyFetcher.

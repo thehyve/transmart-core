@@ -21,8 +21,10 @@ package org.transmartproject.db.dataquery.clinical
 
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
+import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
+import org.hibernate.criterion.Subqueries
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
@@ -34,7 +36,6 @@ import org.transmartproject.db.ontology.ModifierDimensionView
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TOP_TERM_NAME
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
-import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
 /**
  * Across trials counterpart of {@link TerminalConceptVariablesDataQuery}.
@@ -73,8 +74,8 @@ class AcrossTrialsDataQuery {
         }
 
         if (patients instanceof PatientQuery) {
-            criteriaBuilder.add(getHibernateInCriterion('patient.id',
-                    patients.forIds()))
+            def hibDetachedCriteria = HibernateCriteriaBuilder.getHibernateDetachedCriteria(null, patients.forIds())
+            criteriaBuilder.add(Subqueries.propertyIn('patient.id', hibDetachedCriteria))
         } else {
             criteriaBuilder.in('patient',  Lists.newArrayList(patients))
         }

@@ -40,23 +40,12 @@ class UsersResourceService implements UsersResource {
          */
 
         def user = User.withSession { session ->
-            if (session.respondsTo('createQuery', String)) {
-                Query query = session.createQuery(
-                        'FROM User u LEFT JOIN FETCH u.roles WHERE u.username = ?')
-                query.setParameter 0, username
-                def users = query.list()
+            Query query = session.createQuery(
+                    'FROM User u LEFT JOIN FETCH u.roles WHERE u.username = ?')
+            query.setParameter 0, username
+            def users = query.list()
 
-                users[0]
-            } else {
-                // FIXME: This branch can probably be removed, testing this service should work normally as
-                // integration test using the first branch.
-
-                // in case hibernate is not in use (unit tests)
-                def user = User.findByUsername username
-                user?.roles
-
-                user
-            }
+            users[0]
         }
 
         if (!user) {
