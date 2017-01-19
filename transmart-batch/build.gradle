@@ -9,14 +9,6 @@ apply plugin: 'application'
 apply plugin: 'codenarc'
 apply plugin: 'maven'
 
-group 'org.transmartproject'
-version '1.1-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-    maven { url 'https://repo.thehyve.nl/content/groups/public/' }
-}
-
 compileGroovy {
     options.incremental = true
 }
