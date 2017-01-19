@@ -153,7 +153,8 @@ class TreeNodesSpec extends  RESTSpec{
     def "restricted tree_nodes"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
         RestCall testRequest = new RestCall(PATH_TREE_NODES, contentTypeForJSON)
-        testRequest.query = [root : "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\", depth : 1]
+        def path = "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\"
+        testRequest.query = [root : path, depth : 1]
         testRequest.statusCode = 403
 
         when: "I try to get the tree_nodes from that study"
