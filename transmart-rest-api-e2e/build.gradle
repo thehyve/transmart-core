@@ -1,12 +1,5 @@
-
 apply plugin: 'groovy'
 apply plugin: 'java'
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven { url "https://repo.grails.org/grails/core" }
-}
 
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.4.3'

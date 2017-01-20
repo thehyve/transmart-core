@@ -35,7 +35,7 @@
         <span style="font-size:12px;color:#000000;">Results for</span>
         <select class="jubselect" name="datasource" id="datasource"
                 style="width:240px;"
-                onChange="${remoteFunction(action: 'listAllPathways',
+                onChange="${legacy.remoteFunction(action: 'listAllPathways',
                         before: 'toggleVisible(\'summary_loading\'); toggleVisible(\'summary\');',
                         onComplete: 'toggleVisible(\'summary_loading\'); toggleVisible(\'summary\');',
                         update: 'summary', params: '\'datasource=\'+this.value')}">

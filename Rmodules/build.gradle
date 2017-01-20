@@ -1,49 +1,3 @@
-buildscript {
-    ext {
-        grailsVersion = project.grailsVersion
-    }
-    repositories {
-        mavenLocal()
-        maven { url "https://repo.grails.org/grails/core" }
-    }
-    dependencies {
-        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.8.2"
-    }
-}
-
-version "0.1"
-group "rmodules"
-
-apply plugin:"eclipse"
-apply plugin:"idea"
-apply plugin:"org.grails.grails-plugin"
-apply plugin:"org.grails.grails-plugin-publish"
-apply plugin:"org.grails.grails-gsp"
-apply plugin:"asset-pipeline"
-
-ext {
-    grailsVersion = project.grailsVersion
-    gradleWrapperVersion = project.gradleWrapperVersion
-}
-
-repositories {
-    mavenLocal()
-    maven { url "https://repo.grails.org/grails/core" }
-    maven { url "https://repo.transmartfoundation.org/content/repositories/public" }
-    maven { url "https://repo.thehyve.nl/content/repositories/public" }
-    maven {
-        url  "http://jcenter.bintray.com"
-    }
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.grails:grails-bom:$grailsVersion"
-    }
-    applyMavenExclusions false
-}
-
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
@@ -81,23 +35,6 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'
     // https://mvnrepository.com/artifact/org.xhtmlrenderer/flying-saucer-pdf
     compile group: 'org.xhtmlrenderer', name: 'flying-saucer-pdf', version: '9.0.4'
-}
-
-
-
-grailsPublish {
-    // TODO: Provide values here
-    user = 'user'
-    key = 'key'
-    githubSlug = 'foo/bar'
-    license {
-        name = 'Apache-2.0'
-    }
-    title = "My Plugin"
-    desc = "Full plugin description"
-    developers = [johndoe:"John Doe"]
-    portalUser = ""
-    portalPassword = ""    
 }
 
 assets {

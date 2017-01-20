@@ -6,12 +6,12 @@
               optionKey="id" optionValue="principalAccessName"/></td>
 <td class="addremovebuttonholder">
     <button class="ltarrowbutton"
-            onclick="${remoteFunction(action: 'addPrincipalToAccessList',
+            onclick="${legacy.remoteFunction(action: 'addPrincipalToAccessList',
                                               update: [success: 'groups', failure: ''],
                                               params: 'addremovePrincipal_add_data(this)')};
             return false;">&LT;&LT;Add</button><br>
     <button class="ltarrowbutton"
-            onclick="${remoteFunction(action: 'removePrincipalFromAccessList',
+            onclick="${legacy.remoteFunction(action: 'removePrincipalFromAccessList',
                                               update: [success: 'groups', failure: ''],
                                               params: 'addRemovePrincipal_remove_data(this)')};
             return false;">Remove&GT;&GT;</button>
@@ -24,7 +24,7 @@
 </div>
 </td>
 
-<r:script>
+<script type="text/javascript">
     (function () {
         'use strict';
 
@@ -38,4 +38,4 @@
                     ['groupstoremove', 'searchtext', 'secureobjectid', 'accesslevelid'])
         }
     })()
-</r:script>
+</script>
