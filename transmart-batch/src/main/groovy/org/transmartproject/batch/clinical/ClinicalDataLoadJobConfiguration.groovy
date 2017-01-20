@@ -128,7 +128,8 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .next(stepOf(this.&deleteObservationFactTasklet))
                 .next(stepOf(this.&deleteConceptCountsTasklet))
 
-                .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object, study
+                //bio_experiment, search_secure_object, study, study_dimension_descriptions
+                .next(stepOf(this.&getCreateSecureStudyTasklet))
 
                 .next(stepOf(this.&getInsertOntologyTreeTasklet))
 

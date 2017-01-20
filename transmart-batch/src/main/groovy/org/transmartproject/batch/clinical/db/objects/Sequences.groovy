@@ -11,6 +11,7 @@ final class Sequences {
     public static final String CONCEPT = 'i2b2demodata.concept_id'
     public static final String TRIAL_VISIT = 'i2b2demodata.trial_visit_num_seq'
     public static final String STUDY = 'i2b2demodata.study_num_seq'
+    public static final String DIMENSION_DESCRIPTION = 'i2b2metadata.dimension_description_id_seq'
 
     public static final String BIO_DATA_ID = 'biomart.seq_bio_data_id'
 

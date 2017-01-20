@@ -35,6 +35,8 @@ final class Tables {
     public static final String MODIFIER_DIM_VIEW        = 'i2b2demodata.modifier_dimension_view'
     public static final String TRIAL_VISIT_DIMENSION    = 'i2b2demodata.trial_visit_dimension'
     public static final String STUDY                    = 'i2b2demodata.study'
+    public static final String DIMENSION_DESCRIPTION    = 'i2b2metadata.dimension_description'
+    public static final String STUDY_DIM_DESCRIPTIONS   = 'i2b2metadata.study_dimension_descriptions'
     public static final String BIO_EXPERIMENT           = 'biomart.bio_experiment'
     public static final String SECURE_OBJECT            = 'searchapp.search_secure_object'
     public static final String SEARCH_AUTH_SEC_OBJ_ACC  = 'searchapp.search_auth_sec_object_access'

@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.transmartproject.batch.clinical.ClinicalJobContext
 import org.transmartproject.batch.clinical.variable.ClinicalVariable
-import org.transmartproject.ontology.DefaultExternalOntologyTermService
 import org.transmartproject.ontology.ExternalOntologyTermService
+import org.transmartproject.ontology.OntologyTermServiceRegistry
 
 /**
  * Generates an ontology mapping by fetching ontology information
@@ -29,22 +29,52 @@ class GenerateOntologyMappingTasklet implements Tasklet {
     @Autowired
     OntologyMappingHolder ontologyMappingHolder
 
+    @Value("#{jobParameters['ONTOLOGY_SERVICE_TYPE']}")
+    String ontologyServiceType
+
     @Value("#{jobParameters['ONTOLOGY_SERVER_URL']}")
     String ontologyServerUrl
 
+    @Value("#{jobParameters['ONTOLOGY_SERVER_SEARCH_PATH']}")
+    String ontologyServerSearchPath
+
+    @Value("#{jobParameters['ONTOLOGY_SERVER_DETAILS_PATH']}")
+    String ontologyServerDetailsPath
+
+    @Value("#{jobParameters['ONTOLOGY_SERVER_API_KEY']}")
+    String ontologyServerApiKeyToken
+
+    @Value("#{jobParameters['ONTOLOGY_SERVER_ONTOLOGIES']}")
+    String ontologyServerOntologies
+
     @Override
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        log.info "Fetching ontology nodes from ${ontologyServerUrl}..."
-        ExternalOntologyTermService service = new DefaultExternalOntologyTermService(ontologyServerUrl)
+        def serviceType = ontologyServiceType ?: OntologyTermServiceRegistry.instance.defaultServiceType
+        def serviceParams = [
+                'ontologyServerUrl',
+                'ontologyServerSearchPath',
+                'ontologyServerDetailsPath',
+                'ontologyServerApiKeyToken',
+                'ontologyServerOntologies'
+        ].findAll { String name ->
+            this."${name}"
+        }.collectEntries { String name ->
+            [(name): this."${name}"]
+        }
+        log.info "Fetching ontology nodes from ${ontologyServerUrl} ..."
+        log.info "Ontology service type: ${serviceType}. Parameters: ${serviceParams.toMapString()}."
+        ExternalOntologyTermService service = OntologyTermServiceRegistry.instance.create(
+                serviceType, serviceParams
+        )
         ontologyMappingHolder.nodes = [:]
         ctx.variables.each { ClinicalVariable variable ->
-            log.debug "Fetching for variable ${variable.dataLabel}..."
+            log.debug "Fetching for variable ${variable.dataLabel} (${variable.categoryCode}) ..."
             def mappingResults = service.fetchPreferredConcept(variable.categoryCode, variable.dataLabel)
             if (mappingResults) {
                 mappingResults.each { mapping ->
-                    if (mapping.dataLabel) {
-                        log.info "Found ontology mapping for variable ${variable.dataLabel}: " +
-                                "${mapping.label} (${mapping.ontologyCode})."
+                    if (mapping.dataLabel == variable.dataLabel) {
+                        log.info "Mapping variable ${variable.dataLabel} (${variable.categoryCode}) to: " +
+                                "${mapping.label}."
                     }
                     def key = new OntologyMappingHolder.Key(
                             ontologyCode: mapping.ontologyCode,

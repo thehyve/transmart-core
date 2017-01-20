@@ -55,7 +55,9 @@ class GatherCurrentTreeNodesTasklet implements Tasklet {
     RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         String sql = '''
-                SELECT c_fullname, c_hlevel, c_name, c_tablename, c_columnname, c_dimcode, c_metadataxml, c_visualattributes
+                SELECT c_fullname, c_hlevel, c_name,
+                    c_tablename, c_columnname, c_dimcode,
+                    c_metadataxml, c_visualattributes
                 FROM i2b2metadata.i2b2
                 WHERE
                 c_tablename IN ('CONCEPT_DIMENSION', 'STUDY') AND
