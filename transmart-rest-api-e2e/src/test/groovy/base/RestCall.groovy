@@ -10,9 +10,10 @@ class RestCall {
     def body = null;
     def oauth = true;
 
-    RestCall(path, acceptType) {
+    RestCall(path, acceptType, query = null) {
         this.path = path
         this.acceptType = acceptType
         this.contentType = acceptType
+        this.query = query
     }
 }

@@ -1,5 +1,6 @@
 package tests.rest.v2
 
+import base.RestCall
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 
@@ -23,7 +24,7 @@ class TreeNodesSpec extends  RESTSpec{
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I try to get the tree_nodes from all studies"
-        def responseData = get(PATH_TREE_NODES, contentTypeForJSON)
+        def responseData = get(new RestCall(PATH_TREE_NODES, contentTypeForJSON))
 
         then: "only nodes from SHARED_CONCEPTS_A are returned"
         def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
@@ -45,7 +46,7 @@ class TreeNodesSpec extends  RESTSpec{
         given: "Study SHARED_CONCEPTS_STUDY_C_PRIV and SHARED_CONCEPTS_A is loaded, and I do not have access"
 
         when: "I try to get the tree_nodes from all studies"
-        def responseData = get(PATH_TREE_NODES, contentTypeForJSON)
+        def responseData = get(new RestCall(PATH_TREE_NODES, contentTypeForJSON))
 
         then: "only nodes from SHARED_CONCEPTS_A are returned"
         def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
@@ -63,11 +64,11 @@ class TreeNodesSpec extends  RESTSpec{
     @Requires({SHARED_CONCEPTS_LOADED})
     def "params limit nodes returned"(){
         given: "Study SHARED_CONCEPTS is loaded"
-        def path = "\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\"
+        RestCall testRequest = new RestCall(PATH_TREE_NODES, contentTypeForJSON)
+        testRequest.query = [root : "\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\", depth : 2]
 
         when: "I get the tree_nodes with a subNode and depth"
-        def queryMap = [root : path, depth : 2]
-        def responseData = get(PATH_TREE_NODES, contentTypeForJSON, queryMap)
+        def responseData = get(testRequest)
 
         then: "only de subNodes of that node are returned"
         assert responseData.size() == 1
@@ -84,16 +85,41 @@ class TreeNodesSpec extends  RESTSpec{
     @Requires({SHARED_CONCEPTS_LOADED})
     def "nodes with counts true"(){
         given: "Study SHARED_CONCEPTS is loaded"
+        RestCall testRequest = new RestCall(PATH_TREE_NODES, contentTypeForJSON)
+        testRequest.query = ['counts' : true]
 
         when: "I get the tree_nodes with counts=true"
-        def queryMap = ['counts' : true]
-        def responseData = get(PATH_TREE_NODES, contentTypeForJSON, queryMap)
+        def responseData = get(testRequest)
 
         then: "then concept nodes have observationCount and patientCount"
         def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
 
         assert getNodeByName(studyA, "Heart Rate").observationCount == 5
         assert getNodeByName(studyA, "Heart Rate").patientCount == 4
+        assert getNodeByName(studyA, "Age").observationCount == 2
+        assert getNodeByName(studyA, "Age").patientCount == 2
+    }
+
+    /**
+     *  given: "Study SHARED_CONCEPTS is loaded"
+     *  when: "I get the tree_nodes with counts=true"
+     *  then: "then concept nodes have observationCount and patientCount"
+     */
+    @Requires({SHARED_CONCEPTS_LOADED})
+    def "nodes with counts true unrestricted"(){
+        given: "Study SHARED_CONCEPTS is loaded"
+        setUser(UNRESTRICTED_USERNAME,UNRESTRICTED_PASSWORD)
+        RestCall testRequest = new RestCall(PATH_TREE_NODES, contentTypeForJSON)
+        testRequest.query = ['counts' : true]
+
+        when: "I get the tree_nodes with counts=true"
+        def responseData = get(testRequest)
+
+        then: "then concept nodes have observationCount and patientCount"
+        def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
+
+        assert getNodeByName(studyA, "Heart Rate").observationCount == 7
+        assert getNodeByName(studyA, "Heart Rate").patientCount == 6
         assert getNodeByName(studyA, "Age").observationCount == 2
         assert getNodeByName(studyA, "Age").patientCount == 2
     }
@@ -107,10 +133,11 @@ class TreeNodesSpec extends  RESTSpec{
     @IgnoreIf({SUPPRESS_UNIMPLEMENTED}) //FIXME: no test set with tags
     def "nodes with tags true"(){
         given: "Study SHARED_CONCEPTS is loaded"
+        RestCall testRequest = new RestCall(PATH_TREE_NODES, contentTypeForJSON)
+        testRequest.query = ['tags' : true]
 
         when: "I get the tree_nodes with tags=true"
-        def queryMap = ['tags' : true]
-        def responseData = get(PATH_TREE_NODES, contentTypeForJSON, queryMap)
+        def responseData = get(testRequest)
 
         then: "then concept nodes have observationCount and patientCount"
         def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
@@ -125,11 +152,13 @@ class TreeNodesSpec extends  RESTSpec{
     @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
     def "restricted tree_nodes"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
+        RestCall testRequest = new RestCall(PATH_TREE_NODES, contentTypeForJSON)
         def path = "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\"
+        testRequest.query = [root : path, depth : 1]
+        testRequest.statusCode = 403
 
         when: "I try to get the tree_nodes from that study"
-        def queryMap = [root : path, depth : 1]
-        def responseData = get(PATH_TREE_NODES, contentTypeForJSON, queryMap)
+        def responseData = get(testRequest)
 
         then: "I get an access error"
         assert responseData.httpStatus == 403

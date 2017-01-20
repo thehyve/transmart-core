@@ -99,6 +99,48 @@ class FilesSpec extends RESTSpec{
         assert responseData.path == "/${PATH_FILES}/${id}"
     }
 
+    /**
+     *  given: "There are multiple storage systems with file links"
+     *  when: "I get the list of file links"
+     *  then: "the list of files has several sourceSystem ids"
+     */
+    def "post and get from multiple storage systems"() {
+        given: "There are multiple storage systems with file links"
+        def sourceSystem = [
+                'name':'Arvbox at The Hyve 2',
+                'systemType':'Arvados',
+                'url':'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion':'v1',
+                'singleFileCollections':false,
+        ]
+        def storageId2 = post(PATH_STORAGE, toJSON(sourceSystem)).id
+
+        def new_file_link1 = [
+                'name'        : 'file in storage 1',
+                'sourceSystem': storageId,
+                'study'       : 'EHR',
+                'uuid'        : 'bbbbb-ccccccccccccccc',
+        ]
+
+        def new_file_link2 = [
+                'name'        : 'file in storage 2',
+                'sourceSystem': storageId2,
+                'study'       : 'EHR',
+                'uuid'        : 'aaaaa-ccccccccccccccc',
+        ]
+
+        def fileID1 = post(PATH_FILES, toJSON(new_file_link1)).id
+
+        def fileID2 = post(PATH_FILES, toJSON(new_file_link2)).id
+
+        when: "I get the list of file links"
+        def responseData = get(PATH_FILES)
+
+        then: "the list of files has several sourceSystem ids"
+        def files = responseData.files as List
+        def sourceSystemIDs = files*.sourceSystem as List
+        assert sourceSystemIDs.containsAll(storageId, storageId2)
+    }
 
     /**
      *  post invalid
