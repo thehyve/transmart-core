@@ -74,7 +74,6 @@
     }
 
 </asset:script>
-<asset:javascript src="help/D2H_ctxt.js"/>
 <asset:script type="text/javascript">
     var helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
 </asset:script>
@@ -88,7 +87,7 @@
         <g:if test="${flash.message}"><div class="message">${flash.message}</div><br></g:if>
 
         <p style="text-align: right;"><span class="button"><g:actionSubmit class="edit" action="createWizard" value="New Signature"/></span></p>
-        <h1>Gene Signature List &nbsp;&nbsp;<a HREF="JavaScript:D2H_ShowHelp('1259','${grailsApplication.config.com.recomdata.adminHelpURL}','wndExternal',CTXT_DISPLAY_FULLHELP )">
+        <h1>Gene Signature List &nbsp;&nbsp;<a href="JavaScript:D2H_ShowHelp('1259','${grailsApplication.config.com.recomdata.adminHelpURL}','wndExternal',CTXT_DISPLAY_FULLHELP )">
             <asset:image src="help/helpicon_white.jpg" alt="Help" border="0" width="18pt" style="vertical-align:middle;margin-left:5pt;" ></asset:image>
         </a></h1>
 
@@ -191,5 +190,7 @@
         </table>
     </g:form>
 </div>
+<!-- This implements the Help functionality -->
+<asset:javascript src="help/D2H_ctxt.js"/>
 </body>
 </html>
