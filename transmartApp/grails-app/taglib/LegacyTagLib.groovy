@@ -35,13 +35,15 @@ class LegacyTagLib {
     @Deprecated
     def remoteFunction = { attrs ->
         def updateElem = null
-        def successElem = null
-        def failureElem = null
+        def successElem
+        def failureElem
         if (attrs.update instanceof Map) {
             successElem = attrs.update?.success
             failureElem = attrs.update?.failure
         } else {
             updateElem = attrs.update
+            successElem = attrs.onSuccess
+            failureElem = attrs.onFailure
         }
         def queryParams = attrs.params as String
         def urlParams = ['controller', 'action', 'id'].findAll {
