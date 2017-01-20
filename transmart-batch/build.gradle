@@ -1,5 +1,5 @@
 plugins {
-    id 'us.kirchmeier.capsule' version '0.9.0'
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
 apply plugin: 'jacoco'
@@ -58,6 +58,16 @@ dependencies {
     testCompile group: 'com.h2database', name: 'h2', version: H2_VERSION
 }
 
+sourceSets {
+    functionalTest {
+        java.srcDir 'src/test-func/java'
+        groovy.srcDir 'src/test-func/groovy'
+        resources.srcDir 'src/test-func/resources'
+        compileClasspath += sourceSets.main.compileClasspath
+        compileClasspath += sourceSets.test.compileClasspath
+    }
+}
+
 def mainClass = 'org.transmartproject.batch.startup.RunJob'
 
 run {
@@ -82,26 +92,14 @@ run {
     }
 }
 
-task capsule(type: ThinCapsule) {
-    description = 'Creates the capsule jar.'
-    group = 'build'
-    applicationClass mainClass
-    reallyExecutable { trampoline() }
-
-    capsuleManifest {
-        extractCapsule = false
-        repositories = ['central', 'https://repo.thehyve.nl/content/groups/public/']
+jar {
+    manifest {
+        attributes 'Main-Class': mainClass
     }
 }
 
-sourceSets {
-    functionalTest {
-        java.srcDir 'src/test-func/java'
-        groovy.srcDir 'src/test-func/groovy'
-        resources.srcDir 'src/test-func/resources'
-        compileClasspath += sourceSets.main.compileClasspath
-        compileClasspath += sourceSets.test.compileClasspath
-    }
+shadowJar {
+    classifier = null
 }
 
 task travisFunctionalTestPrepare << {
@@ -164,7 +162,6 @@ task functionalTest(type: Test) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
     gradleVersion = '2.12'
 }
 
@@ -207,9 +204,8 @@ task setupSchema(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-configurations.archives.artifacts.clear() //remove jar
 artifacts {
-    archives capsule
+    shadowJar
 }
 
 uploadArchives {

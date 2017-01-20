@@ -9,9 +9,15 @@ tranSMART pipeline alternative to ETL, using Spring Batch.
 Building
 --------
 
-    ./gradlew capsule
+    ./gradlew shadowJar
 
-Executable will now be at `build/libs/transmart-batch-<version>-capsule.jar`.
+The executable will now be at `build/libs/transmart-batch-<version>.jar`.
+
+To run it, execute:
+
+    java -jar build/libs/transmart-batch-<version>.jar
+
+or use the script [transmart-batch.sh](../transmart-batch.sh).
 
 Configuring
 -----------
@@ -25,6 +31,7 @@ Create a file named `batchdb.properties`. Sample:
 
 By default, transmart-batch will look for this file in the working directory.
 You can override this behavior with the `-c` option.
+Please note that on newer versions of Postgres, the default port is `5433`.
 
 Preparation of the Database
 ---------------------------
@@ -47,7 +54,7 @@ Running
 
 In its simplest form:
 
-    ./transmart-batch-capsule.jar -p /path/to/STUDY_NAME/clinical.params
+    ./transmart-batch.sh -p /path/to/STUDY_NAME/clinical.params
 
 Beware: the parent directory of the clinical.params file will be study name. See
 the usage help for more information.
@@ -65,7 +72,7 @@ failed job:
 
 Then run:
 
-    ./transmart-batch-capsule.jar -p /path/to/STUDY_NAME/<type>.params -r -j <execution id>
+    ./transmart-batch.sh -p /path/to/STUDY_NAME/<type>.params -r -j <execution id>
 
 Logging can be customized by creating a `logback.groovy` file in the working
 directory. You can copy the original `logback.groovy` and remove the part before
@@ -77,7 +84,7 @@ the comment `CUT HERE`:
 Development
 -----------
 
-Running can also be done without capsule:
+Running can also be done without the shadow jar:
 
     ./gradlew run -Pargs='-p studies/GSE8581/clinical.params -n' --debug-jvm
 
