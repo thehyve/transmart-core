@@ -7,8 +7,8 @@ import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.MatchMode
 import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.TabularResult
@@ -37,7 +37,6 @@ import org.transmartproject.db.querytool.QtQueryInstance
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
-import org.transmartproject.db.util.StringUtils
 
 @Slf4j
 @Transactional
@@ -61,7 +60,12 @@ class QueryService {
     private final Field numberValueField =
             new Field(dimension: ConstraintDimension.Value, fieldName: 'numberValue', type: Type.NUMERIC)
 
-    private final Criterion defaultHDModifierCriterion = StringUtils.like('modifierCd', 'TRANSMART:HIGHDIM:', MatchMode.START)
+    @Lazy
+    private Criterion defaultHDModifierCriterion = Restrictions.in('modifierCd', highDimensionResourceService.knownMarkerTypes.collect {
+        String dataTypeName ->
+        String highDimType = dataTypeName.toUpperCase()
+        "TRANSMART:HIGHDIM:${highDimType}".toString()
+    })
 
     private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
         assert 'user is required', user
@@ -451,17 +455,23 @@ class QueryService {
             User user) {
         checkAccess(assayConstraint, user)
 
-        List modifierCodes = highDimensionResourceService.knownMarkerTypes.collect { String dataTypeName ->
-            String highDimType = dataTypeName.toUpperCase()
-            "TRANSMART:HIGHDIM:${highDimType}".toString()
-        }
-
         List<ObservationFact> observations = highDimObservationList(assayConstraint, user, defaultHDModifierCriterion)
         List<ObservationFact> basicObservationRows = highDimObservationList(assayConstraint, user)
 
-        List assayIds = observations.findAll {
-            it.modifierCd in modifierCodes && it.numberValue != null && checkForCorrectObservationFact(it, basicObservationRows)
-        }.collect { it.numberValue.toLong() }
+
+        if (!basicObservationRows.every { basicObs ->
+            observations.any { modifierObs ->
+                basicObs.conceptCode == modifierObs.conceptCode
+            }
+        }) {
+            throw new IllegalStateException("Found data that is either clinical or is using the old way of storing high dimensional data.")
+        }
+
+        if (observations.any { it.numberValue == null }) {
+            throw new IllegalStateException("Observation row(s) found that miss the assayId")
+        }
+
+        List assayIds = observations.collect { it.numberValue.toLong() }
 
         if (assayIds.empty){
             return new EmptyHypercube()
@@ -496,18 +506,6 @@ class QueryService {
         }
         TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
         new HddTabularResultHypercubeAdapter(table)
-    }
-
-    boolean checkForCorrectObservationFact(ObservationFact observationWithModifier, List<ObservationFact> basicObservationRows) {
-        if (basicObservationRows.any {
-            it.conceptCode == observationWithModifier.conceptCode &&
-                    it.valueType == ObservationFact.TYPE_TEXT &&
-                    it.modifierCd == '@'
-        }) {
-            return true
-        } else {
-            throw new IllegalStateException("Found data is either not high dimensional or is using old way of storing assay information.")
-        }
     }
 
     Hypercube retrieveClinicalData(Constraint constraint, User user) {
