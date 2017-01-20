@@ -28,6 +28,8 @@ org.transmart.originalConfigBinding = getBinding()
 
 grails.assets.bundle = true
 
+grails.resources.pattern = '/**'
+
 grails.mime.disable.accept.header.userAgents = []
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.types = [html         : [
@@ -141,6 +143,10 @@ com.recomdata.analysis.survival.censorFlagList = [
 com.recomdata.analysis.genepattern.file.dir = "data"; // Relative to the app root "web-app" - deprecated - replaced with data.file.dir
 
 com.recomdata.analysis.data.file.dir = "data"; // Relative to the app root "web-app"
+
+// Directories to write R scripts to for use by RServe. Resources are copied at startup.
+org.transmartproject.rmodules.deployment.rscripts = new File(System.getProperty("user.home"), '.grails/transmart-rscripts')
+org.transmartproject.rmodules.deployment.dataexportRscripts = new File(System.getProperty("user.home"), '.grails/transmart-dataexport-rscripts')
 
 // Disclaimer
 StringBuilder disclaimer = new StringBuilder()

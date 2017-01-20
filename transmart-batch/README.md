@@ -85,20 +85,20 @@ Assuming the **batchdb.properties** file is in the directory transmart-batch is 
 
 * Loading clinical data with a gene expression data set  
 ```
-    <path_to>/transmart-batch.jar -p <path_to>/study_folder/clinical/clinical.params
-    <path_to>/transmart-batch.jar -p <path_to>/study_folder/mRNA/expression.params
+    <path_to>/transmart-batch.sh -p <path_to>/study_folder/clinical/clinical.params
+    <path_to>/transmart-batch.sh -p <path_to>/study_folder/mRNA/expression.params
 ```
 
 * Use a different **batchdb.properties**
 ```
-    <path_to>/transmart-batch.jar -p <path_to>/study/clinical/clinical.params -c <path_to>/<file_name>
+    <path_to>/transmart-batch.sh -p <path_to>/study/clinical/clinical.params -c <path_to>/<file_name>
 ```
 
 * Restart a failed job
 ```
     At the start of the failed job retrieve the execution id:  
         org...BetterExitMessageJobExecutionListener - Job id is 1186, execution id is 1271
-    <path_to>/transmart-batch.jar -p <path_to>/study_folder/clinical/clinical.params -r -j 1271
+    <path_to>/transmart-batch.sh -p <path_to>/study_folder/clinical/clinical.params -r -j 1271
 ```
 
 ## Expected file structure

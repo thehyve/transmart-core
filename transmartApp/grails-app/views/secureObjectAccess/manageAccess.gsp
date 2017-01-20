@@ -29,7 +29,7 @@
          style="width:100%; font:11px tahoma, arial, helvetica, sans-serif"><br><b>Search User/Group</b><br>
         <input type="text" size="80" id="searchUsers" autocomplete="off"/></div>
 
-    <r:script>
+    <script type="text/javascript">
 var pageInfo = {
     basePath: '${JavaScriptUtils.javaScriptEscape(request.getContextPath())}'
 }
@@ -45,13 +45,13 @@ createUserSearchBox(pageInfo.basePath +
 	return false;
 	}
     var form = $(this).closest('form');
-        ${remoteFunction(controller: 'secureObjectAccess',
+        ${legacy.remoteFunction(controller: 'secureObjectAccess',
                 action: 'listAccessForPrincipal',
                 update: [success: 'permissions', failure: ''],
                 params: "form.serialize()")};
 	return false;
   }
-    </r:script>
+    </script>
 
     <g:form name="accessform" action="manageAccess">
         <table>

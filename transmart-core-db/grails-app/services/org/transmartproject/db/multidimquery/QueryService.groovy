@@ -7,7 +7,6 @@ import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.MatchMode
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
@@ -38,7 +37,6 @@ import org.transmartproject.db.querytool.QtQueryInstance
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
-import org.transmartproject.db.util.StringUtils
 
 @Slf4j
 @Transactional
@@ -57,12 +55,17 @@ class QueryService {
     @Autowired
     ConceptsResource conceptsResource
 
-    private final Field valueTypeField = new Field(dimension: ValueDimension, fieldName: 'valueType', type: Type.STRING)
-    private final Field textValueField = new Field(dimension: ValueDimension, fieldName: 'textValue', type: Type.STRING)
+    private final Field valueTypeField = new Field(dimension: ConstraintDimension.Value, fieldName: 'valueType', type: Type.STRING)
+    private final Field textValueField = new Field(dimension: ConstraintDimension.Value, fieldName: 'textValue', type: Type.STRING)
     private final Field numberValueField =
-            new Field(dimension: ValueDimension, fieldName: 'numberValue', type: Type.NUMERIC)
+            new Field(dimension: ConstraintDimension.Value, fieldName: 'numberValue', type: Type.NUMERIC)
 
-    private final Criterion defaultHDModifierCriterion = StringUtils.like('modifierCd', 'TRANSMART:HIGHDIM:', MatchMode.START)
+    @Lazy
+    private Criterion defaultHDModifierCriterion = Restrictions.in('modifierCd', highDimensionResourceService.knownMarkerTypes.collect {
+        String dataTypeName ->
+        String highDimType = dataTypeName.toUpperCase()
+        "TRANSMART:HIGHDIM:${highDimType}".toString()
+    })
 
     private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
         assert 'user is required', user
@@ -90,11 +93,11 @@ class QueryService {
                 }
             }
         } else if (constraint instanceof FieldConstraint) {
-            if (constraint.field.dimension == ConceptDimension) {
+            if (constraint.field.dimension == ConstraintDimension.Concept) {
                 throw new AccessDeniedException("Access denied. Concept dimension not allowed in field constraints. Use a ConceptConstraint instead.")
-            } else if (constraint.field.dimension == StudyDimension) {
+            } else if (constraint.field.dimension == ConstraintDimension.Study) {
                 throw new AccessDeniedException("Access denied. Study dimension not allowed in field constraints. Use a StudyConstraint instead.")
-            } else if (constraint.field.dimension == TrialVisitDimension) {
+            } else if (constraint.field.dimension == ConstraintDimension.TrialVisit) {
                 if (constraint.field.fieldName == 'study') {
                     throw new AccessDeniedException("Access denied. Field 'study' of trial visit dimension not allowed in field constraints. Use a StudyConstraint instead.")
                 }
@@ -186,13 +189,14 @@ class QueryService {
      * @param query
      * @param user
      */
-    List<ObservationFact> highDimObservationList(Constraint constraint, User user) {
+    List<ObservationFact> highDimObservationList(Constraint constraint, User user, Criterion modifier = null) {
         checkAccess(constraint, user)
         log.info "Studies: ${accessControlChecks.getDimensionStudiesForUser(user)*.studyId}"
         def builder = new HibernateCriteriaQueryBuilder(
                 studies: accessControlChecks.getDimensionStudiesForUser(user)
         )
-        DetachedCriteria criteria = builder.buildCriteria(constraint, defaultHDModifierCriterion)
+        DetachedCriteria criteria = modifier ? builder.buildCriteria(constraint, modifier)
+                : builder.buildCriteria(constraint)
         getList(criteria)
     }
 
@@ -451,18 +455,23 @@ class QueryService {
             User user) {
         checkAccess(assayConstraint, user)
 
-        List modifierCodes = highDimensionResourceService.knownMarkerTypes.collect { String dataTypeName ->
-        String highDimType = dataTypeName.toUpperCase()
-        "TRANSMART:HIGHDIM:${highDimType}".toString()
+        List<ObservationFact> observations = highDimObservationList(assayConstraint, user, defaultHDModifierCriterion)
+        List<ObservationFact> basicObservationRows = highDimObservationList(assayConstraint, user)
+
+
+        if (!basicObservationRows.every { basicObs ->
+            observations.any { modifierObs ->
+                basicObs.conceptCode == modifierObs.conceptCode
+            }
+        }) {
+            throw new IllegalStateException("Found data that is either clinical or is using the old way of storing high dimensional data.")
         }
 
-        List<ObservationFact> observations = highDimObservationList(assayConstraint, user)
-        //TODO check for correct Observation fact row
+        if (observations.any { it.numberValue == null }) {
+            throw new IllegalStateException("Observation row(s) found that miss the assayId")
+        }
 
-        List assayIds = observations
-                .findAll { it.modifierCd in modifierCodes && it.numberValue != null}
-                .collect { it.numberValue.toLong() }
-
+        List assayIds = observations.collect { it.numberValue.toLong() }
 
         if (assayIds.empty){
             return new EmptyHypercube()
@@ -474,13 +483,21 @@ class QueryService {
         Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
                 highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
 
-        //TODO assaysByType is empty
-        if (assaysByType.size() > 1) {
+        if (assaysByType.size() == 0) {
+            throw new IllegalStateException("Unknown high dimensional data type.")
+        }
+        else if (assaysByType.size() > 1) {
             throw new IllegalStateException("Expected only one high dimensional data type. Got ${assaysByType.keySet()*.dataTypeName}")
         }
 
-        //TODO The data type is the same, but platform is different
-        HighDimensionDataTypeResource typeResource = assaysByType.keySet().first()
+        def assayByType = assaysByType.iterator().next()
+
+        def platformList = assayByType.value*.platform as Set
+        if (platformList.size() != 1){
+            throw new IllegalStateException("Result assays contain different platforms: ${platformList*.id}")
+        }
+
+        HighDimensionDataTypeResource typeResource = assayByType.key
         HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)
 
         List<DataConstraint> dataConstraints = []
@@ -497,5 +514,4 @@ class QueryService {
         def accessibleStudies = accessControlChecks.getDimensionStudiesForUser(user)
         queryResource.retrieveData(dataType, accessibleStudies, constraint: constraint)
     }
-
 }

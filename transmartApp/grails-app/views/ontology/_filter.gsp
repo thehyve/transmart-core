@@ -15,7 +15,7 @@
                 <g:select
                         class="searchform" name="tagtype" id="tagtype"
                         from="${tagtypes}"
-                        onchange="changeType();${remoteFunction(
+                        onchange="changeType();${legacy.remoteFunction(
                                 controller: 'ontology',
                                 action: 'ajaxGetOntTagFilterTerms',
                                 params: '{tagtype:this.value}',

@@ -37,7 +37,8 @@
                             [id: 'rwg', title: 'Browse', controller: 'RWG', display: !grailsApplication.config.ui.tabs.browse.hide],
                             [id: 'datasetExplorer', title: 'Analyze', controller: 'datasetExplorer'],
                             [id: 'sampleexplorer', title: 'Sample Explorer', controller: 'sampleExplorer', display: !grailsApplication.config.ui.tabs.sampleExplorer.hide],
-                            [id: 'genesignature', title: 'Gene&nbsp;Signature/Lists', controller: 'geneSignature', display: !grailsApplication.config.ui.tabs.geneSignature.hide],
+                            [id: 'genesignature', title: 'Gene Signature/Lists', controller: 'geneSignature',
+                             display: !grailsApplication.config.ui.tabs.geneSignature.hide],
                             [id: 'gwas', title: 'GWAS', controller: 'GWAS', display: !grailsApplication.config.ui.tabs.gwas.hide],
                             [id: 'uploaddata', title: 'Upload Data', controller: 'uploadData', display: !grailsApplication.config.ui.tabs.uploadData.hide],
                             [id: 'accesslog', title: 'Admin', controller: 'accessLog', display: SpringSecurityUtils.ifAnyGranted('ROLE_ADMIN')]

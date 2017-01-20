@@ -823,7 +823,7 @@ jQuery(document).ready(function() {
 			},
 			error: function(xhr) {
 				alert(xhr);
-				jQuery('#createAnalysis').html(response).removeClass('ajaxloading');
+				jQuery('#createAnalysis').removeClass('ajaxloading');
 			}
 		});
 	});

@@ -33,7 +33,7 @@ class TimeConstraintSpec extends RESTSpec{
                         args: [
                                 [type: StudyNameConstraint, studyId: EHR_ID],
                                 [type: TimeConstraint,
-                                 field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
+                                 field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
                                  operator: AFTER,
                                  values: [date]]
                         ]
@@ -44,7 +44,7 @@ class TimeConstraintSpec extends RESTSpec{
         then: "6 observations are returned"
         assert selector.cellCount == 6
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
         }
     }
@@ -68,7 +68,7 @@ class TimeConstraintSpec extends RESTSpec{
                 args: [
                         [type: StudyNameConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
-                         field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
+                         field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
                          operator: BETWEEN,
                          values: [date1, date2]]
                 ]
@@ -79,7 +79,7 @@ class TimeConstraintSpec extends RESTSpec{
         then: "2 observations are returned"
         assert selector.cellCount == 2
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
         }
     }
@@ -101,7 +101,7 @@ class TimeConstraintSpec extends RESTSpec{
                 args: [
                         [type: StudyNameConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
-                         field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
+                         field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
                          operator: BEFORE,
                          values: date]
                 ]
@@ -112,7 +112,7 @@ class TimeConstraintSpec extends RESTSpec{
         then: "1 observation is returned"
         assert selector.cellCount == 1
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
         }
     }
@@ -135,11 +135,11 @@ class TimeConstraintSpec extends RESTSpec{
                 args: [
                         [type: StudyNameConstraint, studyId: EHR_ID],
                         [type: TimeConstraint,
-                         field: [dimension: 'StartTimeDimension', fieldName: 'startDate', type: 'DATE' ],
+                         field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
                          operator: AFTER,
                          values: date1],
                         [type: TimeConstraint,
-                         field: [dimension: 'EndTimeDimension', fieldName: 'endDate', type: 'DATE' ],
+                         field: [dimension: 'end time', fieldName: 'endDate', type: 'DATE' ],
                          operator: BEFORE,
                          values: date2]
                 ]
@@ -150,7 +150,7 @@ class TimeConstraintSpec extends RESTSpec{
         then: "4 observations are returned"
         assert selector.cellCount == 3
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('EHR:VSIGN:HR')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
         }
     }

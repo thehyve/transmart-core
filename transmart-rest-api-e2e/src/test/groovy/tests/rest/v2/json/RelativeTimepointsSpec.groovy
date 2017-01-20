@@ -35,7 +35,7 @@ class RelativeTimepointsSpec extends RESTSpec {
                 args    : [
                         [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type    : FieldConstraint,
-                         field   : [dimension: 'TrialVisitDimension',
+                         field   : [dimension: 'trial visit',
                                     fieldName: 'relTimeLabel',
                                     type     : STRING],
                          operator: EQUALS,
@@ -49,7 +49,7 @@ class RelativeTimepointsSpec extends RESTSpec {
 
         assert selector.cellCount == 4
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CT:VSIGN:HR')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('CT:VSIGN:HR')
         }
     }
 
@@ -70,7 +70,7 @@ class RelativeTimepointsSpec extends RESTSpec {
                 args    : [
                         [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type    : FieldConstraint,
-                         field   : [dimension: 'TrialVisitDimension',
+                         field   : [dimension: 'trial visit',
                                     fieldName: 'relTimeLabel',
                                     type     : STRING],
                          operator: EQUALS,
@@ -85,7 +85,7 @@ class RelativeTimepointsSpec extends RESTSpec {
                 args    : [
                         [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type    : FieldConstraint,
-                         field   : [dimension: 'TrialVisitDimension',
+                         field   : [dimension: 'trial visit',
                                     fieldName: 'relTime',
                                     type     : NUMERIC],
                          operator: EQUALS,
@@ -127,7 +127,7 @@ class RelativeTimepointsSpec extends RESTSpec {
                 args    : [
                         [type: StudyNameConstraint, studyId: EHR_ID],
                         [type    : FieldConstraint,
-                         field   : [dimension: 'TrialVisitDimension',
+                         field   : [dimension: 'trial visit',
                                     fieldName: 'relTimeLabel',
                                     type     : STRING],
                          operator: EQUALS,
@@ -141,7 +141,7 @@ class RelativeTimepointsSpec extends RESTSpec {
 
         HashSet concepts = []
         (0..<selector.cellCount).each {
-            concepts.add(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            concepts.add(selector.select(it, "concept", "conceptCode", 'String'))
         }
         assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR')
     }
@@ -157,7 +157,7 @@ class RelativeTimepointsSpec extends RESTSpec {
 
         when: "I get observations related to the General relative time label"
         def constraintMap = [type    : FieldConstraint,
-                             field   : [dimension: 'TrialVisitDimension',
+                             field   : [dimension: 'trial visit',
                                         fieldName: 'relTimeLabel',
                                         type     : STRING],
                              operator: EQUALS,
@@ -168,7 +168,7 @@ class RelativeTimepointsSpec extends RESTSpec {
         then: "multiple concepts are returned"
         HashSet concepts = []
         (0..<selector.cellCount).each {
-            concepts.add(selector.select(it, "ConceptDimension", "conceptCode", 'String'))
+            concepts.add(selector.select(it, "concept", "conceptCode", 'String'))
         }
         assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR', 'CT:DEM:AGE')
     }
@@ -190,7 +190,7 @@ class RelativeTimepointsSpec extends RESTSpec {
                 args    : [
                         [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type    : FieldConstraint,
-                         field   : [dimension: 'TrialVisitDimension',
+                         field   : [dimension: 'trial visit',
                                     fieldName: 'relTimeLabel',
                                     type     : STRING],
                          operator: EQUALS,
@@ -205,7 +205,7 @@ class RelativeTimepointsSpec extends RESTSpec {
                 args    : [
                         [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
                         [type    : FieldConstraint,
-                         field   : [dimension: 'TrialVisitDimension',
+                         field   : [dimension: 'trial visit',
                                     fieldName: 'relTime',
                                     type     : NUMERIC],
                          operator: GREATER_THAN,

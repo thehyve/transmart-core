@@ -4,10 +4,11 @@ import groovy.json.JsonBuilder
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
+import groovyx.net.http.URIBuilder
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import selectors.ObservationsMessageProto
-import protobuf.ObservationsProto
+import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import selectors.ObservationsMessageJson
 import spock.lang.Shared
 import spock.lang.Specification
@@ -19,9 +20,11 @@ import static org.hamcrest.Matchers.*
 
 abstract class RESTSpec extends Specification{
 
-    def contentTypeForHAL = 'application/hal+json'
-    def contentTypeForJSON = 'application/json'
-    def contentTypeForProtobuf = 'application/x-protobuf'
+    def static contentTypeForHAL = 'application/hal+json'
+    def static contentTypeForJSON = 'application/json'
+    def static contentTypeForProtobuf = 'application/x-protobuf'
+    def static contentTypeForoctetStream = 'application/octet-stream'
+    def static contentTypeForXML = 'application/xml'
 
     private static HashMap<String, String> oauth2token = [:]
 
@@ -188,6 +191,78 @@ abstract class RESTSpec extends Specification{
         }
     }
 
+    def post(RestCall restCall){
+        http.request(Method.POST, restCall.acceptType) { req ->
+            uri.path = restCall.path
+            uri.query = restCall.query
+            headers.Accept = restCall.acceptType
+            headers.'Content-Type' = restCall.contentType
+            body = restCall.body
+            if (restCall.oauth){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(uri.toString())
+            response.success = { resp, reader ->
+                assert resp.statusLine.statusCode == restCall.statusCode
+                assert resp.headers.'Content-Type'.contains(restCall.acceptType) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
+                if (DEBUG){
+                    def result = reader
+                    println result
+                    return result
+                }
+                return reader
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode == restCall.statusCode
+                if (DEBUG){
+                    def result = reader
+                    println result
+                    return result
+                }
+                return reader
+            }
+        }
+    }
+
+    def get(RestCall restCall){
+        http.request(Method.GET, restCall.acceptType) { req ->
+            uri.path = restCall.path
+            uri.query = restCall.query
+            headers.Accept = restCall.acceptType
+            if (restCall.oauth){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(uri.toString())
+            response.success = { resp, reader ->
+                assert resp.statusLine.statusCode == restCall.statusCode
+                assert resp.headers.'Content-Type'.contains(restCall.acceptType) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
+                if (DEBUG){
+                    def result = reader
+                    println result
+                    return result
+                }
+                return reader
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode == restCall.statusCode
+                if (DEBUG){
+                    def result = reader
+                    println result
+                    return result
+                }
+                return reader
+            }
+        }
+    }
+
+
+
+
+
     /**
      * a convenience method to keep the tests readable by removing as much code as possible
      *
@@ -297,34 +372,33 @@ abstract class RESTSpec extends Specification{
     }
 
     def parseHypercube(jsonHypercube){
-        def header = jsonHypercube.header
+        def dimensionDeclarations = jsonHypercube.dimensionDeclarations
         def cells = jsonHypercube.cells
-        def footer = jsonHypercube.footer
-        return new ObservationsMessageJson(header, cells, footer)
+        def dimensionElements = jsonHypercube.dimensionElements
+        return new ObservationsMessageJson(dimensionDeclarations, cells, dimensionElements)
     }
 
     def parseProto(s_in){
         def header = ObservationsProto.Header.parseDelimitedFrom(s_in)
+        if(header.error) throw new RuntimeException("Error in protobuf header message: "+header.error)
         if (header.dimensionDeclarationsCount == 0){
             return new ObservationsMessageProto()
         }
         if (DEBUG){println('proto header = ' + header)}
+        boolean last = header.last
         def cells = []
         int count = 0
-        while(true) {
+        while(!last) {
             count++
-            def cell = ObservationsProto.Observation.parseDelimitedFrom(s_in)
-            if (header.toString() == "" && cell == null) {
-                break
-            }
-            assert cell != null, "proto buf message is incomplete. no cell with last=true found. cell ${count} was null"
+            def cell = ObservationsProto.Cell.parseDelimitedFrom(s_in)
+            assert cell != null, "null cell found"
+            if(cell.error) throw new RuntimeException("Error in protobuf cell message: "+cell.error)
+            last = cell.last
             cells << cell
-            if (cell.last) {
-                break
-            }
         }
         if (DEBUG){println('proto cells = ' + cells)}
         def footer = ObservationsProto.Footer.parseDelimitedFrom(s_in)
+        if(footer.error) throw new RuntimeException("Error in protobuf footer message: "+footer.error)
         if (DEBUG){println('proto footer = ' + footer)}
 
         return new ObservationsMessageProto(header, cells, footer)

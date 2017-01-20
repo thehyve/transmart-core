@@ -426,6 +426,7 @@ class GeneSignatureController {
             gs = geneSignatureService.saveWizard(gs, file)
             if (gs.hasErrors()) {
                 flash.message = 'Could not save Gene Signature'
+                def existingValues = createExistingValues(3, wizard.geneSigInst)
                 render(view: "wizard3", model: [wizard: wizard, existingValues: existingValues])
                 return
             }

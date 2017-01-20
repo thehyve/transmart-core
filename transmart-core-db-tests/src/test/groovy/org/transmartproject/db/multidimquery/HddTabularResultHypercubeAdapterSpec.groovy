@@ -44,8 +44,8 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
 
     void setupData(values) {
 
-        patients = [-42, -43, -44].collect { inTrialId ->
-            [getInTrialId: {inTrialId as String}] as Patient
+        patients = [-42, -43, -44].collect { id ->
+            [getId: {id as Long}] as Patient
         }
         assays = [[-55, -56, -57], patients].transpose().collect { code, patient ->
             [getSampleCode: {code as String}, getLabel: {code as String}, getPatient: {patient}] as AssayColumn
@@ -109,14 +109,14 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
             assert cube.dimensionElement(assayDim, it) == assays[it]
         }
         (0..2).each {
-            assert cube.dimensionElementKey(patientDim, it) == patients[it].inTrialId
+            assert cube.dimensionElementKey(patientDim, it) == patients[it].id.toString()
             assert cube.dimensionElementKey(assayDim, it) == assays[it].sampleCode
         }
         cube.dimensionsPreloadable == false
         cube.dimensionsPreloaded == false
         [cube.dimensionElements(biomarkerDim), biomarkers].transpose().each { BioMarker actual, String expectedLabel ->
             assert actual.label == expectedLabel
-            assert actual.bioMarker == "bio$expectedLabel".toString()
+            assert actual.biomarker == "bio$expectedLabel".toString()
         }
 
         (0..2).each {
@@ -171,7 +171,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
             assert cube.dimensionElement(projectionDim, it) == projectionKeys[it]
         }
         (0..2).each {
-            assert cube.dimensionElementKey(patientDim, it) == patients[it].inTrialId
+            assert cube.dimensionElementKey(patientDim, it) == patients[it].id.toString()
             assert cube.dimensionElementKey(assayDim, it) == assays[it].sampleCode
             assert cube.dimensionElementKey(projectionDim, it) == projectionKeys[it]
         }
@@ -179,7 +179,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         cube.dimensionsPreloaded == false
         [cube.dimensionElements(biomarkerDim), biomarkers].transpose().each { BioMarker actual, String expectedLabel ->
             assert actual.label == expectedLabel
-            assert actual.bioMarker == "bio$expectedLabel".toString()
+            assert actual.biomarker == "bio$expectedLabel".toString()
         }
 
         (0..2).each {

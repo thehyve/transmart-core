@@ -95,6 +95,13 @@ class DimensionDescription {
         }
     }
 
+    /**
+     * Retrieve all dimensions that are available in this database for all studies
+     * @return a list of all dimensions
+     */
+    static List<Dimension> getAllDimensions() {
+        findAll { name != LEGACY_MARKER }*.dimension
+    }
 }
 
 

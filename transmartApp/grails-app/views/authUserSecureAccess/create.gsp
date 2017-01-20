@@ -1,3 +1,5 @@
+<%@ page import="org.transmart.searchapp.AuthUser" %>
+<%@ page import="org.transmart.searchapp.SecureAccessLevel" %>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -30,7 +32,7 @@
                         class="value ${hasErrors(bean: authUserSecureAccessInstance, field: 'authUser', 'errors')}">
                         <g:select optionKey="id" from="${AuthUser.listOrderByUsername()}" name="authUser.id"
                                   value="${authUserSecureAccessInstance?.authUser?.id}" noSelection="['null': '']"
-                                  onchange="${remoteFunction(action: 'listAccessLevel',
+                                  onchange="${legacy.remoteFunction(action: 'listAccessLevel',
                                           update: 'accessLevelList',
                                           params: '\'id=\'+this.value')}"></g:select>
                     </td>

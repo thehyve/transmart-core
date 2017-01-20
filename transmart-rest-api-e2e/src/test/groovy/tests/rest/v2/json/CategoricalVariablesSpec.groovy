@@ -33,7 +33,8 @@ class CategoricalVariablesSpec extends RESTSpec{
         def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
 
         then: "no observations are returned"
-        assert responseData == [:]
+        assert responseData.cells == []
+        assert responseData.dimensionElements.values().every { it == [] }
     }
 
     /**
@@ -53,7 +54,7 @@ class CategoricalVariablesSpec extends RESTSpec{
         ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
 
         assert selector.cellCount == 1
-        assert (selector.select(0, "ConceptDimension", "conceptCode", 'String') == 'CV:DEM:SEX:F')
+        assert (selector.select(0, "concept", "conceptCode", 'String') == 'CV:DEM:SEX:F')
         assert selector.select(0) == 'Female'
     }
 
@@ -75,7 +76,7 @@ class CategoricalVariablesSpec extends RESTSpec{
 
         assert selector.cellCount == 3
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CV:DEM:RACE')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('CV:DEM:RACE')
         }
     }
 
@@ -104,7 +105,7 @@ class CategoricalVariablesSpec extends RESTSpec{
 
         assert selector.cellCount == 2
         (0..<selector.cellCount).each {
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('CV:DEM:RACE')
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('CV:DEM:RACE')
             assert selector.select(it) == 'Caucasian'
         }
     }

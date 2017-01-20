@@ -29,9 +29,9 @@ class SharedConceptsSpec extends RESTSpec {
 
         then: "observations are returned from both Studies"
         (0..<selector.cellCount).each {
-            assert (selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_A_ID) ||
-                    selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_B_ID))
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('VSIGN:HR')
+            assert (selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_A_ID) ||
+                    selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_B_ID))
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('VSIGN:HR')
             assert selector.select(it) != null
         }
     }
@@ -58,8 +58,8 @@ class SharedConceptsSpec extends RESTSpec {
 
         then: "observations are returned from only that Studies"
         (0..<selector.cellCount).each {
-            assert selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_A_ID)
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('VSIGN:HR')
+            assert selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_A_ID)
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('VSIGN:HR')
             assert selector.select(it) != null
         }
     }
@@ -80,10 +80,10 @@ class SharedConceptsSpec extends RESTSpec {
 
         then: "observations are returned from both public Studies but not the restricted study"
         (0..<selector.cellCount).each {
-            assert (selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_A_ID) ||
-                    selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_B_ID))
-            assert !selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_RESTRICTED_ID)
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('VSIGN:HR')
+            assert (selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_A_ID) ||
+                    selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_B_ID))
+            assert !selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_RESTRICTED_ID)
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('VSIGN:HR')
             assert selector.select(it) != null
         }
     }
@@ -105,10 +105,10 @@ class SharedConceptsSpec extends RESTSpec {
 
         then: "observations are returned from both public Studies but not the restricted study"
         (0..<selector.cellCount).each {
-            assert (selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_A_ID) ||
-                    selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_B_ID) ||
-                    selector.select(it, "StudyDimension", "studyId", 'String').equals(SHARED_CONCEPTS_RESTRICTED_ID))
-            assert selector.select(it, "ConceptDimension", "conceptCode", 'String').equals('VSIGN:HR')
+            assert (selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_A_ID) ||
+                    selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_B_ID) ||
+                    selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_RESTRICTED_ID))
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('VSIGN:HR')
             assert selector.select(it) != null
         }
     }

@@ -7,7 +7,6 @@ import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.validation.Errors
-import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.i2b2data.Study
 /**
@@ -171,7 +170,8 @@ enum Operator {
  */
 @Canonical
 class Field implements Validateable {
-    Class<? extends Dimension> dimension
+    @BindUsing({ obj, source -> ConstraintDimension.valueOf(source['dimension'])})
+    ConstraintDimension dimension
     @BindUsing({ obj, source -> Type.forName(source['type']) })
     Type type = Type.NONE
     String fieldName
@@ -572,18 +572,17 @@ class ConstraintFactory {
         if (values == null) {
             throw new ConstraintBindingException('Cannot create field for null values.')
         }
-        String dimensionClassName = values['dimension'] as String
+        String dimensionName = values['dimension'] as String
         String fieldName = values['fieldName'] as String
-        def metadata = DimensionMetadata.forDimensionClassName(dimensionClassName)
         try {
-            Field field = DimensionMetadata.getField(metadata.dimension, fieldName)
+            Field field = DimensionMetadata.getField(dimensionName, fieldName)
             log.debug "Field data: ${field}"
             object[name] = field
             log.debug "Object: ${object}"
             return field
         } catch (QueryBuilderException e) {
             throw new ConstraintBindingException(
-                    "Error finding field for dimension '${dimensionClassName}', field name '${fieldName}'.", e)
+                    "Error finding field for dimension '${dimensionName}', field name '${fieldName}'.", e)
         }
     }
 }
