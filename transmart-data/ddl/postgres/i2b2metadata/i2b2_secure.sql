@@ -39,11 +39,19 @@ CREATE INDEX idx_i2b2_secure_fullname ON i2b2_secure USING btree (c_fullname);
 --
 -- add documentation
 --
-COMMENT ON TABLE i2b2metadata.i2b2_secure IS 'the same as i2b2 but with added security token';
+COMMENT ON TABLE i2b2metadata.i2b2_secure IS 'The same as i2b2, but with an added security token.';
 
-COMMENT ON COLUMN i2b2_secure.c_hlevel IS 'Number that represents the depth of the node. 0 for root';
-COMMENT ON COLUMN i2b2_secure.c_fullname IS 'Full path to the node. E.g. \Vital Signs\Heart Rate\ ';
-COMMENT ON COLUMN i2b2_secure.c_name IS 'Name of the node. E.g. Heart Rate';
-COMMENT ON COLUMN i2b2_secure.c_basecode IS 'code that represents node. E.g. VSIGN:HR';
-COMMENT ON COLUMN i2b2_secure.c_visualattributes IS 'Visualattributes describes how a ui should show this node';
-COMMENT ON COLUMN i2b2_secure.secure_obj_token IS 'Token needed to access the node. E.g. PUBLIC EXP:SCSCP';
+COMMENT ON COLUMN i2b2_secure.c_hlevel IS 'Number that represents the depth of the node. 0 for root.';
+COMMENT ON COLUMN i2b2_secure.c_fullname IS 'Full path to the node. E.g., \Vital Signs\Heart Rate\.';
+COMMENT ON COLUMN i2b2_secure.c_name IS 'Name of the node. E.g., Heart Rate.';
+COMMENT ON COLUMN i2b2_secure.c_basecode IS 'Code that represents node. E.g., VSIGN:HR. Not used.';
+COMMENT ON COLUMN i2b2_secure.c_visualattributes IS 'Visual attributes describing how a node should be displayed. Can have three characters at maximum. See OntologyTerm#VisualAttributes for documentation on the values.';
+COMMENT ON COLUMN i2b2_secure.c_metadataxml IS 'Metadata encoded as XML.';
+COMMENT ON COLUMN i2b2_secure.c_facttablecolumn IS 'Column of observation_fact corresponding with c_columnname.';
+COMMENT ON COLUMN i2b2_secure.c_tablename IS 'Table of the dimension referred to by this node.';
+COMMENT ON COLUMN i2b2_secure.c_columnname IS 'Column of the table of the dimension referred to by this node';
+COMMENT ON COLUMN i2b2_secure.c_operator IS 'Operator. E.g., like, =';
+COMMENT ON COLUMN i2b2_secure.c_dimcode IS 'Refers to a dimension element, linked to observations.';
+COMMENT ON COLUMN i2b2_secure.c_comment IS 'Meant for comments, not for storing study based security tokens.';
+
+COMMENT ON COLUMN i2b2_secure.secure_obj_token IS 'Token encoding access the node. Refers to bio_data_unique_id in searchapp.search_secure_object. E.g., PUBLIC or EXP:SCSCP.';

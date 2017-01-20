@@ -25,11 +25,11 @@ ALTER TABLE ONLY de_rnaseq_transcript_data
 --
 -- add documentation
 --
-COMMENT ON TABLE deapp.de_rnaseq_transcript_data IS 'Table holds rnaseq transcript Highdim values';
+COMMENT ON TABLE deapp.de_rnaseq_transcript_data IS 'Table holds rnaseq transcript level values.';
 
-COMMENT ON COLUMN de_rnaseq_transcript_data.transcript_id IS 'id linking to the transcript';
-COMMENT ON COLUMN de_rnaseq_transcript_data.assay_id IS 'primary key. Id used to link highdim data to patients via the de_subject_sample_mapping tabble';
-COMMENT ON COLUMN de_rnaseq_transcript_data.readcount IS 'base count';
-COMMENT ON COLUMN de_rnaseq_transcript_data.normalized_readcount IS 'normalized projection';
-COMMENT ON COLUMN de_rnaseq_transcript_data.log_normalized_readcount IS 'log projection';
-COMMENT ON COLUMN de_rnaseq_transcript_data.zscore IS 'zscore projection';
+COMMENT ON COLUMN de_rnaseq_transcript_data.transcript_id IS 'Id of the transcript, linking to id in de_rnaseq_transcript_annot.';
+COMMENT ON COLUMN de_rnaseq_transcript_data.assay_id IS 'Primary key. Id used to link highdim data to assays in the de_subject_sample_mapping table.';
+COMMENT ON COLUMN de_rnaseq_transcript_data.readcount IS 'Base count.';
+COMMENT ON COLUMN de_rnaseq_transcript_data.normalized_readcount IS 'Normalized projection.';
+COMMENT ON COLUMN de_rnaseq_transcript_data.log_normalized_readcount IS 'Log projection.';
+COMMENT ON COLUMN de_rnaseq_transcript_data.zscore IS 'Zscore projection.';

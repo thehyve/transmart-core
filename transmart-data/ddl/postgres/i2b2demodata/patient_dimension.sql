@@ -86,7 +86,7 @@ CREATE SEQUENCE seq_patient_num
 --
 -- add documentation
 --
-COMMENT ON TABLE i2b2demodata.patient_dimension IS 'Table holds patients ';
+COMMENT ON TABLE i2b2demodata.patient_dimension IS 'Table holds patients.';
 
-COMMENT ON COLUMN patient_dimension.patient_num IS 'Primary key. id of the patient';
-COMMENT ON COLUMN patient_dimension.sex_cd IS 'Male, Female';
+COMMENT ON COLUMN patient_dimension.patient_num IS 'Primary key. Id of the patient.';
+COMMENT ON COLUMN patient_dimension.sex_cd IS 'One of [male, female, unknown].';
