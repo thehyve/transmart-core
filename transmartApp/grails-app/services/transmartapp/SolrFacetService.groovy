@@ -9,7 +9,7 @@ import groovy.xml.StreamingMarkupBuilder
 import org.json.JSONObject
 import org.transmart.biomart.BioMarker
 import org.transmart.biomart.BioMarkerExpAnalysisMV
-import org.transmartproject.db.support.ChoppedInQueryCondition
+import org.transmartproject.db.support.InQuery
 
 class SolrFacetService {
 
@@ -174,10 +174,7 @@ class SolrFacetService {
                 bioMarkers.push(BioMarker.findByUniqueId(uid))
             }
 
-            def criteria = BioMarkerExpAnalysisMV.createCriteria()
-            ChoppedInQueryCondition choppedInQueryCondition = new ChoppedInQueryCondition('marker', bioMarkers)
-            choppedInQueryCondition.addConstraintsToCriteriaByFieldName(criteria)
-            def result = choppedInQueryCondition.getResultList(criteria)
+            def result = InQuery.addIn(BioMarkerExpAnalysisMV.createCriteria(), 'marker', bioMarkers).list()
 
             searchLog += "Found " + result.size() + " analysis matches"
 

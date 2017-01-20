@@ -37,7 +37,6 @@ class PatientDimension implements Patient {
     // private
     String sourcesystemCd
     String sexCd
-    String inTrialId
 
     // unused
     String vitalStatusCd

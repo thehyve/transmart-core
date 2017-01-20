@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.highdim.dataconstraints
 
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.criterion.Restrictions
-import org.transmartproject.db.support.ChoppedInQueryCondition
+import org.transmartproject.db.support.InQuery
 
 class PropertyDataConstraint implements CriteriaDataConstraint {
 
@@ -31,22 +31,18 @@ class PropertyDataConstraint implements CriteriaDataConstraint {
 
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder criteria) {
-
+        criteria.with {
             if (values instanceof Collection) {
                 if (!values.isEmpty()) {
-                    new ChoppedInQueryCondition(property, values as List)
-                            .addConstraintsToCriteriaByFieldName(criteria)
+                    InQuery.addIn(criteria, property, values as List)
                 } else {
-                    criteria.with {
-                        criteria.addToCriteria(Restrictions.sqlRestriction(
-                                "'empty_in_criteria_for_$property' = ''"))
-                    }
+                    criteria.addToCriteria(Restrictions.sqlRestriction(
+                            "'empty_in_criteria_for_$property' = ''"))
                 }
             } else {
-                criteria.with {
-                    eq property, values
-                }
+                eq property, values
             }
+        }
     }
 }
 

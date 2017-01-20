@@ -30,7 +30,7 @@ import org.transmartproject.db.dataquery.clinical.variables.AcrossTrialsTerminal
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.ontology.ModifierDimensionView
-import org.transmartproject.db.support.ChoppedInQueryCondition
+import org.transmartproject.db.support.InQuery
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TOP_TERM_NAME
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
@@ -73,16 +73,14 @@ class AcrossTrialsDataQuery {
         }
 
         if (patients instanceof PatientQuery) {
+            // Different solution for ORA-01795: 1000 in limitation, which does not break postgres (32000 in limitation)
             criteriaBuilder.add(getHibernateInCriterion('patient.id',
                     patients.forIds()))
         } else {
             criteriaBuilder.in('patient',  Lists.newArrayList(patients))
         }
 
-        new ChoppedInQueryCondition('modifierCd', clinicalVariables*.code)
-                .addConstraintsToCriteriaByFieldName(criteriaBuilder)
-
-        criteriaBuilder.scroll ScrollMode.FORWARD_ONLY
+        InQuery.addIn(criteriaBuilder, 'modifierCd', clinicalVariables*.code).scroll ScrollMode.FORWARD_ONLY
     }
 
     private void fillInAcrossTrialsTerminalVariables() {
@@ -115,9 +113,7 @@ class AcrossTrialsDataQuery {
                 property 'code'
             }
         }
-        ChoppedInQueryCondition choppedInQueryCondition = new ChoppedInQueryCondition('path', conceptPaths.keySet() as List)
-        choppedInQueryCondition.addConstraintsToCriteriaByFieldName(builder)
-        def res = choppedInQueryCondition.getResultList(builder)
+        def res = InQuery.addIn(builder, 'path', conceptPaths.keySet() as List).list()
 
         for (modifier in res) {
             String path = modifier[0],

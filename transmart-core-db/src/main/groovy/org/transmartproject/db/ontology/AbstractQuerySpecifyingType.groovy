@@ -28,7 +28,7 @@ import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.support.ChoppedInQueryCondition
+import org.transmartproject.db.support.InQuery
 import org.transmartproject.db.user.User
 
 /**
@@ -86,10 +86,7 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
             patientIdList = patientIdList.collect( {it as Long} )
         }
 
-        HibernateCriteriaBuilder builder = PatientDimension.createCriteria()
-        def choppedInQueryCondition = new ChoppedInQueryCondition('patient_num', patientIdList)
-        choppedInQueryCondition.addConstraintsToCriteriaByColumnName(builder)
-        choppedInQueryCondition.getResultList(builder)
+        InQuery.addIn(PatientDimension.createCriteria(), 'id', patientIdList).list()
     }
 
     @Override

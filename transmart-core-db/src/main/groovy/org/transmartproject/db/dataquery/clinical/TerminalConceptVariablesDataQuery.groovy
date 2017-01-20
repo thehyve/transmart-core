@@ -32,7 +32,7 @@ import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVaria
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.support.ChoppedInQueryCondition
+import org.transmartproject.db.support.InQuery
 
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
@@ -77,12 +77,10 @@ class TerminalConceptVariablesDataQuery {
             criteriaBuilder.in('patient', Lists.newArrayList(patients))
         }
 
-        new ChoppedInQueryCondition('conceptCode', clinicalVariables*.code)
-                .addConstraintsToCriteriaByFieldName(criteriaBuilder)
-
         criteriaBuilder.eq('modifierCd', ObservationFact.EMPTY_MODIFIER_CODE)
 
-        criteriaBuilder.scroll ScrollMode.FORWARD_ONLY
+        InQuery.addIn(criteriaBuilder, 'conceptCode', clinicalVariables*.code)
+                .scroll ScrollMode.FORWARD_ONLY
     }
 
     private void fillInTerminalConceptVariables() {
@@ -125,12 +123,10 @@ class TerminalConceptVariablesDataQuery {
             }
         }
         if (conceptPaths.keySet()) {
-            new ChoppedInQueryCondition('conceptPath', conceptPaths.keySet() as List)
-                    .addConstraintsToCriteriaByFieldName(builder)
+            InQuery.addIn(builder, 'conceptPath', conceptPaths.keySet() as List)
         }
         if (conceptCodes.keySet()) {
-            new ChoppedInQueryCondition('conceptCode', conceptCodes.keySet() as List)
-                    .addConstraintsToCriteriaByFieldName(builder)
+            InQuery.addIn(builder, 'conceptCode', conceptCodes.keySet() as List)
         }
         def res = builder.instance.list()
 

@@ -21,7 +21,7 @@ class DimensionsSpec extends Specification {
                 -23,
                 -29,
                 -21,
-        ])
+        ].collect { it.toLong()})
     }
 
     def 'conceptDim.resolveElements guarantees order'() {
