@@ -9,7 +9,7 @@ info:
   description: |
     
     # oauth2
-    All calls need an Authorization header. 
+    All calls need an Authorization header. https://wiki.transmartfoundation.org/display/transmartwiki/RESTful+API
     ```
     Authorization:Bearer {token}
     ```
