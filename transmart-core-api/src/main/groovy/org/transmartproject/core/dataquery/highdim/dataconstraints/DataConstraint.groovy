@@ -91,25 +91,5 @@ public interface DataConstraint {
      */
     public final static String GENE_SIGNATURES_CONSTRAINT = 'gene_signatures'
 
-    /**
-     * Filter rows based on a property
-     *
-     * Parameters: 'operator' => name of the criteria to apply (e.g. 'lt', 'in', 'ilike', ...)
-     *             'property' => property of the row to check
-     *             'operand'  => the object to compare the property to (e.g. a collection if operator == 'in', a string if operator == 'ilike', ...)
-     */
-    public final static String PROPERTY_CONSTRAINT = 'property'
 
-    /**
-     * Filter rows based on the annotation/platform associated with the high dimensional data
-     *
-     * Parameters: 'property' => name of the annotation property to search in
-     *             'term'     => string the property should match exactly
-     *            (
-     *             'concept_key'  => concept key of the high dimensional concept
-     *             XOR
-     *             'concept_code' => concept code of the high dimensional concept
-     *            )
-     */
-    public final static String ANNOTATION_CONSTRAINT = 'annotation'
 }

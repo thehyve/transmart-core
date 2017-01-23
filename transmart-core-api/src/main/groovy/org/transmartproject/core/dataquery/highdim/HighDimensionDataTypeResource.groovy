@@ -9,8 +9,6 @@ import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.querytool.ConstraintByOmicsValue
-import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.core.querytool.QueryResult
 
 /**
@@ -150,46 +148,4 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
      * @return true iif the the platform and this data type match
      */
     boolean matchesPlatform(Platform platform)
-
-    /**
-     * Looks for annotations starting with search_term in assays belonging to the given concept_code
-     * @param concept_code the concept code
-     * @param search_term the search term
-     * @param search_property the type of annotation to search in (e.g. geneSymbol)
-     * @return a list of strings: the annotations starting with search_term in assays belonging
-     * to the given concept code, ordered alphabetically
-     */
-    List<String> searchAnnotation(String concept_code, String search_term, String search_property)
-
-    /**
-     * A map of properties that can be used as search_property in {@link #searchAnnotation(String, String, String)}.
-     * The keys are the actual property names to be used in {@link #searchAnnotation(String, String, String)}, the
-     * values are the pretty printed forms to be used for display to the user
-     * @return The map of searchable properties for this
-     */
-    List<String> getSearchableAnnotationProperties()
-
-    /**
-     * @return A list of projections supported for filtering assays (e.g. to be used in cohort selection)
-     */
-    List<String> getSearchableProjections()
-    /**
-     * Get the {@link HighDimensionFilterType} for this high dimension data type.
-     * @return the filter type.
-     */
-    HighDimensionFilterType getHighDimensionFilterType()
-
-    /**
-     * Finds the distribution for a particular property of a high dimensional dataset (e.g. the expression levels in log intensity of the probes associated with KRAS gene)
-     * @param constraint A {@link ConstraintByOmicsValue} object with at least selector, property and projectionType fields set to non-null values.
-     * The projectionType should correspond to a member of the list {@link #getSearchableProjections()}, e.g. 'log_intensity'
-     * The property should be a valid property of this high-dimensional data, i.e. it should be a member of the list {@link #getSearchableAnnotationProperties()}, e.g. 'geneSymbol'
-     * The selector is used to match a property against, e.g. 'KRAS'
-     * @param concept_key The concept key associated with the high dimensional data
-     * @param result_instance_id If this is null it will be ignored. Otherwise only the values for patients that are members
-     * of the given result instance will be returned.
-     *
-     * @return A map where the keys are patient ids, and the values are the data for that patient.
-     */
-    def getDistribution(ConstraintByOmicsValue constraint, String concept_key, Long result_instance_id)
 }

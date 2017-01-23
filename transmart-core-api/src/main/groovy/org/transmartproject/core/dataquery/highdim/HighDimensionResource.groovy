@@ -55,12 +55,4 @@ public interface HighDimensionResource {
      * the constraint or the constraint name is invalid
      */
     AssayConstraint createAssayConstraint(Map<String, Object> params, String name)
-
-    /**
-     * Finds the HighDimensionDataTypeResource for the high dimensional data type
-     * represented by the node at conceptKey
-     * @param conceptKey the concept key of the high dimensional data node
-     * @return the HighDimensionDataTypeResource for the given node
-     */
-    HighDimensionDataTypeResource getHighDimDataTypeResourceFromConcept(String conceptKey)
 }

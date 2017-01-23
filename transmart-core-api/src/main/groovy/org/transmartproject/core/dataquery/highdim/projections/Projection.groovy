@@ -46,43 +46,6 @@ public interface Projection<CELL> {
      */
     public static final ALL_DATA_PROJECTION = 'all_data'
 
-
-    public static final NORMALIZED_READ_COUNT_PROJECTION = 'normalized_readcount'
-    public static final LOG_NORMALIZED_READ_COUNT_PROJECTION = 'log_normalized_readcount'
-
-    // ACGH types
-    public static final CHIP_COPYNUMBER_VALUE = 'chip_copy_number_value'
-    public static final FLAG = 'flag'
-    public static final PROB_AMP = 'probability_of_amplification'
-    public static final PROB_LOSS = 'probability_of_loss'
-    public static final PROB_GAIN = 'probability_of_gain'
-    public static final PROB_NORM = 'probability_of_normal'
-    public static final SEGMENT_COPY_NUMBER_VALUE = 'segment_copy_number_value'
-
-    // VCF Projections
-    public static final VAR_CLASS = 'variant'
-    public static final REF_ALT = 'reference'
-    public static final VAR_TYPE = 'variant_type'
-
-    public static final Map<String, String> prettyNames = [
-            (LOG_INTENSITY_PROJECTION): 'Log Intensity',
-            (DEFAULT_REAL_PROJECTION) : 'Raw Intensity',
-            (ZSCORE_PROJECTION)       : 'Z-Score',
-            (ALL_DATA_PROJECTION)     : 'All data',
-            (NORMALIZED_READ_COUNT_PROJECTION) : 'Normalized Readcount',
-            (LOG_NORMALIZED_READ_COUNT_PROJECTION): 'Log Normalized Readcount',
-            (REF_ALT)                 : 'Reference',
-            (VAR_CLASS)               : 'Variant',
-            (VAR_TYPE)                : 'Variant Type',
-            (PROB_LOSS)               : 'Probability of Loss',
-            (PROB_AMP)                : 'Probability of Amplification',
-            (CHIP_COPYNUMBER_VALUE)   : 'Chip Copy Number Value',
-            (FLAG)                    : 'Flag',
-            (SEGMENT_COPY_NUMBER_VALUE): 'Segment Copy Number Value',
-            (PROB_NORM)               : 'Probability of Normal',
-            (PROB_GAIN)               : 'Probablity of Gain'
-    ]
-
     /**
      * This method takes an implementation-defined object and returns the final
      * cell value.
