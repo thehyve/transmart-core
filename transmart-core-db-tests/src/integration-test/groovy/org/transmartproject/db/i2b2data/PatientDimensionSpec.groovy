@@ -31,17 +31,19 @@ import static org.hamcrest.Matchers.*
 @Rollback
 class PatientDimensionSpec extends Specification {
 
-    SampleHighDimTestData testData = new SampleHighDimTestData()
+    SampleHighDimTestData testData
 
     void setupData() {
+        testData = new SampleHighDimTestData()
         testData.saveAll()
     }
 
     void "test scalar public properties"() {
+        given:
         setupData()
+
         /* Test properties defined in Patient */
         def patient = PatientDimension.get(testData.patients[0].id)
-        println "patients: $testData.patients"
 
         expect:
         patient allOf(
@@ -53,13 +55,13 @@ class PatientDimensionSpec extends Specification {
     }
 
     void "test assays property"() {
+        given:
         setupData()
-        testData.patients[1].assays = testData.assays
-        testData.patients[1].assays = testData.assays.reverse()
-        testData.patients[1].save() // added this. how could the test pass before? - GK
 
-        def patient = PatientDimension.get(testData.patients[1].id)
-        println "patient.assays: ${patient.assays}"
+        def patient1 = testData.patients[1]
+        patient1.assays = testData.assays
+
+        def patient = PatientDimension.get(patient1.id)
 
         expect:
         patient allOf(
