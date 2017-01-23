@@ -44,6 +44,12 @@ ui {
             workspace.hide = false
         }
     }
+    /*
+    //The below disclaimer appears on the login screen, just below the login button.
+    loginScreen {
+        disclaimer = "Please be aware that tranSMART is a data-integration tool that allows for exploration of available study data. The information shown in tranSMART, and derived from performed analyses, are for research purposes only. NOT for decision making in e.g. clinical trial studies."
+    }
+    */
 }
 
 // I001 – Insertion point 'post-WAR-variables'

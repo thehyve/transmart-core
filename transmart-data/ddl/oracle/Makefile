@@ -1,4 +1,17 @@
-SCHEMAS = $(filter-out _% GLOBAL,$(shell find * -maxdepth 0 -type d))
+SCHEMAS = \
+    i2b2metadata \
+    i2b2demodata \
+    biomart \
+    deapp \
+    tm_lz \
+    tm_wz \
+    searchapp \
+    amapp \
+    fmapp \
+    galaxy \
+    biomart_stage \
+    biomart_user \
+    tm_cz
 
 DUMP_SCHEMA_TARGETS = $(foreach s,$(SCHEMAS),dump_$(s))
 LOAD_SCHEMA_TARGETS = $(foreach s,$(SCHEMAS),load_$(s))
