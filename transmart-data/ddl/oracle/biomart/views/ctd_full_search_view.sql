@@ -1,0 +1,19 @@
+--
+-- Type: VIEW; Owner: BIOMART; Name: CTD_FULL_SEARCH_VIEW
+--
+  CREATE OR REPLACE FORCE VIEW "BIOMART"."CTD_FULL_SEARCH_VIEW" ("FACT_ID", "REF_ARTICLE_PROTOCOL_ID", "MESH", "COMMON_NAME", "DRUG_INHIBITOR_STANDARD_NAME", "PRIMARY_ENDPOINT_TYPE", "SECONDARY_TYPE", "BIOMARKER_NAME", "DISEASE_SEVERITY", "INHALED_STEROID_DOSE", "FEV1", "PRIMARY_ENDPOINT_TIME_PERIOD", "PRIMARY_ENDPOINT_CHANGE", "PRIMARY_ENDPOINT_P_VALUE") AS 
+  select rownum as fact_id, t."REF_ARTICLE_PROTOCOL_ID",t."MESH",t."COMMON_NAME",t."DRUG_INHIBITOR_STANDARD_NAME",t."PRIMARY_ENDPOINT_TYPE",t."SECONDARY_TYPE",t."BIOMARKER_NAME",t."DISEASE_SEVERITY",t."INHALED_STEROID_DOSE",t."FEV1",t."PRIMARY_ENDPOINT_TIME_PERIOD",t."PRIMARY_ENDPOINT_CHANGE",t."PRIMARY_ENDPOINT_P_VALUE"
+from 
+(
+SELECT distinct ref_Article_Protocol_Id, mesh, common_Name, drug_Inhibitor_Standard_Name,
+	   primary_Endpoint_Type, secondary_Type, biomarker_Name, disease_Severity,
+	   inhaled_Steroid_Dose, fev1, primary_Endpoint_Time_Period, primary_Endpoint_Change,  primary_Endpoint_P_Value     
+FROM BIOMART.CTD_FULL
+) t
+ 
+ 
+ 
+ 
+ 
+;
+ 

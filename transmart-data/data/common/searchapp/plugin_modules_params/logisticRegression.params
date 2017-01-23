@@ -1,0 +1,114 @@
+array (
+  'prepareScripts' => 
+  array (
+    'RMOVE' => 
+    array (
+      0 => '||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans',
+      1 => '||TEMPFOLDERDIRECTORY||mRNA/Processed_Data/mRNA.trans',
+      2 => '||TEMPFOLDERDIRECTORY||SNP/snp.trans',
+    ),
+    'RCOPY' => 
+    array (
+      0 => '||PLUGINSCRIPTDIRECTORY||Common/printVersionInformation.R',
+      1 => '||PLUGINSCRIPTDIRECTORY||Common/BinData.R',
+      2 => '||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R',
+      3 => '||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R',
+      4 => '||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R',
+      5 => '||PLUGINSCRIPTDIRECTORY||LogisticRegression/BuildLogisticRegressionData.R',
+      6 => '||PLUGINSCRIPTDIRECTORY||LogisticRegression/LogisticRegressionLoader.R',
+    ),
+  ),
+  'id' => 'logisticRegression',
+  'name' => 'LogisticRegression',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'MRNA.TXT' => 'FALSE',
+    'CLINICAL.TXT' => 'TRUE',
+    'SNP.TXT' => 'FALSE',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||FLIPIMAGE||' => 'flipImage',
+    '||BINNING||' => 'binning',
+    '||GPLDEP||' => 'divDependentVariablegpls',
+    '||GPLINDEP||' => 'divIndependentVariablegpls',
+    '||BINNINGTYPE||' => 'binDistribution',
+    '||BINNINGRANGESTRING||' => 'binRanges',
+    '||TIMEPOINTSDEP||' => 'divDependentVariabletimepoints',
+    '||RBMPANELDEP||' => 'divDependentVariablerbmPanels',
+    '||TYPEIND||' => 'divIndependentVariableType',
+    '||SNPTYPEIND||' => 'divIndependentVariableSNPType',
+    '||TYPEDEP||' => 'divDependentVariableType',
+    '||GPLIND||' => 'divIndependentVariablegpls',
+    '||CODETYPE||' => 'codeType',
+    '||RBMPANELIND||' => 'divIndependentVariablerbmPanels',
+    '||SNPTYPEDEP||' => 'divDependentVariableSNPType',
+    '||TIMEPOINTIND||' => 'divIndependentVariabletimepoints',
+    '||DEPENDENT||' => 'dependentVariable',
+    '||NUMBERBINS||' => 'numberOfBins',
+    '||GENESDEPNAME||' => 'divDependentPathwayName',
+    '||PLATFORMDEP||' => 'divDependentVariableplatforms',
+    '||TISSUEDEP||' => 'divDependentVariabletissues',
+    '||GENESIND||' => 'divIndependentVariablePathway',
+    '||BINNINGVARIABLE||' => 'binVariable',
+    '||SAMPLEIND||' => 'divIndependentVariablesamples',
+    '||GENESDEP||' => 'divDependentVariablePathway',
+    '||PLATFORMIND||' => 'divIndependentVariableplatforms',
+    '||BINNINGVARIABLETYPE||' => 'variableType',
+    '||AGGREGATEDEP||' => 'divDependentVariableprobesAggregation',
+    '||GROUPBY||' => 'groupByVariable',
+    '||SAMPLEDEP||' => 'divDependentVariablesamples',
+    '||TISSUEIND||' => 'divIndependentVariabletissues',
+    '||INDEPENDENT||' => 'independentVariable',
+    '||GENESINDNAME||' => 'divIndependentPathwayName',
+    '||BINNINGMANUAL||' => 'manualBinning',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/BinData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      4 => 'source(\'||PLUGINSCRIPTDIRECTORY||LogisticRegression/BuildLogisticRegressionData.R\')',
+      5 => '							LogisticRegressionData.build(input.dataFile = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',concept.dependent=\'||DEPENDENT||\', concept.independent=\'||GROUPBY||\',
+										binning.enabled=\'||BINNING||\',
+										binning.bins=\'||NUMBERBINS||\',
+										binning.type=\'||BINNINGTYPE||\',
+										binning.manual=\'||BINNINGMANUAL||\',
+										binning.binrangestring=\'||BINNINGRANGESTRING||\',
+										binning.variabletype=\'||BINNINGVARIABLETYPE||\',
+										binning.variable=\'||BINNINGVARIABLE||\')
+					',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||LogisticRegression/LogisticRegressionLoader.R\')',
+      1 => '					 LogisticRegressionData.loader(input.filename=\'outputfile\',
+						concept.dependent=\'||DEPENDENT||\',
+						concept.independent=\'||GROUPBY||\',,
+											binning.enabled=\'||BINNING||\',
+											binning.variable=\'||BINNINGVARIABLE||\')
+					',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/printVersionInformation.R\')',
+      3 => 'printVersionInformation(\'sessionInfo.txt\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/logisticRegression/logisticRegressionOutput',
+  ),
+  'view' => 'LogisticRegression',
+)

@@ -1,0 +1,326 @@
+{
+  "dependencies" : [ {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "FMAPP",
+      "name" : "FK_FM_FOLDER_ASSOC_FM_FOLDER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_ASSOCIATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "FMAPP",
+      "name" : "FK_FM_FOLDER_FM_FOLDER"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_FILE_ASSOCIATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "FMAPP",
+      "name" : "FK_FOLDER_FILE_ASSOC_FILE"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_FILE_ASSOCIATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_DATA_UID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE_UID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_ASSOCIATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_FILE_ASSOCIATION"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_UID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_GET_FOLDER_FULL_NAME"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_UID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "PROCEDURE",
+      "owner" : "FMAPP",
+      "name" : "FM_UPDATE_FOLDER_FULL_NAME"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_GET_FOLDER_FULL_NAME"
+    } ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "FMAPP",
+      "name" : "SEQ_FM_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "FMAPP",
+      "name" : "TRG_FM_FILE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "FMAPP",
+      "name" : "SEQ_FM_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "FMAPP",
+      "name" : "TRG_FM_FILE_UID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE_UID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "FMAPP",
+      "name" : "TRG_FM_FOLDER_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_UID"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "FMAPP",
+      "name" : "SEQ_FM_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "FMAPP",
+      "name" : "TRG_FM_FOLDER_UID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_UID"
+    } ]
+  } ],
+  "fileAssignments" : [ {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "FMAPP",
+      "name" : "FK_FM_FOLDER_ASSOC_FM_FOLDER"
+    },
+    "file" : "fmapp/fm_folder_association.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "FMAPP",
+      "name" : "FK_FM_FOLDER_FM_FOLDER"
+    },
+    "file" : "fmapp/fm_folder_file_association.sql"
+  }, {
+    "item" : {
+      "type" : "REF_CONSTRAINT",
+      "owner" : "FMAPP",
+      "name" : "FK_FOLDER_FILE_ASSOC_FILE"
+    },
+    "file" : "fmapp/fm_folder_file_association.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_DATA_UID"
+    },
+    "file" : "fmapp/fm_data_uid.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE"
+    },
+    "file" : "fmapp/fm_file.sql"
+  }, {
+    "item" : {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_FILE_UID"
+    },
+    "file" : "fmapp/functions/fm_file_uid.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER"
+    },
+    "file" : "fmapp/fm_folder.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_ASSOCIATION"
+    },
+    "file" : "fmapp/fm_folder_association.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_FILE_ASSOCIATION"
+    },
+    "file" : "fmapp/fm_folder_file_association.sql"
+  }, {
+    "item" : {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_FOLDER_UID"
+    },
+    "file" : "fmapp/functions/fm_folder_uid.sql"
+  }, {
+    "item" : {
+      "type" : "FUNCTION",
+      "owner" : "FMAPP",
+      "name" : "FM_GET_FOLDER_FULL_NAME"
+    },
+    "file" : "fmapp/functions/fm_get_folder_full_name.sql"
+  }, {
+    "item" : {
+      "type" : "PROCEDURE",
+      "owner" : "FMAPP",
+      "name" : "FM_UPDATE_FOLDER_FULL_NAME"
+    },
+    "file" : "fmapp/procedures/fm_update_folder_full_name.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "FMAPP",
+      "name" : "SEQ_FM_ID"
+    },
+    "file" : "fmapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "FMAPP",
+      "name" : "TRG_FM_FILE_ID"
+    },
+    "file" : "fmapp/fm_file.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "FMAPP",
+      "name" : "TRG_FM_FILE_UID"
+    },
+    "file" : "fmapp/fm_file.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "FMAPP",
+      "name" : "TRG_FM_FOLDER_ID"
+    },
+    "file" : "fmapp/fm_folder.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "FMAPP",
+      "name" : "TRG_FM_FOLDER_UID"
+    },
+    "file" : "fmapp/fm_folder.sql"
+  } ]
+}

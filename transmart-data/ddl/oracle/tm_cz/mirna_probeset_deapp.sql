@@ -1,0 +1,27 @@
+--
+-- Type: TABLE; Owner: TM_CZ; Name: MIRNA_PROBESET_DEAPP
+--
+ CREATE TABLE "TM_CZ"."MIRNA_PROBESET_DEAPP" 
+  (	"PROBESET_ID" NUMBER(38,0) NOT NULL ENABLE, 
+"PROBESET" VARCHAR2(100 BYTE), 
+"PLATFORM" VARCHAR2(100 BYTE), 
+"ORGANISM" VARCHAR2(200 BYTE)
+  ) SEGMENT CREATION IMMEDIATE
+ TABLESPACE "TRANSMART" ;
+
+--
+-- Type: TRIGGER; Owner: TM_CZ; Name: TRG_MIRNA_PROBESET_DEAPP
+--
+  CREATE OR REPLACE TRIGGER "TM_CZ"."TRG_MIRNA_PROBESET_DEAPP" 
+    before insert on "MIRNA_PROBESET_DEAPP"    
+	for each row begin     
+		if inserting then       
+			if :NEW."PROBESET_ID" is null then
+				select SEQ_PROBESET_ID.nextval into :NEW."PROBESET_ID" from dual;       
+			end if;   
+		end if; 
+	end;
+
+/
+ALTER TRIGGER "TM_CZ"."TRG_MIRNA_PROBESET_DEAPP" ENABLE;
+ 

@@ -1,0 +1,3 @@
+"1"	"Gene Symbol <tab> Metric Indicator"	"two column upload file schema containing: gene id <tab> value type indicator"	"2"	"1"
+"2"	"Gene Symbol <tab> Probeset Symbol <tab> Metric Indicator"	"three column upload file schema containing: gene id <tab> probeset <tab> value type indicator"	"3"	"0"
+"3"	"ProbeSet Symbol <tab> Metric Indicator"	"two column upload file schema containing: probeset id <tab> value type indicator"	"2"	"1"

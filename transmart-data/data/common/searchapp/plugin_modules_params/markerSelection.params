@@ -1,0 +1,81 @@
+array (
+  'id' => 'markerSelection',
+  'name' => 'MarkerSelection',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'CLINICAL.TXT' => 'TRUE',
+    'MRNA_DETAILED.TXT' => 'mrnaData',
+    'SNP.TXT' => 'snpData',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||GENES||' => 'divIndependentVariablePathway',
+    '||SAMPLE1||' => 'divIndependentVariablesamples',
+    '||TIMEPOINTS1||' => 'divIndependentVariabletimepoints',
+    '||IMAGE_HEIGHT||' => 'txtImageHeight',
+    '||TISSUES1||' => 'divIndependentVariabletissues',
+    '||IMAGE_WIDTH||' => 'txtImageWidth',
+    '||GPL2||' => 'divIndependentVariablegplsValue2',
+    '||SAMPLE2||' => 'divIndependentVariablesamples2',
+    '||TYPEIND||' => 'divIndependentVariableType',
+    '||INDEPENDENT||' => 'independentVariable',
+    '||SNPTYPE||' => 'divIndependentVariableSNPType',
+    '||TISSUES2||' => 'divIndependentVariabletissues2',
+    '||TIMEPOINTS2||' => 'divIndependentVariabletimepoints2',
+    '||GPL1||' => 'divIndependentVariablegplsValue',
+    '||TEXT_POINT_SIZE||' => 'txtImagePointsize',
+    '||NUMBEROFMARKERS||' => 'txtNumberOfMarkers',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/parseDirectory.R\')',
+      4 => 'source(\'||PLUGINSCRIPTDIRECTORY||MarkerSelection/BuildMSData.R\')',
+      5 => 'parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')',
+      6 => 'MSData.build(
+        input.dataFile   = \'||TOPLEVELDIRECTORY||workingDirectory/mRNA.trans\',
+        genes            = \'||GENES||\',
+        genes.aggregate  = \'||AGGREGATE||\',
+        sample.subset1   = \'||SAMPLE1||\',
+        time.subset1     = \'||TIMEPOINTS1||\',
+        tissues.subset1  = \'||TISSUES1||\',
+        platform.subset1 = \'||GPL1||\',
+        sample.subset2   = \'||SAMPLE2||\',
+        time.subset2     = \'||TIMEPOINTS2||\',
+        tissues.subset2  = \'||TISSUES2||\',
+        platform.subset2 = \'||GPL2||\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||MarkerSelection/MarkerSelection.R\')',
+      1 => 'MS.loader(input.filename=\'outputfile\',numberOfMarkers=||NUMBEROFMARKERS||)',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/HeatmapLoader.R\')',
+      3 => 'Heatmap.loader(
+        input.filename = \'heatmapdata\',
+        meltData       = FALSE,
+        imageWidth     = as.integer(\'||IMAGE_WIDTH||\'),
+        imageHeight    = as.integer(\'||IMAGE_HEIGHT||\'),
+        pointsize      = as.integer(\'||TEXT_POINT_SIZE||\'))',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/markerSelection/markerSelectionOut',
+  ),
+  'view' => 'MarkerSelection',
+)

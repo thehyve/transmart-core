@@ -1,0 +1,56 @@
+array (
+  'id' => 'aCGHgroupTest',
+  'name' => 'aCGH Group Test',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'CLINICAL.TXT' => 'TRUE',
+    'ACGH_REGIONS.TXT' => 'TRUE',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||REGION||' => 'regionVariable',
+    '||GROUP||' => 'groupVariable',
+    '||STATISTICSTYPE||' => 'statisticsType',
+    '||ABERRATIONTYPE||' => 'aberrationType',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/aCGHBuildGroupTestData.R\')',
+      1 => 'aCGHGroupTestData.build(
+	input.dataFile      = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
+	input.acghFile      = \'||TEMPFOLDERDIRECTORY||aCGH/regions.txt\',
+	concept.region      = \'||REGION||\',
+	concept.group       = \'||GROUP||\',
+	output.column.group = \'group\',
+	output.dataFile     = \'phenodata.tsv\',
+	output.acghFile     = \'regions.tsv\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/acgh-group-test.R\')',
+      1 => 'acgh.group.test(
+	column                 = \'group\',
+	test.statistic         = \'||STATISTICSTYPE||\',
+	number.of.permutations = 10000,
+	test.aberrations       = \'||ABERRATIONTYPE||\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/aCGHgroupTest/aCGHgroupTestOutput',
+  ),
+  'view' => 'aCGHGroupTest',
+)

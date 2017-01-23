@@ -1,0 +1,131 @@
+The script ora-pg-compare reads the files in ddl/oracle and ddl/postgres and reports differences.
+
+The major issues reported to standard error are:
+
+ddl/oracle/... not loaded
+File not referenced in an items.json file
+
+ddl/postgres/... not loaded
+File not included by any _load_all.sql file
+
+Oracle dir/file unknown
+File referenced in items.json but not found
+
+Postgres dir/file unknown
+File referenced in _load_all.sql but not found
+
+Other possible messages are:
+
+dir/file unexpected function
+Unexpected syntax for a function definition
+
+dir/file unexpected procedure
+Unexpected syntax for an oracle procedure definition
+
+dir/file unexpected view
+Unexpected syntax for a view definition
+
+dir/file unexpected foreigh key format
+Unexpected syntax for a foreign key
+
+PostgresFunctions subdirectory
+Only .sql files are expected under a functions/ directory
+
+Unexpected line in parsePostgresLoadall
+Only includes of sql files are expected in a _load_all file under ddl/postgres
+
+unable to open skip_oracle (or skip_postgres)
+These list files that can be ignored. The skip_ files should exist
+even if empty
+
+Trigger has no function
+Postgres triggers need a related function defined with a tf_ prefix
+(alternative namings have been updated in ddl/postgres to help the check)
+
+The issues reported to standard output are
+
+A summary of tables, sequences, triggers, functions, procedures, views
+with counts for Oracle and Postgres, and counts for those found only
+in Oracle or only in Postgres. These are reported in detail in the main body of output.
+
+
+table output
+
+Both  n   n   NAME   file
+
+Table found in oracle and postgres with identical columns
+
+Both CMP n n NAME file
+
+Tables differ in oracle and postgres. The next line(s) describe the differences.
+They include character length, 'NOT NULL'. Differences are reported in uppercase.
+
+The report also includes differences in primary and foreign keys, including their names.
+
+It should be extended to include unique key constraints.
+
+Both MOD m n NAME FILE
+
+Number of columns different between oracle and postgres. Columns in
+only one are reported. After a merge there may be new columns in both
+versions.
+
+The simplest fix is to add the column unless we know it is unused, in
+which case it can be deleted or commented out.
+
+Oracle table n NAME file
+
+table only found in ddl/oracle
+
+Postgres table n NAME file
+
+table only found in ddl/postgres
+
+
+Both sequence NAME file
+
+Sequence found with matchign definition in both oracle and postgres (maybe in two different files, but hat is OK)
+
+Oracle sequence NAME file
+
+Sequence found only in Oracle
+
+Postgres sequence NAME file
+
+Sequence found only in Postgres
+
+Both trigger NAME file
+Trigger found with matching definition in Oracle and Postgres
+
+Oracle trigger NAME file
+Trigger found only in Oracle (or in postgres with another name)
+
+Postgres trigger NAME file
+Trigger found only in Postgres (or in oracle with another name)
+
+Both function NAME file
+Function found in oracle and postgres (function defined as in a
+function/ directory in Oracle)
+
+Oracle function NAME file
+Function only defined in Oracle
+
+Postgres function NAME file
+Function only defined in Postgres (may be a procedure in Oracle with another name)
+
+Both procedure NAME file
+Function found in oracle and postgres (procedure defined as in a
+procedure/ directory in Oracle but a function/ directory in Postgres)
+
+Oracle procedure NAME file
+Procedure only defined in Oracle, not found in the postgres functions/ directories
+
+Both view NAME file
+View found with matching definition in Oracle and Postgres
+
+Oracle view NAME file
+View found only in Oracle (or in postgres with another name)
+
+Postgres view NAME file
+View found only in Postgres (or in oracle with another name)
+

@@ -1,0 +1,77 @@
+array (
+  'id' => 'hclust',
+  'name' => 'Hierarchical Clustering',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'CLINICAL.TXT' => 'FALSE',
+    'SNP.TXT' => 'snpData',
+    'MRNA_DETAILED.TXT' => 'TRUE',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||GENES||' => 'divIndependentVariablePathway',
+    '||AGGREGATE||' => 'divIndependentVariableprobesAggregation',
+    '||TIMEPOINTS1||' => 'divIndependentVariabletimepoints',
+    '||TISSUES1||' => 'divIndependentVariabletissues',
+    '||SAMPLE1||' => 'divIndependentVariablesamples',
+    '||GPL1||' => 'divIndependentVariablegplsValue',
+    '||TIMEPOINTS2||' => 'divIndependentVariabletimepoints2',
+    '||TISSUES2||' => 'divIndependentVariabletissues2',
+    '||SAMPLE2||' => 'divIndependentVariablesamples2',
+    '||GPL2||' => 'divIndependentVariablegplsValue2',
+    '||IMAGE_HEIGHT||' => 'txtImageHeight',
+    '||IMAGE_WIDTH||' => 'txtImageWidth',
+    '||TEXT_POINT_SIZE||' => 'txtImagePointsize',
+    '||MAXDRAWNUMBER||' => 'txtMaxDrawNumber',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/parseDirectory.R\')',
+      4 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/BuildHeatmapData.R\')',
+      5 => 'parseDirectory(topLevelDirectory = \'||TOPLEVELDIRECTORY||\')',
+      6 => 'HeatmapData.build(
+        input.gexFile    = \'||TOPLEVELDIRECTORY||/workingDirectory/mRNA.trans\',
+        genes            = \'||GENES||\',
+        genes.aggregate  = \'||AGGREGATE||\',
+        sample.subset1   = \'||SAMPLE1||\',
+        time.subset1     = \'||TIMEPOINTS1||\',
+        tissues.subset1  = \'||TISSUES1||\',
+        platform.subset1 = \'||GPL1||\',
+        sample.subset2   = \'||SAMPLE2||\',
+        time.subset2     = \'||TIMEPOINTS2||\',
+        tissues.subset2  = \'||TISSUES2||\',
+        platform.subset2 = \'||GPL2||\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Heatmap/HClusteredHeatmapLoader.R\')',
+      1 => 'HClusteredHeatmap.loader(
+        input.filename = \'outputfile\',
+        imageWidth     = as.integer(\'||IMAGE_WIDTH||\'),
+        imageHeight    = as.integer(\'||IMAGE_HEIGHT||\'),
+        pointsize      = as.integer(\'||TEXT_POINT_SIZE||\'),
+        maxDrawNumber  = as.integer(\'||MAXDRAWNUMBER||\'))',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/RHClust/heatmapOut',
+  ),
+  'view' => 'HClust',
+)

@@ -1,0 +1,54 @@
+array (
+  'id'        => 'RNASeqgroupTest',
+  'name'      => 'RNASeq Group Test',
+  'dataTypes' => 
+  array (
+      'subset1' => 
+      array (
+        0 => 'CLINICAL.TXT'
+      ),
+   ),
+  'dataFileInputMapping' =>
+  array (
+      'CLINICAL.TXT' => 'TRUE',
+      'RNASEQ.TXT'   => 'TRUE'
+   ),
+  'pivotData' => false,
+  'variableMapping' =>
+  array (
+      '||RNASEQ||'       => 'RNASeqVariable',
+      '||GROUP||'        => 'groupVariable',
+      '||ANALYSISTYPE||' => 'analysisType'
+   ),
+  'converter' =>
+  array (
+    'R' =>
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||RNASeq/RNASeq-Build-DEanalysisData.R\')',
+      1 => 'RNASeqDEanalysisData.build(
+        input.clinicalFile  = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
+        input.rnaseqFile    = \'||TEMPFOLDERDIRECTORY||RNASeq/RNASeq.txt\',
+        concept.readcount   = \'||RNASEQ||\',
+        concept.group       = \'||GROUP||\',
+        output.column.group = \'group\',
+        output.clinicalFile = \'phenodata.tsv\',
+        output.rnaseqFile   = \'readcount.tsv\')'
+    ),
+  ),
+  'processor' =>
+  array (
+    'R' =>
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||RNASeq/RNASeq-edgeR-DEanalysis.R\')',
+      1 => 'DEanalysis.group.test(
+        analysisType      = \'||ANALYSISTYPE||\',
+        readcountFileName = \'readcount.tsv\',
+        phenodataFileName = \'phenodata.tsv\')'
+    ),
+  ),
+  'renderer' =>
+  array (
+    'GSP' => '/RNASeqgroupTest/RNASeqgroupTestOutput'
+   ),
+  'view' => 'RNASeqGroupTest',
+)

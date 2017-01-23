@@ -1,0 +1,162 @@
+#!/usr/bin/ruby
+
+require 'open3'
+require 'getoptlong'
+require 'fileutils'
+
+module Log
+  def self.info(*args)
+    STDOUT.puts sprintf(*args)
+  end
+  def self.warn(*args)
+    STDERR.instance_eval do
+      print "\x1b[1;33mWARN\x1b[m: \x1b[1m"
+      puts sprintf(*args)
+      print "\x1b[m"
+    end
+  end
+  def self.err(*args)
+    STDERR.instance_eval do
+      print "\x1b[1;31mERROR\x1b[m: \x1b[1m"
+      puts sprintf(*args)
+      print "\x1b[m"
+    end
+  end
+end
+
+def parse_options()
+  opts = GetoptLong.new(
+    ['--force', '-f', GetoptLong::NO_ARGUMENT],
+    ['--delete', '-d', GetoptLong::NO_ARGUMENT],
+    ['--study', '-s', GetoptLong::REQUIRED_ARGUMENT],
+    ['--type', '-t', GetoptLong::REQUIRED_ARGUMENT],
+  )
+
+  res = {
+    force: false,
+    delete: false,
+    studies: [],
+    types: []
+  }
+
+  opts.each do |opt, arg|
+    case opt
+    when '--force'
+      res[:force] = true
+    when '--delete'
+      res[:delete] = true
+    when '--study'
+      res[:studies] << arg
+    when '--type'
+      res[:types] << arg
+    else
+      Log.err "Unknown option: #{opt}"
+      exit 1
+    end
+  end
+
+  res[:studies] = nil if res[:studies].empty?
+  res[:types] = nil if res[:types].empty?
+
+  if opts.error? or  ARGV.length != 1
+    Log.err "Invalid arguments"
+    exit 1
+  end
+
+  res[:dir] = ARGV.shift
+
+  res
+end
+
+opts = parse_options
+
+Log.info "Changing to #{opts[:dir]}"
+Dir.chdir opts[:dir]
+
+unless opts[:studies]
+  opts[:studies] = Dir.glob('*/').map { |v| v.chomp('/') }
+end
+
+def run_command(command)
+  Open3.popen3(*command) do |stdin, stdout, stderr, wait_thr|
+    stdin.close_write
+    files = [stdout, stderr]
+    all_eof = lambda { files.all? { |f| f.eof } }
+    print_lines = lambda { |buffer, method|
+      while pos = buffer.index("\n")
+        Log.send method, buffer[0..pos]
+        buffer = buffer[(pos + 1)..-1]
+      end
+      buffer
+    }
+
+    stdout_buffer = ''
+    stderr_buffer = ''
+    until all_eof[] do
+      ready = IO.select(files)
+
+      next if !ready or ready[0].empty?
+
+      ready[0].each do |f|
+        begin
+          data = f.read_nonblock(1024)
+          if f == stdout
+            stdout_buffer << data
+          else
+            stderr_buffer << data
+          end
+        rescue EOFError => e
+        end
+      end
+
+      stdout_buffer = print_lines[stdout_buffer, 'info']
+      stderr_buffer = print_lines[stderr_buffer, 'err']
+    end
+
+    wait_thr.value
+  end
+end
+
+opts[:studies].each do |study|
+  Dir.new(study).each do |ent|
+    next unless File.file?("#{study}/#{ent}") and File.extname(ent) == '.params'
+
+    type = ent.chomp('.params')
+    next unless opts[:types] == nil or opts[:types].include? type
+
+    tarball = File.join study, "#{study}_#{type}.tar.xz"
+    if File.exists? tarball
+      action = opts[:force] ? "Will be replaced!" : "Skipped"
+      Log.warn "File '#{tarball}' already exists. %s", action
+      next unless opts[:force]
+    end
+
+    Log.info "Creating #{tarball}..."
+    command = ['tar', '-cJf', tarball, '-C', study, ent]
+    # directory with the name of the type is optional
+    # for instance, ref_annotation doesn't have one
+    command << type if Dir.exists? File.join(study, type)
+    exit_val = run_command command
+
+    if exit_val == 0
+      Log.info "> Completed #{tarball}"
+    else
+      Log.err "Failed creating #{tarball}"
+      next
+    end
+
+    if opts[:delete]
+      params_file = File.join study, ent
+      File.delete params_file
+      Log.info "Deleted #{params_file}"
+      dir = File.join study, type
+      if Dir.exists? dir
+        FileUtils.rm_rf dir
+        Log.info "Deleted directory #{dir}"
+      end
+    end
+  end
+end
+
+Log.info "Done."
+# vim: set ft=ruby et ts=2 sw=2:

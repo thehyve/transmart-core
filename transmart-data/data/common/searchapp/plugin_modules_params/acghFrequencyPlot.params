@@ -1,0 +1,53 @@
+array (
+  'id' => 'acghFrequencyPlot',
+  'name' => 'Frequency Plot for aCGH',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'CLINICAL.TXT' => 'TRUE',
+    'ACGH_REGIONS.TXT' => 'TRUE',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||REGION||' => 'regionVariable',
+    '||GROUP||' => 'groupVariable',
+    '||STATISTICSTYPE||' => 'statisticsType',
+    '||ABERRATIONTYPE||' => 'aberrationType',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/aCGHBuildFrequencyPlotData.R\')',
+      1 => 'aCGHFrequencyPlotData.build(
+	input.dataFile      = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
+	input.acghFile      = \'||TEMPFOLDERDIRECTORY||aCGH/regions.txt\',
+	concept.region      = \'||REGION||\',
+	concept.group       = \'||GROUP||\',
+	output.column.group = \'group\',
+	output.dataFile     = \'phenodata.tsv\',
+	output.acghFile     = \'regions.tsv\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/acgh-frequency-plot.R\')',
+      1 => 'acgh.frequency.plot(
+	column                 = \'group\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/AcghFrequencyPlot/acghFrequencyPlotOutput',
+  ),
+  'view' => 'AcghFrequencyPlot',
+)

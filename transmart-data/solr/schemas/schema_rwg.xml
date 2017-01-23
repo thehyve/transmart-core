@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ This is the Solr schema file. This file should be named "schema.xml" and
+ should be in the conf directory under the solr home
+ (i.e. ./solr/conf/schema.xml by default)
+ or located where the classloader for the Solr webapp can find it.
+
+ For more information, on how to customize this file, please see
+ http://wiki.apache.org/solr/SchemaXml
+
+ PERFORMANCE NOTE: To improve performance one could
+  - set stored="false" for all fields possible (esp large fields) when you
+    only need to search on the field but don't need to return the original
+    value.
+  - set indexed="false" if you don't need to search on the field, but only
+    return the field as a result of searching on other indexed fields.
+  - remove all unneeded copyField statements
+  - for best index size and searching performance, set "index" to false
+    for all general text fields, use copyField to copy them to the
+    catchall "text" field, and use that for searching.
+  - For maximum indexing performance, use the StreamingUpdateSolrServer
+    java client.
+  - Remember to run the JVM in server mode, and use a higher logging level
+    that avoids logging every request
+-->
+<schema name="faceted_search" version="1.3">
+  <types>
+    <!-- field type definitions. The "name" attribute is
+       just a label to be used by field definitions.  The "class"
+       attribute and any other attributes determine the real
+       behavior of the fieldType.
+         Class names starting with "solr" refer to java classes in the
+       org.apache.solr.analysis package.
+    -->
+
+    <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+
+    <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+  </types>
+
+  <fields>
+    <!-- Valid attributes for fields:
+     name: mandatory - the name for the field
+     type: mandatory - the name of a previously defined type from the
+       <types> section
+     indexed: true if this field should be indexed (searchable or sortable)
+     stored: true if this field should be retrievable
+     multiValued: true if this field may contain multiple values per document
+     omitNorms: (expert) set to true to omit the norms associated with
+       this field (this disables length normalization and index-time
+       boosting for the field, and saves some memory).  Only full-text
+       fields or fields that need an index-time boost need norms.
+     termVectors: [false] set to true to store the term vector for a
+       given field.
+       When using MoreLikeThis, fields used for similarity should be
+       stored for best performance.
+     termPositions: Store position information with the term vector.
+       This will increase storage costs.
+     termOffsets: Store offset information with the term vector. This
+       will increase storage costs.
+     default: a value that should be used if no value is specified
+       when adding a document.
+   -->
+    <field name="ANALYSIS_ID" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="STUDY" type="string" indexed="true" stored="false" required="false"/>
+    <field name="STUDY_ID" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSES" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
+    <field name="DATA_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
+    <field name="PLATFORM" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
+    <field name="DISEASE" type="string" indexed="true" stored="false" required="false" multiValued="true"/>
+
+    <field name="FACET_ID" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="PLATFORM_DESCRIPTION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="PLATFORM_VENDOR" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="PLATFORM_NAME" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="OBSERVATION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_TITLE" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_DESCRIPTION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_DESIGN" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_PRIMARY_INV" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_CONTACT_FIELD" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_OVERALL_DESIGN" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_INSTITUTION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_ACCESSION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_COUNTRY" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_BIOMARKER_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_TARGET" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="STUDY_ACCESS_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_NAME" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_DESCRIPTION_S" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_DESCRIPTION_L" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_ANALYST_NAME" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_METHOD" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_DATA_TYPE" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="ANALYSIS_QA_CRITERIA" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="MODEL_NAME" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="MODEL_DESCRIPTION" type="string" indexed="true" stored="false" required="false" multiValued="false"/>
+    <field name="RESEARCH_UNIT" type="string" indexed="true" stored="false" required="false" multiValued="true"/> 
+
+    <field name="_version_" type="long" indexed="true"  stored="true" multiValued="false"/>
+
+    <!-- catchall field, containing all other searchable text fields (implemented
+         via copyField further on in this schema  -->
+    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+  </fields>
+
+  <copyField source="ANALYS*" dest="text"/>
+  <copyField source="STUDY*" dest="text"/>
+  <copyField source="MODEL*" dest="text"/>
+  <copyField source="PLATFORM*" dest="text"/>
+  <copyField source="DATA_TYPE" dest="text"/>
+  <copyField source="DISEASE" dest="text"/>
+  <copyField source="OBSERVATION" dest="text"/>
+  <copyField source="RESEARCH_UNIT" dest="text"/>
+
+  <!-- Field to use to determine and enforce document uniqueness.
+      Unless this field is marked with required="false", it will be a required field
+   -->
+  <uniqueKey>ANALYSIS_ID</uniqueKey>
+
+  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
+  <defaultSearchField>STUDY</defaultSearchField>
+
+  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
+  <solrQueryParser defaultOperator="OR"/>
+</schema>
+<!-- vim: set ts=2 sw=2 tw=0 et :-->

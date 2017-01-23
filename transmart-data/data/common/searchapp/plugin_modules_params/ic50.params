@@ -1,0 +1,52 @@
+array (
+  'id' => 'ic50',
+  'name' => 'IC50',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'MRNA.TXT' => 'FALSE',
+    'CLINICAL.TXT' => 'TRUE',
+    'SNP.TXT' => 'snpData',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||DOSAGE||' => 'dosageVariable',
+    '||CELLLINES||' => 'cellLineVariable',
+    '||RESPONSE||' => 'responseVariable',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||IC50/BuildIC50Data.R\')',
+      4 => 'IC50Data.build(
+        input.dataFile    = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
+        concept.celllines = \'||CELLLINES||\',
+        concept.dosage    = \'||DOSAGE||\',
+        concept.response  = \'||RESPONSE||\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||IC50/IC50Loader.R\')',
+      1 => 'IC50Plot.loader(input.filename=\'outputfile\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/IC50/ic50Out',
+  ),
+  'view' => 'IC50',
+)

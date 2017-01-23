@@ -1,0 +1,32 @@
+{
+  "dependencies" : [ {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_STAGE",
+      "name" : "BIO_ASSAY_ANALYSIS_EQTL"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_STAGE",
+      "name" : "BIO_ASSAY_ANALYSIS_GWAS"
+    },
+    "parents" : [ ]
+  } ],
+  "fileAssignments" : [ {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_STAGE",
+      "name" : "BIO_ASSAY_ANALYSIS_EQTL"
+    },
+    "file" : "biomart_stage/bio_assay_analysis_eqtl.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_STAGE",
+      "name" : "BIO_ASSAY_ANALYSIS_GWAS"
+    },
+    "file" : "biomart_stage/bio_assay_analysis_gwas.sql"
+  } ]
+}

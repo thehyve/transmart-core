@@ -1,0 +1,14 @@
+/contexts/
+/contrib/
+/dist/
+/etc/
+/lib/
+/logs/
+/README.txt
+/resources/
+/solr/
+/solr-*.tgz
+/solr-*/
+/solr-webapp/
+/webapps/
+/start.jar

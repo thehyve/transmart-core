@@ -1,0 +1,6 @@
+"1"	"USER"	"2012-02-21 00:00:00"	"system admin"	"2012-02-21 00:00:00"	"Sys Admin"	"admin"	"1"
+"2"	"USER"	"2012-02-21 00:00:00"	"Study Owner"	"2012-02-21 00:00:00"	"Study Owner"	"sowner"	"1"
+"3"	"USER"	"2012-02-21 00:00:00"	"Study spectator"	"2012-02-21 00:00:00"	"spectator"	"spect"	"1"
+"701145587"	"USER"	"2012-02-21 00:00:00"	"Demo"	"2012-02-28 00:00:00"	"tranSMART Demo"	"tmuser"	"1"
+"-1"	"GROUP"	"2012-02-21 00:00:00"	"EVERYONE GROUP"	"2012-02-21 00:00:00"	"EVERYONE GROUP"	"EVERYONEGROUP"	"1"
+"12345"	"USER"	"2012-02-28 00:00:00"	"guest account"	"2012-02-28 00:00:00"	"Guest"		"1"

@@ -1,0 +1,65 @@
+array (
+  'id' => 'aCGHSurvivalAnalysis',
+  'name' => 'aCGH Survival Analysis',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'CLINICAL.TXT' => 'TRUE',
+    'ACGH_REGIONS.TXT' => 'TRUE',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||REGION||' => 'regionVariable',
+    '||TIME||' => 'timeVariable',
+    '||EVENTNO||' => 'censoringVariable',
+    '||ABERRATIONTYPE||' => 'aberrationType',
+    '||CONFIDENCEINTERVALS||' => 'confidenceIntervals',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/aCGHBuildSurvivalData.R\')',
+      1 => 'aCGHSurvivalData.build(
+	input.dataFile  = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
+	input.acghFile  = \'||TEMPFOLDERDIRECTORY||aCGH/regions.txt\',
+	concept.time    = \'||TIME||\',
+	concept.region  = \'||REGION||\',
+	concept.eventNo = \'||EVENTNO||\',
+	output.survival = \'Overall survival time\',
+	output.status   = \'Survival status\',
+	output.dataFile = \'phenodata.tsv\',
+	output.acghFile = \'regions.tsv\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/acgh-survival-test.R\')',
+      1 => 'acgh.survival.test(
+	survival               = \'Overall survival time\',
+	status                 = \'Survival status\',
+	number.of.permutations = 10000,
+	test.aberrations       = \'||ABERRATIONTYPE||\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||aCGH/acgh-plot-survival.R\')',
+      3 => 'acgh.plot.survival(
+	survival             = \'Overall survival time\',
+	status               = \'Survival status\',
+	aberrations          = \'||ABERRATIONTYPE||\',
+	confidence.intervals = \'||CONFIDENCEINTERVALS||\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/aCGHSurvivalAnalysis/aCGHSurvivalAnalysisOutput',
+  ),
+  'view' => 'aCGHSurvivalAnalysis',
+)

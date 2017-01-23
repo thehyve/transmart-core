@@ -1,0 +1,116 @@
+array (
+  'id' => 'boxPlot',
+  'name' => 'Box Plot with ANOVA',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'CLINICAL.TXT' => 'TRUE',
+    'MRNA_DETAILED.TXT' => 'mrnaData',
+    'SNP.TXT' => 'snpData',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||FLIPIMAGE||' => 'flipImage',
+    '||AGGREGATEIND||' => 'divIndependentVariableprobesAggregation',
+    '||BINNING||' => 'binning',
+    '||GPLDEP||' => 'divDependentVariablegpls',
+    '||GPLINDEP||' => 'divIndependentVariablegpls',
+    '||BINNINGTYPE||' => 'binDistribution',
+    '||BINNINGRANGESTRING||' => 'binRanges',
+    '||TIMEPOINTSDEP||' => 'divDependentVariabletimepoints',
+    '||RBMPANELDEP||' => 'divDependentVariablerbmPanels',
+    '||TYPEDEP||' => 'divDependentVariableType',
+    '||TYPEIND||' => 'divIndependentVariableType',
+    '||SNPTYPEIND||' => 'divIndependentVariableSNPType',
+    '||GPLIND||' => 'divIndependentVariablegpls',
+    '||RBMPANELIND||' => 'divIndependentVariablerbmPanels',
+    '||SNPTYPEDEP||' => 'divDependentVariableSNPType',
+    '||TIMEPOINTIND||' => 'divIndependentVariabletimepoints',
+    '||DEPENDENT||' => 'dependentVariable',
+    '||NUMBERBINS||' => 'numberOfBins',
+    '||GENESDEPNAME||' => 'divDependentPathwayName',
+    '||PLATFORMDEP||' => 'divDependentVariableplatforms',
+    '||GENESIND||' => 'divIndependentVariablePathway',
+    '||BINNINGVARIABLE||' => 'binVariable',
+    '||SAMPLEIND||' => 'divIndependentVariablesamples',
+    '||TISSUEDEP||' => 'divDependentVariabletissues',
+    '||GENESDEP||' => 'divDependentVariablePathway',
+    '||PLATFORMIND||' => 'divIndependentVariableplatforms',
+    '||AGGREGATEDEP||' => 'divDependentVariableprobesAggregation',
+    '||BINNINGVARIABLETYPE||' => 'variableType',
+    '||SAMPLEDEP||' => 'divDependentVariablesamples',
+    '||TISSUEIND||' => 'divIndependentVariabletissues',
+    '||INDEPENDENT||' => 'independentVariable',
+    '||GENESINDNAME||' => 'divIndependentPathwayName',
+    '||BINNINGMANUAL||' => 'manualBinning',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/BinData.R\')',
+      4 => 'source(\'||PLUGINSCRIPTDIRECTORY||ANOVA/BuildANOVAData.R\')',
+      5 => 'ANOVAData.build(
+        input.dataFile              = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
+        concept.dependent           = \'||DEPENDENT||\',
+        concept.independent         = \'||INDEPENDENT||\',
+        binning.enabled             = \'||BINNING||\',
+        binning.bins                = \'||NUMBERBINS||\',
+        binning.type                = \'||BINNINGTYPE||\',
+        binning.manual              = \'||BINNINGMANUAL||\',
+        binning.binrangestring      = \'||BINNINGRANGESTRING||\',
+        binning.variabletype        = \'||BINNINGVARIABLETYPE||\',
+        binning.variable            = \'||BINNINGVARIABLE||\',
+        flipimage                   = as.logical(\'||FLIPIMAGE||\'),
+        input.gexFile               = \'||TEMPFOLDERDIRECTORY||mRNA/Processed_Data/mRNA.trans\',
+        input.snpFile               = \'||TEMPFOLDERDIRECTORY||SNP/snp.trans\',
+        concept.dependent.type      = \'||TYPEDEP||\',
+        concept.independent.type    = \'||TYPEIND||\',
+        genes.dependent             = \'||GENESDEP||\',
+        genes.independent           = \'||GENESIND||\',
+        genes.dependent.aggregate   = \'||AGGREGATEDEP||\',
+        genes.independent.aggregate = \'||AGGREGATEIND||\',
+        sample.dependent            = \'||SAMPLEDEP||\',
+        sample.independent          = \'||SAMPLEIND||\',
+        time.dependent              = \'||TIMEPOINTSDEP||\',
+        time.independent            = \'||TIMEPOINTIND||\',
+        snptype.dependent           = \'||SNPTYPEDEP||\',
+        snptype.independent         = \'||SNPTYPEIND||\',
+        gpl.dependent               = \'||GPLDEP||\',
+        gpl.independent             = \'||GPLINDEP||\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||ANOVA/BoxPlotLoader.R\')',
+      1 => 'BoxPlot.loader(
+        input.filename           = \'outputfile\',
+        concept.dependent        = \'||DEPENDENT||\',
+        concept.independent      = \'||INDEPENDENT||\',
+        flipimage                = as.logical(\'||FLIPIMAGE||\'),
+        concept.dependent.type   = \'||TYPEDEP||\',
+        concept.independent.type = \'||TYPEIND||\',
+        genes.dependent          = \'||GENESDEPNAME||\',
+        genes.independent        = \'||GENESINDNAME||\',
+        binning.enabled          = \'||BINNING||\',
+        binning.variable         = \'||BINNINGVARIABLE||\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/boxPlot/boxPlotOut',
+  ),
+  'view' => 'BoxPlot',
+)

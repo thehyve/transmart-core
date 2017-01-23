@@ -1,0 +1,118 @@
+# If you are using Ubuntu or a related distribution, you can try to prepare
+# the environment by running
+#    sudo make -C env ubuntu_deps_root
+#    make -C env ubuntu_deps_regular
+# This will create a vars-ubuntu file in this directory which you can use
+# instead of editing this sample.
+
+# {{{ PostgreSQL
+#
+# These database settings are probably fine if you built postgres from source
+# and you running it under your user. If you installed it from a package
+# manager, like apt-get/dpkg in debian/ubuntu, this won't work.
+# See the template in env/vars-ubuntu.php
+PGHOST=/tmp
+PGPORT=5432
+PGDATABASE=transmart
+PGUSER=$USER
+PGPASSWORD=
+
+# This directory must exist. If you are running PostgreSQL under your own user,
+# you just have to make sure the directory is owned by you.
+# Otherwise, you must create some directories under it and assign ownership to
+# them to the postgres user. For instance:
+#     mkdir -p $TABLESPACES/{biomart,deapp,indx,search_app,transmart}
+#     chown -R postgres:postgres $TABLESPACES
+# end with /
+TABLESPACES=$HOME/pg/tablespaces/
+
+# The directory where the postgres client utilities are
+# If using a package manager, probably /usr/bin/
+# end with /
+PGSQL_BIN=$HOME/pg/bin/
+# }}}
+
+# {{{ Oracle
+# Uncomment this to enable Oracle
+#ORACLE=1
+ORAHOST=localhost
+ORAPORT=1521
+ORASID=orcl
+# If ORASVC (Oracle Service) specified it will be used over ORASID for
+# connection (PDB may be specified this way for Oracle 12c)
+#ORASVC=orcl
+ORAUSER="sys as sysdba"
+ORAPASSWORD=mypassword
+
+# Set this to 1 if you want Oracle tablespaces to be created (and dropped!)
+# by transmart-data. In that case, you must also specify an oracle owned
+# directory that will be used to set the system param DB_CREATE_FILE_DEST
+ORACLE_MANAGE_TABLESPACES=0
+# Comment the line below when you use an Oracle Database instance from Amazon RDS.
+ORACLE_TABLESPACES_DIR=/home/oracle/app/oracle/oradata
+# }}}
+
+# Only needed for ETL
+# End with /
+KETTLE_JOBS_PSQL=/path/to/transmart-ETL/Postgres/GPL-1.0/Kettle/Kettle-ETL/
+# End with /
+KETTLE_JOBS_ORA=/path/to/transmart-ETL/Kettle-GPL/Kettle-ETL/
+
+R_JOBS_PSQL=/path/to/tranSMART-ETL/Kettle/postgres/R/
+
+KITCHEN=/path/to/data-integration/kitchen.sh
+
+#only needed for configuration
+#end with /
+TSUSER_HOME=$HOME/
+
+#optional TAR commend - e.g. tar on Mac does not work;
+# on Mac homebrew: brew install gnu-tar ; will set command gtar
+# if this is unset, then value defaults to tar (system tar command)
+#TAR_COMMAND=gtar
+#export TAR_COMMAND
+
+# {{{ DB user passwords
+#     They default to the same as the username.
+#     These are set when the database is created and they are used when
+#     connecting to the database (e.g. for ETL).
+#     You can reset passwords to the values specified here with:
+#       make -C ddl/postgres/GLOBAL load_passwords
+#       make -C ddl/oracle load_passwords
+#     Depending on whether you're using oracle or postgres.
+#
+#export BIOMART_USER_PWD=biomart_user
+#export BIOMART_PWD=biomart
+#export DEAPP_PWD=deapp
+#export I2B2METADATA_PWD=i2b2metadata
+#export I2B2DEMODATA_PWD=i2b2demodata
+#export SEARCHAPP_PWD=searchapp
+#export TM_CZ_PWD=tm_cz
+#export TM_LZ_PWD=tm_lz
+#export TM_WZ_PWD=tm_wz
+# }}}
+
+# If your distro uses an old version of groovy, do make -C env groovy,
+# and uncomment this. Version 2.1.9 is known to work, versions before 2
+# are known not to work
+#DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+#export PATH=$DIR/env:$PATH
+#
+
+# To use transmart-batch where supported
+#export USE_TRANSMART_BATCH=1
+
+# Oracle uses the blocking random pool by default
+# This is a bad idea because successive connections WILL exhaust the pool
+# /dev/urandom is just as secure, provided it's been seeded already
+# export _JAVA_OPTIONS='-Djava.security.egd=file:///dev/urandom'
+#
+# If you need to proxy (you may need to combine with option above)
+# export _JAVA_OPTIONS="-Dhttp.proxyHost=$proxy_host -Dhttp.proxyPort=$proxy_port"
+
+export PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD TABLESPACES PGSQL_BIN \
+	R_JOBS_PSQL KETTLE_JOBS_PSQL KETTLE_JOBS_ORA KITCHEN TSUSER_HOME ORAHOST ORAPORT \
+	ORASID ORASVC ORAUSER ORAPASSWORD ORACLE_MANAGE_TABLESPACES \
+	ORACLE_TABLESPACES_DIR ORACLE
+
+# vim: fdm=marker

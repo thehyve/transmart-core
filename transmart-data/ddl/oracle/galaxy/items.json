@@ -1,0 +1,60 @@
+{
+  "dependencies" : [ {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "GALAXY",
+      "name" : "HIBERNATE_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "GALAXY",
+      "name" : "STATUS_OF_EXPORT_JOB"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "GALAXY",
+      "name" : "STATUS_OF_EXPORT_JOB_SEQ"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "GALAXY",
+      "name" : "USERS_DETAILS_FOR_EXPORT_GAL"
+    },
+    "parents" : [ ]
+  } ],
+  "fileAssignments" : [ {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "GALAXY",
+      "name" : "HIBERNATE_ID"
+    },
+    "file" : "galaxy/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "GALAXY",
+      "name" : "STATUS_OF_EXPORT_JOB"
+    },
+    "file" : "galaxy/status_of_export_job.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "GALAXY",
+      "name" : "STATUS_OF_EXPORT_JOB_SEQ"
+    },
+    "file" : "galaxy/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "GALAXY",
+      "name" : "USERS_DETAILS_FOR_EXPORT_GAL"
+    },
+    "file" : "galaxy/users_details_for_export_gal.sql"
+  } ]
+}

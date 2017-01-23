@@ -1,0 +1,16 @@
+deapp	deapp	s	tm_lz	U
+deapp	de_subject_sample_mapping	r	tm_lz	r
+deapp	de_metabolite_annotation	r	biomart	r
+deapp	de_metabolite_sub_pathways	r	biomart	r
+deapp	de_metabolite_sub_pway_metab	r	biomart	r
+deapp	de_metabolite_super_pathways	r	biomart	r
+deapp	de_mrna_annotation	r	biomart	r
+biomart	bio_assay_data_annotation	r	searchapp	r
+biomart	bio_marker_correl_mv	r	searchapp	r
+biomart	bio_assay_platform	r	amapp	r
+biomart	bio_concept_code	r	amapp	r
+biomart	bio_data_uid	r	amapp	r
+biomart	bio_disease	r	amapp	r
+biomart	bio_compound	r	amapp	r
+biomart	bio_marker	r	amapp	r
+biomart	bio_observation	r	amapp	r

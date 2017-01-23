@@ -1,0 +1,288 @@
+{
+  "dependencies" : [ {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_DATA_UID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ASSOCIATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "VIEW",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_DISPLAY_VW"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ASSOCIATION"
+    }, {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ITEM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_ASSAY_PLATFORM"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_COMPOUND"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_CONCEPT_CODE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_DISEASE"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_MARKER"
+    }, {
+      "type" : "TABLE",
+      "owner" : "BIOMART",
+      "name" : "BIO_OBSERVATION"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ITEM"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_TEMPLATE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_TEMPLATE_ASSOCIATION"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "FUNCTION",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE_UID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "SEQUENCE",
+      "owner" : "AMAPP",
+      "name" : "SEQ_AMAPP_DATA_ID"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_ITEM_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ITEM"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "AMAPP",
+      "name" : "SEQ_AMAPP_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_TEMPLATE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_TEMPLATE"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "AMAPP",
+      "name" : "SEQ_AMAPP_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_TEMP_ASSOC_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_TEMPLATE_ASSOCIATION"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "AMAPP",
+      "name" : "SEQ_AMAPP_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_VALUE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "AMAPP",
+      "name" : "SEQ_AMAPP_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_VALUE_UID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_DATA_UID"
+    }, {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE"
+    }, {
+      "type" : "FUNCTION",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE_UID"
+    } ]
+  } ],
+  "fileAssignments" : [ {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_DATA_UID"
+    },
+    "file" : "amapp/am_data_uid.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ASSOCIATION"
+    },
+    "file" : "amapp/am_tag_association.sql"
+  }, {
+    "item" : {
+      "type" : "VIEW",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_DISPLAY_VW"
+    },
+    "file" : "amapp/_cross.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_ITEM"
+    },
+    "file" : "amapp/am_tag_item.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_TEMPLATE"
+    },
+    "file" : "amapp/am_tag_template.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_TEMPLATE_ASSOCIATION"
+    },
+    "file" : "amapp/am_tag_template_association.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE"
+    },
+    "file" : "amapp/am_tag_value.sql"
+  }, {
+    "item" : {
+      "type" : "FUNCTION",
+      "owner" : "AMAPP",
+      "name" : "AM_TAG_VALUE_UID"
+    },
+    "file" : "amapp/functions/am_tag_value_uid.sql"
+  }, {
+    "item" : {
+      "type" : "SEQUENCE",
+      "owner" : "AMAPP",
+      "name" : "SEQ_AMAPP_DATA_ID"
+    },
+    "file" : "amapp/_misc.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_ITEM_ID"
+    },
+    "file" : "amapp/am_tag_item.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_TEMPLATE_ID"
+    },
+    "file" : "amapp/am_tag_template.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_TEMP_ASSOC_ID"
+    },
+    "file" : "amapp/am_tag_template_association.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_VALUE_ID"
+    },
+    "file" : "amapp/am_tag_value.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "AMAPP",
+      "name" : "TRG_AM_TAG_VALUE_UID"
+    },
+    "file" : "amapp/am_tag_value.sql"
+  } ]
+}

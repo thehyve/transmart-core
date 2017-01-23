@@ -1,0 +1,14 @@
+#!/bin/bash
+
+CHROM="$(seq 1 22) X_par1 X X_par2"
+for c in $CHROM; do
+  if [[ $c =~ ^X ]]; then
+    cval=X
+  else
+    cval=$c
+  fi
+    
+  tar -xOzf "$1" genetic_map_GRCh37_chr"$c".txt | \
+    tail -n +2 | \
+    sed "s/^\\S\\+/$cval/"
+done

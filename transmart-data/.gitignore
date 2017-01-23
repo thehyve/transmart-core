@@ -1,0 +1,6 @@
+*.sw[op]
+*.iml
+/.idea
+/vars
+/vars-*
+/private-feeds

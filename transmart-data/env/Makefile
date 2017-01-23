@@ -1,0 +1,140 @@
+KETTLE_VERSION=4.4.0
+TRANSMART_RELEASE_BRANCH=release-16.1
+
+UBUNTU_PACKAGES=postgresql make git rsync libcairo-dev php5-cli php5-json curl \
+				tar openjdk-7-jdk gfortran g++ unzip libreadline-dev \
+				libxt-dev libpango1.0-dev libprotoc-dev \
+				texlive-fonts-recommended tex-gyre liblz4-tool pv zip
+
+GROOVY_VERSION=2.1.9
+
+ONDREJ_KEY=E5267A6C
+
+GROOVY_ZIP=groovy-binary-$(GROOVY_VERSION).zip
+GROOVY_URL=http://dl.bintray.com/groovy/maven/$(GROOVY_ZIP)
+GROOVY_BIN=groovy-$(GROOVY_VERSION)/bin/groovy
+
+PHP_VERSION=5.5.13
+PHP_TARBALL=php-$(PHP_VERSION).tar.gz
+PHP_SRCDIR=php-$(PHP_VERSION)
+PHP_URL=http://nl1.php.net/distributions/php-$(PHP_VERSION).tar.gz
+PHP_BIN=php5/bin/php
+
+TRANSMART_LOADER=transmart-loader
+
+TRANSMART_BATCH_FILE=transmart-batch-capsule.jar
+TRANSMART_BATCH_URL=https://repo.thehyve.nl/service/local/artifact/maven/content?r=snapshots&g=org.transmartproject&a=transmart-batch&c=capsule&v=LATEST
+
+include ../lib/makefile.inc
+
+%/conf/log4j.properties:
+	mkdir -p $*/conf \
+	&& echo "log4j.rootLogger=INFO, console" > $@ \
+	&& echo "log4j.appender.console=org.apache.log4j.ConsoleAppender" >> $@ \
+	&& echo "log4j.appender.console.layout=org.apache.log4j.PatternLayout" >> $@ \
+	&& echo "log4j.appender.console.layout.ConversionPattern=%-4r [%t] %-5p %c %x - %m%n" >> $@
+
+TRANSMART_LOADER_SNAPSHOT_NAME=loader-jar-with-dependencies.jar
+LATEST_TRANSMART_LOADER_SNAPSHOT_URL=https://ci.ctmmtrait.nl/artifact/TM-TLOAD/shared/build-latest/transmart-loader/target/$(TRANSMART_LOADER_SNAPSHOT_NAME)
+
+# only load the snapshot if the current one is 24 hours old (or older)
+# use FORCE_TS_LOADER_DOWNLOAD=1 to override
+$(TRANSMART_LOADER)-latest-bamboo-snapshot: $(TRANSMART_LOADER)-latest-bamboo-snapshot/conf/log4j.properties
+	if test "$$(find $@/$(TRANSMART_LOADER_SNAPSHOT_NAME) -mtime +1 2> /dev/null)" \
+		-o "$$FORCE_TS_LOADER_DOWNLOAD" = 1 \
+		-o ! -f $@/$(TRANSMART_LOADER_SNAPSHOT_NAME); then \
+		curl -L -f $(LATEST_TRANSMART_LOADER_SNAPSHOT_URL) > $@/$(TRANSMART_LOADER_SNAPSHOT_NAME); \
+	fi
+
+# do a conditional request here.
+# We could also skip if we checked in the last hour or so (see ts-loader) below
+$(TRANSMART_BATCH_FILE):
+	curl -s -L -f -R -z '$@' -o '$@' '$(TRANSMART_BATCH_URL)'
+	@chmod +x '$@'
+
+batchdb-psql.properties: batchdb-psql.properties.php
+	php -d variables_order=E '$<' > '$@'
+
+batchdb-oracle.properties: batchdb-oracle.properties.php
+	php -d variables_order=E '$<' > '$@'
+
+# for redownload
+.PHONY: $(TRANSMART_BATCH_FILE) batchdb-psql.properties batchdb-oracle.properties
+
+$(GROOVY_ZIP):
+	curl -L "$(GROOVY_URL)" > $@
+
+$(GROOVY_BIN): $(GROOVY_ZIP)
+	unzip $<
+	touch $@
+
+groovy: $(GROOVY_BIN)
+	ln -s $< $@
+
+$(PHP_TARBALL):
+	curl -f '$(PHP_URL)' > $@
+
+$(PHP_SRCDIR)/.keep: $(PHP_TARBALL)
+	tar -xf '$<'
+	touch '$@'
+
+$(PHP_BIN): $(PHP_SRCDIR)/.keep
+	cd $(PHP_SRCDIR) && ./configure --prefix='$(realpath .)/php5' --disable-all --enable-json
+	$(MAKE) -j8 -C '$(PHP_SRCDIR)' install
+
+php: $(PHP_BIN)
+	ln -s $< $@
+
+install_ubuntu_packages:
+	. /etc/lsb-release; \
+		test $$DISTRIB_RELEASE != '12.04' || \
+	    grep ondrej/php5 /etc/apt/sources.list || ( \
+				gpg --recv-keys --keyserver keyserver.ubuntu.com $(ONDREJ_KEY) && \
+				(gpg -a --export $(ONDREJ_KEY) | apt-key add -) && \
+				echo 'deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main' >> /etc/apt/sources.list)
+	apt-get update
+	apt-get install -y $(UBUNTU_PACKAGES)
+
+# <directory> <repos> <branch>
+update_repos = if [ ! -d $(1) ]; then \
+	git clone -b $(3) '$(2)' $(1); \
+	else cd $(1) && git pull; fi
+
+# Note: in the release case - we are making a strong assumption that tramSMART-ETL
+#   already exists, is NOT a git archive, and can not be updated
+#update_etl:
+#	$(call update_repos,tranSMART-ETL,https://github.com/tranSMART-Foundation/tranSMART-ETL.git,$(TRANSMART_RELEASE_BRANCH))
+update_etl:
+	echo "for release build tranSMART-ETL is not automatically updated from git, because it is assumed to be already loaded from a zip file"
+.PHONY: update_repos, $(TRANSMART_LOADER)-from-file-server, $(TRANSMART_LOADER)-latest-bamboo-snapshot
+
+KETTLE_ARCHIVE=pdi-ce-$(KETTLE_VERSION)-stable.tar.gz
+$(KETTLE_ARCHIVE):
+	curl -L -f "http://downloads.sourceforge.net/project/pentaho/Data%20Integration/4.4.0-stable/$@" > $@
+
+KETTLE_ORACLE_DRIVER=data-integration/libext/JDBC/$(JDBC_DRIVER_ORA)
+$(KETTLE_ORACLE_DRIVER): $(JDBC_DRIVER_ORA_PATH) data-integration/.keep
+	cp --reflink=auto "$<" "$@"
+
+data-integration: data-integration/.keep $(KETTLE_ORACLE_DRIVER)
+.PHONY: data-integration
+data-integration/.keep: $(KETTLE_ARCHIVE)
+	 tar -xzf $<
+	 touch '$@'
+
+/var/lib/postgresql/tablespaces:
+	/bin/bash -c 'mkdir -p $@/{biomart,deapp,indx,search_app,transmart}'
+	chown -R postgres:postgres $@
+
+../vars: vars-ubuntu.php
+	php -d variables_order=E $< > $@
+
+ubuntu_deps_root: install_ubuntu_packages /var/lib/postgresql/tablespaces
+# Note: in the release case - we are making a strong assumption that tramSMART-ETL
+#   already exists, is NOT a git archive, and can not be updated
+# ubuntu_deps_regular: update_etl data-integration ../vars groovy
+ubuntu_deps_regular: data-integration ../vars groovy
+
+.DELETE_ON_ERROR:
+
+# vim: ai ts=4 sw=4 noet:

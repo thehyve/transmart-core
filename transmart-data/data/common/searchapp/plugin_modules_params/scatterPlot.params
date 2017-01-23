@@ -1,0 +1,100 @@
+array (
+  'id' => 'scatterPlot',
+  'name' => 'Scatter Plot with Linear Regression',
+  'dataTypes' => 
+  array (
+    'subset1' => 
+    array (
+      0 => 'CLINICAL.TXT',
+    ),
+  ),
+  'dataFileInputMapping' => 
+  array (
+    'SNP.TXT' => 'snpData',
+    'MRNA_DETAILED.TXT' => 'mrnaData',
+    'CLINICAL.TXT' => 'TRUE',
+  ),
+  'pivotData' => false,
+  'variableMapping' => 
+  array (
+    '||SAMPLEIND||' => 'divIndependentVariablesamples',
+    '||SNPTYPEIND||' => 'divIndependentVariableprobesAggregation',
+    '||PLATFORMIND||' => 'divIndependentVariableplatforms',
+    '||DEPENDENT||' => 'dependentVariable',
+    '||GENESIND||' => 'divIndependentVariablePathway',
+    '||GENESDEPNAME||' => 'divDependentPathwayName',
+    '||TISSUEIND||' => 'divIndependentVariabletissues',
+    '||TYPEIND||' => 'divIndependentVariableType',
+    '||GENESDEP||' => 'divDependentVariablePathway',
+    '||TYPEDEP||' => 'divDependentVariableType',
+    '||INDEPENDENT||' => 'independentVariable',
+    '||GENESINDNAME||' => 'divIndependentPathwayName',
+    '||TIMEPOINTIND||' => 'divIndependentVariabletimepoints',
+    '||SNPTYPEDEP||' => 'divDependentVariableSNPType',
+    '||RBMPANELDEP||' => 'divDependentVariablerbmPanels',
+    '||GPLIND||' => 'divIndependentVariablegpls',
+    '||TIMEPOINTSDEP||' => 'divDependentVariabletimepoints',
+    '||AGGREGATEDEP||' => 'divDependentVariableprobesAggregation',
+    '||GPLDEP||' => 'divDependentVariablegpls',
+    '||GPLINDEP||' => 'divIndependentVariablegpls',
+    '||TISSUEDEP||' => 'divDependentVariabletissues',
+    '||LOGX||' => 'logX',
+    '||RBMPANELIND||' => 'divIndependentVariablerbmPanels',
+    '||SAMPLEDEP||' => 'divDependentVariablesamples',
+    '||AGGREGATEIND||' => 'divIndependentVariableprobesAggregation',
+    '||PLATFORMDEP||' => 'divDependentVariableplatforms',
+  ),
+  'converter' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/dataBuilders.R\')',
+      1 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/ExtractConcepts.R\')',
+      2 => 'source(\'||PLUGINSCRIPTDIRECTORY||Common/collapsingData.R\')',
+      3 => 'source(\'||PLUGINSCRIPTDIRECTORY||ScatterPlot/BuildScatterData.R\')',
+      4 => 'ScatterData.build(
+        input.dataFile              = \'||TEMPFOLDERDIRECTORY||Clinical/clinical.i2b2trans\',
+        concept.dependent           = \'||DEPENDENT||\',
+        concept.independent         = \'||INDEPENDENT||\',
+        input.gexFile               = \'||TEMPFOLDERDIRECTORY||mRNA/Processed_Data/mRNA.trans\',
+        input.snpFile               = \'||TEMPFOLDERDIRECTORY||SNP/snp.trans\',
+        concept.dependent.type      = \'||TYPEDEP||\',
+        concept.independent.type    = \'||TYPEIND||\',
+        genes.dependent             = \'||GENESDEP||\',
+        genes.independent           = \'||GENESIND||\',
+        genes.dependent.aggregate   = \'||AGGREGATEDEP||\',
+        genes.independent.aggregate = \'||AGGREGATEIND||\',
+        sample.dependent            = \'||SAMPLEDEP||\',
+        sample.independent          = \'||SAMPLEIND||\',
+        time.dependent              = \'||TIMEPOINTSDEP||\',
+        time.independent            = \'||TIMEPOINTIND||\',
+        snptype.dependent           = \'||SNPTYPEDEP||\',
+        snptype.independent         = \'||SNPTYPEIND||\',
+        gpl.dependent               = \'||GPLDEP||\',
+        gpl.independent             = \'||GPLINDEP||\',
+        logX                        = \'||LOGX||\')',
+    ),
+  ),
+  'processor' => 
+  array (
+    'R' => 
+    array (
+      0 => 'source(\'||PLUGINSCRIPTDIRECTORY||ScatterPlot/ScatterPlotLoader.R\')',
+      1 => 'ScatterPlot.loader(
+        input.filename           = \'outputfile\',
+        concept.dependent        = \'||DEPENDENT||\',
+        concept.independent      = \'||INDEPENDENT||\',
+        concept.dependent.type   = \'||TYPEDEP||\',
+        concept.independent.type = \'||TYPEIND||\',
+        genes.dependent          = \'||GENESDEPNAME||\',
+        genes.independent        = \'||GENESINDNAME||\',
+        snptype.dependent        = \'||SNPTYPEDEP||\',
+        snptype.independent      = \'||SNPTYPEIND||\')',
+    ),
+  ),
+  'renderer' => 
+  array (
+    'GSP' => '/scatterPlot/scatterPlotOut',
+  ),
+  'view' => 'ScatterPlot',
+)

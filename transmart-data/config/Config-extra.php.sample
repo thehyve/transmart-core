@@ -1,0 +1,86 @@
+<?php
+// If you create a file named Config-extra.php, its contents will be inserted
+// to the externalized configuration file Config.groovy whenever it's generated.
+// There are currently two insertion points. The first one is to override the
+// helper variables defined at the top of the template (Config-template.groovy),
+// the other one is to override actual Grails settings
+
+$insertionPoints = [
+    /* this is the text to be inserted in the template after the WAR variables */
+    'I001' => /* post-WAR-variables */ <<<EOD
+//transmartURL      = 'http://example.com/transmart/'
+//oauthEnabled      = true
+//samlEnabled       = false
+//gwavaEnabled      = false
+EOD
+,
+    /* this is the text to be inserted at the very end of the file.
+     * You can override configuration settings defined elsewhere in the file */
+    'I002' => /* end */ <<<EOD
+
+// {{{ Personalization
+// Project name shown on the welcome page
+//com.recomdata.projectName = "MyProject"
+
+// name and URL of the supporter entity shown on the welcome page
+//com.recomdata.providerName = "tranSMART Foundation"
+//com.recomdata.providerURL = "http://www.transmartfoundation.org"
+
+// Contact e-mail
+//com.recomdata.contactUs = "support@mycompany.com"
+//com.recomdata.adminEmail = "support@mycompany.com"
+// }}}
+
+// Password strength criteria, please change description accordingly
+//com.recomdata.passwordstrength.pattern = ~/^.*(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[\d])(?=.*[\W]).*$/
+
+// Password strength regex that is used to test user's passwords that are entered by themselves.
+// Take care to change org.transmartproject.app.user.ChangePasswordCommand.newPassword.lowPasswordStrength
+// variable inside messages.properties file of web app.
+/*
+user.password.strength.regex = '''(?x)
+^
+(?=.*[A-Z])      #Ensure string has an uppercase letter.
+(?=.*[!@\\#$&*]) #Ensure string has one special case letter.
+(?=.*[0-9])      #Ensure string has a digit.
+.{8,}            #Ensure string length is not less then 8.
+$'''
+*/
+
+//Alternative color scheme for aCGH BED tracks.
+//Current colors are captured from cghCall R package.
+//Although do not correspond exactly.
+/*
+dataExport {
+    bed {
+        acgh {
+            rgbColorScheme {
+                //white
+                invalid       = [255, 255, 255]
+                //red
+                loss          = [205,   0,   0]
+                //dark
+                normal        = [ 10,  10,  10]
+                //green
+                gain          = [  0, 255,   0]
+                //dark green
+                amplification = [  0, 100,   0]
+            }
+        }
+    }
+}
+*/
+
+// Password strength description, please change according to pattern
+//com.recomdata.passwordstrength.description =
+//    'It should contain a minimum of 8 characters including at least ' +
+//    '1 upper and 1 lower case letter, 1 digit and 1 special character.'
+
+// You MUST leave this at the end
+// Do not move it up, otherwise syntax errors may not be detected
+
+org.transmart.configFine = true
+EOD
+];
+
+// vim: filetype=php et ts=4 sw=4 ai tw=80:

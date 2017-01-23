@@ -1,0 +1,5 @@
+"4"	"52"	"ROLE_ADMIN"	"admin user"
+"5"	"98"	"ROLE_STUDY_OWNER"	"study owner"
+"6"	"301"	"ROLE_SPECTATOR"	"spectator user"
+"5027"	"56"	"ROLE_DATASET_EXPLORER_ADMIN"	"dataset Explorer admin users - can view all trials"
+"5071"	"92"	"ROLE_PUBLIC_USER"	"public user"

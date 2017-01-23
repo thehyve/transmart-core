@@ -1,0 +1,3 @@
+The schemas should be synchronized between PostgreSQL and Oracle. That should be
+the case in 1.2 However, they are not. This includes dumps specific for the
+Oracle version.
