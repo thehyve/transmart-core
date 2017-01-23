@@ -1,0 +1,9 @@
+language: groovy
+
+jdk:
+    - oraclejdk7
+
+notifications:
+  hipchat:
+    rooms:
+      secure: cebpY+7DHTX9Djq1rxVSjnh7BuLKpijEVWK71LOq7jPXtfgNKpdsQZslXvzR/r5+AKQ9IvoM02oBQEvXyJMYKskknnxRxiG6hkDm4Xuz9O+2wO0/qpbbC3qgVmEjSH/opmi9FW4UTtlCGZv0g3OmMsRJ51U7eDIrqEfuiX7hUrs=
