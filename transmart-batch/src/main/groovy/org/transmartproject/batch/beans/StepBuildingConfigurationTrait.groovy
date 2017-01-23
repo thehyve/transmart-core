@@ -15,6 +15,7 @@ import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.file.FlatFileItemReader
 import org.springframework.batch.item.file.LineCallbackHandler
+import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper
 import org.springframework.batch.item.file.mapping.DefaultLineMapper
 import org.springframework.batch.item.file.mapping.FieldSetMapper
@@ -178,7 +179,7 @@ trait StepBuildingConfigurationTrait {
      *             (default: false)
      */
     @TypeChecked
-    FlatFileItemReader tsvFileReader(
+    ResourceAwareItemReaderItemStream tsvFileReader(
             Map<String, Object> options, Resource resource) {
         def strict = options.containsKey('strict') ?
                 (boolean) options.strict : true

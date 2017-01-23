@@ -36,22 +36,4 @@ class StringUtils {
             s
         }
     }
-
-    /**
-     * e.g. `getAllPossiblePairsSplits('a.b.c', '.') => [['a', 'b.c'], ['a.b', 'c']]`
-     * @param string - source string to split to the pairs
-     * @param delimiter - delimiter to use for split operation
-     * @return all possible pairs splits from left to right
-     */
-    static List<List<String>> getAllPossiblePairsSplits(final String string, final String delimiter) {
-        List<List<String>> result = []
-        int indexOfDelimiter = -1
-        while((indexOfDelimiter = string.indexOf(delimiter, indexOfDelimiter + 1)) > -1) {
-            result << [
-                string[0..<indexOfDelimiter],
-                string[indexOfDelimiter + delimiter.length()..<string.length()]
-            ]
-        }
-        result
-    }
 }

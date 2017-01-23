@@ -69,9 +69,6 @@ class VisitedAnnotationsReadingValidator extends ItemStreamSupport
         executionContext.put(
                 getExecutionContextKey(SEEN_ANNOTATIONS_KEY),
                 seenAnnotationIndexes.clone())
-        if (delegate instanceof ItemStreamReader) {
-            delegate.update(executionContext)
-        }
     }
 
     @Override
@@ -79,9 +76,6 @@ class VisitedAnnotationsReadingValidator extends ItemStreamSupport
         seenAnnotationIndexes = executionContext.get(
                 getExecutionContextKey(SEEN_ANNOTATIONS_KEY)) ?:
                 new BitSet(annotationEntityMap.annotationNames.size())
-        if (delegate instanceof ItemStreamReader) {
-            delegate.open(executionContext)
-        }
     }
 
     @SuppressWarnings('UnnecessarySemicolon') // codenarc bug

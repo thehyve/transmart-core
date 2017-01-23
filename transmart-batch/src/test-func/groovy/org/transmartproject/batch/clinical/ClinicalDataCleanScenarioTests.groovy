@@ -31,8 +31,7 @@ import static org.transmartproject.batch.matchers.IsInteger.isIntegerNumber
 class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
 
     public static final String STUDY_ID = 'GSE8581'
-    public static final String PARENT_FOLDER = '\\Public Studies\\'
-    public static final String STUDY_BASE_FOLDER = "${PARENT_FOLDER}${STUDY_ID}\\"
+    public static final String STUDY_BASE_FOLDER = '\\Public Studies\\GSE8581\\'
 
     public static final NUMBER_OF_PATIENTS = 58L
 
@@ -488,29 +487,5 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
         def r = jdbcTemplate.queryForObject(q, [topnode: STUDY_BASE_FOLDER], String)
 
         assertThat r, is(equalTo('FAS'))
-    }
-
-    @Test
-    void testParentFolderIsNotMarkedWithStudyId() {
-        def q = """
-            SELECT c_comment
-            FROM ${Tables.I2B2} I
-            WHERE c_fullname = :node"""
-
-        def r = jdbcTemplate.queryForObject(q, [node: PARENT_FOLDER], String)
-
-        assertThat r, is(nullValue())
-    }
-
-    @Test
-    void testStudyFolderIsMarkedWithStudyId() {
-        def q = """
-            SELECT c_comment
-            FROM ${Tables.I2B2} I
-            WHERE c_fullname = :node"""
-
-        def r = jdbcTemplate.queryForObject(q, [node: STUDY_BASE_FOLDER], String)
-
-        assertThat r, is('trial:' + STUDY_ID)
     }
 }

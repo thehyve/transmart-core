@@ -99,20 +99,5 @@ class ClinicalDataPrivateStudyTests implements JobRunningTestTrait {
                 hasEntry('accession', STUDY_ID),)
     }
 
-    @Test
-    void testDummySecurityObservation() {
-        def q = """
-                SELECT *
-                FROM ${Tables.OBSERVATION_FACT} O
-                WHERE O.sourcesystem_cd = :studyId and O.concept_cd = :conceptCd"""
-        def res = queryForList(q, [studyId: STUDY_ID, conceptCd: 'SECURITY'])
-
-        assertThat res, hasSize(1)
-        assertThat res[0], allOf(
-                hasEntry('valtype_cd', 'T'),
-                hasEntry('tval_char', "EXP:$STUDY_ID" as String),
-                hasEntry('modifier_cd', STUDY_ID),
-        )
-    }
 
 }

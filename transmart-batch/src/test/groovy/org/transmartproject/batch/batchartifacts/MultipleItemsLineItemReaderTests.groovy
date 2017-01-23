@@ -1,16 +1,11 @@
 package org.transmartproject.batch.batchartifacts
 
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.ExpectedException
 import org.springframework.batch.item.ExecutionContext
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader
-import org.springframework.batch.test.MetaDataInstanceFactory
+import org.springframework.batch.item.ItemStreamException
+import org.springframework.batch.item.ParseException
 import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
-import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
-import org.transmartproject.batch.highdim.datastd.RowItemsProcessor
-import org.transmartproject.batch.highdim.rnaseq.data.RnaSeqDataMultipleVariablesPerSampleFieldSetMapper
 
 import java.nio.charset.StandardCharsets
 
@@ -26,13 +21,13 @@ class MultipleItemsLineItemReaderTests {
 
     MultipleItemsLineItemReader<TestBean> testee
 
-    @Rule
-    @SuppressWarnings('PublicInstanceField')
-    public final ExpectedException exception = ExpectedException.none()
-
     @Test
     void testSuccess() {
-        initTestee()
+        initTesteeWithContent(
+                'annotation\tsampl1.dfld\tsampl1.ifld\tsampl2.dfld\tsampl2.ifld\n' +
+                        'annot1\t1.2\t10\t3.4\t15\n' +
+                        'annot2\t5.6\t20\t7.8\t25\n'
+        )
 
         TestBean item1 = testee.read()
         TestBean item2 = testee.read()
@@ -69,112 +64,58 @@ class MultipleItemsLineItemReaderTests {
         ))
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException)
     void testNoFieldSetMapperSpecified() {
-        exception.expect(IllegalArgumentException)
-        exception.expectMessage(
-                equalTo('mapper has to be specified'))
-
-        testee = new MultipleItemsLineItemReader(itemStreamReader: [:] as AbstractItemCountingItemStreamItemReader,
-                multipleItemsFieldSetMapper: null)
+        testee = new MultipleItemsLineItemReader(resource: [] as Resource, multipleItemsFieldSetMapper: null)
         testee.afterPropertiesSet()
     }
 
-    @Test
-    void testNoStreamReaderSpecified() {
-        exception.expect(IllegalArgumentException)
-        exception.expectMessage(
-                equalTo('item reader has to be specified'))
-
-        testee = new MultipleItemsLineItemReader(itemStreamReader: null,
-                multipleItemsFieldSetMapper: new RnaSeqDataMultipleVariablesPerSampleFieldSetMapper())
+    @Test(expected = IllegalArgumentException)
+    void testNoResourceSpecified() {
+        testee = new MultipleItemsLineItemReader(resource: null,
+                multipleItemsFieldSetMapper: [] as MultipleItemsFieldSetMapper)
         testee.afterPropertiesSet()
     }
 
-    @Test
-    void testPreProcess() {
-        initTestee()
-        testee.rowItemsProcessor = new RowItemsProcessor<TestBean>() {
-            @Override
-            List<TestBean> process(List<TestBean> rowItems) {
-                rowItems.collect {
-                    it.intField = it.intField * 2
-                    it
-                }
-            }
-        }
+    @Test(expected = ItemStreamException)
+    void testDuplicatesInTheHeader() {
+        initTesteeWithContent(
+                'annotation\tsampl1.dfld\tsampl1.ifld\tsampl1.dfld\tsampl1.ifld\n' +
+                        'annot1\t1.2\t10\t1.2\t10\n'
+        )
 
-        TestBean item1 = testee.read()
-        TestBean item2 = testee.read()
-        TestBean item3 = testee.read()
-        TestBean item4 = testee.read()
-        TestBean item5 = testee.read()
-
-        assertThat([item1, item2, item3, item4, item5], contains(
-                allOf(
-                        hasProperty('annotation', equalTo('annot1')),
-                        hasProperty('sampleCode', equalTo('sampl1')),
-                        hasProperty('doubleField', closeTo(1.2d, DELTA)),
-                        hasProperty('intField', equalTo(20)),
-                ),
-                allOf(
-                        hasProperty('annotation', equalTo('annot1')),
-                        hasProperty('sampleCode', equalTo('sampl2')),
-                        hasProperty('doubleField', closeTo(3.4d, DELTA)),
-                        hasProperty('intField', equalTo(30)),
-                ),
-                allOf(
-                        hasProperty('annotation', equalTo('annot2')),
-                        hasProperty('sampleCode', equalTo('sampl1')),
-                        hasProperty('doubleField', closeTo(5.6d, DELTA)),
-                        hasProperty('intField', equalTo(40)),
-                ),
-                allOf(
-                        hasProperty('annotation', equalTo('annot2')),
-                        hasProperty('sampleCode', equalTo('sampl2')),
-                        hasProperty('doubleField', closeTo(7.8d, DELTA)),
-                        hasProperty('intField', equalTo(50)),
-                ),
-                nullValue()
-        ))
+        testee.read()
     }
 
-    void initTestee() {
-        String content = 'annotation\tsampl1.dfld\tsampl1.ifld\tsampl2.dfld\tsampl2.ifld\n' +
-                'annot1\t1.2\t10\t3.4\t15\n' +
-                'annot2\t5.6\t20\t7.8\t25\n'
+    @Test(expected = ParseException)
+    void testUnParsableHeader() {
+        initTesteeWithContent(
+                'annotation\tsampl1.dfld\tunparsableheadername\n' +
+                        'annot1\t1.2\ttest\n'
+        )
+
+        testee.read()
+    }
+
+    void initTesteeWithContent(String content) {
         InputStream is = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))
         Resource resource = new InputStreamResource(is)
-        def fieldSetMapper = new AbstractMultipleVariablesPerSampleFieldSetMapper() {
-            @Override
-            TestBean newInstance(String annotation, String sampleCode) {
-                new TestBean(annotation: annotation, sampleCode: sampleCode)
-            }
-
-            @Override
-            Map<String, Closure> getFieldSetters() {
-                [
-                        dfld: { TestBean bean, String value -> bean.doubleField = value as Double },
-                        ifld: { TestBean bean, String value -> bean.intField = value as Integer },
-                ]
-            }
-        }
-        fieldSetMapper.stepExecution = MetaDataInstanceFactory.createStepExecution()
-        fieldSetMapper.stepExecution.executionContext.put(HeaderParsingLineCallbackHandler.PARSED_HEADER_OUT_KEY,
-                [
-                        'sampl1.dfld': [sample: 'sampl1', suffix: 'dfld'],
-                        'sampl1.ifld': [sample: 'sampl1', suffix: 'ifld'],
-                        'sampl2.dfld': [sample: 'sampl2', suffix: 'dfld'],
-                        'sampl2.ifld': [sample: 'sampl2', suffix: 'ifld'],
-                ])
-
         testee = new MultipleItemsLineItemReader(
-                multipleItemsFieldSetMapper: fieldSetMapper,
-                itemStreamReader: ([] as StepBuildingConfigurationTrait).tsvFileReader(
-                        resource,
-                        linesToSkip: 1,
-                        columnNames: 'auto',
-                )
+                resource: resource,
+                multipleItemsFieldSetMapper: new AbstractMultipleVariablesPerSampleFieldSetMapper() {
+                    @Override
+                    TestBean newInstance(String annotation, String sampleCode) {
+                        new TestBean(annotation: annotation, sampleCode: sampleCode)
+                    }
+
+                    @Override
+                    Map<String, Closure> getFieldSetters() {
+                        [
+                                dfld: { TestBean bean, String value -> bean.doubleField = value as Double },
+                                ifld: { TestBean bean, String value -> bean.intField = value as Integer },
+                        ]
+                    }
+                }
         )
         testee.afterPropertiesSet()
         testee.open(new ExecutionContext())

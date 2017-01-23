@@ -3,7 +3,7 @@ package org.transmartproject.batch.support
 import org.junit.Test
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.is
 
 /**
  * Test methods in {@link StringUtils}.
@@ -44,26 +44,6 @@ class StringUtilsTest {
     @Test
     void testLookAlikeDespiteAbsentDivider() {
         assertThat StringUtils.lookAlike('tissuetype', 'tissue_type'), is(true)
-    }
-
-    @Test
-    void testGetAllPossiblePairsSplits() {
-        assertThat StringUtils.getAllPossiblePairsSplits('one.two.three', '.'), contains(
-                contains('one', 'two.three'),
-                contains('one.two', 'three'))
-    }
-
-    @Test
-    void testGetAllPossiblePairsSplits_noDelimiterFound() {
-        assertThat StringUtils.getAllPossiblePairsSplits('onetwothree', '.'), empty()
-    }
-
-    @Test
-    void testGetAllPossiblePairsSplits_cornerCases() {
-        assertThat StringUtils.getAllPossiblePairsSplits('.onetwothree.', '.'), contains(
-                contains('', 'onetwothree.'),
-                contains('.onetwothree', ''),
-        )
     }
 
 }

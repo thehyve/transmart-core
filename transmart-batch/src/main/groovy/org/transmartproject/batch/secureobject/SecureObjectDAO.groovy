@@ -24,16 +24,12 @@ import org.transmartproject.batch.db.SequenceReserver
 class SecureObjectDAO {
 
     public static final String CLINICAL_TRIAL_SECURE_OBJECT_DATA_TYPE = 'BIO_CLINICAL_TRIAL'
-    public static final String DUMMY_SECURITY_CONCEPT_CD = 'SECURITY'
 
     @Autowired
     private SequenceReserver sequenceReserver
 
     @Value(Tables.SECURE_OBJECT)
     private SimpleJdbcInsert secureObjectInsert
-
-    @Value(Tables.OBSERVATION_FACT)
-    private SimpleJdbcInsert dummySecurityObservationsInsert
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate
@@ -42,13 +38,12 @@ class SecureObjectDAO {
     private BioExperimentDAO bioExperimentDAO
 
     void createSecureObject(String displayName,
+                            String studyId,
                             SecureObjectToken token) {
 
-        long bioExperimentId = bioExperimentDAO.findOrCreateBioExperiment(token.studyId)
+        long bioExperimentId = bioExperimentDAO.findOrCreateBioExperiment(studyId)
         Map secureObjectValues = findOrCreateSecureObject(
                 bioExperimentId, displayName, token)
-
-        insertDummySecurityObservation(token)
 
         /* some quick validation */
         if (secureObjectValues['bio_data_id'] != bioExperimentId) {
@@ -75,7 +70,7 @@ class SecureObjectDAO {
                                     AND SO.bio_data_unique_id = :sobj)""",
                 [
                         data_type: CLINICAL_TRIAL_SECURE_OBJECT_DATA_TYPE,
-                        sobj     : secureObjectToken.toString()])
+                        sobj: secureObjectToken.toString()])
     }
 
     int deleteSecureObject(SecureObjectToken secureObjectToken) {
@@ -134,8 +129,6 @@ class SecureObjectDAO {
             throw new IncorrectResultSizeDataAccessException(1)
         }
 
-        deleteDummySecurityObservation(secureObjectToken)
-
         affected
     }
 
@@ -181,41 +174,4 @@ class SecureObjectDAO {
             queryResult
         }
     }
-    /**
-     * Inserts the dummy "SECURITY" fact for the study to prevent existing kettle ETL opening up access to the study.
-     * The original purpose of having such observations is unknown.
-     * The sql insert query that causing the issue could be found here
-     * https://github.com/transmart/transmart-data
-     * /blob/cd7f0e337c98a261336cc4ed1db15590beeec316/ddl/postgres/tm_cz/functions/i2b2_load_security_data.sql#L104
-     */
-    private int insertDummySecurityObservation(SecureObjectToken token) {
-        def row = [
-                sourcesystem_cd: token.studyId,
-                encounter_num  : -1,
-                patient_num    : -1,
-                concept_cd     : DUMMY_SECURITY_CONCEPT_CD,
-                valtype_cd     : 'T',
-                tval_char      : token.toString(),
-                start_date     : new GregorianCalendar(1970, 0, 1).time,
-                import_date    : new Date(),
-                provider_id    : '@',
-                location_cd    : '@',
-                modifier_cd    : token.studyId,
-                valueflag_cd   : '@',
-                instance_num   : 1,
-        ] as Map<String, Object>
-
-        dummySecurityObservationsInsert.execute(row)
-    }
-
-    private int deleteDummySecurityObservation(SecureObjectToken token) {
-        jdbcTemplate.update("""
-                DELETE FROM ${Tables.OBSERVATION_FACT}
-                WHERE sourcesystem_cd = :studyId and concept_cd = :conceptCd""",
-                [
-                        studyId  : token.studyId,
-                        conceptCd: DUMMY_SECURITY_CONCEPT_CD,
-                ])
-    }
-
 }

@@ -45,8 +45,7 @@ the `SAMPLE_CD` column in the mapping file. The order is not important.
 Empty cells are not allowed. Zeros, negative values and NaNs (input as U+FFFD)
 *are* allowed and have the same effect among each other (see below).
 
-[How HD data are processed.](../hd-data-processing-details.md)
-[How to upload zscores](../zscore-upload.md)
+[Read more on how HD data are processed.](../hd-data-processing-details.md)
 
   [1]: https://jira.thehyve.nl/browse/JE-52
 

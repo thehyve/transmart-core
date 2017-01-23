@@ -1,6 +1,5 @@
 package org.transmartproject.batch.concept
 
-import com.google.common.base.Predicate
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
 import groovy.transform.CompileStatic
@@ -33,7 +32,7 @@ class ConceptTree {
     private final NavigableMap<ConceptPath, ConceptNode> nodeMap =
             Maps.newTreeMap()
 
-    private final Set<ConceptNode> savedNodes = []
+    private final Set savedNodes = []
 
     @PostConstruct
     void generateStudyNode() {
@@ -139,9 +138,4 @@ class ConceptTree {
         topNodePath.isPrefixOf(node.path)
     }
 
-    Collection<ConceptNode> getAllStudyNodes() {
-        Sets.filter(savedNodes, { ConceptNode it ->
-            isStudyNode(it)
-        } as Predicate<ConceptNode>)
-    }
 }

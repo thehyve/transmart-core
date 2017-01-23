@@ -7,19 +7,13 @@ import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
-import org.springframework.batch.item.file.transform.FieldSet
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.transmartproject.batch.batchartifacts.CollectMinimumPositiveValueListener
-import org.transmartproject.batch.batchartifacts.HeaderParsingLineCallbackHandler
-import org.transmartproject.batch.batchartifacts.HeaderSavingLineCallbackHandler
-import org.transmartproject.batch.batchartifacts.MultipleItemsLineItemReader
 import org.transmartproject.batch.beans.JobScopeInterfaced
 import org.transmartproject.batch.beans.StepBuildingConfigurationTrait
-import org.transmartproject.batch.beans.StepScopeInterfaced
 import org.transmartproject.batch.db.DbConfig
 import org.transmartproject.batch.highdim.assays.AssayStepsConfig
 import org.transmartproject.batch.highdim.assays.CurrentAssayIdsReader
@@ -41,37 +35,23 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
     abstract ItemWriter<TripleStandardDataValue> getDataWriter()
 
     @Bean
-    Step firstPass(ItemStreamReader firstPassReader,
-                   ItemProcessor compositeOfFirstPassItemProcessors) {
+    Step firstPass() {
         CollectMinimumPositiveValueListener listener = collectMinimumPositiveValueListener()
-
         TaskletStep step = steps.get('firstPass')
                 .chunk(dataFilePassChunkSize)
-                .reader(firstPassReader)
-                .processor(compositeOfFirstPassItemProcessors)
+                .reader(firstPassDataRowSplitterReader())
+                .processor(new NegativeDataPointWarningProcessor())
                 .stream(listener)
                 .listener(listener)
                 .listener(logCountsStepListener())
                 .build()
 
+        // visitedProbesValidatingReader() doesn't need to be registered
+        // (StandardDataRowSplitterReader calls its ItemStream methods)
+        step.streams = [firstPassTsvFileReader()]
+
         step
     }
-
-    @Bean
-    @JobScopeInterfaced
-    ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfFirstPassItemProcessors(
-            @Value("#{jobParameters['DATA_TYPE']}") String dataType) {
-        def processors = []
-        if (dataType == 'L') {
-            processors << calculateRawValueFromTheLogItemProcessor()
-        } else if (dataType != 'R') {
-            throw new IllegalArgumentException("Unsupported DATA_TYPE=${dataType}.")
-        }
-        processors << new NegativeDataPointWarningProcessor()
-
-        compositeOf(*processors)
-    }
-
 
     @Bean
     Step deleteHdData(CurrentAssayIdsReader currentAssayIdsReader) {
@@ -83,16 +63,17 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
     }
 
     @Bean
-    Step secondPass(ItemStreamReader secondPassMultipleItemsLineItemReader) {
+    Step secondPass() {
         TaskletStep step = steps.get('secondPass')
                 .chunk(dataFilePassChunkSize)
-                .reader(secondPassMultipleItemsLineItemReader)
+                .reader(secondPassReader())
                 .writer(dataWriter)
                 .processor(patientInjectionProcessor())
                 .listener(logCountsStepListener())
                 .listener(progressWriteListener())
                 .build()
 
+        step.streams = [secondPassDataRowSplitterReader()]
         step
     }
 
@@ -118,14 +99,7 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
         } else {
             throw new IllegalArgumentException("Unsupported DATA_TYPE=${dataType}.")
         }
-        processors << tripleStandardDataValueLogCalculationProcessor()
         compositeOf(*processors)
-    }
-
-    @Bean
-    @JobScope
-    TripleStandardDataValueLogCalculationProcessor tripleStandardDataValueLogCalculationProcessor() {
-        new TripleStandardDataValueLogCalculationProcessor()
     }
 
     @Bean
@@ -136,21 +110,40 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
 
     @Bean
     @StepScope
-    VisitedAnnotationsReadingValidator visitedProbesValidatingReader(
-            AbstractItemCountingItemStreamItemReader<FieldSet> tsvFileReader) {
-        new VisitedAnnotationsReadingValidator(delegate: tsvFileReader)
+    DataFileHeaderValidator dataFileHeaderValidator() {
+        new DataFileHeaderValidator()
     }
 
     @Bean
-    @StepScopeInterfaced
-    ItemStreamReader firstPassReader(
-            VisitedAnnotationsReadingValidator visitedProbesValidatingReader,
-            StandardMultipleVariablesPerSampleFieldSetMapper standardMultipleVariablesPerSampleFieldSetMapper
+    @JobScope
+    ItemStreamReader firstPassTsvFileReader() {
+        tsvFileReader(
+                dataFileResource(),
+                linesToSkip: 1,
+                saveHeader: dataFileHeaderValidator(),
+                saveState: true)
+    }
+
+    @Bean
+    @StepScope
+    VisitedAnnotationsReadingValidator visitedProbesValidatingReader() {
+        new VisitedAnnotationsReadingValidator(delegate: firstPassTsvFileReader())
+    }
+
+    @Bean
+    @StepScope
+    StandardDataRowSplitterReader firstPassDataRowSplitterReader(
+            @Value("#{jobParameters['DATA_TYPE']}") String dataType
     ) {
-        MultipleItemsLineItemReader reader = new MultipleItemsLineItemReader(
-                multipleItemsFieldSetMapper: standardMultipleVariablesPerSampleFieldSetMapper,
-                itemStreamReader: visitedProbesValidatingReader,
-        )
+        StandardDataRowSplitterReader reader = new StandardDataRowSplitterReader(
+                delegate: visitedProbesValidatingReader(),
+                dataPointClass: TripleStandardDataValue)
+
+        if (dataType == 'L') {
+            reader.earlyItemProcessor = calculateRawValueFromTheLogItemProcessor()
+        } else if (dataType != 'R') {
+            throw new IllegalArgumentException("Unsupported DATA_TYPE=${dataType}.")
+        }
 
         reader
     }
@@ -175,60 +168,36 @@ abstract class AbstractTypicalHdDataStepsConfig implements StepBuildingConfigura
     }
 
     @Bean
-    @StepScope
-    HeaderSavingLineCallbackHandler headerSavingLineCallbackHandler() {
-        new HeaderSavingLineCallbackHandler()
-    }
-
-    @Bean
-    @StepScope
-    HeaderParsingLineCallbackHandler headerParsingLineCallbackHandler(
-            StandardMultipleVariablesPerSampleFieldSetMapper standardMultipleVariablesPerSampleFieldSetMapper) {
-        new HeaderParsingLineCallbackHandler(
-                registeredSuffixes: standardMultipleVariablesPerSampleFieldSetMapper.fieldSetters.keySet(),
-                defaultSuffix: 'val'
-        )
-    }
-
-    @Bean
-    @StepScope
-    StandardMultipleVariablesPerSampleFieldSetMapper standardMultipleVariablesPerSampleFieldSetMapper() {
-        new StandardMultipleVariablesPerSampleFieldSetMapper()
-    }
-
-    @Bean
-    @StepScope
-    AbstractItemCountingItemStreamItemReader<FieldSet> tsvFileReader(
-            org.springframework.core.io.Resource dataFileResource,
-            HeaderParsingLineCallbackHandler headerParsingLineCallbackHandler) {
+    @JobScope
+    ItemStreamReader secondPassTsvFileReader() {
         tsvFileReader(
-                dataFileResource,
-                saveHeader: headerParsingLineCallbackHandler,
-                columnNames: 'auto',
+                dataFileResource(),
+                saveHeader: true,
                 linesToSkip: 1,
                 saveState: true)
     }
 
     @Bean
-    @StepScopeInterfaced
-    ItemStreamReader secondPassMultipleItemsLineItemReader(
-            AbstractItemCountingItemStreamItemReader<FieldSet> tsvFileReader,
-            StandardMultipleVariablesPerSampleFieldSetMapper standardMultipleVariablesPerSampleFieldSetMapper,
-            TripleStandardDataValueRowItemsProcessor tripleStandardDataValueRowItemsProcessor) {
-        new MultipleItemsLineItemReader(
-                multipleItemsFieldSetMapper: standardMultipleVariablesPerSampleFieldSetMapper,
-                itemStreamReader: tsvFileReader,
-                rowItemsProcessor: tripleStandardDataValueRowItemsProcessor
-        )
+    @JobScope
+    TripleDataValueWrappingReader secondPassReader() {
+        new TripleDataValueWrappingReader(delegate: secondPassDataRowSplitterReader())
     }
 
     @Bean
     @StepScope
-    TripleStandardDataValueRowItemsProcessor tripleStandardDataValueRowItemsProcessor(
+    StandardDataRowSplitterReader secondPassDataRowSplitterReader(
             ItemProcessor<TripleStandardDataValue, TripleStandardDataValue> compositeOfEarlyItemProcessors) {
-        new TripleStandardDataValueRowItemsProcessor(
-                itemsPreProcessor: compositeOfEarlyItemProcessors
-        )
+        new StandardDataRowSplitterReader(
+                delegate: secondPassTsvFileReader(),
+                dataPointClass: TripleStandardDataValue,
+                eagerLineListener: perDataRowLog2StatisticsListener(),
+                earlyItemProcessor: compositeOfEarlyItemProcessors)
+    }
+
+    @Bean
+    @JobScope
+    PerDataRowLog2StatisticsListener perDataRowLog2StatisticsListener() {
+        new PerDataRowLog2StatisticsListener()
     }
 
     @Bean

@@ -92,6 +92,7 @@ class InsertConceptsService {
                     c_columndatatype  : 'T',
                     c_operator        : 'LIKE',
                     c_dimcode         : it.path.toString(),
+                    c_comment         : comment,
                     c_tooltip         : it.path.toString(),
                     m_applied_path    : '@',
                     update_date       : now,
@@ -100,9 +101,6 @@ class InsertConceptsService {
                     sourcesystem_cd   : conceptTree.isStudyNode(it) ? studyId : null,
             ]
 
-            if (it.path.contains(topNode)) {
-                i2b2Row.c_comment = comment
-            }
             if (recordId) {
                 i2b2Row.record_id = -1
             }

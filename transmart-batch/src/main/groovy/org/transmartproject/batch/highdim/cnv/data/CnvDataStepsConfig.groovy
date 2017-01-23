@@ -3,15 +3,12 @@ package org.transmartproject.batch.highdim.cnv.data
 import groovy.util.logging.Slf4j
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.annotation.JobScope
-import org.springframework.batch.core.configuration.annotation.StepScope
 import org.springframework.batch.core.scope.context.JobSynchronizationManager
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.core.step.tasklet.TaskletStep
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.ItemStreamReader
 import org.springframework.batch.item.ItemWriter
-import org.springframework.batch.item.file.transform.FieldSet
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader
 import org.springframework.batch.item.validator.ValidatingItemProcessor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -19,8 +16,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.transmartproject.batch.batchartifacts.HeaderParsingLineCallbackHandler
-import org.transmartproject.batch.batchartifacts.HeaderSavingLineCallbackHandler
 import org.transmartproject.batch.batchartifacts.MultipleItemsLineItemReader
 import org.transmartproject.batch.batchartifacts.ValidationErrorMatcherBean
 import org.transmartproject.batch.beans.JobScopeInterfaced
@@ -55,11 +50,10 @@ class CnvDataStepsConfig implements StepBuildingConfigurationTrait {
     DatabaseImplementationClassPicker picker
 
     @Bean
-    Step firstPass(ItemProcessor cnvDataValueValidatingItemProcessor,
-                   ItemStreamReader cnvDataTsvFileReader) {
+    Step firstPass(ItemProcessor cnvDataValueValidatingItemProcessor) {
         TaskletStep step = steps.get('firstPass')
                 .chunk(dataFilePassChunkSize)
-                .reader(cnvDataTsvFileReader)
+                .reader(cnvDataTsvFileReader())
                 .processor(cnvDataValueValidatingItemProcessor)
                 .listener(logCountsStepListener())
                 .build()
@@ -101,11 +95,10 @@ class CnvDataStepsConfig implements StepBuildingConfigurationTrait {
 
     @Bean
     Step secondPass(ItemWriter<CnvDataValue> cnvDataWriter,
-                    ItemProcessor<CnvDataValue, CnvDataValue> compositeOfCnvSecondPassProcessors,
-                    ItemStreamReader cnvDataTsvFileReader) {
+                    ItemProcessor<CnvDataValue, CnvDataValue> compositeOfCnvSecondPassProcessors) {
         steps.get('secondPass')
                 .chunk(dataFilePassChunkSize)
-                .reader(cnvDataTsvFileReader)
+                .reader(cnvDataTsvFileReader())
                 .processor(compositeOfCnvSecondPassProcessors)
                 .writer(cnvDataWriter)
                 .listener(logCountsStepListener())
@@ -146,48 +139,11 @@ class CnvDataStepsConfig implements StepBuildingConfigurationTrait {
     }
 
     @Bean
-    @StepScope
-    HeaderSavingLineCallbackHandler headerSavingLineCallbackHandler() {
-        new HeaderSavingLineCallbackHandler()
-    }
-
-    @Bean
-    @StepScope
-    HeaderParsingLineCallbackHandler headerParsingLineCallbackHandler(
-            CnvDataMultipleVariablesPerSampleFieldSetMapper cnvSeqDataMultipleVariablesPerSampleFieldSetMapper) {
-        new HeaderParsingLineCallbackHandler(
-                registeredSuffixes: cnvSeqDataMultipleVariablesPerSampleFieldSetMapper.fieldSetters.keySet(),
-                defaultSuffix: 'flag'
-        )
-    }
-
-    @Bean
-    @StepScope
-    AbstractItemCountingItemStreamItemReader<FieldSet> itemStreamReader(
-            org.springframework.core.io.Resource dataFileResource,
-            HeaderParsingLineCallbackHandler headerParsingLineCallbackHandler) {
-        tsvFileReader(
-                dataFileResource,
-                linesToSkip: 1,
-                columnNames: 'auto',
-                saveHeader: headerParsingLineCallbackHandler,
-                saveState: true
-        )
-    }
-
-    @Bean
-    @StepScope
-    CnvDataMultipleVariablesPerSampleFieldSetMapper cnvDataMultipleVariablesPerSampleFieldSetMapper() {
-        new CnvDataMultipleVariablesPerSampleFieldSetMapper()
-    }
-
-    @Bean
     ItemStreamReader cnvDataTsvFileReader(
-            AbstractItemCountingItemStreamItemReader<FieldSet> itemStreamReader,
-            CnvDataMultipleVariablesPerSampleFieldSetMapper cnvDataMultipleVariablesPerSampleFieldSetMapper) {
+            CnvDataMultipleVariablesPerSampleFieldSetMapper cnvDataMultipleSamplesFieldSetMapper) {
         new MultipleItemsLineItemReader(
-                multipleItemsFieldSetMapper: cnvDataMultipleVariablesPerSampleFieldSetMapper,
-                itemStreamReader: itemStreamReader
+                resource: dataFileResource(),
+                multipleItemsFieldSetMapper: cnvDataMultipleSamplesFieldSetMapper
         )
     }
 

@@ -111,8 +111,7 @@ class RnaSeqDataCleanScenarioTests implements JobRunningTestTrait {
                     D.readcount,
                     D.normalized_readcount,
                     D.patient_id,
-                    D.log_normalized_readcount,
-                    D.zscore
+                    D.log_normalized_readcount
                 FROM
                     ${Tables.RNASEQ_DATA} D
                     INNER JOIN ${Tables.SUBJ_SAMPLE_MAP} S ON (D.assay_id = S.assay_id)
@@ -131,14 +130,12 @@ class RnaSeqDataCleanScenarioTests implements JobRunningTestTrait {
         long readcount = 899
         double normalizedReadcount = 193.288d
         double logValue = Math.log(normalizedReadcount) / Math.log(2d)
-        double zscore = 0.12
 
         assertThat r, allOf(
                 hasEntry(equalTo('readcount'), castingCloseTo(readcount, DELTA)),
                 hasEntry(equalTo('normalized_readcount'), castingCloseTo(normalizedReadcount, DELTA)),
                 hasEntry(equalTo('patient_id'), notNullValue()),
                 hasEntry(equalTo('log_normalized_readcount'), castingCloseTo(logValue, DELTA)),
-                hasEntry(equalTo('zscore'), castingCloseTo(zscore, DELTA)),
         )
     }
 

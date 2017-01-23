@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.Resource
 import org.transmartproject.batch.batchartifacts.DuplicationDetectionProcessor
-import org.transmartproject.batch.batchartifacts.IterableItemReader
 import org.transmartproject.batch.batchartifacts.LogCountsStepListener
 import org.transmartproject.batch.batchartifacts.PutInBeanWriter
 import org.transmartproject.batch.beans.AbstractJobConfiguration
@@ -37,14 +36,18 @@ import org.transmartproject.batch.clinical.variable.ColumnMappingValidator
 import org.transmartproject.batch.clinical.xtrial.GatherXtrialNodesTasklet
 import org.transmartproject.batch.clinical.xtrial.XtrialMapping
 import org.transmartproject.batch.clinical.xtrial.XtrialMappingWriter
-import org.transmartproject.batch.concept.*
+import org.transmartproject.batch.concept.ConceptPath
+import org.transmartproject.batch.concept.DeleteConceptCountsTasklet
+import org.transmartproject.batch.concept.InsertConceptCountsTasklet
+import org.transmartproject.batch.concept.oracle.OracleInsertConceptCountsTasklet
+import org.transmartproject.batch.concept.postgresql.PostgresInsertConceptCountsTasklet
+import org.transmartproject.batch.db.DatabaseImplementationClassPicker
 import org.transmartproject.batch.facts.ClinicalFactsRowSet
 import org.transmartproject.batch.facts.DeleteObservationFactTasklet
-import org.transmartproject.batch.patient.GatherCurrentPatientsReader
-import org.transmartproject.batch.patient.PatientSet
-import org.transmartproject.batch.support.ExpressionResolver
 import org.transmartproject.batch.support.JobParameterFileResource
 import org.transmartproject.batch.tag.TagsLoadJobConfiguration
+import org.transmartproject.batch.patient.GatherCurrentPatientsReader
+import org.transmartproject.batch.patient.PatientSet
 
 /**
  * Spring configuration for the clinical data job.
@@ -119,8 +122,8 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 // insertion of ancillary data
                 .next(stepOf(this.&getCreateSecureStudyTasklet))         //bio_experiment, search_secure_object
                 .next(stepOf(this.&getInsertTableAccessTasklet))
-                .next(wrapStepWithName('insertConceptCountsStep',
-                        insertConceptCountsStep(null)))
+                .next(stepOf('insertConceptCounts',
+                             insertConceptCountsTasklet(null, null)))    //patientDimensionInsert concept_counts rows
                 .build()
     }
 
@@ -244,7 +247,7 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
     @Bean
     Step rowProcessingStep() {
         steps.get('rowProcessingStep')
-                .chunk(clinicalJobRowProcessingCompletionPolicy())
+                .chunk(CHUNK_SIZE)
                 .reader(dataRowReader()) //read data
                 .processor(compositeOf(
                     wordReplaceProcessor(), //replace words, if such is configured
@@ -253,29 +256,10 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
                 .writer(compositeOf(
                     patientDimensionTableWriter,
                     conceptsTablesWriter,
-                    observationFactTableWriter,
-                    bitSetConceptCountsWriter(),
+                    observationFactTableWriter
                 ))
                 .listener(progressWriteListener())
-                .listener(clinicalJobRowProcessingCompletionPolicy())
                 .build()
-    }
-
-    @Bean
-    @StepScope
-    ClinicalJobRowProcessingCompletionPolicy clinicalJobRowProcessingCompletionPolicy() {
-        new ClinicalJobRowProcessingCompletionPolicy(maxCount: CHUNK_SIZE)
-    }
-
-    @Bean
-    BitSetConceptCountsWriter bitSetConceptCountsWriter() {
-        new BitSetConceptCountsWriter()
-    }
-
-    @Bean
-    @JobScope
-    BitSetConceptCounts bitSetConceptCounts() {
-        new BitSetConceptCounts()
     }
 
     @Bean
@@ -310,21 +294,15 @@ class ClinicalDataLoadJobConfiguration extends AbstractJobConfiguration {
 
     @Bean
     @JobScopeInterfaced
-    Step insertConceptCountsStep(ExpressionResolver expressionResolver) {
-        steps.get('insertConceptCountsStep')
-                .chunk(CHUNK_SIZE)
-                .reader(new IterableItemReader(
-                        name: 'conceptNodesFromTreeReader',
-                        expression: '@conceptTree.allStudyNodes',
-                        expressionResolver: expressionResolver,)) //read data
-                .writer(insertConceptCountsBitSetWriter())
-                .listener(progressWriteListener())
-                .build()
-    }
-
-    @Bean
-    InsertConceptCountsBitSetWriter insertConceptCountsBitSetWriter() {
-        new InsertConceptCountsBitSetWriter()
+    Tasklet insertConceptCountsTasklet(DatabaseImplementationClassPicker picker,
+                                       @Value("#{jobParameters['TOP_NODE']}") ConceptPath topNode) {
+        picker.instantiateCorrectClass(
+                OracleInsertConceptCountsTasklet,
+                PostgresInsertConceptCountsTasklet)
+                .with { InsertConceptCountsTasklet t ->
+            t.basePath = topNode
+            t
+        }
     }
 
     @Bean

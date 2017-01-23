@@ -1,3 +1,4 @@
 COLUMN_MAP_FILE=Cell-line_columns.txt
 WORD_MAP_FILE=Cell-line_wordmap.txt
 RECORD_EXCLUSION_FILE=x
+SECURITY_REQUIRED=N

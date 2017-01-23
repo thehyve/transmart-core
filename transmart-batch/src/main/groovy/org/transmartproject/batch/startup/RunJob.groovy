@@ -1,6 +1,5 @@
 package org.transmartproject.batch.startup
 
-import groovy.util.logging.Slf4j
 import org.springframework.batch.core.JobParameters
 import org.springframework.batch.core.converter.JobParametersConverter
 import org.springframework.batch.core.launch.support.CommandLineJobRunner
@@ -13,25 +12,15 @@ import java.nio.file.Paths
  * Entry point for the application.
  */
 @SuppressWarnings(['SystemExit', 'SystemErrPrint'])
-@Slf4j
 final class RunJob {
 
     public static final String DEFAULT_BATCHDB_PROPERTIES_LOCATION = 'file:./batchdb.properties'
-    public static final int SUCCESS_EXIT_CODE = 0
-    public static final int FAILURE_EXIT_CODE = 1
 
-    final OptionAccessor opts
+    OptionAccessor opts
 
     JobParameters finalJobParameters
 
     String jobName
-
-    CommandLineJobRunner commandLineJobRunner = new CommandLineJobRunner()
-
-    RunJob(OptionAccessor opts) {
-        this.opts = opts
-        ensurePropertySource()
-    }
 
     private final static String USAGE = '''transmart-batch-capsule.jar -p <params file>
     [ -d <param=value> | [ -d <param2=value2> | ... ]]
@@ -45,8 +34,7 @@ final class RunJob {
         cli.writer = new PrintWriter(System.err)
         cli.with {
             d args: 2, valueSeparator: '=', argName: 'param=value', 'override/supplement params file parameter'
-            p args: 1, argName: 'file location', 'specify params file'
-            f args: 1, argName: 'folder location', 'specify folder with params files'
+            p args: 1, argName: 'file location', 'specify params file', required: true
             c longOpt: 'config', args: 1, 'location of database configuration properties file ' +
                     "(default: $DEFAULT_BATCHDB_PROPERTIES_LOCATION)"
             j longOpt: 'jobIdentifier', args: 1, "the id or name of a job instance"
@@ -60,46 +48,44 @@ final class RunJob {
 
     static void main(String... args) {
         def runJob = createInstance(args)
+
         def exitCode = runJob.run()
-        System.exit exitCode
+
+        if (exitCode != 0) {
+            System.exit exitCode
+        }
     }
 
     static RunJob createInstance(String... args) {
         def cliBuilder = createCliBuilder()
         OptionAccessor opts = cliBuilder.parse(args)
-        RunJob runJobInstance = new RunJob(opts)
-        runJobInstance
-    }
-
-    private void ensurePropertySource() {
-        System.setProperty 'propertySource', batchPropertiesPath
+        if (!opts) {
+            System.exit 1
+        }
+        new RunJob(opts: opts)
     }
 
     int run() {
-        def jobsInitDetails = jobsStartupDetails
-        if (jobsInitDetails) {
-            log.info("Following params files found and parsed: ${jobsInitDetails}")
-        } else {
-            log.info("No params files found.")
-            return SUCCESS_EXIT_CODE
+        def propSource = batchPropertiesPath
+        if (!propSource) {
+            System.exit 1
         }
-        boolean hasFailure = jobsInitDetails.any { JobStartupDetails jobDetails ->
-            log.info("Start processing ${jobDetails}")
-            startJob(jobDetails) > SUCCESS_EXIT_CODE
-        }
+        System.setProperty 'propertySource', propSource
 
-        hasFailure ? FAILURE_EXIT_CODE : SUCCESS_EXIT_CODE
-    }
+        def jobInitializationData = this.jobStartupDetails
 
-    private int startJob(JobStartupDetails jobInitializationData) {
+        def runner = new CommandLineJobRunner()
         JobParametersConverter jobParametersConverter = getJobParametersConverterForJobDetails(jobInitializationData)
         finalJobParameters = jobParametersConverter.getJobParameters(null)
-        commandLineJobRunner.jobParametersConverter = jobParametersConverter
+        runner.jobParametersConverter = jobParametersConverter
 
         String jobIdentifier = calculateJobIdentifier(jobInitializationData.jobPath)
+        if (!jobIdentifier) {
+            System.exit 1
+        }
         jobName = jobInitializationData.jobPath.JOB_NAME
 
-        commandLineJobRunner.start(jobInitializationData.jobPath.name,
+        runner.start(jobInitializationData.jobPath.name,
                 jobIdentifier,
                 [] as String[] /* converter above takes care of params */,
                 (
@@ -137,30 +123,12 @@ final class RunJob {
         }
     }
 
-    List<Path> getParamsFilePaths() {
-        if (!opts.ps) {
-            return []
+    Path getParamsFilePath() {
+        Path path = Paths.get((String) opts.p)
+        if (!Files.isReadable(path) || !Files.isRegularFile(path)) {
+            throw new InvalidParametersFileException("'$path' is not a readable file")
         }
-        List<Path> paths = opts.ps.collect { Paths.get(it) }
-        paths.each { path ->
-            if (!Files.isReadable(path) || !Files.isRegularFile(path)) {
-                throw new InvalidParametersFileException("'$path' is not a readable file")
-            }
-        }
-        paths
-    }
-
-    List<Path> getParamsFolderPaths() {
-        if (!opts.fs) {
-            return []
-        }
-        List<Path> paths = opts.fs.collect { Paths.get(it) }
-        paths.each { path ->
-            if (!Files.isReadable(path) || !Files.isDirectory(path)) {
-                throw new InvalidParametersFileException("'$path' is not a readable folder")
-            }
-        }
-        paths
+        path
     }
 
     String calculateJobIdentifier(Class configurationClass) {
@@ -174,8 +142,9 @@ final class RunJob {
          */
         if (opts.r || opts.s || opts.a) {
             if (!opts.j) {
-                throw new IllegalStateException('The -j parameter must be specified ' +
+                System.err.println('The -j parameter must be specified ' +
                         'when the options -n, -s or -a are used')
+                null
             } else {
                 opts.j
             }
@@ -190,35 +159,21 @@ final class RunJob {
         }
     }
 
-    List<JobStartupDetails> getJobsStartupDetails() {
-        List<JobStartupDetails> result = []
-        Map<String, String> paramOverrides = parametersOverrides
-        List<Path> paramsFiles = paramsFilePaths
-        List<Path> paramsFolders = paramsFolderPaths
-
-        try {
-            result.addAll paramsFiles.collect { paramsFile ->
-                JobStartupDetails.fromFile(paramsFile, paramOverrides)
-            }
-            result.addAll paramsFolders.collectMany { paramsFolder ->
-                JobStartupDetails.fromFolder(paramsFolder, paramOverrides)
-            }
-
-            result.sort().unique()
-        } catch (InvalidParametersFileException e) {
-            throw new InvalidParametersFileException(e)
-        }
-    }
-
-    private Map<String, String> getParametersOverrides() {
+    JobStartupDetails getJobStartupDetails() {
         def ds = opts.ds
-        Map<String, String> paramOverrides = [:]
+        def paramOverrides = [:]
         if (ds) {
             for (int i = 0; i < ds.size(); i += 2) {
                 paramOverrides[ds[i]] = ds[i + 1]
             }
         }
 
-        paramOverrides
+        def paramsFile = paramsFilePath
+
+        try {
+            JobStartupDetails.fromFile(paramsFile, paramOverrides)
+        } catch (InvalidParametersFileException e) {
+            throw new InvalidParametersFileException(e)
+        }
     }
 }

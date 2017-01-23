@@ -1,27 +1,26 @@
 package org.transmartproject.batch.highdim.rnaseq.data
 
+import org.springframework.stereotype.Component
 import org.transmartproject.batch.batchartifacts.AbstractMultipleVariablesPerSampleFieldSetMapper
 
 /**
  * Implementation of {@link AbstractMultipleVariablesPerSampleFieldSetMapper} for {@link RnaSeqDataValue}
  */
+@Component
 class RnaSeqDataMultipleVariablesPerSampleFieldSetMapper
-        extends AbstractMultipleVariablesPerSampleFieldSetMapper<RnaSeqDataValue> {
+        extends AbstractMultipleVariablesPerSampleFieldSetMapper {
     @Override
-    RnaSeqDataValue newInstance(String annotation, String sampleCode) {
+    Object newInstance(String annotation, String sampleCode) {
         new RnaSeqDataValue(annotation: annotation, sampleCode: sampleCode)
     }
 
     final Map<String, Closure> fieldSetters =
             [
                     readcount          : { RnaSeqDataValue instance, String value ->
-                        instance.readCount = numberFormat.parse(value).doubleValue()
+                        instance.readCount = (value.trim() ?: null) as Double
                     },
                     normalizedreadcount: { RnaSeqDataValue instance, String value ->
-                        instance.value = numberFormat.parse(value).doubleValue()
-                    },
-                    zscore: { RnaSeqDataValue instance, String value ->
-                        instance.zscore = numberFormat.parse(value).doubleValue()
+                        instance.value = (value.trim() ?: null) as Double
                     },
             ]
 }
