@@ -1,0 +1,112 @@
+<!DOCTYPE html> 
+
+<html>
+
+<head>
+
+<style>
+</style>
+
+<title>Human GRCh37 :: Dalliance</title> 
+<script language="javascript" src="../build/dalliance-all.js"></script>
+
+<script language="javascript">
+  var b = new Browser({
+    chr:          '22',
+    viewStart:    30000000,
+    viewEnd:      30030000,
+    cookieKey:    'human-grc_h37',
+
+    coordSystem: {
+      speciesName: 'Human',
+      taxon: 9606,
+      auth: 'GRCh',
+      version: '37',
+      ucscName: 'hg19',
+    },
+
+    chains: {
+      hg18ToHg19: new Chainset('http://www.derkholm.net:8080/das/hg18ToHg19/', 'NCBI36', 'GRCh37',
+                               {
+                                  speciesName: 'Human',
+                                  taxon: 9606,
+                                  auth: 'GRCh',
+                                  version: 36
+                               })
+    },
+
+    sources:     [{name:                 'Genome',
+                   twoBitURI:            'http://www.biodalliance.org/datasets/hg19.2bit',
+                   tier_type:            'sequence',
+                   provides_entrypoints: true,
+                   pinned: true
+                  },
+                   {name: 'GENCODE',
+                        bwgURI: 'http://www.biodalliance.org/datasets/gencode.bb',
+                        stylesheet_uri: 'http://www.biodalliance.org/stylesheets/gencode.xml',
+                        collapseSuperGroups: true,
+                        trixURI: 'http://www.biodalliance.org/datasets/geneIndex.ix'},
+                    {name: 'Repeats',
+                    desc: 'Repeat annotation from RepeatMasker', 
+                    bwgURI: 'http://www.biodalliance.org/datasets/repeats.bb',
+                    stylesheet_uri: 'http://www.biodalliance.org/stylesheets/bb-repeats.xml',
+                    forceReduction: -1},
+                  {name: 'SNPs',
+                   tier_type: 'ensembl',
+                   species:'human',
+                   type: 'variation',
+                   disabled: true,
+                   featureInfoPlugin: function(f, info) {
+                    if (f.id) {
+                      info.add('SNP', makeElement('a', f.id, {href: 'http://www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + f.id, target: '_newtab'}));
+                    }
+                   }
+                  },
+                  {name: 'CpG',
+                   desc: 'CpG observed/expected ratio',
+                   uri: 'http://www.derkholm.net:8080/das/hg19comp/',
+                   // stylesheet_uri: 'http://www.derkholm.net/dalliance-test/stylesheets/cpg.xml'
+                   quantLeapThreshold: 0.8,
+                   forceReduction: -1,
+                   style:                [{type: 'cpgoe',
+                                           style: {glyph: 'LINEPLOT',
+                                                   FGCOLOR: 'green', HEIGHT: '50', MIN: 0, MAX: 1.2}}]
+                  },
+                  {name:                 'BWG test',
+                   bwgURI:               'http://www.biodalliance.org/datasets/spermMethylation.bw',
+                   stylesheet_uri:       'http://www.ebi.ac.uk/das-srv/genomicdas/das/batman_seq_SP/stylesheet',
+                   mapping:              'hg18ToHg19',
+                   quantLeapThreshold: 80
+                  },
+                ],
+
+    setDocumentTitle: true,
+    uiPrefix: '../',
+
+    fullScreen: true,
+
+    hubs: [
+            'http://www.biodalliance.org/datasets/testhub/hub.txt',
+            'http://ftp.ebi.ac.uk/pub/databases/ensembl/encode/integration_data_jan2011/hub.txt'
+           ]
+  });
+  
+  
+  b.addFeatureInfoPlugin(function(f, info) {
+      info.add('Testing', 'This is a test!');
+  });
+
+  b.addViewListener(function(chr, min, max) {
+    var link = document.getElementById('enslink');
+    link.href = 'http://www.ensembl.org/Homo_sapiens/Location/View?r=' + chr + ':' + min + '-' + max;
+  });
+
+</script>
+</head>
+
+<body>
+<a href='http://www.ensembl.org/' id='enslink' target='_newtab'>Link to Ensembl</a>
+<div id='svgHolder'>Failed to load the Biodalliance genome browser.  Have you run "gulp"?</div>
+</body>
+</html>
+
