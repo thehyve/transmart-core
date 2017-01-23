@@ -1,0 +1,37 @@
+<plugin name='transmart-legacy-db' version='1.2.2-SNAPSHOT' grailsVersion='2.3 &gt; *'>
+  <author>Florian Guitton</author>
+  <authorEmail>f.guitton@imperial.ac.uk</authorEmail>
+  <title>Transmart Legacy DB Plugin</title>
+  <description>Brief summary/description of the plugin.
+</description>
+  <documentation>http://grails.org/plugin/transmart-legacy-db</documentation>
+  <type>TransmartLegacyDbGrailsPlugin</type>
+  <resources>
+    <resource>BioBankSample</resource>
+    <resource>NewsUpdate</resource>
+    <resource>com.recomdata.transmart.domain.i2b2.AsyncJob</resource>
+    <resource>com.recomdata.transmart.plugin.Plugin</resource>
+    <resource>com.recomdata.transmart.plugin.PluginModule</resource>
+    <resource>com.thomsonreuters.lsps.transmart.UserSettings</resource>
+    <resource>de.DeSNPInfo</resource>
+    <resource>de.DeVariantDataSet</resource>
+    <resource>de.DeVariantSubjectDetail</resource>
+    <resource>de.DeVariantSubjectIdx</resource>
+    <resource>i2b2.Comparison</resource>
+    <resource>i2b2.Concept</resource>
+    <resource>i2b2.GeneWithSnp</resource>
+    <resource>i2b2.OntNode</resource>
+    <resource>i2b2.OntNodeTag</resource>
+    <resource>i2b2.PatientTrial</resource>
+    <resource>i2b2.SampleInfo</resource>
+    <resource>i2b2.SnpDataByPatient</resource>
+    <resource>i2b2.SnpDataByProbe</resource>
+    <resource>i2b2.SnpDataset</resource>
+    <resource>i2b2.SnpDatasetByPatient</resource>
+    <resource>i2b2.SnpDatasetListByProbe</resource>
+    <resource>i2b2.SnpInfo</resource>
+    <resource>i2b2.SnpProbeSortedDef</resource>
+    <resource>i2b2.StringLineReader</resource>
+    <resource>i2b2.SubjectSnpDataset</resource>
+  </resources>
+</plugin>
