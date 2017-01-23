@@ -20,7 +20,6 @@
 package org.transmartproject.db.querytool
 
 import groovy.xml.MarkupBuilder
-import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.*
 
@@ -56,28 +55,6 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
                     throw new InvalidRequestException(
                             'Invalid XML query definition constraint', err)
                 }
-            }
-
-            if (item.constrain_by_omics_value.size()) {
-                try {
-                    def constrain = item.constrain_by_omics_value
-                    data.constraintByOmicsValue = new ConstraintByOmicsValue(
-                            omicsType: ConstraintByOmicsValue.OmicsType.forValue(
-                                    constrain.omics_value_type?.toString()),
-                            operator: ConstraintByOmicsValue.Operator.forValue(
-                                    constrain.omics_value_operator.toString()),
-                            projectionType: constrain.omics_projection_type?.toString(),
-                            selector: constrain.omics_selector?.toString(),
-                            property: constrain.omics_property?.toString(),
-                            constraint: constrain.omics_value_constraint?.toString()
-                    )
-                } catch (err) {
-                    throw new InvalidRequestException(
-                            'Invalid XML query definition highdimension value constraint', err)
-                }
-                if (!Projection.prettyNames.keySet().contains(data.constraintByOmicsValue.projectionType))
-                    throw new InvalidRequestException('Invalid projection type in highdimension value constraint: ' +
-                    data.constraintByOmicsValue.projectionType + '. Expected one of ' + Projection.prettyNames.keySet() + '.')
             }
 
             new Item(data)
@@ -127,18 +104,6 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
                                     value_operator itemArg.constraint.operator.value
                                     value_constraint itemArg.constraint.constraint
                                     value_type itemArg.constraint.valueType.name()
-                                }
-                            }
-
-                            if (itemArg.constraintByOmicsValue) {
-                                def constrain = itemArg.constraintByOmicsValue
-                                constrain_by_omics_value {
-                                    omics_value_operator constrain.operator.value
-                                    omics_value_constraint constrain.constraint
-                                    omics_value_type constrain.omicsType.value
-                                    omics_selector constrain.selector
-                                    omics_property constrain.property
-                                    omics_projection_type constrain.projectionType
                                 }
                             }
                         }

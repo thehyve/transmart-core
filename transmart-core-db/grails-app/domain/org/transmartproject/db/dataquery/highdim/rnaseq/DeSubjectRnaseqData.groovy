@@ -42,8 +42,7 @@ class DeSubjectRnaseqData implements RnaSeqValues, Serializable {
 
     static belongsTo = [
             region: DeChromosomalRegion,
-            assay:  DeSubjectSampleMapping,
-            patient: PatientDimension
+            assay:  DeSubjectSampleMapping
     ]
 
     static mapping = {
@@ -60,7 +59,6 @@ class DeSubjectRnaseqData implements RnaSeqValues, Serializable {
         normalizedReadcount    column: 'normalized_readcount'
         logNormalizedReadcount column: 'log_normalized_readcount'
         zscore                 column: 'zscore'
-        patient                column: 'patient_id'
 
         // this duplicate mapping is needed due to a Criteria bug.
         // see https://forum.hibernate.org/viewtopic.php?f=1&t=1012372

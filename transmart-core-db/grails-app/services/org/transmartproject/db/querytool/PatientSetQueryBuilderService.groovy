@@ -19,21 +19,16 @@
 
 package org.transmartproject.db.querytool
 
-import org.apache.commons.lang.StringEscapeUtils
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.querytool.ConstraintByOmicsValue
 import org.transmartproject.core.querytool.ConstraintByValue
-import org.transmartproject.core.querytool.HighDimensionFilterType
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.ontology.MetadataSelectQuerySpecification
 import org.transmartproject.db.user.User
-
-import java.util.regex.Pattern
 
 import static org.transmartproject.core.querytool.ConstraintByValue.Operator.*
 import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
@@ -41,9 +36,8 @@ import static org.transmartproject.db.support.DatabasePortabilityService.Databas
 class PatientSetQueryBuilderService {
 
     def conceptsResourceService
+
     def databasePortabilityService
-    def highDimensionResourceService
-    def i2b2HelperService
 
     String buildPatientIdListQuery(QueryDefinition definition,
                                    User user = null)
@@ -68,7 +62,7 @@ class PatientSetQueryBuilderService {
                             "$it.conceptKey", nsr)
                 }
 
-                doItem(term, it, user)
+                doItem(term, it.constraint, user)
             }
             /*
              * itemPredicates are similar to this example:
@@ -165,45 +159,34 @@ class PatientSetQueryBuilderService {
     ]
 
     private String doItem(MetadataSelectQuerySpecification term,
-                          Item item,
+                          ConstraintByValue constraint,
                           User user) {
         /* constraint represented by the ontology term */
         def clause = generateObservationFactConstraint(user, term)
-        def conceptcd_subclause = clause
+
         /* additional (and optional) constraint by value */
-        def constraint = item.constraint
-        def omics_value_constraint = item.constraintByOmicsValue
-        if (constraint) {
-            if (constraint.valueType == ConstraintByValue.ValueType.NUMBER) {
-                def spec = NUMBER_QUERY_MAPPING[constraint.operator]
-                def constraintValue = doConstraintNumber(constraint.operator,
-                        constraint.constraint)
+        if (!constraint) {
+            return clause
+        }
+        if (constraint.valueType == ConstraintByValue.ValueType.NUMBER) {
+            def spec = NUMBER_QUERY_MAPPING[constraint.operator]
+            def constraintValue = doConstraintNumber(constraint.operator,
+                    constraint.constraint)
 
-                def predicates = spec.collect {
-                    "valtype_cd = 'N' AND nval_num ${it[0]} $constraintValue AND " +
-                            "tval_char " + (it[1].size() == 1
-                            ? "= '${it[1][0]}'"
-                            : "IN (${it[1].collect { "'$it'" }.join ', '})")
-                }
-
-                clause += " AND (" + predicates.collect { "($it)" }.join(' OR ') + ")"
-            } else if (constraint.valueType == ConstraintByValue.ValueType.FLAG) {
-                clause += " AND (valueflag_cd = ${doConstraintFlag(constraint.constraint)})"
+            def predicates = spec.collect {
+                "valtype_cd = 'N' AND nval_num ${it[0]} $constraintValue AND " +
+                        "tval_char " + (it[1].size() == 1
+                                        ? "= '${it[1][0]}'"
+                                        : "IN (${it[1].collect { "'$it'" }.join ', '})")
             }
+
+            clause += " AND (" + predicates.collect { "($it)" }.join(' OR ') + ")"
+        } else if (constraint.valueType == ConstraintByValue.ValueType.FLAG) {
+            clause += " AND (valueflag_cd = ${doConstraintFlag(constraint.constraint)})"
+        } else {
+            throw new InvalidRequestException('Unexpected value constraint type')
         }
 
-        if (omics_value_constraint) {
-            def resource = highDimensionResourceService.getHighDimDataTypeResourceFromConcept(item.conceptKey)
-
-            if (resource != null) {
-                def distribution = resource.getDistribution(omics_value_constraint, item.conceptKey, null)
-                def patient_ids = distribution.keySet()
-                clause += "AND patient_num IN (" + patient_ids.collect {it.toString()}.join(",") + ")"
-            }
-            else {
-                log.warn("No implementation exists for building a patient set query for " + resource.getHighDimensionFilterType() + " data.")
-            }
-        }
         clause
     }
 

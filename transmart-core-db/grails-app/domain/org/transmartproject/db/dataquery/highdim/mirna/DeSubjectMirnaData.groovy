@@ -21,7 +21,6 @@ package org.transmartproject.db.dataquery.highdim.mirna
 
 import groovy.transform.EqualsAndHashCode
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
-import org.transmartproject.db.i2b2data.PatientDimension
 
 @EqualsAndHashCode(includes = 'assay,probe')
 class DeSubjectMirnaData implements Serializable {
@@ -40,7 +39,6 @@ class DeSubjectMirnaData implements Serializable {
     static belongsTo = [
             assay: DeSubjectSampleMapping,
             probe: DeQpcrMirnaAnnotation,
-            patient: PatientDimension
     ]
 
 
@@ -50,7 +48,6 @@ class DeSubjectMirnaData implements Serializable {
 
         assay   column: 'assay_id'
         probe   column: 'probeset_id'
-        patient column: 'patient_id'
 
         // irrelevant
         //patient column: 'patient_id'

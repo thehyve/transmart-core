@@ -73,8 +73,5 @@ modules = {
         resource url:"/js/geneprint/main-boilerplate.js"
         resource url:"/js/plugin/Geneprint.js"
     }
-    rnaseq_dge {
-        resource url:"/js/plugin/DgeRNASeq.js"
-    }
 }
 

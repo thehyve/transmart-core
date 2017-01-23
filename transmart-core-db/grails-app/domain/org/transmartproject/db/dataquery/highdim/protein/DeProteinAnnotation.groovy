@@ -26,7 +26,6 @@ class DeProteinAnnotation {
     String   peptide
     String   uniprotId
     String   uniprotName
-    String   gplId
 
     String   chromosome
     Long     startBp
@@ -46,8 +45,8 @@ class DeProteinAnnotation {
         table    schema:    'deapp'
         id       generator: 'assigned'
         platform column:    'gpl_id'
-        gplId    insertable: false, updateable: false
-        version  false
+
+        version   false
     }
 
     static constraints = {

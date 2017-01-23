@@ -46,8 +46,7 @@ class DeSubjectAcghData implements AcghValues, Serializable {
 
     static belongsTo = [
             region: DeChromosomalRegion,
-            assay:  DeSubjectSampleMapping,
-            patient: PatientDimension
+            assay:  DeSubjectSampleMapping
     ]
 
     static transients = ['copyNumberState']
