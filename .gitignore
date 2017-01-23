@@ -1,0 +1,57 @@
+# IDE support files
+*/.classpath
+*/.launch
+*/.project
+*/.settings
+*/*.launch
+*/*.tmproj
+*/ivy*
+*/eclipse*
+*/*.iml
+
+# eclipse generated files
+**/.settings
+**/.classpath
+**/.project
+
+# default HSQL database files for production mode
+*/prodDb.*
+
+# general HSQL database files
+*Db.properties
+*Db.script
+
+# grails generate files
+*/plugin.xml
+
+# logs
+*/stacktrace.log
+*/test/reports
+*/logs
+/biomart-domain/*.log
+/search-domain/*.log
+/transmart-java/*.log
+
+# project release file
+*/*.war
+
+# plugin release file
+*/*.zip
+*/*.zip.sha1
+
+# older plugin install locations
+*/plugins
+*/web-app/plugins
+*/web-app/WEB-INF/classes
+
+# "temporary" build files
+/transmart-java/eclipse-target
+/transmart-java/target
+/search-domain/eclipse-target
+/search-domain/target
+/biomart-domain/eclipse-target
+/biomart-domain/target
+
+# other
+*/System.out
+*/*.iws

@@ -1,0 +1,29 @@
+language: groovy
+
+jdk:
+    - oraclejdk7
+
+before_install:
+    - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
+    - source ~/ts-travis/init.sh
+    - source ~/ts-travis/grails_inline.sh
+
+install:
+    - cd biomart-domain
+    - make_inline_dependency ../transmart-java
+    - cd -
+    - cd search-domain
+    - make_inline_dependency ../transmart-java
+    - make_inline_dependency ../biomart-domain
+    - cd -
+
+script:
+    - cd transmart-java
+    - grails package --non-interactive --stacktrace
+    - cd -
+    - cd biomart-domain
+    - grails package --non-interactive --stacktrace
+    - cd -
+    - cd search-domain
+    - grails package --non-interactive --stacktrace
+    - cd -
