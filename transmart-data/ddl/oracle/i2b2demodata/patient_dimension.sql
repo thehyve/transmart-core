@@ -62,3 +62,10 @@ ALTER TRIGGER "I2B2DEMODATA"."TRG_PATIENT_DIMENSION" ENABLE;
 CREATE INDEX "I2B2DEMODATA"."IDX_PD_SOURCESYSTEMCD_PNUM" ON "I2B2DEMODATA"."PATIENT_DIMENSION" ("SOURCESYSTEM_CD", "PATIENT_NUM")
 TABLESPACE "TRANSMART" ;
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.patient_dimension IS 'Table holds patients.';
+
+COMMENT ON COLUMN patient_dimension.patient_num IS 'Primary key. Id of the patient.';
+COMMENT ON COLUMN patient_dimension.sex_cd IS 'One of [male, female, unknown].';

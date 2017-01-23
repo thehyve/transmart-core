@@ -28,3 +28,11 @@ LOB ("MODIFIER_BLOB") STORE AS BASICFILE (
 CREATE INDEX "I2B2DEMODATA"."MD_IDX_UPLOADID" ON "I2B2DEMODATA"."MODIFIER_DIMENSION" ("UPLOAD_ID")
 TABLESPACE "TRANSMART" ;
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.modifier_dimension IS 'Table holds the modifiers on an observation. Used to link to highdim data and samples';
+
+COMMENT ON COLUMN modifier_dimension.modifier_path IS 'Primary key. The path that uniquely identifies a modifier.';
+COMMENT ON COLUMN modifier_dimension.modifier_cd IS 'The code that is used to refer to the modifier from obervation_fact. However, it is nullable.';
+COMMENT ON COLUMN modifier_dimension.name_char IS 'The name of the modifier.';

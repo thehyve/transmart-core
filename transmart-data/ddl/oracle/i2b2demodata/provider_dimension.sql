@@ -32,3 +32,11 @@ TABLESPACE "TRANSMART" ;
 CREATE INDEX "I2B2DEMODATA"."PD_IDX_NAME_CHAR" ON "I2B2DEMODATA"."PROVIDER_DIMENSION" ("PROVIDER_ID", "NAME_CHAR")
 TABLESPACE "TRANSMART" ;
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.provider_dimension IS 'Table that holds providers, e.g., physicians.';
+
+COMMENT ON COLUMN provider_dimension.provider_id IS 'Primary key.';
+COMMENT ON COLUMN provider_dimension.provider_path IS 'Primary key. A path that identifies a provider.';
+COMMENT ON COLUMN provider_dimension.name_char IS 'The name of the provider.';
