@@ -1,0 +1,22 @@
+language: groovy
+sudo: false
+
+jdk:
+    - oraclejdk7
+
+before_install:
+    - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
+    - source ~/ts-travis/init.sh
+    - source ~/ts-travis/grails_inline.sh
+    - source ~/ts-travis/maven_dep.sh
+
+install:
+    - maybe_build_maven_dep $(travis_get_owner)/transmart-core-api core-api
+    - maybe_make_inline_grails_dep $(travis_get_owner)/transmart-core-db core-db . transmart-core-db-tests
+
+script:
+    - grails refresh-dependencies --non-interactive
+    - CLOVER=1 grails test-app --non-interactive --stacktrace
+
+after_script:
+    - bash <(curl -s https://codecov.io/bash)

@@ -1,0 +1,8 @@
+{
+    "url": "http://localhost:8080/transmart-rest-api/studies/study1/concepts/ROOT",
+    "output": {
+        "name": "study1",
+        "fullName": "\\foo\\study1\\",
+        "key": "\\\\i2b2 main\\foo\\study1\\"
+    }
+}
