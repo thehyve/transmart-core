@@ -1,0 +1,3 @@
+concept_key	tag_title	tag_description	index
+\	TITLE	Human Chronic Obstructive Pulmonary Disorder (COPD) Biomarker	2
+\Endpoints\FEV1	WEB_REF	http://en.wikipedia.org/wiki/FEV1/FVC_ratio	3

@@ -1,0 +1,5 @@
+Filename	Category Code	Column number	Data label	Data Label Source	Control Vocab Cd
+Cell-line_clinical.txt	Subjects	1	SUBJ_ID
+Cell-line_clinical.txt	Characteristics	2	Race
+Cell-line_clinical.txt	Characteristics	3	Age
+Cell-line_clinical.txt	Characteristics	4	Gender

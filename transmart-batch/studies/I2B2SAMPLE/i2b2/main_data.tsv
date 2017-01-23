@@ -1,0 +1,4 @@
+START_DATE	END_DATE	PATIENT_ID	PROVIDER_ID	VISIT_ID	DUMMY	TEXT	BLOB	NUMBER	NLP	SEX	PATIENT_BLOB	LANGUAGE	STATEZIPCITY_PATH	PRIN_DIAG_1	PRIN_DIAG_2
+2015-03-30T16:21:23.922+02:00	2015-03-30T17:00:00+02:00	patient 1	provider 1	visit 1	dummy 1	text of patient 1	my blob	>5.00001		male	Patient 1 blob	DEM|RELIGION:agnostic	statezipcity_path of patient 1		diag 1-2
+2014-03-15T01:00:00+01:00	2015-03-31T18:00:00+02:00	patient 2	provider 1	visit 2	dummy 2	text of patient 2		<=-4.000	<a/>	female		DEM|RELIGION:anglican	statezipcity_path of patient 2	diag 2-1	diag 2-2
+2014-03-17T23:59:59.999+01:00		patient 3			dummy 3	text of patient 3		15	<a>to be replaced by null</a>	male					

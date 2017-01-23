@@ -1,0 +1,4 @@
+DATA_FILE_PREFIX=expression_data.tsv
+MAP_FILENAME=expression_subject_sample_mapping.tsv
+SKIP_UNMAPPED_DATA=Y
+ZERO_MEANS_NO_INFO=Y

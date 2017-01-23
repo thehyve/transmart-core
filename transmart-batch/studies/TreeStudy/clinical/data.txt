@@ -1,0 +1,4 @@
+Subjects	age	gender	visit	treatment	respons	map
+paper001	45	Female	week 1	CPO	Pos	1
+paper002	30	Male	week 2	BZE	Pos	2
+paper003	47	Female	week 1	CPO	Pos	2

@@ -1,0 +1,3 @@
+file	column	from	to
+data.txt	7	1	One
+data.txt	7	2	Two

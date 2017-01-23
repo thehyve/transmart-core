@@ -1,0 +1,5 @@
+DATA_FILE_PREFIX=mirna_data.tsv
+MAP_FILENAME=mirna_subject_sample_mapping.tsv
+#MIRNA_TYPE=MIRNA_QPCR
+DATA_TYPE=L
+SRC_LOG_BASE=2

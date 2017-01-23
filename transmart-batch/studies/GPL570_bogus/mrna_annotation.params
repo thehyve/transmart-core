@@ -1,0 +1,4 @@
+PLATFORM=GPL570_bogus
+TITLE="Affymetrix Human Genome U133A 2.0 Array"
+ORGANISM="Homo Sapiens"
+ANNOTATIONS_FILE=GPL570_simplified.tsv

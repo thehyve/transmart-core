@@ -1,0 +1,69 @@
+STUDY_ID	SUBJ_ID	Dataset Type	Prediction Result based on CRP	Prediction Result based on EULAR (CRP)	Treatment	Sex	Race	Age	Response to Standard MTX Treatment	Disease	ACR Score (The American college of Rheumatology criteria)	Inflammation Status at Week 14	EULAR Response based on DAS28 (CRP)	EULAR Response based on DAS28 (ESR)	3-variables EULAR Response based on DAS28 (CRP)	3-variables EULAR Response based on DAS28 (ESR)
+GSE20690	NI1	Discovery			Infliximab	Female	Asian	53	Resistant	Rheumatoid Arthritis	20	No Inflammation (CRP<=0.3)	Moderate	Moderate	Good	Moderate
+GSE20690	NI10	Discovery			Infliximab	Female	Asian	46	Resistant	Rheumatoid Arthritis	0	No Inflammation (CRP<=0.3)	No	No	No	No
+GSE20690	NI11	Discovery			Infliximab	Female	Asian	67	Resistant	Rheumatoid Arthritis	70	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI12	Discovery			Infliximab	Female	Asian	59	Resistant	Rheumatoid Arthritis	0	No Inflammation (CRP<=0.3)	Good	Good	Good	Moderate
+GSE20690	NI13	Discovery			Infliximab	Male	Asian	37	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Moderate	Good	Moderate	Good
+GSE20690	NI14	Discovery			Infliximab	Female	Asian	43	Resistant	Rheumatoid Arthritis	20	No Inflammation (CRP<=0.3)	Moderate	Good	Moderate	Good
+GSE20690	NI15	Discovery			Infliximab	Female	Asian	40	Resistant	Rheumatoid Arthritis	20	No Inflammation (CRP<=0.3)	Moderate	Moderate	Moderate	Moderate
+GSE20690	NI16	Discovery			Infliximab	Female	Asian	46	Resistant	Rheumatoid Arthritis	0	No Inflammation (CRP<=0.3)	Moderate	No	Moderate	No
+GSE20690	NI17	Discovery			Infliximab	Female	Asian	67	Resistant	Rheumatoid Arthritis		No Inflammation (CRP<=0.3)				
+GSE20690	NI18	Discovery			Infliximab	Female	Asian	58	Resistant	Rheumatoid Arthritis	0	No Inflammation (CRP<=0.3)	Moderate	Moderate	Moderate	Moderate
+GSE20690	NI19	Discovery			Infliximab	Female	Asian	69	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Good	Good	Good	Moderate
+GSE20690	NI2	Discovery			Infliximab	Female	Asian	63	Resistant	Rheumatoid Arthritis	0	No Inflammation (CRP<=0.3)	Moderate	Moderate	Good	Good
+GSE20690	NI20	Discovery			Infliximab	Female	Asian	46	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Moderate	Moderate	Moderate	Moderate
+GSE20690	NI21	Discovery			Infliximab	Female	Asian	55	Resistant	Rheumatoid Arthritis	70	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI22	Discovery			Infliximab	Male	Asian	51	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI23	Discovery			Infliximab	Female	Asian	39	Resistant	Rheumatoid Arthritis	20	No Inflammation (CRP<=0.3)	Moderate	Moderate	Moderate	Moderate
+GSE20690	NI24	Discovery			Infliximab	Male	Asian	57	Resistant	Rheumatoid Arthritis	70	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI25	Discovery			Infliximab	Female	Asian	62	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Moderate	Moderate	Moderate	Moderate
+GSE20690	NI26	Discovery			Infliximab	Female	Asian	47	Resistant	Rheumatoid Arthritis		No Inflammation (CRP<=0.3)				
+GSE20690	NI27	Discovery			Infliximab	Female	Asian	31	Resistant	Rheumatoid Arthritis	70	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI28	Discovery			Infliximab	Male	Asian	52	Resistant	Rheumatoid Arthritis	20	No Inflammation (CRP<=0.3)	Moderate	No	Moderate	No
+GSE20690	NI29	Validation	True Positive		Infliximab	Female	Asian	59	Resistant	Rheumatoid Arthritis		No Inflammation (CRP<=0.3)				
+GSE20690	NI3	Discovery			Infliximab	Female	Asian	54	Resistant	Rheumatoid Arthritis	70	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI30	Validation	True Positive		Infliximab	Female	Asian	63	Resistant	Rheumatoid Arthritis		No Inflammation (CRP<=0.3)			No	Moderate
+GSE20690	NI31	Validation	True Positive	True Positive	Infliximab	Female	Asian	58	Resistant	Rheumatoid Arthritis	70	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI32	Validation	True Positive	True Positive	Infliximab	Female	Asian	57	Resistant	Rheumatoid Arthritis	0	No Inflammation (CRP<=0.3)	Moderate	Moderate	Moderate	Good
+GSE20690	NI33	Validation	True Positive	True Positive	Infliximab	Female	Asian	72	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI34	Validation	True Positive	True Positive	Infliximab	Female	Asian	44	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Moderate		Moderate	
+GSE20690	NI35	Validation	True Positive	True Positive	Infliximab	Female	Asian	59	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Moderate	Moderate	Moderate	Moderate
+GSE20690	NI36	Validation	False Negative	True Negative	Infliximab	Female	Asian	62	Resistant	Rheumatoid Arthritis	0	No Inflammation (CRP<=0.3)	No	No	No	No
+GSE20690	NI37	Validation	True Positive	True Positive	Infliximab	Male	Asian	58	Resistant	Rheumatoid Arthritis	70	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI38	Validation	True Positive	True Positive	Infliximab	Female	Asian	62	Resistant	Rheumatoid Arthritis	0	No Inflammation (CRP<=0.3)	Moderate	Moderate	Good	Moderate
+GSE20690	NI39	Validation	True Positive	True Positive	Infliximab	Female	Asian	57	Resistant	Rheumatoid Arthritis	70	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI4	Discovery			Infliximab	Female	Asian	39	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI40	Validation	False Negative	False Negative	Infliximab	Female	Asian	59	Resistant	Rheumatoid Arthritis	20	No Inflammation (CRP<=0.3)	Moderate	Moderate	Moderate	Moderate
+GSE20690	NI41	Validation	True Positive	True Positive	Infliximab	Female	Asian	63	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI42	Validation	True Positive	True Positive	Infliximab	Female	Asian	31	Resistant	Rheumatoid Arthritis	70	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	NI43	Validation	False Negative	False Negative	Infliximab	Female	Asian	49	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Good	Moderate	Moderate	Moderate
+GSE20690	NI5	Discovery			Infliximab	Female	Asian	46	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Good	Good	Good	Moderate
+GSE20690	NI6	Discovery			Infliximab	Female	Asian	64	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Moderate	Moderate	Moderate	Moderate
+GSE20690	NI7	Discovery			Infliximab	Female	Asian	67	Resistant	Rheumatoid Arthritis	50	No Inflammation (CRP<=0.3)	Moderate	Moderate	Moderate	Moderate
+GSE20690	NI8	Discovery			Infliximab	Female	Asian	54	Resistant	Rheumatoid Arthritis	20	No Inflammation (CRP<=0.3)	Good		Good	
+GSE20690	NI9	Discovery			Infliximab	Male	Asian	64	Resistant	Rheumatoid Arthritis	70	No Inflammation (CRP<=0.3)	Good	Good	Good	Good
+GSE20690	RI1	Discovery			Infliximab	Female	Asian	37	Resistant	Rheumatoid Arthritis	70	Residual Inflammation with Consistent Decreasing (CRP>0.3)	Moderate	Good	Moderate	Moderate
+GSE20690	RI10	Discovery			Infliximab	Female	Asian	66	Resistant	Rheumatoid Arthritis		Residual Inflammation without Decreasing Trend (CRP>0.3)	No	No	No	No
+GSE20690	RI11	Discovery			Infliximab	Female	Asian	51	Resistant	Rheumatoid Arthritis	0	Residual Inflammation without Decreasing Trend (CRP>0.3)	No	No	No	No
+GSE20690	RI12	Discovery			Infliximab	Female	Asian	19	Resistant	Rheumatoid Arthritis	0	Residual Inflammation without Decreasing Trend (CRP>0.3)	No	No	No	No
+GSE20690	RI13	Discovery			Infliximab	Male	Asian	67	Resistant	Rheumatoid Arthritis		Residual Inflammation without Decreasing Trend (CRP>0.3)				
+GSE20690	RI14	Discovery			Infliximab	Male	Asian	52	Resistant	Rheumatoid Arthritis		Residual Inflammation without Decreasing Trend (CRP>0.3)				
+GSE20690	RI15	Validation	False Positive	False Positive	Infliximab	Female	Asian	71	Resistant	Rheumatoid Arthritis	0	Residual Inflammation with Consistent Decreasing (CRP>0.3)	No		No	
+GSE20690	RI16	Validation	True Negative	True Negative	Infliximab	Female	Asian	36	Resistant	Rheumatoid Arthritis	0	Residual Inflammation with Consistent Decreasing (CRP>0.3)	No	No	No	No
+GSE20690	RI17	Validation	False Positive	True Negative	Infliximab	Male	Asian	74	Resistant	Rheumatoid Arthritis	0	Residual Inflammation with Consistent Decreasing (CRP>0.3)	No	No	No	No
+GSE20690	RI18	Validation	True Negative	False Negative	Infliximab	Female	Asian	30	Resistant	Rheumatoid Arthritis	20	Residual Inflammation with Consistent Decreasing (CRP>0.3)	Moderate		Moderate	
+GSE20690	RI19	Validation	False Positive	True Positive	Infliximab	Female	Asian	29	Resistant	Rheumatoid Arthritis	0	Residual Inflammation with Consistent Decreasing (CRP>0.3)	Good	Good	Good	Good
+GSE20690	RI2	Discovery			Infliximab	Female	Asian	60	Resistant	Rheumatoid Arthritis	20	Residual Inflammation with Consistent Decreasing (CRP>0.3)	Moderate		Moderate	
+GSE20690	RI20	Validation	False Positive	True Positive	Infliximab	Female	Asian	62	Resistant	Rheumatoid Arthritis	50	Residual Inflammation with Consistent Decreasing (CRP>0.3)	Moderate	Moderate	Moderate	Moderate
+GSE20690	RI21	Validation	False Positive	False Positive	Infliximab	Female	Asian	58	Resistant	Rheumatoid Arthritis	0	Residual Inflammation with Consistent Decreasing (CRP>0.3)	No	No	Moderate	No
+GSE20690	RI22	Validation	True Negative	False Negative	Infliximab	Female	Asian	30	Resistant	Rheumatoid Arthritis	20	Residual Inflammation with Consistent Decreasing (CRP>0.3)	Moderate	Moderate	Moderate	Moderate
+GSE20690	RI23	Validation	True Negative	False Negative	Infliximab	Female	Asian	62	Resistant	Rheumatoid Arthritis	0	Residual Inflammation without Decreasing Trend (CRP>0.3)	Good		Moderate	
+GSE20690	RI24	Validation	False Positive	False Positive	Infliximab	Female	Asian	74	Resistant	Rheumatoid Arthritis	0	Residual Inflammation without Decreasing Trend (CRP>0.3)	No	No	No	No
+GSE20690	RI25	Validation	True Negative	True Negative	Infliximab	Female	Asian	65	Resistant	Rheumatoid Arthritis	0	Residual Inflammation without Decreasing Trend (CRP>0.3)	No	No	No	No
+GSE20690	RI3	Discovery			Infliximab	Female	Asian	65	Resistant	Rheumatoid Arthritis	70	Residual Inflammation with Consistent Decreasing (CRP>0.3)	Good	Moderate	Good	Moderate
+GSE20690	RI4	Discovery			Infliximab	Male	Asian	65	Resistant	Rheumatoid Arthritis	70	Residual Inflammation with Consistent Decreasing (CRP>0.3)	Good	Good	Good	Moderate
+GSE20690	RI5	Discovery			Infliximab	Female	Asian	63	Resistant	Rheumatoid Arthritis	50	Residual Inflammation with Consistent Decreasing (CRP>0.3)	Good	Good	Good	Good
+GSE20690	RI6	Discovery			Infliximab	Female	Asian	72	Resistant	Rheumatoid Arthritis	0	Residual Inflammation with Consistent Decreasing (CRP>0.3)	No	No	No	No
+GSE20690	RI7	Discovery			Infliximab	Female	Asian	48	Resistant	Rheumatoid Arthritis	50	Residual Inflammation without Decreasing Trend (CRP>0.3)	No	Moderate	No	Moderate
+GSE20690	RI8	Discovery			Infliximab	Female	Asian	63	Resistant	Rheumatoid Arthritis	0	Residual Inflammation without Decreasing Trend (CRP>0.3)	Moderate	Moderate	Good	Good
+GSE20690	RI9	Discovery			Infliximab	Female	Asian	56	Resistant	Rheumatoid Arthritis	0	Residual Inflammation without Decreasing Trend (CRP>0.3)	No	No	No	No

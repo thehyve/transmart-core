@@ -1,0 +1,4 @@
+DATA_FILE_PREFIX=GSE8581_with_zscores.txt
+DATA_TYPE=R
+LOG_BASE=2
+MAP_FILENAME=subject_sample_mapping.tsv

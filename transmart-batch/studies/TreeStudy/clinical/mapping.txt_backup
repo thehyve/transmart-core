@@ -1,0 +1,8 @@
+filename	categorycd	columnnumber	datalabel	datalabelsource	control vocab cd
+data.txt	Subjects	1	SUBJ_ID		
+data.txt	Characteristics	2	Age		
+data.txt	Characteristics	3	Gender		
+data.txt	Characteristics	4	VISIT_NAME		
+data.txt	Characteristics	5	DATA_LABEL
+data.txt	Characteristics+VISITNAME+DATALABEL	6	Result	5	
+data.txt	Characteristics+VISITNAME+DATALABEL+Map	7	\	5	

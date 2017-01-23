@@ -1,0 +1,5 @@
+PLATFORM=CNV_ANNOT
+TITLE="Test Cnv Platform"
+ORGANISM="Homo Sapiens"
+ANNOTATIONS_FILE=chromosomal_regions.tsv
+GENOME_RELEASE=hg19
