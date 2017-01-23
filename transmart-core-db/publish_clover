@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# expects KEY_PASSWORD
+: ${KEY_PASSWORD:?"KEY_PASSWORD not set"}
+
+REPORTS_DIR=transmart-core-db-tests/target/clover
+if [[ ! -d $REPORTS_DIR ]]; then
+	exit 0
+fi
+
+SERVER=clover@dev2.thehyve.net
+openssl rsa -in clover_id_rsa.enc -out clover_id_rsa -passin "pass:$KEY_PASSWORD"
+chmod 600 clover_id_rsa
+TARGET_DIR="transmart-core-db/${TRAVIS_REPO_SLUG%%/*}-$TRAVIS_JOB_NUMBER-$TRAVIS_BRANCH"
+tar czf - "$REPORTS_DIR" \
+    --xform='s,.*/target/clover/report,'"$TARGET_DIR"',' \
+	--xform='s,.*/target/clover,,' | \
+    ssh "$SERVER" -o StrictHostKeyChecking=no -i clover_id_rsa \
+    'tar -C /home/clover/public_html -xzf -'

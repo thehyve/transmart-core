@@ -1,0 +1,35 @@
+language: groovy
+sudo: false
+
+jdk:
+    - oraclejdk7
+
+cache:
+    directories:
+        - $HOME/.m2
+
+before_install:
+    - mkdir -p ~/.m2
+    - git clone --depth 1 git://github.com/thehyve/transmart-travis.git ~/ts-travis
+    - source ~/ts-travis/init.sh
+    - source ~/ts-travis/maven_dep.sh
+    - test -z "$KEY_PASSWORD" || export CLOVER=1
+
+install:
+    - maybe_build_maven_dep $(travis_get_owner)/transmart-core-api core-api
+
+script:
+    - cd transmart-core-db-tests
+    - grails test-app --non-interactive --stacktrace
+    - cd -
+
+after_script:
+    - bash -c '[[ -z $CLOVER ]] || ./publish_clover'
+    - bash <(curl -s https://codecov.io/bash)
+
+notifications:
+  hipchat:
+    rooms:
+      secure: xcYrNzgEMcURuFoD7M2IB4jra+520rt/lDwSbLATSRs/NmyXoJ/cqJH/XcsIcsnF/WfWGQRPDOffMRFMTwurb2FKZC+f25V/Gvcb93tqT2XUx7Z63DJ7dJVgVHgTcs36T/GrNYwytqn01fPZonM8skcWdbJy97K3x3VyjvyCk5A=
+    on_success: change
+    on_failure: always
