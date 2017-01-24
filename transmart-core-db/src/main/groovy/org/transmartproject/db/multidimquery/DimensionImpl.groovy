@@ -392,7 +392,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
 @CompileStatic @InheritConstructors
 class PatientDimension extends I2b2Dimension<Patient, Long> implements CompositeElemDim<Patient, Long> {
     Class elemType = Patient
-    List elemFields = ["trial", "inTrialId", "birthDate", "deathDate",
+    List elemFields = ["id", "trial", "inTrialId", "birthDate", "deathDate",
                       "age", "race", "maritalStatus", "religion",
                       new PropertyImpl('sex', 'sex', String) {
                           @Override def get(element) { super.get(element).toString() }
@@ -445,7 +445,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 @CompileStatic @InheritConstructors
 class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements CompositeElemDim<TrialVisit, Long> {
     Class elemType = TrialVisit
-    List elemFields = ["relTimeLabel", "relTimeUnit", "relTime"]
+    List elemFields = ["id", "relTimeLabel", "relTimeUnit", "relTime"]
     String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
