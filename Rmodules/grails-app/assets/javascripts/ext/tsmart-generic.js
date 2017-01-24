@@ -650,7 +650,7 @@ GenericAnalysisView = Ext.extend(Object, {
         Ext.Ajax.request({
             url: pageInfo.basePath + "/HighDimension/nodeDetails",
             method: 'POST',
-            timeout: '10000',
+            timeout: '50000',
             params: Ext.urlEncode({
                 conceptKeys: _conceptPaths
             }),
