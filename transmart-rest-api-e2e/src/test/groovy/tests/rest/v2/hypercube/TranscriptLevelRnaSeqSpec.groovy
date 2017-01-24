@@ -6,6 +6,7 @@ import groovy.json.JsonBuilder
 import static config.Config.PATH_HIGH_DIM
 import static config.Config.RNASEQ_TRANSCRIPT_ID
 import static tests.rest.v2.constraints.BiomarkerConstraint
+import static tests.rest.v2.constraints.ConceptConstraint
 import static tests.rest.v2.constraints.StudyNameConstraint
 
 /**
@@ -26,8 +27,8 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query: [
                         assay_constraint    : new JsonBuilder([
-                                type   : StudyNameConstraint,
-                                studyId: RNASEQ_TRANSCRIPT_ID
+                                type: ConceptConstraint,
+                                path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
                         biomarker_constraint: new JsonBuilder([
                                 type         : BiomarkerConstraint,
@@ -44,8 +45,8 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query: [
                         assay_constraint    : new JsonBuilder([
-                                type   : StudyNameConstraint,
-                                studyId: RNASEQ_TRANSCRIPT_ID
+                                type: ConceptConstraint,
+                                path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
                         biomarker_constraint: new JsonBuilder([
                                 type         : BiomarkerConstraint,
@@ -62,7 +63,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         def responseData2 = get(requestGene)
 
         then:
-        def expectedCellCount = 117
+        def expectedCellCount = 78
         assert responseData1.cells.size() == expectedCellCount
         assert responseData2.cells.size() == expectedCellCount
         responseData1.cells.eachWithIndex{ cell, i ->
@@ -86,8 +87,8 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query: [
                         assay_constraint    : new JsonBuilder([
-                                type   : StudyNameConstraint,
-                                studyId: RNASEQ_TRANSCRIPT_ID
+                                type: ConceptConstraint,
+                                path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
                         biomarker_constraint: new JsonBuilder([
                                 type         : BiomarkerConstraint,
@@ -104,8 +105,8 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query: [
                         assay_constraint    : new JsonBuilder([
-                                type   : StudyNameConstraint,
-                                studyId: RNASEQ_TRANSCRIPT_ID
+                                type: ConceptConstraint,
+                                path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
                         biomarker_constraint: new JsonBuilder([
                                 type         : BiomarkerConstraint,
@@ -122,7 +123,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         def responseData2 = get(request2)
 
         then:
-        def expectedCellCount = 117
+        def expectedCellCount = 78
         assert responseData1.cells.size() == expectedCellCount
         assert responseData1.header == responseData2.header
         assert responseData1 != responseData2
@@ -144,8 +145,8 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query: [
                         assay_constraint    : new JsonBuilder([
-                                type   : StudyNameConstraint,
-                                studyId: RNASEQ_TRANSCRIPT_ID
+                                type: ConceptConstraint,
+                                path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
                         biomarker_constraint: new JsonBuilder([
                                 type         : BiomarkerConstraint,
@@ -183,8 +184,8 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query: [
                         assay_constraint    : new JsonBuilder([
-                                type   : StudyNameConstraint,
-                                studyId: RNASEQ_TRANSCRIPT_ID
+                                type: ConceptConstraint,
+                                path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
                         biomarker_constraint: new JsonBuilder([
                                 type         : BiomarkerConstraint,
@@ -201,8 +202,8 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query: [
                         assay_constraint    : new JsonBuilder([
-                                type   : StudyNameConstraint,
-                                studyId: RNASEQ_TRANSCRIPT_ID
+                                type: ConceptConstraint,
+                                path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ])
                 ]
         ]
@@ -211,7 +212,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         def responseData2 = get(requestAssayOnly)
 
         then:
-        def expectedCellCount = 234
+        def expectedCellCount = 156
         assert responseData1.cells.size() == expectedCellCount
         assert responseData1.header == responseData2.header
         assert responseData1 != responseData2
@@ -244,8 +245,8 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 acceptType: acceptType,
                 query: [
                         assay_constraint    : new JsonBuilder([
-                                type   : StudyNameConstraint,
-                                studyId: RNASEQ_TRANSCRIPT_ID
+                                type: ConceptConstraint,
+                                path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
                         biomarker_constraint: new JsonBuilder([
                                 type         : BiomarkerConstraint,
@@ -263,17 +264,17 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         def selector = newSelector(responseData)
 
         then:
-        assert selector.cellCount == 9
+        assert selector.cellCount == 6
         (0..<selector.cellCount).each {
             assert ['tr1'].contains(selector.select(it, 'biomarker', 'biomarker', 'String'))
 
-            assert [-641I, -642I, -643I, -644I, -645I, -646I, -647I, -648I, -649I].contains(selector.select(it, 'assay', 'id', 'Int'))
+            assert [-641, -642, -643, -644, -645, -646, -647, -648, -649].contains(selector.select(it, 'assay', 'id', 'Int') as int)
             assert ['sample1', 'sample2', 'sample3', 'sample4', 'sample5', 'sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
-            assert [40I, 42I, 52I].contains(selector.select(it, 'patient', 'age', 'Int'))
+            assert [40I, 42I, 52I].contains(selector.select(it, 'patient', 'age', 'Int') as int)
             assert ['Caucasian', 'Latino'].contains(selector.select(it, 'patient', 'race', 'String'))
             assert ['male', 'female'].contains(selector.select(it, 'patient', 'sex', 'String'))
 
-            assert ZSCORE.contains(selector.select(it))
+            assert ZSCORE.contains(selector.select(it) as BigDecimal)
         }
 
         where:
