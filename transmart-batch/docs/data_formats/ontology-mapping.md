@@ -30,7 +30,7 @@ ONTOLOGY_MAP_FILE format
 
 Table, tab separated, txt file. It contains information about concepts and the ontology tree
 that are uploaded to TranSMART.
-The first to columns refer to columns in the [column mapping file](clinical.md).
+The first two columns refer to columns in the [column mapping file](clinical.md).
 The rows were these columns are not empty, are used for associating observations
 with concept codes. The others are only used to build the tree.
 
@@ -42,8 +42,8 @@ Description of the columns:
 - `URI`  Link to resource with metadata about the concept.
 - `Ancestors`  Comma-separated list of ontology codes of classes of which this concept is a subclass.
 
-An [example ontology mapping file](../studies/TEST_17_1/clinical/OBS336-201_ontology_codes.txt) can be found in 
-the [TEST_17_1](../studies/TEST_17_1) example study.
+An [example ontology mapping file](../../studies/TEST_17_1/clinical/OBS336-201_ontology_codes.txt) can be found in 
+the [TEST_17_1](../../studies/TEST_17_1) example study.
 
 
 Generating an ontology mapping file
@@ -53,10 +53,10 @@ An ontology mapping file can be generated using a `ontologymapping.params` file.
 The following parameters are supported:
 - `COLUMN_MAP_FILE`  (Example: `clinical/OBS336-201_columns.txt`)
 - `ONTOLOGY_MAP_FILE` (Example: `ontology_codes.txt`)
-- `ONTOLOGY_SERVICE_TYPE` (default: `default`)
+- `ONTOLOGY_SERVICE_TYPE` (Example: `default`)
 
 Two ontology types are currently implemented:
-- `default`: a service that connects to the [mock-ontology-server](../../mock-ontology-server) implementation.
+- `default`: a service that connects to the [mock-ontology-server](../../../mock-ontology-server) implementation.
 - `bioontology`: a service that connects to the API of [bioontology.org](https://data.bioontology.org/documentation).
 
 The following parameters are available for the `default` service type:
@@ -70,5 +70,5 @@ The following parameters are available for the `bioontology` service type:
 An API key can be obtained by registering at https://bioportal.bioontology.org/.
 - `ONTOLOGY_SERVER_ONTOLOGIES`: The comma-separated list of ontologies to query (Example: `SNOMEDCT`).
 
-An [example fetching parameters file](../studies/TEST_17_1/ontologymapping.params) can be found in 
-the [TEST_17_1](../studies/TEST_17_1) example study.
+An [example fetching parameters file](../../studies/TEST_17_1/ontologymapping.params) can be found in
+the [TEST_17_1](../../studies/TEST_17_1) example study.
