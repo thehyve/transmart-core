@@ -5,7 +5,9 @@ import base.RestCall
 import spock.lang.Requires
 
 import static config.Config.EHR_LOADED
+import static config.Config.PATH_PATIENTS
 import static config.Config.PATH_SUPPORTED_FIELDS
+import static tests.rest.v2.constraints.ConceptConstraint
 
 class SupportedFieldsSpec extends RESTSpec {
 
@@ -17,10 +19,12 @@ class SupportedFieldsSpec extends RESTSpec {
     @Requires({EHR_LOADED})
     def "supported fields"(){
         given: "any studies are loaded"
-        RestCall testRequest = new RestCall(PATH_SUPPORTED_FIELDS, contentTypeForJSON);
 
         when: "I request all supported fields"
-        def responseData = get(testRequest)
+        def responseData = get([
+                path: PATH_SUPPORTED_FIELDS,
+                acceptType: contentTypeForJSON
+        ])
 
         then: "I get a list of fields with dimension, fieldName and type"
         responseData.each {

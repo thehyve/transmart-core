@@ -1,4 +1,4 @@
-package tests.rest.v2.json
+package tests.rest.v2.hypercube
 
 import base.RESTSpec
 import spock.lang.Ignore

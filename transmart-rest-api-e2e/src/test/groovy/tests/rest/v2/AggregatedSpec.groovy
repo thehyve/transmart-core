@@ -28,17 +28,20 @@ class AggregatedSpec extends RESTSpec{
     @Requires({EHR_LOADED})
     def "aggregated timeseries maximum"(){
         given: "study EHR is loaded"
-        RestCall testRequest = new RestCall(PATH_AGGREGATE, contentTypeForJSON);
-        testRequest.query = [
-                constraint: toJSON([
-                        type: ConceptConstraint,
-                        path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
-                ]),
-                type: MAX
+        def request = [
+                path: PATH_AGGREGATE,
+                acceptType: contentTypeForJSON,
+                query: [
+                        constraint: toJSON([
+                                type: ConceptConstraint,
+                                path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                        ]),
+                        type: MAX
+                ]
         ]
 
         when: "for that study I Aggregated the concept Heart Rate with type max"
-        def responseData = get(testRequest)
+        def responseData = get(request)
 
         then: "the number 102 is returned"
         assert responseData.max == 102.0
@@ -52,17 +55,20 @@ class AggregatedSpec extends RESTSpec{
     @Requires({EHR_LOADED})
     def "aggregated timeseries minimum"(){
         given: "study EHR is loaded"
-        RestCall testRequest = new RestCall(PATH_AGGREGATE, contentTypeForJSON);
-        testRequest.query = [
-                constraint: toJSON([
-                        type: ConceptConstraint,
-                        path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
-                ]),
-                type: MIN
+        def request = [
+                path: PATH_AGGREGATE,
+                acceptType: contentTypeForJSON,
+                query: [
+                        constraint: toJSON([
+                                type: ConceptConstraint,
+                                path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                        ]),
+                        type: MIN
+                ]
         ]
 
         when: "for that study I Aggregated the concept Heart Rate with type min"
-        def responseData = get(testRequest)
+        def responseData = get(request)
 
         then: "the number 56.0 is returned"
         assert responseData.min == 56.0
@@ -76,17 +82,20 @@ class AggregatedSpec extends RESTSpec{
     @Requires({EHR_LOADED})
     def "aggregated timeseries average"(){
         given: "study EHR is loaded"
-        RestCall testRequest = new RestCall(PATH_AGGREGATE, contentTypeForJSON);
-        testRequest.query = [
-                constraint: toJSON([
-                        type: ConceptConstraint,
-                        path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
-                ]),
-                type: AVERAGE
+        def request = [
+                path: PATH_AGGREGATE,
+                acceptType: contentTypeForJSON,
+                query: [
+                        constraint: toJSON([
+                                type: ConceptConstraint,
+                                path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                        ]),
+                        type: AVERAGE
+                ]
         ]
 
         when: "for that study I Aggregated the concept Heart Rate with type average"
-        def responseData = get(testRequest)
+        def responseData = get(request)
 
         then: "the number 74.77777777777777 is returned"
         assert responseData.average == 74.77777777777777
@@ -100,17 +109,20 @@ class AggregatedSpec extends RESTSpec{
     @Requires({EHR_LOADED})
     def "aggregated missing type"(){
         given: "study EHR is loaded"
-        RestCall testRequest = new RestCall(PATH_AGGREGATE, contentTypeForJSON);
-        testRequest.statusCode = 400
-        testRequest.query = [
-                constraint: toJSON([
-                        type: ConceptConstraint,
-                        path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
-                ])
+        def request = [
+                path: PATH_AGGREGATE,
+                acceptType: contentTypeForJSON,
+                query: [
+                        constraint: toJSON([
+                                type: ConceptConstraint,
+                                path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                        ])
+                ],
+                statusCode: 400
         ]
 
         when: "for that study I Aggregated the concept Heart Rate without a type"
-        def responseData = get(testRequest)
+        def responseData = get(request)
 
         then: "an error is returned"
         assert responseData.httpStatus == 400
@@ -126,17 +138,19 @@ class AggregatedSpec extends RESTSpec{
     @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
     def "restricted aggregated average"(){
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
-        RestCall testRequest = new RestCall(PATH_AGGREGATE, contentTypeForJSON);
-        testRequest.statusCode = 403
-
         def conceptPath = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
-        testRequest.query = [
-                constraint: toJSON([type: ConceptConstraint, path: conceptPath]),
-                type: AVERAGE
+        def request = [
+                path: PATH_AGGREGATE,
+                acceptType: contentTypeForJSON,
+                query: [
+                        constraint: toJSON([type: ConceptConstraint, path: conceptPath]),
+                        type: AVERAGE
+                ],
+                statusCode: 403
         ]
 
         when: "for that study I Aggregated the concept Heart Rate with type average"
-        def responseData = get(testRequest)
+        def responseData = get(request)
 
         then: "I get an access error"
         assert responseData.httpStatus == 403
@@ -153,16 +167,18 @@ class AggregatedSpec extends RESTSpec{
     def "unrestricted aggregated average"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
-        RestCall testRequest = new RestCall(PATH_AGGREGATE, contentTypeForJSON);
-
         def conceptPath = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
-        testRequest.query = [
-                constraint: toJSON([type: ConceptConstraint, path: conceptPath]),
-                type      : AVERAGE
+        def request = [
+                path: PATH_AGGREGATE,
+                acceptType: contentTypeForJSON,
+                query: [
+                        constraint: toJSON([type: ConceptConstraint, path: conceptPath]),
+                        type: AVERAGE
+                ]
         ]
 
         when: "for that study I Aggregated the concept Heart Rate with type average"
-        def responseData = get(testRequest)
+        def responseData = get(request)
 
         then: "I get an average"
         assert responseData.average == 34.5

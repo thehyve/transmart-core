@@ -193,12 +193,39 @@ abstract class RESTSpec extends Specification{
         }
     }
 
-    def post(def requestMap){
-        http.request(Method.POST, ContentType.JSON) { req ->
+    def delete(def requestMap){
+        http.request(Method.DELETE) { req ->
+            uri.path = requestMap.path
+            uri.query = requestMap.query
+            if (!requestMap.Oauth){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(uri.toString())
+            response.success = { resp, reader ->
+                println resp.statusLine.statusCode
+                println resp.headers.'Content-Type'
+                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                def result
+                result = reader
+                if (DEBUG) { println result }
+                return result
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
+                def result = reader
+                if (DEBUG){ println result }
+                return result
+            }
+        }
+    }
+
+    def put(def requestMap){
+        http.request(Method.PUT, ContentType.JSON) { req ->
             uri.path = requestMap.path
             uri.query = requestMap.query
             headers.Accept = requestMap.acceptType
-            headers.'Content-Type' = requestMap.contentType
             body = requestMap.body
             if (!requestMap.oauth){
                 headers.'Authorization' = 'Bearer ' + getToken()
@@ -209,14 +236,42 @@ abstract class RESTSpec extends Specification{
                 println resp.statusLine.statusCode
                 println resp.headers.'Content-Type'
                 assert resp.statusLine.statusCode == requestMap.statusCode || 200
-                assert resp.headers.'Content-Type'.contains(requestMap.acceptType) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
                 def result = reader
                 if (DEBUG) { println result }
                 return result
             }
 
             response.failure = { resp, reader ->
-                assert resp.statusLine.statusCode == requestMap.statusCode
+                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
+                def result = reader
+                if (DEBUG){ println result }
+                return result
+            }
+        }
+    }
+
+    def post(def requestMap){
+        http.request(Method.POST, ContentType.JSON) { req ->
+            uri.path = requestMap.path
+            uri.query = requestMap.query
+            headers.Accept = requestMap.acceptType
+            body = requestMap.body
+            if (!requestMap.oauth){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(uri.toString())
+            response.success = { resp, reader ->
+                println resp.statusLine.statusCode
+                println resp.headers.'Content-Type'
+                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                def result = reader
+                if (DEBUG) { println result }
+                return result
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
                 def result = reader
                 if (DEBUG){ println result }
                 return result
@@ -253,7 +308,7 @@ abstract class RESTSpec extends Specification{
             }
 
             response.failure = { resp, reader ->
-                assert resp.statusLine.statusCode == requestMap.statusCode
+                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
                 def result = reader
                 if (DEBUG){ println result }
                 return result
