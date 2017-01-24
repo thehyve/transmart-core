@@ -19,12 +19,12 @@ class HighDimSpec extends RESTSpec{
      */
     def "v1 highdim dataTypes"(){
         given: "study CELL-LINE is loaded"
+
         def studieId = CELL_LINE_ID
         def conceptPath = 'Molecular profiling/High-throughput molecular profiling/Expression (miRNA)/Agilent miRNA microarray/Gene level/Normalised ratios/'
-        RestCall testRequest = new RestCall(V1_PATH_STUDIES+"/${studieId}/concepts/${conceptPath}/highdim", contentTypeForJSON);
 
         when: "I request all highdim dataTypes for a concept"
-        def responseData = get(testRequest)
+        def responseData = get([path: V1_PATH_STUDIES+"/${studieId}/concepts/${conceptPath}/highdim", acceptType: contentTypeForoctetStream])
 
         then: "I get all relevant dataTypes"
         assert responseData.dataTypes.each {
@@ -45,14 +45,15 @@ class HighDimSpec extends RESTSpec{
         given: "study CELL-LINE is loaded"
         def studieId = CELL_LINE_ID
         def conceptPath = 'Molecular profiling/High-throughput molecular profiling/Expression (miRNA)/Agilent miRNA microarray/Gene level/Normalised ratios/'
-        RestCall testRequest = new RestCall(V1_PATH_STUDIES+"/${studieId}/concepts/${conceptPath}/highdim", contentTypeForoctetStream);
-        testRequest.query = [
-                dataType: 'mirnaqpcr',
-                projection: 'zscore'
-       ]
 
         when: "I request highdim data"
-        def responseData = get(testRequest)
+        def responseData = get([
+                path: V1_PATH_STUDIES+"/${studieId}/concepts/${conceptPath}/highdim",
+                query: [
+                        dataType: 'mirnaqpcr',
+                        projection: 'zscore'
+                ],
+                acceptType: contentTypeForoctetStream])
 
         then: "I get a file stream"
         assert responseData.getClass() == EofSensorInputStream.class

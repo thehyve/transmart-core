@@ -4,6 +4,8 @@ import base.RESTSpec
 import base.RestCall
 import spock.lang.Requires
 
+import static config.Config.ADMIN_PASSWORD
+import static config.Config.ADMIN_USERNAME
 import static config.Config.EHR_HIGHDIM_LOADED
 import static config.Config.EHR_LOADED
 import static config.Config.PATH_AGGREGATE
@@ -22,14 +24,16 @@ class StudySpec extends RESTSpec{
     @Requires({EHR_HIGHDIM_LOADED})
     def "v1 all studies"(){
         given: "several studies are loaded"
-        RestCall testRequest = new RestCall(V1_PATH_STUDIES, contentTypeForJSON);
+        setUser(ADMIN_USERNAME,ADMIN_PASSWORD)
 
         when: "I request all studies"
-        def responseData = get(testRequest)
+        def responseData = get([
+                path: V1_PATH_STUDIES,
+                acceptType: contentTypeForJSON
+        ])
 
         then: "I get several studies"
         responseData.studies.each {
-            assert it.id != null
             assert it.ontologyTerm != null
         }
     }
@@ -41,11 +45,14 @@ class StudySpec extends RESTSpec{
      */
     def "v1 single study"(){
         given: "study EHR is loaded"
+        setUser(ADMIN_USERNAME,ADMIN_PASSWORD)
         def studieId = 'EHR'
-        RestCall testRequest = new RestCall(V1_PATH_STUDIES+"/${studieId}", contentTypeForJSON);
 
         when: "I request studies with id EHR"
-        def responseData = get(testRequest)
+        def responseData = get([
+                path: V1_PATH_STUDIES+"/${studieId}",
+                acceptType: contentTypeForJSON
+        ])
 
         then: "only the EHR study is returned"
         assert responseData.id == 'EHR'

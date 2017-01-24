@@ -4,6 +4,8 @@ import base.RESTSpec
 import base.RestCall
 import spock.lang.Requires
 
+import static config.Config.ADMIN_PASSWORD
+import static config.Config.ADMIN_USERNAME
 import static config.Config.EHR_ID
 import static config.Config.EHR_LOADED
 import static config.Config.V1_PATH_STUDIES
@@ -18,11 +20,14 @@ class SubjectsSpec extends RESTSpec{
      */
     def "v1 subjects"(){
         given: "study EHR is loaded"
+        setUser(ADMIN_USERNAME,ADMIN_PASSWORD)
         def studyId = EHR_ID
-        RestCall testRequest = new RestCall(V1_PATH_STUDIES+"/${studyId}/subjects", contentTypeForJSON);
 
         when: "I request subjects related to this study"
-        def responseData = get(testRequest)
+        def responseData = get([
+                path: V1_PATH_STUDIES+"/${studyId}/subjects",
+                acceptType: contentTypeForJSON
+        ])
 
         then: "subjects are returned"
         assert responseData.subjects.size() == 3
@@ -39,12 +44,15 @@ class SubjectsSpec extends RESTSpec{
      */
     def "v1 single subject"(){
         given: "study EHR is loaded"
+        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def studyId = EHR_ID
         def subjectId = -62
-        RestCall testRequest = new RestCall(V1_PATH_STUDIES+"/${studyId}/subjects/${subjectId}", contentTypeForJSON);
 
         when: "I request a subject by it's id"
-        def responseData = get(testRequest)
+        def responseData = get([
+                path: V1_PATH_STUDIES+"/${studyId}/subjects/${subjectId}",
+                acceptType: contentTypeForJSON
+        ])
 
         then: "only that subject is returned"
         assert responseData.id == subjectId
@@ -57,12 +65,15 @@ class SubjectsSpec extends RESTSpec{
      */
     def "v1 subjects by concept"(){
         given: "study EHR is loaded"
+        setUser(ADMIN_USERNAME,ADMIN_PASSWORD)
         def studyId = EHR_ID
         def conceptPath = "Demography/Age/"
-        RestCall testRequest = new RestCall(V1_PATH_STUDIES+"/${studyId}/concepts/${conceptPath}/subjects", contentTypeForJSON);
 
         when: "I request subjects related to this study and a concept path"
-        def responseData = get(testRequest)
+        def responseData = get([
+                path: V1_PATH_STUDIES+"/${studyId}/concepts/${conceptPath}/subjects",
+                acceptType: contentTypeForJSON
+        ])
 
         then: "subjects are returned"
         assert responseData.subjects.size() == 3

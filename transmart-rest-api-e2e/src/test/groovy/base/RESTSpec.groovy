@@ -255,6 +255,7 @@ abstract class RESTSpec extends Specification{
             uri.path = requestMap.path
             uri.query = requestMap.query
             headers.Accept = requestMap.acceptType
+            headers.'Content-Type' = requestMap.contentType
             body = requestMap.body
             if (!requestMap.oauth){
                 headers.'Authorization' = 'Bearer ' + getToken()
