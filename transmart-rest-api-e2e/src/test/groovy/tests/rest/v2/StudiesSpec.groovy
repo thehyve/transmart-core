@@ -5,8 +5,6 @@ import groovy.util.logging.Slf4j
 import spock.lang.Requires
 
 import static config.Config.*
-import static tests.rest.v2.QueryType.MAX
-import static tests.rest.v2.constraints.ConceptConstraint
 
 /**
  *  TMPREQ-6 Building a tree where concepts are study-specific.

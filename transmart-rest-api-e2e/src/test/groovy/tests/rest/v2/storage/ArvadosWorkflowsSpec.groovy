@@ -1,11 +1,8 @@
 package tests.rest.v2.storage
 
 import base.RESTSpec
-import spock.lang.IgnoreIf
 
 import static config.Config.*
-import static tests.rest.v2.constraints.ConceptConstraint
-import static tests.rest.v2.constraints.PatientSetConstraint
 
 /**
  *  Creating ArvadosWorkflows
@@ -74,7 +71,7 @@ class ArvadosWorkflowsSpec extends RESTSpec{
 
         when:
         data.name = 'new file Link renamed'
-        responseData = put(PATH_ARVADOS_WORKFLOWS + "/${id}", toJSON(data))
+        responseData = put([path: PATH_ARVADOS_WORKFLOWS + "/${id}", body: toJSON(data)])
 
         then:
         assert responseData.id == id
@@ -279,7 +276,7 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         assert responseData.type == 'AccessDeniedException'
 
         when:
-        responseData = delete(PATH_ARVADOS_WORKFLOWS + "/0")
+        responseData = delete([path: PATH_ARVADOS_WORKFLOWS + "/0", statusCode: 403])
 
         then:
         assert responseData.httpStatus == 403

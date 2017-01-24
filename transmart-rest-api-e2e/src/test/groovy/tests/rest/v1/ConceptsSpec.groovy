@@ -1,15 +1,13 @@
 package tests.rest.v1
 
 import base.RESTSpec
-import base.RestCall
+
 import spock.lang.Requires
 
 import static config.Config.ADMIN_PASSWORD
 import static config.Config.ADMIN_USERNAME
 import static config.Config.EHR_ID
 import static config.Config.EHR_LOADED
-import static config.Config.UNRESTRICTED_PASSWORD
-import static config.Config.UNRESTRICTED_USERNAME
 import static config.Config.V1_PATH_STUDIES
 
 @Requires({EHR_LOADED})

@@ -1,17 +1,14 @@
 package tests.rest.v1
 
 import base.RESTSpec
-import base.RestCall
+
 import spock.lang.Requires
 
 import static config.Config.ADMIN_PASSWORD
 import static config.Config.ADMIN_USERNAME
 import static config.Config.EHR_HIGHDIM_LOADED
 import static config.Config.EHR_LOADED
-import static config.Config.PATH_AGGREGATE
 import static config.Config.V1_PATH_STUDIES
-import static tests.rest.v2.QueryType.MAX
-import static tests.rest.v2.constraints.ConceptConstraint
 
 @Requires({EHR_LOADED})
 class StudySpec extends RESTSpec{

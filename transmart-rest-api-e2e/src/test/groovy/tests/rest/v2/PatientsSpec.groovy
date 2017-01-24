@@ -1,7 +1,6 @@
 package tests.rest.v2
 
 import base.RESTSpec
-import base.RestCall
 import spock.lang.Requires
 
 import static config.Config.*

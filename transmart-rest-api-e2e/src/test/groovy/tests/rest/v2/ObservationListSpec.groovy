@@ -1,11 +1,9 @@
 package tests.rest.v2
 
 import base.RESTSpec
-import base.RestCall
 import spock.lang.Requires
 
 import static config.Config.EHR_LOADED
-import static config.Config.PATH_COUNTS
 import static config.Config.PATH_OBSERVATION_LIST
 import static tests.rest.v2.constraints.ConceptConstraint
 

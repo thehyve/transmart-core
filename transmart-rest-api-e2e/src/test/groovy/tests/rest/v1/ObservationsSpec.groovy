@@ -1,7 +1,7 @@
 package tests.rest.v1
 
 import base.RESTSpec
-import base.RestCall
+
 import spock.lang.Requires
 
 import static config.Config.CELL_LINE_ID

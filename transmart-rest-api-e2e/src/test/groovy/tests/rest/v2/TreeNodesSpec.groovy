@@ -1,15 +1,10 @@
 package tests.rest.v2
 
-import base.RestCall
+import base.RESTSpec
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.*
-
-import base.RESTSpec
-
-import static tests.rest.v2.QueryType.MAX
-import static tests.rest.v2.constraints.ConceptConstraint
 
 /**
  *  TMPREQ-6 Building a tree where concepts are study-specific

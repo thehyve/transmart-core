@@ -1,15 +1,12 @@
 package tests.rest.v2
 
 import base.RESTSpec
-import base.RestCall
 import spock.lang.Requires
 
 import static config.Config.*
 import static tests.rest.v2.Operator.AND
-import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.Operator.GREATER_THAN
 import static tests.rest.v2.ValueType.NUMERIC
-import static tests.rest.v2.ValueType.STRING
 import static tests.rest.v2.constraints.*
 
 class PatientsSetSpec extends RESTSpec {

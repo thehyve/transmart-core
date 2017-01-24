@@ -1,15 +1,9 @@
 package tests.rest.v2
 
 import base.RESTSpec
-import base.RestCall
 import spock.lang.Requires
 
-import static config.Config.PATH_AGGREGATE
-import static config.Config.PATH_COUNTS
-import static config.Config.SHARED_CONCEPTS_RESTRICTED_LOADED
-import static config.Config.UNRESTRICTED_PASSWORD
-import static config.Config.UNRESTRICTED_USERNAME
-import static tests.rest.v2.QueryType.MAX
+import static config.Config.*
 import static tests.rest.v2.constraints.ConceptConstraint
 
 class ObservationCountsSpec extends RESTSpec{

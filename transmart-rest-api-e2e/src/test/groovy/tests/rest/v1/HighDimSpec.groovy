@@ -1,7 +1,7 @@
 package tests.rest.v1
 
 import base.RESTSpec
-import base.RestCall
+
 import org.apache.http.conn.EofSensorInputStream
 import spock.lang.Requires
 

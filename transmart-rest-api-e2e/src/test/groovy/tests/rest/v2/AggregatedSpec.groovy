@@ -1,14 +1,11 @@
 package tests.rest.v2
 
 import base.RESTSpec
-import base.RestCall
 import spock.lang.Requires
 
-import static tests.rest.v2.QueryType.AVERAGE
-import static tests.rest.v2.QueryType.MAX
-import static tests.rest.v2.QueryType.MIN
-import static tests.rest.v2.constraints.ConceptConstraint
 import static config.Config.*
+import static tests.rest.v2.QueryType.*
+import static tests.rest.v2.constraints.ConceptConstraint
 
 /**
  *

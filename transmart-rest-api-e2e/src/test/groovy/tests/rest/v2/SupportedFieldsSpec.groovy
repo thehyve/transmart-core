@@ -1,13 +1,10 @@
 package tests.rest.v2
 
 import base.RESTSpec
-import base.RestCall
 import spock.lang.Requires
 
 import static config.Config.EHR_LOADED
-import static config.Config.PATH_PATIENTS
 import static config.Config.PATH_SUPPORTED_FIELDS
-import static tests.rest.v2.constraints.ConceptConstraint
 
 class SupportedFieldsSpec extends RESTSpec {
 

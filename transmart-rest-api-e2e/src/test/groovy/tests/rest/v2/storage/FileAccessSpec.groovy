@@ -1,19 +1,8 @@
 package tests.rest.v2.storage
 
 import base.RESTSpec
-import base.RestCall
 
-import static config.Config.ADMIN_PASSWORD
-import static config.Config.ADMIN_USERNAME
-import static config.Config.DEFAULT_PASSWORD
-import static config.Config.DEFAULT_USERNAME
-import static config.Config.PATH_ARVADOS_WORKFLOWS
-import static config.Config.PATH_FILES
-import static config.Config.PATH_STORAGE
-import static config.Config.PATH_STUDIES
-import static config.Config.SHARED_CONCEPTS_RESTRICTED_ID
-import static config.Config.UNRESTRICTED_PASSWORD
-import static config.Config.UNRESTRICTED_USERNAME
+import static config.Config.*
 
 class FileAccessSpec extends RESTSpec {
 
