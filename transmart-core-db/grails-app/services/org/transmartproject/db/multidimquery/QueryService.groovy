@@ -464,11 +464,11 @@ class QueryService {
                 basicObs.conceptCode == modifierObs.conceptCode
             }
         }) {
-            throw new IllegalStateException("Found data that is either clinical or is using the old way of storing high dimensional data.")
+            throw new InvalidQueryException("Found data that is either clinical or is using the old way of storing high dimensional data.")
         }
 
         if (observations.any { it.numberValue == null }) {
-            throw new IllegalStateException("Observation row(s) found that miss the assayId")
+            throw new InvalidQueryException("Observation row(s) found that miss the assayId")
         }
 
         List assayIds = observations.collect { it.numberValue.toLong() }
@@ -484,17 +484,17 @@ class QueryService {
                 highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
 
         if (assaysByType.size() == 0) {
-            throw new IllegalStateException("Unknown high dimensional data type.")
+            throw new InvalidQueryException("Unknown high dimensional data type.")
         }
         else if (assaysByType.size() > 1) {
-            throw new IllegalStateException("Expected only one high dimensional data type. Got ${assaysByType.keySet()*.dataTypeName}")
+            throw new InvalidQueryException("Expected only one high dimensional data type. Got ${assaysByType.keySet()*.dataTypeName}")
         }
 
         def assayByType = assaysByType.iterator().next()
 
         def platformList = assayByType.value*.platform as Set
         if (platformList.size() != 1){
-            throw new IllegalStateException("Result assays contain different platforms: ${platformList*.id}")
+            throw new InvalidQueryException("Result assays contain different platforms: ${platformList*.id}")
         }
 
         HighDimensionDataTypeResource typeResource = assayByType.key
