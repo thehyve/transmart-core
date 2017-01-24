@@ -107,19 +107,19 @@ border-right: 10px solid #5ba3e0;*/
 }
 
 .adminMenuButton a.home {
-    background: url(../images/skin/house.png) center left no-repeat;
+    background: url('skin/house.png') center left no-repeat;
     color: #333;
     padding-left: 25px;
 }
 
 .adminMenuButton a.list {
-    background: url(../images/skin/database_table.png) center left no-repeat;
+    background: url('skin/database_table.png') center left no-repeat;
     color: #333;
     padding-left: 25px;
 }
 
 .adminMenuButton a.create {
-    background: url(../images/skin/database_add.png) center left no-repeat;
+    background: url('skin/database_add.png') center left no-repeat;
     color: #333;
     padding-left: 25px;
 }
