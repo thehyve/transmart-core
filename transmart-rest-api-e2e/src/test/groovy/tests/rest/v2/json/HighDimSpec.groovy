@@ -2,7 +2,6 @@ package tests.rest.v2.json
 
 import base.RESTSpec
 import groovy.json.JsonBuilder
-import selectors.ObservationSelectorJson
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 
@@ -34,18 +33,29 @@ class HighDimSpec extends RESTSpec {
         // see transmart-core-api/src/main/groovy/org/transmartproject/core/dataquery/highdim/projections/Projection.groovy
         def projection = 'all_data'
 
+        def request = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder(assayConstraint),
+                        biomarker_constraint: new JsonBuilder(biomarkerConstraint),
+                        projection: projection
+                ]
+        ]
+
         when:
-        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
-                assay_constraint: new JsonBuilder(assayConstraint),
-                biomarker_constraint: new JsonBuilder(biomarkerConstraint),
-                projection: projection
-        ])
+        def responseData = get(request)
 
         then:
         def biomarkers = 2
         def assays = 6
         def projections = 10
         assert responseData.cells.size() == biomarkers * assays * projections
+
+        where:
+        acceptType | _
+        contentTypeForJSON | _
+        contentTypeForProtobuf | _
     }
 
     /**
@@ -67,13 +77,19 @@ class HighDimSpec extends RESTSpec {
         ]
         def projection = 'all_data'
 
+        def request = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder(assayConstraint),
+                        biomarker_constraint: new JsonBuilder(biomarkerConstraint),
+                        projection: projection
+                ]
+        ]
+
         when:
-        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
-                assay_constraint: new JsonBuilder(assayConstraint),
-                biomarker_constraint: new JsonBuilder(biomarkerConstraint),
-                projection: projection
-        ])
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then:
         selector.cellCount == 120
@@ -82,11 +98,16 @@ class HighDimSpec extends RESTSpec {
             assert ['117_at', '1007_s_at'].contains(selector.select(it, 'biomarker', 'label', 'String'))
             assert selector.select(it, 'biomarker', 'biomarker', 'String') == null
 
-            assert [-6001,-6002,-6004,-6006,-6007,-6008].contains(selector.select(it, 'assay', 'id', 'Int'))
+            assert [-6001,-6002,-6004,-6006,-6007,-6008].contains(selector.select(it, 'assay', 'id', 'Int') as int)
             assert ['sample1', 'sample2', 'sample4', 'sample6', 'sample7', 'sample8'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
 
-            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection', 'String'))
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -95,16 +116,20 @@ class HighDimSpec extends RESTSpec {
      *  then: "only data for Expression Breast is returned"
      */
     def "highdim by ConceptConstraint"(){
-        def assayConstraint = [
-                type: ConceptConstraint,
-                path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Breast\\"
+        def request = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder([
+                                type: ConceptConstraint,
+                                path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Breast\\"
+                        ])
+                ]
         ]
 
         when:
-        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
-                assay_constraint: new JsonBuilder(assayConstraint),
-        ])
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then:
         selector.cellCount == 90
@@ -113,11 +138,16 @@ class HighDimSpec extends RESTSpec {
             assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'biomarker', 'label', 'String'))
             assert selector.select(it, 'biomarker', 'biomarker', 'String') == null
 
-            assert [-6003,-6005,-6009].contains(selector.select(it, 'assay', 'id', 'Int'))
+            assert [-6003,-6005,-6009].contains(selector.select(it, 'assay', 'id', 'Int') as int)
             assert ['sample3', 'sample5', 'sample9'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
 
-            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection', 'String'))
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
 
@@ -127,26 +157,35 @@ class HighDimSpec extends RESTSpec {
      *  then: "an empty message is returned"
      */
     def "empty highdim"(){
-        def assayConstraint = [
-                type: Combination,
-                operator: AND,
-                args: [
-                        [type: FieldConstraint,
-                         field: [dimension: 'patient', fieldName: 'age', type: NUMERIC ],
-                         operator: EQUALS, value:20],
-                        [type: FieldConstraint,
-                         field: [dimension: 'patient', fieldName: 'age', type: NUMERIC ],
-                         operator: EQUALS, value:30]
+        def request = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder([
+                                type: Combination,
+                                operator: AND,
+                                args: [
+                                        [type: FieldConstraint,
+                                         field: [dimension: 'patient', fieldName: 'age', type: NUMERIC ],
+                                         operator: EQUALS, value:20],
+                                        [type: FieldConstraint,
+                                         field: [dimension: 'patient', fieldName: 'age', type: NUMERIC ],
+                                         operator: EQUALS, value:30]
+                                ]
+                        ])
                 ]
         ]
 
         when:
-        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
-                assay_constraint: new JsonBuilder(assayConstraint),
-        ])
+        def responseData = get(request)
 
         then:
-        assert responseData.cells == []
+        assert responseData.cells == result
+
+        where:
+        acceptType | newSelector | result
+        contentTypeForJSON | jsonSelector | []
+        contentTypeForProtobuf | protobufSelector | null
     }
 
     /**
@@ -159,35 +198,50 @@ class HighDimSpec extends RESTSpec {
                 type: ConceptConstraint,
                 path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"
         ]
-        def projection1 = 'zscore'
-        def projection2 = 'log_intensity'
+        def requestZscore = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder(assayConstraint),
+                        projection: 'zscore'
+                ]
+        ]
+
+        def requestLog_intensity = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder(assayConstraint),
+                        projection: 'log_intensity'
+                ]
+        ]
 
         when:
-        def responseData1 = get(PATH_HIGH_DIM, contentTypeForJSON, [
-                assay_constraint: new JsonBuilder(assayConstraint),
-                projection      : projection1
-        ])
-        def responseData2 = get(PATH_HIGH_DIM, contentTypeForJSON, [
-                assay_constraint: new JsonBuilder(assayConstraint),
-                projection      : projection2
-        ])
-        ObservationSelectorJson selector1 = new ObservationSelectorJson(parseHypercube(responseData1))
-        ObservationSelectorJson selector2 = new ObservationSelectorJson(parseHypercube(responseData2))
+        def responseZscore = get(requestZscore)
+        def responseLog_intensity = get(requestLog_intensity)
+
+        def selectorZscore = newSelector(responseZscore)
+        def selectorLog_intensity = newSelector(responseLog_intensity)
 
         then:
-        selector1.cellCount == 18
-        selector2.cellCount == 18
+        selectorZscore.cellCount == 18
+        selectorLog_intensity.cellCount == 18
 
-        def values1 = []
-        def values2 = []
-        (0..<selector1.cellCount).each {
+        def valuesZscore = []
+        def valuesLog_intensity = []
+        (0..<selectorZscore.cellCount).each {
 
-            values1.add(selector1.select(it))
-            values2.add(selector2.select(it))
+            valuesZscore.add(selectorZscore.select(it))
+            valuesLog_intensity.add(selectorLog_intensity.select(it))
         }
-        values1.forEach{
-            assert !values2.contains(it)
+        valuesZscore.forEach{
+            assert !valuesLog_intensity.contains(it)
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -197,29 +251,37 @@ class HighDimSpec extends RESTSpec {
      */
     @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-154 inconsistent use of projections
     def "highdim projection"(){
-        def assayConstraint = [
-                type: ConceptConstraint,
-                path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"
-        ]
-        def biomarkerConstraint = [
-                type: BiomarkerConstraint,
-                biomarkerType: 'genes',
-                params: [
-                        names: ['TP53']
+        def request = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder([
+                                type: ConceptConstraint,
+                                path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"
+                        ]),
+                        biomarker_constraint: new JsonBuilder([
+                                type: BiomarkerConstraint,
+                                biomarkerType: 'genes',
+                                params: [
+                                        names: ['TP53']
+                                ]
+                        ]),
+                        projection: 'logIntensity'
                 ]
         ]
-        def projection = 'logIntensity'
 
         when:
-        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
-                assay_constraint: new JsonBuilder(assayConstraint),
-                biomarker_constraint: new JsonBuilder(biomarkerConstraint),
-                projection: projection
-        ])
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        def responseData = get(request)
+        def selector = newSelector(responseData)
+
 
         then:
         assert selector.cellCount == 18
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -229,23 +291,27 @@ class HighDimSpec extends RESTSpec {
      */
     @Requires({EHR_HIGHDIM_LOADED})
     def "highdim by timeConstraint"(){
-        def date = toDateString("01-04-2016Z")
-        def assayConstraint = [
-                type: Combination,
-                operator: AND,
-                args: [
-                        [type: StudyNameConstraint, studyId: EHR_HIGHDIM_ID],
-                        [type: TimeConstraint,
-                         field: [dimension: 'start time', fieldName: 'startDate', type: DATE ],
-                         operator: AFTER,
-                         values: [date]]
+        def request = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder([
+                                type: Combination,
+                                operator: AND,
+                                args: [
+                                        [type: StudyNameConstraint, studyId: EHR_HIGHDIM_ID],
+                                        [type: TimeConstraint,
+                                         field: [dimension: 'start time', fieldName: 'startDate', type: DATE ],
+                                         operator: AFTER,
+                                         values: [toDateString("01-04-2016Z")]]
+                                ]
+                        ])
                 ]
         ]
+
         when:
-        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
-                assay_constraint: new JsonBuilder(assayConstraint),
-        ])
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then:
         selector.cellCount == 60
@@ -257,8 +323,13 @@ class HighDimSpec extends RESTSpec {
             assert [-6016,-6017,-6018, -6019].contains(selector.select(it, 'assay', 'id', 'Int'))
             assert ['sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
 
-            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection', 'String'))
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -268,14 +339,18 @@ class HighDimSpec extends RESTSpec {
      */
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
     def "highdim by modifier"(){
-        def assayConstraint = [type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
-                               values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Normal"]]
+        def request = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder([type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                                                           values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Normal"]])
+                ]
+        ]
 
         when:
-        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
-                assay_constraint: new JsonBuilder(assayConstraint),
-        ])
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then:
         selector.cellCount == 120
@@ -287,8 +362,13 @@ class HighDimSpec extends RESTSpec {
             assert [-631,-637,-638, -639].contains(selector.select(it, 'assay', 'id', 'Int'))
             assert ['sample1', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
 
-            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection'))
+            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection', 'String'))
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -298,35 +378,56 @@ class HighDimSpec extends RESTSpec {
      */
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
     def "highdim by invalid assay"(){
-        def assayConstraint = [type: 'invalidConstraint']
+        def request = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder([type: 'invalidConstraint'])
+                ],
+                statusCode: 400
+        ]
 
         when:
-        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
-                assay_constraint: new JsonBuilder(assayConstraint),
-        ])
+        def responseData = get(request)
 
         then:
         that responseData.httpStatus, is(400)
         that responseData.type, is('InvalidArgumentsException')
         that responseData.message, is('Constraint not supported: invalidConstraint.')
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
-     *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
-     *  when: "I get highdim for TUMOR_NORMAL_SAMPLES with modifier Normal"
-     *  then: "only data for modifier Normal is returned"
+     *  given: "study EHR is loaded"
+     *  when: "I get highdim for a non-highdim concept"
+     *  then: "an error is returned"
      */
     @Requires({EHR_HIGHDIM_LOADED})
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-166 getting high dim by non highdim conceptConstraint returns 500 error
     def "highdim by non-highdim concept"(){
-        def assayConstraint = [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
+        def request = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
+                ],
+                statusCode: 500
+        ]
 
         when:
-        def responseData = get(PATH_HIGH_DIM, contentTypeForJSON, [
-                assay_constraint: new JsonBuilder(assayConstraint),
-        ])
+        def responseData = get(request)
 
         then:
-        responseData == []
+        that responseData.httpStatus, is(500)
+        that responseData.type, is('IllegalStateException')
+        that responseData.message, is('Found data that is either clinical or is using the old way of storing high dimensional data.')
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 }

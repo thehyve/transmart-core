@@ -1,7 +1,6 @@
 package tests.rest.v2.json
 
 import base.RESTSpec
-import selectors.ObservationSelectorJson
 import spock.lang.Requires
 
 import static config.Config.*
@@ -27,30 +26,38 @@ class RelativeTimepointsSpec extends RESTSpec {
     @Requires({ CLINICAL_TRIAL_LOADED })
     def "multiple observations to a relative timepoint"() {
         given: "study CLINICAL_TRIAL is loaded"
+        def request = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type    : Combination,
+                        operator: AND,
+                        args    : [
+                                [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
+                                [type    : FieldConstraint,
+                                 field   : [dimension: 'trial visit',
+                                            fieldName: 'relTimeLabel',
+                                            type     : STRING],
+                                 operator: EQUALS,
+                                 value   : 'Baseline']
+                        ]
+                ])
+        ]
 
         when: "I get observations related to Baseline"
-        def constraintMap = [
-                type    : Combination,
-                operator: AND,
-                args    : [
-                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
-                        [type    : FieldConstraint,
-                         field   : [dimension: 'trial visit',
-                                    fieldName: 'relTimeLabel',
-                                    type     : STRING],
-                         operator: EQUALS,
-                         value   : 'Baseline']
-                ]
-        ]
-        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then: "4 observations are returned"
-
         assert selector.cellCount == 4
         (0..<selector.cellCount).each {
             assert selector.select(it, "concept", "conceptCode", 'String').equals('CT:VSIGN:HR')
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -62,53 +69,65 @@ class RelativeTimepointsSpec extends RESTSpec {
     @Requires({ CLINICAL_TRIAL_LOADED })
     def "label and relative time is te same"() {
         given: "study CLINICAL_TRIAL is loaded"
+        def request1week = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type    : Combination,
+                        operator: AND,
+                        args    : [
+                                [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
+                                [type    : FieldConstraint,
+                                 field   : [dimension: 'trial visit',
+                                            fieldName: 'relTimeLabel',
+                                            type     : STRING],
+                                 operator: EQUALS,
+                                 value   : 'Week 1']
+                        ]
+                ])
+        ]
 
+        def request7days = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type    : Combination,
+                        operator: AND,
+                        args    : [
+                                [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
+                                [type    : FieldConstraint,
+                                 field   : [dimension: 'trial visit',
+                                            fieldName: 'relTime',
+                                            type     : NUMERIC],
+                                 operator: EQUALS,
+                                 value   : 7]
+                        ]
+                ])
+        ]
         when: "I get observations related to week 1"
-        def constraintMap1 = [
-                type    : Combination,
-                operator: AND,
-                args    : [
-                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
-                        [type    : FieldConstraint,
-                         field   : [dimension: 'trial visit',
-                                    fieldName: 'relTimeLabel',
-                                    type     : STRING],
-                         operator: EQUALS,
-                         value   : 'Week 1']
-                ]
-        ]
-
+        def responseData1Week = get(request1week)
         and: "I get observations related to 7 days"
-        def constraintMap2 = [
-                type    : Combination,
-                operator: AND,
-                args    : [
-                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
-                        [type    : FieldConstraint,
-                         field   : [dimension: 'trial visit',
-                                    fieldName: 'relTime',
-                                    type     : NUMERIC],
-                         operator: EQUALS,
-                         value   : 7]
-                ]
-        ]
+        def responseData7Days = get(request7days)
 
-        def responseData1 = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap1))
-        ObservationSelectorJson selector1 = new ObservationSelectorJson(parseHypercube(responseData1))
-        def responseData2 = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap2))
-        ObservationSelectorJson selector2 = new ObservationSelectorJson(parseHypercube(responseData2))
+        def selector1Week = newSelector(responseData1Week)
+        def selector7Days = newSelector(responseData7Days)
 
         then: "both sets of observations are the same"
 
-        assert selector1.cellCount == selector2.cellCount
-        assert selector1.inlined.size() == selector2.inlined.size()
-        assert selector1.inlined.containsAll(selector2.inlined)
-        assert selector1.notInlined.size() == selector2.notInlined.size()
-        assert selector1.notInlined.containsAll(selector2.notInlined)
+        assert selector1Week.cellCount == selector7Days.cellCount
+        assert selector1Week.inlined.size() == selector7Days.inlined.size()
+        assert selector1Week.inlined.containsAll(selector7Days.inlined)
+        assert selector1Week.notInlined.size() == selector7Days.notInlined.size()
+        assert selector1Week.notInlined.containsAll(selector7Days.notInlined)
 
-        (0..<selector1.cellCount).each {
-            assert selector1.select(it) == selector2.select(it)
+        (0..<selector1Week.cellCount).each {
+            assert selector1Week.select(it) == selector7Days.select(it)
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -119,31 +138,39 @@ class RelativeTimepointsSpec extends RESTSpec {
     @Requires({ EHR_LOADED })
     def "multiple concepts to the same relative timepoint within the same study"() {
         given: "study EHR is loaded"
+        def request = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type    : Combination,
+                        operator: AND,
+                        args    : [
+                                [type: StudyNameConstraint, studyId: EHR_ID],
+                                [type    : FieldConstraint,
+                                 field   : [dimension: 'trial visit',
+                                            fieldName: 'relTimeLabel',
+                                            type     : STRING],
+                                 operator: EQUALS,
+                                 value   : 'General']
+                        ]
+                ])
+        ]
 
         when: "I get observations related to General"
-        def constraintMap = [
-                type    : Combination,
-                operator: AND,
-                args    : [
-                        [type: StudyNameConstraint, studyId: EHR_ID],
-                        [type    : FieldConstraint,
-                         field   : [dimension: 'trial visit',
-                                    fieldName: 'relTimeLabel',
-                                    type     : STRING],
-                         operator: EQUALS,
-                         value   : 'General']
-                ]
-        ]
-        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then: "multiple concepts are returned"
-
         HashSet concepts = []
         (0..<selector.cellCount).each {
             concepts.add(selector.select(it, "concept", "conceptCode", 'String'))
         }
         assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR')
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -154,16 +181,20 @@ class RelativeTimepointsSpec extends RESTSpec {
     @Requires({ EHR_LOADED && CLINICAL_TRIAL_LOADED })
     def "multiple concepts to the same relative timepoint within several studies"() {
         given: "studies EHR and CLINICAL_TRIAL are loaded"
+        def request = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([type    : FieldConstraint,
+                                field   : [dimension: 'trial visit',
+                                           fieldName: 'relTimeLabel',
+                                           type     : STRING],
+                                operator: EQUALS,
+                                value   : 'General'])
+        ]
 
         when: "I get observations related to the General relative time label"
-        def constraintMap = [type    : FieldConstraint,
-                             field   : [dimension: 'trial visit',
-                                        fieldName: 'relTimeLabel',
-                                        type     : STRING],
-                             operator: EQUALS,
-                             value   : 'General']
-        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then: "multiple concepts are returned"
         HashSet concepts = []
@@ -171,6 +202,11 @@ class RelativeTimepointsSpec extends RESTSpec {
             concepts.add(selector.select(it, "concept", "conceptCode", 'String'))
         }
         assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR', 'CT:DEM:AGE')
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -182,51 +218,64 @@ class RelativeTimepointsSpec extends RESTSpec {
     @Requires({ CLINICAL_TRIAL_LOADED })
     def "relative timescale compared to other relative timepoints"() {
         given: "study CLINICAL_TRIAL is loaded"
+        def request3week = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type    : Combination,
+                        operator: AND,
+                        args    : [
+                                [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
+                                [type    : FieldConstraint,
+                                 field   : [dimension: 'trial visit',
+                                            fieldName: 'relTimeLabel',
+                                            type     : STRING],
+                                 operator: EQUALS,
+                                 value   : 'Week 3']
+                        ]
+                ])
+        ]
 
+        def request7days = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type    : Combination,
+                        operator: AND,
+                        args    : [
+                                [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
+                                [type    : FieldConstraint,
+                                 field   : [dimension: 'trial visit',
+                                            fieldName: 'relTime',
+                                            type     : NUMERIC],
+                                 operator: GREATER_THAN,
+                                 value   : 7]
+                        ]
+                ])
+        ]
         when: "I get observations related to the last week"
-        def constraintMap1 = [
-                type    : Combination,
-                operator: AND,
-                args    : [
-                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
-                        [type    : FieldConstraint,
-                         field   : [dimension: 'trial visit',
-                                    fieldName: 'relTimeLabel',
-                                    type     : STRING],
-                         operator: EQUALS,
-                         value   : 'Week 3']
-                ]
-        ]
-
+        def responseData3Week = get(request3week)
         and: "I get observations related to GREATER_THEN the second to last week"
-        def constraintMap2 = [
-                type    : Combination,
-                operator: AND,
-                args    : [
-                        [type: StudyNameConstraint, studyId: CLINICAL_TRIAL_ID],
-                        [type    : FieldConstraint,
-                         field   : [dimension: 'trial visit',
-                                    fieldName: 'relTime',
-                                    type     : NUMERIC],
-                         operator: GREATER_THAN,
-                         value   : 7]
-                ]
-        ]
-        def responseData1 = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap1))
-        ObservationSelectorJson selector1 = new ObservationSelectorJson(parseHypercube(responseData1))
-        def responseData2 = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap2))
-        ObservationSelectorJson selector2 = new ObservationSelectorJson(parseHypercube(responseData2))
+        def responseData7Days = get(request7days)
+
+        def selector3Week = newSelector(responseData3Week)
+        def selector7Days = newSelector(responseData7Days)
 
         then: "both sets of observations are the same"
 
-        assert selector1.cellCount == selector2.cellCount
-        assert selector1.inlined.size() == selector2.inlined.size()
-        assert selector1.inlined.containsAll(selector2.inlined)
-        assert selector1.notInlined.size() == selector2.notInlined.size()
-        assert selector1.notInlined.containsAll(selector2.notInlined)
+        assert selector3Week.cellCount == selector7Days.cellCount
+        assert selector3Week.inlined.size() == selector7Days.inlined.size()
+        assert selector3Week.inlined.containsAll(selector7Days.inlined)
+        assert selector3Week.notInlined.size() == selector7Days.notInlined.size()
+        assert selector3Week.notInlined.containsAll(selector7Days.notInlined)
 
-        (0..<selector1.cellCount).each {
-            assert selector1.select(it) == selector2.select(it)
+        (0..<selector3Week.cellCount).each {
+            assert selector3Week.select(it) == selector7Days.select(it)
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 }
