@@ -1,6 +1,6 @@
-%{--include js lib for heatmap dynamically--}%
-%{--<r:require modules="freq_plot"/>--}%
-%{--<r:layoutResources disposition="defer"/>--}%
+<html>
+<body>
+<asset:javascript src="r-modules.js"/>
 
 %{--Input Container--}%
 <div id="freq_plot_container" class="analysis_container"></div>
@@ -12,14 +12,14 @@
 <div id="template-freq-plot" class="x-hidden">
     <div id="plotResultContainer" class="plot_result_container">
         %{--Image--}%
-        <g:img file="{filename}" class="freq-plot"></g:img>
+        <img src="${filename}"/> <br/>
         <hr class="separator"/>
         %{--Download button --}%
         <div class="resultToolBar">
             <div id="downloadBtn"></div>
         </div>
         <table class="newspaper-a">
-            <caption>Table 1: Input Parameters </caption>
+            <caption>Table 1: Input Parameters</caption>
             <thead>
             <tr>
                 <th scope="col" class="first-col">Parameters</th>
@@ -43,8 +43,9 @@
             <tr>
                 <td class="first-col">Selected Cohort</td>
                 <td>
-                    <div> Subset 1: {inputCohort1} </div>
-                    <div> Subset 2: {inputCohort2} </div>
+                    <div>Subset 1: {inputCohort1}</div>
+
+                    <div>Subset 2: {inputCohort2}</div>
                 </td>
             </tr>
             <tr>
@@ -63,4 +64,5 @@
         </table>
     </div>
 </div>
-
+</body>
+</html>
