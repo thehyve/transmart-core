@@ -3,6 +3,7 @@ package org.transmartproject.db.support
 import grails.orm.HibernateCriteriaBuilder
 import org.grails.datastore.mapping.query.api.Criteria
 import org.hibernate.Criteria as HibernateCriteria
+import org.hibernate.criterion.Disjunction
 import org.hibernate.criterion.Restrictions
 import org.transmartproject.core.exceptions.InvalidRequestException
 
@@ -40,11 +41,11 @@ class InQuery {
             throws InvalidRequestException {
         builder.with {
             if (parameterValues.size() > 0) {
-                or {
-                    parameterValues.collect { parVal ->
-                        builder.add(Restrictions.in(fieldName, parVal.value))
+                Disjunction disjunction = Restrictions.disjunction()
+                    parameterValues.each { parVal ->
+                        disjunction.add(Restrictions.in(fieldName, parVal.value))
                     }
-                }
+                builder.add(disjunction)
             } else {
                 and {
                     builder.add(Restrictions.in(fieldName, []))
