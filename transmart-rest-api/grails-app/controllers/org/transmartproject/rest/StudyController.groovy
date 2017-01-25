@@ -45,7 +45,7 @@ class StudyController {
      *  This will return the list of studies, where each study will be rendered in its short format
     */
     def index() {
-        respond wrapStudies(studiesResourceService.studySet)
+        respond wrapStudies(studiesResourceService.studySet.findAll { it.id != null })
     }
 
     /** GET request on /v1/studies/${id}
