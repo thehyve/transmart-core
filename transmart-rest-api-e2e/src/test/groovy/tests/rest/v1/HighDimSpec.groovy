@@ -7,9 +7,10 @@ import spock.lang.Requires
 
 import static config.Config.CELL_LINE_ID
 import static config.Config.CELL_LINE_LOADED
+import static config.Config.GSE8581_ID
 import static config.Config.V1_PATH_STUDIES
 
-@Requires({CELL_LINE_LOADED})
+@Requires({GSE8581_ID})
 class HighDimSpec extends RESTSpec{
 
     /**
@@ -18,42 +19,44 @@ class HighDimSpec extends RESTSpec{
      *  then: "I get all relevant dataTypes"
      */
     def "v1 highdim dataTypes"(){
-        given: "study CELL-LINE is loaded"
+        given: "study GSE8581 is loaded"
 
-        def studieId = CELL_LINE_ID
-        def conceptPath = 'Molecular profiling/High-throughput molecular profiling/Expression (miRNA)/Agilent miRNA microarray/Gene level/Normalised ratios/'
+        def studieId = GSE8581_ID
+        def conceptPath = 'Biomarker Data/Affymetrix Human Genome U133 Plus 2.0 Array/Lung/'
 
         when: "I request all highdim dataTypes for a concept"
-        def responseData = get([path: V1_PATH_STUDIES+"/${studieId}/concepts/${conceptPath}/highdim", acceptType: contentTypeForoctetStream])
+        def responseData = get([path: V1_PATH_STUDIES+"/${studieId}/concepts/${conceptPath}/highdim", acceptType: contentTypeForJSON])
 
         then: "I get all relevant dataTypes"
         assert responseData.dataTypes.each {
-            assert it.assayCount == 2
-            assert it.name == 'mirnaqpcr'
-            assert it.supportedAssayConstraints == ['patient_set', 'disjunction', 'assay_id_list', 'patient_id_list', 'ontology_term', 'trial_name']
-            assert it.supportedDataConstraints == ['annotation', 'search_keyword_ids', 'disjunction', 'mirnas']
-            assert it.supportedProjections == ['default_real_projection', 'zscore', 'log_intensity', 'all_data']
+            assert it.assayCount == 55
+            assert it.name == 'mrna'
+            assert it.supportedAssayConstraints == ['ontology_term', 'patient_set', 'disjunction', 'trial_name', 'assay_id_list', 'patient_id_list', 'concept_path']
+            assert it.supportedDataConstraints == ['disjunction', 'genes', 'proteins', 'search_keyword_ids', 'gene_lists', 'gene_signatures', 'pathways', 'homologenes']
+            assert it.supportedProjections == ['all_data', 'default_real_projection', 'zscore', 'log_intensity']
         }
     }
 
     /**
-     *  given: "study CELL-LINE is loaded"
+     *  given: "study GSE8581 is loaded"
      *  when: "I request highdim data"
      *  then: "I get a file stream"
      */
     def "v1 single "(){
-        given: "study CELL-LINE is loaded"
-        def studieId = CELL_LINE_ID
-        def conceptPath = 'Molecular profiling/High-throughput molecular profiling/Expression (miRNA)/Agilent miRNA microarray/Gene level/Normalised ratios/'
+        given: "study GSE8581 is loaded"
+        def studieId = GSE8581_ID
+        def conceptPath = 'Biomarker Data/Affymetrix Human Genome U133 Plus 2.0 Array/Lung/'
 
         when: "I request highdim data"
         def responseData = get([
                 path: V1_PATH_STUDIES+"/${studieId}/concepts/${conceptPath}/highdim",
                 query: [
-                        dataType: 'mirnaqpcr',
-                        projection: 'zscore'
+                        dataType: 'mrna',
+                        projection: 'default_real_projection',
+                        assayConstraints: toJSON([patient_id_list: [ids: ["GSE8581GSM210196"]]])
                 ],
-                acceptType: contentTypeForoctetStream])
+                acceptType: contentTypeForoctetStream
+        ])
 
         then: "I get a file stream"
         assert responseData.getClass() == EofSensorInputStream.class

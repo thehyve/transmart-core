@@ -176,6 +176,8 @@ abstract class RESTSpec extends Specification{
                     case contentTypeForJSON:
                         result = reader
                         break
+                    default:
+                        result = reader
                 }
                 if (DEBUG) { println result }
                 return result
