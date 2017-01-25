@@ -144,6 +144,10 @@ war {
             into 'dataExportRScripts'
         })
         with copySpec({
+            from '../open-api'
+            into 'classes/public/open-api'
+        })
+        with copySpec({
             from 'src/main/resources/public'
             into 'classes/public'
         })
