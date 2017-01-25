@@ -29,26 +29,25 @@ class InQueryTest extends Specification {
         when:
         def choppedList = InQuery.chopParametersValues([1, 2, 3])
         then:
-        assertThat choppedList.keySet(), hasSize(1)
-        assertThat choppedList, hasEntry(is('_0'), contains(1, 2, 3))
+        assertThat choppedList, hasSize(1)
+        assertThat choppedList[0], contains(1, 2, 3)
     }
 
     void testNumOfItemsMoreThenMax() {
         when:
         def choppedList = InQuery.chopParametersValues((1..2500).toList())
         then:
-        assertThat choppedList.keySet(), hasSize(3)
-        assertThat choppedList, allOf(
-                hasEntry(is('_0'), hasSize(1000)),
-                hasEntry(is('_1'), hasSize(1000)),
-                hasEntry(is('_2'), hasSize(500)),
-        )
+        assertThat choppedList, hasSize(3)
+        assertThat choppedList[0], hasSize(1000)
+        assertThat choppedList[1], hasSize(1000)
+        assertThat choppedList[2], hasSize(500)
+
     }
 
     void testEmptyIds() {
         when:
-        def choppedList = InQuery.chopParametersValues([])
+        def choppedList = InQuery.chopParametersValues([[]])
         then:
-        assertThat choppedList, equalTo([:])
+        assertThat choppedList[0][0], hasSize(0)
     }
 }

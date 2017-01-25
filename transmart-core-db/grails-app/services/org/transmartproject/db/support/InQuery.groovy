@@ -31,42 +31,37 @@ class InQuery {
         addConstraintsToCriteriaByFieldName(criteria, property, choppedItems)
     }
 
-    private static Map chopParametersValues(List inItems) {
-        if (!inItems) return [:]
-        def chunks = inItems.collate(MAX_LIST_SIZE)
-        (0..<chunks.size()).collectEntries { index -> ["_${index}".toString(), chunks[index]] }
+    private static List<List> chopParametersValues(List inItems) {
+        if (!inItems) return [[]]
+        inItems.collate(MAX_LIST_SIZE)
     }
 
-    private static HibernateCriteria addConstraintsToCriteriaByFieldName(HibernateCriteriaBuilder builder, String fieldName, Map parameterValues)
+    private static HibernateCriteria addConstraintsToCriteriaByFieldName(HibernateCriteriaBuilder builder, String fieldName, List parameterValues)
             throws InvalidRequestException {
         builder.with {
             if (parameterValues.size() > 0) {
                 Disjunction disjunction = Restrictions.disjunction()
-                    parameterValues.each { parVal ->
-                        disjunction.add(Restrictions.in(fieldName, parVal.value))
-                    }
+                parameterValues.each { parVal ->
+                    disjunction.add(Restrictions.in(fieldName, parVal))
+                }
                 builder.add(disjunction)
             } else {
-                and {
-                    builder.add(Restrictions.in(fieldName, []))
-                }
+                builder.add(Restrictions.in(fieldName, []))
             }
         }
         builder.instance
     }
 
-    private static Criteria addConstraintsToCriteriaByFieldName(Criteria criteria, String fieldName, Map parameterValues)
+    private static Criteria addConstraintsToCriteriaByFieldName(Criteria criteria, String fieldName, List parameterValues)
             throws InvalidRequestException {
         if (parameterValues.size() > 0) {
             criteria.or {
                 parameterValues.collect { parVal ->
-                    'in' fieldName, parVal.value
+                    'in' fieldName, parVal
                 }
             }
         } else {
-            criteria.and {
-                'in' fieldName, []
-            }
+            criteria.in(fieldName, [])
         }
         criteria
     }
