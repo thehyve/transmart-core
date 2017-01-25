@@ -13,6 +13,9 @@ class Config {
     public static final String ADMIN_USERNAME = 'admin'
     public static final String ADMIN_PASSWORD = 'admin'
 
+    public static final String VERSIONS_PATH = '/versions'
+    public static final String NON_EXISTING_API_VERSION = 'v0'
+
     public static final String V1_PATH_STUDIES = "v1/studies"
     public static final String V1_PATH_observations = "v1/observations"
     public static final String V1_PATH_PATIENT_SETS = "v1/patient_sets"
