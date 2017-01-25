@@ -1,18 +1,8 @@
 package tests.rest.v2.storage
 
 import base.RESTSpec
-import base.RestCall
 
-import static config.Config.ADMIN_PASSWORD
-import static config.Config.ADMIN_USERNAME
-import static config.Config.DEFAULT_PASSWORD
-import static config.Config.DEFAULT_USERNAME
-import static config.Config.PATH_FILES
-import static config.Config.PATH_STORAGE
-import static config.Config.PATH_STUDIES
-import static config.Config.SHARED_CONCEPTS_RESTRICTED_ID
-import static config.Config.UNRESTRICTED_PASSWORD
-import static config.Config.UNRESTRICTED_USERNAME
+import static config.Config.*
 
 class FileAccessSpec extends RESTSpec {
 
@@ -21,14 +11,14 @@ class FileAccessSpec extends RESTSpec {
 
     def setup(){
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def responseDataAll = get(PATH_FILES)
+        def responseDataAll = get([path: PATH_FILES, acceptType: contentTypeForJSON])
         responseDataAll.files.each{
-            delete(PATH_FILES + "/${it.id}")
+            delete([path: PATH_FILES + "/${it.id}"])
         }
 
-        responseDataAll = get(PATH_STORAGE)
+        responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
         responseDataAll.storageSystems.each{
-            delete(PATH_STORAGE + "/${it.id}")
+            delete([path: PATH_STORAGE + "/${it.id}"])
         }
 
         def sourceSystem = [
@@ -38,7 +28,7 @@ class FileAccessSpec extends RESTSpec {
                 'systemVersion':'v1',
                 'singleFileCollections':false,
         ]
-        def responseData = post(PATH_STORAGE, toJSON(sourceSystem))
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem)])
         storageId = responseData.id
 
         def new_file_link = [
@@ -47,7 +37,7 @@ class FileAccessSpec extends RESTSpec {
                 'study'       : SHARED_CONCEPTS_RESTRICTED_ID,
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
-        file_link = post(PATH_FILES, toJSON(new_file_link))
+        file_link = post([path: PATH_FILES, body: toJSON(new_file_link)])
     }
 
     /**
@@ -58,16 +48,17 @@ class FileAccessSpec extends RESTSpec {
     def "get files by study"(){
         given: "a file is attached to a restricted study and I do not have access"
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
-        RestCall testRequest = new RestCall(PATH_STUDIES+"/${SHARED_CONCEPTS_RESTRICTED_ID}/files", contentTypeForJSON);
-        testRequest.statusCode = 403
 
         when: "I get files for that study"
-        def responseData = get(testRequest)
+        def responseData = get([
+                path: PATH_STUDIES+"/${SHARED_CONCEPTS_RESTRICTED_ID}/files",
+                acceptType: contentTypeForJSON,
+                statusCode: 403
+        ])
 
         then: "I get an access error"
         assert responseData.httpStatus == 403
         assert responseData.type == 'AccessDeniedException'
-        assert responseData.message == "Access denied to study or study does not exist: ${SHARED_CONCEPTS_RESTRICTED_ID}"
     }
 
     /**
@@ -78,10 +69,12 @@ class FileAccessSpec extends RESTSpec {
     def "get files by study unrestricted"(){
         given: "a file is attached to a restricted study and I have access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
-        RestCall testRequest = new RestCall(PATH_STUDIES+"/${SHARED_CONCEPTS_RESTRICTED_ID}/files", contentTypeForJSON);
 
         when: "I get files for that study"
-        def responseData = get(testRequest)
+        def responseData = get([
+                path: PATH_STUDIES+"/${SHARED_CONCEPTS_RESTRICTED_ID}/files",
+                acceptType: contentTypeForJSON,
+        ])
 
         then: "I get a list of files"
         assert responseData.files.each {

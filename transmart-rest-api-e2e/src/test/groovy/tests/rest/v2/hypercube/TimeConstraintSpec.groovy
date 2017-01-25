@@ -1,7 +1,6 @@
-package tests.rest.v2.json
+package tests.rest.v2.hypercube
 
 import base.RESTSpec
-import selectors.ObservationSelectorJson
 import spock.lang.Requires
 
 import static config.Config.*
@@ -24,10 +23,10 @@ class TimeConstraintSpec extends RESTSpec{
     @Requires({EHR_LOADED})
     def "query observations based on time constraint after startDate"(){
         given: "Ward-EHR is loaded"
-        def date = toDateString("01-01-2016Z")
-
-        when: "I query observations in this study with startDate after 01-01-2016"
-        def constraintMap = [
+        def request = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
                         type: Combination,
                         operator: AND,
                         args: [
@@ -35,11 +34,14 @@ class TimeConstraintSpec extends RESTSpec{
                                 [type: TimeConstraint,
                                  field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
                                  operator: AFTER,
-                                 values: [date]]
+                                 values: [toDateString("01-01-2016Z")]]
                         ]
-                ]
-        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+                ])
+        ]
+
+        when: "I query observations in this study with startDate after 01-01-2016"
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then: "6 observations are returned"
         assert selector.cellCount == 6
@@ -47,6 +49,11 @@ class TimeConstraintSpec extends RESTSpec{
             assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -59,22 +66,25 @@ class TimeConstraintSpec extends RESTSpec{
         given: "Ward-EHR is loaded"
         def date1 = toDateString("29-3-2016 10:00:00Z", "dd-MM-yyyy HH:mm:ssX")
         def date2 = toDateString("29-3-2016 10:11:00Z", "dd-MM-yyyy HH:mm:ssX")
-
+        def request = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type: Combination,
+                        operator: AND,
+                        args: [
+                                [type: StudyNameConstraint, studyId: EHR_ID],
+                                [type: TimeConstraint,
+                                 field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
+                                 operator: BETWEEN,
+                                 values: [date1, date2]]
+                        ]
+                ])
+        ]
 
         when: "I query observations in this study with startDate between 29-3-2016 10:00:00 and 29-3-2016 10:11:00"
-        def constraintMap = [
-                type: Combination,
-                operator: AND,
-                args: [
-                        [type: StudyNameConstraint, studyId: EHR_ID],
-                        [type: TimeConstraint,
-                         field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
-                         operator: BETWEEN,
-                         values: [date1, date2]]
-                ]
-        ]
-        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then: "2 observations are returned"
         assert selector.cellCount == 2
@@ -82,6 +92,11 @@ class TimeConstraintSpec extends RESTSpec{
             assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -92,22 +107,24 @@ class TimeConstraintSpec extends RESTSpec{
     @Requires({EHR_LOADED})
     def "query observations based on time constraint before startDate"(){
         given: "Ward-EHR is loaded"
-        def date = toDateString("01-01-2016Z")
-
-        when: "I query observations in this study with startDate before 01-01-2016"
-        def constraintMap = [
-                type: Combination,
-                operator: AND,
-                args: [
-                        [type: StudyNameConstraint, studyId: EHR_ID],
-                        [type: TimeConstraint,
-                         field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
-                         operator: BEFORE,
-                         values: date]
-                ]
+        def request = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type: Combination,
+                        operator: AND,
+                        args: [
+                                [type: StudyNameConstraint, studyId: EHR_ID],
+                                [type: TimeConstraint,
+                                 field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
+                                 operator: BEFORE,
+                                 values: toDateString("01-01-2016Z")]
+                        ]
+                ])
         ]
-        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        when: "I query observations in this study with startDate before 01-01-2016"
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then: "1 observation is returned"
         assert selector.cellCount == 1
@@ -115,6 +132,11 @@ class TimeConstraintSpec extends RESTSpec{
             assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -127,25 +149,29 @@ class TimeConstraintSpec extends RESTSpec{
         given: "EHR is loaded"
         def date1 = toDateString("01-01-2016Z")
         def date2 = toDateString("04-04-2016Z")
+        def request = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type: Combination,
+                        operator: AND,
+                        args: [
+                                [type: StudyNameConstraint, studyId: EHR_ID],
+                                [type: TimeConstraint,
+                                 field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
+                                 operator: AFTER,
+                                 values: date1],
+                                [type: TimeConstraint,
+                                 field: [dimension: 'end time', fieldName: 'endDate', type: 'DATE' ],
+                                 operator: BEFORE,
+                                 values: date2]
+                        ]
+                ])
+        ]
 
         when: "I query observations in this study with startDate after 01-01-2016 and an endDate before 01-04-2016"
-        def constraintMap = [
-                type: Combination,
-                operator: AND,
-                args: [
-                        [type: StudyNameConstraint, studyId: EHR_ID],
-                        [type: TimeConstraint,
-                         field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
-                         operator: AFTER,
-                         values: date1],
-                        [type: TimeConstraint,
-                         field: [dimension: 'end time', fieldName: 'endDate', type: 'DATE' ],
-                         operator: BEFORE,
-                         values: date2]
-                ]
-        ]
-        def responseData = get(PATH_OBSERVATIONS, contentTypeForJSON, toQuery(constraintMap))
-        ObservationSelectorJson selector = new ObservationSelectorJson(parseHypercube(responseData))
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then: "4 observations are returned"
         assert selector.cellCount == 3
@@ -153,5 +179,10 @@ class TimeConstraintSpec extends RESTSpec{
             assert selector.select(it, "concept", "conceptCode", 'String').equals('EHR:VSIGN:HR')
             assert selector.select(it) != null
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 }

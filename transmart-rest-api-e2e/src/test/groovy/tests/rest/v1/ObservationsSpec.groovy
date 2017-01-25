@@ -1,7 +1,7 @@
 package tests.rest.v1
 
 import base.RESTSpec
-import base.RestCall
+
 import spock.lang.Requires
 
 import static config.Config.CELL_LINE_ID
@@ -21,16 +21,18 @@ class ObservationsSpec extends RESTSpec{
     @Requires({EHR_LOADED})
     def "v1 observations by query map"(){
         given: "study EHR is loaded"
-        RestCall testRequest = new RestCall(V1_PATH_observations, contentTypeForJSON);
         def id = -62
         def path = "\\Public Studies\\EHR\\Demography\\Age\\"
-        testRequest.query = [
-                patients: [id],
-                concept_paths: [path]
-        ]
 
         when: "I request all observations related to a patient and concept"
-        def responseData = get(testRequest)
+        def responseData = get([
+                path: V1_PATH_observations,
+                query: [
+                        patients: [id],
+                        concept_paths: [path]
+                ],
+                acceptType: contentTypeForJSON
+        ])
 
         then: "I get all relevant observations"
         responseData.each {
@@ -51,10 +53,8 @@ class ObservationsSpec extends RESTSpec{
         def conceptPath = 'Molecular profiling/Non-highthroughput molecular profiling/Copy number aberrations (DNA)/MPLA-gain-P146/13q/'
         def path = "studies/${studyId}/concepts/${conceptPath}/observations"
 
-        RestCall testRequest = new RestCall(path, contentTypeForJSON);
-
         when: "I request all observations related to this study and concept"
-        def responseData = get(testRequest)
+        def responseData = get([path: path, acceptType: contentTypeForJSON])
 
         then: "I get observations"
         responseData.each {
@@ -73,10 +73,9 @@ class ObservationsSpec extends RESTSpec{
     def "v1 observations by study"(){
         given: "study CELL-LINE is loaded"
         def studyId = CELL_LINE_ID
-        RestCall testRequest = new RestCall(V1_PATH_STUDIES+"/${studyId}/observations", contentTypeForJSON);
 
         when: "I request all observations related to this study"
-        def responseData = get(testRequest)
+        def responseData = get([path: V1_PATH_STUDIES+"/${studyId}/observations", acceptType: contentTypeForJSON])
 
         then: "I get observations"
         responseData.each {

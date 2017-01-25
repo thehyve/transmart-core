@@ -1,11 +1,10 @@
-package tests.rest.v2.protobuf
+package tests.rest.v2.hypercube
 
 import base.RESTSpec
-import selectors.ObservationsMessageProto
-import selectors.ObservationSelector
 import spock.lang.Requires
 
-import static config.Config.*
+import static config.Config.PATH_OBSERVATIONS
+import static config.Config.TUMOR_NORMAL_SAMPLES_LOADED
 import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.ValueType.STRING
 import static tests.rest.v2.constraints.ModifierConstraint
@@ -24,25 +23,31 @@ class SamplesSpec extends RESTSpec{
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
     def "get observations related to a modifier"(){
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
-
-        when: "I get all observations related to a modifier 'Sample type' with value 'Tumor'"
-        def constraintMap = [
-                type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
-                values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
+        def request = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                        values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
+                ])
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
+        when: "I get all observations related to a modifier 'Sample type' with value 'Tumor'"
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then: "8 observations are returned, all have a cellcount"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
         assert selector.cellCount == 8
         (0..<selector.cellCount).each {
             assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "concept", "conceptCode", 'String'))
             assert selector.select(it) != null
         }
-    }
 
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
+    }
 
     /**
      *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
@@ -52,22 +57,29 @@ class SamplesSpec extends RESTSpec{
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
     def "get observations related to a modifier without value"(){
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
-
-        when: "I get all observations related to a modifier 'Sample type' with value 'Tumor'"
-        def constraintMap = [
-                type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\"
+        def request = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\"
+                ])
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
+        when: "I get all observations related to a modifier 'Sample type' with value 'Tumor'"
+        def responseData = get(request)
+        def selector = newSelector(responseData)
 
         then: "8 observations are returned, all have a cellcount"
-        ObservationSelector selector = new ObservationSelector(responseData)
-
         assert selector.cellCount == 16
         (0..<selector.cellCount).each {
             assert ['TNS:HD:EXPLUNG', 'TNS:HD:EXPBREAST', 'TNS:LAB:CELLCNT'].contains(selector.select(it, "concept", "conceptCode", 'String'))
             assert selector.select(it) != null
         }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
     /**
@@ -78,18 +90,23 @@ class SamplesSpec extends RESTSpec{
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
     def "get observations related to a modifier that does not exist"(){
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
-
-        when: "I get all observations related to a modifier 'does not exist'"
-        def constraintMap = [
-                type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\does not exist\\"
+        def request = [
+                path: PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query: toQuery([
+                        type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\does not exist\\"
+                ])
         ]
 
-        ObservationsMessageProto responseData = getProtobuf(PATH_OBSERVATIONS, toQuery(constraintMap))
+        when: "I get all observations related to a modifier 'does not exist'"
+        def responseData = get(request)
 
         then: "0 observations are returned"
         assert responseData.cells == []
-        responseData.footer.dimensionList.each {
-            assert it.fieldsCount == 0
-        }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
     }
 }

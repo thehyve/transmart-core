@@ -31,9 +31,11 @@ class StudiesSpec extends  RESTSpec{
     def "all studies are returned"(){
         given: "All studies are loaded and I do have unlimited access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
-
         when: "I try to fetch all studies"
-        def responseData = get(PATH_STUDIES, contentTypeForJSON)
+        def responseData = get([
+                path: PATH_STUDIES,
+                acceptType: contentTypeForJSON,
+        ])
         def studies = responseData.studies as List
         def studyIds = studies*.studyId as List
 
@@ -63,7 +65,10 @@ class StudiesSpec extends  RESTSpec{
         given: "All studies are loaded and I do have limited access"
 
         when: "I try to fetch all studies"
-        def responseData = get(PATH_STUDIES, contentTypeForJSON)
+        def responseData = get([
+                path: PATH_STUDIES,
+                acceptType: contentTypeForJSON,
+        ])
         def studies = responseData.studies as List
         def studyIds = studies*.studyId as List
 
@@ -86,7 +91,10 @@ class StudiesSpec extends  RESTSpec{
         given: "Shared concepts studies are loaded and I do have limited access"
 
         when: "I try to fetch study A by id"
-        def studyResponse = get("${PATH_STUDIES}/${SHARED_CONCEPTS_A_DB_ID}", contentTypeForJSON)
+        def studyResponse = get([
+                path: "${PATH_STUDIES}/${SHARED_CONCEPTS_A_DB_ID}",
+                acceptType: contentTypeForJSON,
+        ])
 
         then: "the study object is returned"
         assert studyResponse.studyId == SHARED_CONCEPTS_A_ID
@@ -106,7 +114,10 @@ class StudiesSpec extends  RESTSpec{
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I try to fetch study A by id"
-        def studyResponse = get("${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}", contentTypeForJSON)
+        def studyResponse = get([
+                path: "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
+                acceptType: contentTypeForJSON,
+        ])
 
         then: "the study object is returned"
         assert studyResponse.studyId == SHARED_CONCEPTS_RESTRICTED_ID
@@ -125,7 +136,11 @@ class StudiesSpec extends  RESTSpec{
         given: "Shared concepts studies are loaded and I do have limited access"
 
         when: "I try to fetch study A by id"
-        def studyResponse = get("${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}", contentTypeForJSON)
+        def studyResponse = get([
+                path: "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
+                acceptType: contentTypeForJSON,
+                statusCode: 403
+        ])
 
         then: "the study object is returned"
         assert studyResponse.httpStatus == 403
@@ -145,7 +160,10 @@ class StudiesSpec extends  RESTSpec{
         given: "Shared concepts studies are loaded and I do have limited access"
 
         when: "I try to fetch study A by studyId"
-        def studyResponse = get("${PATH_STUDIES}/studyId/${SHARED_CONCEPTS_A_ID}", contentTypeForJSON)
+        def studyResponse = get([
+                path: "${PATH_STUDIES}/studyId/${SHARED_CONCEPTS_A_ID}",
+                acceptType: contentTypeForJSON,
+        ])
 
         then: "the study object is returned"
         assert studyResponse.studyId == SHARED_CONCEPTS_A_ID
