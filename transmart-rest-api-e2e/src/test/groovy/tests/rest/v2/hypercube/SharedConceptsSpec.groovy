@@ -5,6 +5,7 @@ import spock.lang.Requires
 
 import static config.Config.*
 import static tests.rest.v2.Operator.AND
+import static tests.rest.v2.Operator.OR
 import static tests.rest.v2.constraints.*
 
 /**
@@ -135,9 +136,46 @@ class SharedConceptsSpec extends RESTSpec {
 
         then: "observations are returned from both public Studies but not the restricted study"
         (0..<selector.cellCount).each {
-            assert (selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_A_ID) ||
-                    selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_B_ID) ||
-                    selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_RESTRICTED_ID))
+            assert [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID].contains(selector.select(it, "study", "name", 'String'))
+            assert selector.select(it, "concept", "conceptCode", 'String').equals('VSIGN:HR')
+            assert selector.select(it) != null
+        }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+        contentTypeForProtobuf | protobufSelector
+    }
+
+    def "limit shared concept"(){
+        setUser(ADMIN_USERNAME,ADMIN_PASSWORD)
+        def heartRate = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
+
+        def studiesOR = [
+                type: Combination,
+                operator: OR,
+                args: [
+                        [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_A_ID],
+                        [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_B_ID]
+                ]
+        ]
+
+        def constaint = [
+                type: Combination,
+                operator: AND,
+                args: [
+                        studiesOR,
+                        heartRate
+                ]
+        ]
+
+        when:
+        def responseData = get([path: PATH_OBSERVATIONS, acceptType: acceptType, query: toQuery(constaint)])
+        def selector = newSelector(responseData)
+
+        then:
+        (0..<selector.cellCount).each {
+            assert [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID].contains(selector.select(it, "study", "name", 'String'))
             assert selector.select(it, "concept", "conceptCode", 'String').equals('VSIGN:HR')
             assert selector.select(it) != null
         }
