@@ -40,7 +40,7 @@ HeatMapView.prototype.submit_job = function () {
         var divId = 'divIndependentVariable';
         runAllQueriesForSubsetId(function () {
             highDimensionalData.fetchNodeDetails(divId, function( result ) {
-                highDimensionalData.data = JSON.parse(result.responseText);
+                highDimensionalData.data = result;
                 highDimensionalData.populate_data();
                 actualSubmit();
             });
