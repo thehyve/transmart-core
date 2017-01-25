@@ -2,6 +2,7 @@ package tests.rest.v2.hypercube
 
 import base.RESTSpec
 import groovy.json.JsonBuilder
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 
@@ -289,7 +290,8 @@ class HighDimSpec extends RESTSpec {
      *  when: "I get highdim for EHR_HIGHDIM after 01-04-2016Z"
      *  then: "only data for Expression Breast is returned"
      */
-    @Requires({EHR_HIGHDIM_LOADED})
+    @Ignore //functionality removed
+//    @Requires({EHR_HIGHDIM_LOADED})
     def "highdim by timeConstraint"(){
         def request = [
                 path: PATH_HIGH_DIM,
@@ -299,7 +301,8 @@ class HighDimSpec extends RESTSpec {
                                 type: Combination,
                                 operator: AND,
                                 args: [
-                                        [type: StudyNameConstraint, studyId: EHR_HIGHDIM_ID],
+                                        [type: ConceptConstraint,
+                                         path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"],
                                         [type: TimeConstraint,
                                          field: [dimension: 'start time', fieldName: 'startDate', type: DATE ],
                                          operator: AFTER,
@@ -337,14 +340,23 @@ class HighDimSpec extends RESTSpec {
      *  when: "I get highdim for TUMOR_NORMAL_SAMPLES with modifier Normal"
      *  then: "only data for modifier Normal is returned"
      */
-    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
+    @Ignore //functionality removed
+//    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
     def "highdim by modifier"(){
         def request = [
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
-                                                           values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Normal"]])
+                        assay_constraint: new JsonBuilder([
+                                type: Combination,
+                                operator: AND,
+                                args: [
+                                        [type: ConceptConstraint,
+                                         path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"],
+                                        [type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Normal"]]
+                                ]
+                        ])
                 ]
         ]
 
