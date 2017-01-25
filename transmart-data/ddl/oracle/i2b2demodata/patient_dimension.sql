@@ -68,4 +68,4 @@ TABLESPACE "TRANSMART" ;
 COMMENT ON TABLE i2b2demodata.patient_dimension IS 'Table holds patients.';
 
 COMMENT ON COLUMN patient_dimension.patient_num IS 'Primary key. Id of the patient.';
-COMMENT ON COLUMN patient_dimension.sex_cd IS 'One of [male, female, unknown].';
+COMMENT ON COLUMN patient_dimension.sex_cd IS 'One of [Male, Female, Unknown].';

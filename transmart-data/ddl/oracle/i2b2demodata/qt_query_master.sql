@@ -56,3 +56,8 @@ end;
 /
 ALTER TRIGGER "I2B2DEMODATA"."TRG_QT_QM_QM_ID" ENABLE;
  
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.qt_query_master IS 'This master table to the holds the client’s anaysis request information. i.e.
+the user_id, analysis definition , the i2b2 request_xml, etc.. ';
