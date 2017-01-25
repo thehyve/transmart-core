@@ -1,19 +1,11 @@
 package fm
-import java.net.UnknownHostException
-import java.io.FileOutputStream
-import java.io.OutputStream
-import java.io.InputStream
-import org.springframework.web.multipart.commons.CommonsMultipartFile
+
+import org.springframework.web.multipart.MultipartFile
 
 import com.mongodb.DB
-import com.mongodb.Mongo
 import com.mongodb.MongoClient
 import com.mongodb.gridfs.GridFS
 import com.mongodb.gridfs.GridFSInputFile
-
-import fm.FmData
-import fm.FmFile
-import fm.FmFolder
 import grails.util.Holders
 import org.transmart.mongo.MongoUtils
 import groovyx.net.http.HTTPBuilder
@@ -23,8 +15,6 @@ import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.entity.mime.HttpMultipartMode
 import org.apache.http.entity.mime.content.InputStreamBody
 
-import groovyx.net.http.*
-
 class UploadFilesService {
 
     boolean transactional = true
@@ -32,7 +22,7 @@ class UploadFilesService {
     def filestoreDirectory = config.com.recomdata.FmFolderService.filestoreDirectory
     def fmFolderService
 
-    def upload(CommonsMultipartFile fileToUpload, String parentId){
+    def upload(MultipartFile fileToUpload, String parentId){
         def fmFile
         def fileBytes
         try{
@@ -48,7 +38,7 @@ class UploadFilesService {
                     return "Folder with id " + parentId + " does not exist."
                 }
             } catch (NumberFormatException ex) {
-                log.error("Loading failed: "+e.toString())
+                log.error("Loading failed: "+ex.toString())
                 return "Loading failed"
             }
 
