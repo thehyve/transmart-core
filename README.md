@@ -34,7 +34,7 @@ The application expects configuration in `~/.grails/transmartConfig`. Check [tra
 ## Git history
 
 This repository is a merge of several, previously separated, repositories from [github.com/transmart](https://github.com/transmart/).
-The history of those repositories is merged in as well (branch [transmart-history](tree/transmart-history)), but the current `master` branch is disconnected from
+The history of those repositories is merged in as well (branch [transmart-history](../../tree/transmart-history)), but the current `master` branch is disconnected from
 these histories. The master branch can locally be connected to the history with `git replace`.
 ```bash
 # replace the master-base object with transmart-history
