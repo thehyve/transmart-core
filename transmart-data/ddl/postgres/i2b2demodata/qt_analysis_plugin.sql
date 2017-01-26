@@ -29,9 +29,3 @@ ALTER TABLE ONLY qt_analysis_plugin
 -- Name: qt_apnamevergrp_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX qt_apnamevergrp_idx ON qt_analysis_plugin USING btree (plugin_name, version_cd, group_id);
-
---
--- add documentation
---
-COMMENT ON TABLE i2b2demodata.observation_fact IS 'Not used by TranSMART. The plug-in’s metadata for an individual project is stored in this
-QT_ANALYSIS_PLUGIN table.';

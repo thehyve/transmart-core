@@ -17,7 +17,7 @@ TABLESPACE "TRANSMART" ;
 --
 -- add documentation
 --
-COMMENT ON TABLE i2b2demodata.concept_counts IS 'Stores number of patients for which there are observations over the given concept.';
+COMMENT ON TABLE i2b2demodata.concept_counts IS 'Deprecated. Stores number of patients for which there are observations over the given concept.';
 
 COMMENT ON COLUMN concept_counts.concept_path IS 'The concept path to which patient count is bound.';
 COMMENT ON COLUMN concept_counts.parent_concept_path IS 'The concept path of the parent.';
