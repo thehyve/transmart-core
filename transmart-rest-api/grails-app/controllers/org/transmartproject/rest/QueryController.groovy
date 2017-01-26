@@ -56,14 +56,18 @@ class QueryController extends AbstractQueryController {
 
     /**
      * Hypercube endpoint:
-     * <code>/v2/observations?constraint=${constraint}</code>
+     * <code>/v2/observations?type=clinical&constraint=${constraint}</code>
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
      *
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def observations() {
-        checkParams(params, ['constraint'])
+        checkParams(params, ['constraint', 'type'])
+
+        // TODO: connect this type parameter to MultiDimensionalDataResource.retrieveData(dataType  ...)
+        if (params.type != 'clinical') throw new UnsupportedOperationException("Type ${params.type} is not yet " +
+                "supported in this call, only 'clinical' data is supported in this version.")
 
         def format = contentFormat
         if (format == Format.NONE) {

@@ -161,6 +161,9 @@ abstract class RESTSpec extends Specification{
             if (!requestMap.skipOauth){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
+            if(uri.path == V1_PATH_observations) {
+                uri.query.type = 'clinical'
+            }
 
             println(uri.toString())
             response.success = { resp, reader ->
