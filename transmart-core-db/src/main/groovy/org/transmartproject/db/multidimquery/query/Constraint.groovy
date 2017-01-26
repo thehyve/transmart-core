@@ -187,14 +187,18 @@ class Field implements Validateable {
  * {@link ConstraintFactory}.
  */
 abstract class Constraint implements Validateable, MultiDimConstraint {
-    String type = this.class.simpleName
+    //String type = this.class.simpleName
+    abstract static String getName()
 }
 
 @Canonical
-class TrueConstraint extends Constraint {}
+class TrueConstraint extends Constraint {
+    static String name = "true"
+}
 
 @Canonical
 class BiomarkerConstraint extends Constraint {
+    static String name = "biomarker"
     String biomarkerType
     Map<String, Object> params
 }
@@ -205,6 +209,7 @@ class BiomarkerConstraint extends Constraint {
  */
 @Canonical
 class ModifierConstraint extends Constraint {
+    static String name = "modifier"
     String modifierCode
     String path
     ValueConstraint values
@@ -241,6 +246,8 @@ class ModifierConstraint extends Constraint {
  */
 @Canonical
 class FieldConstraint extends Constraint {
+    static String name = "field"
+
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
@@ -288,6 +295,8 @@ class FieldConstraint extends Constraint {
 
 @Canonical
 class ConceptConstraint extends Constraint {
+    static String name = "concept"
+
     String conceptCode
     String path
 
@@ -311,16 +320,22 @@ class ConceptConstraint extends Constraint {
 
 @Canonical
 class StudyNameConstraint extends Constraint {
+    static String name = "study_name"
+
     String studyId
 }
 
 @Canonical
 class StudyObjectConstraint extends Constraint {
+    static String name = "study"
+
     Study study
 }
 
 @Canonical
 class NullConstraint extends Constraint {
+    static String name = "null"
+
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
 }
@@ -343,6 +358,8 @@ class RowValueConstraint extends Constraint {
  */
 @Canonical
 class ValueConstraint extends Constraint {
+    static String name = "value"
+
     @BindUsing({ obj, source -> Type.forName(source['valueType']) })
     Type valueType = Type.NONE
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
@@ -376,6 +393,8 @@ class ValueConstraint extends Constraint {
  */
 @Canonical
 class TimeConstraint extends Constraint {
+    static String name = "time"
+
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
@@ -402,6 +421,8 @@ class TimeConstraint extends Constraint {
  */
 @Canonical
 class PatientSetConstraint extends Constraint {
+    static String name = "patient_set"
+
     Long patientSetId
     Set<Long> patientIds
 
@@ -436,6 +457,8 @@ class PatientSetConstraint extends Constraint {
  */
 @Canonical
 class Negation extends Constraint {
+    static String name = "negation"
+
     final Operator operator = Operator.NOT
 
     @BindUsing({ obj, source -> ConstraintFactory.create(source['arg']) })
@@ -452,6 +475,8 @@ class Negation extends Constraint {
  */
 @Canonical
 class Combination extends Constraint {
+    static String name = "combination"
+
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
     @BindUsing({ obj, source -> source['args'].collect { ConstraintFactory.create(it) } })
@@ -491,6 +516,8 @@ class Combination extends Constraint {
  */
 @Canonical
 class TemporalConstraint extends Constraint {
+    static String name = "temporal"
+
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
     @BindUsing({ obj, source -> ConstraintFactory.create(source['eventConstraint']) })
@@ -542,7 +569,7 @@ class ConstraintFactory {
             StudyObjectConstraint.class,
             NullConstraint.class
     ].collectEntries {
-        Class type -> [(type.simpleName.toLowerCase()): type]
+        Class type -> [(type.name): type]
     } as Map<String, Class>
 
     /**
