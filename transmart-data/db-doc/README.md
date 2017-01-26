@@ -3,11 +3,11 @@
 You could use [Schema Spy](http://schemaspy.sourceforge.net/) to generate database documentation from the database.
 To get pictures you have to install [Graphvis](http://www.graphviz.org/Download_macos.php).
 
-Below is an examples on how to run Spider Spy for postgres:
+Below is an examples on how to run Spider Spy for different databases:
 
-    java -jar schemaSpy_5.0.0.jar -t pgsql -dp postgresql-9.4.1212.jre6.jar -db transmart -host localhost:5433 -u postgres -p password -o ~/postgres_doc -all
+    make -C db-doc/ generate_postgresql
 
-You could run it for oracle as well. Please see [Schema Spy](http://schemaspy.sourceforge.net/) website for more details.
+    make -C db-doc/ generate_oracle
 
 # Database design
 TranSMART is based on the i2b2 data schema, which uses a star-schema design to store
