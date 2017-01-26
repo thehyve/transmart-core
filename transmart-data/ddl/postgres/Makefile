@@ -101,5 +101,9 @@ load_%: %/_load_all.sql
 load: $(LOAD_TARGETS)
 	$(MAKE) load_cross
 	$(MAKE) -C META load
+	$(MAKE) comments
+
+comments:
+	$(PSQL_COMMAND) -f ../common/comments.sql
 
 .PHONY: load load_global load_cross

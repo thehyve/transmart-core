@@ -66,6 +66,10 @@ load: create_tablespaces.php
 	test '$(ORACLE_MANAGE_TABLESPACES)' != '1' || $(MAKE) load_tablespaces
 	$(MAKE) load_users
 	$(MAKE) load_user_objects
+	$(MAKE) comments
+
+comments:
+	$(RUN_SQL) -c -j 1 -f ../common/comments.sql
 
 $(WRITE_SYNONYM_TARGETS): _scripts/generate_synonyms.php synonyms.php
 	php $< synonyms.php $(patsubst %/_synonyms.sql,%,$@) > $@
