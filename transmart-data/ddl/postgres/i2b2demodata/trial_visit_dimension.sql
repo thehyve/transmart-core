@@ -45,3 +45,14 @@ ADD CONSTRAINT trial_visit_dimension_study_fk FOREIGN KEY (study_num) REFERENCES
 -- Name: idx_trial_visit_study_num; Type: INDEX; Schema: i2b2metadata; Owner: -
 --
 CREATE INDEX idx_trial_visit_study_num ON trial_visit_dimension USING btree (study_num);
+
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.trial_visit_dimension IS 'Table holds descriptions of trial visits, which represent relative time points in a study.';
+
+COMMENT ON COLUMN trial_visit_dimension.trial_visit_num IS 'Primary key.';
+COMMENT ON COLUMN trial_visit_dimension.study_num IS 'Foreign key to study_num in study.';
+COMMENT ON COLUMN trial_visit_dimension.rel_time_unit_cd IS 'The unit in which rel_time_num is expressed. E.g., Week, Day, Visit.';
+COMMENT ON COLUMN trial_visit_dimension.rel_time_num IS 'E.g., 1 (for Week 1).';
+COMMENT ON COLUMN trial_visit_dimension.rel_time_label IS 'Descriptive name. E.g., Baseline, Week 1.';

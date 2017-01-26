@@ -44,3 +44,12 @@ TABLESPACE "TRANSMART" ;
 CREATE INDEX "I2B2DEMODATA"."VISITDIM_EN_PN_LP_IO_SD_IDX" ON "I2B2DEMODATA"."VISIT_DIMENSION" ("ENCOUNTER_NUM", "PATIENT_NUM", "LOCATION_PATH", "INOUT_CD", "START_DATE")
 TABLESPACE "TRANSMART" ;
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.visit_dimension IS 'Table holds descriptions of actual visits in real time.';
+
+COMMENT ON COLUMN visit_dimension.encounter_num IS 'Primary key. Id of the visit. Referred to by the encounter_num column of observation_fact.';
+COMMENT ON COLUMN visit_dimension.patient_num IS 'Primary key. Id linking to patient_num in the patient_dimension.';
+COMMENT ON COLUMN visit_dimension.start_date IS 'Start date and time of the visit.';
+COMMENT ON COLUMN visit_dimension.end_date IS 'End date and time of the visit.';

@@ -49,3 +49,13 @@ CREATE INDEX idx_study_secure_obj_token ON study USING btree (secure_obj_token);
 --
 ALTER TABLE ONLY study
 ADD CONSTRAINT study_bio_experiment_id_fk FOREIGN KEY (bio_experiment_id) REFERENCES biomart.bio_experiment(bio_experiment_id);
+
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.study IS 'Table holds studies and their access tokens';
+
+COMMENT ON COLUMN study.study_num IS 'Primary key.';
+COMMENT ON COLUMN study.bio_experiment_id IS 'Foreign key: bio_experiment_id in bio_experiment.';
+COMMENT ON COLUMN study.study_id IS 'E.g., GSE8581.';
+COMMENT ON COLUMN study.secure_obj_token IS 'Token needed for access to the study. E.g., ‘PUBLIC’ or ‘EXP:GSE8581’.';

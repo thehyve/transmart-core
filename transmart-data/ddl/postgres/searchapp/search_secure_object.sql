@@ -34,3 +34,13 @@ $$;
 --
 CREATE TRIGGER trg_search_sec_obj_id BEFORE INSERT ON search_secure_object FOR EACH ROW EXECUTE PROCEDURE tf_trg_search_sec_obj_id();
 
+--
+-- add documentation
+--
+COMMENT ON TABLE searchapp.search_secure_object IS 'Holds the secure tokens that control access.';
+
+COMMENT ON COLUMN search_secure_object.search_secure_object_id IS 'Primary key. Id of the token.';
+COMMENT ON COLUMN search_secure_object.bio_data_id IS 'Id of the data restricted by this token.';
+COMMENT ON COLUMN search_secure_object.display_name IS 'The name used to display this token. E.g., Private Studies - SHARED_HD_CONCEPTS_STUDY_C_PR.';
+COMMENT ON COLUMN search_secure_object.data_type IS 'Data type. E.g., BIO_CLINICAL_TRIAL.';
+COMMENT ON COLUMN search_secure_object.bio_data_unique_id IS 'The unique id used to refer to the token. E.g., EXP:SHDCSCP.';

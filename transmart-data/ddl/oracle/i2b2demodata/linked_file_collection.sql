@@ -23,3 +23,13 @@ ALTER TABLE "I2B2DEMODATA"."LINKED_FILE_COLLECTION" ADD CONSTRAINT "STUDY_ID_FK"
 --
 ALTER TABLE "I2B2DEMODATA"."LINKED_FILE_COLLECTION" ADD CONSTRAINT "SOURCE_SYSTEM_ID_ID_FK" FOREIGN KEY ("SOURCE_SYSTEM_ID")
  REFERENCES "I2B2DEMODATA"."STORAGE_SYSTEM" ("ID") ENABLE;
+
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.linked_file_collection IS 'Stores universally unique identifier to the collection of files (a folder) on an external file system (e.g. Arvados Keep)';
+
+COMMENT ON COLUMN linked_file_collection.name IS 'Name of the collection.';
+COMMENT ON COLUMN linked_file_collection.study_id IS 'Points to the study the file associated with.';
+COMMENT ON COLUMN linked_file_collection.source_system_id IS 'Foreign key. Specifies storage instance (e.g. a Arvados Keep server).';
+COMMENT ON COLUMN linked_file_collection.source_system_id IS 'The universally unique identifier on the storage system.';
