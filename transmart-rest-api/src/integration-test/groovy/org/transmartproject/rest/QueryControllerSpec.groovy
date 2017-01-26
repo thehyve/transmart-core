@@ -16,10 +16,10 @@ class QueryControllerSpec extends MarshallerSpec {
     @Ignore // FIXME: This test fails for some reason
     void 'test JSON (de)serialisation'() {
         def constraint = [
-                type: 'FieldConstraint',
+                type: 'field',
                 operator: '=',
                 field: [
-                        dimension: 'PatientDimension',
+                        dimension: 'patient',
                         fieldName: 'id',
                         type: 'ID'
                 ],
@@ -43,7 +43,7 @@ class QueryControllerSpec extends MarshallerSpec {
     void 'test invalid constraint'() {
         // invalid constraint with an operator that is not supported for the value type.
         def constraint = [
-                type: 'ValueConstraint',
+                type: 'value',
                 operator: '<',
                 valueType: 'STRING',
                 value: 'invalid dummy value'
@@ -65,7 +65,7 @@ class QueryControllerSpec extends MarshallerSpec {
 
     void 'test invalid JSON'() {
         def constraint = [
-                type: 'TrueConstraint'
+                type: 'true'
         ] as JSON
         log.info "Constraint: ${constraint.toString()}"
 
