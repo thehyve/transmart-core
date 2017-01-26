@@ -6,6 +6,7 @@ import grails.web.databinding.DataBinder
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.apache.commons.lang.NotImplementedException
 import org.springframework.validation.Errors
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.i2b2data.Study
@@ -188,17 +189,19 @@ class Field implements Validateable {
  */
 abstract class Constraint implements Validateable, MultiDimConstraint {
     //String type = this.class.simpleName
-    abstract static String getName()
+
+    // if this is called getName it will clash with Class.getName()
+    static String getConstraintName() { throw new NotImplementedException("this method needs to be overridden") }
 }
 
 @Canonical
 class TrueConstraint extends Constraint {
-    static String name = "true"
+    static String constraintName = "true"
 }
 
 @Canonical
 class BiomarkerConstraint extends Constraint {
-    static String name = "biomarker"
+    static String constraintName = "biomarker"
     String biomarkerType
     Map<String, Object> params
 }
@@ -209,7 +212,7 @@ class BiomarkerConstraint extends Constraint {
  */
 @Canonical
 class ModifierConstraint extends Constraint {
-    static String name = "modifier"
+    static String constraintName = "modifier"
     String modifierCode
     String path
     ValueConstraint values
@@ -246,7 +249,7 @@ class ModifierConstraint extends Constraint {
  */
 @Canonical
 class FieldConstraint extends Constraint {
-    static String name = "field"
+    static String constraintName = "field"
 
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
@@ -295,7 +298,7 @@ class FieldConstraint extends Constraint {
 
 @Canonical
 class ConceptConstraint extends Constraint {
-    static String name = "concept"
+    static String constraintName = "concept"
 
     String conceptCode
     String path
@@ -320,21 +323,21 @@ class ConceptConstraint extends Constraint {
 
 @Canonical
 class StudyNameConstraint extends Constraint {
-    static String name = "study_name"
+    static String constraintName = "study_name"
 
     String studyId
 }
 
 @Canonical
 class StudyObjectConstraint extends Constraint {
-    static String name = "study"
+    static String constraintName = "study"
 
     Study study
 }
 
 @Canonical
 class NullConstraint extends Constraint {
-    static String name = "null"
+    static String constraintName = "null"
 
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
@@ -342,6 +345,8 @@ class NullConstraint extends Constraint {
 
 @Canonical
 class RowValueConstraint extends Constraint {
+    static String getName() { throw new UnsupportedOperationException("internal use") }
+
     Type valueType = Type.NONE
     Operator operator = Operator.NONE
     Object value
@@ -358,7 +363,7 @@ class RowValueConstraint extends Constraint {
  */
 @Canonical
 class ValueConstraint extends Constraint {
-    static String name = "value"
+    static String constraintName = "value"
 
     @BindUsing({ obj, source -> Type.forName(source['valueType']) })
     Type valueType = Type.NONE
@@ -393,7 +398,7 @@ class ValueConstraint extends Constraint {
  */
 @Canonical
 class TimeConstraint extends Constraint {
-    static String name = "time"
+    static String constraintName = "time"
 
     @BindUsing({ obj, source -> ConstraintFactory.bindField(obj, 'field', source['field']) })
     Field field
@@ -421,7 +426,7 @@ class TimeConstraint extends Constraint {
  */
 @Canonical
 class PatientSetConstraint extends Constraint {
-    static String name = "patient_set"
+    static String constraintName = "patient_set"
 
     Long patientSetId
     Set<Long> patientIds
@@ -457,7 +462,7 @@ class PatientSetConstraint extends Constraint {
  */
 @Canonical
 class Negation extends Constraint {
-    static String name = "negation"
+    static String constraintName = "negation"
 
     final Operator operator = Operator.NOT
 
@@ -475,7 +480,7 @@ class Negation extends Constraint {
  */
 @Canonical
 class Combination extends Constraint {
-    static String name = "combination"
+    static String constraintName = "combination"
 
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
@@ -516,7 +521,7 @@ class Combination extends Constraint {
  */
 @Canonical
 class TemporalConstraint extends Constraint {
-    static String name = "temporal"
+    static String constraintName = "temporal"
 
     @BindUsing({ obj, source -> Operator.forSymbol(source['operator']) })
     Operator operator = Operator.NONE
@@ -568,9 +573,9 @@ class ConstraintFactory {
             StudyNameConstraint.class,
             StudyObjectConstraint.class,
             NullConstraint.class
-    ].collectEntries {
-        Class type -> [(type.name): type]
-    } as Map<String, Class>
+        ].collectEntries { Class type ->
+            [(type.constraintName): type]
+        } as Map<String, Class>
 
     /**
      * Create a constraint object from a map of values
@@ -583,10 +588,10 @@ class ConstraintFactory {
         if (values == null || values['type'] == null) {
             throw new ConstraintBindingException('Cannot create constraint for null type.')
         }
-        String typeName = values['type'] as String
-        Class type = constraintClasses[typeName.toLowerCase()]
+        String name = values['type'] as String
+        Class type = constraintClasses[name]
         if (type == null) {
-            throw new ConstraintBindingException("Constraint not supported: ${typeName}.")
+            throw new ConstraintBindingException("Constraint not supported: ${name}.")
         }
         log.info "Creating constraint of type ${type.simpleName}"
         def result = type.newInstance()
