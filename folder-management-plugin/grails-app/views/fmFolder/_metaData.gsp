@@ -6,7 +6,7 @@
 
 <asset:stylesheet href="uploadData.css"/>
 <script type="text/javascript">$j = jQuery.noConflict();</script>
-<asset:javascript src="${resource(dir:'js', file:'uploadData.js')}"/>
+<asset:javascript src="uploadData.js" />
 
 
 <div>

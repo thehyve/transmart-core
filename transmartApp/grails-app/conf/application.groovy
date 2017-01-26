@@ -13,7 +13,7 @@ if (!Environment.isWarDeployed() && Environment.isWithinShell()) {
 /**
  * Running externalized configuration
  * Assuming the following configuration files
- * - in the executing user's home at ~/.grails/<app_name>Config/[Config.groovy|DataSource.groovy]
+ * - in the executing user's home at ~/.grails/<app_name>Config/[application.groovy|Config.groovy|DataSource.groovy]
  * - config location set path by system variable '<APP_NAME>_CONFIG_LOCATION'
  * - dataSource location set path by system environment variable '<APP_NAME>_DATASOURCE_LOCATION'
  */
@@ -26,7 +26,14 @@ if (!Environment.isWarDeployed() && Environment.isWithinShell()) {
  */
 org.transmart.originalConfigBinding = getBinding()
 
+org.transmartproject.app.oauthEnabled = true
+org.transmartproject.app.gwavaEnabled = false
+org.transmartproject.app.transmartURL = "http://localhost:${System.getProperty('server.port', '8080')}"
+
+
 grails.assets.bundle = true
+
+grails.resources.pattern = '/**'
 
 grails.mime.disable.accept.header.userAgents = []
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
@@ -142,6 +149,10 @@ com.recomdata.analysis.genepattern.file.dir = "data"; // Relative to the app roo
 
 com.recomdata.analysis.data.file.dir = "data"; // Relative to the app root "web-app"
 
+// Directories to write R scripts to for use by RServe. Resources are copied at startup.
+org.transmartproject.rmodules.deployment.rscripts = new File(System.getProperty("user.home"), '.grails/transmart-rscripts')
+org.transmartproject.rmodules.deployment.dataexportRscripts = new File(System.getProperty("user.home"), '.grails/transmart-dataexport-rscripts')
+
 // Disclaimer
 StringBuilder disclaimer = new StringBuilder()
 disclaimer.append("<p></p>")
@@ -184,9 +195,137 @@ grails.plugin.springsecurity.oauthProvider.refreshTokenLookup.className = 'org.t
 grails.plugin.springsecurity.ldap.active = false
 org.transmart.security.ldap.mappedUsernameProperty = 'username'
 org.transmart.security.ldap.inheritPassword = true
-// DATASOURCES
 
-//check external configuration as described in Config.groovy
+/* {{{ Spring Security configuration */
+
+grails { plugin { springsecurity {
+
+    // customized user GORM class
+    userLookup.userDomainClassName = 'org.transmart.searchapp.AuthUser'
+    // customized password field
+    userLookup.passwordPropertyName = 'passwd'
+    // customized user /role join GORM class
+    userLookup.authorityJoinClassName = 'org.transmart.searchapp.AuthUser'
+    // customized role GORM class
+    authority.className = 'org.transmart.searchapp.Role'
+    // request map GORM class name - request map is stored in the db
+    requestMap.className = 'org.transmart.searchapp.Requestmap'
+    // requestmap in db
+    securityConfigType = grails.plugin.springsecurity.SecurityConfigType.Requestmap
+    // url to redirect after login in
+    // just_rest branch provides alternative default via org.transmart.defaultLoginRedirect
+    successHandler.defaultTargetUrl = org.transmart.defaultLoginRedirect ?: '/userLanding'
+    // logout url
+    logout.afterLogoutUrl = '/login/forceAuth'
+
+    // configurable requestmap functionality in transmart is deprecated
+    def useRequestMap = false
+
+    if (useRequestMap) {
+        // requestmap in db
+        securityConfigType = 'Requestmap'
+        // request map GORM class name - request map is stored in the db
+        requestMap.className = 'org.transmart.searchapp.Requestmap'
+    } else {
+        securityConfigType = 'InterceptUrlMap'
+        def oauthEndpoints = [
+                [pattern: '/oauth/authorize.dispatch', access: ["isFullyAuthenticated() and request.getMethod().equals('POST')"]],
+                [pattern: '/oauth/token.dispatch', access: ["isFullyAuthenticated() and (request.getMethod().equals('GET') or request.getMethod().equals('POST'))"]],
+        ]
+
+        // This looks dangerous and it possibly is (would need to check), but
+        // reflects the instructions I got from the developer.
+        def gwavaMappings = [
+                [pattern: '/gwasWeb/**', access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+        ]
+
+        interceptUrlMap = [
+                [pattern: '/login/**',                   access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/js/**',                      access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/css/**',                     access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/assets/**',                  access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/grails-errorhandler',        access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/images/analysisFiles/**',    access: ['IS_AUTHENTICATED_REMEMBERED']],
+                [pattern: '/images/**',                  access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/static/**',                  access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/search/loadAJAX**',          access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/analysis/getGenePatternFile',access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/analysis/getTestFile',       access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/open-api/**',                access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/requestmap/**',              access: ['ROLE_ADMIN']],
+                [pattern: '/role/**',                    access: ['ROLE_ADMIN']],
+                [pattern: '/authUser/**',                access: ['ROLE_ADMIN']],
+                [pattern: '/secureObject/**',            access: ['ROLE_ADMIN']],
+                [pattern: '/accessLog/**',               access: ['ROLE_ADMIN']],
+                [pattern: '/authUserSecureAccess/**',    access: ['ROLE_ADMIN']],
+                [pattern: '/secureObjectPath/**',        access: ['ROLE_ADMIN']],
+                [pattern: '/userGroup/**',               access: ['ROLE_ADMIN']],
+                [pattern: '/secureObjectAccess/**',      access: ['ROLE_ADMIN']]
+        ] +
+                (org.transmartproject.app.oauthEnabled ?  oauthEndpoints : []) +
+                (org.transmartproject.app.gwavaEnabled ?  gwavaMappings : []) +
+                [
+                        [pattern: '/**',                         access: ['IS_AUTHENTICATED_REMEMBERED']], // must be last
+                ]
+        rejectIfNoRule = true
+    }
+
+    // Hash algorithm
+    password.algorithm = 'bcrypt'
+    // Number of bcrypt rounds
+    password.bcrypt.logrounds = 14
+
+    providerNames = [
+            'daoAuthenticationProvider',
+            'anonymousAuthenticationProvider',
+            'rememberMeAuthenticationProvider',
+    ]
+
+    if (org.transmartproject.app.oauthEnabled) {
+        providerNames << 'clientCredentialsAuthenticationProvider'
+
+        def securedResourcesFilters = [
+                'JOINED_FILTERS',
+                '-securityContextPersistenceFilter',
+                '-logoutFilter',
+                '-rememberMeAuthenticationFilter',
+                '-basicAuthenticationFilter',
+                '-exceptionTranslationFilter',
+        ].join(',')
+
+        filterChain.chainMap = [
+                '/oauth/token': [
+                        'JOINED_FILTERS',
+                        '-oauth2ProviderFilter',
+                        '-securityContextPersistenceFilter',
+                        '-logoutFilter',
+                        '-rememberMeAuthenticationFilter',
+                        '-exceptionTranslationFilter',
+                ].join(','),
+                '/oauth/inspectToken': securedResourcesFilters,
+                '/versions/**': securedResourcesFilters,
+                '/v1/**': securedResourcesFilters,
+                '/v2/**': securedResourcesFilters,
+                '/**': [
+                        'JOINED_FILTERS',
+                        '-statelessSecurityContextPersistenceFilter',
+                        '-oauth2ProviderFilter',
+                        '-clientCredentialsTokenEndpointFilter',
+                        '-basicAuthenticationFilter',
+                        '-oauth2ExceptionTranslationFilter'
+                ].join(','),
+        ].collect { k, v ->
+            [pattern: k, filters: v]
+        }
+
+        grails.exceptionresolver.params.exclude = ['password', 'client_secret']
+    }
+
+} } }
+/* }}} */
+
+
+// DATASOURCES
 
 dataSources {
     oauth2 {

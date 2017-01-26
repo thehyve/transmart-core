@@ -87,7 +87,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         def elem = dimensionElement(dim, idx)
         if(elem instanceof String) return elem
         else if(elem instanceof DataColumn) return ((DataColumn) elem).label
-        else if(elem instanceof Patient) return ((Patient) elem).inTrialId
+        else if(elem instanceof Patient) return ((Patient) elem).id.toString()
         else throw new RuntimeException("unexpected element type ${elem.class}. Expected a String, Patient, or Assay")
     }
 
@@ -192,7 +192,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         def getDimKey(Dimension dim) {
             if(dim == biomarkerDim) return biomarker.biomarker ?: biomarker.label
             if(dim == assayDim) return assay.sampleCode
-            if(dim == patientDim) return patient.inTrialId
+            if(dim == patientDim) return patient.id
             if(dim == projectionDim && projectionKey) return projectionKey
             dimError(dim)
         }

@@ -26,17 +26,21 @@ class PatientsSpec extends RESTSpec{
     @Requires({CLINICAL_TRIAL_LOADED})
     def "get patients based on observations"(){
         given: "study CLINICAL_TRIAL is loaded"
+        def request = [
+                path: PATH_PATIENTS,
+                acceptType: contentTypeForJSON,
+                query: toQuery([
+                        type: Combination,
+                        operator: AND,
+                        args: [
+                                [type: ConceptConstraint, path:"\\Public Studies\\CLINICAL_TRIAL\\Vital Signs\\Heart Rate\\"],
+                                [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:80]
+                        ]
+                ])
+        ]
 
         when: "I get all patients from that study with a heart rate above 80"
-        def constraintMap = [
-                type: Combination,
-                operator: AND,
-                args: [
-                        [type: ConceptConstraint, path:"\\Public Studies\\CLINICAL_TRIAL\\Vital Signs\\Heart Rate\\"],
-                        [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:80]
-                ]
-        ]
-        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(request)
 
         then: "2 patients are returned"
         assert responseData.patients.size() == 2
@@ -51,23 +55,27 @@ class PatientsSpec extends RESTSpec{
     @Requires({CLINICAL_TRIAL_LOADED})
     def "get patients by trial visit observation value"(){
         given: "study CLINICAL_TRIAL is loaded"
+        def request = [
+                path: PATH_PATIENTS,
+                acceptType: contentTypeForJSON,
+                query: toQuery([
+                        type: Combination,
+                        operator: AND,
+                        args: [
+                                [type: ConceptConstraint, path:"\\Public Studies\\CLINICAL_TRIAL\\Vital Signs\\Heart Rate\\"],
+                                [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:60],
+                                [type: FieldConstraint,
+                                 field: [dimension: 'trial visit',
+                                         fieldName: 'relTime',
+                                         type: NUMERIC ],
+                                 operator: GREATER_THAN,
+                                 value:7]
+                        ]
+                ])
+        ]
 
         when: "I get all patients from that study that had a heart rate above 60 after 7 days (after trial visit 2)"
-        def constraintMap = [
-                type: Combination,
-                operator: AND,
-                args: [
-                        [type: ConceptConstraint, path:"\\Public Studies\\CLINICAL_TRIAL\\Vital Signs\\Heart Rate\\"],
-                        [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:60],
-                        [type: FieldConstraint,
-                         field: [dimension: 'trial visit',
-                                 fieldName: 'relTime',
-                                 type: NUMERIC ],
-                         operator: GREATER_THAN,
-                         value:7]
-                ]
-        ]
-        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(request)
 
         then: "2 patients are returned"
         assert responseData.patients.size() == 2
@@ -82,10 +90,15 @@ class PatientsSpec extends RESTSpec{
     @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
     def "get pratients restricted"(){
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
+        def request = [
+                path: PATH_PATIENTS,
+                acceptType: contentTypeForJSON,
+                query: toQuery([type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]),
+                statusCode: 403
+        ]
 
         when: "I try to get the patients from that study"
-        def constraintMap = [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
-        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(request)
 
         then: "I get an access error"
         assert responseData.httpStatus == 403
@@ -102,10 +115,15 @@ class PatientsSpec extends RESTSpec{
     def "get pratients unrestricted"(){
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
+        def request = [
+                path: PATH_PATIENTS,
+                acceptType: contentTypeForJSON,
+                query: toQuery([type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]),
+                statusCode: 403
+        ]
 
         when: "I try to get the patients from that study"
-        def constraintMap = [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]
-        def responseData = get(PATH_PATIENTS, contentTypeForJSON, toQuery(constraintMap))
+        def responseData = get(request)
 
         then: "I get all patients"
         assert responseData.patients.size() == 2
@@ -114,4 +132,46 @@ class PatientsSpec extends RESTSpec{
                 hasEntry('id', -59))
     }
 
+    /**
+     *  given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
+     *  when: "I try to get the patients from that study by id in path"
+     *  then: "I get an not found error"
+     */
+    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
+    def "restricted get patient by id"(){
+        given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
+        def request = [
+                path: PATH_PATIENTS+"/-69",
+                acceptType: contentTypeForJSON,
+                statusCode: 404
+        ]
+
+        when: "I try to get the patients from that study by id in path"
+        def responseData = get(request)
+
+        then: "I get an not found error"
+        assert responseData.httpStatus == 404
+        assert responseData.type == 'NoSuchResourceException'
+        assert responseData.message == "Patient not found with id -69."
+    }
+
+    /**
+     *  given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
+     *  when: "I try to get the patients from that study by id in path"
+     *  then: "I get the patient"
+     */
+    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
+    def "get patient by id"(){
+        given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
+        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
+
+        when: "I try to get the patients from that study by id in path"
+        def responseData = get([
+                path: PATH_PATIENTS+"/-69",
+                acceptType: contentTypeForJSON
+        ])
+
+        then: "I get the patient"
+        assert responseData.id == -69
+    }
 }

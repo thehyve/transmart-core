@@ -586,7 +586,7 @@ function toggleSidebar() {
     element = jQuery('#sidebar')[0] || jQuery('#westPanel')[0];
     element = '#' + element.id;
 
-    var leftPointingArrow = (jQuery('#sidebartoggle').css('background-image').indexOf("-right") < 0);
+    var leftPointingArrow = jQuery('#sidebartoggle').hasClass('left-arrow');
     var sidebarIsVisible = (jQuery(element + ':visible').size() > 0);
     //console.log("toggleSidebar: leftPointingArrow = " + leftPointingArrow + ", sidebarIsVisible = " + sidebarIsVisible);
 
@@ -612,16 +612,17 @@ function toggleSidebar() {
             viewport.doLayout();
         }
     };
+
     if (sidebarIsVisible) {
         jQuery(element).fadeOut(500, func);
-        var bgimg = jQuery('#sidebartoggle').css('background-image').replace('-left', '-right');
-        jQuery('#sidebartoggle').css('background-image', bgimg);
+        jQuery('#sidebartoggle').removeClass('left-arrow');
+        jQuery('#sidebartoggle').addClass('right-arrow');
     }
     else {
         jQuery(element).fadeIn();
         if (func) func(); //Not a callback here - resize as soon as it starts appearing.
-        var bgimg = jQuery('#sidebartoggle').css('background-image').replace('-right', '-left');
-        jQuery('#sidebartoggle').css('background-image', bgimg);
+        jQuery('#sidebartoggle').removeClass('right-arrow');
+        jQuery('#sidebartoggle').addClass('left-arrow');
     }
 }
 
@@ -823,7 +824,7 @@ jQuery(document).ready(function() {
 			},
 			error: function(xhr) {
 				alert(xhr);
-				jQuery('#createAnalysis').html(response).removeClass('ajaxloading');
+				jQuery('#createAnalysis').removeClass('ajaxloading');
 			}
 		});
 	});

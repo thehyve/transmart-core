@@ -53,9 +53,24 @@ See example property files:
 ```
 
 ## Build commands from source
-Next to stable releases you can also use the development version of transmart-batch. This means you will have to build the tool from the source files available on github. First you get the source files with `git clone <url_to_transmart-batch_github>`, then, from the transmart-batch folder, you can execute `./gradlew capsule` which will generate a **.jar** file in `transmart-batch/build/libs/`. The **.jar** file can be used to run transmart-batch.
+Next to stable releases you can also use the development version of transmart-batch.
+This means you will have to build the tool from the source files available on github.
+First you get the source files with `git clone`.
+Then, from the transmart-batch folder, you can execute `gradle shadowJar` which will generate a **.jar** file in `transmart-batch/build/libs/`.
+The script `transmart-batch.sh` executes the generated `.jar` by running `java -jar <jar file>`.
 
-There is also the possibility of making a distributable zip. To generate this zip, build transmart-batch with `./gradlew distZip`. Note: keep in mind that the Java major version used to build transmart-batch cannot be more recent than the Java version used to execute the loading pipeines. For instance, you cannot build the binaries with Java 8 and execute them with Java 7.
+These are the required commands:
+```bash
+    # fetch the source code
+    git clone https://github.com/thehyve/transmart-upgrade/
+    cd transmart-upgrade/transmart-batch
+    # build transmart-batch
+    gradle shadowJar
+    # run transmart-batch
+    ./transmart-batch.sh [options] -p <params file>
+```
+
+_Note:_ keep in mind that the Java major version used to build transmart-batch cannot be more recent than the Java version used to execute the loading pipelines. For instance, you cannot build the binaries with Java 8 and execute them with Java 7.
 
 # Loading Data
 To load the data to tranSMART using transmart-batch, you need 1) either the **.jar** file you built with the instructions in the previous section or the pre-built release files of transmart-batch, 2) a file with the database connection information (generally called *batchdb.properties*) and 3) study files with corresponding mapping and parameter files.
@@ -85,20 +100,20 @@ Assuming the **batchdb.properties** file is in the directory transmart-batch is 
 
 * Loading clinical data with a gene expression data set  
 ```
-    <path_to>/transmart-batch.jar -p <path_to>/study_folder/clinical/clinical.params
-    <path_to>/transmart-batch.jar -p <path_to>/study_folder/mRNA/expression.params
+    <path_to>/transmart-batch.sh -p <path_to>/study_folder/clinical/clinical.params
+    <path_to>/transmart-batch.sh -p <path_to>/study_folder/mRNA/expression.params
 ```
 
 * Use a different **batchdb.properties**
 ```
-    <path_to>/transmart-batch.jar -p <path_to>/study/clinical/clinical.params -c <path_to>/<file_name>
+    <path_to>/transmart-batch.sh -p <path_to>/study/clinical/clinical.params -c <path_to>/<file_name>
 ```
 
 * Restart a failed job
 ```
     At the start of the failed job retrieve the execution id:  
         org...BetterExitMessageJobExecutionListener - Job id is 1186, execution id is 1271
-    <path_to>/transmart-batch.jar -p <path_to>/study_folder/clinical/clinical.params -r -j 1271
+    <path_to>/transmart-batch.sh -p <path_to>/study_folder/clinical/clinical.params -r -j 1271
 ```
 
 ## Expected file structure

@@ -4,8 +4,11 @@ import groovy.json.JsonBuilder
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
+import groovyx.net.http.URIBuilder
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
+import selectors.ObservationSelector
+import selectors.ObservationSelectorJson
 import selectors.ObservationsMessageProto
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import selectors.ObservationsMessageJson
@@ -19,9 +22,11 @@ import static org.hamcrest.Matchers.*
 
 abstract class RESTSpec extends Specification{
 
-    def contentTypeForHAL = 'application/hal+json'
-    def contentTypeForJSON = 'application/json'
-    def contentTypeForProtobuf = 'application/x-protobuf'
+    def static contentTypeForHAL = 'application/hal+json'
+    def static contentTypeForJSON = 'application/json'
+    def static contentTypeForProtobuf = 'application/x-protobuf'
+    def static contentTypeForoctetStream = 'application/octet-stream'
+    def static contentTypeForXML = 'application/xml'
 
     private static HashMap<String, String> oauth2token = [:]
 
@@ -40,7 +45,12 @@ abstract class RESTSpec extends Specification{
     }
 
     def oauth2Authenticate(userCredentials){
-        def json = post('oauth/token', contentTypeForJSON, ['grant_type': 'password', 'client_id': 'glowingbear-js', 'client_secret': '', 'username': userCredentials.'username', 'password': userCredentials.'password'], null, false)
+        def json = post([
+                path: 'oauth/token',
+                acceptType: contentTypeForJSON,
+                query: ['grant_type': 'password', 'client_id': 'glowingbear-js', 'client_secret': '', 'username': userCredentials.'username', 'password': userCredentials.'password'],
+                skipOauth: true
+        ])
 
         if (DEBUG){
             println "Authenticate: username=${userCredentials.'username'} password=${userCredentials.'password'} token=${json.access_token}"
@@ -56,183 +66,134 @@ abstract class RESTSpec extends Specification{
         return oauth2token.get(user.'username')
     }
 
-    def put(String path, requestBody){
-        http.request(Method.PUT, ContentType.JSON){
-            uri.path = path
-            body = requestBody
-            headers.Accept = contentTypeForJSON
-            if (OAUTH_NEEDED) {
+    def delete(def requestMap){
+        http.request(Method.DELETE) { req ->
+            uri.path = requestMap.path
+            uri.query = requestMap.query
+            if (!requestMap.skipOauth){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
-            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
+            println(uri.toString())
             response.success = { resp, reader ->
-                assert resp.statusLine.statusCode in 200..<400
-                assert resp.headers.'Content-Type'.contains(contentTypeForJSON) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
-                if (DEBUG){
-                    println "Got response: ${resp.statusLine}"
-                    println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = reader
-                    println result
-                    return result
-                }
-                return reader
-            }
-
-            response.failure = { resp, reader ->
-                assert resp.statusLine.statusCode >= 400
-                if (DEBUG){
-                    println "Got response: ${resp.statusLine}"
-                    println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = reader
-                    println result
-                    return result
-                }
-
-                return reader
-            }
-        }
-    }
-
-    def post(String path, requestBody){
-        return post(path, contentTypeForJSON, null, requestBody)
-    }
-
-    /**
-     *
-     * a convenience method to keep the tests readable by removing as much code as possible
-     *
-     * @param path
-     * @param AcceptHeader
-     * @param queryMap
-     * @param requestBody
-     * @param contentType
-     * @param oauth
-     * @return
-     */
-    def post(String path, String AcceptHeader, queryMap, requestBody = null, oauth = true){
-        http.request(Method.POST, ContentType.JSON){
-            uri.path = path
-            uri.query = queryMap
-            body = requestBody
-            headers.Accept = AcceptHeader
-            if (oauth && OAUTH_NEEDED){
-                headers.'Authorization' = 'Bearer ' + getToken()
-            }
-
-            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
-            response.success = { resp, reader ->
-                assert resp.statusLine.statusCode in 200..<400
-                assert resp.headers.'Content-Type'.contains(AcceptHeader) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
-                if (DEBUG){
-                    println "Got response: ${resp.statusLine}"
-                    println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = reader
-                    println result
-                    return result
-                }
-                return reader
-            }
-
-            response.failure = { resp, reader ->
-                assert resp.statusLine.statusCode >= 400
-                if (DEBUG){
-                    println "Got response: ${resp.statusLine}"
-                    println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = reader
-                    println result
-                    return result
-                }
-
-                return reader
-            }
-        }
-
-    }
-
-    def delete(String path, String AcceptHeader = contentTypeForJSON, queryMap = null){
-        http.request(Method.DELETE, ContentType.JSON) { req ->
-            uri.path = path
-            uri.query = queryMap
-            headers.Accept = AcceptHeader
-            if (OAUTH_NEEDED){
-                headers.'Authorization' = 'Bearer ' + getToken()
-            }
-
-            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
-            response.success = { resp, reader ->
-                assert resp.statusLine.statusCode in 200..<400
-                assert resp.headers.'Content-Type'.contains(AcceptHeader) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
-                if (DEBUG){
-                    println "Got response: ${resp.statusLine}"
-                    println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = reader
-                    println result
-                    return result
-                }
-                return reader
-            }
-
-            response.failure = { resp, reader ->
-                assert resp.statusLine.statusCode >= 400
-                if (DEBUG){
-                    println "Got response: ${resp.statusLine}"
-                    println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = reader
-                    println result
-                    return result
-                }
-
-                return reader
-            }
-        }
-    }
-
-    /**
-     * a convenience method to keep the tests readable by removing as much code as possible
-     *
-     * @param path
-     * @param AcceptHeader
-     * @param queryMap
-     * @return
-     */
-    def get(String path, String AcceptHeader = contentTypeForJSON, queryMap = null){
-        http.request(Method.GET, ContentType.JSON) { req ->
-            uri.path = path
-            uri.query = queryMap
-            headers.Accept = AcceptHeader
-            if (OAUTH_NEEDED){
-                headers.'Authorization' = 'Bearer ' + getToken()
-            }
-
-            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
-            response.success = { resp, reader ->
-                assert resp.statusLine.statusCode in 200..<400
-                assert resp.headers.'Content-Type'.contains(AcceptHeader) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
-                if (DEBUG){
-                    println "Got response: ${resp.statusLine}"
-                    println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = reader
-                    println result
-                    return result
-                }
-                return reader
-            }
-
-            response.failure = { resp, reader ->
-                assert resp.statusLine.statusCode >= 400
-                if (DEBUG){
-                println "Got response: ${resp.statusLine}"
-                println "Content-Type: ${resp.headers.'Content-Type'}"
-                def result = reader
-                println result
+                println resp.statusLine.statusCode
+                println resp.headers.'Content-Type'
+                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                def result
+                result = reader
+                if (DEBUG) { println result }
                 return result
-                }
+            }
 
-                return reader
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
+                def result = reader
+                if (DEBUG){ println result }
+                return result
             }
         }
     }
+
+    def put(def requestMap){
+        http.request(Method.PUT, ContentType.JSON) { req ->
+            uri.path = requestMap.path
+            uri.query = requestMap.query
+            headers.Accept = requestMap.acceptType
+            body = requestMap.body
+            if (!requestMap.skipOauth){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(uri.toString())
+            response.success = { resp, reader ->
+                println resp.statusLine.statusCode
+                println resp.headers.'Content-Type'
+                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                def result = reader
+                if (DEBUG) { println result }
+                return result
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
+                def result = reader
+                if (DEBUG){ println result }
+                return result
+            }
+        }
+    }
+
+    def post(def requestMap){
+        http.request(Method.POST, ContentType.JSON) { req ->
+            uri.path = requestMap.path
+            uri.query = requestMap.query
+            headers.Accept = requestMap.acceptType
+            headers.'Content-Type' = requestMap.contentType
+            body = requestMap.body
+            if (!requestMap.skipOauth){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(uri.toString())
+            response.success = { resp, reader ->
+                println resp.statusLine.statusCode
+                println resp.headers.'Content-Type'
+                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                def result = reader
+                if (DEBUG) { println result }
+                return result
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
+                def result = reader
+                if (DEBUG){ println result }
+                return result
+            }
+        }
+    }
+
+    def get(def requestMap){
+        http.request(Method.GET) { req ->
+            uri.path = requestMap.path
+            uri.query = requestMap.query
+            headers.Accept = requestMap.acceptType
+            if (!requestMap.skipOauth){
+                headers.'Authorization' = 'Bearer ' + getToken()
+            }
+
+            println(uri.toString())
+            response.success = { resp, reader ->
+                println resp.statusLine.statusCode
+                println resp.headers.'Content-Type'
+                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                assert resp.headers.'Content-Type'.contains(requestMap.acceptType) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
+                def result
+                switch (requestMap.acceptType){
+                    case contentTypeForProtobuf:
+                        result = parseProto(resp.entity.content)
+                        break
+                    case contentTypeForJSON:
+                        result = reader
+                        break
+                    default:
+                        result = reader
+                }
+                if (DEBUG) { println result }
+                return result
+            }
+
+            response.failure = { resp, reader ->
+                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
+                def result = reader
+                if (DEBUG){ println result }
+                return result
+            }
+        }
+    }
+
+    static def jsonSelector = {new ObservationSelectorJson(parseHypercube(it))}
+    static def protobufSelector = {new ObservationSelector(it)}
 
     /**
      * takes a map of constraints and returns a json query
@@ -253,57 +214,14 @@ abstract class RESTSpec extends Specification{
         date.format("yyyy-MM-dd'T'HH:mm:ssX", TimeZone.getTimeZone('Z'))
     }
 
-    /**
-     * a convenience method to keep the tests readable by removing as much code as possible
-     *
-     * @param path
-     * @param queryMap
-     * @return
-     */
-    def getProtobuf(String path, queryMap = null){
-        http.request(Method.GET, ContentType.JSON) { req ->
-            uri.path = path
-            uri.query = queryMap
-            headers.Accept = contentTypeForProtobuf
-            if (OAUTH_NEEDED){
-                headers.'Authorization' = 'Bearer ' + getToken()
-            }
-
-            println(URLDecoder.decode(uri.toString(), 'UTF-8'))
-            response.success = { resp ->
-                assert resp.statusLine.statusCode in 200..<400
-                assert resp.headers.'Content-Type'.contains(contentTypeForProtobuf) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
-                if (DEBUG){
-                    println "Got response: ${resp.statusLine}"
-                    println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = parseProto(resp.entity.content)
-                    return result
-                }
-                return parseProto(resp.entity.content)
-            }
-
-            response.failure = { resp, reader ->
-                assert resp.statusLine.statusCode >= 400
-                if (DEBUG){
-                    println "Got response: ${resp.statusLine}"
-                    println "Content-Type: ${resp.headers.'Content-Type'}"
-                    def result = reader
-                    println result
-                    return result
-                }
-                return reader
-            }
-        }
-    }
-
-    def parseHypercube(jsonHypercube){
+    static def parseHypercube(jsonHypercube){
         def dimensionDeclarations = jsonHypercube.dimensionDeclarations
         def cells = jsonHypercube.cells
         def dimensionElements = jsonHypercube.dimensionElements
         return new ObservationsMessageJson(dimensionDeclarations, cells, dimensionElements)
     }
 
-    def parseProto(s_in){
+    static def parseProto(s_in){
         def header = ObservationsProto.Header.parseDelimitedFrom(s_in)
         if(header.error) throw new RuntimeException("Error in protobuf header message: "+header.error)
         if (header.dimensionDeclarationsCount == 0){

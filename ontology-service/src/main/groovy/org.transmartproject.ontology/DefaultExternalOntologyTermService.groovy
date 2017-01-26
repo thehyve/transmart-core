@@ -7,33 +7,38 @@ import groovyx.net.http.Method
 import groovyx.net.http.HTTPBuilder
 
 /**
-*  Created by ewelina on 7-12-16.
-*/
+ * Ontology service for fetching ontology metadata for a concept code.
+ *
+ * @author Created by ewelina on 7-12-16.
+ */
 @Slf4j
 class DefaultExternalOntologyTermService implements ExternalOntologyTermService {
 
+    final static String name = "default"
+
     private static final ContentType CONTENT_TYPE = ContentType.JSON
 
-    private String ontologyServerUrl
-    private String searchTextRequestPath
-    private String conceptCodeDetailsRequestPath
+    private String ontologyServerUrl = 'http://localhost:8081'
+    private String ontologyServerSearchPath = '/search'
+    private String ontologyServerDetailsPath = ''
     private HTTPBuilder http
 
     private final Map<String, String> labelCache = [:]
 
     /**
-     * Ontology service for fetching ontology metadata for a concept code.
-     * @param ontologyServerUrl
-     * @param searchTextRequestPath
-     * @param conceptCodeDetailsRequestPath
+     * Initialises the service.
+     * Supported parameters:
+     * - ontologyServerUrl
+     * - ontologyServerSearchPath
+     * - ontologyServerDetailsPath
      */
-    DefaultExternalOntologyTermService(
-            String ontologyServerUrl = 'http://localhost:8081',
-            String searchTextRequestPath = '/search',
-            String conceptCodeDetailsRequestPath = '') {
-        this.ontologyServerUrl = ontologyServerUrl
-        this.searchTextRequestPath = searchTextRequestPath
-        this.conceptCodeDetailsRequestPath = conceptCodeDetailsRequestPath
+    public void init(Map parameters) {
+        ['ontologyServerUrl', 'ontologyServerSearchPath', 'ontologyServerDetailsPath'].each { name ->
+            def value = parameters[name]
+            if (value) {
+                this."${name}" = value as String
+            }
+        }
         this.http = new HTTPBuilder(ontologyServerUrl)
     }
 
@@ -45,7 +50,7 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
      */
     public List<OntologyMap> fetchPreferredConcept(String categoryCode, String dataLabel) {
 
-        def response = get("$searchTextRequestPath/$dataLabel")
+        def response = get("$ontologyServerSearchPath/$dataLabel")
 
         if (!response) {
             return []
@@ -89,7 +94,7 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
         values.collect{
             def label = labelCache[it]
             if (!label) {
-                def detail = get("$conceptCodeDetailsRequestPath/$it")
+                def detail = get("$ontologyServerDetailsPath/$it")
                 label = detail?.node ?: ''
                 log.info "Label for value ${it}: ${label}"
                 labelCache[it] = label
@@ -180,7 +185,7 @@ class DefaultExternalOntologyTermService implements ExternalOntologyTermService 
             dataLabel:    dataLabel,
             ontologyCode: code,
             label:        label,
-            uri:          "$ontologyServerUrl$conceptCodeDetailsRequestPath/${code}",
+            uri:          "$ontologyServerUrl$ontologyServerDetailsPath/${code}",
             ancestors:    ancestors
         )
     }

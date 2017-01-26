@@ -1,7 +1,6 @@
 package tests.rest.v2.storage
 
 import base.RESTSpec
-import spock.lang.IgnoreIf
 
 import static config.Config.*
 
@@ -16,14 +15,14 @@ class FilesSpec extends RESTSpec{
 
     def setup(){
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def responseDataAll = get(PATH_FILES)
+        def responseDataAll = get([path: PATH_FILES, acceptType: contentTypeForJSON])
         responseDataAll.files.each{
-            delete(PATH_FILES + "/${it.id}")
+            delete([path: PATH_FILES + "/${it.id}"])
         }
 
-        responseDataAll = get(PATH_STORAGE)
+        responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
         responseDataAll.storageSystems.each{
-            delete(PATH_STORAGE + "/${it.id}")
+            delete([path: PATH_STORAGE + "/${it.id}"])
         }
 
         def sourceSystem = [
@@ -33,7 +32,7 @@ class FilesSpec extends RESTSpec{
                 'systemVersion':'v1',
                 'singleFileCollections':false,
         ]
-        def responseData = post(PATH_STORAGE, toJSON(sourceSystem))
+        def responseData = post([path: PATH_STORAGE, body: sourceSystem])
         storageId = responseData.id
     }
 
@@ -50,7 +49,7 @@ class FilesSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_FILES, toJSON(new_file_link))
+        def responseData = post([path: PATH_FILES, body: new_file_link])
         def id = responseData.id
 
         then:
@@ -61,7 +60,7 @@ class FilesSpec extends RESTSpec{
         assert responseData.uuid == 'aaaaa-bbbbb-ccccccccccccccc'
 
         when:
-        responseData = get(PATH_FILES + "/${id}")
+        responseData = get([path: PATH_FILES + "/${id}", acceptType: contentTypeForJSON])
 
         then:
         assert responseData.id == id
@@ -71,14 +70,14 @@ class FilesSpec extends RESTSpec{
         assert responseData.uuid == 'aaaaa-bbbbb-ccccccccccccccc'
 
         when:
-        def responseDataAll = get(PATH_FILES)
+        def responseDataAll = get([path: PATH_FILES, acceptType: contentTypeForJSON])
 
         then:
         assert responseDataAll.files.contains(responseData)
 
         when:
         new_file_link.name = 'new file Link renamed'
-        responseData = put(PATH_FILES + "/${id}", toJSON(new_file_link))
+        responseData = put([path: PATH_FILES + "/${id}", body: toJSON(new_file_link)])
 
         then:
         assert responseData.id == id
@@ -88,9 +87,9 @@ class FilesSpec extends RESTSpec{
         assert responseData.uuid == 'aaaaa-bbbbb-ccccccccccccccc'
 
         when:
-        responseData = delete(PATH_FILES + "/${id}")
+        responseData = delete([path: PATH_FILES + "/${id}"])
         assert responseData == null
-        responseData = get(PATH_FILES + "/${id}")
+        responseData = get([path: PATH_FILES + "/${id}", acceptType: contentTypeForJSON, statusCode: 404])
 
         then:
         assert responseData.status == 404
@@ -99,6 +98,48 @@ class FilesSpec extends RESTSpec{
         assert responseData.path == "/${PATH_FILES}/${id}"
     }
 
+    /**
+     *  given: "There are multiple storage systems with file links"
+     *  when: "I get the list of file links"
+     *  then: "the list of files has several sourceSystem ids"
+     */
+    def "post and get from multiple storage systems"() {
+        given: "There are multiple storage systems with file links"
+        def sourceSystem = [
+                'name':'Arvbox at The Hyve 2',
+                'systemType':'Arvados',
+                'url':'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion':'v1',
+                'singleFileCollections':false,
+        ]
+        def storageId2 = post([path: PATH_STORAGE, body: sourceSystem]).id
+
+        def new_file_link1 = [
+                'name'        : 'file in storage 1',
+                'sourceSystem': storageId,
+                'study'       : 'EHR',
+                'uuid'        : 'bbbbb-ccccccccccccccc',
+        ]
+
+        def new_file_link2 = [
+                'name'        : 'file in storage 2',
+                'sourceSystem': storageId2,
+                'study'       : 'EHR',
+                'uuid'        : 'aaaaa-ccccccccccccccc',
+        ]
+
+        def fileID1 = post([path: PATH_FILES, body: new_file_link1]).id
+
+        def fileID2 = post([path: PATH_FILES, body: new_file_link2]).id
+
+        when: "I get the list of file links"
+        def responseData = get([path: PATH_FILES, acceptType: contentTypeForJSON])
+
+        then: "the list of files has several sourceSystem ids"
+        def files = responseData.files as List
+        def sourceSystemIDs = files*.sourceSystem as List
+        assert sourceSystemIDs.containsAll(storageId, storageId2)
+    }
 
     /**
      *  post invalid
@@ -113,12 +154,14 @@ class FilesSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_FILES, toJSON(new_file_link))
+        def responseData = post([path: PATH_FILES, body: new_file_link, statusCode: 422])
 
         then:
-        assert responseData.httpStatus == 500
-        assert responseData.message == 'No such property: transactionStatus for class: org.transmartproject.rest.StorageController'
-        assert responseData.type == 'MissingPropertyException'
+        assert responseData.errors.size() == 1
+        assert responseData.errors[0].field == 'study'
+        assert responseData.errors[0].message == 'Property [study] of class [class org.transmartproject.db.storage.LinkedFileCollection] cannot be null'
+        assert responseData.errors[0].'rejected-value' == null
+        assert responseData.errors[0].object == 'org.transmartproject.db.storage.LinkedFileCollection'
     }
 
     /**
@@ -126,12 +169,11 @@ class FilesSpec extends RESTSpec{
      */
     def "post empty"() {
         when:
-        def responseData = post(PATH_FILES, null)
+        def responseData = post([path: PATH_FILES, statusCode: 422])
 
         then:
-        assert responseData.httpStatus == 500
-        assert responseData.message == 'No such property: transactionStatus for class: org.transmartproject.rest.StorageController'
-        assert responseData.type == 'MissingPropertyException'
+        assert responseData.errors.size() == 4
+        responseData.errors.each {['sourceSystem', 'study', 'name', 'uuid'].contains(it.field)}
     }
 
     /**
@@ -139,7 +181,7 @@ class FilesSpec extends RESTSpec{
      */
     def "get nonexistent"() {
         when:
-        def responseData = get(PATH_FILES + "/0")
+        def responseData = get([path: PATH_FILES + "/0", acceptType: contentTypeForJSON, statusCode: 404])
 
         then:
         assert responseData.status == 404
@@ -159,12 +201,15 @@ class FilesSpec extends RESTSpec{
                 'study'       : 'EHR',
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
-        def responseData = post(PATH_FILES, toJSON(new_file_link))
+        def responseData = post([path: PATH_FILES, body: toJSON(new_file_link)])
         def id = responseData.id
         new_file_link.uuid = null
 
         when:
-        responseData = put(PATH_FILES +"/${id}", toJSON(new_file_link))
+        responseData = put([
+                path: (PATH_FILES +"/${id}"),
+                body: toJSON(new_file_link),
+                statusCode: 422])
 
         then:
         assert responseData.errors.size() == 1
@@ -172,13 +217,11 @@ class FilesSpec extends RESTSpec{
         assert responseData.errors[0].message == 'Property [uuid] of class [class org.transmartproject.db.storage.LinkedFileCollection] cannot be null'
         assert responseData.errors[0].'rejected-value' == null
         assert responseData.errors[0].object == 'org.transmartproject.db.storage.LinkedFileCollection'
-
     }
 
     /**
      *  put nonexistent
      */
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //returns 500 insted of not found
     def "put nonexistent"() {
         given:
         def new_file_link = [
@@ -189,7 +232,7 @@ class FilesSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = put(PATH_FILES +"/0", toJSON(new_file_link))
+        def responseData = put([path: PATH_FILES +"/0", body: toJSON(new_file_link), statusCode: 404])
 
         then:
         assert responseData.status == 404
@@ -212,7 +255,7 @@ class FilesSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_FILES, toJSON(new_file_link))
+        def responseData = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 403])
 
         then:
         assert responseData.httpStatus == 403
@@ -221,7 +264,7 @@ class FilesSpec extends RESTSpec{
 
         when:
         new_file_link.name = 'new file Link renamed'
-        responseData = put(PATH_FILES + "/0", toJSON(new_file_link))
+        responseData = put([path: PATH_FILES + "/0", body: toJSON(new_file_link), statusCode: 403])
 
         then:
         assert responseData.httpStatus == 403
@@ -229,12 +272,11 @@ class FilesSpec extends RESTSpec{
         assert responseData.type == 'AccessDeniedException'
 
         when:
-        responseData = delete(PATH_FILES + "/0")
+        responseData = delete([path: PATH_FILES + "/0", statusCode: 403])
 
         then:
         assert responseData.httpStatus == 403
         assert responseData.message == 'Removing a linked file entry is an admin action'
         assert responseData.type == 'AccessDeniedException'
     }
-
 }

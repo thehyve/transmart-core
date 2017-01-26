@@ -9,7 +9,7 @@
         <title>Gene Signature Create</title>
     </g:else>
 
-    <script type="text/javascript">
+    <asset:script type="text/javascript">
         function clearMTC() {
             var bg = document.geneSignatureFrm.multipleTestingCorrection;
             bg[0].checked=false;
@@ -44,7 +44,7 @@
             return false;
         }
 
-    </script>
+    </asset:script>
 </head>
 
 <body>
@@ -196,7 +196,7 @@
                             <g:select name="fileSchema.id" from="${wizard.schemas}" value="${existingValues.'fileSchema.id'}" optionValue="name" optionKey="id" /></td>
                     </tr>
                     <tr>
-                        <td style="width:25%; border: none;">Fold change metric:</td>
+                        <td style="width:25%; border: none;">Fold change metric:<g:requiredIndicator/></td>
                         <td style="border: none;">
                             <g:select name="foldChgMetricConceptCode.id"
                                       from="${wizard.foldChgMetrics}"

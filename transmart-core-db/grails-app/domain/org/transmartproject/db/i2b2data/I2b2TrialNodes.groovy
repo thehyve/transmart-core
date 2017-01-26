@@ -21,6 +21,13 @@ package org.transmartproject.db.i2b2data
 
 import groovy.transform.EqualsAndHashCode
 
+/**
+ * Do not rely on the c_comment field of i2b2metadata.i2b2 for
+ * querying studies. Use study nodes in i2b2 (they have 'S' in
+ * c_visualattributes) in the v1 API instead, or the
+ * {@link Study} class starting from the v2 API.
+ */
+@Deprecated
 @EqualsAndHashCode(includes = 'fullName,trial')
 class I2b2TrialNodes implements Serializable {
 

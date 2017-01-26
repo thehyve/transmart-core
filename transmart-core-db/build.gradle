@@ -71,25 +71,6 @@ dependencies {
     compile project(':transmart-core-api')
 
 }
-grailsPublish {
-    // TODO: Provide values here
-    user = 'user'
-    key = 'key'
-    githubSlug = 'foo/bar'
-    license {
-        name = 'GPL3'
-    }
-    title = "Transmart Core DB Plugin"
-    desc = '''\
-A runtime dependency for tranSMART that implements the Core API
-'''
-    /developers = [
-            [ name: "Kees van Bochove",  email: "kees@thehyve.nl"],
-            [ name: "Gustavo Lopes"   ,  email: "gustavo@thehyve.nl" ],
-    ]*/
-    portalUser = ""
-    portalPassword = ""
-}
 
 assets {
     packagePlugin = true

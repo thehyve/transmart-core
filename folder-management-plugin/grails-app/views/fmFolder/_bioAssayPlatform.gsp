@@ -64,28 +64,28 @@ jQuery('.tag').live('click', function(e) { removeTag(jQuery(this).parent().attr(
 	
 	<div class="textsmaller">Measurement</div>
 	<div id="measurementwrapper">
-		<g:render template="selectMeasurements" plugin="folderManagement" model="${[measurements:measurements]}"/>
+		<g:render template="selectMeasurements"  model="${[measurements:measurements]}"/>
 	</div>
 	</div>
 	
 	<div style="margin-right: 8px">
 	<div class="textsmaller">Technology</div>
 	<div id="technologywrapper">
-		<g:render template="selectTechnologies" plugin="folderManagement" model="${[technologies:technologies]}"/>
+		<g:render template="selectTechnologies"  model="${[technologies:technologies]}"/>
 	</div>
 	</div>
 	
 	<div style="margin-right: 8px">
 	<div class="textsmaller">Vendor</div>
 	<div id="vendorwrapper">
-		<g:render template="selectVendors" plugin="folderManagement" model="${[vendors:vendors]}"/>
+		<g:render template="selectVendors"  model="${[vendors:vendors]}"/>
 	</div>
 	</div>
 	</div>
 	<div style="margin-right: 8px">
 	<div style="fixed: left; line-height: 24px; font-style: italic; margin-right: 8px;">Add new platform: </div>
 	<div id="platformwrapper">
-		<g:render template="selectPlatforms" plugin="folderManagement"/>
+		<g:render template="selectPlatforms" />
 	</div>
 	</div>
 </div>

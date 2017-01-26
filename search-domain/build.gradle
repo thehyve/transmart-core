@@ -64,20 +64,6 @@ dependencies {
     compile "org.hibernate:hibernate-ehcache"
     compile project(':biomart-domain')
 }
-grailsPublish {
-    // TODO: Provide values here
-    user = 'user'
-    key = 'key'
-    githubSlug = 'foo/bar'
-    license {
-        name = 'Apache-2.0'
-    }
-    title = "My Plugin"
-    desc = "Full plugin description"
-    developers = [johndoe:"John Doe"]
-    portalUser = ""
-    portalPassword = ""    
-}
 
 assets {
     packagePlugin = true

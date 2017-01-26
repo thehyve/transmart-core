@@ -1,0 +1,1603 @@
+# Open API specification for the tranSMART platform.
+# Copyright (C) 2017  The Hyve
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+swagger: '2.0'
+
+info:
+  version: 17.1.0
+  title: Transmart
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  description: |
+    
+    # OAuth2
+    All calls need an Authorization header. https://wiki.transmartfoundation.org/display/transmartwiki/RESTful+API
+    ```
+    Authorization:Bearer {token}
+    ```
+    
+    # Constraints
+    Constraints are used to build queries and are required in the `v2` API. They consist of a `Type` and that type's specific arguments. The implementation is in [Constraint.groovy](../transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy).
+    
+    ## Combination
+    Most often a combination of constraints is needed to get the right result. This can be done by a constraint with type combination.
+    It takes an op `operator` and a list `args` with constraints. All args will be evaluated together on each observation. So a 'and' operator with a `PatientSetConstraint` and a `ConceptConstraint` will return all observations for the given concept linked to the patient set.
+    However a `and` operator with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.
+    
+    Example:
+    ```json
+    {"type": "Combination",
+     "operator": "and",
+     "args": [
+        {"type": "PatientSetConstraint", "patientIds": -62},
+        {"type": "ConceptConstraint", "path":" \\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
+        ]
+    }
+    ```
+    
+    ## StudyNameConstraint
+    Evaluate if an observation is part of a particular study
+    
+    Example:
+    ```json
+    {
+      "type": "StudyNameConstraint",
+      "studyId": "EHR"
+    }
+    ```
+    
+    ## ConceptConstraint
+    Evaluate if an observation is of a particular Concept. Either by `path` or `conceptCode`.
+    
+    ```json
+    {
+      "type": "ConceptConstraint",
+      "path": "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\",
+      "conceptCode": "HR"
+    }
+    ```
+    
+    ## ValueConstraint
+    Evaluate if the value of an observation is within the given parameters. It needs a `valueType`, `operator` and `value`.
+      `valueType`: [\"NUMERIC\", \"STRING\"]
+      `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains]
+    
+    Example:
+    ```json
+    {
+      "type": "ValueConstraint",
+      "valueType": "NUMERIC",
+      "operator": "=", "value": 176
+    }
+    ```
+    
+    ## FieldConstraint
+    Evaluate if a specific field of an observation is within the given parameters. it needs a `field`, `operator` and `value`.
+      `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains]
+    
+    Example:
+    ```json
+    {
+      "type": "FieldConstraint",
+      "field": {
+          "dimension": "patient",
+          "fieldName": "age",
+          "type": "NUMERIC"
+          },
+      "operator": "!=",
+      "value": 100
+    }
+    ```
+    
+    ## TimeConstraint
+    Evaluate if an observation is within the specified time period. It needs a `field` the type of which needs to be `DATE`. It needs a time relevant `operator` and a list of `values`.
+    The list must hold one date for the before(<-) and after(->) operator. It must hold two dates for the between(<-->) operator. If the given date field for an observation is empty, the observation will be ignored.
+    `operator`: ["&lt;-", "-&gt;", "&lt;--&gt;"]
+    
+    Example:
+    ```json
+    {
+      "type": "TimeConstraint",
+      "field": {
+          "dimension": "start time",
+          "fieldName": "startDate",
+          "type": "DATE"
+          },
+      "operator": "->",
+      "values": ["2016-01-01T00:00:00Z"]
+    }
+    ```
+    
+    ## PatientSetConstraint
+    Evaluate if an observation is liked to a patient in the set. It needs either a `patientSetId` or a list of `patientIds`.
+    
+    Example:
+    ```json
+    {
+        "type": "PatientSetConstraint",
+        "patientSetId": 28820,
+        "patientIds": [-62, -63]
+    }
+    ```
+    
+    ## TemporalConstraint
+    Evaluate if an observation happened before or after an event. It needs an `operator` and an `eventConstraint`. Any constraint can be used as an eventConstraint. Most likely a combination.
+    `operator`: ["&lt;-", "-&gt;", "exists"]
+    
+    Example:
+    ```json
+    {
+        "type": "TemporalConstraint",
+        "operator": "exists",
+        "eventConstraint": {
+              "type": "ValueConstraint",
+              "valueType": "NUMERIC",
+              "operator": "=",
+              "value": 60
+              }
+    }
+    ```
+    
+    ## NullConstraint
+    Evaluate if an specific field of an observation is null. It needs a field.
+    
+    Example:
+    ```json
+    {
+        "type": "NullConstraint",
+        "field":{
+            "dimension": "EndTimeDimension",
+            "fieldName": "endDate",
+            "type": "DATE"
+            }
+    }
+    ```
+    
+    ## ModifierConstraint
+    Evaluate if an observation is linked to the specified modifier. Optionally if that modifier has the specific value. It must have a `path` or `modifierCode` and may have `values` in the form of a ValueConstraint.
+    
+    Example:
+    ```json
+    {
+        "type": "ModifierConstraint",
+        "modifierCode": "TNS:SMPL",
+        "path": "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+        "values": {
+            "type": "ValueConstraint",
+            "valueType": "STRING",
+            "operator": "=",
+            "value": "Tumor"
+            }
+    }
+    ```
+    
+    ## Negation
+    Evaluate if for an observation the given `arg` is false. `arg` is a constraint.
+    
+    Example:
+    ```json
+    {
+        "type": "Negation",
+        "arg": {
+            "type": "PatientSetConstraint",
+            "patientIds": [-62,-52,-42]
+            }
+    }
+    ```
+    returns all observations not linked to patient with id -62, -52 or -42
+    
+    ## BiomarkerConstraint
+    Used to evaluate hiDim observations. It needs a 'biomarkerType' and a 'params' object. It should only be used for the `/v2/high_dim` endpoint.
+    `biomarkerType`: `["transcripts", "genes"]`.
+    
+    Example:
+    ```json
+    {
+        "type": "BiomarkerConstraint",
+        "biomarkerType": "genes",
+        "params": {
+            "names": ["TP53"]
+            }
+    }
+    ```
+    
+    ## TrueConstraint
+    **!!WARNING!!** Use mainly for testing.  
+    The most basic of constraints. Evaluates to true for all observations. This returns all observations the requesting user has access to.
+    
+    Example:
+    ```json
+    {
+        "type": "TrueConstraint"
+    }
+    ```
+    
+    
+    # Response types
+    #### application/json
+    All calls support json. however this might not always be the best option. You will find schemas for the responses in this documentation.
+    
+    #### `application/hal+json`
+    Only the tree_node endpoint supports the application/hal+json format.
+    
+    #### `application/x-protobuf`
+    Calls that return observations support protobuf as a more efficient binary format. The description of the protobuf object can be found in [observations.proto](../transmart-rest-api/src/protobuf/v2/observations.proto). Information on [google protobuf](https://developers.google.com/protocol-buffers/).
+
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  oauth:
+    type: oauth2
+    flow: implicit
+    authorizationUrl: '/oauth/authorize?response_type=token&client_id={client_id}&redirect_uri={redirect}'
+    scopes:
+      basic: to be able to interact with transmart REST-API
+
+security:
+  - oauth:
+    - basic
+paths:
+  /versions:
+    get:
+      description: |
+        Gets all available API versions and prefixes.
+      responses:
+        200:
+          description: 'Successful response. Example: `{ "versions": [ "id": "v2", "prefix": "/v2"] }`.'
+          schema:
+            type: object
+            properties:
+              versions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    prefix:
+                      type: string
+  /versions/{id}:
+    get:
+      description: |
+        Gets the version and its prefix if available.
+      parameters:
+        - name: id
+          in: path
+          description: |
+            id of the version to fetch. Example: `GET /versions/v1`.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful response.
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              prefix:
+                type: string
+
+        404:
+          description: Version not available.
+  /v1/studies:
+    get:
+      description: |
+        Gets all `Study` objects.
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              studies:
+                type: array
+                items: 
+                  $ref: "#/definitions/jsonStudy"
+  /v1/studies (hal+json):
+    get:
+      description: |
+        Gets all `Study` objects.
+      produces:
+        - application/hal+json
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/hal+jsonStudies"
+  /v1/studies/{studyid}:
+    get:
+      description: |
+        Gets all `Study` objects.
+      tags:
+        - v1
+      parameters:
+        - name: studyid
+          in: path
+          description: studyid to fetch
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/jsonStudy"
+  /v1/studies/{studyid}/concepts:
+    get:
+      parameters:
+        - name: studyid
+          in: path
+          description: Study ID of the study for which concepts will be fetched
+          required: true
+          type: string
+      description: |
+        Gets all `Study` objects.
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              ontology_terms:
+                type: array
+                items: 
+                  $ref: "#/definitions/ontologyTerm"
+  /v1/studies/{studyid}/concepts/{conceptPath}:
+    get:
+      parameters:
+              - name: studyid
+                in: path
+                description: Study ID of the study for which concepts will be fetched
+                required: true
+                type: string
+              - name: conceptPath
+                in: path
+                description: Concept path for which info will be fetched
+                required: true
+                type: string
+      description: |
+        Gets all `Study` objects.
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/ontologyTerm"
+  /v1/studies/{studyid}/subjects:
+    get:
+      parameters:
+              - name: studyid
+                in: path
+                description: Study ID of the study for which concepts will be fetched
+                required: true
+                type: string
+      description: |
+        Gets all `Study` objects.
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              subjects:
+                type: array
+                items:
+                  $ref: '#/definitions/patient'
+  /v1/studies/{studyid}/subjects/{subjectid}:
+    get:
+      parameters:
+        - name: studyid
+          in: path
+          description: Study ID of the study for which concepts will be fetched
+          required: true
+          type: string
+        - name: subjectid
+          in: path
+          description: Subject ID of the subject which will be fetched
+          required: true
+          type: string
+      description: |
+        Gets all `Study` objects.
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: '#/definitions/patient'
+  /v1/studies/{studyid}/concepts/{conceptPath}/subjects:
+    get:
+      parameters:
+        - name: studyid
+          in: path
+          description: Study ID of the study for which concepts will be fetched
+          required: true
+          type: string
+        - name: conceptPath
+          in: path
+          description: Concept path for which info will be fetched
+          required: true
+          type: string
+      description: |
+        Gets all `Study` objects.
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              subjects:
+                type: array
+                items:
+                  $ref: '#/definitions/patient'
+  /v1/studies/{studyid}/observations:
+    get:
+      parameters:
+        - name: studyid
+          in: path
+          description: Study ID of the study for which concepts will be fetched
+          required: true
+          type: string
+      description: |
+        Gets all `Study` objects.
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/v1observation'
+  /v1/observations:
+    get:
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/v1observation'
+  /v1/studies/{studyId}/concepts/{conceptPath}/observations:
+    get:
+      parameters:
+        - name: studyId
+          in: path
+          description: Study ID of the study for which concepts will be fetched
+          required: true
+          type: string
+        - name: conceptPath
+          in: path
+          description: Concept path
+          required: true
+          type: string
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/v1observation'
+  /v1/patient_sets/:
+    post:
+      parameters:
+        - name: i2b2query_xml
+          in: body
+          description: 'Body should be a query definition in a subset of the i2b2 XML schema.'
+          required: true
+          schema:
+            type: string
+      tags:
+        - v1
+      responses:
+        201:
+          description: Successful response
+    get:
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successfull response
+  /v1/patient_sets/{resultInstanceId}:
+    get:
+      parameters:
+        -
+          name: resultInstanceId
+          in: path
+          description: ID of the patient set, called resultInstance ID because internally it refers to the result of a query
+          required: true
+          type: string
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successfull response
+  /v1/studies/{studyId}/concepts/{conceptPath}/highdim:
+    get:
+      parameters:
+        - name: studyId
+          in: path
+          description: Study ID of the study for which concepts will be fetched
+          required: true
+          type: string
+        - name: conceptPath
+          in: path
+          description: Concept path
+          required: true
+          type: string
+        - name: dataType
+          in: query
+          description: Data Type constraint
+          required: false
+          type: string
+        - name: projection
+          in: query
+          description: Projection applied to the HDD
+          required: false
+          type: string
+        - name: assayConstraints
+          in: query
+          description: Assay Constraints
+          required: false
+          type: string
+        - name: dataConstraints
+          in: query
+          description: Data constraint
+          required: false
+          type: string
+      tags:
+        - v1
+      responses:
+        200:
+          description: Successful response
+          
+  /v2/studies:
+    get:
+      description: |
+        Gets all studies accessible by the user.
+      tags:
+        - v2
+      produces:
+        - application/json
+      responses:
+        200:
+          description: |
+            Returns a list of studies
+          schema:
+            type: object
+            properties:
+              studies:
+                type: array
+                items:
+                  $ref: '#/definitions/v2Study'
+  /v2/studies/{id}:
+    get:
+      description: |
+        Gets the study with id `id`.
+      tags:
+        - v2
+      parameters:
+        - name: id
+          in: path
+          description: id of the study to fetch
+          required: true
+          type: string
+      responses:
+        200:
+          description: |
+            Returns one study
+          schema:
+            $ref: "#/definitions/v2Study"
+        404:
+          description: |
+            Study not found
+  /v2/studyId/{studyId}:
+    get:
+      description: |
+        Gets the study with study id `id`.
+      tags:
+        - v2
+      parameters:
+        - name: studyId
+          in: path
+          description: the study id of the study to fetch
+          required: true
+          type: string
+      responses:
+        200:
+          description: |
+            Returns one study
+          schema:
+            $ref: "#/definitions/v2Study"
+        404:
+          description: |
+            Study not found
+  /v2/supported_fields:
+    get:
+      description: |
+        Gets all supported dimension fields. These are the fields that can be used in field constraints.
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            Returns a list of supported fields
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                dimension:
+                  type: string
+                fieldName:
+                  type: string
+                type:
+                  type: string
+  /v2/observations:
+    get:
+      description: |
+        Gets all observations that satisfy the given constaint. Only observations the calling user has access to are returned.
+      tags:
+        - v2
+      produces:
+        - application/json
+        - application/x-protobuf
+      parameters:
+        - name: constraint
+          required: true
+          in: query
+          description: 'json that specifies the constraint. Example: `{"type":"StudyNameConstraint", "studyId":"EHR"}`.'
+          type: string
+      responses:
+        200:
+          description: |
+            Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
+          schema:
+            $ref: '#/definitions/observations'
+  /v2/observations/aggregate:
+    get:
+      description: |
+        Calculates and returns an aggregate value.
+      tags:
+        - v2
+      parameters:
+        - name: constraint
+          required: true
+          in: query
+          description: 'json that specifies the constraint. Example: `{"type":"ConceptConstraint","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+          type: string
+        - name: type
+          required: true
+          in: query
+          description: 'min, max, average'
+          type: string
+      responses:
+        200:
+          description: 'return the result in a json object. Example: `{min: 56}`.'
+          schema:
+            type: object
+            description: 'only the value of the requested aggregate type will be present.'
+            properties:
+              min:
+                type: number
+              max:
+                type: number
+              average:
+                type: number
+  /v2/observations/count:
+    get:
+      description: |
+        Counts the number of observations that satisfy the given constraint.
+      tags:
+        - v2
+      parameters:
+        - name: constraint
+          required: true
+          in: query
+          description: 'json that specifies the constraint. Example: `{"type":"ConceptConstraint","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+          type: string
+      responses:
+        200:
+          description: 'Return the result as a json object. Example: `{count: 56}`.'
+          schema:
+            type: object
+            properties:
+              count:
+                type: integer
+  /v2/observation_list:
+    get:
+      description: |
+        Gets all observations that satisfy the given constaint as a list.
+      tags:
+        - v2
+      parameters:
+        - name: constraint
+          required: true
+          in: query
+          description: 'json that specifies the constraint. Example: `{"type":"ConceptConstraint","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+          type: string
+      responses:
+        200:
+          description: 'Returns a list with observation objects.'
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/observation'
+  /v2/patients:
+    get:
+      description: |
+        Gets all patients that have an observation that satisfy the given constaint. Only patients the calling user has access to are returned.
+      tags:
+        - v2
+      parameters:
+        - name: constraint
+          required: true
+          in: query
+          description: 'json that specifies the constraint. Example: `{"type":"StudyNameConstraint","studyId":"EHR"}`.'
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              patients:
+                type: array
+                items:
+                  $ref: '#/definitions/patient'
+  /v2/patients/{id}:
+    get:
+      description: |
+        Gets one patient object.
+      tags:
+        - v2
+      parameters:
+        - name: id
+          in: path
+          description: id to fetch
+          required: true
+          type: string
+      responses:
+        200:
+          description: |
+            Returns one patient
+          schema:
+            $ref: '#/definitions/patient'
+  /v2/patient_sets:
+    post:
+      description: |
+        creates a patient set with all patients that have an observation that satisfies the constaint given in the body. The set will only have patients the calling user access to.
+      tags:
+        - v2
+      parameters:
+        - name: name
+          required: true
+          in: query
+          type: string
+        - name: constraint
+          description: 'json that specifies the constraint. Example: `{"type":"StudyNameConstraint","studyId":"EHR"}`.'
+          in: body
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: |
+            an object with the created patient_set or error.
+          schema:
+            type: object
+            properties:
+              description:
+                type: string
+              errorMessage:
+                type: string
+              id:
+                type: integer
+              setSize:
+                type: integer
+              status:
+                type: string
+              username:
+                type: string
+  /v2/high_dim:
+    get:
+      description: |
+        Gets all high dimensional observations that satisfy the given constaints. Only observations the calling user has access to are returned.
+      produces:
+        - application/json
+        - application/x-protobuf
+      tags:
+        - v2
+      parameters:
+        - name: assay_constraint
+          required: true
+          in: query
+          description: 'json that describes the assays. Example: `{"type":"ConceptConstraint","path":"\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"}`.'
+          type: string
+        - name: biomarker_constraint
+          in: query
+          description: 'json that describes the biomarker. Example: `{"type":"BiomarkerConstraint","biomarkerType":"genes","params":{"names":["TP53"]}}`.'
+          type: string
+        - name: projection
+          in: query
+          description: 'The projection. Example: `all_data`, `zscore`, `log_intensity`.'
+          type: string
+      responses:
+        200:
+          description: |
+            Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
+          schema:
+            $ref: '#/definitions/observations'
+  /v2/tree_nodes:
+    get:
+      description: |
+        Gets all tree nodes. Number of nodes can be limited by changing the `root` path and max `depth`. `counts` and `tags` are omitted if not requested.
+      produces:
+        - application/json
+        - application/hal+json
+      tags:
+        - v2
+      parameters:
+        - name: root
+          in: query
+          type: string
+          description: 'The node the requested tree starts from. Example: `\Public Studies\SHARED_CONCEPTS_STUDY_A\`.'
+        - name: depth
+          in: query
+          type: integer
+          description: 'The max node depth returned'
+        - name: counts
+          in: query
+          type: boolean
+          description: 'Patient and observation counts will be in the response if set to true.'
+        - name: tags
+          in: query
+          type: boolean
+          description: 'Metadata tags will be in the response if set to true.'
+      responses:
+        200:
+          description: |
+            A forest stucture if there are several root nodes. For example when there are Public Studies, Private Studies and shared concepts.
+          schema:
+            type: object
+            properties:
+              tree_nodes:
+                type: array
+                items:
+                  $ref: '#/definitions/treeNode'
+  /v2/storage:
+    get:
+      description: |
+        Gets a list of all storage systems.
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            an object that contains an array with all storage systems.
+          schema:
+            type: object
+            properties:
+              storageSystems:
+                type: array
+                items:
+                  $ref: '#/definitions/storageSystem'
+    post:
+      description: |
+        Adds a new storage system with the properties provided in the body. Calling user must have `admin` permissions.
+      tags:
+        - v2
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              systemType:
+                type: string
+              url:
+                type: string
+              systemVersion:
+                type: string
+              singleFileCollections:
+                type: boolean
+      responses:
+        201:
+          description: |
+            returns the added storage system object.
+          schema:
+            $ref: '#/definitions/storageSystem'
+  /v2/storage/{id}:
+    get:
+      description: |
+        Gets the storage system with the given `id`
+      tags:
+        - v2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: |
+            returns the storage system object.
+          schema:
+            $ref: '#/definitions/storageSystem'
+    put:
+      description: |
+        Updates the storage system with given id with the values in the body. Calling user must have `admin` permissions.
+      tags:
+        - v2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              systemType:
+                type: string
+              url:
+                type: string
+              systemVersion:
+                type: string
+              singleFileCollections:
+                type: boolean
+      responses:
+        200:
+          description: |
+            returns the updated storage system object.
+          schema:
+            $ref: '#/definitions/storageSystem'
+    delete:
+      description: |
+        Deletes the storage system with the given id.
+      tags:
+        - v2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+      responses:
+        204:
+          description: 'returns null'
+  /v2/files:
+    get:
+      description: |
+        Gets a list of all file links.
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            an object that contains an array with all file links.
+          schema:
+            type: object
+            properties:
+              files:
+                type: array
+                items:
+                  $ref: '#/definitions/fileLink'
+    post:
+      description: |
+        Adds a new file link with the properties provided in the body. Calling user must have `admin` permissions.
+      tags:
+        - v2
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              sourceSystem:
+                type: integer
+              study:
+                type: string
+              uuid:
+                type: string
+      responses:
+        201:
+          description: |
+            returns the added file link object.
+          schema:
+            $ref: '#/definitions/fileLink'
+  /v2/files/{id}:
+    get:
+      description: |
+        Gets the file link  with the given `id`.
+      tags:
+        - v2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: |
+            returns the file link object.
+          schema:
+            $ref: '#/definitions/fileLink'
+    put:
+      description: |
+        Updates the file link  with given id with the values provided in the body. Calling user must have `admin` permissions.
+      tags:
+        - v2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              sourceSystem:
+                type: integer
+              study:
+                type: string
+              uuid:
+                type: string
+      responses:
+        200:
+          description: |
+            returns the updated file link object.
+          schema:
+            $ref: '#/definitions/fileLink'
+    delete:
+      description: |
+        Deletes the file link with the given id.
+      tags:
+        - v2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+      responses:
+        204:
+          description: 'returns null'
+  /v2/studies/{studyId}/files:
+    get:
+      description: |
+        Gets a list of all file links related to a study.
+      tags:
+        - v2
+      parameters:
+        - name: studyId
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: |
+            an object that contains an array with all file links related to a study.
+          schema:
+            type: object
+            properties:
+              files:
+                type: array
+                items:
+                  $ref: '#/definitions/fileLink'
+  /v2/arvados/workflows:
+    get:
+      description: |
+        Gets a list of all supported workflows.
+      tags:
+        - v2
+        - arvados
+      responses:
+        200:
+          description: |
+            an object that contains an array with all supported workflows.
+          schema:
+            type: object
+            properties:
+              supportedWorkflows:
+                type: array
+                items:
+                  $ref: '#/definitions/supportedWorkflow'
+    post:
+      description: |
+        Adds a new supported Workflow with the properties provided in the body. Calling user must have `admin` permissions.
+      tags:
+        - v2
+        - arvados
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              arvadosInstanceUrl:
+                type: string
+              uuid:
+                type: string
+              description:
+                type: string
+              arvadosVersion:
+                type: string
+              defaultParams:
+                description: 'a map of key value pairs'
+                type: object
+      responses:
+        201:
+          description: |
+            returns the created supported workflow object.
+          schema:
+            $ref: '#/definitions/supportedWorkflow'
+  /v2/arvados/workflows/{id}:
+    get:
+      description: |
+        Gets the supported workflow with the given `id`.
+      tags:
+        - v2
+        - arvados
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: |
+            returns the supported workflow object.
+          schema:
+            $ref: '#/definitions/supportedWorkflow'
+    put:
+      description: |
+        Updates the supported workflow with given id with the values in the body. Calling user must have `admin` permissions.
+      tags:
+        - v2
+        - arvados
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              arvadosInstanceUrl:
+                type: string
+              uuid:
+                type: string
+              description:
+                type: string
+              arvadosVersion:
+                type: string
+              defaultParams:
+                description: 'a map of key value pairs'
+                type: object
+      responses:
+        200:
+          description: |
+            returns the modified supported workflow object.
+          schema:
+            $ref: '#/definitions/supportedWorkflow'
+    delete:
+      description: |
+        Deletes the supported workflow with the given id.
+      tags:
+        - v2
+        - arvados
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+      responses:
+        204:
+          description: 'returns null'
+
+definitions:
+  v1observation:
+    type: object
+    properties:
+      subject:
+        $ref: '#/definitions/patient'
+      label:
+        type: string
+      value:
+        type: string
+
+  ontologyTerm:
+    type: object
+    properties:
+      name:
+        type: string
+      key:
+        type: string
+      fullName:
+        type: string
+      type:
+        type: string
+
+  jsonStudy:
+    type: object
+    properties:
+      id:
+        type: string
+      ontologyTerm:
+        type: object
+        properties:
+          name:
+            type: string
+          key:
+            type: string
+          fullName:
+            type: string
+          type:
+            type: string
+
+  hal+jsonStudy:
+    type: object
+    properties:
+      id:
+        type: string
+      _links:
+        type: object
+        properties:
+          self:
+            type: object
+            properties:
+              href:
+                type: string
+      _embedded:
+        type: object
+        properties:
+          ontologyTerm:
+            type: object
+            properties:
+              name:
+                type: string
+              key:
+                type: string
+              fullName:
+                type: string
+              type:
+                type: string
+                default: 'STUDY'
+              _links:
+                type: object
+                properties:
+                  self:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                  observations:
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                  children:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        href:
+                          type: string
+                        title:
+                          type: string
+
+  hal+jsonStudies:
+    type: object
+    properties:
+      _links:
+        type: object
+        properties:
+          self:
+            type: object
+            properties:
+              href:
+                type: string
+      _embedded:
+        type: object
+        properties:
+          studies:
+            type: array
+            items:
+              $ref: '#/definitions/hal+jsonStudy'
+              
+  storageSystem:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      systemType:
+        type: string
+      url:
+        type: string
+      systemVersion:
+        type: string
+      singleFileCollections:
+        type: boolean
+  
+  fileLink:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      sourceSystem:
+        description: 'sourceSystem field is an integer ID representing #storage_system from `/v2/storage`'
+        type: integer
+      study:
+        description: 'Short case insensitive String identifying tranSMART study, usually study name, given during ETL, can be retrieved by `/v2/studies`.'
+        type: string
+      uuid:
+        type: string
+  
+  supportedWorkflow:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      arvadosInstanceUrl:
+        type: string
+      uuid:
+        type: string
+      description:
+        type: string
+      arvadosVersion:
+        type: string
+      defaultParams:
+        description: 'a map of key value pairs'
+        type: object
+  
+  treeNode:
+    type: object
+    properties:
+      children:
+        type: array
+        description: 'A list of treeNodes if there are any children. '
+        items:
+          type: object
+      fullName:
+        type: string
+        description: 'Example: `\Public Studies\SHARED_CONCEPTS_STUDY_A\`'
+      name:
+        type: string
+        description: 'Example: SHARED_CONCEPTS_STUDY_A'
+      type:
+        description: 'Example: STUDY'
+        type: string
+      visualAttributes:
+        type: array
+        items:
+          description: 'Example: [FOLDER, ACTIVE, STUDY]'
+          type: string
+      observationCount:
+        description: 'only available on ConceptNodes'
+        type: integer
+      patientCount:
+        description: 'only available on ConceptNodes'
+        type: integer
+      constraint:
+        description: 'only available on ConceptNodes'
+        type: object
+        properties:
+          type:
+            description: 'Example: ConceptConstraint'
+            type: string
+          path:
+            description: 'Example: `\Public Studies\CLINICAL_TRIAL\Demography\Age\`'
+            type: string
+  
+  v2Study:
+    type: object
+    properties:
+      id:
+        type: integer
+      studyID:
+        type: string
+      bioExperimentId:
+        type: integer
+      dimensions:
+        type: array
+        items:
+          type: string
+        
+  patient:
+    type: object
+    properties:
+      age:
+        type: integer
+      birthDate:
+        type: string
+        format: date
+      deathDate:
+        type: string
+        format: date
+      id:
+        type: integer
+      inTrialId:
+        type: integer
+      maritalStatus:
+        type: string
+      race:
+        type: string
+      religion:
+        type: string
+      sex:
+        type: string
+      trial:
+        type: string
+  
+  observation:
+    type: object
+    properties:
+      conceptCode:
+        type: string
+      encounterNum:
+        type: integer
+      endDate:
+        type: string
+        format: datetime
+      instanceNum:
+        type: integer
+      locationCd:
+        type: string
+      modifierCd:
+        type: string
+      numberValue:
+        type: integer
+      patient:
+        type: object
+        properties:
+          id:
+            type: integer
+      providerId:
+        type: string
+      sourcesystemCd:
+        type: string
+      startDate:
+        type: string
+        format: datetime
+      textValue:
+        type: string
+      trialVisit:
+        type: object
+        properties:
+          id:
+            type: integer
+      valueFlag:
+        type: string
+      valueType:
+        type: string
+            
+  observations:
+    type: object
+    properties:
+      header:
+        type: object
+        properties:
+          dimensionDeclarations:
+            type: array
+            items:
+              $ref: '#/definitions/dimensionDeclaration'
+      cells:
+        type: array
+        items:
+          $ref: '#/definitions/cell'
+      footer:
+        type: object
+        properties:
+          dimensions:
+            type: array
+            items:
+              type: array
+              items:
+                $ref: '#/definitions/dimensionValue'
+  
+  dimensionDeclaration:
+    type: object
+    properties:
+      inline:
+        description: 'If true, this dimension will be inlined in the cell. Only present if true.'
+        type: boolean
+      fields:
+        description: 'Fields is omitted if the dimension consists of one field.'
+        type: array
+        items:
+          $ref: '#/definitions/field'
+      name:
+        type: string
+      type:
+        description: 'STRING, INTEGER, DATE, OBJECT'
+        type: string
+    
+  field:
+    type: object
+    properties:
+      name:
+        type: string
+      type:
+        description: 'STRING, INTEGER, DATE'
+        type: string
+        
+  cell:
+    type: object
+    description: 'numericValue or stringValue, never both.'
+    properties:
+      dimensionIndexes:
+        description: 'The index in the array is equal to the index of the dimension in the dimensions array in the footer. The number is the index of the dimensionValue in the dimension.'
+        type: array
+        items:
+          type: integer
+      inlineDimensions:
+        type: array
+        items:
+          $ref: '#/definitions/dimensionValue'
+      numericValue:
+        type: number
+      stringValue:
+        type: string
+        
+  dimensionValue:
+    type: object
+    description: 'The structure of this value is described in the header. The order of the dimensionValues is determined by the order of the dimensionDeclaration in the header.'

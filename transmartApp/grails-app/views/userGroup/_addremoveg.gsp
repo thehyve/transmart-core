@@ -5,12 +5,12 @@
               optionKey="id" optionValue="name"/></td>
 <td class="addremovebuttonholder">
     <button class="ltarrowbutton"
-            onclick="${remoteFunction(action:'addUserToGroups', update:[success:'groups', failure:''],
-                     params: 'addremove_buildAddUser()')};
+            onclick="${legacy.remoteFunction(action:'addUserToGroups', update:[success:'groups', failure:''],
+                     params: 'addremove_buildAddUser()')}
             return false;">&LT;&LT;Add</button><br>
     <button class="ltarrowbutton"
-            onclick="${remoteFunction(action:'removeUserFromGroups', update:[success:'groups', failure:''],
-                     params: 'addremove_buildRemoveUser()')};
+            onclick="${legacy.remoteFunction(action:'removeUserFromGroups', update:[success:'groups', failure:''],
+                     params: 'addremove_buildRemoveUser()')}
             return false;">Remove&GT;&GT;</button>
 </td>
 <td>
@@ -20,7 +20,7 @@
     </div>
 </td>
 
-<r:script>
+<script type="text/javascript">
     (function () {
         'use strict';
 
@@ -34,4 +34,4 @@
                     ['currentprincipalid', 'searchtext', 'groupstoremove'])
         }
     })()
-</r:script>
+</script>

@@ -18,10 +18,10 @@ def solrPort          = 8983 //port of appserver where solr runs (under ctx path
 def searchIndex       = catalinaBase + '/searchIndex' //create this directory
 // for running transmart as WAR, create this directory and then create an alias
 def jobsDirectory     = "/var/tmp/jobs/"
-def oauthEnabled      = true
-def samlEnabled       = false
-def gwavaEnabled      = false
-def transmartURL      = "http://localhost:${System.getProperty('server.port', '8080')}"
+def samlEnabled  = false
+org.transmartproject.app.oauthEnabled = true
+org.transmartproject.app.gwavaEnabled = false
+org.transmartproject.app.transmartURL = "http://localhost:${System.getProperty('server.port', '8080')}"
 
 //Disabling/Enabling UI tabs
 ui {
@@ -67,25 +67,15 @@ ui {
  * the Config.groovy target is run */
 
 environments { production {
-    if (transmartURL.startsWith('http://localhost:')) {
+    if (org.transmartproject.app.transmartURL.startsWith('http://localhost:')) {
         println "[WARN] transmartURL not overridden. Some settings (e.g. help page) may be wrong"
     }
 } }
 
 /* {{{ Faceted Search Configuration */
-environments {
-    development {
-        com.rwg.solr.scheme = 'http'
-        com.rwg.solr.host   = 'localhost:8983'
-        com.rwg.solr.path   = '/solr/rwg/select/'
-    }
-
-    production {
-        com.rwg.solr.scheme = 'http'
-        com.rwg.solr.host   = 'localhost:' + solrPort
-        com.rwg.solr.path   = '/solr/rwg/select/'
-    }
-}
+com.rwg.solr.scheme = 'http'
+com.rwg.solr.host   = 'localhost:' + solrPort
+com.rwg.solr.path   = '/solr/rwg/select/'
 /* }}} */
 
 /* {{{ Data Upload Configuration - see GWAS plugin Data Upload page */
@@ -114,7 +104,7 @@ com.recomdata.appTitle = "tranSMART v" + grails.util.Metadata.current.getApplica
 // Location of the help pages. Should be an absolute URL.
 // Currently, these are distribution with transmart,
 // so it can also point to that location copy.
-com.recomdata.adminHelpURL = "$transmartURL/help/adminHelp/default.htm"
+com.recomdata.adminHelpURL = "${org.transmartproject.app.transmartURL}/help/adminHelp/default.htm"
 
 environments { development {
     com.recomdata.bugreportURL = 'https://jira.transmartfoundation.org'
@@ -289,128 +279,11 @@ buildInfo { properties {
 /* {{{ Spring Security configuration */
 
 grails { plugin { springsecurity {
-    // You probably won't want to change these
 
-    // customized user GORM class
-    userLookup.userDomainClassName = 'org.transmart.searchapp.AuthUser'
-    // customized password field
-    userLookup.passwordPropertyName = 'passwd'
-    // customized user /role join GORM class
-    userLookup.authorityJoinClassName = 'org.transmart.searchapp.AuthUser'
-    // customized role GORM class
-    authority.className = 'org.transmart.searchapp.Role'
-    // request map GORM class name - request map is stored in the db
-    requestMap.className = 'org.transmart.searchapp.Requestmap'
-    // requestmap in db
-    securityConfigType = grails.plugin.springsecurity.SecurityConfigType.Requestmap
-    // url to redirect after login in
-    // just_rest branch provides alternative default via org.transmart.defaultLoginRedirect
-    successHandler.defaultTargetUrl = org.transmart.defaultLoginRedirect ?: '/userLanding'
-    // logout url
-    logout.afterLogoutUrl = '/login/forceAuth'
-
-    // configurable requestmap functionality in transmart is deprecated
-    def useRequestMap = false
-
-    if (useRequestMap) {
-        // requestmap in db
-        securityConfigType = 'Requestmap'
-        // request map GORM class name - request map is stored in the db
-        requestMap.className = 'org.transmart.searchapp.Requestmap'
-    } else {
-        securityConfigType = 'InterceptUrlMap'
-        def oauthEndpoints = [
-              [pattern: '/oauth/authorize.dispatch', access: ["isFullyAuthenticated() and (request.getMethod().equals('GET') or request.getMethod().equals('POST'))"]],
-              [pattern: '/oauth/token.dispatch', access: ["isFullyAuthenticated() and request.getMethod().equals('POST')"]],
-        ]
-
-        // This looks dangerous and it possibly is (would need to check), but
-        // reflects the instructions I got from the developer.
-        def gwavaMappings = [
-            [pattern: '/gwasWeb/**', access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-        ]
-
-        interceptUrlMap = [
-            [pattern: '/login/**',         access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-            [pattern: '/css/**',                     access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-            [pattern: '/js/**',                      access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-            [pattern: '/assets/**',                  access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-            [pattern: '/grails-errorhandler',        access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-            [pattern: '/images/analysisFiles/**',    access: ['IS_AUTHENTICATED_REMEMBERED']],
-            [pattern: '/images/**',                  access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-            [pattern: '/static/**',                  access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-            [pattern: '/search/loadAJAX**',          access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-            [pattern: '/analysis/getGenePatternFile',access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-            [pattern: '/analysis/getTestFile',       access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-            [pattern: '/requestmap/**',              access: ['ROLE_ADMIN']],
-            [pattern: '/role/**',                    access: ['ROLE_ADMIN']],
-            [pattern: '/authUser/**',                access: ['ROLE_ADMIN']],
-            [pattern: '/secureObject/**',            access: ['ROLE_ADMIN']],
-            [pattern: '/accessLog/**',               access: ['ROLE_ADMIN']],
-            [pattern: '/authUserSecureAccess/**',    access: ['ROLE_ADMIN']],
-            [pattern: '/secureObjectPath/**',        access: ['ROLE_ADMIN']],
-            [pattern: '/userGroup/**',               access: ['ROLE_ADMIN']],
-            [pattern: '/secureObjectAccess/**',      access: ['ROLE_ADMIN']],
-            [pattern: '/oauthAdmin/**', access: ['ROLE_ADMIN']]
-        ] +
-        (oauthEnabled ?  oauthEndpoints : []) +
-        (gwavaEnabled ?  gwavaMappings : []) +
-        [
-            [pattern: '/**',                         access: ['IS_AUTHENTICATED_REMEMBERED']], // must be last
-        ]
-        rejectIfNoRule = true
-    }
-
-    // Hash algorithm
-    password.algorithm = 'bcrypt'
-    // Number of bcrypt rounds
-    password.bcrypt.logrounds = 14
-
-    providerNames = [
-        'daoAuthenticationProvider',
-        'anonymousAuthenticationProvider',
-        'rememberMeAuthenticationProvider',
-    ]
-
-    if (oauthEnabled) {
-        providerNames << 'clientCredentialsAuthenticationProvider'
-
-        def securedResourcesFilters = [
-                'JOINED_FILTERS',
-                '-securityContextPersistenceFilter',
-                '-logoutFilter',
-                '-rememberMeAuthenticationFilter',
-                '-basicAuthenticationFilter',
-                '-exceptionTranslationFilter',
-        ].join(',')
-
-        filterChain.chainMap = [
-                '/oauth/token': [
-                        'JOINED_FILTERS',
-                        '-oauth2ProviderFilter',
-                        '-securityContextPersistenceFilter',
-                        '-logoutFilter',
-                        '-rememberMeAuthenticationFilter',
-                        '-exceptionTranslationFilter',
-                ].join(','),
-                '/v1/**': securedResourcesFilters,
-                '/v2/**': securedResourcesFilters,
-                '/**': [
-                        'JOINED_FILTERS',
-                        '-statelessSecurityContextPersistenceFilter',
-                        '-oauth2ProviderFilter',
-                        '-clientCredentialsTokenEndpointFilter',
-                        '-basicAuthenticationFilter',
-                        '-oauth2ExceptionTranslationFilter'
-                ].join(','),
-        ].collect { k, v ->
-            [pattern: k, filters: v]
-        }
-
-        grails.exceptionresolver.params.exclude = ['password', 'client_secret']
+    if (org.transmartproject.app.oauthEnabled) {
 
         def glowingBearRedirectUris = [
-                transmartURL - ~/transmart\/?$/ + 'connections',
+                org.transmartproject.app.transmartURL - ~/transmart\/?$/ + 'connections',
         ]
         // for dev, node reverse proxy runs on 8001
         glowingBearRedirectUris << 'http://localhost:8001/connections'
@@ -427,8 +300,8 @@ grails { plugin { springsecurity {
                         scopes: ['read', 'write'],
                         authorizedGrantTypes: ['authorization_code', 'refresh_token'],
                         redirectUris: [
-                                (transmartURL - ~'\\/$') + '/oauth/verify',
-                                (transmartURL - ~'\\/$') + '/v1/oauth/verify'
+                                (org.transmartproject.app.transmartURL - ~'\\/$') + '/oauth/verify',
+                                (org.transmartproject.app.transmartURL - ~'\\/$') + '/v1/oauth/verify'
                         ],
                     ],
                     [
@@ -559,15 +432,15 @@ if (samlEnabled) {
 /* }}} */
 
 /* {{{ gwava */
-if (gwavaEnabled) {
+if (org.transmartproject.app.gwavaEnabled) {
     // assume deployment alongside transmart
     com { recomdata { rwg { webstart {
-        def url       = new URL(transmartURL)
+        def url       = new URL(org.transmartproject.app.transmartURL)
         codebase      = "$url.protocol://$url.host${url.port != -1 ? ":$url.port" : ''}/gwava"
         jar           = './ManhattanViz2.1g.jar'
         mainClass     = 'com.pfizer.mrbt.genomics.Driver'
         gwavaInstance = 'transmartstg'
-        transmart.url = transmartURL - ~'\\/$'
+        transmart.url = org.transmartproject.app.transmartURL - ~'\\/$'
    } } } }
    com { recomdata { rwg { qqplots {
        cacheImages = new File(jobsDirectory, 'cachedQQplotImages').toString()

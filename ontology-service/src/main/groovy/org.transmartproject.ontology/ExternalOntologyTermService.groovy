@@ -6,6 +6,13 @@ package org.transmartproject.ontology
 interface ExternalOntologyTermService {
 
     /**
+     * Initialise the service with the parameters in <code>parameters</code>.
+     * Which parameters are supported depends on the service type.
+     * @param params
+     */
+    public void init(Map parameters)
+
+    /**
      * Fetches {@link OntologyMap} objects for the variable, based on the
      * provided category code and data label.
      * Some services is requested to provide a canonical ontology code and
@@ -16,7 +23,6 @@ interface ExternalOntologyTermService {
      *
      * @param categoryCode
      * @param dataLabel
-     * @return
      */
     public List<OntologyMap> fetchPreferredConcept(String categoryCode, String dataLabel)
 

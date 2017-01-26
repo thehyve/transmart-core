@@ -64,20 +64,6 @@ dependencies {
     compile project(':transmart-core-api')
     compile project(':transmart-core-db')
 }
-grailsPublish {
-    // TODO: Provide values here
-    user = 'user'
-    key = 'key'
-    githubSlug = 'foo/bar'
-    license {
-        name = 'Apache-2.0'
-    }
-    title = "My Plugin"
-    desc = "Full plugin description"
-    developers = [johndoe: "John Doe"]
-    portalUser = ""
-    portalPassword = ""
-}
 
 assets {
     packagePlugin = true

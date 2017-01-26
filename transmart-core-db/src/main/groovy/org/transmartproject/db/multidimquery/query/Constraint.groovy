@@ -481,11 +481,13 @@ class Combination extends Constraint {
  * Constraint that specifies a temporal relation between result observations
  * and observations specified in the <code>eventConstraint</code>.
  *
- * Two operator types are supported:
+ * Three operator types are supported:
  * - BEFORE: selects observations with the start time before the start of all
  * of the observations selected by <code>eventConstraint</code>.
  * - AFTER: selects observations with the start time after the start of all
  * of the observations selected by <code>eventConstraint</code>.
+ * - EXISTS: selects observations for patients that have some observations
+ * selected by <code>eventConstraint</code>.
  */
 @Canonical
 class TemporalConstraint extends Constraint {

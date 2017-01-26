@@ -77,6 +77,12 @@ public interface OntologyTerm {
      */
     Object getMetadata()
 
+    /**
+     * Returns the parent of this term.
+     *
+     * @return the parent of this term.
+     */
+    OntologyTerm getParent()
 
     /**
      * Returns the terms one level below that have this term as a parent.

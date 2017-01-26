@@ -1,9 +1,10 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableMap
-import grails.util.Pair
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.Immutable
 import groovy.transform.InheritConstructors
 import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
@@ -391,7 +392,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
 @CompileStatic @InheritConstructors
 class PatientDimension extends I2b2Dimension<Patient, Long> implements CompositeElemDim<Patient, Long> {
     Class elemType = Patient
-    List elemFields = ["trial", "inTrialId", "birthDate", "deathDate",
+    List elemFields = ["id", "trial", "inTrialId", "birthDate", "deathDate",
                       "age", "race", "maritalStatus", "religion",
                       new PropertyImpl('sex', 'sex', String) {
                           @Override def get(element) { super.get(element).toString() }
@@ -444,7 +445,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 @CompileStatic @InheritConstructors
 class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements CompositeElemDim<TrialVisit, Long> {
     Class elemType = TrialVisit
-    List elemFields = ["relTimeLabel", "relTimeUnit", "relTime"]
+    List elemFields = ["id", "relTimeLabel", "relTimeUnit", "relTime"]
     String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
@@ -508,8 +509,8 @@ class LocationDimension extends I2b2Dimension<String,String> implements Serializ
 }
 
 @CompileStatic @InheritConstructors
-class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,Long>> implements
-        CompositeElemDim<I2b2VisitDimension, Pair<BigDecimal,Long>> {
+class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> implements
+        CompositeElemDim<I2b2VisitDimension, VisitKey> {
     Class elemType = I2b2VisitDimension
     List elemFields = ["patientInTrialId", "encounterNum", "activeStatusCd", "startDate", "endDate", "inoutCd",
                                       "locationCd"]
@@ -528,23 +529,37 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,L
 
     static private BigDecimal minusOne = new BigDecimal(-1)
 
-    @Override Pair<BigDecimal,Long> getElementKey(Map result) {
+    @Override VisitKey getElementKey(Map result) {
         BigDecimal encounterNum = (BigDecimal) getKey(result, alias)
-        encounterNum == minusOne ? null : new Pair(encounterNum, result.patientId)
+        encounterNum == minusOne ? null : new VisitKey(encounterNum, (Long) result.patientId)
     }
 
     @CompileDynamic
-    @Override List<I2b2VisitDimension> doResolveElements(List<Pair<BigDecimal,Long>> elementKeys) {
+    @Override List<I2b2VisitDimension> doResolveElements(List<VisitKey> elementKeys) {
         (List) I2b2VisitDimension.withCriteria {
             or {
-                elementKeys.each { Pair key ->
+                elementKeys.each { VisitKey key ->
                     and {
-                        eq 'encounterNum', key.aValue
-                        eq 'patient.id', key.bValue
+                        eq 'encounterNum', key.encounterNum
+                        eq 'patient.id', key.patientId
                     }
                 }
             }
         }
+    }
+
+    // The same as @Immutable, but @Immutable generates some rather dynamic/inefficient constructors and a toString()
+    // I don't quite like
+    @EqualsAndHashCode
+    static private class VisitKey {
+        final BigDecimal encounterNum
+        final Long patientId
+
+        VisitKey(BigDecimal encounterNum, Long patientId) {
+            this.encounterNum = encounterNum; this.patientId = patientId
+        }
+
+        String toString() { "VisitKey(encounterNum: $encounterNum, patientId: $patientId)" }
     }
 }
 

@@ -29,14 +29,18 @@ class CreateSecureStudyTasklet implements Tasklet {
     @Value("#{jobParameters['STUDY_ID']}")
     String studyId
 
+    @Value("#{jobParameters['ONTOLOGY_MAP_FILE']}")
+    String ontologyMapFile
+
     @Autowired
     SecureObjectDAO secureObjectDAO
 
     @Override
     RepeatStatus execute(StepContribution contribution,
                          ChunkContext chunkContext) throws Exception {
+        boolean hasOntologyMapping = ontologyMapFile ? true : false
         secureObjectDAO.createSecureObject(
-                displayName, secureObjectToken)
+                displayName, secureObjectToken, hasOntologyMapping)
     }
 
     private String getDisplayName() {

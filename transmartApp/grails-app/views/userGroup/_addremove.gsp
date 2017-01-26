@@ -1,14 +1,12 @@
-<g:setProvider library="jquery"/>
-
 <td><g:select class="addremoveselect" name="userstoremove"
               from="${userGroupInstance?.members.sort { it.name.toUpperCase() }}"
               size="15" multiple="yes" optionKey="id"/></td>
 <td class="addremovebuttonholder">
     <button class="ltarrowbutton"
-            onclick="${remoteFunction(action:'addUsersToUserGroup',update:[success:'groupmembers', failure:''], id:userGroupInstance?.id, params:'jQuery(\'#userstoadd\').serialize()+\'&searchtext=\'+document.getElementById(\'searchtext\').value'  )};
+            onclick="${legacy.remoteFunction(action:'addUsersToUserGroup',update:[success:'groupmembers', failure:''], id:userGroupInstance?.id, params:'jQuery(\'#userstoadd\').serialize()+\'&searchtext=\'+document.getElementById(\'searchtext\').value'  )};
             return false;">&LT;&LT;Add</button><br>
     <button class="ltarrowbutton"
-            onclick="${remoteFunction(action:'removeUsersFromUserGroup',update:[success:'groupmembers', failure:''], id:userGroupInstance?.id, params:'jQuery(\'#userstoremove\').serialize()+\'&searchtext=\'+document.getElementById(\'searchtext\').value'  )};
+            onclick="${legacy.remoteFunction(action:'removeUsersFromUserGroup',update:[success:'groupmembers', failure:''], id:userGroupInstance?.id, params:'jQuery(\'#userstoremove\').serialize()+\'&searchtext=\'+document.getElementById(\'searchtext\').value'  )};
             return false;">Remove&GT;&GT;</button>
 </td>
 <td>

@@ -50,7 +50,7 @@ class ObservationSelectorJson {
         }
     }
 
-    def select(cellIndex, dimension){
+    def select(cellIndex, dimension, valueType = null){ //valueType is unused but needed to make the interface for json and protobuf selecter the same.
         int index = notInlined.indexOf(dimension)
         if(index != -1) {
             def valueIndex = hyperCubeMessage.cells[cellIndex].dimensionIndexes[index]

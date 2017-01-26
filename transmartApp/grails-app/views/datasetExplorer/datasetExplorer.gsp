@@ -134,7 +134,7 @@
     <g:render template="/layouts/modifierValueForm" />
 </div>
 
-<div id="sidebartoggle">&nbsp;</div>
+<div id="sidebartoggle" class="left-arrow">&nbsp;</div>
 
 <div id="noAnalyzeResults" style="display: none;">No subject-level results found.<br/>
     <g:if test="${!grailsApplication.config.ui.tabs.browse.hide}">

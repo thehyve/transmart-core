@@ -7,7 +7,7 @@ jQuery(document).ready(function() {
 		    jQuery.ajax({
                 url: '${createLink([action: searchAction, controller: searchController])}',
 		        type: 'POST',
-		        data: {'term': request['term'], ${paramString ?: "'prm':'prm'"}},
+		        data: {'term': request['term'], ${raw(paramString ?: "'prm':'prm'")}},
                 success: function(responseText) { response(responseText) },
                 failure: function(xhr) { alert(xhr.responseText); response(responseText); }
 		    });

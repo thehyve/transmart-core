@@ -39,7 +39,7 @@
                                         id="TrialDet_${trialresult.trial.id}_anchor">
                                     <a onclick="javascript:if (divIsEmpty('${trialresult.trial.trialNumber}_detail')) {
                                         var ldiv = '${trialresult.trial.trialNumber}_detail_loading';
-                                        ${remoteFunction(action:'getTrialAnalysis',controller:'trial', id:trialresult.trial.id, before:'toggleVisible(ldiv);', onComplete:'toggleVisible(ldiv);', update:trialresult.trial.trialNumber+'_detail')};
+                                        ${legacy.remoteFunction(action:'getTrialAnalysis',controller:'trial', id:trialresult.trial.id, before:'toggleVisible(ldiv);', onComplete:'toggleVisible(ldiv);', update:trialresult.trial.trialNumber+'_detail')};
                                     }
                                     ;
                                     toggleDetail('${trialresult.trial.trialNumber}')">
