@@ -147,7 +147,7 @@ class InsertConceptsService {
                     c_synonym_cd      : 'N',
                     c_visualattributes: visualAttributes,
                     c_metadataxml     : metadataXmlFor(it),
-                    c_facttablecolumn : isStudyNode ? '' : 'CONCEPT_CD',
+                    c_facttablecolumn : isStudyNode ? '@' : 'CONCEPT_CD',
                     c_tablename       : isStudyNode ? 'STUDY' : 'CONCEPT_DIMENSION',
                     c_columnname      : isStudyNode ? 'STUDY_ID' : 'CONCEPT_PATH',
                     c_columndatatype  : 'T',
