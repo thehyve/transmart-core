@@ -66,6 +66,7 @@ class QueryController extends AbstractQueryController {
         checkParams(params, ['constraint', 'type'])
 
         // TODO: connect this type parameter to MultiDimensionalDataResource.retrieveData(dataType  ...)
+        if (params.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
         if (params.type != 'clinical') throw new UnsupportedOperationException("Type ${params.type} is not yet " +
                 "supported in this call, only 'clinical' data is supported in this version.")
 
