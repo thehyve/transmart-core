@@ -72,3 +72,7 @@ An API key can be obtained by registering at https://bioportal.bioontology.org/.
 
 An [example fetching parameters file](../../studies/TEST_17_1/ontologymapping.params) can be found in
 the [TEST_17_1](../../studies/TEST_17_1) example study.
+
+_Note_: The job tries to create the file specified in `ONTOLOGY_MAP_FILE` in the directory `ontologymapping`.
+The job fails if the directory does not exist or if the specified file already exists.
+If you want to rerun a previously completed job, you need to pass the `-n` options to transmart-batch.

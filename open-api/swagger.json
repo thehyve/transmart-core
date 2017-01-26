@@ -1,4 +1,3 @@
-var spec =
 {
   "swagger": "2.0",
   "info": {
@@ -1994,4 +1993,3 @@ var spec =
     }
   }
 }
-;
