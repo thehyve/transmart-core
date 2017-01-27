@@ -33,7 +33,7 @@ info:
     
     ## Combination
     Most often a combination of constraints is needed to get the right result. This can be done by a constraint with type combination.
-    It takes an op `operator` and a list `args` with constraints. All args will be evaluated together on each observation. So a 'and' operator with a `PatientSetConstraint` and a `ConceptConstraint` will return all observations for the given concept linked to the patient set.
+    It takes an op `operator` and a list `args` with constraints. All args will be evaluated together on each observation. So a 'and' operator with a `PatientSet` and a `Concept` will return all observations for the given concept linked to the patient set.
     However a `and` operator with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.
     
     Example:
@@ -41,35 +41,35 @@ info:
     {"type": "Combination",
      "operator": "and",
      "args": [
-        {"type": "PatientSetConstraint", "patientIds": -62},
-        {"type": "ConceptConstraint", "path":" \\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
+        {"type": "PatientSet", "patientIds": -62},
+        {"type": "Concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
         ]
     }
     ```
     
-    ## StudyNameConstraint
+    ## StudyName
     Evaluate if an observation is part of a particular study
     
     Example:
     ```json
     {
-      "type": "StudyNameConstraint",
+      "type": "StudyName",
       "studyId": "EHR"
     }
     ```
     
-    ## ConceptConstraint
+    ## Concept
     Evaluate if an observation is of a particular Concept. Either by `path` or `conceptCode`.
     
     ```json
     {
-      "type": "ConceptConstraint",
+      "type": "Concept",
       "path": "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\",
       "conceptCode": "HR"
     }
     ```
     
-    ## ValueConstraint
+    ## Value
     Evaluate if the value of an observation is within the given parameters. It needs a `valueType`, `operator` and `value`.
       `valueType`: [\"NUMERIC\", \"STRING\"]
       `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains]
@@ -77,20 +77,20 @@ info:
     Example:
     ```json
     {
-      "type": "ValueConstraint",
+      "type": "Value",
       "valueType": "NUMERIC",
       "operator": "=", "value": 176
     }
     ```
     
-    ## FieldConstraint
+    ## Field
     Evaluate if a specific field of an observation is within the given parameters. it needs a `field`, `operator` and `value`.
       `operator`: [&lt;, &gt;, =, !=, &lt;=, &gt;=, in, like, contains]
     
     Example:
     ```json
     {
-      "type": "FieldConstraint",
+      "type": "Field",
       "field": {
           "dimension": "patient",
           "fieldName": "age",
@@ -101,7 +101,7 @@ info:
     }
     ```
     
-    ## TimeConstraint
+    ## Time
     Evaluate if an observation is within the specified time period. It needs a `field` the type of which needs to be `DATE`. It needs a time relevant `operator` and a list of `values`.
     The list must hold one date for the before(<-) and after(->) operator. It must hold two dates for the between(<-->) operator. If the given date field for an observation is empty, the observation will be ignored.
     `operator`: ["&lt;-", "-&gt;", "&lt;--&gt;"]
@@ -109,7 +109,7 @@ info:
     Example:
     ```json
     {
-      "type": "TimeConstraint",
+      "type": "Time",
       "field": {
           "dimension": "start time",
           "fieldName": "startDate",
@@ -120,29 +120,29 @@ info:
     }
     ```
     
-    ## PatientSetConstraint
+    ## PatientSet
     Evaluate if an observation is liked to a patient in the set. It needs either a `patientSetId` or a list of `patientIds`.
     
     Example:
     ```json
     {
-        "type": "PatientSetConstraint",
+        "type": "PatientSet",
         "patientSetId": 28820,
         "patientIds": [-62, -63]
     }
     ```
     
-    ## TemporalConstraint
-    Evaluate if an observation happened before or after an event. It needs an `operator` and an `eventConstraint`. Any constraint can be used as an eventConstraint. Most likely a combination.
+    ## Temporal
+    Evaluate if an observation happened before or after an event. It needs an `operator` and an `event`. Any constraint can be used as an event. Most likely a combination.
     `operator`: ["&lt;-", "-&gt;", "exists"]
     
     Example:
     ```json
     {
-        "type": "TemporalConstraint",
+        "type": "Temporal",
         "operator": "exists",
-        "eventConstraint": {
-              "type": "ValueConstraint",
+        "event": {
+              "type": "Value",
               "valueType": "NUMERIC",
               "operator": "=",
               "value": 60
@@ -150,13 +150,13 @@ info:
     }
     ```
     
-    ## NullConstraint
+    ## Null
     Evaluate if an specific field of an observation is null. It needs a field.
     
     Example:
     ```json
     {
-        "type": "NullConstraint",
+        "type": "Null",
         "field":{
             "dimension": "EndTimeDimension",
             "fieldName": "endDate",
@@ -165,17 +165,17 @@ info:
     }
     ```
     
-    ## ModifierConstraint
+    ## Modifier
     Evaluate if an observation is linked to the specified modifier. Optionally if that modifier has the specific value. It must have a `path` or `modifierCode` and may have `values` in the form of a ValueConstraint.
     
     Example:
     ```json
     {
-        "type": "ModifierConstraint",
+        "type": "Modifier",
         "modifierCode": "TNS:SMPL",
         "path": "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
         "values": {
-            "type": "ValueConstraint",
+            "type": "Value",
             "valueType": "STRING",
             "operator": "=",
             "value": "Tumor"
@@ -191,21 +191,21 @@ info:
     {
         "type": "Negation",
         "arg": {
-            "type": "PatientSetConstraint",
+            "type": "PatientSet",
             "patientIds": [-62,-52,-42]
             }
     }
     ```
     returns all observations not linked to patient with id -62, -52 or -42
     
-    ## BiomarkerConstraint
+    ## Biomarker
     Used to evaluate hiDim observations. It needs a 'biomarkerType' and a 'params' object. It should only be used for the `/v2/high_dim` endpoint.
     `biomarkerType`: `["transcripts", "genes"]`.
     
     Example:
     ```json
     {
-        "type": "BiomarkerConstraint",
+        "type": "Biomarker",
         "biomarkerType": "genes",
         "params": {
             "names": ["TP53"]
@@ -213,14 +213,14 @@ info:
     }
     ```
     
-    ## TrueConstraint
+    ## True
     **!!WARNING!!** Use mainly for testing.  
     The most basic of constraints. Evaluates to true for all observations. This returns all observations the requesting user has access to.
     
     Example:
     ```json
     {
-        "type": "TrueConstraint"
+        "type": "True"
     }
     ```
     
@@ -844,11 +844,11 @@ paths:
         - name: assay_constraint
           required: true
           in: query
-          description: 'json that describes the assays. Example: `{"type":"ConceptConstraint","path":"\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"}`.'
+          description: 'json that describes the assays. Example: `{"type":"Concept","path":"\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"}`.'
           type: string
         - name: biomarker_constraint
           in: query
-          description: 'json that describes the biomarker. Example: `{"type":"BiomarkerConstraint","biomarkerType":"genes","params":{"names":["TP53"]}}`.'
+          description: 'json that describes the biomarker. Example: `{"type":"Biomarker","biomarkerType":"genes","params":{"names":["TP53"]}}`.'
           type: string
         - name: projection
           in: query
