@@ -26,6 +26,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
+import java.nio.charset.StandardCharsets
+
 import static org.apache.commons.io.FileUtils.readFileToString
 import static org.apache.commons.io.FileUtils.writeStringToFile
 import static org.hamcrest.MatcherAssert.assertThat
@@ -97,7 +99,7 @@ class ChildProcessAppenderTests {
     void do_testRestart(int restarts, int limit) {
         File runcount = temp.newFile('count')
         File output = temp.newFile('output')
-        writeStringToFile(runcount, '0\n')
+        writeStringToFile(runcount, '0\n', StandardCharsets.US_ASCII)
         String command = """
             countfile=${path(runcount)}
             count=`cat "\$countfile"`
