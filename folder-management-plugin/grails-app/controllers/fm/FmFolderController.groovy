@@ -113,7 +113,7 @@ class FmFolderController {
 
     def createAnalysis = {
         log.info "createAnalysis called"
-        log.info "params = " + params
+        log.info "params = " + params.toMapString()
 
         //log.info "** action: expDetail called!"
 
@@ -142,7 +142,7 @@ class FmFolderController {
 
     def createAssay = {
         log.info "createAssay called"
-        log.info "params = " + params
+        log.info "params = " + params.toMapString()
 
         //log.info "** action: expDetail called!"
 
@@ -170,7 +170,7 @@ class FmFolderController {
 
     def createFolder = {
         log.info "createFolder called"
-        log.info "params = " + params
+        log.info "params = " + params.toMapString()
         //log.info "** action: expDetail called!"
 
         def folder = new FmFolder()
@@ -192,7 +192,7 @@ class FmFolderController {
 
     def createStudy = {
         log.info "createStudy called"
-        log.info "params = " + params
+        log.info "params = " + params.toMapString()
         //log.info "** action: expDetail called!"
 
         def folder = new FmFolder()
@@ -207,7 +207,7 @@ class FmFolderController {
 
     def createProgram = {
         log.info "createProgram called"
-        log.info "params = " + params
+        log.info "params = " + params.toMapString()
         //log.info "** action: expDetail called!"
 
         def folder = new FmFolder()
@@ -230,7 +230,7 @@ class FmFolderController {
     }
 
     def save = {
-        log.info params
+        log.info params.toMapString()
         def fmFolderInstance = new FmFolder(params)
         if (fmFolderInstance.save(flush: true)) {
             redirect(action: "show", id: fmFolderInstance.id)
@@ -241,7 +241,7 @@ class FmFolderController {
 
     def saveProgram = {
         log.info "saveProgram called"
-        log.info params
+        log.info params.toMapString()
 
         def folder = new FmFolder(params)
         folder.folderLevel = 0
@@ -255,7 +255,7 @@ class FmFolderController {
         } catch (ValidationException ex) {
             log.error "Unable to save program"
             def errors = g.renderErrors(bean: ex.errors)
-            log.error errors
+            log.error errors.toString()
             def result = [errors: errors]
             render result as JSON
         } catch (Exception ex) {
@@ -268,7 +268,7 @@ class FmFolderController {
 
     def saveStudy = {
         log.info "saveStudy called"
-        log.info params
+        log.info params.toMapString()
 
         def parentFolder = FmFolder.get(params.parentId)
         if (!parentFolder) {
@@ -310,7 +310,7 @@ class FmFolderController {
 
     def saveAssay = {
         log.info "saveAssay called"
-        log.info params
+        log.info params.toMapString()
 
         def parentFolder = FmFolder.get(params.parentId)
         if (!parentFolder) {
@@ -346,7 +346,7 @@ class FmFolderController {
 
     def saveAnalysis = {
         log.info "saveAnalysis called"
-        log.info params
+        log.info params.toMapString()
 
         def parentFolder = FmFolder.get(params.parentId)
         if (!parentFolder) {
@@ -400,7 +400,7 @@ class FmFolderController {
 
     def saveFolder = {
         log.info "saveFolder called"
-        log.info params
+        log.info params.toMapString()
 
         def parentFolder = FmFolder.get(params.parentId)
         if (!parentFolder) {
@@ -423,7 +423,7 @@ class FmFolderController {
         } catch (ValidationException ex) {
             log.error "Unable to save folder"
             def errors = g.renderErrors(bean: ex.errors)
-            log.error errors
+            log.error errors.toString()
             def result = [errors: errors]
             render result as JSON
         } catch (Exception ex) {
@@ -464,7 +464,7 @@ class FmFolderController {
 
     def update = {
 
-        log.info "UPDATING == " + params
+        log.info "UPDATING == " + params.toMapString()
         def fmFolderInstance = FmFolder.get(params.id)
 
         if (fmFolderInstance) {
@@ -1171,7 +1171,7 @@ class FmFolderController {
 
     def editMetaData = {
         log.info "editMetaData called"
-        log.info "params = " + params
+        log.info "params = " + params.toMapString()
 
 
         if (!isAdmin()) {
@@ -1211,7 +1211,7 @@ class FmFolderController {
 
     def updateMetaData = {
         log.info "updateMetaData called"
-        log.info params
+        log.info params.toMapString()
 
         if (!isAdmin()) {
             return;
@@ -1420,7 +1420,7 @@ class FmFolderController {
     }
 
     def ajaxVendors = {
-        log.info params
+        log.info params.toMapString()
         def queryString = " where 1=1"
 
         if (params.technologyName != null && params.technologyName != 'null') {
@@ -1438,7 +1438,7 @@ class FmFolderController {
     }
 
     def ajaxMeasurements = {
-        log.info params
+        log.info params.toMapString()
         def queryString = " where 1=1"
 
         if (params.technologyName != null && params.technologyName != 'null') {
@@ -1456,7 +1456,7 @@ class FmFolderController {
     }
 
     def ajaxPlatforms = {
-        log.info params
+        log.info params.toMapString()
         def queryString = " where 1=1"
 
         if (params.measurementName != null && params.measurementName != 'null') {
@@ -1494,7 +1494,7 @@ class FmFolderController {
 
     def getFolderFiles = {
         //Get the folder ID for the study selected
-        def paramMap = params
+        def paramMap = params.toMapString()
         def experiment = null
         log.info("getFolderFiles id ${params.id} accession ${params.accession} returnJSON ${params.returnJSON}")
         if (params.id) {

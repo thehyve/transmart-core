@@ -10,7 +10,7 @@ class LogTagLib {
      */
     def logMsg = { attrs, body ->
         def level = (attrs['level'] = attrs['level'] ?: 'info').toLowerCase()
-        log."${level}"(body())
+        log."${level}"(body().toString())
     }
 }
     

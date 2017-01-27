@@ -2,6 +2,7 @@ import com.recomdata.db.DBHelper
 import com.recomdata.export.*
 import grails.util.Holders
 import groovy.sql.Sql
+import groovy.util.logging.Slf4j
 import i2b2.*
 import org.transmart.CohortInformation
 import org.transmart.searchapp.AuthUser
@@ -28,14 +29,13 @@ import javax.xml.xpath.XPathFactory
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Statement
-import java.net.URL;
-import java.net.MalformedURLException;
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TOP_TERM_NAME
 
 import static org.transmart.authorization.QueriesResourceAuthorizationDecorator.checkQueryResultAccess
 
+@Slf4j
 class I2b2HelperService {
 
     static String GENE_PATTERN_WHITE_SPACE_DEFAULT = "0";
@@ -339,7 +339,7 @@ class I2b2HelperService {
         Sql sql = new Sql(dataSource);
         log.trace("Trying to get counts for parent_concept_path=" + keyToPath(concept_key));
         sql.eachRow("select * from CONCEPT_COUNTS where parent_concept_path = ?", [keyToPath(concept_key)], { row ->
-            log.trace "Found " << row.concept_path
+            log.trace "Found ${row.concept_path}"
             counts.put(row.concept_path, row.patient_count)
         });
         }
@@ -480,8 +480,8 @@ class I2b2HelperService {
         log.trace(sqlt);
         sql.eachRow(sqlt, [result_instance_id], { row ->
             log.trace("inrow");
-            i = row.patcount;
-            log.trace(row.patcount);
+            i = row.patcount as Integer
+            log.trace i.toString()
         });
         return i;
     }
