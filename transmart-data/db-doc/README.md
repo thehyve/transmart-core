@@ -1,13 +1,13 @@
 # Generate documentation with Schema Spy
 
 You could use [Schema Spy](http://schemaspy.sourceforge.net/) to generate database documentation from the database.
-To get pictures you have to install [Graphvis](http://www.graphviz.org/Download_macos.php).
+To get pictures you have to install [Graphviz](http://www.graphviz.org/Download..php).
 
 Below is an examples on how to run Spider Spy for different databases:
 
-    make -C db-doc/ generate_postgresql
+    make -C db-doc generate_postgresql
 
-    make -C db-doc/ generate_oracle
+    make -C db-doc generate_oracle
 
 # Database design
 TranSMART is based on the i2b2 data schema, which uses a star-schema design to store
