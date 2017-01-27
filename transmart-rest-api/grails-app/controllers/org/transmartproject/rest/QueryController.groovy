@@ -34,27 +34,6 @@ class QueryController extends AbstractQueryController {
     }
 
     /**
-     * Observations endpoint:
-     * <code>/v2/observation_list?constraint=${constraint}</code>
-     *
-     * Expects a {@link Constraint} parameter <code>constraint</code>.
-     *
-     * @return a list of {@link org.transmartproject.db.i2b2data.ObservationFact} objects that
-     * satisfy the constraint.
-     */
-    def observationList() {
-        checkParams(params, ['constraint'])
-
-        Constraint constraint = bindConstraint()
-        if (constraint == null) {
-            return
-        }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def observations = queryService.list(constraint, user)
-        render observations as JSON
-    }
-
-    /**
      * Hypercube endpoint:
      * <code>/v2/observations?type=clinical&constraint=${constraint}</code>
      *
