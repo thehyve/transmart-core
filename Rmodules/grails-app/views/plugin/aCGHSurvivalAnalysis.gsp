@@ -21,7 +21,7 @@
 
 		<div id="plotBody" class="plotBody">
 			<div id="plotCurve">
-				<g:img file="{filename}"  class="survivalPlotImg"></g:img>
+				<img src="/{filename}" class="survivalPlotImg"/> <br/>
 			</div>
 
 			<div id="plotCurveDesc">
