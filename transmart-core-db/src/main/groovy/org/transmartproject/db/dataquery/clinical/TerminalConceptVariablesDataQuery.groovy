@@ -78,6 +78,8 @@ class TerminalConceptVariablesDataQuery {
 
         criteriaBuilder.in('conceptCode', clinicalVariables*.code)
 
+        criteriaBuilder.eq('modifierCd', ObservationFact.EMPTY_MODIFIER_CODE)
+
         criteriaBuilder.scroll ScrollMode.FORWARD_ONLY
     }
 
