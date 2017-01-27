@@ -12,7 +12,7 @@
 <div id="template-freq-plot" class="x-hidden">
     <div id="plotResultContainer" class="plot_result_container">
         %{--Image--}%
-        <img src="${filename}"/> <br/>
+        <img src="/{filename}"/> <br/>
         <hr class="separator"/>
         %{--Download button --}%
         <div class="resultToolBar">
