@@ -155,15 +155,17 @@ abstract class RESTSpec extends Specification{
 
     def get(def requestMap){
         http.request(Method.GET) { req ->
+            if(requestMap.path == PATH_OBSERVATIONS) {
+                requestMap.query.'type' = 'clinical'
+            }
+
             uri.path = requestMap.path
             uri.query = requestMap.query
             headers.Accept = requestMap.acceptType
             if (!requestMap.skipOauth){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
-            if(uri.path == V1_PATH_observations) {
-                uri.query.type = 'clinical'
-            }
+
 
             println(uri.toString())
             response.success = { resp, reader ->
