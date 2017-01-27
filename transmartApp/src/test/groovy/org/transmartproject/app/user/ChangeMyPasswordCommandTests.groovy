@@ -40,7 +40,7 @@ class ChangeMyPasswordCommandTests {
         testee.newPassword = 'new'
         testee.newPasswordRepeated = 'new'
 
-        assertFalse testee.validate()
+        assert !testee.validate()
         assertThat testee.errors.allErrors, contains(
                 hasProperty('field', equalTo('oldPassword'))
         )
@@ -51,7 +51,7 @@ class ChangeMyPasswordCommandTests {
         testee.newPassword = 'test'
         testee.newPasswordRepeated = 'test'
 
-        assertFalse testee.validate()
+        assert !testee.validate()
         assertThat testee.errors.allErrors, contains(
                 hasProperty('field', equalTo('newPassword'))
         )
@@ -63,7 +63,7 @@ class ChangeMyPasswordCommandTests {
         testee.newPassword = 'new'
         testee.newPasswordRepeated = 'new'
 
-        assertFalse testee.validate()
+        assert !testee.validate()
         assertThat testee.errors.allErrors, contains(
                 hasProperty('field', equalTo('newPassword'))
         )
@@ -74,7 +74,7 @@ class ChangeMyPasswordCommandTests {
         testee.newPassword = 'new'
         testee.newPasswordRepeated = 'new2'
 
-        assertFalse testee.validate()
+        assert !testee.validate()
         assertThat testee.errors.allErrors, contains(
                 hasProperty('field', equalTo('newPasswordRepeated'))
         )
@@ -86,7 +86,7 @@ class ChangeMyPasswordCommandTests {
         testee.newPassword = 'new'
         testee.newPasswordRepeated = 'new'
 
-        assertTrue testee.validate()
+        assert testee.validate()
     }
 
 }
