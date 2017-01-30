@@ -53,7 +53,7 @@ class Config {
 
     //settings
     public static final boolean DB_MIGRATED = true
-    public static final boolean OAUTH_NEEDED = true
+    public static final boolean OAUTH_NEEDED = false
     public static final boolean DEBUG = true
     public static final boolean SUPPRESS_KNOWN_BUGS = true
     public static final boolean SUPPRESS_UNIMPLEMENTED = true

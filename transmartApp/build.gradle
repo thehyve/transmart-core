@@ -162,3 +162,7 @@ war {
 //bootRun {
 //    jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006']
 //}
+
+bootRun {
+    jvmArgs = ['-javaagent:jacoco/jacocoagent.jar=destfile=build/jacoco/jacoco.app.exec']
+}

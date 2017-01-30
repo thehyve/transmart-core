@@ -47,8 +47,12 @@ assets {
     packagePlugin = true
 }
 
+jacoco {
+    toolVersion = "0.7.7.201606060606"
+}
+
 bootRun {
-    jvmArgs = ['-javaagent:jacoco/jacocoagent.jar=destfile=build/jacoco/jacoco.cucumer.exec,includes=org.transmartproject.*']
+    jvmArgs = ['-javaagent:jacoco/jacocoagent.jar=destfile=build/jacoco/jacoco.rest.exec', '-Xmx4G']
 }
 
 test.testLogging.exceptionFormat = 'full'

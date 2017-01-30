@@ -98,27 +98,26 @@ task freeAllPorts << {
     }
 }
 
-gradle.addListener new TestLifecycleListener()
+//gradle.addListener new TestLifecycleListener()
 
-class TestLifecycleListener implements TaskExecutionListener {
-
-    def servers = ['TransmartApp']
-
-    @Override
-    void beforeExecute(Task task) {
-        if (task.name == 'test') {
-            servers.each {
-                println "calling start$it"
-                task.project.tasks."start$it".execute()
-            }
-        }
-    }
-
-    @Override
-    void afterExecute(Task task, TaskState taskState) {
-        if (task.name == 'test') {
-            task.project.tasks.freeAllPorts.execute()
-        }
-    }
-}
-
+//class TestLifecycleListener implements TaskExecutionListener {
+//
+//    def servers = ['TransmartRest']
+//
+//    @Override
+//    void beforeExecute(Task task) {
+//        if (task.name == 'test') {
+//            servers.each {
+//                println "calling start$it"
+//                task.project.tasks."start$it".execute()
+//            }
+//        }
+//    }
+//
+//    @Override
+//    void afterExecute(Task task, TaskState taskState) {
+//        if (task.name == 'test') {
+//            task.project.tasks.freeAllPorts.execute()
+//        }
+//    }
+//}
