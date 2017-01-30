@@ -102,6 +102,13 @@ shadowJar {
     classifier = null
 }
 
+task createVersionFile << {
+    def file = new File("$projectDir/VERSION")
+    file.createNewFile()
+    file.text = "${version}"
+}
+shadowJar.dependsOn 'createVersionFile'
+
 task travisFunctionalTestPrepare << {
     description = 'Prepares the database for functional testing on Travis.'
     group = 'verification'
