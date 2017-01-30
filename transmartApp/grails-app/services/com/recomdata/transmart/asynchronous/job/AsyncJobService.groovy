@@ -252,7 +252,6 @@ class AsyncJobService {
      * @return true if the job was cancelled
      */
     def updateStatus(jobName, status, viewerURL = null, altViewerURL = null, results = null) {
-        log.warn "updateStatus(${jobName})"
         def retValue = false   // true if the job was cancelled
         def jobNameArray = (jobName as String).split("-")
         def jobID = jobNameArray[-1]
