@@ -1,11 +1,13 @@
 package org.transmartproject.db.support
 
 import grails.orm.HibernateCriteriaBuilder
+import grails.util.Holders
 import org.grails.datastore.mapping.query.api.Criteria
 import org.hibernate.Criteria as HibernateCriteria
 import org.hibernate.criterion.Disjunction
 import org.hibernate.criterion.Restrictions
 import org.transmartproject.core.exceptions.InvalidRequestException
+import static org.transmartproject.db.support.DatabasePortabilityService.DatabaseType.ORACLE
 
 /**
  * This class aimed to overcome oracle limitation on the number of items in IN clause:
@@ -22,13 +24,26 @@ class InQuery {
     public static final int MAX_LIST_SIZE = 1000
 
     public static HibernateCriteria addIn(HibernateCriteriaBuilder criteriaBuilder, String property, List listOfItems) {
-        def choppedItems = chopParametersValues(listOfItems)
-        addConstraintsToCriteriaByFieldName(criteriaBuilder, property, choppedItems)
+        if (databaseTypeIsOracle) {
+            def choppedItems = chopParametersValues(listOfItems)
+            addConstraintsToCriteriaByFieldName(criteriaBuilder, property, choppedItems)
+        } else {
+            criteriaBuilder.add(Restrictions.in(property, listOfItems))
+        }
     }
 
     public static Criteria addIn(Criteria criteria, String property, List listOfItems) {
-        def choppedItems = chopParametersValues(listOfItems)
-        addConstraintsToCriteriaByFieldName(criteria, property, choppedItems)
+        if (databaseTypeIsOracle) {
+            def choppedItems = chopParametersValues(listOfItems)
+            addConstraintsToCriteriaByFieldName(criteria, property, choppedItems)
+        } else {
+            criteria.in(property, listOfItems)
+        }
+    }
+
+    private static boolean databaseTypeIsOracle = {
+        def dataSource = Holders.applicationContext.getBean("databasePortabilityService")
+        dataSource.databaseType == ORACLE
     }
 
     private static List<List> chopParametersValues(List inItems) {
