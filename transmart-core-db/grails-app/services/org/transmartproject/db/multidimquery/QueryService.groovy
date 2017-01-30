@@ -483,11 +483,10 @@ class QueryService {
                 highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
         ]
 
-        Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
-                highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
-
         HighDimensionDataTypeResource typeResource
         if(type == 'autodetect') {
+            Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
+                    highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
             if (assaysByType.size() == 1) {
                 typeResource = assaysByType.iterator().next().key
             } else {
@@ -500,12 +499,6 @@ class QueryService {
             } catch (NoSuchResourceException e) {
                 throw new InvalidQueryException("Unknown high dimensional data type.", e)
             }
-        }
-
-        // TODO: do we really need this check?
-        def platformList = assaysByType[typeResource]*.platform as Set
-        if (platformList && platformList.size() != 1) {
-            throw new InvalidQueryException("Result assays contain different platforms: ${platformList*.id}")
         }
 
         HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)
