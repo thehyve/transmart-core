@@ -187,12 +187,7 @@ class Field implements Validateable {
  * can be created using the constructors of the subclasses or by using the
  * {@link ConstraintFactory}.
  */
-abstract class Constraint implements Validateable, MultiDimConstraint {
-    //String type = this.class.simpleName
-
-    // if this is called getName it will clash with Class.getName()
-    static String getConstraintName() { throw new NotImplementedException("this method needs to be overridden") }
-}
+abstract class Constraint implements Validateable, MultiDimConstraint { }
 
 @Canonical
 class TrueConstraint extends Constraint {
