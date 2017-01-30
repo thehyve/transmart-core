@@ -22,13 +22,14 @@ buildscript {
 
 apply plugin: 'idea'
 
-version = '17.1'
-group = 'org.transmartproject'
-
 ext {
+    transmartVersion = '17.1-SNAPSHOT'
     grailsVersion = '3.1.10'
     gradleWrapperVersion = '2.13'
 }
+
+version = transmartVersion
+group = 'org.transmartproject'
 
 allprojects {
     repositories {
@@ -45,7 +46,7 @@ allprojects {
 }
 
 subprojects { project ->
-    version = '17.1'
+    version = transmartVersion
     group = 'org.transmartproject'
 
     apply plugin: 'eclipse'

@@ -23,10 +23,10 @@ To build the project, run:
 ```
 gradle :transmartApp:bootRepackage
 ```
-This should create the file `transmartApp/build/libs/transmartApp-17.1.war`.
+This should create the file `transmartApp/build/libs/transmartApp-17.1-SNAPSHOT.war`.
 Run it with:
 ```
-java -jar transmartApp/build/libs/transmartApp-17.1.war
+java -jar transmartApp/build/libs/transmartApp-17.1-SNAPSHOT.war
 ```
 
 The application expects configuration in `~/.grails/transmartConfig`. Check [transmart-data](transmart-data) on how to set up the database and generate the required configuration files.
