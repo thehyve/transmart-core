@@ -8,15 +8,15 @@ import grails.converters.JSON
 import org.json.JSONObject
 import org.quartz.JobBuilder
 import org.quartz.JobDataMap
+import org.quartz.Scheduler
 import org.quartz.TriggerBuilder
-import org.quartz.core.QuartzScheduler
 import org.transmart.CohortInformation
 import org.transmart.ExperimentData
 import org.transmart.HeatmapValidator
 import org.transmart.searchapp.AccessLog
 
 class GenePatternController {
-    QuartzScheduler quartzScheduler
+    Scheduler quartzScheduler
     def genePatternService
     def springSecurityService
     def i2b2HelperService
