@@ -217,11 +217,12 @@ uploadArchives {
                 password: project.ext.properties['mavenTheHyvePassword'] ?: '',
             ]
 
-            repository url: 'https://repo.thehyve.nl/content/repositories/releases/',
-                authentication: credentials
-            snapshotRepository url: 'https://repo.thehyve.nl/content/repositories/snapshots/',
-                authentication: credentials
-
+            repository(url: 'https://repo.thehyve.nl/content/repositories/releases/') {
+                authentication(credentials)
+            }
+            snapshotRepository(url: 'https://repo.thehyve.nl/content/repositories/snapshots/') {
+                authentication(credentials)
+            }
             pom.project pomConfiguration
         }
     }
