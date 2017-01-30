@@ -38,7 +38,8 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder(assayConstraint),
+                        type: 'mrna',
+                        constraint: new JsonBuilder(assayConstraint),
                         biomarker_constraint: new JsonBuilder(biomarkerConstraint),
                         projection: projection
                 ]
@@ -82,7 +83,8 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder(assayConstraint),
+                        type: 'mrna',
+                        constraint: new JsonBuilder(assayConstraint),
                         biomarker_constraint: new JsonBuilder(biomarkerConstraint),
                         projection: projection
                 ]
@@ -121,7 +123,8 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([
+                        type: 'rnaseq_transcript',
+                        constraint: new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Breast\\"
                         ])
@@ -162,7 +165,8 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([
+                        type: 'mrna',
+                        constraint: new JsonBuilder([
                                 type: Combination,
                                 operator: AND,
                                 args: [
@@ -203,7 +207,8 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder(assayConstraint),
+                        type: 'mrna',
+                        constraint: new JsonBuilder(assayConstraint),
                         projection: 'zscore'
                 ]
         ]
@@ -212,7 +217,8 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder(assayConstraint),
+                        type: 'mrna',
+                        constraint: new JsonBuilder(assayConstraint),
                         projection: 'log_intensity'
                 ]
         ]
@@ -256,7 +262,8 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([
+                        type: 'mrna',
+                        constraint: new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"
                         ]),
@@ -297,7 +304,8 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([
+                        type: 'mrna',
+                        constraint: new JsonBuilder([
                                 type: Combination,
                                 operator: AND,
                                 args: [
@@ -347,7 +355,8 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([
+                        type: 'mrna',
+                        constraint: new JsonBuilder([
                                 type: Combination,
                                 operator: AND,
                                 args: [
@@ -385,7 +394,7 @@ class HighDimSpec extends RESTSpec {
 
     /**
      *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
-     *  when: "I get highdim for an invalid assay_constraint"
+     *  when: "I get highdim for an invalid constraint"
      *  then: "an error is returned"
      */
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
@@ -394,7 +403,8 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([type: 'invalidConstraint'])
+                        type: 'mrna',
+                        constraint: new JsonBuilder([type: 'invalidConstraint'])
                 ],
                 statusCode: 400
         ]
@@ -424,7 +434,8 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
+                        type: 'rnaseq_transcript',
+                        constraint: new JsonBuilder([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
                 ],
                 statusCode: 500
         ]

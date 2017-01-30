@@ -487,7 +487,14 @@ class QueryService {
 
         HighDimensionDataTypeResource typeResource
         try {
-            typeResource = highDimensionResourceService.getSubResourceForType(type)
+            if(type != 'autodetect') {
+                typeResource = highDimensionResourceService.getSubResourceForType(type)
+            } else if(assaysByType.size() == 1) {
+                typeResource = assaysByType.iterator().next().key
+            } else {
+                throw new InvalidQueryException("Autodetecting the high dimensional type found multiple applicable " +
+                        "types: ${assaysByType.keySet()*.dataTypeName.join(', ')}. Please choose one.")
+            }
         } catch (NoSuchResourceException e) {
             // TODO: remove this try-catch block and make sure any tests accept the new error
             throw new InvalidQueryException("Unknown high dimensional data type.", e)

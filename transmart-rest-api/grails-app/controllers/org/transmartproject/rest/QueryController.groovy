@@ -35,9 +35,25 @@ class QueryController extends AbstractQueryController {
 
     /**
      * Hypercube endpoint:
+     *
+     * For clinical data:
      * <code>/v2/observations?type=clinical&constraint=${constraint}</code>
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     *
+     * For high dimensional data:
+     * <code>/v2/high_dim?type=${type}&constraint=${assays}&biomarker_constraint=${biomarker}&projection=${projection}</code>
+     *
+     * The type must be the data type name of a high dimension type, or 'autodetect'. The latter will automatically
+     * try to detect the datatype based on the assay constraint. If there are multiple possible types an error is
+     * returned.
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code> and a supported
+     * projection name (see {@link org.transmartproject.core.dataquery.highdim.projections.Projection}.
+     *
+     * The optional {@link Constraint} parameter <code>biomarker_constraint</code> allows filtering on biomarkers, e.g.,
+     * chromosomal regions and gene names.
      *
      * @return a hypercube representing the observations that satisfy the constraint.
      */
@@ -60,7 +76,9 @@ class QueryController extends AbstractQueryController {
         }
     }
 
-
+    /**
+     * Helper function for retrieving clinical hypercube data
+     */
     private def clinicalObservations(constraint_text) {
 
         def format = contentFormat
@@ -148,8 +166,7 @@ class QueryController extends AbstractQueryController {
     }
 
     /**
-     * High dimensional endpoint:
-     * <code>/v2/high_dim?assay_constraint=${assays}&biomarker_constraint=${biomarker}&projection=${projection}</code>
+     * Helper function for retrieving high dimensional hypercube data.
      *
      * Expects a {@link Constraint} parameter <code>assay_constraint</code> and a supported
      * projection name (see {@link org.transmartproject.core.dataquery.highdim.projections.Projection}.
