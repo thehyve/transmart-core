@@ -197,7 +197,7 @@ class TrueConstraint extends Constraint {
 @Canonical
 class BiomarkerConstraint extends Constraint {
     static String constraintName = "biomarker"
-    String biomarkerType
+    String biomarkerType   // this is the constraint type, see org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
     Map<String, Object> params
 }
 

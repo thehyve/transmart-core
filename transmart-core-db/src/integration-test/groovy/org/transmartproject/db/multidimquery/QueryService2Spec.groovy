@@ -92,7 +92,7 @@ class QueryService2Spec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user)
+        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user, 'mrna')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -319,7 +319,7 @@ class QueryService2Spec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(combinationConstraint, bioMarkerConstraint, user)
+        Hypercube hypercube = queryService.highDimension(combinationConstraint, bioMarkerConstraint, user, 'rnaseq_transcript')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -341,7 +341,7 @@ class QueryService2Spec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user)
+        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user, 'rnaseq_transcript')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *

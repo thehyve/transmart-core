@@ -42,18 +42,32 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def observations() {
-        checkParams(params, ['constraint', 'type'])
+        checkParams(params, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
 
         // TODO: connect this type parameter to MultiDimensionalDataResource.retrieveData(dataType  ...)
         if (params.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
         if (params.type != 'clinical') throw new UnsupportedOperationException("Type ${params.type} is not yet " +
                 "supported in this call, only 'clinical' data is supported in this version.")
 
+        if (params.type == 'clinical') {
+            clinicalObservations(params.constraint)
+        } else {
+            if(params.assay_constraint) {
+                response.sendError(400, "Parameter 'assay_constraint' is no longer used, use 'constraint' instead")
+                return
+            }
+            highdimObservations(params.type, params.constraint, params.biomarker_constraint, params.projection)
+        }
+    }
+
+
+    private def clinicalObservations(constraint_text) {
+
         def format = contentFormat
         if (format == Format.NONE) {
             throw new InvalidArgumentsException("Format not supported.")
         }
-        Constraint constraint = bindConstraint()
+        Constraint constraint = bindConstraint(constraint_text)
         if (constraint == null) {
             return
         }
@@ -90,7 +104,7 @@ class QueryController extends AbstractQueryController {
     def count() {
         checkParams(params, ['constraint'])
 
-        Constraint constraint = bindConstraint()
+        Constraint constraint = bindConstraint(params.constraint)
         if (constraint == null) {
             return
         }
@@ -122,7 +136,7 @@ class QueryController extends AbstractQueryController {
         if (!params.type) {
             throw new InvalidArgumentsException("Type parameter is missing.")
         }
-        Constraint constraint = bindConstraint()
+        Constraint constraint = bindConstraint(params.constraint)
         if (constraint == null) {
             return
         }
@@ -145,20 +159,16 @@ class QueryController extends AbstractQueryController {
      *
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
-    def highDim() {
-        checkParams(params, ['assay_constraint', 'biomarker_constraint', 'projection'])
+    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, projection) {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Constraint assayConstraint = getConstraint('assay_constraint')
 
-        BiomarkerConstraint biomarkerConstraint = null
-        if (params.biomarker_constraint) {
-            Constraint constraint = getConstraint('biomarker_constraint')
-            assert constraint instanceof BiomarkerConstraint
-            biomarkerConstraint = constraint
-        }
+        Constraint assayConstraint = parseConstraint(URLDecoder.decode(assay_constraint, 'UTF-8'))
 
-        Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, params.projection, user)
+        BiomarkerConstraint biomarkerConstraint =
+                (BiomarkerConstraint) parseConstraint(URLDecoder.decode(biomarker_constraint, 'UTF-8'))
+
+        Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
 
         def format = contentFormat
         OutputStream out = new LazyOutputStreamDecorator(

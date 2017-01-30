@@ -32,7 +32,7 @@ class PatientQueryController extends AbstractQueryController {
     def listPatients(@RequestParam('api_version') String apiVersion) {
         checkParams(params, ['constraint'])
 
-        Constraint constraint = bindConstraint()
+        Constraint constraint = bindConstraint(params.constraint)
         if (constraint == null) {
             return
         }

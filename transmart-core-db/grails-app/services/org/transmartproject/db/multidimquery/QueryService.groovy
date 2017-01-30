@@ -19,6 +19,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Hypercube
@@ -452,7 +453,8 @@ class QueryService {
             Constraint assayConstraint,
             BiomarkerConstraint biomarkerConstraint = new BiomarkerConstraint(),
             String projectionName = Projection.ALL_DATA_PROJECTION,
-            User user) {
+            User user,
+            String type) {
         checkAccess(assayConstraint, user)
 
         List<ObservationFact> observations = highDimObservationList(assayConstraint, user, defaultHDModifierCriterion)
@@ -483,21 +485,20 @@ class QueryService {
         Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
                 highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
 
-        if (assaysByType.size() == 0) {
-            throw new InvalidQueryException("Unknown high dimensional data type.")
-        }
-        else if (assaysByType.size() > 1) {
-            throw new InvalidQueryException("Expected only one high dimensional data type. Got ${assaysByType.keySet()*.dataTypeName}")
+        HighDimensionDataTypeResource typeResource
+        try {
+            typeResource = highDimensionResourceService.getSubResourceForType(type)
+        } catch (NoSuchResourceException e) {
+            // TODO: remove this try-catch block and make sure any tests accept the new error
+            throw new InvalidQueryException("Unknown high dimensional data type.", e)
         }
 
-        def assayByType = assaysByType.iterator().next()
-
-        def platformList = assayByType.value*.platform as Set
+        // TODO: if the subresourceAssayMultimap is only used for this there's probably a more efficient query to use
+        def platformList = assaysByType[typeResource]*.platform as Set
         if (platformList.size() != 1){
             throw new InvalidQueryException("Result assays contain different platforms: ${platformList*.id}")
         }
 
-        HighDimensionDataTypeResource typeResource = assayByType.key
         HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)
 
         List<DataConstraint> dataConstraints = []
