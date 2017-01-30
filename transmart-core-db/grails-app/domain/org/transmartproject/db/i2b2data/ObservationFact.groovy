@@ -51,7 +51,7 @@ class ObservationFact implements Serializable {
 
     //TrialVisit trialVisit
     //VisitDimension visit
-    // unsed for now
+    // unused for now
     //BigDecimal quantityNum
     //String     unitsCd
     //String     observationBlob

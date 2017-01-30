@@ -21,6 +21,7 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 
 import groovy.transform.Canonical
 import org.grails.datastore.mapping.query.api.Criteria
+import org.transmartproject.db.support.InQuery
 
 @Canonical
 class PlatformCriteriaConstraint implements AssayCriteriaConstraint {
@@ -31,7 +32,7 @@ class PlatformCriteriaConstraint implements AssayCriteriaConstraint {
     void addToCriteria(Criteria criteria) {
         /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
         if (gplIds) {
-            criteria.in 'platform.id', gplIds
+            InQuery.addIn(criteria, 'platform.id', gplIds as List)
         }
     }
 }

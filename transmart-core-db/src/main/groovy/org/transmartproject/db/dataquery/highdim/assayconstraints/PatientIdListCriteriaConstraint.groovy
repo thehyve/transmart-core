@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim.assayconstraints
 
 import org.grails.datastore.mapping.query.api.Criteria
+import org.transmartproject.db.support.InQuery
 
 class PatientIdListCriteriaConstraint implements AssayCriteriaConstraint {
 
@@ -28,6 +29,6 @@ class PatientIdListCriteriaConstraint implements AssayCriteriaConstraint {
     @Override
     void addToCriteria(Criteria criteria) {
         /** @see org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping */
-        criteria.in 'patientInTrialId', patientIdList
+        InQuery.addIn(criteria, 'patientInTrialId', patientIdList)
     }
 }
