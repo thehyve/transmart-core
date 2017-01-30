@@ -19,6 +19,7 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
@@ -486,23 +487,24 @@ class QueryService {
                 highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
 
         HighDimensionDataTypeResource typeResource
-        try {
-            if(type != 'autodetect') {
-                typeResource = highDimensionResourceService.getSubResourceForType(type)
-            } else if(assaysByType.size() == 1) {
+        if(type == 'autodetect') {
+            if (assaysByType.size() == 1) {
                 typeResource = assaysByType.iterator().next().key
             } else {
                 throw new InvalidQueryException("Autodetecting the high dimensional type found multiple applicable " +
                         "types: ${assaysByType.keySet()*.dataTypeName.join(', ')}. Please choose one.")
             }
-        } catch (NoSuchResourceException e) {
-            // TODO: remove this try-catch block and make sure any tests accept the new error
-            throw new InvalidQueryException("Unknown high dimensional data type.", e)
+        } else {
+            try {
+                typeResource = highDimensionResourceService.getSubResourceForType(type)
+            } catch (NoSuchResourceException e) {
+                throw new InvalidQueryException("Unknown high dimensional data type.", e)
+            }
         }
 
-        // TODO: if the subresourceAssayMultimap is only used for this there's probably a more efficient query to use
+        // TODO: do we really need this check?
         def platformList = assaysByType[typeResource]*.platform as Set
-        if (platformList.size() != 1){
+        if (platformList && platformList.size() != 1) {
             throw new InvalidQueryException("Result assays contain different platforms: ${platformList*.id}")
         }
 
@@ -512,8 +514,12 @@ class QueryService {
         if (biomarkerConstraint?.biomarkerType) {
             dataConstraints << typeResource.createDataConstraint(biomarkerConstraint.params, biomarkerConstraint.biomarkerType)
         }
-        TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
-        new HddTabularResultHypercubeAdapter(table)
+        try {
+            TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
+            return new HddTabularResultHypercubeAdapter(table)
+        } catch (EmptySetException e) {
+            return new EmptyHypercube()
+        }
     }
 
     Hypercube retrieveClinicalData(Constraint constraint, User user) {

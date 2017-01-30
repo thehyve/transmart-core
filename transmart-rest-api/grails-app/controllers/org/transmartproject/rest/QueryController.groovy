@@ -60,16 +60,13 @@ class QueryController extends AbstractQueryController {
     def observations() {
         checkParams(params, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
 
-        // TODO: connect this type parameter to MultiDimensionalDataResource.retrieveData(dataType  ...)
         if (params.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
-        if (params.type != 'clinical') throw new UnsupportedOperationException("Type ${params.type} is not yet " +
-                "supported in this call, only 'clinical' data is supported in this version.")
 
         if (params.type == 'clinical') {
             clinicalObservations(params.constraint)
         } else {
             if(params.assay_constraint) {
-                response.sendError(400, "Parameter 'assay_constraint' is no longer used, use 'constraint' instead")
+                response.sendError(422, "Parameter 'assay_constraint' is no longer used, use 'constraint' instead")
                 return
             }
             highdimObservations(params.type, params.constraint, params.biomarker_constraint, params.projection)
@@ -182,8 +179,8 @@ class QueryController extends AbstractQueryController {
 
         Constraint assayConstraint = parseConstraint(URLDecoder.decode(assay_constraint, 'UTF-8'))
 
-        BiomarkerConstraint biomarkerConstraint =
-                (BiomarkerConstraint) parseConstraint(URLDecoder.decode(biomarker_constraint, 'UTF-8'))
+        BiomarkerConstraint biomarkerConstraint = biomarker_constraint ?
+                (BiomarkerConstraint) parseConstraint(URLDecoder.decode(biomarker_constraint, 'UTF-8')) : new BiomarkerConstraint()
 
         Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
 

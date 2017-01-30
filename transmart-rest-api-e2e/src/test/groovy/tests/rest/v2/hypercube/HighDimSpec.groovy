@@ -83,7 +83,7 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        type: 'mrna',
+                        type: 'autodetect',
                         constraint: new JsonBuilder(assayConstraint),
                         biomarker_constraint: new JsonBuilder(biomarkerConstraint),
                         projection: projection
@@ -123,7 +123,7 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
-                        type: 'rnaseq_transcript',
+                        type: 'autodetect',
                         constraint: new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Breast\\"
@@ -437,15 +437,15 @@ class HighDimSpec extends RESTSpec {
                         type: 'rnaseq_transcript',
                         constraint: new JsonBuilder([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
                 ],
-                statusCode: 500
+                statusCode: 400
         ]
 
         when:
         def responseData = get(request)
 
         then:
-        that responseData.httpStatus, is(500)
-        that responseData.type, is('IllegalStateException')
+        that responseData.httpStatus, is(400)
+        that responseData.type, is('InvalidQueryException')
         that responseData.message, is('Found data that is either clinical or is using the old way of storing high dimensional data.')
 
         where:

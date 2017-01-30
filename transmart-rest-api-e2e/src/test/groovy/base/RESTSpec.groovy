@@ -155,8 +155,8 @@ abstract class RESTSpec extends Specification{
 
     def get(def requestMap){
         http.request(Method.GET) { req ->
-            if(requestMap.path == PATH_OBSERVATIONS) {
-                requestMap.query.'type' = 'clinical'
+            if(requestMap.path == PATH_OBSERVATIONS && !requestMap.query.type) {
+                requestMap.query.type = 'clinical'
             }
 
             uri.path = requestMap.path

@@ -26,6 +26,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
+                        type: 'autodetect',
                         constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
@@ -44,6 +45,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
+                        type: 'autodetect',
                         constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
@@ -86,6 +88,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
+                        type: 'autodetect',
                         constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
@@ -104,6 +107,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
+                        type: 'autodetect',
                         constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
@@ -144,6 +148,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
+                        type: 'autodetect',
                         constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
@@ -183,6 +188,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
+                        type: 'autodetect',
                         constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
@@ -201,6 +207,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
+                        type: 'autodetect',
                         constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
@@ -244,6 +251,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 path: PATH_HIGH_DIM,
                 acceptType: acceptType,
                 query: [
+                        type: 'autodetect',
                         constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
