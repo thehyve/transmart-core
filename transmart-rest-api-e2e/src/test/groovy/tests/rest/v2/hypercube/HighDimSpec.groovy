@@ -442,4 +442,35 @@ class HighDimSpec extends RESTSpec {
         contentTypeForJSON | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
+
+    def "multi patient bug"(){
+
+        def request = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint: new JsonBuilder(["type":Combination, "operator":AND,
+                                                           "args": [
+                                                                   ["type": ConceptConstraint, "conceptCode": "CTHD:HD:EXPLUNG"],
+                                                                   ["type":FieldConstraint,
+                                                                    "field":["dimension":"trial visit","fieldName":"id","type":"ID"],"operator":"=","value":-402]
+                                                           ]
+                        ])
+                ]
+        ]
+
+        when:
+        def responseData = get(request)
+
+        then:
+        def list = responseData.dimensionElements.patient*.sex as List
+        assert list.size() == 3
+        assert list.containsAll("female", "male")
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+
+
+    }
 }
