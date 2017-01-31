@@ -5,6 +5,7 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermType
 import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.TrialVisitDimension
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
@@ -276,13 +277,25 @@ class TreeNode {
     }
 
     final String getDimension() {
-        def dimension = DimensionDescription.createCriteria().list {
-            eq('modifierCode', modifierCode)
-        } as List<DimensionDescription>
-        if(dimension.size() > 0) {
-            dimension.first().name
-        } else {
-            return 'UNKNOWN'
+        switch (tableName) {
+            case 'concept_dimension':
+                return DimensionImpl.CONCEPT.name
+            case 'patient_dimension':
+                return DimensionImpl.PATIENT.name
+            case 'modifier_dimension':
+                def dimension = DimensionDescription.createCriteria().list {
+                    eq('modifierCode', modifierCode)
+                } as List<DimensionDescription>
+                if (dimension.size() > 0) {
+                    return dimension.first().name
+                }
+                break
+            case 'trial_visit_dimension':
+                return DimensionImpl.TRIAL_VISIT.name
+            case 'study':
+                return DimensionImpl.STUDY.name
+
         }
+        return 'UNKNOWN'
     }
 }
