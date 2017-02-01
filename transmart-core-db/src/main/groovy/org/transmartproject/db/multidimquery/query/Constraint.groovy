@@ -178,6 +178,7 @@ class Field implements Validateable {
 
     static constraints = {
         type validator: { Object type, obj -> type != Type.NONE }
+        fieldName blank: false
     }
 }
 
@@ -188,6 +189,9 @@ class Field implements Validateable {
  */
 abstract class Constraint implements Validateable, MultiDimConstraint {
     String type = this.class.simpleName
+    static constraints = {
+        type blank: false
+    }
 }
 
 @Canonical
@@ -197,6 +201,10 @@ class TrueConstraint extends Constraint {}
 class BiomarkerConstraint extends Constraint {
     String biomarkerType
     Map<String, Object> params
+
+    static constraints = {
+        biomarkerType blank: false
+    }
 }
 
 /**
@@ -292,8 +300,8 @@ class ConceptConstraint extends Constraint {
     String path
 
     static constraints = {
-        path nullable: true
-        conceptCode nullable: true, validator: {val, obj, Errors errors ->
+        path nullable: true, blank: false
+        conceptCode nullable: true, blank: false, validator: {val, obj, Errors errors ->
             if (!val && !obj.path) {
                 errors.rejectValue(
                         'conceptCode',
@@ -312,6 +320,9 @@ class ConceptConstraint extends Constraint {
 @Canonical
 class StudyNameConstraint extends Constraint {
     String studyId
+    static constraints = {
+        studyId blank: false
+    }
 }
 
 @Canonical
