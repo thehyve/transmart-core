@@ -164,7 +164,7 @@ select
 from DEAPP.DE_SUBJECT_SAMPLE_MAPPING ssm
   join I2B2DEMODATA.STUDY study on ssm.TRIAL_NAME = study.STUDY_ID
   left join I2B2DEMODATA.TRIAL_VISIT_DIMENSION trial_visit on trial_visit.STUDY_NUM = study.STUDY_NUM and ssm.TIMEPOINT = trial_visit.REL_TIME_LABEL
-  inner join I2B2DEMODATA.TRIAL_VISIT_DIMENSION general_trial_visit on general_trial_visit.STUDY_NUM = study.STUDY_NUM and general_trial_visit.REL_TIME_LABEL = 'General';
+  left join I2B2DEMODATA.TRIAL_VISIT_DIMENSION general_trial_visit on general_trial_visit.STUDY_NUM = study.STUDY_NUM and general_trial_visit.REL_TIME_LABEL = 'General';
 
 --- 3. Add the HD assay id modifying observation
 insert into I2B2DEMODATA.OBSERVATION_FACT(
@@ -199,7 +199,7 @@ select
 from DEAPP.DE_SUBJECT_SAMPLE_MAPPING ssm
   join I2B2DEMODATA.STUDY study on ssm.TRIAL_NAME = study.STUDY_ID
   left join I2B2DEMODATA.TRIAL_VISIT_DIMENSION trial_visit on trial_visit.STUDY_NUM = study.STUDY_NUM and ssm.TIMEPOINT = trial_visit.REL_TIME_LABEL
-  inner join I2B2DEMODATA.TRIAL_VISIT_DIMENSION general_trial_visit on general_trial_visit.STUDY_NUM = study.STUDY_NUM and general_trial_visit.REL_TIME_LABEL = 'General'
+  left join I2B2DEMODATA.TRIAL_VISIT_DIMENSION general_trial_visit on general_trial_visit.STUDY_NUM = study.STUDY_NUM and general_trial_visit.REL_TIME_LABEL = 'General'
   join DEAPP.DE_GPL_INFO gpl on ssm.GPL_ID = gpl.PLATFORM;
 
 -- Assign the rest of the observations to the default trial visit.
