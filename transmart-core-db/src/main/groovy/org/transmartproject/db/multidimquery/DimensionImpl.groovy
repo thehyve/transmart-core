@@ -179,7 +179,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     }
 
     static List<ELT> resolveWithInQuery(BuildableCriteria criteria, List<ELKey> elementKeys, String property = 'id') {
-        List res = ((Criteria)InQuery.addIn(criteria as HibernateCriteriaBuilder, property, elementKeys)).list()
+        List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, property, elementKeys).list()
         sort(res, elementKeys, property)
         res
     }

@@ -77,7 +77,7 @@ class AcrossTrialsDataQuery {
             criteriaBuilder.add(getHibernateInCriterion('patient.id',
                     patients.forIds()))
         } else {
-            criteriaBuilder.in('patient',  Lists.newArrayList(patients))
+            InQuery.addIn(criteriaBuilder, 'patient', patients)
         }
 
         InQuery.addIn(criteriaBuilder, 'modifierCd', clinicalVariables*.code).scroll ScrollMode.FORWARD_ONLY
@@ -113,7 +113,7 @@ class AcrossTrialsDataQuery {
                 property 'code'
             }
         }
-        def res = InQuery.addIn(builder, 'path', conceptPaths.keySet() as List).list()
+        def res = InQuery.addIn(builder, 'path', conceptPaths.keySet()).list()
 
         for (modifier in res) {
             String path = modifier[0],

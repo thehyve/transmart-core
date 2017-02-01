@@ -34,7 +34,7 @@ class PropertyDataConstraint implements CriteriaDataConstraint {
         criteria.with {
             if (values instanceof Collection) {
                 if (!values.isEmpty()) {
-                    InQuery.addIn(criteria, property, values as List)
+                    InQuery.addIn(criteria, property, values)
                 } else {
                     criteria.addToCriteria(Restrictions.sqlRestriction(
                             "'empty_in_criteria_for_$property' = ''"))
