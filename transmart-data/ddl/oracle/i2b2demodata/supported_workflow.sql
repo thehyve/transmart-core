@@ -20,3 +20,12 @@ LOB ("DEFAULT_PARAMS") STORE AS SECUREFILE (
 --
 CREATE INDEX "I2B2DEMODATA"."SUPPORTED_WORKFLOW_INDEX1" ON "I2B2DEMODATA"."SUPPORTED_WORKFLOW" ("ID")
 TABLESPACE "TRANSMART" ;
+
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.supported_workflow IS 'Registers arvados workflows.';
+
+COMMENT ON COLUMN supported_workflow.name IS 'The workflow name.';
+COMMENT ON COLUMN supported_workflow.description IS 'The workflow description.';
+COMMENT ON COLUMN supported_workflow.uuid IS 'The universally unique identifier of the workflow.';

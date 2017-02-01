@@ -11,3 +11,7 @@ CREATE TABLE sample_dimension (
 ALTER TABLE ONLY sample_dimension
     ADD CONSTRAINT sample_dimension_pk PRIMARY KEY (sample_cd);
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.sample_dimension IS 'Deprecated. Stores sample ids.';

@@ -16,3 +16,13 @@
   ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "TRANSMART" ;
 
+--
+-- add documentation
+--
+COMMENT ON TABLE deapp.de_gpl_info IS 'Definition of GPL platforms';
+
+COMMENT ON COLUMN de_gpl_info.platform IS 'Primary key. Platform id. E.g., GPL1000, GPL96, RNASEQ_TRANSCRIPT_PLATFORM.';
+COMMENT ON COLUMN de_gpl_info.title IS 'Title of the platform. E.g., microarray test data, rnaseq transcript level test data.';
+COMMENT ON COLUMN de_gpl_info.organism IS 'Organism the platform applies to. E.g., Human.';
+COMMENT ON COLUMN de_gpl_info.marker_type IS 'E.g., Gene Expression, RNASEQ_TRANSCRIPT.';
+COMMENT ON COLUMN de_gpl_info.genome_build IS 'E.g., hg19.';

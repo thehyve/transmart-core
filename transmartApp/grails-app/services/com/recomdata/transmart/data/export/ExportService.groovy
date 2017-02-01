@@ -22,7 +22,7 @@ class ExportService {
     def asyncJobService
     Scheduler quartzScheduler
     def currentUserBean
-
+    def highDimensionResourceService
 
     def createExportDataAsyncJob(params, userName) {
         def analysis = params.analysis
@@ -103,8 +103,9 @@ class ExportService {
             if (checkboxItem.dataTypeId) {
                 //Second item is the data type.
                 String selectedFile = checkboxItem.dataTypeId.trim()
-                if (!(checkboxItem.fileType in ['.TSV', 'TSV'])) {
-                    selectedFile += checkboxItem.fileType
+                if (!(checkboxItem.dataTypeId == 'CLINICAL'
+                        || checkboxItem.dataTypeId in highDimensionResourceService.knownTypes)) {
+                    selectedFile += '.' + checkboxItem.fileType
                 }
                 subsetSelectedFilesMap.get(currentSubset)?.push(selectedFile)
             }
