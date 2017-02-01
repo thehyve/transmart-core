@@ -36,7 +36,7 @@ class DimensionSpec extends Specification {
         ]
         Patient p = new I2b2PatientDimension(properties)
 
-        ['sexCd', 'sourcesystemCd'].each { properties.remove it }
+        ['sourcesystemCd'].each { properties.remove it }
         (properties.religion = null) ?: 1
         'religion' in properties.keySet()
 

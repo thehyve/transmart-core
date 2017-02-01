@@ -420,8 +420,10 @@ class PatientDimension extends I2b2Dimension<Patient, Long> implements Composite
     List elemFields = ["id", "trial", "inTrialId", "birthDate", "deathDate",
                       "age", "race", "maritalStatus", "religion",
                       new PropertyImpl('sex', 'sex', String) {
+                          @Override def get(element) { super.get(element).toString() }},
+                      new PropertyImpl('sexCd', 'sexCd', String) {
                           @Override def get(element) { super.get(element).toString() }
-                      }]
+    }]
 
     String name = 'patient'
     String alias = 'patientId'
