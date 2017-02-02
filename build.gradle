@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        grailsVersion = '3.1.10'
+        grailsVersion = '3.2.3'
     }
     repositories {
         mavenLocal()
@@ -12,8 +12,8 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath 'com.bertramlabs.plugins:asset-pipeline-gradle:2.8.2'
-        classpath 'org.grails.plugins:hibernate4:5.0.10'
+        classpath 'com.bertramlabs.plugins:asset-pipeline-gradle:2.11.6'
+        classpath 'org.grails.plugins:hibernate5:6.0.4'
         classpath 'com.google.protobuf:protobuf-java:3.1.0'
         classpath 'com.google.protobuf:protobuf-java-util:3.1.0'
         classpath 'org.grails.plugins:views-gradle:1.0.12'
@@ -24,7 +24,7 @@ apply plugin: 'idea'
 
 ext {
     transmartVersion = '17.1-SNAPSHOT'
-    grailsVersion = '3.1.10'
+    grailsVersion = '3.2.3'
     gradleWrapperVersion = '2.13'
 }
 

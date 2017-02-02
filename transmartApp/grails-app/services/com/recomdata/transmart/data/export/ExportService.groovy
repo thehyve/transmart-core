@@ -4,24 +4,23 @@ import com.recomdata.asynchronous.GenericJobExecutor
 import com.recomdata.transmart.domain.i2b2.AsyncJob
 import com.recomdata.transmart.validate.RequestValidator
 import grails.converters.JSON
+import grails.transaction.Transactional
 import org.apache.commons.lang.StringUtils
 import org.json.JSONObject
 import org.quartz.JobBuilder
 import org.quartz.JobDataMap
 import org.quartz.JobDetail
+import org.quartz.Scheduler
 import org.quartz.TriggerBuilder
-import org.transmart.authorization.CurrentUserBeanProxyFactory
-import org.transmart.searchapp.AccessLog
 
-import javax.annotation.Resource
-
+@Transactional
 class ExportService {
 
     def i2b2HelperService
     def i2b2ExportHelperService
     def jobResultsService
     def asyncJobService
-    def quartzScheduler
+    Scheduler quartzScheduler
     def currentUserBean
     def highDimensionResourceService
 

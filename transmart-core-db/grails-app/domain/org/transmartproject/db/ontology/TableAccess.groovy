@@ -29,6 +29,7 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.db.util.GormWorkarounds
 import org.transmartproject.db.util.StringUtils
 
 @EqualsAndHashCode(includes = ['tableCode'])
@@ -82,6 +83,8 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     }
 
     static constraints = {
+        GormWorkarounds.fixupClassPropertyFetcher(TableAccess)
+
         tableCode maxSize: 50
         tableName maxSize: 50
         cProtectedAccess nullable: true

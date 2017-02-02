@@ -22,6 +22,7 @@ package com.recomdata.transmart.data.export;
 
 import com.recomdata.transmart.TransmartContextHolder;
 import com.recomdata.transmart.data.export.util.FTPUtil;
+import grails.config.Config;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -35,7 +36,7 @@ public class DeleteDataFilesProcessor {
 			.getLogger(DeleteDataFilesProcessor.class);
 	
 	@SuppressWarnings("rawtypes")
-	private static final Map config = TransmartContextHolder.getGrailsApplication().getFlatConfig();
+	private static final Map config = TransmartContextHolder.getGrailsApplication().getConfig();
 	private static final String TEMP_DIR = (String) config.get("com.recomdata.plugins.tempFolderDirectory");
 	
 	public boolean deleteDataFile(String fileToDelete, String directoryToDelete){
