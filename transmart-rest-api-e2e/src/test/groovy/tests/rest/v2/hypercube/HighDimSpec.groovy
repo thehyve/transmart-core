@@ -35,7 +35,7 @@ class HighDimSpec extends RESTSpec {
         def projection = 'all_data'
 
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
                         type: 'mrna',
@@ -80,7 +80,7 @@ class HighDimSpec extends RESTSpec {
         def projection = 'all_data'
 
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
                         type: 'autodetect',
@@ -120,7 +120,7 @@ class HighDimSpec extends RESTSpec {
      */
     def "highdim by ConceptConstraint"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
                         type: 'autodetect',
@@ -162,7 +162,7 @@ class HighDimSpec extends RESTSpec {
      */
     def "empty highdim"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
                         type: 'mrna',
@@ -204,7 +204,7 @@ class HighDimSpec extends RESTSpec {
                 path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"
         ]
         def requestZscore = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
                         type: 'mrna',
@@ -214,7 +214,7 @@ class HighDimSpec extends RESTSpec {
         ]
 
         def requestLog_intensity = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
                         type: 'mrna',
@@ -259,7 +259,7 @@ class HighDimSpec extends RESTSpec {
     @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-154 inconsistent use of projections
     def "highdim projection"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
                         type: 'mrna',
@@ -301,7 +301,7 @@ class HighDimSpec extends RESTSpec {
 //    @Requires({EHR_HIGHDIM_LOADED})
     def "highdim by timeConstraint"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
                         type: 'mrna',
@@ -352,7 +352,7 @@ class HighDimSpec extends RESTSpec {
 //    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
     def "highdim by modifier"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
                         type: 'mrna',
@@ -400,7 +400,7 @@ class HighDimSpec extends RESTSpec {
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
     def "highdim by invalid assay"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
                         type: 'mrna',
@@ -431,7 +431,7 @@ class HighDimSpec extends RESTSpec {
     @Requires({EHR_HIGHDIM_LOADED})
     def "highdim by non-highdim concept"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
                         type: 'rnaseq_transcript',
