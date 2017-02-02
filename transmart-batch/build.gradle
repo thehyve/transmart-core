@@ -102,6 +102,13 @@ shadowJar {
     classifier = null
 }
 
+task createVersionFile << {
+    def file = new File("$projectDir/VERSION")
+    file.createNewFile()
+    file.text = "${version}"
+}
+shadowJar.dependsOn 'createVersionFile'
+
 task travisFunctionalTestPrepare << {
     description = 'Prepares the database for functional testing on Travis.'
     group = 'verification'
@@ -217,11 +224,12 @@ uploadArchives {
                 password: project.ext.properties['mavenTheHyvePassword'] ?: '',
             ]
 
-            repository url: 'https://repo.thehyve.nl/content/repositories/releases/',
-                authentication: credentials
-            snapshotRepository url: 'https://repo.thehyve.nl/content/repositories/snapshots/',
-                authentication: credentials
-
+            repository(url: 'https://repo.thehyve.nl/content/repositories/releases/') {
+                authentication(credentials)
+            }
+            snapshotRepository(url: 'https://repo.thehyve.nl/content/repositories/snapshots/') {
+                authentication(credentials)
+            }
             pom.project pomConfiguration
         }
     }

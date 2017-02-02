@@ -179,6 +179,7 @@ class Field implements Validateable {
 
     static constraints = {
         type validator: { Object type, obj -> type != Type.NONE }
+        fieldName blank: false
     }
 }
 
@@ -199,6 +200,10 @@ class BiomarkerConstraint extends Constraint {
     static String constraintName = "biomarker"
     String biomarkerType   // this is the constraint type, see org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
     Map<String, Object> params
+
+    static constraints = {
+        biomarkerType blank: false
+    }
 }
 
 /**
@@ -299,8 +304,8 @@ class ConceptConstraint extends Constraint {
     String path
 
     static constraints = {
-        path nullable: true
-        conceptCode nullable: true, validator: {val, obj, Errors errors ->
+        path nullable: true, blank: false
+        conceptCode nullable: true, blank: false, validator: {val, obj, Errors errors ->
             if (!val && !obj.path) {
                 errors.rejectValue(
                         'conceptCode',
@@ -321,6 +326,9 @@ class StudyNameConstraint extends Constraint {
     static String constraintName = "study_name"
 
     String studyId
+    static constraints = {
+        studyId blank: false
+    }
 }
 
 @Canonical

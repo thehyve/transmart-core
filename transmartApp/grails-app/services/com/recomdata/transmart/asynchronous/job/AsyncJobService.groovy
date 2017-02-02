@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils
 import org.json.JSONArray
 import org.json.JSONObject
 import org.quartz.JobKey
+import org.quartz.Scheduler
 import org.springframework.transaction.annotation.Propagation
 import org.transmartproject.core.users.User
 
@@ -14,7 +15,7 @@ class AsyncJobService {
 
     boolean transactional = true
 
-    def quartzScheduler
+    Scheduler quartzScheduler
     def springSecurityService
     def jobResultsService
     def dataExportService
@@ -252,7 +253,7 @@ class AsyncJobService {
      */
     def updateStatus(jobName, status, viewerURL = null, altViewerURL = null, results = null) {
         def retValue = false   // true if the job was cancelled
-        def jobNameArray = jobName.split("-")
+        def jobNameArray = (jobName as String).split("-")
         def jobID = jobNameArray[-1]
 
         //log.debug("Checking to see if the user cancelled the job")

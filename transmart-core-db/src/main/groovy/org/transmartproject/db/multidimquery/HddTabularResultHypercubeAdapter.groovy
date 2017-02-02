@@ -62,7 +62,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     HddTabularResultHypercubeAdapter(TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ?>> tabularResult) {
         table = tabularResult
         assays = (ImmutableList) ImmutableList.copyOf(table.getIndicesList())
-        patients = (ImmutableList) ImmutableList.copyOf(assays*.patient)
+        patients = (ImmutableList) ImmutableList.copyOf(assays*.patient as Set)
     }
 
     protected List<? extends Object> _dimensionElems(Dimension dim) {

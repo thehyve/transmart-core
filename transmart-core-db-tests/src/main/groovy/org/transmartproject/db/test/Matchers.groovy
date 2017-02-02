@@ -19,7 +19,7 @@
 
 package org.transmartproject.db.test
 
-import org.codehaus.groovy.grails.commons.DomainClassArtefactHandler
+import org.grails.core.artefact.DomainClassArtefactHandler
 import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
 import org.hamcrest.DiagnosingMatcher;

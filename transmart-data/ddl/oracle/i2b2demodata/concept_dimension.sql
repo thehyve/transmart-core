@@ -43,3 +43,11 @@ TABLESPACE "TRANSMART" ;
 /
 ALTER TRIGGER "I2B2DEMODATA"."TRG_CONCEPT_DIMENSION_CD" ENABLE;
  
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.concept_dimension IS 'Table contains the concepts that classify observations.';
+
+COMMENT ON COLUMN concept_dimension.concept_path IS 'Primary key. The path that uniquely identifies a concept.';
+COMMENT ON COLUMN concept_dimension.concept_cd IS 'REQUIRED. The code that is used to refer to the concept from observation_fact.';
+COMMENT ON COLUMN concept_dimension.name_char IS 'REQUIRED. The name of the concept.';

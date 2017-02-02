@@ -16,7 +16,7 @@ dependencies {
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails:grails-test"
     testCompile "org.grails.plugins:geb"
-    testCompile "org.grails.plugins:hibernate4:5.0.10"
+    testCompile "org.grails.plugins:hibernate5"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     compile project(':transmart-core-api')

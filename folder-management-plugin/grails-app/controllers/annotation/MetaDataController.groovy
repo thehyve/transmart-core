@@ -36,7 +36,7 @@ class MetaDataController {
     def extSearch = {
         log.info "EXT SEARCH called"
         def paramMap = params
-        log.info params
+        log.info params.toMapString()
 
         def value = params.term ? params.term.toUpperCase() : ''
         def codeTypeName = params.codeTypeName ? params.codeTypeName : '';
@@ -60,7 +60,7 @@ class MetaDataController {
     def bioCompoundSearch = {
         log.info "EXT bioCompoundSearch called"
         def paramMap = params
-        log.info params
+        log.info params.toMapString()
         render searchKeywordService.findSearchKeywords("COMPOUND", params.term, 10) as JSON
 
     }
@@ -70,7 +70,7 @@ class MetaDataController {
     def bioDiseaseSearch = {
         log.info "EXT bioDiseaseSearch called"
         def paramMap = params
-        log.info params
+        log.info params.toMapString()
         render searchKeywordService.findSearchKeywords("DISEASE", params.term, 10) as JSON
 
     }
@@ -81,7 +81,7 @@ class MetaDataController {
     def bioMarkerSearch = {
         log.info "EXT bioMarkerSearch called"
         def paramMap = params
-        log.info params
+        log.info params.toMapString()
 
         render searchKeywordService.findSearchKeywords("GENE", params.term, 10) as JSON
     }
@@ -92,7 +92,7 @@ class MetaDataController {
     def biosourceSearch = {
         log.info "EXT biosourceSearch called"
         def paramMap = params
-        log.info params
+        log.info params.toMapString()
         render searchKeywordService.findSearchKeywords("BIOSOURCE", params.term, 10) as JSON
 
     }
@@ -103,7 +103,7 @@ class MetaDataController {
     def programTargetSearch = {
         log.info "EXT programTargetSearch called"
         def paramMap = params
-        log.info params
+        log.info params.toMapString()
         def itemlist = [];
 
         def value = params.term ? params.term.toUpperCase() : ''
@@ -130,7 +130,7 @@ class MetaDataController {
 
     def bioAssayPlatformSearch = {
         log.info "EXT platformSearch called"
-        log.info params
+        log.info params.toMapString()
         Map pagingMap = [max: 20];
 
         def paramMap = [:];
@@ -164,7 +164,7 @@ class MetaDataController {
         sb.append("order by platformType, vendor, platformTechnology, name");
 
         log.info "SB == " + sb.toString()
-        log.info "paramMap = " + paramMap
+        log.info "paramMap = " + paramMap.toMapString()
 
         def platforms = BioAssayPlatform.executeQuery(sb.toString(), paramMap, pagingMap);
         // .executeQuery("from BioAssayPlatform p WHERE upper(p.name) LIKE :term  order by platformType, vendor, platformTechnology, name", [term: value+'%'], [max: 20]);

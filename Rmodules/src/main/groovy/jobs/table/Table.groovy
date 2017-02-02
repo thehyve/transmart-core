@@ -9,7 +9,11 @@ import org.mapdb.Fun
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
-@Component
+// If this bean gets the name "table" (the default) it will be unintentionally injected into the
+// grails.plugin.formfields.FormFieldsTagLib.table property, which fails during Transmart startup. Transmart only uses
+// this component with by-type wiring so the actual name doesn't matter as long as it does not get injected anywhere
+// accidentally.
+@Component(value="Rmodules:table")
 @Scope('job')
 class Table implements AutoCloseable {
 

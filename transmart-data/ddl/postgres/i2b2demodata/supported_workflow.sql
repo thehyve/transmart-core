@@ -17,3 +17,12 @@ CREATE TABLE supported_workflow
 --
 ALTER TABLE ONLY supported_workflow
     ADD CONSTRAINT supported_workflow_pkey PRIMARY KEY (id);
+
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.supported_workflow IS 'Registers arvados workflows.';
+
+COMMENT ON COLUMN supported_workflow.name IS 'The workflow name.';
+COMMENT ON COLUMN supported_workflow.description IS 'The workflow description.';
+COMMENT ON COLUMN supported_workflow.uuid IS 'The universally unique identifier of the workflow.';

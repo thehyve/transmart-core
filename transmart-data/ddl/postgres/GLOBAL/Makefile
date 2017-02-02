@@ -61,10 +61,10 @@ drop_roles:
 	$(PSQL_COMMAND) -d template1 -f drop_roles.sql
 
 drop_database:
-	$(PSQL_COMMAND) -d template1 -c "DROP DATABASE IF EXISTS $(PGDATABASE)"
+	$(PSQL_COMMAND_NO_TRANSACTION) -d template1 -c "DROP DATABASE IF EXISTS $(PGDATABASE)"
 
 $(TBDROP_TARGETS):
-	$(PSQL_COMMAND) -d template1 -c "DROP TABLESPACE IF EXISTS $(subst drop_tb_,,$@)"
+	$(PSQL_COMMAND_NO_TRANSACTION) -d template1 -c "DROP TABLESPACE IF EXISTS $(subst drop_tb_,,$@)"
 
 drop_tablespaces: $(TBDROP_TARGETS)
 

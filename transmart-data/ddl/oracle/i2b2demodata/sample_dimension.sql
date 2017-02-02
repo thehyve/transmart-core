@@ -9,3 +9,7 @@
   ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "TRANSMART" ;
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.sample_dimension IS 'Deprecated. Stores sample ids.';

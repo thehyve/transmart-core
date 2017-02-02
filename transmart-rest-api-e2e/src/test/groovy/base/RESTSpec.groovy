@@ -70,7 +70,7 @@ abstract class RESTSpec extends Specification{
         http.request(Method.DELETE) { req ->
             uri.path = requestMap.path
             uri.query = requestMap.query
-            if (!requestMap.skipOauth){
+            if (!requestMap.skipOauth && OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
@@ -100,7 +100,7 @@ abstract class RESTSpec extends Specification{
             uri.query = requestMap.query
             headers.Accept = requestMap.acceptType
             body = requestMap.body
-            if (!requestMap.skipOauth){
+            if (!requestMap.skipOauth && OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
@@ -130,7 +130,7 @@ abstract class RESTSpec extends Specification{
             headers.Accept = requestMap.acceptType
             headers.'Content-Type' = requestMap.contentType
             body = requestMap.body
-            if (!requestMap.skipOauth){
+            if (!requestMap.skipOauth && OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
@@ -162,7 +162,7 @@ abstract class RESTSpec extends Specification{
             uri.path = requestMap.path
             uri.query = requestMap.query
             headers.Accept = requestMap.acceptType
-            if (!requestMap.skipOauth){
+            if (!requestMap.skipOauth && OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 

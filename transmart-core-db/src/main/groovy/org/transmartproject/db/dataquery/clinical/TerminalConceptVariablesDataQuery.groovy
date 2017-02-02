@@ -23,8 +23,10 @@ import com.google.common.collect.HashMultiset
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Multiset
+import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
+import org.hibernate.criterion.Subqueries
 import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -32,9 +34,9 @@ import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVaria
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.support.InQuery
 
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
-import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
 class TerminalConceptVariablesDataQuery {
 
@@ -70,15 +72,16 @@ class TerminalConceptVariablesDataQuery {
         }
 
         if (patients instanceof PatientQuery) {
-            criteriaBuilder.add(getHibernateInCriterion('patient.id',
-                    patients.forIds()))
+            def hibDetachedCriteria = HibernateCriteriaBuilder.getHibernateDetachedCriteria(null, patients.forIds())
+            criteriaBuilder.add(Subqueries.propertyIn('patient.id', hibDetachedCriteria))
         } else {
             criteriaBuilder.in('patient', Lists.newArrayList(patients))
         }
 
-        criteriaBuilder.in('conceptCode', clinicalVariables*.code)
+        criteriaBuilder.eq('modifierCd', ObservationFact.EMPTY_MODIFIER_CODE)
 
-        criteriaBuilder.scroll ScrollMode.FORWARD_ONLY
+        InQuery.addIn(criteriaBuilder, 'conceptCode', clinicalVariables*.code)
+                .scroll ScrollMode.FORWARD_ONLY
     }
 
     private void fillInTerminalConceptVariables() {
@@ -113,21 +116,20 @@ class TerminalConceptVariablesDataQuery {
         }
 
         // find the concepts
-        def res = ConceptDimension.withCriteria {
+        def builder = ConceptDimension.createCriteria()
+        builder.with {
             projections {
                 property 'conceptPath'
                 property 'conceptCode'
             }
-
-            or {
-                if (conceptPaths.keySet()) {
-                    'in' 'conceptPath', conceptPaths.keySet()
-                }
-                if (conceptCodes.keySet()) {
-                    'in' 'conceptCode', conceptCodes.keySet()
-                }
-            }
         }
+        if (conceptPaths.keySet()) {
+            InQuery.addIn(builder, 'conceptPath', conceptPaths.keySet() as List)
+        }
+        if (conceptCodes.keySet()) {
+            InQuery.addIn(builder, 'conceptCode', conceptCodes.keySet() as List)
+        }
+        def res = builder.instance.list()
 
         for (concept in res) {
             String conceptPath = concept[0],
