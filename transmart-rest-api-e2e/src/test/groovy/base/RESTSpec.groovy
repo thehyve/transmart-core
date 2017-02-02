@@ -169,7 +169,7 @@ abstract class RESTSpec extends Specification{
                 assert resp.statusLine.statusCode == requestMap.statusCode || 200
                 assert resp.headers.'Content-Type'.contains(requestMap.acceptType) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
                 def result
-                switch (requestMap.acceptType && OAUTH_NEEDED){
+                switch (requestMap.acceptType){
                     case contentTypeForProtobuf:
                         result = parseProto(resp.entity.content)
                         break
