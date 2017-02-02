@@ -340,7 +340,7 @@ class NullConstraint extends Constraint {
 
 @Canonical
 class RowValueConstraint extends Constraint {
-    static String getName() { throw new UnsupportedOperationException("internal use") }
+    static String getConstraintName() { throw new UnsupportedOperationException("internal use") }
 
     Type valueType = Type.NONE
     Operator operator = Operator.NONE

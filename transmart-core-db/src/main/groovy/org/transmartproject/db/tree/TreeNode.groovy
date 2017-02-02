@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermType
+import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.TrialVisitDimension
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
@@ -176,7 +177,7 @@ class TreeNode {
                         return null
                 }
                 constraint.field = [
-                        dimension: 'trial visit',
+                        dimension: DimensionImpl.TRIAL_VISIT.name,
                         fieldName: fieldName,
                         value: value
                 ] as Map

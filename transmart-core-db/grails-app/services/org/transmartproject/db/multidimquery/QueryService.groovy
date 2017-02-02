@@ -490,6 +490,7 @@ class QueryService {
             if (assaysByType.size() == 1) {
                 typeResource = assaysByType.iterator().next().key
             } else {
+                assert assaysByType.size() != 0, "cannot happen"
                 throw new InvalidQueryException("Autodetecting the high dimensional type found multiple applicable " +
                         "types: ${assaysByType.keySet()*.dataTypeName.join(', ')}. Please choose one.")
             }
