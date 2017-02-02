@@ -415,10 +415,10 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
 }
 
 @CompileStatic @InheritConstructors
-class PatientDimension extends I2b2Dimension<Patient, Long> implements CompositeElemDim<Patient, Long> {
-    Class elemType = Patient
+class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> implements CompositeElemDim<I2B2PatientDimension, Long> {
+    Class elemType = I2B2PatientDimension
     List elemFields = ["id", "trial", "inTrialId", "birthDate", "deathDate",
-                      "age", "race", "maritalStatus", "religion",
+                      "age", "race", "maritalStatus", "religion", "sexCd",
                       new PropertyImpl('sex', 'sex', String) {
                           @Override def get(element) { super.get(element).toString() }
                       }]
@@ -434,7 +434,7 @@ class PatientDimension extends I2b2Dimension<Patient, Long> implements Composite
     }
 
     @CompileDynamic
-    @Override List<Patient> doResolveElements(List<Long> elementKeys) {
+    @Override List<I2B2PatientDimension> doResolveElements(List<Long> elementKeys) {
         resolveWithInQuery(I2B2PatientDimension.createCriteria(), elementKeys)
     }
 }
