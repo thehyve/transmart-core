@@ -2,22 +2,18 @@ package org.transmartproject.db.multidimquery
 
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import spock.lang.Ignore
 import spock.lang.Specification
 
 import org.transmartproject.db.i2b2data.PatientDimension as I2b2PatientDimension
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
-import static org.transmartproject.core.multidimquery.Dimension.Size.*
-import static org.transmartproject.core.multidimquery.Dimension.Density.*
-import static org.transmartproject.core.multidimquery.Dimension.Packable.*
 
 class DimensionSpec extends Specification {
 
     def 'test dimensions'() {
 
         expect:
-        PATIENT.elemType == Patient
+        PATIENT.elemType == I2b2PatientDimension
         PATIENT.elementType == null
         PATIENT.elementsSerializable == false
         START_TIME.elementType == Date
@@ -48,14 +44,10 @@ class DimensionSpec extends Specification {
         // passing an invalid type.
         // PROVIDER.asSerializable(23) == 23
 
-
         when:
         PATIENT.asSerializable("hello")
 
         then:
         thrown(InvalidArgumentsException)
-
     }
-
-
 }
