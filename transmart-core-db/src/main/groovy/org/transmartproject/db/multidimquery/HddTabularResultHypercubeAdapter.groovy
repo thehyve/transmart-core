@@ -129,21 +129,35 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
             // assays.size() compiles to GroovyDefaultMethods.size(Iterable) on Groovy 2.4.7 :(
             for(int i = 0; i < ((List)assays).size(); i++) {
                 Assay assay = assays[i]
+                int patientIndex = patients.indexOf(assay.patient)
                 def value = row[i]
 
                 if(value instanceof Double) {
                     nextVals.add(new TabularResultAdapterValue(
                             // The type checker doesn't like a plain 'dimensions', no idea why
-                            getDimensions(), value, bm, assay, null,
-                            biomarkerIdx, i, -1
+                            availableDimensions: getDimensions(),
+                            value: value,
+                            biomarker: bm,
+                            assay: assay,
+                            biomarkerIndex: biomarkerIdx,
+                            assayIndex: i,
+                            patientIndex: patientIndex,
+                            projectionIndex: -1
                     ))
                 } else if(value instanceof Map) {
                     Map<String, Object> mapValue = (Map<String,Object>) value
                     for(entry in mapValue.entrySet()) {
                         _projectionFields.add(entry.key)
                         nextVals.add(new TabularResultAdapterValue(
-                                getDimensions(), entry.value, bm, assay, entry.key,
-                                biomarkerIdx, i, _projectionFields.indexOf(entry.key)
+                                availableDimensions: getDimensions(),
+                                value: entry.value,
+                                biomarker: bm,
+                                assay: assay,
+                                projectionKey: entry.key,
+                                biomarkerIndex: biomarkerIdx,
+                                assayIndex: i,
+                                patientIndex: patientIndex,
+                                projectionIndex: _projectionFields.indexOf(entry.key)
                         ))
                     }
                 } else {
@@ -169,6 +183,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         String projectionKey
         int biomarkerIndex
         int assayIndex
+        int patientIndex
         int projectionIndex
 
         Patient getPatient() { assay.patient }
@@ -184,7 +199,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         Integer getDimElementIndex(Dimension dim) {
             if(dim == biomarkerDim) return biomarkerIndex
             if(dim == assayDim) return assayIndex
-            if(dim == patientDim) return assayIndex
+            if(dim == patientDim) return patientIndex
             if(dim == projectionDim && projectionKey) return projectionIndex
             dimError(dim)
         }
