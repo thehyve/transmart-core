@@ -46,3 +46,7 @@ assets {
 }
 
 test.testLogging.exceptionFormat = 'full'
+
+bootRun {
+    jvmArgs = ['-Xmx4096m']
+}
