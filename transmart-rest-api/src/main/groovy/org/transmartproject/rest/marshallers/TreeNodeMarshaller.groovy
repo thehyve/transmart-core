@@ -40,6 +40,9 @@ class TreeNodeMarshaller implements ObjectMarshaller<JSON> {
                 visualAttributes: obj.visualAttributes
         ] as Map<String, Object>
         def constraint = obj.constraint
+        if (obj.dimension) {
+            result.dimension = obj.dimension
+        }
         if (constraint) {
             result.constraint = constraint
         }

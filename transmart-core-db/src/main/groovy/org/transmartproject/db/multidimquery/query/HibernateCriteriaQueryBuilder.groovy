@@ -13,6 +13,7 @@ import org.hibernate.internal.CriteriaImpl
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 import org.transmartproject.db.util.StringUtils
@@ -172,9 +173,14 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             DetachedCriteria subCriteria = DetachedCriteria.forClass(ModifierDimensionCoreDb, modifierAlias)
             subCriteria.add(Restrictions.eq("${modifierAlias}.path", constraint.path))
             modifierCriterion = Subqueries.propertyEq('modifierCd', subCriteria.setProjection(Projections.property("code")))
+        } else if (constraint.dimensionName != null) {
+            String dimensionAlias = 'dimesion_description'
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(DimensionDescription, dimensionAlias)
+            subCriteria.add(Restrictions.eq("${dimensionAlias}.name", constraint.dimensionName))
+            modifierCriterion = Subqueries.propertyEq('modifierCd', subCriteria.setProjection(Projections.property("modifierCode")))
         }
         else {
-            throw new QueryBuilderException("Modifier constraint shouldn't have a null value both for modifier path and code")
+            throw new QueryBuilderException("Modifier constraint shouldn't have a null value for all modifier path, code and dimension name")
         }
         def valueConstraint
         if (constraint.values) {

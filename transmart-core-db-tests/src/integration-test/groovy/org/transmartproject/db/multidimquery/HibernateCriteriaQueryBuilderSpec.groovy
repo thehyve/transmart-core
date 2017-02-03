@@ -425,5 +425,30 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         then:
         results.size() == expectedResults.size()
         results.sort() == expectedResults.sort()
+
+        when:
+        subqueryConstraint = new ModifierConstraint(
+                dimensionName: hypercubeTestData.clinicalData.tissueTypeDimension.name
+        )
+        modifierFacts = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll {
+           it.modifierCd == hypercubeTestData.clinicalData.tissueTypeDimension.modifierCode
+        }
+        expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll { fact ->
+            fact.modifierCd == '@' &&
+                    modifierFacts.find { modifier ->
+                        fact.encounterNum == modifier.encounterNum
+                        fact.patient == modifier.patient
+                        fact.conceptCode == modifier.conceptCode
+                        fact.providerId == modifier.providerId
+                        fact.startDate == modifier.startDate
+                        fact.instanceNum == modifier.instanceNum
+                    }
+        }
+        criteria = builder.buildCriteria(subqueryConstraint)
+        results = getList(criteria)
+
+        then:
+        results.size() == expectedResults.size()
+        results.sort() == expectedResults.sort()
     }
 }
