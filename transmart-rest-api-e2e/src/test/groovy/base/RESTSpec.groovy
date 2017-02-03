@@ -78,7 +78,7 @@ abstract class RESTSpec extends Specification{
             response.success = { resp, reader ->
                 println resp.statusLine.statusCode
                 println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
                 def result
                 result = reader
                 if (DEBUG) { println result }
@@ -108,7 +108,7 @@ abstract class RESTSpec extends Specification{
             response.success = { resp, reader ->
                 println resp.statusLine.statusCode
                 println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
                 def result = reader
                 if (DEBUG) { println result }
                 return result
@@ -138,7 +138,7 @@ abstract class RESTSpec extends Specification{
             response.success = { resp, reader ->
                 println resp.statusLine.statusCode
                 println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
                 def result = reader
                 if (DEBUG) { println result }
                 return result
@@ -166,7 +166,7 @@ abstract class RESTSpec extends Specification{
             response.success = { resp, reader ->
                 println resp.statusLine.statusCode
                 println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
                 assert resp.headers.'Content-Type'.contains(requestMap.acceptType) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
                 def result
                 switch (requestMap.acceptType){

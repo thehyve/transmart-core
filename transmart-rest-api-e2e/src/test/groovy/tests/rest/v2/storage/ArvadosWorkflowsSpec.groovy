@@ -15,7 +15,7 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: contentTypeForJSON])
         responseDataAll.supportedWorkflows.each{
-            delete([path: PATH_ARVADOS_WORKFLOWS + "/${it.id}", acceptType: contentTypeForJSON])
+            delete([path: PATH_ARVADOS_WORKFLOWS + "/${it.id}", acceptType: contentTypeForJSON, statusCode: 204])
         }
     }
 
@@ -35,14 +35,13 @@ class ArvadosWorkflowsSpec extends RESTSpec{
                     ],
         ]
 
-        def request = [
+        when:
+        def responseData = post([
                 path: PATH_ARVADOS_WORKFLOWS,
                 acceptType: contentTypeForJSON,
-                body: toJSON(data)
-        ]
-
-        when:
-        def responseData = post(request)
+                body: toJSON(data),
+                statusCode: 201
+        ])
         def id = responseData.id
 
         then:
@@ -82,7 +81,7 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         assert responseData.uuid == data.uuid
 
         when:
-        responseData = delete([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: contentTypeForJSON])
+        responseData = delete([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: contentTypeForJSON, statusCode: 204])
         assert responseData == null
         responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: contentTypeForJSON, statusCode: 404])
 
@@ -183,7 +182,8 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         def responseData = post([
                 path: PATH_ARVADOS_WORKFLOWS,
                 acceptType: contentTypeForJSON,
-                body: toJSON(data)
+                body: toJSON(data),
+                statusCode: 201
 
         ])
         data.uuid = null

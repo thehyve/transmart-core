@@ -14,12 +14,12 @@ class StorageSpec extends RESTSpec{
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def responseDataAll = get([path: PATH_FILES, acceptType: contentTypeForJSON])
         responseDataAll.files.each{
-            delete([path: PATH_FILES + "/${it.id}"])
+            delete([path: PATH_FILES + "/${it.id}", statusCode: 204])
         }
 
         responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
         responseDataAll.storageSystems.each{
-            delete([path: PATH_STORAGE + "/${it.id}"])
+            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204])
         }
     }
 
@@ -38,7 +38,7 @@ class StorageSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem)])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
         def id = responseData.id
 
         then:
@@ -79,7 +79,7 @@ class StorageSpec extends RESTSpec{
         assert responseData.url == sourceSystem.url
 
         when:
-        responseData = delete([path: PATH_STORAGE + "/${id}"])
+        responseData = delete([path: PATH_STORAGE + "/${id}", statusCode: 204])
         assert responseData == null
         responseData = get([path: PATH_STORAGE + "/${id}", acceptType: contentTypeForJSON, statusCode: 404])
 
@@ -212,7 +212,7 @@ class StorageSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem)])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
         sourceSystem.singleFileCollections = 'bad_value'
         responseData = put([path: PATH_STORAGE + "/${responseData.id}", body: toJSON(sourceSystem), statusCode: 422])
 
@@ -284,7 +284,7 @@ class StorageSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem)])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
         responseData = delete([ path: PATH_STORAGE + "/${responseData.id}", statusCode: 403])
 
