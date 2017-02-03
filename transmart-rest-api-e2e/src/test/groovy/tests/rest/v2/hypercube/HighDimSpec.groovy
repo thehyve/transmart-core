@@ -466,6 +466,9 @@ class HighDimSpec extends RESTSpec {
         def list = responseData.dimensionElements.patient*.sex as List
         assert list.size() == 3
         assert list.containsAll("female", "male")
+        def listSexCd = responseData.dimensionElements.patient*.sexCd as List
+        assert listSexCd.size() == 3
+        assert listSexCd.containsAll("Female", "Male")
 
         where:
         acceptType | newSelector
