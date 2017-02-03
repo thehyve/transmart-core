@@ -2,6 +2,7 @@ package tests.rest.v2.hypercube
 
 import base.RESTSpec
 import groovy.json.JsonBuilder
+import selectors.ObservationSelector
 
 import static config.Config.PATH_HIGH_DIM
 import static config.Config.RNASEQ_TRANSCRIPT_ID
@@ -275,6 +276,87 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
             assert ['male', 'female'].contains(selector.select(it, 'patient', 'sex', 'String'))
 
             assert ZSCORE.contains(selector.select(it) as BigDecimal)
+        }
+
+        where:
+        acceptType | newSelector
+        contentTypeForJSON | jsonSelector
+//        contentTypeForProtobuf | protobufSelector
+    }
+
+
+    /**
+     *  given: "study RNASEQ_TRANSCRIPT is loaded"
+     *  when: "I get transcript tr1 and gene TP53"
+     *  then: "both return the same set"
+     */
+    def "Link to multi transcript"() {
+        def requestGene = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint    : new JsonBuilder([
+                                "type": "Combination",
+                                "operator": "and",
+                                "args": [
+                                        [
+                                                type: ConceptConstraint,
+                                                path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
+                                        ],
+                                        [
+                                                "type": "StudyNameConstraint",
+                                                "studyId": "RNASEQ_TRANSCRIPT"
+                                        ]
+                                ]
+                        ]),
+                        biomarker_constraint: new JsonBuilder([
+                                type         : BiomarkerConstraint,
+                                biomarkerType: 'genes',
+                                params       : [
+                                        names: ['A1BG']
+                                ]
+                        ])
+                ]
+        ]
+
+        def requestTranscript = [
+                path: PATH_HIGH_DIM,
+                acceptType: acceptType,
+                query: [
+                        assay_constraint    : new JsonBuilder([
+                                "type": "Combination",
+                                "operator": "and",
+                                "args": [
+                                        [
+                                                type: ConceptConstraint,
+                                                path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
+                                        ],
+                                        [
+                                                "type": "StudyNameConstraint",
+                                                "studyId": "RNASEQ_TRANSCRIPT"
+                                        ]
+                                ]
+                        ]),
+                        biomarker_constraint: new JsonBuilder([
+                                type         : BiomarkerConstraint,
+                                biomarkerType: 'transcripts',
+                                params       : [
+                                        names: ['tr3', 'tr4']
+                                ]
+                        ])
+                ]
+        ]
+
+        when:
+        def responseData1 = get(requestTranscript)
+        def responseData2 = get(requestGene)
+
+        then:
+        def expectedCellCount = 156
+        assert responseData1.cells.size() == expectedCellCount
+        assert responseData2.cells.size() == expectedCellCount
+        responseData1.cells.eachWithIndex{ cell, i ->
+            assert cell == responseData2.cells[i]
         }
 
         where:

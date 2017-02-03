@@ -246,52 +246,11 @@ class HighDimSpec extends RESTSpec {
     }
 
     /**
-     *  given: "study CLINICAL_TRIAL_HIGHDIM is loaded"
-     *  when: "I get highdim for logIntensity projections"
-     *  then: "logIntensity is returned"
-     */
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-154 inconsistent use of projections
-    def "highdim projection"(){
-        def request = [
-                path: PATH_HIGH_DIM,
-                acceptType: acceptType,
-                query: [
-                        assay_constraint: new JsonBuilder([
-                                type: ConceptConstraint,
-                                path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"
-                        ]),
-                        biomarker_constraint: new JsonBuilder([
-                                type: BiomarkerConstraint,
-                                biomarkerType: 'genes',
-                                params: [
-                                        names: ['TP53']
-                                ]
-                        ]),
-                        projection: 'logIntensity'
-                ]
-        ]
-
-        when:
-        def responseData = get(request)
-        def selector = newSelector(responseData)
-
-
-        then:
-        assert selector.cellCount == 18
-
-        where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
-        contentTypeForProtobuf | protobufSelector
-    }
-
-    /**
      *  given: "study EHR_HIGHDIM is loaded"
      *  when: "I get highdim for EHR_HIGHDIM after 01-04-2016Z"
      *  then: "only data for Expression Breast is returned"
      */
-    @Ignore //functionality removed
-//    @Requires({EHR_HIGHDIM_LOADED})
+    @Requires({EHR_HIGHDIM_LOADED})
     def "highdim by timeConstraint"(){
         def request = [
                 path: PATH_HIGH_DIM,
@@ -301,8 +260,14 @@ class HighDimSpec extends RESTSpec {
                                 type: Combination,
                                 operator: AND,
                                 args: [
-                                        [type: ConceptConstraint,
-                                         path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"],
+                                        [
+                                            "type": "ConceptConstraint",
+                                            "path": "\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Breast\\"
+                                        ],
+                                        [
+                                            "type": "StudyNameConstraint",
+                                            "studyId": "EHR_HIGHDIM"
+                                        ],
                                         [type: TimeConstraint,
                                          field: [dimension: 'start time', fieldName: 'startDate', type: DATE ],
                                          operator: AFTER,
@@ -317,14 +282,14 @@ class HighDimSpec extends RESTSpec {
         def selector = newSelector(responseData)
 
         then:
-        selector.cellCount == 60
+        selector.cellCount == 30
         (0..<selector.cellCount).each {
 
-            assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'biomarker', 'label', 'String'))
+            assert ['117_at', '1007_s_at', '1053_at'].contains(selector.select(it, 'biomarker', 'label', 'String'))
             assert selector.select(it, 'biomarker', 'biomarker', 'String') == null
 
-            assert [-6016,-6017,-6018, -6019].contains(selector.select(it, 'assay', 'id', 'Int'))
-            assert ['sample6', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
+            assert [-6019].contains(selector.select(it, 'assay', 'id', 'Int') as int)
+            assert ['sample9'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
 
             assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection', 'String'))
         }
@@ -340,8 +305,7 @@ class HighDimSpec extends RESTSpec {
      *  when: "I get highdim for TUMOR_NORMAL_SAMPLES with modifier Normal"
      *  then: "only data for modifier Normal is returned"
      */
-    @Ignore //functionality removed
-//    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
+    @Requires({RNASEQ_TRANSCRIPT_ID})
     def "highdim by modifier"(){
         def request = [
                 path: PATH_HIGH_DIM,
@@ -351,10 +315,16 @@ class HighDimSpec extends RESTSpec {
                                 type: Combination,
                                 operator: AND,
                                 args: [
-                                        [type: ConceptConstraint,
-                                         path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"],
-                                        [type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
-                                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Normal"]]
+                                        [
+                                            "type": "ConceptConstraint",
+                                            "path": "\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Breast\\"
+                                        ],
+                                        [
+                                            "type": "StudyNameConstraint",
+                                            "studyId": "RNASEQ_TRANSCRIPT"
+                                        ],
+                                        [type: ModifierConstraint, path:"\\Public Studies\\RNASEQ_TRANSCRIPT\\Sample Type\\",
+                                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]]
                                 ]
                         ])
                 ]
@@ -365,16 +335,18 @@ class HighDimSpec extends RESTSpec {
         def selector = newSelector(responseData)
 
         then:
-        selector.cellCount == 120
+        selector.cellCount == 130
         (0..<selector.cellCount).each {
 
-            assert ['117_at', '1007_s_at', '1053_at', '1053_s_at'].contains(selector.select(it, 'biomarker', 'label', 'String'))
-            assert selector.select(it, 'biomarker', 'biomarker', 'String') == null
+            assert [null].contains(selector.select(it, 'biomarker', 'label', 'String'))
+            assert ['tr1', 'tr2', 'tr3', 'tr4', null].contains(selector.select(it, 'biomarker', 'biomarker', 'String'))
 
-            assert [-631,-637,-638, -639].contains(selector.select(it, 'assay', 'id', 'Int'))
-            assert ['sample1', 'sample7', 'sample8', 'sample9'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
+            assert [-643,-645].contains(selector.select(it, 'assay', 'id', 'Int') as int)
+            assert ['sample5', 'sample3'].contains(selector.select(it, 'assay', 'sampleCode', 'String'))
 
-            assert ['probeName', 'trialName', 'logIntensity', 'organism', 'geneId', 'probeId', 'rawIntensity', 'assayId', 'zscore', 'geneSymbol'].contains(selector.select(it, 'projection', 'String'))
+            assert ['readcount', 'platformMarkerType', 'normalizedReadcount', 'platformGenomeReleaseId', 'chromosome',
+                    'assayId', 'start', 'zscore', 'logNormalizedReadcount', 'platformId', 'transcript', 'end',
+                    'id'].contains(selector.select(it, 'projection', 'String'))
         }
 
         where:
@@ -426,15 +398,15 @@ class HighDimSpec extends RESTSpec {
                 query: [
                         assay_constraint: new JsonBuilder([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
                 ],
-                statusCode: 500
+                statusCode: 400
         ]
 
         when:
         def responseData = get(request)
 
         then:
-        that responseData.httpStatus, is(500)
-        that responseData.type, is('IllegalStateException')
+        that responseData.httpStatus, is(400)
+        that responseData.type, is('InvalidQueryException')
         that responseData.message, is('Found data that is either clinical or is using the old way of storing high dimensional data.')
 
         where:

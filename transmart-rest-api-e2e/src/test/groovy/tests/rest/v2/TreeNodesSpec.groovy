@@ -1,7 +1,6 @@
 package tests.rest.v2
 
 import base.RESTSpec
-import spock.lang.IgnoreIf
 import spock.lang.Requires
 
 import static config.Config.*
@@ -102,10 +101,33 @@ class TreeNodesSpec extends  RESTSpec{
         then: "then concept nodes have observationCount and patientCount"
         def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
 
-        assert getNodeByName(studyA, "Heart Rate").observationCount == 5
-        assert getNodeByName(studyA, "Heart Rate").patientCount == 4
+        assert getNodeByName(studyA, "Heart Rate").observationCount == 3
+        assert getNodeByName(studyA, "Heart Rate").patientCount == 2
         assert getNodeByName(studyA, "Age").observationCount == 2
         assert getNodeByName(studyA, "Age").patientCount == 2
+    }
+
+    /**
+     *  given: "Study SHARED_CONCEPTS is loaded"
+     *  when: "I get the tree_nodes with counts=true"
+     *  then: "then concept nodes have observationCount and patientCount"
+     */
+    @Requires({SHARED_CONCEPTS_LOADED})
+    def "shared nodes with counts true restricted"(){
+        given: "Study SHARED_CONCEPTS is loaded"
+
+        when: "I get the tree_nodes with counts=true"
+        def responseData = get([
+                path: PATH_TREE_NODES,
+                acceptType: contentTypeForJSON,
+                query: ['counts' : true]
+        ])
+
+        then: "then concept nodes have observationCount and patientCount"
+        def sharedConceptRoot = getRootNodeByName(responseData, 'Vital Signs')
+
+        assert getNodeByName(sharedConceptRoot, "Heart Rate").observationCount == 5
+        assert getNodeByName(sharedConceptRoot, "Heart Rate").patientCount == 4
     }
 
     /**
@@ -126,12 +148,10 @@ class TreeNodesSpec extends  RESTSpec{
         ])
 
         then: "then concept nodes have observationCount and patientCount"
-        def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
+        def sharedConceptRoot = getRootNodeByName(responseData, 'Vital Signs')
 
-        assert getNodeByName(studyA, "Heart Rate").observationCount == 7
-        assert getNodeByName(studyA, "Heart Rate").patientCount == 6
-        assert getNodeByName(studyA, "Age").observationCount == 2
-        assert getNodeByName(studyA, "Age").patientCount == 2
+        assert getNodeByName(sharedConceptRoot, "Heart Rate").observationCount == 7
+        assert getNodeByName(sharedConceptRoot, "Heart Rate").patientCount == 6
     }
 
     /**
@@ -139,8 +159,7 @@ class TreeNodesSpec extends  RESTSpec{
      *  when: "I get the tree_nodes with tags=true"
      *  then: "then concept nodes have observationCount and patientCount"
      */
-    @Requires({SHARED_CONCEPTS_LOADED})
-    @IgnoreIf({SUPPRESS_UNIMPLEMENTED}) //FIXME: no test set with tags
+    @Requires({CELL_LINE_LOADED})
     def "nodes with tags true"(){
         given: "Study SHARED_CONCEPTS is loaded"
 
@@ -152,8 +171,8 @@ class TreeNodesSpec extends  RESTSpec{
         ])
 
         then: "then concept nodes have observationCount and patientCount"
-        def studyA = getNodeByName(getRootNodeByName(responseData, 'Public Studies'), SHARED_CONCEPTS_A_ID)
-        assert false : "test needs real assertions"
+        def jsonString = responseData.toString()
+        assert jsonString.contains("metadata")
     }
 
     /**

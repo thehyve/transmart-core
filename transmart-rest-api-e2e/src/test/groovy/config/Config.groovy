@@ -59,6 +59,7 @@ class Config {
     public static final boolean SUPPRESS_UNIMPLEMENTED = true
 
     //test studies loaded
+    public static final boolean GSE8581_LOADED = false
     public static final boolean CELL_LINE_LOADED = false
     public static final boolean EHR_LOADED = true
     public static final boolean EHR_HIGHDIM_LOADED = true
