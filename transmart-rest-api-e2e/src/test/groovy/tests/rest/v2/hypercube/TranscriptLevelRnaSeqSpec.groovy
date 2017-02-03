@@ -281,7 +281,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         where:
         acceptType | newSelector
         contentTypeForJSON | jsonSelector
-//        contentTypeForProtobuf | protobufSelector
+        contentTypeForProtobuf | protobufSelector
     }
 
 
