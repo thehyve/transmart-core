@@ -76,6 +76,10 @@ dataExport {
 //    'It should contain a minimum of 8 characters including at least ' +
 //    '1 upper and 1 lower case letter, 1 digit and 1 special character.'
 
+//Sets maximal file size limit
+//grails.controllers.upload.maxFileSize = 2000000
+//grails.controllers.upload.maxRequestSize = 2000000
+
 // You MUST leave this at the end
 // Do not move it up, otherwise syntax errors may not be detected
 
