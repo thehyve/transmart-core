@@ -10,18 +10,18 @@ class UserLandingControllerTests {
     }
 
     void testDefaultLandingPage() {
-        assertEquals '/RWG', controller.userLandingPath
+        assert '/RWG' == controller.userLandingPath
     }
 
     void testHideBrowseTab() {
         grailsApplication.config.ui.tabs.browse.hide = true
-        assertEquals '/datasetExplorer', controller.userLandingPath
+        assert '/datasetExplorer' == controller.userLandingPath
     }
 
     void testPresetLandingPage() {
         def expectedPath = '/custom-path'
         grailsApplication.config.com.recomdata.defaults.landing = expectedPath
-        assertEquals expectedPath, controller.userLandingPath
+        assert expectedPath == controller.userLandingPath
     }
 
 }

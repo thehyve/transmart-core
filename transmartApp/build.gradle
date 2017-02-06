@@ -158,6 +158,8 @@ war {
     } //Rscripts from Rmodules into WEB-INF dir.
 }
 
+test.testLogging.exceptionFormat = 'full'
+
 // Uncomment this to always run in debug mode on port 5006. Very useful in development.
 //bootRun {
 //    jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006']

@@ -68,6 +68,7 @@ class FakeQueryResult implements QueryResult {
     Long setSize = 10
     QueryStatus status = QueryStatus.FINISHED
     String errorMessage = null
+    String description = null
     Set patients = [] as Set
     String username
 }
