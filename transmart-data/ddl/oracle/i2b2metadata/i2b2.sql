@@ -81,3 +81,20 @@ TABLESPACE "TRANSMART" ;
 CREATE INDEX "I2B2METADATA"."META_APPLIED_PATH_I2B2_IDX" ON "I2B2METADATA"."I2B2" ("M_APPLIED_PATH")
 TABLESPACE "TRANSMART" ;
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2metadata.i2b2 IS 'Holds all nodes in the i2b2 tree.';
+
+COMMENT ON COLUMN i2b2.c_hlevel IS 'Number that represents the depth of the node. 0 for root.';
+COMMENT ON COLUMN i2b2.c_fullname IS 'Full path to the node. E.g., \Vital Signs\Heart Rate\.';
+COMMENT ON COLUMN i2b2.c_name IS 'Name of the node. E.g., Heart Rate.';
+COMMENT ON COLUMN i2b2.c_basecode IS 'Code that represents node. E.g., VSIGN:HR. Not used.';
+COMMENT ON COLUMN i2b2.c_visualattributes IS 'Visual attributes describing how a node should be displayed. Can have three characters at maximum. See OntologyTerm#VisualAttributes for documentation on the values.';
+COMMENT ON COLUMN i2b2.c_metadataxml IS 'Metadata encoded as XML.';
+COMMENT ON COLUMN i2b2.c_facttablecolumn IS 'Column of observation_fact corresponding with c_columnname.';
+COMMENT ON COLUMN i2b2.c_tablename IS 'Table of the dimension referred to by this node.';
+COMMENT ON COLUMN i2b2.c_columnname IS 'Column of the table of the dimension referred to by this node';
+COMMENT ON COLUMN i2b2.c_operator IS 'Operator. E.g., like, =';
+COMMENT ON COLUMN i2b2.c_dimcode IS 'Refers to a dimension element, linked to observations.';
+COMMENT ON COLUMN i2b2.c_comment IS 'Meant for comments, not for storing study based security tokens.';

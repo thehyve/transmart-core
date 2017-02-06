@@ -29,4 +29,3 @@ ALTER TABLE ONLY qt_analysis_plugin
 -- Name: qt_apnamevergrp_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
 --
 CREATE INDEX qt_apnamevergrp_idx ON qt_analysis_plugin USING btree (plugin_name, version_cd, group_id);
-

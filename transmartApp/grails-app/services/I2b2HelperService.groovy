@@ -14,6 +14,7 @@ import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.ontology.AbstractI2b2Metadata
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.AcrossTrialsOntologyTerm
+import org.transmartproject.db.support.InQuery
 import org.transmartproject.db.util.StringUtils
 import org.w3c.dom.Document
 import org.w3c.dom.Node
@@ -28,8 +29,6 @@ import javax.xml.xpath.XPathFactory
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Statement
-import java.net.URL;
-import java.net.MalformedURLException;
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TOP_TERM_NAME
@@ -1283,10 +1282,7 @@ class I2b2HelperService {
                 log.trace "Children Paths: " + paths
 
             // Find the concept codes for the given children
-            def conceptCriteria = ConceptDimension.createCriteria()
-            def concepts = conceptCriteria.list {
-                'in'("conceptPath", paths)
-            }
+                def concepts = InQuery.addIn(ConceptDimension.createCriteria(), 'conceptPath', paths as List).list()
 
                 log.trace "Children concepts: " + concepts*.conceptCode
 
@@ -1297,8 +1293,8 @@ class I2b2HelperService {
                 // If nothing is found, return
                 if (!concepts || !patientIds) {
                     log.debug "no concept; no parentIds"
-                return
-            }
+                    return
+                }
 
             // After that, retrieve all data entries for the children
                 def results = ObservationFact.executeQuery("SELECT o.patient.id, o.textValue FROM ObservationFact o WHERE conceptCode IN (:conceptCodes) AND o.patient.id in (:patientNums)", [conceptCodes: concepts*.conceptCode, patientNums: patientIds.collect {

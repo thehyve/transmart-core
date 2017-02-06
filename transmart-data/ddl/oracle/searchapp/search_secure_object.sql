@@ -30,3 +30,13 @@
 /
 ALTER TRIGGER "SEARCHAPP"."TRG_SEARCH_SEC_OBJ_ID" ENABLE;
  
+--
+-- add documentation
+--
+COMMENT ON TABLE searchapp.search_secure_object IS 'Holds the secure tokens that control access.';
+
+COMMENT ON COLUMN search_secure_object.search_secure_object_id IS 'Primary key. Id of the token.';
+COMMENT ON COLUMN search_secure_object.bio_data_id IS 'Id of the data restricted by this token.';
+COMMENT ON COLUMN search_secure_object.display_name IS 'The name used to display this token. E.g., Private Studies - SHARED_HD_CONCEPTS_STUDY_C_PR.';
+COMMENT ON COLUMN search_secure_object.data_type IS 'Data type. E.g., BIO_CLINICAL_TRIAL.';
+COMMENT ON COLUMN search_secure_object.bio_data_unique_id IS 'The unique id used to refer to the token. E.g., EXP:SHDCSCP.';

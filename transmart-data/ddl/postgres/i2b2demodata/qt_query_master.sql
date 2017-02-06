@@ -37,3 +37,8 @@ ALTER TABLE ONLY qt_query_master
 --
 CREATE INDEX qt_idx_qm_ugid ON qt_query_master USING btree (user_id, group_id, master_type_cd);
 
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.qt_query_master IS 'This master table to the holds the client’s anaysis request information. i.e.
+the user_id, analysis definition , the i2b2 request_xml, etc.. ';

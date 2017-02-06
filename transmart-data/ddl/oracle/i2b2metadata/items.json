@@ -41,7 +41,7 @@
     }, {
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
-      "name" : "SEQ_DIMENSION_DESCRIPTION_ID"
+      "name" : "DIMENSION_DESCRIPTION_ID_SEQ"
     } ]
   }, {
     "child" : {
@@ -269,7 +269,7 @@
     "child" : {
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
-      "name" : "SEQ_DIMENSION_DESCRIPTION_ID"
+      "name" : "DIMENSION_DESCRIPTION_ID_SEQ"
     },
     "parents" : [ ]
   }, {
@@ -615,7 +615,7 @@
     "item" : {
       "type" : "SEQUENCE",
       "owner" : "I2B2METADATA",
-      "name" : "SEQ_DIMENSION_DESCRIPTION_ID"
+      "name" : "DIMENSION_DESCRIPTION_ID_SEQ"
     },
     "file" : "i2b2metadata/dimension_description.sql"
   }, {

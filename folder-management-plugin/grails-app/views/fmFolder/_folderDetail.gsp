@@ -7,7 +7,7 @@
     {  
             <g:each var='jSONForGrid' status="gridCounter" in="${jSONForGrids}">
                   var dt${gridCounter}  = new dataTableWrapper('gridViewWrapper${gridCounter}', 'gridViewTable${gridCounter}', 'Title');
-                   dt${gridCounter}.loadData(${jSONForGrids[gridCounter]});
+                   dt${gridCounter}.loadData(${raw(jSONForGrids[gridCounter].toString().replaceAll('\n','') ?: '{}')});
           </g:each>
      
 

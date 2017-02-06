@@ -70,7 +70,7 @@ abstract class RESTSpec extends Specification{
         http.request(Method.DELETE) { req ->
             uri.path = requestMap.path
             uri.query = requestMap.query
-            if (!requestMap.skipOauth){
+            if (!requestMap.skipOauth && OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
@@ -78,7 +78,7 @@ abstract class RESTSpec extends Specification{
             response.success = { resp, reader ->
                 println resp.statusLine.statusCode
                 println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
                 def result
                 result = reader
                 if (DEBUG) { println result }
@@ -100,7 +100,7 @@ abstract class RESTSpec extends Specification{
             uri.query = requestMap.query
             headers.Accept = requestMap.acceptType
             body = requestMap.body
-            if (!requestMap.skipOauth){
+            if (!requestMap.skipOauth && OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
@@ -108,7 +108,7 @@ abstract class RESTSpec extends Specification{
             response.success = { resp, reader ->
                 println resp.statusLine.statusCode
                 println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
                 def result = reader
                 if (DEBUG) { println result }
                 return result
@@ -130,7 +130,7 @@ abstract class RESTSpec extends Specification{
             headers.Accept = requestMap.acceptType
             headers.'Content-Type' = requestMap.contentType
             body = requestMap.body
-            if (!requestMap.skipOauth){
+            if (!requestMap.skipOauth && OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
@@ -138,7 +138,7 @@ abstract class RESTSpec extends Specification{
             response.success = { resp, reader ->
                 println resp.statusLine.statusCode
                 println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
                 def result = reader
                 if (DEBUG) { println result }
                 return result
@@ -162,7 +162,7 @@ abstract class RESTSpec extends Specification{
             uri.path = requestMap.path
             uri.query = requestMap.query
             headers.Accept = requestMap.acceptType
-            if (!requestMap.skipOauth){
+            if (!requestMap.skipOauth && OAUTH_NEEDED){
                 headers.'Authorization' = 'Bearer ' + getToken()
             }
 
@@ -171,7 +171,7 @@ abstract class RESTSpec extends Specification{
             response.success = { resp, reader ->
                 println resp.statusLine.statusCode
                 println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode || 200
+                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
                 assert resp.headers.'Content-Type'.contains(requestMap.acceptType) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
                 def result
                 switch (requestMap.acceptType){

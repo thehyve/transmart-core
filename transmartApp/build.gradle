@@ -158,7 +158,9 @@ war {
     } //Rscripts from Rmodules into WEB-INF dir.
 }
 
-// Uncomment this to always run in debug mode on port 5006. Very useful in development.
-//bootRun {
-//    jvmArgs = ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006']
-//}
+bootRun {
+    jvmArgs = ['-Xmx4096m']
+
+    // Uncomment this to always run in debug mode on port 5006. Very useful in development.
+    //jvmArgs += ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006']
+}

@@ -37,6 +37,10 @@ class WriteOntologyMappingTasklet implements Tasklet {
         def nodes = ontologyMappingHolder.nodes.values()
         log.info "Writing ${nodes.size()} ontology entries."
 
+        if (!resource.file.getParentFile().exists()) {
+            log.info "Directory ${resource.file.getParentFile().path} does not exist. Creating..."
+            resource.file.getParentFile().mkdirs()
+        }
         OntologyMapTsvWriter.write(resource.outputStream, nodes)
         contribution.incrementWriteCount(ontologyMappingHolder.nodes.size())
 

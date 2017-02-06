@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version=17.1
+version=$(cat VERSION)
 here=$(realpath $(dirname "${0}"))
 jar="${here}/build/libs/transmart-batch-${version}.jar"
 

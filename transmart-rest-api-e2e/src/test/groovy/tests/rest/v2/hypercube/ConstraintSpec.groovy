@@ -56,7 +56,6 @@ class ConstraintSpec extends RESTSpec{
         contentTypeForProtobuf | _
     }
 
-    @Ignore
     def "TrueConstraint.class"(){
         def request = [
                 path: PATH_OBSERVATIONS,
@@ -128,7 +127,6 @@ class ConstraintSpec extends RESTSpec{
         contentTypeForProtobuf | protobufSelector
     }
 
-    @Ignore
     def "FieldConstraint.class"(){
         def request = [
                 path: PATH_OBSERVATIONS,
@@ -248,7 +246,6 @@ class ConstraintSpec extends RESTSpec{
         contentTypeForProtobuf | protobufSelector
     }
 
-    @Ignore
     def "Negation.class"(){
         def request = [
                 path: PATH_OBSERVATIONS,
@@ -381,7 +378,6 @@ class ConstraintSpec extends RESTSpec{
         contentTypeForProtobuf | protobufSelector
     }
 
-    @Ignore
     def "NullConstraint.class"(){
         def request = [
                 path: PATH_OBSERVATIONS,

@@ -32,6 +32,7 @@ import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVaria
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.support.InQuery
 
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
@@ -76,9 +77,10 @@ class TerminalConceptVariablesDataQuery {
             criteriaBuilder.in('patient', Lists.newArrayList(patients))
         }
 
-        criteriaBuilder.in('conceptCode', clinicalVariables*.code)
+        criteriaBuilder.eq('modifierCd', ObservationFact.EMPTY_MODIFIER_CODE)
 
-        criteriaBuilder.scroll ScrollMode.FORWARD_ONLY
+        InQuery.addIn(criteriaBuilder, 'conceptCode', clinicalVariables*.code)
+                .scroll ScrollMode.FORWARD_ONLY
     }
 
     private void fillInTerminalConceptVariables() {
@@ -113,21 +115,20 @@ class TerminalConceptVariablesDataQuery {
         }
 
         // find the concepts
-        def res = ConceptDimension.withCriteria {
+        def builder = ConceptDimension.createCriteria()
+        builder.with {
             projections {
                 property 'conceptPath'
                 property 'conceptCode'
             }
-
-            or {
-                if (conceptPaths.keySet()) {
-                    'in' 'conceptPath', conceptPaths.keySet()
-                }
-                if (conceptCodes.keySet()) {
-                    'in' 'conceptCode', conceptCodes.keySet()
-                }
-            }
         }
+        if (conceptPaths.keySet()) {
+            InQuery.addIn(builder, 'conceptPath', conceptPaths.keySet() as List)
+        }
+        if (conceptCodes.keySet()) {
+            InQuery.addIn(builder, 'conceptCode', conceptCodes.keySet() as List)
+        }
+        def res = builder.instance.list()
 
         for (concept in res) {
             String conceptPath = concept[0],

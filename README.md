@@ -23,13 +23,23 @@ To build the project, run:
 ```
 gradle :transmartApp:bootRepackage
 ```
-This should create the file `transmartApp/build/libs/transmartApp-17.1.war`.
+This should create the file `transmartApp/build/libs/transmartApp-17.1-SNAPSHOT.war`.
 Run it with:
 ```
-java -jar transmartApp/build/libs/transmartApp-17.1.war
+java -jar transmartApp/build/libs/transmartApp-17.1-SNAPSHOT.war
 ```
 
 The application expects configuration in `~/.grails/transmartConfig`. Check [transmart-data](transmart-data) on how to set up the database and generate the required configuration files.
+
+## Git history
+
+This repository is a merge of several, previously separated, repositories from [github.com/transmart](https://github.com/transmart/).
+The history of those repositories is merged in as well (branch [transmart-history](../../tree/transmart-history)), but the current `master` branch is disconnected from
+these histories. The master branch can locally be connected to the history with `git replace`.
+```bash
+# replace the master-base object with transmart-history
+git replace 58a48ff dd57ce1
+```
 
 ## License
 
