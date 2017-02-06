@@ -40,7 +40,8 @@ class BigStudySpec extends RESTSpec{
         def responseData = get(request)
 
         then:
-        assert responseData.patients > 1000
+        println(responseData.patients.size())
+        assert responseData.patients.size() > 1000
 
     }
 

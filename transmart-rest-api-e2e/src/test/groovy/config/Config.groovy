@@ -35,7 +35,7 @@ class Config {
     public static final String PATH_ARVADOS_WORKFLOWS = "v2/arvados/workflows"
 
     //study ids
-    public static final String Oracle_1000_Patient_ID = 'Oracle_1000_Patient'
+    public static final String Oracle_1000_Patient_ID = 'ORACLE_1000_PATIENT'
     public static final String GSE8581_ID = 'GSE8581'
     public static final String CELL_LINE_ID = 'CELL-LINE'
     public static final String EHR_ID = 'EHR'
