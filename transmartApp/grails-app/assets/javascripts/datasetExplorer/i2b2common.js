@@ -304,7 +304,8 @@ function resetSelected()
 	selectedConcept = null
 	jQuery(".panelBoxListItem").each(function (){
 		jQuery(this).removeClass("selected")
-	})
+	});
+	clearGrid();
 }
 
 function conceptClick(event)
@@ -320,7 +321,7 @@ function selectConcept(concept)
 		if (arguments && arguments.length > 1 && !arguments[1])
 			return;
 	}
-	resetSelected()
+	resetSelected();
 	selectedConcept=concept; //select this one
 	selectedDiv=concept.parentNode;
 	selectedConcept.className=selectedConcept.className+" selected";
