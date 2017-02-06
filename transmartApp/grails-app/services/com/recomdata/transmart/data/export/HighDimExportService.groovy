@@ -77,7 +77,7 @@ class HighDimExportService {
 
         def ontologyTerms
         if (conceptKeys) {
-            ontologyTerms = conceptKeys.collectAll { conceptsResourceService.getByKey it }
+            ontologyTerms = conceptKeys.collect { conceptsResourceService.getByKey it }
         } else {
             def queryResult = queriesResourceService.getQueryResultFromId(resultInstanceId)
             ontologyTerms = dataTypeResource.getAllOntologyTermsForDataTypeBy(queryResult)
