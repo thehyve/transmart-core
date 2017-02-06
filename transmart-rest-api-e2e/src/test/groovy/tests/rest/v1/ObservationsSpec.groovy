@@ -5,6 +5,7 @@ import spock.lang.Requires
 
 import static config.Config.*
 
+@Requires({GSE8581_LOADED})
 class ObservationsSpec extends RESTSpec{
 
     /**

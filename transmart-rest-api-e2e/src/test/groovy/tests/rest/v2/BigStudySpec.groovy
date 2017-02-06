@@ -1,6 +1,7 @@
 package tests.rest.v2
 
 import base.RESTSpec
+import spock.lang.Requires
 
 import static config.Config.*
 import static tests.rest.v2.Operator.AND
@@ -12,6 +13,7 @@ import static tests.rest.v2.constraints.*
 /**
  * these test are here to test the correct handling of the max number of sub queries on oracle.
  */
+@Requires({ORACLE_1000_PATIENT_LOADED})
 class BigStudySpec extends RESTSpec{
 
     def "get 1000 patients"(){
@@ -22,7 +24,7 @@ class BigStudySpec extends RESTSpec{
                         type: Combination,
                         operator: AND,
                         args: [
-                                [type: StudyNameConstraint, studyId: Oracle_1000_Patient_ID],
+                                [type: StudyNameConstraint, studyId: ORACLE_1000_PATIENT_ID],
                                 [type: FieldConstraint,
                                  field: [dimension: 'patient',
                                          fieldName: 'age',
@@ -46,6 +48,7 @@ class BigStudySpec extends RESTSpec{
     }
 
     def "get observations for 1000 patients"(){
+
         def request = [
                 path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
@@ -53,7 +56,7 @@ class BigStudySpec extends RESTSpec{
                         type: Combination,
                         operator: AND,
                         args: [
-                                [type: StudyNameConstraint, studyId: Oracle_1000_Patient_ID],
+                                [type: StudyNameConstraint, studyId: ORACLE_1000_PATIENT_ID],
                                 [type: FieldConstraint,
                                  field: [dimension: 'patient',
                                          fieldName: 'age',
@@ -72,7 +75,8 @@ class BigStudySpec extends RESTSpec{
         def selector = newSelector(responseData)
 
         then:
-        assert selector.cellCount > 1000
+        assert selector.cellCount > 100000
+        println(selector.cellCount)
 
         where:
         acceptType | newSelector
