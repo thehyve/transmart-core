@@ -1,0 +1,18 @@
+# transmart-core-api contributers
+Thank you for contributing to TranSmart
+[cataphract](https://github.com/cataphract)
+[forus](https://github.com/forus)
+[Terry-Weymouth](https://github.com/Terry-Weymouth)
+[dennyverbeeck](https://github.com/dennyverbeeck)
+[JanKanis](https://github.com/JanKanis)
+[keesvanbochove](https://github.com/keesvanbochove)
+[wimvanderlinden](https://github.com/wimvanderlinden)
+[roberthorlings](https://github.com/roberthorlings)
+[alchimystic](https://github.com/alchimystic)
+[ricepeterm](https://github.com/ricepeterm)
+[j-hudecek](https://github.com/j-hudecek)
+[kretep](https://github.com/kretep)
+[cdejonge](https://github.com/cdejonge)
+[fguitton](https://github.com/fguitton)
+[haarts](https://github.com/haarts)
+[rnugraha](https://github.com/rnugraha)
