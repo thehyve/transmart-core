@@ -968,7 +968,7 @@ jQuery(document).ready(function() {
 			ids.push(jQuery(checkboxes[i]).attr('name'));
 		}
 
-		if (ids.size() == 0) {return false;}
+		if (ids.length == 0) {return false;}
 
 		window.location = exportURL + "?id=" + ids.join(',');
 		   
