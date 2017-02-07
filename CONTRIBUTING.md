@@ -1,24 +1,21 @@
-# Contributing to TranSMART
+# Contributing to tranSMART
+
+*This applies to pre-release of 17.1 version of tranSMART.*
 
 Are you ready to contribute to TranSMART? We'd love to have you on board, and we will help you as much as we can. Here are the guidelines we'd like you to follow so that we can be of more help:
 
- - [Getting Started](#start)
  - [Contributing Code Changes via a Pull Request](#pull-request)
  - [Automated tests on Travis CI](#test-travis)
  - [Coding Rules](#rules)
  - [Git Commit Guidelines](#commit)
  - [Additional resources](#additional-resources)
 
-## <a name="start"></a> Getting Started
-* Make sure you have a [GitHub account](https://github.com/signup/free).
-* ???
-
 ## <a name="pull-request"></a> Contributing Code Changes via a Pull Request
 
 ### Submitting a Pull Request
 Before you submit your pull request consider the following guidelines:
 
-* Search the [TranSMART](https://github.com/???/pulls) repository for an open or closed Pull Request
+* Search the [tranSMART](https://github.com/thehyve/transmart-upgrade/pulls) repository for an open or closed Pull Request
   that relates to your submission.
 * Make your changes in a new git branch
 
@@ -43,7 +40,7 @@ Before you submit your pull request consider the following guidelines:
     git push origin [name_of_your_new_branch]
     ```
 
-* In GitHub, send a pull request to `???:master`.
+* In GitHub, send a pull request to `transmart-upgrade:master`.
 * If we suggest changes then
   * Make the required updates.
   * Re-run the tests on the project and ensure tests are still passing.
@@ -89,8 +86,7 @@ Sometimes your PR will have merge conflicts with the upstream repository's maste
 
 #### After your pull request is merged
 
-After your pull request is merged, you can safely delete your branch and pull the changes
-from the main (upstream) repository:
+After your pull request is merged, you have to delete your branch (if it was not deleted by the person performing the merge) and pull the changes from the main (upstream) repository:
 
 * Delete the remote branch on GitHub either through the GitHub web UI or your local shell as follows:
 
@@ -117,10 +113,10 @@ from the main (upstream) repository:
     ```
 
 ## <a name="test-travis"></a> Automated tests on Travis CI
-All Pull Requests are automatically tested on [Travis CI](https://travis-ci.org/???). Currently there is a set of tests for the core modules:
+All Pull Requests are automatically tested on [Travis CI](https://travis-ci.org/thehyve/transmart-upgrade). Currently there is a set of tests for the core modules:
 * Tests for transmart-core-db module against H2 database, 
 * Tests for transmart-rest-api module, 
-* Tests for transmart-core-db module against postgres database,
+* Tests for transmart-core-db module against Postgres database,
 * Tests for transmart-batch module. 
 ## <a name="rules"></a> Coding Rules
 To ensure consistency throughout the source code, keep these rules in mind as you are working:
@@ -178,6 +174,5 @@ see http://spring.io/blog/2014/09/26/spring-boot-1-1-7-released
 Fix #1234
 ```
 ## <a name="additional-resources"></a>Additional Resources
-* [??? documentation](???)
 * [General GitHub documentation](http://help.github.com/)
 * [GitHub pull request documentation](http://help.github.com/send-pull-requests/)
