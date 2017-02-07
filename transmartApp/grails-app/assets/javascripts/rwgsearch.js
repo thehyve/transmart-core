@@ -1184,7 +1184,7 @@ function goWelcome() {
 //display search results numbers
 function displayResultsNumber(){
 	if(resultNumber!=""){
-		var jsonNumbers = JSON.parse(resultNumber);
+		var jsonNumbers = resultNumber;
 		
 		jQuery('#welcome-viewer').empty();
 		jQuery('#metadata-viewer').empty();
