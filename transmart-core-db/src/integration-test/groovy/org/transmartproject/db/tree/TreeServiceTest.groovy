@@ -62,7 +62,8 @@ class TreeServiceTest extends Specification {
                 'SHARED_CONCEPTS_STUDY_B',
                 'SHARED_HD_CONCEPTS_STUDY_A',
                 'SHARED_HD_CONCEPTS_STUDY_B',
-                'TUMOR_NORMAL_SAMPLES'
+                'TUMOR_NORMAL_SAMPLES',
+                'Oracle_1000_Patient'
 
         ]
     }
