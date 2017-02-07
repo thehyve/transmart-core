@@ -33,16 +33,16 @@ info:
     
     ## Combination
     Most often a combination of constraints is needed to get the right result. This can be done by a constraint with type combination.
-    It takes an op `operator` and a list `args` with constraints. All args will be evaluated together on each observation. So a 'and' operator with a `PatientSet` and a `Concept` will return all observations for the given concept linked to the patient set.
-    However a `and` operator with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.
+    It takes an op `operator` and a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.
+    However an `and` operator with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.
     
     Example:
     ```json
-    {"type": "Combination",
+    {"type": "combination",
      "operator": "and",
      "args": [
-        {"type": "PatientSet", "patientIds": -62},
-        {"type": "Concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
+        {"type": "patient_set", "patientIds": -62},
+        {"type": "concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
         ]
     }
     ```
@@ -53,7 +53,7 @@ info:
     Example:
     ```json
     {
-      "type": "StudyName",
+      "type": "study_name",
       "studyId": "EHR"
     }
     ```
@@ -63,7 +63,7 @@ info:
     
     ```json
     {
-      "type": "Concept",
+      "type": "concept",
       "path": "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\",
       "conceptCode": "HR"
     }
@@ -77,7 +77,7 @@ info:
     Example:
     ```json
     {
-      "type": "Value",
+      "type": "value",
       "valueType": "NUMERIC",
       "operator": "=", "value": 176
     }
@@ -90,7 +90,7 @@ info:
     Example:
     ```json
     {
-      "type": "Field",
+      "type": "field",
       "field": {
           "dimension": "patient",
           "fieldName": "age",
@@ -109,7 +109,7 @@ info:
     Example:
     ```json
     {
-      "type": "Time",
+      "type": "time",
       "field": {
           "dimension": "start time",
           "fieldName": "startDate",
@@ -126,7 +126,7 @@ info:
     Example:
     ```json
     {
-        "type": "PatientSet",
+        "type": "patient_set",
         "patientSetId": 28820,
         "patientIds": [-62, -63]
     }
@@ -139,10 +139,10 @@ info:
     Example:
     ```json
     {
-        "type": "Temporal",
+        "type": "temporal",
         "operator": "exists",
         "event": {
-              "type": "Value",
+              "type": "value",
               "valueType": "NUMERIC",
               "operator": "=",
               "value": 60
@@ -156,9 +156,9 @@ info:
     Example:
     ```json
     {
-        "type": "Null",
+        "type": "null",
         "field":{
-            "dimension": "EndTimeDimension",
+            "dimension": "end time",
             "fieldName": "endDate",
             "type": "DATE"
             }
@@ -171,11 +171,11 @@ info:
     Example:
     ```json
     {
-        "type": "Modifier",
+        "type": "modifier",
         "modifierCode": "TNS:SMPL",
         "path": "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
         "values": {
-            "type": "Value",
+            "type": "value",
             "valueType": "STRING",
             "operator": "=",
             "value": "Tumor"
@@ -189,9 +189,9 @@ info:
     Example:
     ```json
     {
-        "type": "Negation",
+        "type": "negation",
         "arg": {
-            "type": "PatientSet",
+            "type": "patient_set",
             "patientIds": [-62,-52,-42]
             }
     }
@@ -205,7 +205,7 @@ info:
     Example:
     ```json
     {
-        "type": "Biomarker",
+        "type": "biomarker",
         "biomarkerType": "genes",
         "params": {
             "names": ["TP53"]
@@ -220,7 +220,7 @@ info:
     Example:
     ```json
     {
-        "type": "True"
+        "type": "true"
     }
     ```
     
@@ -678,7 +678,7 @@ paths:
         - name: constraint
           required: true
           in: query
-          description: 'json that specifies the constraint. Example: `{"type":"StudyNameConstraint", "studyId":"EHR"}`.'
+          description: 'json that specifies the constraint. Example: `{"type":"study_name", "studyId":"EHR"}`.'
           type: string
       responses:
         200:
@@ -696,7 +696,7 @@ paths:
         - name: constraint
           required: true
           in: query
-          description: 'json that specifies the constraint. Example: `{"type":"ConceptConstraint","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
           type: string
         - name: type
           required: true
@@ -726,7 +726,7 @@ paths:
         - name: constraint
           required: true
           in: query
-          description: 'json that specifies the constraint. Example: `{"type":"ConceptConstraint","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
           type: string
       responses:
         200:
@@ -746,7 +746,7 @@ paths:
         - name: constraint
           required: true
           in: query
-          description: 'json that specifies the constraint. Example: `{"type":"ConceptConstraint","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
           type: string
       responses:
         200:
@@ -765,7 +765,7 @@ paths:
         - name: constraint
           required: true
           in: query
-          description: 'json that specifies the constraint. Example: `{"type":"StudyNameConstraint","studyId":"EHR"}`.'
+          description: 'json that specifies the constraint. Example: `{"type":"study_name","studyId":"EHR"}`.'
           type: string
       responses:
         200:
@@ -807,7 +807,7 @@ paths:
           in: query
           type: string
         - name: constraint
-          description: 'json that specifies the constraint. Example: `{"type":"StudyNameConstraint","studyId":"EHR"}`.'
+          description: 'json that specifies the constraint. Example: `{"type":"study_name","studyId":"EHR"}`.'
           in: body
           required: true
           schema:
@@ -844,11 +844,11 @@ paths:
         - name: assay_constraint
           required: true
           in: query
-          description: 'json that describes the assays. Example: `{"type":"Concept","path":"\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"}`.'
+          description: 'json that describes the assays. Example: `{"type":"concept","path":"\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"}`.'
           type: string
         - name: biomarker_constraint
           in: query
-          description: 'json that describes the biomarker. Example: `{"type":"Biomarker","biomarkerType":"genes","params":{"names":["TP53"]}}`.'
+          description: 'json that describes the biomarker. Example: `{"type":"biomarker","biomarkerType":"genes","params":{"names":["TP53"]}}`.'
           type: string
         - name: projection
           in: query
