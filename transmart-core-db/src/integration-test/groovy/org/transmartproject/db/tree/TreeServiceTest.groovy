@@ -57,6 +57,7 @@ class TreeServiceTest extends Specification {
                 'EHR',
                 'EHR_HIGHDIM',
                 'MIX_HD',
+                'Oracle_1000_Patient',
                 'RNASEQ_TRANSCRIPT',
                 'SHARED_CONCEPTS_STUDY_A',
                 'SHARED_CONCEPTS_STUDY_B',
