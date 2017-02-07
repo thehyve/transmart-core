@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.tree
 
 import grails.test.mixin.integration.Integration

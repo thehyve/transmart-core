@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package selectors
 
 class ObservationsMessageJson {
