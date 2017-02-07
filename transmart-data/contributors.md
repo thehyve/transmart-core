@@ -29,3 +29,6 @@ Thank you for contributing to TranSmart
 [keithnangle-tm](https://github.com/keithnangle-tm)
 [PiotrZakrzewski](https://github.com/PiotrZakrzewski)
 [sethsnel](https://github.com/sethsnel)
+[ewelinagr](https://github.com/ewelinagr)
+[BarteldKlasens](https://github.com/BarteldKlasens)
+[OlafMeuwese](https://github.com/OlafMeuwese)

@@ -16,3 +16,7 @@ Thank you for contributing to TranSmart
 [fguitton](https://github.com/fguitton)
 [haarts](https://github.com/haarts)
 [rnugraha](https://github.com/rnugraha)
+[OlafMeuwese](https://github.com/OlafMeuwese)
+[ewelinagr](https://github.com/ewelinagr)
+[PiotrZakrzewski](https://github.com/PiotrZakrzewski)
+[gijskant](https://github.com/gijskant)

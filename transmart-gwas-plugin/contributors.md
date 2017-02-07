@@ -15,3 +15,4 @@ Thank you for contributing to TranSmart
 [keithnangle-tm](https://github.com/keithnangle-tm)
 [techick](https://github.com/techick)
 [dennyverbeeck](https://github.com/dennyverbeeck)
+[rnugraha](https://github.com/rnugraha)
