@@ -10,7 +10,7 @@
 <g:set var="folders" value="${folderContentsAccessLevelMap?.keySet()}"/>
 <g:set var="restrictedAccessMessage" value="Access to this node has been restricted. Please contact your administrator for access." />
 <script type="text/javascript">
-	var resultNumber = '${resultNumber}';
+    var resultNumber = ${raw(resultNumber?.toString()?.replaceAll('\n', '') ?: '{}')};
 </script>
 
 <div class="search-results-table">

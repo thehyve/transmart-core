@@ -434,7 +434,6 @@ class RWGController {
                 session['searchLog'] += "Final folder string: " + folderSearchString
 
                 //if no accession in search list, calculate number of each folder type:
-                def numbersJSON
                 if (!searchString.contains("|ACCESSION;")) {
                     for (folderName in pathLists[0]) {
                         def folder = FmFolder.findByFolderFullName folderName
@@ -445,8 +444,8 @@ class RWGController {
                         def c = numbers[folder.folderType] ?: 0
                         numbers[folder.folderType] = c + 1
                     }
-                    numbersJSON = new JSONObject(numbers)
                 }
+                def numbersJSON = new JSONObject(numbers)
 
                 //retrieve folders id to expand as opened nodes
                 def nodesToExpand = session['rwgOpenedNodes']
