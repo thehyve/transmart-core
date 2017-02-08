@@ -20,6 +20,7 @@
 package org.transmartproject.db.dataquery.highdim
 
 import com.google.common.collect.HashMultimap
+import com.google.common.collect.ImmutableSet
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -61,14 +62,18 @@ class HighDimensionResourceService implements HighDimensionResource {
 
     @Override
     Set<String> getKnownTypes() {
-        dataTypeRegistry.keySet()
+        dataTypeRegistry.keySet().asImmutable()
     }
 
+    private Set<String> _knownMarkerTypes = null
     Set<String> getKnownMarkerTypes() {
-        dataTypeRegistry.values().collect { Closure factory ->
-            def dataType  = factory()
-            dataType.module.platformMarkerTypes[0]
-        } as Set
+        if(_knownMarkerTypes == null) {
+            _knownMarkerTypes = ImmutableSet.copyOf dataTypeRegistry.collectMany { String name, Closure factory ->
+                HighDimensionDataTypeResourceImpl dataType = factory(name: name)
+                dataType.platformMarkerTypes
+            }
+        }
+        _knownMarkerTypes
     }
 
     @Override
@@ -145,6 +150,7 @@ class HighDimensionResourceService implements HighDimensionResource {
     void registerHighDimensionDataTypeModule(String moduleName,
                                              Closure<HighDimensionDataTypeResource> factory) {
         this.dataTypeRegistry[moduleName] = factory
+        this._knownMarkerTypes = null
         log.debug "Registered high dimensional data type module '$moduleName'"
     }
 

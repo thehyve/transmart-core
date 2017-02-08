@@ -56,6 +56,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     @Lazy
     String dataTypeName = module.name
 
+    List<String> getPlatformMarkerTypes() { module.platformMarkerTypes }
+
     @Override
     String getDataTypeDescription() {
         module.description
