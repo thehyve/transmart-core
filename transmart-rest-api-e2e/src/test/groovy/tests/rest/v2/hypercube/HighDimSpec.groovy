@@ -437,21 +437,18 @@ class HighDimSpec extends RESTSpec {
                         type: 'rnaseq_transcript',
                         constraint: new JsonBuilder([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
                 ],
-                statusCode: 400
         ]
 
         when:
         def responseData = get(request)
 
         then:
-        that responseData.httpStatus, is(400)
-        that responseData.type, is('InvalidQueryException')
-        that responseData.message, is('Found data that is either clinical or is using the old way of storing high dimensional data.')
+        assert responseData.cells == result
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector | result
+        contentTypeForJSON | jsonSelector | []
+        contentTypeForProtobuf | protobufSelector | null
     }
 
     def "multi patient bug"(){
