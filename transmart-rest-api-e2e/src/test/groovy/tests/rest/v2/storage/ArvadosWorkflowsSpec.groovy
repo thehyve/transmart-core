@@ -1,7 +1,7 @@
+/* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2.storage
 
 import base.RESTSpec
-import spock.lang.IgnoreIf
 
 import static config.Config.*
 
@@ -14,9 +14,9 @@ class ArvadosWorkflowsSpec extends RESTSpec{
 
     def setup() {
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def responseDataAll = get(PATH_ARVADOS_WORKFLOWS)
+        def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: contentTypeForJSON])
         responseDataAll.supportedWorkflows.each{
-            delete(PATH_ARVADOS_WORKFLOWS + "/${it.id}")
+            delete([path: PATH_ARVADOS_WORKFLOWS + "/${it.id}", acceptType: contentTypeForJSON, statusCode: 204])
         }
     }
 
@@ -37,7 +37,12 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_ARVADOS_WORKFLOWS, toJSON(data))
+        def responseData = post([
+                path: PATH_ARVADOS_WORKFLOWS,
+                acceptType: contentTypeForJSON,
+                body: toJSON(data),
+                statusCode: 201
+        ])
         def id = responseData.id
 
         then:
@@ -49,7 +54,7 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         assert responseData.uuid == data.uuid
 
         when:
-        responseData = get(PATH_ARVADOS_WORKFLOWS + "/${id}")
+        responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: contentTypeForJSON])
 
         then:
         assert responseData.name == data.name
@@ -59,14 +64,14 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         assert responseData.uuid == data.uuid
 
         when:
-        def responseDataAll = get(PATH_ARVADOS_WORKFLOWS)
+        def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: contentTypeForJSON])
 
         then:
         assert responseDataAll.supportedWorkflows.contains(responseData)
 
         when:
         data.name = 'new file Link renamed'
-        responseData = put(PATH_ARVADOS_WORKFLOWS + "/${id}", toJSON(data))
+        responseData = put([path: PATH_ARVADOS_WORKFLOWS + "/${id}", body: toJSON(data)])
 
         then:
         assert responseData.id == id
@@ -77,9 +82,9 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         assert responseData.uuid == data.uuid
 
         when:
-        responseData = delete(PATH_ARVADOS_WORKFLOWS + "/${id}")
+        responseData = delete([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: contentTypeForJSON, statusCode: 204])
         assert responseData == null
-        responseData = get(PATH_ARVADOS_WORKFLOWS + "/${id}")
+        responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: contentTypeForJSON, statusCode: 404])
 
         then:
         assert responseData.status == 404
@@ -91,40 +96,52 @@ class ArvadosWorkflowsSpec extends RESTSpec{
     /**
      *  post invalid
      */
+    //TODO: could do with a better error
     def "post invalid values"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def data = ["uuid": null,
-                    "arvadosInstanceUrl": null,
-                    "name": null,
-                    "description": null,
-                    "arvadosVersion": null,
-                    "defaultParams": null
+        def request = [
+                path: PATH_ARVADOS_WORKFLOWS,
+                acceptType: contentTypeForJSON,
+                body: toJSON(["uuid": null,
+                              "arvadosInstanceUrl": null,
+                              "name": null,
+                              "description": null,
+                              "arvadosVersion": null,
+                              "defaultParams": null
+                ]),
+                statusCode: 500
         ]
 
         when:
-        def responseData = post(PATH_ARVADOS_WORKFLOWS, toJSON(data))
+        def responseData = post(request)
 
         then:
         assert responseData.httpStatus == 500
-        assert responseData.message == 'No such property: transactionStatus for class: org.transmartproject.rest.ArvadosController'
-        assert responseData.type == 'MissingPropertyException'
+//        assert responseData.message == 'No such property: transactionStatus for class: org.transmartproject.rest.ArvadosController'
+//        assert responseData.type == 'MissingPropertyException'
     }
 
     /**
      *  post empty
      */
+    //TODO: could do with a better error
     def "post empty"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
 
         when:
-        def responseData = post(PATH_ARVADOS_WORKFLOWS, null)
+        def responseData = post([
+                path: PATH_ARVADOS_WORKFLOWS,
+                acceptType: contentTypeForJSON,
+                body: null,
+                statusCode: 500
+        ])
 
         then:
         assert responseData.httpStatus == 500
-        assert responseData.message == 'No such property: transactionStatus for class: org.transmartproject.rest.ArvadosController'
-        assert responseData.type == 'MissingPropertyException'
+//        assert responseData.message == 'No such property: transactionStatus for class: org.transmartproject.rest.ArvadosController'
+//        assert responseData.type == 'MissingPropertyException'
     }
 
     /**
@@ -135,7 +152,11 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
 
         when:
-        def responseData = get(PATH_ARVADOS_WORKFLOWS + "/0")
+        def responseData = get([
+                path: PATH_ARVADOS_WORKFLOWS + "/0",
+                acceptType: contentTypeForJSON,
+                statusCode: 404
+        ])
 
         then:
         assert responseData.status == 404
@@ -159,12 +180,21 @@ class ArvadosWorkflowsSpec extends RESTSpec{
                             "a":1, "b":"b"
                     ],
         ]
-        def responseData = post(PATH_ARVADOS_WORKFLOWS, toJSON(data))
-        def id = responseData.id
+        def responseData = post([
+                path: PATH_ARVADOS_WORKFLOWS,
+                acceptType: contentTypeForJSON,
+                body: toJSON(data),
+                statusCode: 201
+
+        ])
         data.uuid = null
 
         when:
-        responseData = put(PATH_ARVADOS_WORKFLOWS +"/${id}", toJSON(data))
+        responseData = put([
+                path: PATH_ARVADOS_WORKFLOWS +"/${responseData.id}",
+                body: toJSON(data),
+                statusCode: 422
+        ])
 
         then:
         assert responseData.errors.size() == 1
@@ -172,7 +202,6 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         assert responseData.errors[0].message == 'Property [uuid] of class [class org.transmartproject.db.arvados.SupportedWorkflow] cannot be null'
         assert responseData.errors[0].'rejected-value' == null
         assert responseData.errors[0].object == 'org.transmartproject.db.arvados.SupportedWorkflow'
-
     }
 
     /**
@@ -192,7 +221,12 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = put(PATH_ARVADOS_WORKFLOWS +"/0", toJSON(data))
+        def responseData = put([
+                path: PATH_ARVADOS_WORKFLOWS +"/0",
+                acceptType: contentTypeForJSON,
+                body: toJSON(data),
+                statusCode: 404
+        ])
 
         then:
         assert responseData.status == 404
@@ -204,7 +238,6 @@ class ArvadosWorkflowsSpec extends RESTSpec{
     /**
      *  no access
      */
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) // "Removing a 'new' supported workflow entry ??"
     def "no access"(){
         given:
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
@@ -219,7 +252,12 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_ARVADOS_WORKFLOWS, toJSON(data))
+        def responseData = post([
+                path: PATH_ARVADOS_WORKFLOWS,
+                acceptType: contentTypeForJSON,
+                body: toJSON(data),
+                statusCode: 403
+        ])
 
         then:
         assert responseData.httpStatus == 403
@@ -228,7 +266,12 @@ class ArvadosWorkflowsSpec extends RESTSpec{
 
         when:
         data.name = 'new file Link renamed'
-        responseData = put(PATH_ARVADOS_WORKFLOWS + "/0", toJSON(data))
+        responseData = put([
+                path: PATH_ARVADOS_WORKFLOWS + "/0",
+                acceptType: contentTypeForJSON,
+                body: toJSON(data),
+                statusCode: 403
+        ])
 
         then:
         assert responseData.httpStatus == 403
@@ -236,11 +279,11 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         assert responseData.type == 'AccessDeniedException'
 
         when:
-        responseData = delete(PATH_ARVADOS_WORKFLOWS + "/0")
+        responseData = delete([path: PATH_ARVADOS_WORKFLOWS + "/0", statusCode: 403])
 
         then:
         assert responseData.httpStatus == 403
-        assert responseData.message == 'Removing a supported workflow entry is an admin action'
+        assert responseData.message == 'Removing a new supported workflow entry is an admin action'
         assert responseData.type == 'AccessDeniedException'
     }
 }

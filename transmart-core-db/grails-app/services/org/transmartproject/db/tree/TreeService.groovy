@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.tree
 
 import groovy.util.logging.Slf4j
@@ -14,7 +15,11 @@ import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.QueryService
+import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.ConstraintFactory
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User
 import org.transmartproject.db.util.StringUtils
@@ -65,6 +70,7 @@ class TreeService {
                         currentNode,
                         children
                 )
+                node.dimension = getDimension(node.tableName, currentNode.code)
                 node.children.each { child ->
                     child.parent = node
                 }
@@ -88,17 +94,44 @@ class TreeService {
         StringUtils.like(propertyName, value, MatchMode.ANYWHERE)
     }
 
+    static String getDimension(String table, String modifierCode) {
+        switch (table) {
+            case 'concept_dimension':
+                return DimensionImpl.CONCEPT.name
+            case 'patient_dimension':
+                return DimensionImpl.PATIENT.name
+            case 'modifier_dimension':
+                def dimension = DimensionDescription.createCriteria().list {
+                    eq('modifierCode', modifierCode)
+                } as List<DimensionDescription>
+                if (dimension.size() > 0) {
+                    return dimension.first().name
+                }
+                break
+            case 'trial_visit_dimension':
+                return DimensionImpl.TRIAL_VISIT.name
+            case 'study':
+                return DimensionImpl.STUDY.name
+        }
+        return 'UNKNOWN'
+    }
+
     /**
      * Adds observation counts and patient counts to leaf nodes.
      */
     void enrichWithCounts(List<TreeNode> forest, User user) {
         forest.each { TreeNode node ->
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
-                if (node.tableName.toLowerCase() == 'concept_dimension') {
-                    node.observationCount = queryService.cachedCountForConcept(node.dimensionCode, user)
-                    node.patientCount = queryService.cachedPatientCountForConcept(node.dimensionCode, user)
+                if (node.tableName == 'concept_dimension' && node.constraint) {
+                    Constraint constraint = ConstraintFactory.create(node.constraint)
+                    node.observationCount = queryService.cachedCountForConstraint(constraint, user)
+                    node.patientCount = queryService.cachedPatientCountForConstraint(constraint, user)
                 }
             } else {
+                if (OntologyTerm.VisualAttributes.STUDY in node.visualAttributes && node.constraint) {
+                    Constraint constraint = ConstraintFactory.create(node.constraint)
+                    node.patientCount = queryService.cachedPatientCountForConstraint(constraint, user)
+                }
                 enrichWithCounts(node.children, user)
             }
         }
@@ -193,5 +226,4 @@ class TreeService {
         }
         forest
     }
-
 }

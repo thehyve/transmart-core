@@ -2,22 +2,18 @@ package org.transmartproject.db.multidimquery
 
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import spock.lang.Ignore
 import spock.lang.Specification
 
 import org.transmartproject.db.i2b2data.PatientDimension as I2b2PatientDimension
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
-import static org.transmartproject.core.multidimquery.Dimension.Size.*
-import static org.transmartproject.core.multidimquery.Dimension.Density.*
-import static org.transmartproject.core.multidimquery.Dimension.Packable.*
 
 class DimensionSpec extends Specification {
 
     def 'test dimensions'() {
 
         expect:
-        PATIENT.elemType == Patient
+        PATIENT.elemType == I2b2PatientDimension
         PATIENT.elementType == null
         PATIENT.elementsSerializable == false
         START_TIME.elementType == Date
@@ -29,14 +25,14 @@ class DimensionSpec extends Specification {
         START_TIME.asSerializable(d) == d
         PROVIDER.asSerializable("hello world") == "hello world"
 
-        Map properties = [birthDate: d, deathDate: null, age: 20,
+        Map properties = [id: null, birthDate: d, deathDate: null, age: 20,
                           race: 'caucasian', maritalStatus: null, sourcesystemCd: 'SS_FOO_CD:1234', sexCd: 'FEMALE',
                         // not in the I2b2PatientDimension object, but in the result
                         inTrialId: "1234", trial: 'SS_FOO_CD', sex: 'female',
         ]
         Patient p = new I2b2PatientDimension(properties)
 
-        ['sexCd', 'sourcesystemCd'].each { properties.remove it }
+        ['sourcesystemCd'].each { properties.remove it }
         (properties.religion = null) ?: 1
         'religion' in properties.keySet()
 
@@ -48,14 +44,10 @@ class DimensionSpec extends Specification {
         // passing an invalid type.
         // PROVIDER.asSerializable(23) == 23
 
-
         when:
         PATIENT.asSerializable("hello")
 
         then:
         thrown(InvalidArgumentsException)
-
     }
-
-
 }

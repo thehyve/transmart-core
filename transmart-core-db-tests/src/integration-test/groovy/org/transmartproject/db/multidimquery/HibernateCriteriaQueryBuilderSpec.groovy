@@ -11,9 +11,9 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
-import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.multidimquery.query.*
 
 @Slf4j
 @Rollback
@@ -40,8 +40,8 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
     }
 
     void setupData() {
-        patientAgeField = new Field(dimension: PatientDimension.class, fieldName: 'age', type: Type.NUMERIC)
-        conceptCodeField = new Field(dimension: ConceptDimension.class, fieldName: 'conceptCode', type: Type.STRING)
+        patientAgeField = new Field(dimension: ConstraintDimension.Patient, fieldName: 'age', type: Type.NUMERIC)
+        conceptCodeField = new Field(dimension: ConstraintDimension.Concept, fieldName: 'conceptCode', type: Type.STRING)
 
         testData = new TestData().createDefault()
         testData.i2b2Data.patients[0].age = 70
@@ -291,7 +291,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
         when:
         def constraint = new NullConstraint(
                 field: new Field(
-                        dimension: ValueDimension.class,
+                        dimension: ConstraintDimension.Value,
                         fieldName: 'textValue',
                         type: 'STRING'
                 )
@@ -418,6 +418,31 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
                 fact.startDate == modifier.startDate
                 fact.instanceNum == modifier.instanceNum
             }
+        }
+        criteria = builder.buildCriteria(subqueryConstraint)
+        results = getList(criteria)
+
+        then:
+        results.size() == expectedResults.size()
+        results.sort() == expectedResults.sort()
+
+        when:
+        subqueryConstraint = new ModifierConstraint(
+                dimensionName: hypercubeTestData.clinicalData.tissueTypeDimension.name
+        )
+        modifierFacts = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll {
+           it.modifierCd == hypercubeTestData.clinicalData.tissueTypeDimension.modifierCode
+        }
+        expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.findAll { fact ->
+            fact.modifierCd == '@' &&
+                    modifierFacts.find { modifier ->
+                        fact.encounterNum == modifier.encounterNum
+                        fact.patient == modifier.patient
+                        fact.conceptCode == modifier.conceptCode
+                        fact.providerId == modifier.providerId
+                        fact.startDate == modifier.startDate
+                        fact.instanceNum == modifier.instanceNum
+                    }
         }
         criteria = builder.buildCriteria(subqueryConstraint)
         results = getList(criteria)

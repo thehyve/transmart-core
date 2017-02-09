@@ -16,11 +16,12 @@
 
 package com.recomdata.transmart.data.association
 
+import grails.util.Holders
+
 class RModulesOutputRenderService {
 
 	static scope         = "request"
 
-	def grailsApplication
 	def zipService
     def asyncJobService
     def currentUserBean
@@ -40,7 +41,8 @@ class RModulesOutputRenderService {
      * @return the jobs directory
      */
     private String getTempFolderDirectory() {
-        String dir = grailsApplication.config.RModules.tempFolderDirectory
+
+        String dir = Holders.config.RModules.tempFolderDirectory
         if (dir && !dir.endsWith(File.separator)) {
             dir += File.separator
         }

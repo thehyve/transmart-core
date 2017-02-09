@@ -16,13 +16,11 @@
 }
 </style>
 
-<asset:javascript src="extjs.min.js"/>
-
-<script type="text/javascript">
+<asset:script type="text/javascript">
 
     function handleActionItem(actionItem, id) {
         var action = actionItem.value;
-        var url
+        var url;
         if(action=="") return false;
 
         // clone existing object and bring into edit wizard
@@ -75,11 +73,10 @@
         window.location.href=url;
     }
 
-</script>
-<asset:javascript src="help/D2H_ctxt.js"/>
-<script type="text/javascript">
-    helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
-</script>
+</asset:script>
+<asset:script type="text/javascript">
+    var helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
+</asset:script>
 </head>
 <body>
 <div class="body">
@@ -90,7 +87,7 @@
         <g:if test="${flash.message}"><div class="message">${flash.message}</div><br></g:if>
 
         <p style="text-align: right;"><span class="button"><g:actionSubmit class="edit" action="createWizard" value="New Signature"/></span></p>
-        <h1>Gene Signature List &nbsp;&nbsp;<a HREF="JavaScript:D2H_ShowHelp('1259','${grailsApplication.config.com.recomdata.adminHelpURL}','wndExternal',CTXT_DISPLAY_FULLHELP )">
+        <h1>Gene Signature List &nbsp;&nbsp;<a href="JavaScript:D2H_ShowHelp('1259','${grailsApplication.config.com.recomdata.adminHelpURL}','wndExternal',CTXT_DISPLAY_FULLHELP )">
             <asset:image src="help/helpicon_white.jpg" alt="Help" border="0" width="18pt" style="vertical-align:middle;margin-left:5pt;" ></asset:image>
         </a></h1>
 
@@ -169,7 +166,7 @@
                 </tr>
 
                 <g:each var="gs" in="${myListItems}" status="idx">
-                    <g:render template="/geneSignature/list_summary_record" model="[gs:gs, idx: idx]" />
+                    <g:render template="/geneSignature/summary_record" model="[gs:gs, idx: idx]" />
                 </g:each>
             </tbody>
         </table>
@@ -187,11 +184,13 @@
                 </tr>
 
                 <g:each var="gs" in="${pubListItems}" status="idx">
-                    <g:render template="/geneSignature/list_summary_record" model="[gs:gs, idx: idx]" />
+                    <g:render template="/geneSignature/summary_record" model="[gs:gs, idx: idx]" />
                 </g:each>
             </tbody>
         </table>
     </g:form>
 </div>
+<!-- This implements the Help functionality -->
+<asset:javascript src="help/D2H_ctxt.js"/>
 </body>
 </html>

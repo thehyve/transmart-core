@@ -144,7 +144,8 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
                                 annotationId:   collectedList[0].annotationId,
                                 antigenName:    collectedList[0].antigenName,
                                 unit:           collectedList[0].unit,
-                                uniprotName:    collectedList*.uniprotName.join('/'),
+                                uniprotName:    RepeatedEntriesCollectingTabularResult.safeJoin(
+                                        collectedList*.uniprotName, '/'),
                                 assayIndexMap:  collectedList[0].assayIndexMap,
                                 data:           collectedList[0].data
                         )

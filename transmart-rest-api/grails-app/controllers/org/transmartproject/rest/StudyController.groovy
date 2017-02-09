@@ -56,25 +56,11 @@ class StudyController {
      *  This will return the list of studies, where each study will be rendered in its short format
     */
     def index() {
-        def studiesAccess = []
-        def studies = studiesResourceService.studySet
-        //Checks to which studies the user has access.
-        studies.each { study ->
-            boolean view = currentUser.canPerform(API_READ, study)
-            boolean export = currentUser.canPerform(EXPORT, study)
-            //Possibility of adding more access types.
-            StudyAccessImpl studyAccessImpl= new StudyAccessImpl(
-                    accessibleByUser:[
-                            view:view,
-                            export:export],
-                    study:study)
-            studiesAccess.add(studyAccessImpl)
-        }
-        respond wrapStudies(studiesAccess)
+        respond wrapStudies(studiesResourceService.studySet.findAll { it.id != null })
     }
 
     /** GET request on /v1/studies/${id}
-     *  This returns the single study by name.
+     *  This returns the single study by name.2
      *
      *  @param name the name of the study
      */

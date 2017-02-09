@@ -1,10 +1,12 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.rest
 
 import grails.transaction.Transactional
+import groovy.transform.CompileStatic
 import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.rest.serialization.AbstractObservationsSerializer
-import org.transmartproject.rest.serialization.JsonObservationsSerializer
-import org.transmartproject.rest.serialization.ProtobufObservationsSerializer
+import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
+import org.transmartproject.rest.serialization.HypercubeSerializer
+import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 
 @Transactional
 class MultidimensionalDataSerialisationService {
@@ -40,19 +42,19 @@ class MultidimensionalDataSerialisationService {
      * @param hypercube the hypercube to serialise.
      * @param format the output format. Supports JSON and PROTOBUF.
      * @param out the stream to serialise to.
-     */
+     */@CompileStatic
     void serialise(Hypercube hypercube, Format format, OutputStream out) {
-        AbstractObservationsSerializer serializer
+        HypercubeSerializer serializer
         switch (format) {
             case Format.JSON:
-                serializer = new JsonObservationsSerializer(hypercube)
+                serializer = new HypercubeJsonSerializer()
                 break
             case Format.PROTOBUF:
-                serializer = new ProtobufObservationsSerializer(hypercube, null)
+                serializer = new HypercubeProtobufSerializer()
                 break
             default:
                 throw new Exception("Unsupported format: ${format}")
         }
-        serializer.write(out)
+        serializer.write(hypercube, out)
     }
 }

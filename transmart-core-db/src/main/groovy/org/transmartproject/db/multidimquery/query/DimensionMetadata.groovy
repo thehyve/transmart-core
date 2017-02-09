@@ -1,29 +1,18 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.multidimquery.query
 
 import groovy.transform.CompileStatic
-import groovy.transform.InheritConstructors
 import org.grails.orm.hibernate.cfg.GrailsDomainBinder
 import org.grails.orm.hibernate.cfg.Mapping
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.db.dataquery.highdim.AssayColumnImpl
-import org.transmartproject.db.multidimquery.AssayDimension
-import org.transmartproject.db.multidimquery.BioMarkerDimension
-import org.transmartproject.db.multidimquery.ConceptDimension
-import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.EndTimeDimension
-import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
-import org.transmartproject.db.multidimquery.LocationDimension
-import org.transmartproject.db.multidimquery.ModifierDimension
-import org.transmartproject.db.multidimquery.PatientDimension
-import org.transmartproject.db.multidimquery.ProviderDimension
-import org.transmartproject.db.multidimquery.StartTimeDimension
-import org.transmartproject.db.multidimquery.StudyDimension
-import org.transmartproject.db.multidimquery.TrialVisitDimension
-import org.transmartproject.db.multidimquery.VisitDimension
-import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.dataquery.highdim.AssayColumnImpl
+import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
+
+import static org.transmartproject.db.multidimquery.query.DimensionFetchType.*
 
 /**
  * Metadata about the fetching method for the dimension.
@@ -43,8 +32,38 @@ enum DimensionFetchType {
     ASSAY
 }
 
-@InheritConstructors
-abstract class ValueDimension extends DimensionImpl {}
+
+//Note: information that is not specific to the constraint building and query code should live in the Dimension objects
+enum ConstraintDimension {
+    Patient(DimensionImpl.PATIENT.name,         TABLE,  'patient'),
+    Concept(DimensionImpl.CONCEPT.name,         COLUMN, 'conceptCode'),
+    Visit(DimensionImpl.VISIT.name,             VISIT,  ''),
+    TrialVisit(DimensionImpl.TRIAL_VISIT.name,  TABLE,  'trialVisit'),
+    Study(DimensionImpl.STUDY.name,             STUDY,  ''),
+    Location(DimensionImpl.LOCATION.name,       COLUMN, 'locationCd'),
+    Provider(DimensionImpl.PROVIDER.name,       COLUMN, 'providerId'),
+    StartTime(DimensionImpl.START_TIME.name,    COLUMN, 'startDate'),
+    EndTime(DimensionImpl.END_TIME.name,        COLUMN, 'endDate'),
+    BioMarker(DimensionImpl.BIOMARKER.name,     BIOMARKER, ''),
+    Assay(DimensionImpl.ASSAY.name,             ASSAY,  ''),
+
+    // these are pseudo dimensions
+    Modifier('modifier',                        MODIFIER, ''),
+    Value('value',                              VALUE,  '')
+
+    ConstraintDimension(String name, DimensionFetchType type, String fieldName) {
+        this.name = name
+        this.type = type
+        this.fieldName = fieldName
+    }
+
+    final String name
+    final DimensionFetchType type
+    final String fieldName;
+
+    static private Map<String, ConstraintDimension> nameMap = values().collectEntries { [it.name, it] }
+    static ConstraintDimension forName(String name) { nameMap[name] }
+}
 
 /**
  * Contains database mapping metadata for the dimensions.
@@ -56,60 +75,35 @@ class DimensionMetadata {
 
     static final Mapping observationFactMapping = GrailsDomainBinder.getMapping(ObservationFact)
 
-    protected static final Map<String, DimensionMetadata> dimensionMetadataMap = [
-            [dimensionClass: PatientDimension.class,    type: DimensionFetchType.TABLE,     fieldName: 'patient'],
-            [dimensionClass: ConceptDimension.class,    type: DimensionFetchType.COLUMN,    fieldName: 'conceptCode'],
-            [dimensionClass: VisitDimension.class,      type: DimensionFetchType.VISIT,     fieldName: ''],
-            [dimensionClass: TrialVisitDimension.class, type: DimensionFetchType.TABLE,     fieldName: 'trialVisit'],
-            [dimensionClass: StudyDimension.class,      type: DimensionFetchType.STUDY,     fieldName: ''],
-            [dimensionClass: LocationDimension.class,   type: DimensionFetchType.COLUMN,    fieldName: 'locationCd'],
-            [dimensionClass: ProviderDimension.class,   type: DimensionFetchType.COLUMN,    fieldName: 'providerId'],
-            [dimensionClass: StartTimeDimension.class,  type: DimensionFetchType.COLUMN,    fieldName: 'startDate'],
-            [dimensionClass: EndTimeDimension.class,    type: DimensionFetchType.COLUMN,    fieldName: 'endDate'],
-            [dimensionClass: ModifierDimension.class,   type: DimensionFetchType.MODIFIER,  fieldName: ''],
-            [dimensionClass: ValueDimension.class,      type: DimensionFetchType.VALUE,     fieldName: ''],
-            [dimensionClass: BioMarkerDimension.class,  type: DimensionFetchType.BIOMARKER, fieldName: ''],
-            [dimensionClass: AssayDimension.class,      type: DimensionFetchType.ASSAY,     fieldName: ''],
-    ].collectEntries {
-        [(((Class) it.dimensionClass).simpleName.toLowerCase()): new DimensionMetadata(
-                (Class) it.dimensionClass,
-                (DimensionFetchType) it.type,
-                (String) it.fieldName)
-        ]
+    protected static final Map<ConstraintDimension, DimensionMetadata> dimensionMetadataMap =
+            ConstraintDimension.values().collectEntries { [it, new DimensionMetadata(it)] }
+
+    static final DimensionMetadata forDimensionName(String dimensionName) {
+        def dim = ConstraintDimension.forName(dimensionName)
+        if (dim == null) throw new QueryBuilderException("ConstraintDimension not found: ${dimensionName}")
+        dimensionMetadataMap[dim]
     }
 
-    static final DimensionMetadata forDimensionClassName(String dimensionClassName) {
-        def metadata = dimensionMetadataMap[dimensionClassName.toLowerCase()]
-        if (metadata == null) {
-            throw new QueryBuilderException("Dimension class not found: ${dimensionClassName}")
-        }
-        metadata
+    static final DimensionMetadata forDimension(ConstraintDimension dimension) {
+        dimensionMetadataMap[dimension]
     }
 
-    static final DimensionMetadata forDimension(Class<? extends Dimension> dimensionClass) {
-        forDimensionClassName(dimensionClass?.simpleName)
-    }
-
-    static final Field getField(Class<? extends Dimension> dimensionClass, String fieldName) {
-        def metadata = forDimension(dimensionClass)
+    static final Field getField(String dimensionName, String fieldName) {
+        def metadata = forDimensionName(dimensionName)
         def field = metadata.fields.find { it.fieldName == fieldName }
         if (field == null) {
-            throw new QueryBuilderException("Field '${fieldName}' not found in class ${metadata.domainClass.simpleName}")
+            throw new QueryBuilderException("Field '${fieldName}' not found in dimension ${metadata.dimension.name}")
         }
         field
     }
 
     static final List<Field> getSupportedFields() {
         dimensionMetadataMap.values().collectMany {
-            (it.type in [
-                    DimensionFetchType.COLUMN,
-                    DimensionFetchType.TABLE,
-                    DimensionFetchType.VISIT
-            ]) ? it.fields : [] as List<Field> }
+            (it.type in [COLUMN, TABLE, VISIT]) ? it.fields : [] as List<Field> }
     }
 
     DimensionFetchType type
-    Class<? extends Dimension> dimension
+    ConstraintDimension dimension
     Class domainClass
     String fieldName
     String columnName
@@ -136,11 +130,12 @@ class DimensionMetadata {
         new Field(dimension: this.dimension, type: type, fieldName: field.name)
     }
 
-    DimensionMetadata(Class<? extends Dimension> dimensionClass, DimensionFetchType type, String fieldName) {
-        log.info "Registering dimension ${dimensionClass.simpleName}..."
-        this.dimension = dimensionClass
-        this.type = type
-        this.fieldName = fieldName
+    DimensionMetadata(ConstraintDimension dim) {
+        this.dimension = dim
+        this.type = dim.type
+        this.fieldName = dim.fieldName
+
+        log.info "Registering dimension ${dim.name}..."
         if (!fieldName.empty) {
             this.columnName = observationFactMapping.columns[fieldName]?.column
         }
@@ -155,7 +150,7 @@ class DimensionMetadata {
                 this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
             }
         } else if (type == DimensionFetchType.STUDY) {
-            this.domainClass = Study.class
+            this.domainClass = Study
             this.dimensionMapping = GrailsDomainBinder.getMapping(Study)
             this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
         } else if (type == DimensionFetchType.VISIT) {
@@ -174,6 +169,7 @@ class DimensionMetadata {
             switch (type) {
                 case DimensionFetchType.MODIFIER:
                     this.fields << getMappedField('modifierCd')
+                    //fallthrough
                 case DimensionFetchType.VALUE:
                     this.fields << getMappedField('valueType')
                     this.fields << getMappedField('textValue')
@@ -183,9 +179,9 @@ class DimensionMetadata {
                     this.fields << getMappedField(fieldName)
                     break
                 default:
-                    throw new QueryBuilderException("Unexpected fetch type for dimension '${dimension.simpleName}'")
+                    throw new QueryBuilderException("Unexpected fetch type for dimension '${dim.name}'")
             }
         }
-        log.info "Done for dimension '${dimension.simpleName}'."
+        log.info "Done for dimension '${dim.name}'."
     }
 }

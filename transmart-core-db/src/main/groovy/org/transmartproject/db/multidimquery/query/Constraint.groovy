@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.multidimquery.query
 
 import grails.databinding.BindUsing
@@ -7,7 +8,6 @@ import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.validation.Errors
-import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.i2b2data.Study
 /**
@@ -171,13 +171,15 @@ enum Operator {
  */
 @Canonical
 class Field implements Validateable {
-    Class<? extends Dimension> dimension
+    @BindUsing({ obj, source -> ConstraintDimension.valueOf(source['dimension'])})
+    ConstraintDimension dimension
     @BindUsing({ obj, source -> Type.forName(source['type']) })
     Type type = Type.NONE
     String fieldName
 
     static constraints = {
         type validator: { Object type, obj -> type != Type.NONE }
+        fieldName blank: false
     }
 }
 
@@ -188,6 +190,9 @@ class Field implements Validateable {
  */
 abstract class Constraint implements Validateable, MultiDimConstraint {
     String type = this.class.simpleName
+    static constraints = {
+        type blank: false
+    }
 }
 
 @Canonical
@@ -197,6 +202,10 @@ class TrueConstraint extends Constraint {}
 class BiomarkerConstraint extends Constraint {
     String biomarkerType
     Map<String, Object> params
+
+    static constraints = {
+        biomarkerType blank: false
+    }
 }
 
 /**
@@ -207,22 +216,43 @@ class BiomarkerConstraint extends Constraint {
 class ModifierConstraint extends Constraint {
     String modifierCode
     String path
+    String dimensionName
     ValueConstraint values
 
     static constraints = {
         values nullable: true
-        path nullable: true
-        modifierCode nullable: true, validator: {val, obj, Errors errors ->
-            if (!val && !obj.path) {
+        path nullable: true, blank: false
+        dimensionName nullable: true, blank: false
+        modifierCode nullable: true, blank: false, validator: {val, obj, Errors errors ->
+            def message = "Modifier constraint requires path, dimensionName or modifierCode."
+            if (!val && !obj.path && !obj.dimensionName) {
+                    errors.rejectValue(
+                            'modifierCode',
+                            'org.transmartproject.query.invalid.arg.message',
+                            "$message Got none.")
+            } else if (val && obj.path && obj.dimensionName) {
                 errors.rejectValue(
                         'modifierCode',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Modifier constraint requires path or modifierCode. Got none.")
-            } else if (val && obj.path) {
+                        "$message Got all.")
+            }
+            else if (!val && obj.path && obj.dimensionName) {
+                errors.rejectValue(
+                        'path',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "$message Got both path and dimensionName.")
+            }
+            else if (val && !obj.path && obj.dimensionName) {
                 errors.rejectValue(
                         'modifierCode',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Modifier constraint requires path or modifierCode. Got both.")
+                        "$message Got both dimensionName and modifierCode.")
+            }
+            else if (val && obj.path && !obj.dimensionName) {
+                errors.rejectValue(
+                        'modifierCode',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "$message Got both path and modifierCode.")
             }
         }
     }
@@ -292,8 +322,8 @@ class ConceptConstraint extends Constraint {
     String path
 
     static constraints = {
-        path nullable: true
-        conceptCode nullable: true, validator: {val, obj, Errors errors ->
+        path nullable: true, blank: false
+        conceptCode nullable: true, blank: false, validator: {val, obj, Errors errors ->
             if (!val && !obj.path) {
                 errors.rejectValue(
                         'conceptCode',
@@ -312,6 +342,9 @@ class ConceptConstraint extends Constraint {
 @Canonical
 class StudyNameConstraint extends Constraint {
     String studyId
+    static constraints = {
+        studyId blank: false
+    }
 }
 
 @Canonical
@@ -481,11 +514,13 @@ class Combination extends Constraint {
  * Constraint that specifies a temporal relation between result observations
  * and observations specified in the <code>eventConstraint</code>.
  *
- * Two operator types are supported:
+ * Three operator types are supported:
  * - BEFORE: selects observations with the start time before the start of all
  * of the observations selected by <code>eventConstraint</code>.
  * - AFTER: selects observations with the start time after the start of all
  * of the observations selected by <code>eventConstraint</code>.
+ * - EXISTS: selects observations for patients that have some observations
+ * selected by <code>eventConstraint</code>.
  */
 @Canonical
 class TemporalConstraint extends Constraint {
@@ -570,18 +605,17 @@ class ConstraintFactory {
         if (values == null) {
             throw new ConstraintBindingException('Cannot create field for null values.')
         }
-        String dimensionClassName = values['dimension'] as String
+        String dimensionName = values['dimension'] as String
         String fieldName = values['fieldName'] as String
-        def metadata = DimensionMetadata.forDimensionClassName(dimensionClassName)
         try {
-            Field field = DimensionMetadata.getField(metadata.dimension, fieldName)
+            Field field = DimensionMetadata.getField(dimensionName, fieldName)
             log.debug "Field data: ${field}"
             object[name] = field
             log.debug "Object: ${object}"
             return field
         } catch (QueryBuilderException e) {
             throw new ConstraintBindingException(
-                    "Error finding field for dimension '${dimensionClassName}', field name '${fieldName}'.", e)
+                    "Error finding field for dimension '${dimensionName}', field name '${fieldName}'.", e)
         }
     }
 }

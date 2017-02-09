@@ -13,7 +13,6 @@
         position: static !important;
     }
     </style>
-    <g:setProvider library="jquery"/>
 </head>
 
 <body>
@@ -27,7 +26,7 @@
         <br> please select a user then select groups</br>
         <br><b>Search User<b></b><br>
         <input type="text" size="80" id="searchUsers" autocomplete="off"/></div>
-    <r:script>
+    <script type="text/javascript">
 
         var pageInfo = {
             basePath: "${request.getContextPath()}"
@@ -42,10 +41,11 @@
                 return false;
             }
 
-        ${remoteFunction(action: 'searchGroupsWithoutUser', update: [success: 'groups', failure: ''], params: 'jQuery(\'#searchtext\').serialize()+\'&id=\'+pid')};
+            ${legacy.remoteFunction(action: 'searchGroupsWithoutUser', update: [success: 'groups', failure: ''], params: 'jQuery(\'#searchtext\').serialize()+\'&id=\'+pid')}
+
             return false;
         }
-    </r:script>
+    </script>
     <table>
         <tr><td></td><td></td><td>
             <input name="searchtext" id="searchtext"/>

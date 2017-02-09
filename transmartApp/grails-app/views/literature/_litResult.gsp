@@ -39,7 +39,7 @@
         <span style="font-size:12px;color:#000000;">Results for</span>
         <select class="jubselect" name="resultType" id="resultType"
                 style="width:240px;"
-                onChange="${remoteFunction(action: 'datasourceJubilant',
+                onChange="${legacy.remoteFunction(action: 'datasourceJubilant',
                         before: 'toggleVisible(\'jubresult_loading\'); toggleVisible(\'jubresult\');',
                         onComplete: 'toggleVisible(\'jubresult_loading\'); toggleVisible(\'jubresult\');',
                         update: 'jubresult', params: '\'datatype=\'+this.value')}">

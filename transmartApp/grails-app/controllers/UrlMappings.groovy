@@ -10,6 +10,7 @@ class UrlMappings {
         }
         "/"(controller: 'userLanding', action: 'index')
         "500"(view: '/error')
+        "/open-api"(redirect: "/open-api/index.html")
 
         group("/v2") {
             "/oauth/verify"(controller: 'oauth', action: 'verify')

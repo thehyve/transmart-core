@@ -1,5 +1,5 @@
  <script type="text/javascript">
-	 var resultNumber = '${resultNumber}';
+	 var resultNumber = ${raw(resultNumber?.toString()?.replaceAll('\n', '') ?: '{}')};
 </script>
 <div class="search-results-table">
 	<br/>

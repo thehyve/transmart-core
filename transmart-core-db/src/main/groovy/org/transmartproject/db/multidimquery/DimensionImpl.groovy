@@ -1,14 +1,20 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableMap
-import grails.util.Pair
+import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.InheritConstructors
 import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
+import org.grails.datastore.mapping.query.api.BuildableCriteria
+import org.hibernate.SessionFactory
+import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
@@ -18,10 +24,12 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.TrialVisit
-
+import org.hibernate.Criteria
 import org.transmartproject.db.i2b2data.ConceptDimension as I2b2ConceptDimensions
 import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
-import org.transmartproject.db.i2b2data.PatientDimension as I2b2PatientDimension
+import org.transmartproject.db.i2b2data.Study as I2B2Study
+import org.transmartproject.db.i2b2data.PatientDimension as I2B2PatientDimension
+import org.transmartproject.db.support.InQuery
 
 import static org.transmartproject.core.multidimquery.Dimension.*
 import static org.transmartproject.core.multidimquery.Dimension.Size.*
@@ -170,6 +178,25 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         assert (elemFields == null) == serializable
         assert (elementFields == null) == serializable
     }
+
+    static List<ELT> resolveWithInQuery(BuildableCriteria criteria, List<ELKey> elementKeys, String property = 'id') {
+        List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, property, elementKeys).list()
+        sort(res, elementKeys, property)
+        res
+    }
+
+    static void sort(List res, List<ELKey> elementKeys, String property) {
+        if(res.size() > 0) {
+            Map<ELKey, ELT> ids = new HashMap(res.size(), 1.0f)
+            for (object in res) {
+                ids[object[property] as ELKey] = object as ELT
+            }
+            res.clear()
+            for (key in elementKeys) {
+                res << ids[key]
+            }
+        }
+    }
 }
 
 @CompileStatic @TupleConstructor
@@ -267,6 +294,7 @@ trait CompositeElemDim<ELT,ELKey> {
 
 @CompileStatic @InheritConstructors
 abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
+    SessionFactory sessionFactory
     abstract String getAlias()
     abstract String getColumnName()
 
@@ -388,10 +416,10 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
 }
 
 @CompileStatic @InheritConstructors
-class PatientDimension extends I2b2Dimension<Patient, Long> implements CompositeElemDim<Patient, Long> {
-    Class elemType = Patient
-    List elemFields = ["trial", "inTrialId", "birthDate", "deathDate",
-                      "age", "race", "maritalStatus", "religion",
+class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> implements CompositeElemDim<I2B2PatientDimension, Long> {
+    Class elemType = I2B2PatientDimension
+    List elemFields = ["id", "trial", "inTrialId", "birthDate", "deathDate",
+                      "age", "race", "maritalStatus", "religion", "sexCd",
                       new PropertyImpl('sex', 'sex', String) {
                           @Override def get(element) { super.get(element).toString() }
                       }]
@@ -407,18 +435,8 @@ class PatientDimension extends I2b2Dimension<Patient, Long> implements Composite
     }
 
     @CompileDynamic
-    @Override List<Patient> doResolveElements(List<Long> elementKeys) {
-        org.transmartproject.db.i2b2data.PatientDimension.getAll(elementKeys)
-//        List<I2b2PatientDimension> res = I2b2PatientDimension.findAllByIdInList(elementKeys)
-//        Map<Long,I2b2PatientDimension> ids = new HashMap(res.size(), 1.0f)
-//        for (object in res) {
-//            ids[object.id] = object
-//        }
-//        res.clear()
-//        for (key in elementKeys) {
-//            res << ids[key]
-//        }
-//        res
+    @Override List<I2B2PatientDimension> doResolveElements(List<Long> elementKeys) {
+        resolveWithInQuery(I2B2PatientDimension.createCriteria(), elementKeys)
     }
 }
 
@@ -434,24 +452,24 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 
     @CompileDynamic
     @Override List<I2b2ConceptDimensions> doResolveElements(List<String> elementKeys) {
-        List<I2b2ConceptDimensions> elements = I2b2ConceptDimensions.findAllByConceptCodeInList(elementKeys)
-        elements.sort { elementKeys.indexOf(it.conceptCode) }
-        elements
+        resolveWithInQuery(I2b2ConceptDimensions.createCriteria(), elementKeys, columnName)
     }
 }
 
 @CompileStatic @InheritConstructors
 class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements CompositeElemDim<TrialVisit, Long> {
     Class elemType = TrialVisit
-    List elemFields = ["relTimeLabel", "relTimeUnit", "relTime"]
+    List elemFields = ["id", "relTimeLabel", "relTimeUnit", "relTime"]
     String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
 
     @CompileDynamic
     @Override List<TrialVisit> doResolveElements(List<Long> elementKeys) {
-        TrialVisit.getAll(elementKeys)
+        resolveWithInQuery(TrialVisit.createCriteria(), elementKeys)
     }
+
+
 }
 
 @CompileStatic @InheritConstructors
@@ -473,7 +491,7 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
 
     @CompileDynamic
     @Override List<MDStudy> doResolveElements(List<Long> elementKeys) {
-        org.transmartproject.db.i2b2data.Study.getAll(elementKeys)
+        resolveWithInQuery(I2B2Study.createCriteria(), elementKeys)
     }
 }
 
@@ -507,8 +525,8 @@ class LocationDimension extends I2b2Dimension<String,String> implements Serializ
 }
 
 @CompileStatic @InheritConstructors
-class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,Long>> implements
-        CompositeElemDim<I2b2VisitDimension, Pair<BigDecimal,Long>> {
+class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> implements
+        CompositeElemDim<I2b2VisitDimension, VisitKey> {
     Class elemType = I2b2VisitDimension
     List elemFields = ["patientInTrialId", "encounterNum", "activeStatusCd", "startDate", "endDate", "inoutCd",
                                       "locationCd"]
@@ -527,23 +545,37 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, Pair<BigDecimal,L
 
     static private BigDecimal minusOne = new BigDecimal(-1)
 
-    @Override Pair<BigDecimal,Long> getElementKey(Map result) {
+    @Override VisitKey getElementKey(Map result) {
         BigDecimal encounterNum = (BigDecimal) getKey(result, alias)
-        encounterNum == minusOne ? null : new Pair(encounterNum, result.patientId)
+        encounterNum == minusOne ? null : new VisitKey(encounterNum, (Long) result.patientId)
     }
 
     @CompileDynamic
-    @Override List<I2b2VisitDimension> doResolveElements(List<Pair<BigDecimal,Long>> elementKeys) {
+    @Override List<I2b2VisitDimension> doResolveElements(List<VisitKey> elementKeys) {
         (List) I2b2VisitDimension.withCriteria {
             or {
-                elementKeys.each { Pair key ->
+                elementKeys.each { VisitKey key ->
                     and {
-                        eq 'encounterNum', key.aValue
-                        eq 'patient.id', key.bValue
+                        eq 'encounterNum', key.encounterNum
+                        eq 'patient.id', key.patientId
                     }
                 }
             }
         }
+    }
+
+    // The same as @Immutable, but @Immutable generates some rather dynamic/inefficient constructors and a toString()
+    // I don't quite like
+    @EqualsAndHashCode
+    static private class VisitKey {
+        final BigDecimal encounterNum
+        final Long patientId
+
+        VisitKey(BigDecimal encounterNum, Long patientId) {
+            this.encounterNum = encounterNum; this.patientId = patientId
+        }
+
+        String toString() { "VisitKey(encounterNum: $encounterNum, patientId: $patientId)" }
     }
 }
 
@@ -557,16 +589,29 @@ class ProviderDimension extends I2b2NullablePKDimension<String,String> implement
 }
 
 @CompileStatic @InheritConstructors
-class AssayDimension extends HighDimDimension<Long,Long> implements SerializableElemDim<Long> {
-    Class elemType = Long
+class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeElemDim<Assay, Long> {
+    Class elemType = Assay
+    List elemFields = ['id', 'sampleCode',
+        new PropertyImpl('sampleTypeName', null, String) {
+            def get(element) { ((Assay) element).sampleType?.label } },
+        new PropertyImpl('platform', null, String) {
+            def get(element) { ((Assay) element).platform?.id } },
+    ]
     String name = 'assay'
 }
+
+// TODO: Expose the other Assay properties as the proper dimensions. Their structure should as much as possible be
+// the same as the dimensional structure of native hypercube highdim implementations. We currently only do that with
+// the patient.
+// The tabular assay also includes timepointName and tissueTypeName in the rest api serialization
+
+// TODO: Expose type-specific biomarker properties. E.g. ProbeRow has a probe, geneSymbol and geneId property
 
 @CompileStatic @InheritConstructors
 class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> implements
         CompositeElemDim<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> {
     Class elemType = HddTabularResultHypercubeAdapter.BioMarkerAdapter
-    List elemFields = ['label', 'bioMarker']
+    List elemFields = ['label', 'biomarker']
     String name = 'biomarker'
 }
 

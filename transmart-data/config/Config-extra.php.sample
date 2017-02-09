@@ -8,10 +8,10 @@
 $insertionPoints = [
     /* this is the text to be inserted in the template after the WAR variables */
     'I001' => /* post-WAR-variables */ <<<EOD
-//transmartURL      = 'http://example.com/transmart/'
-//oauthEnabled      = true
 //samlEnabled       = false
-//gwavaEnabled      = false
+//org.transmartproject.app.transmartURL      = 'http://example.com/transmart/'
+//org.transmartproject.app.oauthEnabled      = true
+//org.transmartproject.app.gwavaEnabled      = false
 EOD
 ,
     /* this is the text to be inserted at the very end of the file.
@@ -75,6 +75,10 @@ dataExport {
 //com.recomdata.passwordstrength.description =
 //    'It should contain a minimum of 8 characters including at least ' +
 //    '1 upper and 1 lower case letter, 1 digit and 1 special character.'
+
+//Sets maximal file size limit
+//grails.controllers.upload.maxFileSize = 2000000
+//grails.controllers.upload.maxRequestSize = 2000000
 
 // You MUST leave this at the end
 // Do not move it up, otherwise syntax errors may not be detected

@@ -40,7 +40,7 @@ function createWorkflowStatus(parentElem, noTitleBar) {
     modalDialogDiv.append(progressTextDiv);
 
     parentElem.append(modalDialogDiv);
-    $j("#progress-img").attr('src', '/transmart/images/spinner.gif');
+    $j("#progress-img").attr('src', '../assets/spinner.gif');
 
     $j("#mask").fadeTo(500, 0.25);
 
@@ -78,7 +78,7 @@ function updateWorkflowStatus(jobStatusInfo) {
 
         if (jobStatusInfo.jobStatus == 'Error') {
             showWorkflowStatusError(jobStatusInfo);
-            $j('#progress-img').attr('src', '/transmart/images/remove.png');
+            $j('#progress-img').attr('src', '../assets/remove.png');
             return;
         }
 
@@ -89,11 +89,11 @@ function updateWorkflowStatus(jobStatusInfo) {
         }
 
         $j('#progress-bar').progressbar('option', 'value', value);
-        $j('#progress-img').attr('src', '/transmart/images/spinner.gif');
+        $j('#progress-img').attr('src', '../assets/spinner.gif');
         $j('#progress-status').html(jobStatusInfo.jobStatus);
 
         if (jobStatusInfo.jobStatus == 'Completed') {
-            $j('#progress-img').attr('src', '/transmart/images/green_check2.png');
+            $j('#progress-img').attr('src', '../assets/green_check2.png');
             $j("#dialog-modal").dialog().dialog('close');
         }
     }

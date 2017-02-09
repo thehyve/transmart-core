@@ -9,7 +9,7 @@
         <title>Gene Signature Create</title>
     </g:else>
 
-    <script type="text/javascript">
+    <asset:script type="text/javascript">
         // id prefix for ajax window
         var lkupWinId = null;
 
@@ -100,7 +100,7 @@
             ajaxWin.destroy();
         }
 
-    </script>
+    </asset:script>
 </head>
 
 <body>

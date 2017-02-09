@@ -24,13 +24,13 @@ import com.google.common.collect.Maps
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.engine.spi.SessionImplementor
-import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.clinical.variables.AcrossTrialsTerminalVariable
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.ontology.ModifierDimensionView
+import org.transmartproject.db.support.InQuery
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TOP_TERM_NAME
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
@@ -73,15 +73,14 @@ class AcrossTrialsDataQuery {
         }
 
         if (patients instanceof PatientQuery) {
+            // Different solution for ORA-01795: 1000 in limitation, which does not break postgres (32000 in limitation)
             criteriaBuilder.add(getHibernateInCriterion('patient.id',
                     patients.forIds()))
         } else {
-            criteriaBuilder.in('patient',  Lists.newArrayList(patients))
+            InQuery.addIn(criteriaBuilder, 'patient', patients)
         }
 
-        criteriaBuilder.in('modifierCd', clinicalVariables*.code)
-
-        criteriaBuilder.scroll ScrollMode.FORWARD_ONLY
+        InQuery.addIn(criteriaBuilder, 'modifierCd', clinicalVariables*.code).scroll ScrollMode.FORWARD_ONLY
     }
 
     private void fillInAcrossTrialsTerminalVariables() {
@@ -107,14 +106,14 @@ class AcrossTrialsDataQuery {
             }
         }
 
-        def res = ModifierDimensionView.withCriteria {
+        def builder = ModifierDimensionView.createCriteria()
+        builder.with {
             projections {
                 property 'path'
                 property 'code'
             }
-
-            'in' 'path', conceptPaths.keySet()
         }
+        def res = InQuery.addIn(builder, 'path', conceptPaths.keySet()).list()
 
         for (modifier in res) {
             String path = modifier[0],

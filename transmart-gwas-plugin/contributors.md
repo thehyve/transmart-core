@@ -1,0 +1,18 @@
+# transmart-gwas-plugin contributers
+Thank you for contributing to TranSmart
+[hberube](https://github.com/hberube)
+[ricepeterm](https://github.com/ricepeterm)
+[Terry-Weymouth](https://github.com/Terry-Weymouth)
+[davidxn](https://github.com/davidxn)
+[fguitton](https://github.com/fguitton)
+[akhandeshi](https://github.com/akhandeshi)
+[devjohnson](https://github.com/devjohnson)
+[JanKanis](https://github.com/JanKanis)
+[gijskant](https://github.com/gijskant)
+[forus](https://github.com/forus)
+[cataphract](https://github.com/cataphract)
+[aoehmichen](https://github.com/aoehmichen)
+[keithnangle-tm](https://github.com/keithnangle-tm)
+[techick](https://github.com/techick)
+[dennyverbeeck](https://github.com/dennyverbeeck)
+[rnugraha](https://github.com/rnugraha)

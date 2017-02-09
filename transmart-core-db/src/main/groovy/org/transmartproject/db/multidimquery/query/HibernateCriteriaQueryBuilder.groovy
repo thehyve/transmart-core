@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.multidimquery.query
 
 import groovy.util.logging.Slf4j
@@ -10,15 +11,15 @@ import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
-import org.transmartproject.db.multidimquery.PatientDimension
-import org.transmartproject.db.multidimquery.StartTimeDimension
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.multidimquery.VisitDimension
+import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 import org.transmartproject.db.util.StringUtils
+
+import static ConstraintDimension.*
 
 /**
  * QueryBuilder that produces a {@link DetachedCriteria} object representing
@@ -37,12 +38,12 @@ import org.transmartproject.db.util.StringUtils
 @Slf4j
 class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedCriteria> {
 
-    final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(ValueDimension)
+    final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(Value)
     final Field valueTypeField = valueMetadata.fields.find { it.fieldName == 'valueType' }
     final Field numberValueField = valueMetadata.fields.find { it.fieldName == 'numberValue' }
     final Field textValueField = valueMetadata.fields.find { it.fieldName == 'textValue' }
-    final Field patientIdField = new Field(dimension: PatientDimension, fieldName: 'id', type: Type.ID)
-    final Field startTimeField = new Field(dimension: StartTimeDimension, fieldName: 'startDate', type: Type.DATE)
+    final Field patientIdField = new Field(dimension: Patient, fieldName: 'id', type: Type.ID)
+    final Field startTimeField = new Field(dimension: StartTime, fieldName: 'startDate', type: Type.DATE)
 
     public static final Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
 
@@ -173,9 +174,14 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             DetachedCriteria subCriteria = DetachedCriteria.forClass(ModifierDimensionCoreDb, modifierAlias)
             subCriteria.add(Restrictions.eq("${modifierAlias}.path", constraint.path))
             modifierCriterion = Subqueries.propertyEq('modifierCd', subCriteria.setProjection(Projections.property("code")))
+        } else if (constraint.dimensionName != null) {
+            String dimensionAlias = 'dimesion_description'
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(DimensionDescription, dimensionAlias)
+            subCriteria.add(Restrictions.eq("${dimensionAlias}.name", constraint.dimensionName))
+            modifierCriterion = Subqueries.propertyEq('modifierCd', subCriteria.setProjection(Projections.property("modifierCode")))
         }
         else {
-            throw new QueryBuilderException("Modifier constraint shouldn't have a null value both for modifier path and code")
+            throw new QueryBuilderException("Modifier constraint shouldn't have a null value for all modifier path, code and dimension name")
         }
         def valueConstraint
         if (constraint.values) {
@@ -351,7 +357,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             }
         }
         constraint.value = convertValue(constraint.field, constraint.value)
-        if (constraint.field.dimension == VisitDimension) {
+        if (constraint.field.dimension == Visit) {
             /**
              * special case that requires a subquery, because there is no proper
              * reference to the visit dimension in {@link ObservationFact}.

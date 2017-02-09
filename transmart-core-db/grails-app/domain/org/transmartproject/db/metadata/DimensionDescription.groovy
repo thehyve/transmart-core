@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.metadata
 
 import groovy.transform.InheritConstructors
@@ -95,6 +96,13 @@ class DimensionDescription {
         }
     }
 
+    /**
+     * Retrieve all dimensions that are available in this database for all studies
+     * @return a list of all dimensions
+     */
+    static List<Dimension> getAllDimensions() {
+        findAll { name != LEGACY_MARKER }*.dimension
+    }
 }
 
 

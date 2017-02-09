@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.core.multidimquery
 
 import com.google.common.collect.ImmutableMap
@@ -25,6 +26,10 @@ interface Dimension {
         SPARSE(isDense: false),
 
         boolean isDense
+
+        boolean isIsSparse() {
+            !isDense
+        }
     }
 
     enum Packable {

@@ -29,6 +29,7 @@ class ObservationFact implements Serializable {
 
     public static String TYPE_TEXT   = 'T'
     public static String TYPE_NUMBER = 'N'
+    public static String EMPTY_MODIFIER_CODE = '@'
 
     /* links to concept_dimension, but concept_code is not primary key in
      * concept_dimension. Hence, i2b2 1.3 added a concept_path column here */
@@ -50,7 +51,7 @@ class ObservationFact implements Serializable {
 
     //TrialVisit trialVisit
     //VisitDimension visit
-    // unsed for now
+    // unused for now
     //BigDecimal quantityNum
     //String     unitsCd
     //String     observationBlob

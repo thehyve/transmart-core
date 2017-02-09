@@ -57,6 +57,25 @@ abstract class AbstractAcrossTrialsOntologyTerm
     }
 
     @Override
+    OntologyTerm getParent() {
+        HibernateCriteriaBuilder c
+        def fullNameSearch = this.conceptKey.conceptFullName.parent.toString()
+
+        c = createCriteria()
+        List<AbstractI2b2Metadata> ret = c.list {
+            and {
+                eq 'fullName', fullNameSearch
+                eq 'level', level - 1
+            }
+        }
+        if (!ret || ret.empty) {
+            return null
+        }
+        def parentNode = ret[0]
+        parentNode
+    }
+
+    @Override
     Study getStudy() {
         /* null for now. We may want to create a fake study for
          * xtrials purposes */

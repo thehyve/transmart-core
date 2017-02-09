@@ -47,3 +47,13 @@ ALTER TRIGGER "I2B2DEMODATA"."TRG_STUDY_NUM" ENABLE;
 --
 CREATE INDEX "I2B2DEMODATA"."IDX_STUDY_SECURE_OBJ_TOKEN" ON "I2B2DEMODATA"."STUDY" ("SECURE_OBJ_TOKEN")
 TABLESPACE "INDX" ;
+
+--
+-- add documentation
+--
+COMMENT ON TABLE i2b2demodata.study IS 'Table holds studies and their access tokens';
+
+COMMENT ON COLUMN study.study_num IS 'Primary key.';
+COMMENT ON COLUMN study.bio_experiment_id IS 'Foreign key: bio_experiment_id in bio_experiment.';
+COMMENT ON COLUMN study.study_id IS 'E.g., GSE8581.';
+COMMENT ON COLUMN study.secure_obj_token IS 'Token needed for access to the study. E.g., ‘PUBLIC’ or ‘EXP:GSE8581’.';

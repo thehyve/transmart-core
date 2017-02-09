@@ -133,8 +133,10 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
                     if (collectedList) {
                         new ProbeRow(
                                 probe:         collectedList[0].probe,
-                                geneSymbol:    collectedList*.geneSymbol.join('/'),
-                                geneId:        collectedList*.geneId.join('/'),
+                                geneSymbol:    RepeatedEntriesCollectingTabularResult.safeJoin(
+                                        collectedList*.geneSymbol, '/'),
+                                geneId:        RepeatedEntriesCollectingTabularResult.safeJoin(
+                                        collectedList*.geneId, '/'),
                                 assayIndexMap: collectedList[0].assayIndexMap,
                                 data:          collectedList[0].data
                         )

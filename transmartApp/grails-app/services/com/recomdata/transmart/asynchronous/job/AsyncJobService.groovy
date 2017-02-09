@@ -6,6 +6,7 @@ import groovy.json.JsonSlurper
 import org.apache.commons.lang.StringUtils
 import org.json.JSONArray
 import org.json.JSONObject
+import org.quartz.JobKey
 import org.springframework.transaction.annotation.Propagation
 import org.transmartproject.core.users.User
 
@@ -171,7 +172,7 @@ class AsyncJobService {
         def jobStatus = "Cancelled"
         def result = null
         log.debug("Attempting to delete ${jobName} from the Quartz scheduler")
-        result = quartzScheduler.deleteJob(jobName, group)
+        result = quartzScheduler.deleteJob(new JobKey(jobName, group))
         log.debug("Deletion attempt successful? ${result}")
 
         updateStatus(jobName, jobStatus)

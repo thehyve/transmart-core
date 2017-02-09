@@ -19,8 +19,10 @@
 
 package org.transmartproject.db.i2b2data
 
+import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.Sex
+import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 
 class PatientDimension implements Patient {
@@ -88,7 +90,7 @@ class PatientDimension implements Patient {
         uploadId         nullable: true
     }
 
-    @Override
+    @Override @CompileStatic
     String getTrial() {
         if (sourcesystemCd == null) {
             return null
@@ -96,7 +98,7 @@ class PatientDimension implements Patient {
         sourcesystemCd.split(/:/, 2)[0]
     }
 
-    @Override
+    @Override @CompileStatic
     String getInTrialId() {
         if (sourcesystemCd == null) {
             return null;
@@ -104,9 +106,17 @@ class PatientDimension implements Patient {
         (sourcesystemCd.split(/:/, 2) as List)[1] /* cast to avoid exception */
     }
 
-    @Override
+    @Override @CompileStatic
     Sex getSex() {
-        Sex.fromString sexCd
+        // The usage of sexCd in the database is a total mess, different studies and organisations often use
+        // different values. This should catch most of them.
+        switch(sexCd?.toLowerCase()) {
+            case 'm': return Sex.MALE
+            case 'male': return Sex.MALE
+            case 'f': return Sex.FEMALE
+            case 'female': return Sex.FEMALE
+            default: return Sex.UNKNOWN
+        }
     }
 
 }

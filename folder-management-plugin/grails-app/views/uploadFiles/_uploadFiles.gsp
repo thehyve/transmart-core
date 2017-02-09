@@ -17,7 +17,7 @@
 <table style="width: 100%;" class="uploadtable" id="uploadtable">
 </table>
 
- <form name="form">
+ <form name="form" method="post" enctype="multipart/form-data">
     <input type="hidden" name="parent" id="parentFolderId" value="${parentFolder?.id}" />
     <input type="hidden" name="parentName" id="parentFolderName" value="${parentFolder?.folderName}" />
     <input type="hidden" name="existingfiles" id="existingfiles" value="yes" />

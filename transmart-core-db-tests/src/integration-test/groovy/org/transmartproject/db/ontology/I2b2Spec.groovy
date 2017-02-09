@@ -45,7 +45,7 @@ class I2b2Spec extends TransmartSpecification {
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
                 tableCode: 'i2b2 table code', tableName: 'i2b2')
         addI2b2(level: 0, fullName: '\\foo\\', name: 'foo',
-                cComment: 'trial:STUDY_ID')
+                cVisualattributes: 'FAS', cComment: 'trial:STUDY_ID')
         addI2b2(level: 1, fullName: '\\foo\\bar\\', name: 'var',
                 cVisualattributes: 'FH', cComment: 'trial:STUDY_ID')
         addI2b2(level: 1, fullName: '\\foo\\xpto\\', name: 'xpto',
@@ -55,6 +55,13 @@ class I2b2Spec extends TransmartSpecification {
 
         addI2b2(level: 3, fullName: '\\foo\\xpto\\bar\\jar\\', name: 'jar')
         addI2b2(level: 3, fullName: '\\foo\\xpto\\bar\\binks\\', name: 'binks')
+
+        addTableAccess(level: 0, fullName: '\\shared\\', name: 'shared',
+                tableCode: 'shared', tableName: 'i2b2')
+        addI2b2(level: 0, fullName: '\\shared\\', name: 'shared',
+                cVisualattributes: 'FA')
+        addI2b2(level: 1, fullName: '\\shared\\property\\', name: 'property',
+                cVisualattributes: 'LA')
     }
 
     void testGetVisualAttributes() {
@@ -145,9 +152,9 @@ class I2b2Spec extends TransmartSpecification {
 
     void testGetStudyNull() {
         setupData()
-        I2b2 jar = I2b2.find { eq('fullName', '\\foo\\xpto\\bar\\jar\\') }
+        I2b2 sharedProperty = I2b2.find { eq('fullName', '\\shared\\property\\') }
         expect:
-        jar.study == null
+        sharedProperty.study == null
     }
 
     void testGetPatients() {

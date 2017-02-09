@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.multidimquery
 
 import grails.test.mixin.integration.Integration
@@ -21,7 +22,7 @@ class DimensionsSpec extends Specification {
                 -23,
                 -29,
                 -21,
-        ])
+        ].collect { it.toLong()})
     }
 
     def 'conceptDim.resolveElements guarantees order'() {

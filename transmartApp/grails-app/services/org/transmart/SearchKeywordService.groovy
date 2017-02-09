@@ -232,12 +232,12 @@ public class SearchKeywordService {
                 def m = [:]
 
                 //Get display name by category
-                def cat = filtercats.find { result.codeTypeName.startsWith(it.codeTypeName) }
+                def cat = filtercats.find { it.codeTypeName != null && result.codeTypeName?.startsWith(it.codeTypeName) }
 
                 m.put("label", result.codeName)
-                m.put("category", cat.displayName)
-                m.put("categoryId", cat.category)
-                if (cat.useText) {
+                m.put("category", cat?.displayName)
+                m.put("categoryId", cat?.category)
+                if (cat?.useText) {
                     m.put("id", result.codeName)
                 } else {
                     m.put("id", result.bioDataUid.uniqueId[0])

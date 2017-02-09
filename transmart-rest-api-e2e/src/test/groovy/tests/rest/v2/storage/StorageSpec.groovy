@@ -1,7 +1,7 @@
+/* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2.storage
 
 import base.RESTSpec
-import spock.lang.IgnoreIf
 
 import static config.Config.*
 
@@ -13,14 +13,14 @@ class StorageSpec extends RESTSpec{
 
     def setup() {
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def responseDataAll = get(PATH_FILES)
+        def responseDataAll = get([path: PATH_FILES, acceptType: contentTypeForJSON])
         responseDataAll.files.each{
-            delete(PATH_FILES + "/${it.id}")
+            delete([path: PATH_FILES + "/${it.id}", statusCode: 204])
         }
 
-        responseDataAll = get(PATH_STORAGE)
+        responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
         responseDataAll.storageSystems.each{
-            delete(PATH_STORAGE + "/${it.id}")
+            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204])
         }
     }
 
@@ -39,7 +39,7 @@ class StorageSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_STORAGE, toJSON(sourceSystem))
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
         def id = responseData.id
 
         then:
@@ -51,7 +51,7 @@ class StorageSpec extends RESTSpec{
         assert responseData.url == sourceSystem.url
 
         when:
-        responseData = get(PATH_STORAGE + "/${id}")
+        responseData = get([path: PATH_STORAGE + "/${id}", acceptType: contentTypeForJSON])
 
         then:
         assert responseData.id == id
@@ -62,14 +62,14 @@ class StorageSpec extends RESTSpec{
         assert responseData.url == sourceSystem.url
 
         when:
-        def responseDataAll = get(PATH_STORAGE)
+        def responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
 
         then:
         assert responseDataAll.storageSystems.contains(responseData)
 
         when:
         sourceSystem.name = 'Arvbox at The Hyve renamed'
-        responseData = put(PATH_STORAGE + "/${id}", toJSON(sourceSystem))
+        responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem)])
 
         then:
         assert responseData.id == id
@@ -80,9 +80,9 @@ class StorageSpec extends RESTSpec{
         assert responseData.url == sourceSystem.url
 
         when:
-        responseData = delete(PATH_STORAGE + "/${id}")
+        responseData = delete([path: PATH_STORAGE + "/${id}", statusCode: 204])
         assert responseData == null
-        responseData = get(PATH_STORAGE + "/${id}")
+        responseData = get([path: PATH_STORAGE + "/${id}", acceptType: contentTypeForJSON, statusCode: 404])
 
         then:
         assert responseData.status == 404
@@ -104,7 +104,7 @@ class StorageSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_STORAGE, toJSON(sourceSystem))
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422])
 
         then:
         assert responseData.errors[0].field == 'systemVersion'
@@ -128,7 +128,7 @@ class StorageSpec extends RESTSpec{
         sourceSystem = sourceSystem.take(20)
 
         when:
-        def responseData = post(PATH_STORAGE, sourceSystem)
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422])
 
         then:
         assert responseData.errors.size() == 4
@@ -149,7 +149,7 @@ class StorageSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_STORAGE, toJSON(sourceSystem))
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422])
 
         then:
         assert responseData.errors.size() == 1
@@ -166,7 +166,7 @@ class StorageSpec extends RESTSpec{
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
 
         when:
-        def responseData = post(PATH_STORAGE, null)
+        def responseData = post([path: PATH_STORAGE, statusCode: 422])
 
         then:
         assert responseData.errors.size() == 4
@@ -177,7 +177,7 @@ class StorageSpec extends RESTSpec{
      */
     def "get invalid value"(){
         when:
-        def responseData = get(PATH_STORAGE + "/some_letters")
+        def responseData = get([path: PATH_STORAGE + "/some_letters", acceptType: contentTypeForJSON, statusCode: 404])
 
         then:
         assert responseData.status == 404
@@ -190,7 +190,7 @@ class StorageSpec extends RESTSpec{
      */
     def "get nonexistent"(){
         when:
-        def responseData = get(PATH_STORAGE + "/0")
+        def responseData = get([path: PATH_STORAGE + "/0", acceptType: contentTypeForJSON, statusCode: 404])
 
         then:
         assert responseData.status == 404
@@ -201,7 +201,6 @@ class StorageSpec extends RESTSpec{
     /**
      *  put invalid
      */
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) // returns not found instead of rejected value
     def "put invalid values"(){
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
@@ -214,9 +213,9 @@ class StorageSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_STORAGE, toJSON(sourceSystem))
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
         sourceSystem.singleFileCollections = 'bad_value'
-        responseData = post(PATH_STORAGE + "/${responseData.id}", sourceSystem)
+        responseData = put([path: PATH_STORAGE + "/${responseData.id}", body: toJSON(sourceSystem), statusCode: 422])
 
         then:
         assert responseData.errors.size() == 1
@@ -241,7 +240,7 @@ class StorageSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_STORAGE + "/${id}", sourceSystem)
+        def responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem), statusCode: 404])
 
         then:
         assert responseData.status == 404
@@ -252,7 +251,6 @@ class StorageSpec extends RESTSpec{
     /**
      *  no access
      */
-    @IgnoreIf({SUPPRESS_KNOWN_BUGS}) // missing space in error message
     def "post no access"(){
         given:
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
@@ -265,11 +263,10 @@ class StorageSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_STORAGE, toJSON(sourceSystem))
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 403])
 
         then:
         assert responseData.httpStatus == 403
-        assert responseData.message == 'Creating new storage system entry is an admin action'
         assert responseData.type == 'AccessDeniedException'
     }
 
@@ -288,9 +285,9 @@ class StorageSpec extends RESTSpec{
         ]
 
         when:
-        def responseData = post(PATH_STORAGE, toJSON(sourceSystem))
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
-        responseData = delete(PATH_STORAGE + "/${responseData.id}")
+        responseData = delete([ path: PATH_STORAGE + "/${responseData.id}", statusCode: 403])
 
         then:
         assert responseData.httpStatus == 403

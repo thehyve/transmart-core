@@ -71,7 +71,7 @@ class AcrossTrialsTestData {
         int c = 1;
         def i2b2List = [
                 createI2b2Concept(code: c++, level: 1, fullName: '\\foo\\study1\\', name: 'study1',
-                        cComment: 'trial:STUDY_ID_1', cVisualattributes: 'FA'),
+                        cComment: 'trial:STUDY_ID_1', cVisualattributes: 'FAS'),
                 createI2b2Concept(code: c++, level: 2, fullName: '\\foo\\study1\\age at diagnosis\\',
                         name: 'age at diagnosis', cComment: 'trial:STUDY_ID_1', cVisualattributes: 'LA',
                         metadataxml: ConceptTestData.numericXml),
@@ -80,7 +80,7 @@ class AcrossTrialsTestData {
                 createI2b2Concept(code: c++, level: 2, fullName: '\\foo\\study1\\female\\', name: 'female',
                         cComment: 'trial:STUDY_ID_1', cVisualattributes: 'LA'),
                 createI2b2Concept(code: c++, level: 1, fullName: '\\foo\\study2\\', name: 'study2',
-                        cComment: 'trial:STUDY_ID_2', cVisualattributes: 'FA'),
+                        cComment: 'trial:STUDY_ID_2', cVisualattributes: 'FAS'),
                 createI2b2Concept(code: c++, level: 2, fullName: '\\foo\\study2\\age at diagnosis\\',
                         name: 'age at diagnosis', cComment: 'trial:STUDY_ID_2', cVisualattributes: 'LA',
                         metadataxml: ConceptTestData.numericXml),

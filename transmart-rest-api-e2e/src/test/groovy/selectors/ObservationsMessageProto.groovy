@@ -1,13 +1,14 @@
+/* Copyright © 2017 The Hyve B.V. */
 package selectors
 
-import protobuf.ObservationsProto
+import org.transmartproject.rest.hypercubeProto.ObservationsProto
 
 class ObservationsMessageProto {
     public final ObservationsProto.Header header
-    public final List<ObservationsProto.Observation> cells
+    public final List<ObservationsProto.Cell> cells
     public final ObservationsProto.Footer footer
 
-    ObservationsMessageProto(ObservationsProto.Header header, List<ObservationsProto.Observation> cells, ObservationsProto.Footer footer) {
+    ObservationsMessageProto(ObservationsProto.Header header, List<ObservationsProto.Cell> cells, ObservationsProto.Footer footer) {
         this.header = header
         this.cells = cells
         this.footer = footer

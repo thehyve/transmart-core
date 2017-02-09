@@ -1,6 +1,7 @@
+/* Copyright © 2017 The Hyve B.V. */
 package selectors
 
-import protobuf.ObservationsProto
+import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 
 class ObservationSelector {
 
@@ -12,90 +13,117 @@ class ObservationSelector {
     ObservationSelector(ObservationsMessageProto protoMessage) {
         this.protoMessage = protoMessage
         this.cellCount = protoMessage.cells.size()
-        protoMessage.header.dimensionDeclarationsList.each
-                {it -> if(it.inline){
-                    inlined.add(it.name)
-                } else {
-                    notInlined.add(it.name)
-                }}
+        protoMessage.header.dimensionDeclarationsList.each {
+            if(it.inline){
+                inlined.add(it.name)
+            } else {
+                notInlined.add(it.name)
+            }
+        }
     }
+
+    final static Set<String> validValueTypes = (["Double", "String", "Int", "Timestamp"] as HashSet).asImmutable()
 
     /**
      * returns a value of a specific field
      *
      * @param cellIndex
-     * @param dimansion
+     * @param dimension
      * @param fieldName
-     * @param valueType Double, String, Int, Timestamp
+     * @param valueType one of "Double", "String", "Int", "Timestamp"
      * @return
      */
-    def select(cellIndex, dimansion, fieldName, valueType) {
+    def select(int cellIndex, String dimension, String fieldName, String valueType) {
+        assert valueType in validValueTypes, "Invalid type: $valueType not in $validValueTypes"
+
         int dimensionDeclarationIndex = -1
-        if (notInlined.contains(dimansion)){
-            dimensionDeclarationIndex = notInlined.indexOf(dimansion)
-        } else if (inlined.contains(dimansion)) {
-            dimensionDeclarationIndex = inlined.indexOf(dimansion)
+        if (notInlined.contains(dimension)){
+            dimensionDeclarationIndex = notInlined.indexOf(dimension)
+        } else if (inlined.contains(dimension)) {
+            dimensionDeclarationIndex = inlined.indexOf(dimension)
         }
-        assert dimensionDeclarationIndex != -1, 'dimansion could not be found in header'
+        assert dimensionDeclarationIndex != -1, "dimension $dimension could not be found in header"
 
         int fieldsIndex
-        if (fieldName) {
+        if (fieldName != null) {
             protoMessage.header.dimensionDeclarationsList.each { dilist ->
-                if (dilist.name.equalsIgnoreCase(dimansion)) {
-                    dilist.fieldsList.eachWithIndex {
-                        field, index ->
-                            if (field.name.equalsIgnoreCase(fieldName)) {
-                                fieldsIndex = index
-                            }
+                if (dilist.name.equalsIgnoreCase(dimension)) {
+                    dilist.fieldsList.eachWithIndex { field, index ->
+                        if (field.name.equalsIgnoreCase(fieldName)) {
+                            fieldsIndex = index
+                        }
                     }
                 }
             }
+            assert fieldsIndex != null, "field $fieldName not present on dimension $dimension"
         } else {
             fieldsIndex = 0
         }
 
-        if (inlined.contains(dimansion)){
-            return retrieveNullableValue(protoMessage.cells.get(cellIndex).getInlineDimensions(dimensionDeclarationIndex).getFields(fieldsIndex).invokeMethod("get${valueType}Value", null))
+        Cell cell = protoMessage.cells.get(cellIndex)
+
+        if (inlined.contains(dimension)) {
+            DimensionElement element = retrieveNullable(cell.inlineDimensionsList, dimensionDeclarationIndex, cell.absentInlineDimensionsList)
+            def valueholder
+            if(fieldsIndex) {
+                valueholder = retrieveNullable(element.fieldsList, fieldsIndex, element.absentFieldIndicesList)
+            } else {
+                valueholder = element
+            }
+            return valueholder?.invokeMethod("get${valueType}Value", null)
         }
 
         //nonInline
-        int dimensionIndexes = protoMessage.cells.get(cellIndex).getDimensionIndexes(dimensionDeclarationIndex)
-        return protoMessage.footer.getDimension(dimensionDeclarationIndex).getFields(fieldsIndex).invokeMethod("get${valueType}Value",dimensionIndexes).'val'
-    }
+        long dimIndexL = cell.getDimensionIndexes(dimensionDeclarationIndex)
+        if(dimIndexL == 0L) return null
+        dimIndexL-- // convert from 1-based to 0-based
+        assert dimIndexL <= Integer.MAX_VALUE, "Cell.dimensionIndexes value $dimIndexL cannot be converted to int, value too large"
+        int dimIndex = (int) dimIndexL
 
-    def retrieveNullableValue(value) {
-        def valueCase
-        switch(value.class) {
-            case ObservationsProto.TimestampValue:
-                valueCase = ObservationsProto.TimestampValue.ValueCase.VAL
-                break
-            case ObservationsProto.StringValue:
-                valueCase = ObservationsProto.StringValue.ValueCase.VAL
-                break
-            case ObservationsProto.IntValue:
-                valueCase = ObservationsProto.IntValue.ValueCase.VAL
-                break
-            default:
-                throw new Exception("Not supported.")
+        DimensionElements elements = protoMessage.footer.getDimension(dimensionDeclarationIndex)
+
+        DimensionElementFieldColumn fieldColumn
+        if(fieldsIndex) {
+            fieldColumn = retrieveNullable(elements.fieldsList, fieldsIndex, elements.absentFieldColumnIndicesList)
+        } else {
+            fieldColumn = elements.absentFieldColumnIndicesList == [1] ? null : elements.getFields(0)
         }
-        return value.valueCase == valueCase ? value.val : null
+
+        return retrieveNullable(fieldColumn?.invokeMethod("get${valueType}ValueList", null), dimIndex, fieldColumn?.absentValueIndicesList)
     }
 
-    def select(cellIndex, dimansion, valueType){
-        int dimensionDeclarationIndex = notInlined.indexOf(dimansion)
+    /**
+     * Lists of values that may be null are encoded in the protobuf format in several instances as a list of values
+     * and a list of null indices. The null indices list is 1-based, and the list of values simply skips nulls.
+     * @return the value or null
+     */
+    private def retrieveNullable(List values, int index, List<Integer> absentIndices) {
+        if(values == null) return null
+        assert values.size() + absentIndices.size() > index, "invalid value retrieval"
 
-        int dimensionIndexes = protoMessage.cells.get(cellIndex).getDimensionIndexes(dimensionDeclarationIndex)
-        return protoMessage.footer.getDimension(dimensionDeclarationIndex).getFields(0).invokeMethod("get${valueType}Value",dimensionIndexes).'val'
+        // The number of values not present before the one we are looking for
+        int skippedAbsentees = 0
+        for(i in absentIndices) {
+            // this list is 1-based
+            if(i-1 < index) skippedAbsentees++
+            else if(i-1 == index) return null
+            else break
+        }
+        return values[index-skippedAbsentees]
+    }
+
+    def select(int cellIndex, String dimension, String valueType){
+        return select(cellIndex, dimension, null, valueType)
     }
 
     /**
      * returns the value of a cell
      *
      * @param cellIndex
-     * @return
+     * @return the value of a cell
      */
     def select(cellIndex){
-        String stringValue = protoMessage.cells.get(cellIndex).getStringValue()
-        return  stringValue.empty ? protoMessage.cells.get(cellIndex).getNumericValue() : stringValue
+        String stringValue = protoMessage.cells.get(cellIndex).stringValue
+        return  stringValue.empty ? protoMessage.cells.get(cellIndex).numericValue : stringValue
     }
 }

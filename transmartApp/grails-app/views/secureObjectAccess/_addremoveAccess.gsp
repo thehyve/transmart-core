@@ -10,7 +10,7 @@
 
     <td class="addremovebuttonholder">
         <button class="ltarrowbutton"
-                onclick="${remoteFunction(action: 'addSecObjectsToPrincipal',
+                onclick="${legacy.remoteFunction(action: 'addSecObjectsToPrincipal',
                                           update: [success: 'permissions', failure: ''],
                                           params: 'addremoveAccess_add_data(this)')};
                 return false;">
@@ -18,7 +18,7 @@
         </button>
         <br>
         <button class="ltarrowbutton"
-                onclick="${remoteFunction(action: 'removeSecObjectsFromPrincipal',
+                onclick="${legacy.remoteFunction(action: 'removeSecObjectsFromPrincipal',
                                           update: [success: 'permissions', failure: ''],
                                           params: 'addremoveAccess_remove_data(this)')};
                 return false;">
@@ -36,7 +36,7 @@
     </td>
 </g:else>
 
-<r:script>
+<script type="text/javascript">
     (function () {
         'use strict';
 
@@ -50,4 +50,4 @@
                     ['sobjectstoremove', 'searchtext', 'currentprincipalid', 'accesslevelid'])
         }
     })()
-</r:script>
+</script>

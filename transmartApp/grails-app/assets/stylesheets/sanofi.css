@@ -281,17 +281,17 @@ table.menuDetail th.menuVisited {
 	padding-left: 24px;
 	background-repeat: no-repeat;
 	background-position: 50% 50%;
-	background-image: url('../images/ajax-loader-flat.gif');
+	background-image: url('ajax-loader-flat.gif');
 }
 
-.greybutton.addprogram { background-image: url('../images/addprogram.png'); }
-.greybutton.addstudy { background-image: url('../images/addstudy.png'); }
-.greybutton.addassay { background-image: url('../images/addassay.png'); }
-.greybutton.addfolder { background-image: url('../images/addfolder.png'); }
-.greybutton.addanalysis { background-image: url('../images/addanalysis.png'); }
-.greybutton.close { background-image: url('../images/small_cross.png'); }
-.greybutton.deletefolder { background-image: url('../images/bin_closed.png'); }
-.greybutton.uploadfiles { background-image: url('../images/text.png'); }
+.greybutton.addprogram { background-image: url('addprogram.png'); }
+.greybutton.addstudy { background-image: url('addstudy.png'); }
+.greybutton.addassay { background-image: url('addassay.png'); }
+.greybutton.addfolder { background-image: url('addfolder.png'); }
+.greybutton.addanalysis { background-image: url('addanalysis.png'); }
+.greybutton.close { background-image: url('small_cross.png'); }
+.greybutton.deletefolder { background-image: url('bin_closed.png'); }
+.greybutton.uploadfiles { background-image: url('text.png'); }
 
 .greybutton.disabled {
 	cursor: default;
@@ -346,7 +346,7 @@ table.menuDetail th.menuVisited {
 .filtertitle {
 	padding: 4px 0px 4px 24px;
 	background-color: #FFFFFF;
-	background-image: url('../images/down_arrow_small2.png');
+	background-image: url('down_arrow_small2.png');
 	background-repeat: no-repeat;
 	background-position: 8px 50%;
 	cursor: pointer;
@@ -432,14 +432,19 @@ table.menuDetail th.menuVisited {
 	left:0px;
 	top: 3px;
 	z-index: 999;
-	background-image: url('lefttab-left.png');
 	width: 22px;
 	height: 22px;
 	cursor: pointer;
 }
 
+.left-arrow {
+    background-image: url('lefttab-left.png');
+}
+.right-arrow {
+	background-image: url('lefttab-right.png');
+}
 .ui-autocomplete-loading { 
-	background: white url(../images/loader-small.gif) right center no-repeat;
+	background: white url('loader-small.gif') right center no-repeat;
 }
 
 #noAnalyzeResults {
@@ -562,14 +567,14 @@ textarea#description, textarea#longDescription, input#description, input#longDes
 	cursor: pointer;
 }
 
-.x-tree-node-icon.studyicon { background-image: url('../images/foldertypes/study.png') !important; }
+.x-tree-node-icon.studyicon { background-image: url('foldertypes/study.png') !important; }
 
-.x-tree-node-icon.programicon { background-image: url('../images/foldertypes/program.png') !important; }
+.x-tree-node-icon.programicon { background-image: url('foldertypes/program.png') !important; }
 
 .x-tree-node { font: 11px Verdana, Arial, sans-serif}
 
 .ajaxloading {
-	background-image: url('../images/loader-large.gif') !important;
+	background-image: url('loader-large.gif') !important;
 	background-repeat: no-repeat !important;
 	background-position: 50% 50% !important;
 	min-height: 128px;

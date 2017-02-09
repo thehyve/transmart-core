@@ -21,12 +21,14 @@
 
 package org.transmartproject.db.ontology
 
+import grails.orm.HibernateCriteriaBuilder
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.support.InQuery
 import org.transmartproject.db.user.User
 
 /**
@@ -85,7 +87,8 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
         if (patientIdList.size() > 0 && patientIdList[0].getClass() != Long) {
             patientIdList = patientIdList.collect( {it as Long} )
         }
-        PatientDimension.findAllByIdInList(patientIdList)
+
+        InQuery.addIn(PatientDimension.createCriteria(), 'id', patientIdList).list()
     }
 
     protected int countPatients(OntologyTerm term) {

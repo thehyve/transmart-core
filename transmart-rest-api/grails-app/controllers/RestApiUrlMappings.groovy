@@ -30,8 +30,19 @@ class RestApiUrlMappings {
     static mappings = {
 
         '/businessException/index'(controller: 'businessException', action: 'index')
+        '/versions'(method: 'GET', controller: 'version', action: 'index')
+        "/versions/$id"(method: 'GET', controller: 'version', action: 'show')
 
         group "/v2", {
+            "/studies"(method: 'GET', controller: 'studyQuery', action: 'listStudies') {
+                apiVersion = 'v2'
+            }
+            "/studies/$id"(method: 'GET', controller: 'studyQuery', action: 'findStudy') {
+                apiVersion = 'v2'
+            }
+            "/studies/studyId/$studyId"(method: 'GET', controller: 'studyQuery', action: 'findStudyByStudyId') {
+                apiVersion = 'v2'
+            }
             "/observation_list"(method: 'GET', controller: 'query', action: 'observationList') {
                 apiVersion = 'v2'
             }

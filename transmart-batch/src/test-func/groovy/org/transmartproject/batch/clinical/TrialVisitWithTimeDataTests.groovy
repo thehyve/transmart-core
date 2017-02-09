@@ -162,4 +162,50 @@ class TrialVisitWithTimeDataTests implements JobRunningTestTrait {
         assertThat facts, everyItem(either(hasEntry('tval_char', 'M')) | hasEntry('tval_char', 'F'))
     }
 
+    /**
+     * Tests that after loading the TEST_17_1 study:
+     * - there exists generic concepts in the concept dimension, using the SNOMED codes from
+     * the mapping file
+     * - there exists generic and study specific nodes in the i2b2 tree for those concepts.
+     */
+    @Test
+    void testMappedOntologyCodes() {
+        def genericNodePath = '\\Observable entity\\Clinical history/examination observable\\' +
+                'General characteristic of patient\\Body measure\\Height / growth measure\\' +
+                'Body height measure\\Standing height\\'
+        def studySpecificPath = '\\Public Studies\\TEST_17_1\\Vital Signs\\Height CM\\'
+        def conceptCode = 'SNOMEDCT/248333004'
+        def conceptPath = '\\Ontology\\SNOMEDCT/248333004\\'
+
+        // Test that a generic concept is inserted
+        def concept = queryForMap """
+            SELECT c.concept_path, c.concept_cd
+            FROM ${Tables.CONCEPT_DIMENSION} c
+            WHERE c.concept_cd = :concept_cd
+            """,
+            [ concept_cd: conceptCode ]
+
+        assertThat concept, notNullValue()
+        assertThat concept['concept_path'] as String, equalTo(conceptPath)
+
+        // Test that a study specific node and a generic node exist
+        def nodes = queryForList """
+            SELECT i.c_fullname, i.c_name, i.c_tablename, i.c_columnname, i.c_dimcode
+            FROM ${Tables.I2B2_SECURE} i
+            WHERE i.c_dimcode = :conceptPath
+            """,
+            [ conceptPath: conceptPath ]
+
+        assertThat nodes.size(), is(2)
+        assertThat nodes, everyItem(
+                allOf(
+                    hasEntry(is('c_tablename'), equalToIgnoringCase('concept_dimension')),
+                    hasEntry(is('c_columnname'), equalToIgnoringCase('concept_path'))
+                )
+        )
+        assertThat nodes, containsInAnyOrder(
+                hasEntry(is('c_fullname'), equalTo(studySpecificPath)),
+                hasEntry(is('c_fullname'), equalTo(genericNodePath))
+        )
+    }
 }
