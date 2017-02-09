@@ -143,7 +143,7 @@ where ssm.timepoint is not null and ssm.timepoint <> '' and not exists(select * 
 
 -- Regenerate HD observations
 --- 1. Remove existin HD observations.
-delete from i2b2demodata.observation_fact obs where obs.concept_cd in (select concept_code from deapp.de_subject_sample_mapping ssm);
+delete from i2b2demodata.observation_fact obs where obs.concept_cd in (select distinct concept_code from deapp.de_subject_sample_mapping ssm);
 
 --- 2. Add the HD sample code observation
 insert into I2B2DEMODATA.OBSERVATION_FACT(
