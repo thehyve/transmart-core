@@ -53,6 +53,23 @@ dependencies {
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+    // end of default Grails 3.2 deps
+
+    compile "org.springframework.boot:spring-boot-starter-security"
+    compile 'org.grails.plugins:spring-security-core:3.1.1'
+    compile 'org.grails.plugins:spring-security-oauth2-provider:3.0.0-RC2'
+    runtime 'org.springframework.security:spring-security-config:3.2.3.RELEASE'
+    // end of project specific deps
+
+    // local gradle submodule deps
+    //compile project(':transmart-core-api')
+    //compile project(':transmart-core-db')
+    /*compile project(':search-domain')
+    compile project(':transmart-java')
+    compile project(':search-domain')
+    compile project(':biomart-domain')
+    compile project(':transmart-legacy-db')*/
+    compile project(':transmart-rest-api')
 }
 
 bootRun {
