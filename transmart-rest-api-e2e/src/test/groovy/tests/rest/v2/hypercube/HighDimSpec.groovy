@@ -355,7 +355,7 @@ class HighDimSpec extends RESTSpec {
                 path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        type: 'mrna',
+                        type: 'rnaseq_transcript',
                         constraint: new JsonBuilder([
                                 type: Combination,
                                 operator: AND,
