@@ -34,42 +34,55 @@ class QueryController extends AbstractQueryController {
     }
 
     /**
-     * Observations endpoint:
-     * <code>/v2/observation_list?constraint=${constraint}</code>
-     *
-     * Expects a {@link Constraint} parameter <code>constraint</code>.
-     *
-     * @return a list of {@link org.transmartproject.db.i2b2data.ObservationFact} objects that
-     * satisfy the constraint.
-     */
-    def observationList() {
-        checkParams(params, ['constraint'])
-
-        Constraint constraint = bindConstraint()
-        if (constraint == null) {
-            return
-        }
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def observations = queryService.list(constraint, user)
-        render observations as JSON
-    }
-
-    /**
      * Hypercube endpoint:
-     * <code>/v2/observations?constraint=${constraint}</code>
+     *
+     * For clinical data:
+     * <code>/v2/observations?type=clinical&constraint=${constraint}</code>
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     *
+     * For high dimensional data:
+     * <code>/v2/high_dim?type=${type}&constraint=${assays}&biomarker_constraint=${biomarker}&projection=${projection}</code>
+     *
+     * The type must be the data type name of a high dimension type, or 'autodetect'. The latter will automatically
+     * try to detect the datatype based on the assay constraint. If there are multiple possible types an error is
+     * returned.
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code> and a supported
+     * projection name (see {@link org.transmartproject.core.dataquery.highdim.projections.Projection}.
+     *
+     * The optional {@link Constraint} parameter <code>biomarker_constraint</code> allows filtering on biomarkers, e.g.,
+     * chromosomal regions and gene names.
      *
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def observations() {
-        checkParams(params, ['constraint'])
+        checkParams(params, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
+
+        if (params.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
+
+        if (params.type == 'clinical') {
+            clinicalObservations(params.constraint)
+        } else {
+            if(params.assay_constraint) {
+                response.sendError(422, "Parameter 'assay_constraint' is no longer used, use 'constraint' instead")
+                return
+            }
+            highdimObservations(params.type, params.constraint, params.biomarker_constraint, params.projection)
+        }
+    }
+
+    /**
+     * Helper function for retrieving clinical hypercube data
+     */
+    private def clinicalObservations(constraint_text) {
 
         def format = contentFormat
         if (format == Format.NONE) {
             throw new InvalidArgumentsException("Format not supported.")
         }
-        Constraint constraint = bindConstraint()
+        Constraint constraint = bindConstraint(constraint_text)
         if (constraint == null) {
             return
         }
@@ -106,7 +119,7 @@ class QueryController extends AbstractQueryController {
     def count() {
         checkParams(params, ['constraint'])
 
-        Constraint constraint = bindConstraint()
+        Constraint constraint = bindConstraint(params.constraint)
         if (constraint == null) {
             return
         }
@@ -138,7 +151,7 @@ class QueryController extends AbstractQueryController {
         if (!params.type) {
             throw new InvalidArgumentsException("Type parameter is missing.")
         }
-        Constraint constraint = bindConstraint()
+        Constraint constraint = bindConstraint(params.constraint)
         if (constraint == null) {
             return
         }
@@ -150,8 +163,7 @@ class QueryController extends AbstractQueryController {
     }
 
     /**
-     * High dimensional endpoint:
-     * <code>/v2/high_dim?assay_constraint=${assays}&biomarker_constraint=${biomarker}&projection=${projection}</code>
+     * Helper function for retrieving high dimensional hypercube data.
      *
      * Expects a {@link Constraint} parameter <code>assay_constraint</code> and a supported
      * projection name (see {@link org.transmartproject.core.dataquery.highdim.projections.Projection}.
@@ -161,20 +173,16 @@ class QueryController extends AbstractQueryController {
      *
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
-    def highDim() {
-        checkParams(params, ['assay_constraint', 'biomarker_constraint', 'projection'])
+    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, projection) {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Constraint assayConstraint = getConstraint('assay_constraint')
 
-        BiomarkerConstraint biomarkerConstraint = null
-        if (params.biomarker_constraint) {
-            Constraint constraint = getConstraint('biomarker_constraint')
-            assert constraint instanceof BiomarkerConstraint
-            biomarkerConstraint = constraint
-        }
+        Constraint assayConstraint = parseConstraint(URLDecoder.decode(assay_constraint, 'UTF-8'))
 
-        Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, params.projection, user)
+        BiomarkerConstraint biomarkerConstraint = biomarker_constraint ?
+                (BiomarkerConstraint) parseConstraint(URLDecoder.decode(biomarker_constraint, 'UTF-8')) : new BiomarkerConstraint()
+
+        Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
 
         def format = contentFormat
         OutputStream out = new LazyOutputStreamDecorator(

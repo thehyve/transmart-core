@@ -61,19 +61,19 @@ abstract class AbstractQueryController implements Controller {
         }
     }
 
-    protected Constraint getConstraint(String constraintParameterName = 'constraint') {
-        if (!params.containsKey(constraintParameterName)) {
-            throw new InvalidArgumentsException("${constraintParameterName} parameter is missing.")
+    protected Constraint getConstraint(String constraint, String paramName = 'constraint') {
+        if (constraint == null) {
+            throw new InvalidArgumentsException("${paramName} parameter is missing.")
         }
-        if (!params[constraintParameterName]) {
+        if (!constraint) {
             throw new InvalidArgumentsException('Empty constraint parameter.')
         }
-        String constraintParam = URLDecoder.decode(params[constraintParameterName], 'UTF-8')
+        String constraintParam = URLDecoder.decode(constraint, 'UTF-8')
         parseConstraint(constraintParam)
     }
 
-    protected Constraint bindConstraint() {
-        Constraint constraint = getConstraint()
+    protected Constraint bindConstraint(String constraint_text) {
+        Constraint constraint = getConstraint(constraint_text)
         // check for parse errors
         if (constraint.hasErrors()) {
             response.status = 400

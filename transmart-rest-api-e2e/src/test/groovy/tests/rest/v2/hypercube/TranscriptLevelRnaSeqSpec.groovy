@@ -3,7 +3,7 @@ package tests.rest.v2.hypercube
 import base.RESTSpec
 import groovy.json.JsonBuilder
 
-import static config.Config.PATH_HIGH_DIM
+import static config.Config.PATH_OBSERVATIONS
 import static config.Config.RNASEQ_TRANSCRIPT_ID
 import static tests.rest.v2.constraints.BiomarkerConstraint
 import static tests.rest.v2.constraints.ConceptConstraint
@@ -23,10 +23,11 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
      */
     def "transcripts link to genes"() {
         def requestTranscript = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint    : new JsonBuilder([
+                        type: 'autodetect',
+                        constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
@@ -41,10 +42,11 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         ]
 
         def requestGene = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint    : new JsonBuilder([
+                        type: 'autodetect',
+                        constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
@@ -83,10 +85,11 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
      */
     def "transcripts link to different sets"() {
         def request1 = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint    : new JsonBuilder([
+                        type: 'autodetect',
+                        constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
@@ -101,10 +104,11 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         ]
 
         def request2 = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint    : new JsonBuilder([
+                        type: 'autodetect',
+                        constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
@@ -141,10 +145,11 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
      */
     def "transcripts do not accept gene names"() {
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint    : new JsonBuilder([
+                        type: 'autodetect',
+                        constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
@@ -180,10 +185,11 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
      */
     def "list of transcripts"() {
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint    : new JsonBuilder([
+                        type: 'autodetect',
+                        constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),
@@ -198,10 +204,11 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         ]
 
         def requestAssayOnly = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint    : new JsonBuilder([
+                        type: 'autodetect',
+                        constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ])
@@ -241,10 +248,11 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                 -4.3470865035
                 ]
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint    : new JsonBuilder([
+                        type: 'autodetect',
+                        constraint    : new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                         ]),

@@ -35,10 +35,11 @@ class HighDimSpec extends RESTSpec {
         def projection = 'all_data'
 
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder(assayConstraint),
+                        type: 'mrna',
+                        constraint: new JsonBuilder(assayConstraint),
                         biomarker_constraint: new JsonBuilder(biomarkerConstraint),
                         projection: projection
                 ]
@@ -79,10 +80,11 @@ class HighDimSpec extends RESTSpec {
         def projection = 'all_data'
 
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder(assayConstraint),
+                        type: 'autodetect',
+                        constraint: new JsonBuilder(assayConstraint),
                         biomarker_constraint: new JsonBuilder(biomarkerConstraint),
                         projection: projection
                 ]
@@ -118,10 +120,11 @@ class HighDimSpec extends RESTSpec {
      */
     def "highdim by ConceptConstraint"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([
+                        type: 'autodetect',
+                        constraint: new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Breast\\"
                         ])
@@ -159,10 +162,11 @@ class HighDimSpec extends RESTSpec {
      */
     def "empty highdim"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([
+                        type: 'mrna',
+                        constraint: new JsonBuilder([
                                 type: Combination,
                                 operator: AND,
                                 args: [
@@ -200,19 +204,21 @@ class HighDimSpec extends RESTSpec {
                 path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"
         ]
         def requestZscore = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder(assayConstraint),
+                        type: 'mrna',
+                        constraint: new JsonBuilder(assayConstraint),
                         projection: 'zscore'
                 ]
         ]
 
         def requestLog_intensity = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder(assayConstraint),
+                        type: 'mrna',
+                        constraint: new JsonBuilder(assayConstraint),
                         projection: 'log_intensity'
                 ]
         ]
@@ -253,10 +259,11 @@ class HighDimSpec extends RESTSpec {
     @IgnoreIf({SUPPRESS_KNOWN_BUGS}) //FIXME: TMPDEV-154 inconsistent use of projections
     def "highdim projection"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([
+                        type: 'mrna',
+                        constraint: new JsonBuilder([
                                 type: ConceptConstraint,
                                 path: "\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"
                         ]),
@@ -294,10 +301,11 @@ class HighDimSpec extends RESTSpec {
 //    @Requires({EHR_HIGHDIM_LOADED})
     def "highdim by timeConstraint"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([
+                        type: 'mrna',
+                        constraint: new JsonBuilder([
                                 type: Combination,
                                 operator: AND,
                                 args: [
@@ -344,10 +352,11 @@ class HighDimSpec extends RESTSpec {
 //    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
     def "highdim by modifier"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([
+                        type: 'rnaseq_transcript',
+                        constraint: new JsonBuilder([
                                 type: Combination,
                                 operator: AND,
                                 args: [
@@ -385,16 +394,17 @@ class HighDimSpec extends RESTSpec {
 
     /**
      *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
-     *  when: "I get highdim for an invalid assay_constraint"
+     *  when: "I get highdim for an invalid constraint"
      *  then: "an error is returned"
      */
     @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
     def "highdim by invalid assay"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([type: 'invalidConstraint'])
+                        type: 'mrna',
+                        constraint: new JsonBuilder([type: 'invalidConstraint'])
                 ],
                 statusCode: 400
         ]
@@ -421,26 +431,24 @@ class HighDimSpec extends RESTSpec {
     @Requires({EHR_HIGHDIM_LOADED})
     def "highdim by non-highdim concept"(){
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
+                        type: 'rnaseq_transcript',
+                        constraint: new JsonBuilder([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
                 ],
-                statusCode: 500
         ]
 
         when:
         def responseData = get(request)
 
         then:
-        that responseData.httpStatus, is(500)
-        that responseData.type, is('IllegalStateException')
-        that responseData.message, is('Found data that is either clinical or is using the old way of storing high dimensional data.')
+        assert responseData.cells == result
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector | result
+        contentTypeForJSON | jsonSelector | []
+        contentTypeForProtobuf | protobufSelector | null
     }
 
     def "multi patient bug"(){
