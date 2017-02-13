@@ -1,0 +1,102 @@
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://repo.grails.org/grails/core" }
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.3'
+    compile 'com.google.protobuf:protobuf-java:3.1.0'
+    compile 'com.google.protobuf:protobuf-java-util:3.1.0' // provides  protobuf-to-json serialization
+    compile 'ch.qos.logback:logback-classic:1.1.7'
+    compile 'org.slf4j:slf4j-api:1.7.20'
+
+    testCompile 'junit:junit:4.11'
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    testCompile 'org.grails:grails-dependencies:3.1.10'
+    testCompile 'org.grails:grails-web:3.1.10'
+    testCompile 'org.hamcrest:java-hamcrest:2.0.0.0'
+    testCompile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
+    testCompile 'com.google.guava:guava:15.0'
+
+    compile 'javax.servlet:javax.servlet-api:3.1.0'
+}
+tasks.withType(Test) { systemProperties = System.getProperties() }
+
+test {
+    maxHeapSize = '8G'
+}
+
+task startTransmartApp(type: ExecWait) {
+    command 'grails run-app'
+    ready 'Grails application running at'
+    directory '../transmartApp'
+}
+
+class ExecWait extends DefaultTask {
+    String command
+    String ready
+    String directory
+
+    @TaskAction
+    def spawnProcess() {
+
+        ProcessBuilder builder = new ProcessBuilder(command.split(' '))
+        builder.redirectErrorStream(true)
+        builder.directory(new File(directory))
+        Process process = builder.start()
+
+        InputStream stdout = process.getInputStream()
+        BufferedReader reader = new BufferedReader(new
+                InputStreamReader(stdout))
+
+        def line
+        while ((line = reader.readLine()) != null) {
+            println line
+            if (line.contains(ready)) {
+                println "$command is ready"
+                break;
+            }
+        }
+    }
+}
+
+task freeAllPorts << {
+    def ports = [8080]
+
+    ports.each { port ->
+        def cmd = "lsof -Fp -i :$port"
+        def process = cmd.execute()
+        process.in.eachLine { line ->
+            def killProcess = "kill -9 ${ line.substring(1) }".execute()
+            killProcess.waitFor()
+        }
+    }
+}
+
+gradle.addListener new TestLifecycleListener()
+
+class TestLifecycleListener implements TaskExecutionListener {
+
+    def servers = ['TransmartApp']
+
+    @Override
+    void beforeExecute(Task task) {
+        if (task.name == 'test') {
+            servers.each {
+                println "calling start$it"
+                task.project.tasks."start$it".execute()
+            }
+        }
+    }
+
+    @Override
+    void afterExecute(Task task, TaskState taskState) {
+        if (task.name == 'test') {
+            task.project.tasks.freeAllPorts.execute()
+        }
+    }
+}
