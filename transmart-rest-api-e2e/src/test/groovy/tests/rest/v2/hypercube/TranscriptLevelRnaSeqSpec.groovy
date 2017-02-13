@@ -7,9 +7,7 @@ import selectors.ObservationSelector
 
 import static config.Config.PATH_OBSERVATIONS
 import static config.Config.RNASEQ_TRANSCRIPT_ID
-import static tests.rest.v2.constraints.BiomarkerConstraint
-import static tests.rest.v2.constraints.ConceptConstraint
-import static tests.rest.v2.constraints.StudyNameConstraint
+import static tests.rest.v2.constraints.*
 
 /**
  *  TMPREQ-4 Storing transcript level RNA-Seq data
@@ -301,11 +299,12 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
      */
     def "Link to multi transcript"() {
         def requestGene = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint    : new JsonBuilder([
-                                "type": "Combination",
+                        type: 'autodetect',
+                        constraint    : new JsonBuilder([
+                                "type": Combination,
                                 "operator": "and",
                                 "args": [
                                         [
@@ -313,7 +312,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                                         ],
                                         [
-                                                "type": "StudyNameConstraint",
+                                                "type": StudyNameConstraint,
                                                 "studyId": "RNASEQ_TRANSCRIPT"
                                         ]
                                 ]
@@ -329,11 +328,12 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         ]
 
         def requestTranscript = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint    : new JsonBuilder([
-                                "type": "Combination",
+                        type: 'autodetect',
+                        constraint    : new JsonBuilder([
+                                "type": "combination",
                                 "operator": "and",
                                 "args": [
                                         [
@@ -341,7 +341,7 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
                                                 path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Lung\\'
                                         ],
                                         [
-                                                "type": "StudyNameConstraint",
+                                                "type": StudyNameConstraint,
                                                 "studyId": "RNASEQ_TRANSCRIPT"
                                         ]
                                 ]

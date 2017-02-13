@@ -310,11 +310,11 @@ class HighDimSpec extends RESTSpec {
                                 operator: AND,
                                 args: [
                                         [
-                                            "type": "ConceptConstraint",
+                                            "type": ConceptConstraint,
                                             "path": "\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Breast\\"
                                         ],
                                         [
-                                            "type": "StudyNameConstraint",
+                                            "type": StudyNameConstraint,
                                             "studyId": "EHR_HIGHDIM"
                                         ],
                                         [type: TimeConstraint,
@@ -467,10 +467,11 @@ class HighDimSpec extends RESTSpec {
     def "multi patient bug"(){
 
         def request = [
-                path: PATH_HIGH_DIM,
+                path: PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query: [
-                        assay_constraint: new JsonBuilder(["type":Combination, "operator":AND,
+                        type: 'autodetect',
+                        constraint: new JsonBuilder(["type":Combination, "operator":AND,
                                                            "args": [
                                                                    ["type": ConceptConstraint, "conceptCode": "CTHD:HD:EXPLUNG"],
                                                                    ["type":FieldConstraint,
