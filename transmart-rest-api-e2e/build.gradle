@@ -97,7 +97,7 @@ gradle.addListener new TestLifecycleListener()
 
 class TestLifecycleListener implements TaskExecutionListener {
 
-    def servers = ['TransmartApp']
+    def servers = ['TransmartRest']
 
     @Override
     void beforeExecute(Task task) {
