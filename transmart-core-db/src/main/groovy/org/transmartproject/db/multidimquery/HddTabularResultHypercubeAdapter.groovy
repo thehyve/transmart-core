@@ -26,7 +26,7 @@ import org.transmartproject.db.util.IndexedArraySet
 @CompileStatic
 class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<HypercubeValue> implements Hypercube {
     private static Object typeError(cell) {
-        throw new RuntimeException("HDD value $cell is not a Double and is not a Map, this projection is not" +
+        throw new RuntimeException("HDD value '$cell' is not a Double and is not a Map, this projection is not" +
                 " implemented in HddTabularResultHypercubeAdapter")
     }
 
@@ -84,11 +84,11 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         _dimensionElems(dim)[idx]
     }
 
-    String dimensionElementKey(Dimension dim, Integer idx) {
+    Object dimensionElementKey(Dimension dim, Integer idx) {
         def elem = dimensionElement(dim, idx)
         if(elem instanceof String) return elem
         else if(elem instanceof DataColumn) return ((DataColumn) elem).label
-        else if(elem instanceof Patient) return ((Patient) elem).id.toString()
+        else if(elem instanceof Patient) return ((Patient) elem).id
         else throw new RuntimeException("unexpected element type ${elem.class}. Expected a String, Patient, or Assay")
     }
 
@@ -133,7 +133,9 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                 int patientIndex = patients.indexOf(assay.patient)
                 def value = row[i]
 
-                if(value instanceof Double) {
+                if(value == null) {
+                    continue
+                } else if(value instanceof Double) {
                     nextVals.add(new TabularResultAdapterValue(
                             // The type checker doesn't like a plain 'dimensions', no idea why
                             availableDimensions: getDimensions(),

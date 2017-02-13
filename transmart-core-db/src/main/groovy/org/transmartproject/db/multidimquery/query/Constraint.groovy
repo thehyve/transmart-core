@@ -621,6 +621,10 @@ class ConstraintFactory {
         log.info "Creating constraint of type ${type.simpleName}"
         def result = type.newInstance()
         constraintDataBinder.bindData(result, values, [exclude: ['type', 'errors']])
+        if(result.errors?.hasErrors()) {
+            throw new ConstraintBindingException(
+                    "${result.errors.errorCount} error(s): " + result.errors.allErrors*.defaultMessage.join('; '))
+        }
         return result
     }
 

@@ -9,6 +9,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.ConstraintBindingException
 import org.transmartproject.db.multidimquery.query.ConstraintFactory
 import org.transmartproject.rest.misc.CurrentUser
 
@@ -54,6 +55,8 @@ abstract class AbstractQueryController implements Controller {
             Map constraintData = JSON.parse(constraintText) as Map
             try {
                 return ConstraintFactory.create(constraintData)
+            } catch (ConstraintBindingException e) {
+                throw e
             } catch (Exception e) {
                 throw new InvalidArgumentsException(e.message)
             }
