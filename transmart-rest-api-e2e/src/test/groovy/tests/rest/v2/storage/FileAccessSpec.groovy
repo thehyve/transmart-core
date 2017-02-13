@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2.storage
 
 import base.RESTSpec
@@ -13,12 +14,12 @@ class FileAccessSpec extends RESTSpec {
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def responseDataAll = get([path: PATH_FILES, acceptType: contentTypeForJSON])
         responseDataAll.files.each{
-            delete([path: PATH_FILES + "/${it.id}"])
+            delete([path: PATH_FILES + "/${it.id}", statusCode: 204])
         }
 
         responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
         responseDataAll.storageSystems.each{
-            delete([path: PATH_STORAGE + "/${it.id}"])
+            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204])
         }
 
         def sourceSystem = [
@@ -28,7 +29,7 @@ class FileAccessSpec extends RESTSpec {
                 'systemVersion':'v1',
                 'singleFileCollections':false,
         ]
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem)])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
         storageId = responseData.id
 
         def new_file_link = [
@@ -37,7 +38,7 @@ class FileAccessSpec extends RESTSpec {
                 'study'       : SHARED_CONCEPTS_RESTRICTED_ID,
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
-        file_link = post([path: PATH_FILES, body: toJSON(new_file_link)])
+        file_link = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 201])
     }
 
     /**

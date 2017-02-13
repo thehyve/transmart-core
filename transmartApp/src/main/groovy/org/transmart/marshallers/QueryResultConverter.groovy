@@ -9,7 +9,7 @@ import org.transmartproject.core.querytool.QueryResult
 class QueryResultConverter {
 
     static def convert(QueryResult queryResult) {
-        getPropertySubsetForSuperType(queryResult, QueryResult, ['patients', 'username'])
+        getPropertySubsetForSuperType(queryResult, QueryResult, ['patients', 'username', 'description'])
     }
 
     /**

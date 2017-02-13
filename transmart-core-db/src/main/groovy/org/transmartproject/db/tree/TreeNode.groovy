@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.tree
 
 import groovy.transform.CompileStatic
@@ -39,6 +40,8 @@ class TreeNode {
     public String fullName
 
     public EnumSet<OntologyTerm.VisualAttributes> visualAttributes
+
+    public String dimension
 
     TreeNode(I2b2Secure term, List<TreeNode> children) {
         this.delegate = term
@@ -268,5 +271,4 @@ class TreeNode {
             OntologyTermType.UNKNOWN
         }
     }
-
 }

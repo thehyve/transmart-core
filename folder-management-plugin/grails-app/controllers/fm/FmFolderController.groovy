@@ -1353,7 +1353,7 @@ class FmFolderController {
             return
         }
 
-        String mimeType = MIME_TYPES_FILES_MAP.getContentType fmFile.originalName
+        String mimeType = ContentType.BINARY.toString()
         log.debug "Downloading file $fmFile, mime type $mimeType"
 
         //HttpServletResponse fileResponse=new HttpServletResponseWrapper(response)

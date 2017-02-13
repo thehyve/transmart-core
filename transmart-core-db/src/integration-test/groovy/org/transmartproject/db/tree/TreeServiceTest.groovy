@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.tree
 
 import grails.test.mixin.integration.Integration
@@ -57,6 +58,7 @@ class TreeServiceTest extends Specification {
                 'EHR',
                 'EHR_HIGHDIM',
                 'MIX_HD',
+                'Oracle_1000_Patient',
                 'RNASEQ_TRANSCRIPT',
                 'SHARED_CONCEPTS_STUDY_A',
                 'SHARED_CONCEPTS_STUDY_B',

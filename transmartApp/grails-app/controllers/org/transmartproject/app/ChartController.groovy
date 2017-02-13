@@ -248,10 +248,9 @@ class ChartController {
         ExportTableNew gridTable = request.session.gridtable
 
         def exportedVariablesCsv = gridTable.columnMap.entrySet()
-                .collectAll { "${it.value.label} (id = ${it.key})" }.join(', ')
+                .collect { "${it.value.label} (id = ${it.key})" }.join(', ')
 
-        def trialsCsv = gridTable.rows
-                .collectAll { it['TRIAL'] }.unique().join(', ')
+        def trialsCsv = gridTable.rows.collect { it['TRIAL'] }.unique().join(', ')
 
         accessLogService.report(currentUserBean, 'Grid View Data Export',
                 eventMessage: "User (IP: ${request.getHeader('X-FORWARDED-FOR') ?: request.remoteAddr}) just exported" +

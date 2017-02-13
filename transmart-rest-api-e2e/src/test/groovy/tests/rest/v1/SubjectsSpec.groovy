@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v1
 
 import base.RESTSpec
@@ -9,9 +10,10 @@ import static config.Config.ADMIN_USERNAME
 import static config.Config.EHR_ID
 import static config.Config.EHR_LOADED
 import static config.Config.GSE8581_ID
+import static config.Config.GSE8581_LOADED
 import static config.Config.V1_PATH_STUDIES
 
-@Requires({GSE8581_ID})
+@Requires({GSE8581_LOADED})
 class SubjectsSpec extends RESTSpec{
 
     /**

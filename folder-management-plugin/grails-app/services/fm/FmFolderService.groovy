@@ -39,11 +39,21 @@ class FmFolderService {
 
     static transactional = true
 
-    def config = Holders.config
-    def importDirectory = config.com.recomdata.FmFolderService.importDirectory
-    def filestoreDirectory = config.com.recomdata.FmFolderService.filestoreDirectory
-    def fileTypes = config.com.recomdata.FmFolderService.fileTypes ?: DEFAULT_FILE_TYPES
-    String solrBaseUrl = config.com.recomdata.solr.baseURL
+    def getConfig() {
+        Holders.grailsApplication.config
+    }
+    def getImportDirectory() {
+        config.com.recomdata.FmFolderService.importDirectory
+    }
+    def getFilestoreDirectory() {
+        config.com.recomdata.FmFolderService.filestoreDirectory
+    }
+    def getFileTypes() {
+        config.com.recomdata.FmFolderService.fileTypes ?: DEFAULT_FILE_TYPES
+    }
+    String getSolrBaseUrl() {
+        config.com.recomdata.solr.baseURL
+    }
     def amTagItemService
     def springSecurityService
     def i2b2HelperService

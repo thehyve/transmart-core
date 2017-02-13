@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package config
 
 class Config {
@@ -33,6 +34,7 @@ class Config {
     public static final String PATH_ARVADOS_WORKFLOWS = "v2/arvados/workflows"
 
     //study ids
+    public static final String ORACLE_1000_PATIENT_ID = 'ORACLE_1000_PATIENT'
     public static final String GSE8581_ID = 'GSE8581'
     public static final String CELL_LINE_ID = 'CELL-LINE'
     public static final String EHR_ID = 'EHR'
@@ -57,6 +59,8 @@ class Config {
     public static final boolean SUPPRESS_UNIMPLEMENTED = true
 
     //test studies loaded
+    public static final boolean ORACLE_1000_PATIENT_LOADED = false
+    public static final boolean GSE8581_LOADED = false
     public static final boolean CELL_LINE_LOADED = false
     public static final boolean EHR_LOADED = true
     public static final boolean EHR_HIGHDIM_LOADED = true

@@ -61,6 +61,11 @@ grails.mime.types = [html         : [
                      jnlp         : 'application/x-java-jnlp-file',
                      protobuf     : 'application/x-protobuf',
 ]
+
+//Sets upload file size limit
+grails.controllers.upload.maxFileSize = 10 * 1024 * 1024 //10mb
+grails.controllers.upload.maxRequestSize = 10 * 1024 * 1024
+
 // The default codec used to encode data with ${}
 grails.views.javascript.library="jquery"
 grails.views.default.codec = "none" // none, html, base64

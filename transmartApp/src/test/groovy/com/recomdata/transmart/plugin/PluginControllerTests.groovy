@@ -41,6 +41,6 @@ class PluginControllerTests {
         def returnMap = controller.show()
         //If it fails to load the plugin there will be a message
         assert controller.flash?.message == null
-        assertEquals 'Test Plugin', returnMap?.pluginInstance?.name
+        assert 'Test Plugin' == returnMap?.pluginInstance?.name
     }
 }

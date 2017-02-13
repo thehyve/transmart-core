@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2.hypercube
 
 import base.RESTSpec
@@ -33,8 +34,7 @@ class SharedConceptsSpec extends RESTSpec {
 
         then: "observations are returned from both Studies"
         (0..<selector.cellCount).each {
-            assert (selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_A_ID) ||
-                    selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_B_ID))
+            assert [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID].contains(selector.select(it, "study", "name", 'String'))
             assert selector.select(it, "concept", "conceptCode", 'String').equals('VSIGN:HR')
             assert selector.select(it) != null
         }
@@ -102,8 +102,7 @@ class SharedConceptsSpec extends RESTSpec {
 
         then: "observations are returned from both public Studies but not the restricted study"
         (0..<selector.cellCount).each {
-            assert (selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_A_ID) ||
-                    selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_B_ID))
+            assert [SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID].contains(selector.select(it, "study", "name", 'String'))
             assert !selector.select(it, "study", "name", 'String').equals(SHARED_CONCEPTS_RESTRICTED_ID)
             assert selector.select(it, "concept", "conceptCode", 'String').equals('VSIGN:HR')
             assert selector.select(it) != null

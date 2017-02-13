@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v1
 
 import base.RESTSpec
@@ -5,6 +6,7 @@ import spock.lang.Requires
 
 import static config.Config.*
 
+@Requires({GSE8581_LOADED})
 class ObservationsSpec extends RESTSpec{
 
     /**

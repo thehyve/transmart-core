@@ -1,3 +1,4 @@
+/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.multidimquery.query
 
 import grails.databinding.BindUsing
@@ -215,22 +216,43 @@ class ModifierConstraint extends Constraint {
     static String constraintName = "modifier"
     String modifierCode
     String path
+    String dimensionName
     ValueConstraint values
 
     static constraints = {
         values nullable: true
-        path nullable: true
-        modifierCode nullable: true, validator: {val, obj, Errors errors ->
-            if (!val && !obj.path) {
+        path nullable: true, blank: false
+        dimensionName nullable: true, blank: false
+        modifierCode nullable: true, blank: false, validator: {val, obj, Errors errors ->
+            def message = "Modifier constraint requires path, dimensionName or modifierCode."
+            if (!val && !obj.path && !obj.dimensionName) {
+                    errors.rejectValue(
+                            'modifierCode',
+                            'org.transmartproject.query.invalid.arg.message',
+                            "$message Got none.")
+            } else if (val && obj.path && obj.dimensionName) {
                 errors.rejectValue(
                         'modifierCode',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Modifier constraint requires path or modifierCode. Got none.")
-            } else if (val && obj.path) {
+                        "$message Got all.")
+            }
+            else if (!val && obj.path && obj.dimensionName) {
+                errors.rejectValue(
+                        'path',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "$message Got both path and dimensionName.")
+            }
+            else if (val && !obj.path && obj.dimensionName) {
                 errors.rejectValue(
                         'modifierCode',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Modifier constraint requires path or modifierCode. Got both.")
+                        "$message Got both dimensionName and modifierCode.")
+            }
+            else if (val && obj.path && !obj.dimensionName) {
+                errors.rejectValue(
+                        'modifierCode',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "$message Got both path and modifierCode.")
             }
         }
     }
