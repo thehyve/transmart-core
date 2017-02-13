@@ -26,6 +26,8 @@ before_install:
   - echo sdkman_auto_answer=true > ~/.sdkman/etc/config
   - source "/home/travis/.sdkman/bin/sdkman-init.sh"
   - sdk install grails
+  - export GRAILS_GRADLE_HOME=~/.sdkman/gradle/current
+  - gradle --version
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 3375DA21
   - echo deb http://apt.thehyve.net/internal/ trusty main | sudo tee /etc/apt/sources.list.d/hyve_internal.list
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E5267A6C
