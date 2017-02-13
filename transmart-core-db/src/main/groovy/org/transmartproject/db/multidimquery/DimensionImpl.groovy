@@ -62,7 +62,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static final StudyDimension STUDY =            new StudyDimension(SMALL, DENSE, NOT_PACKABLE)
     static final ConceptDimension CONCEPT =        new ConceptDimension(MEDIUM, DENSE, NOT_PACKABLE)
     static final PatientDimension PATIENT =        new PatientDimension(LARGE, DENSE, PACKABLE)
-    static final VisitDimension VISIT =            new VisitDimension(MEDIUM, DENSE, PACKABLE)
+    static final VisitDimension VISIT =            new VisitDimension(MEDIUM, DENSE, NOT_PACKABLE)
     static final StartTimeDimension START_TIME =   new StartTimeDimension(LARGE, SPARSE, NOT_PACKABLE)
     static final EndTimeDimension END_TIME =       new EndTimeDimension(LARGE, SPARSE, NOT_PACKABLE)
     static final LocationDimension LOCATION =      new LocationDimension(MEDIUM, SPARSE, NOT_PACKABLE)
@@ -291,6 +291,19 @@ trait CompositeElemDim<ELT,ELKey> {
     }
 }
 
+/**
+ * This trait must be implemented by all dimensions that are Packable. It is also implemented by ModifierDimension,
+ * even though instances of it need not be packable.
+ */
+@CompileStatic
+trait PackableDimension {
+    abstract Size getSize()
+
+    /**
+     * The available packable dimension with the highest pack priority should be used to pack on.
+     */
+    abstract double getPackPriority()
+}
 
 @CompileStatic @InheritConstructors
 abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
@@ -342,7 +355,7 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
 // extended to also support modifiers that link to other tables, thus leading to modifier dimensions with compound
 // element types
 @CompileStatic
-class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableElemDim<Object> {
+class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableElemDim<Object>, PackableDimension {
     private static Map<String,ModifierDimension> byName = [:]
     private static Map<String,ModifierDimension> byCode = [:]
     synchronized static ModifierDimension get(String name, String modifierCode, Class elementType,
@@ -402,6 +415,13 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
         "${this.class.simpleName}(name: '$name', code: '$modifierCode', $size, $density, $packable)"
     }
 
+    @Override double getPackPriority() {
+        if(!packable.packable) return 0
+        // TODO: just a guess, maybe this should also be stored in the database. Presumably if this dimension is
+        // marked PACKABLE we should use it for packing if there is not an obviously better candidate such as Patient.
+        return 10
+    }
+
     /**
      * Add the value from the modifierRow into the result
      */
@@ -416,7 +436,8 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
 }
 
 @CompileStatic @InheritConstructors
-class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> implements CompositeElemDim<I2B2PatientDimension, Long> {
+class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long>
+        implements CompositeElemDim<I2B2PatientDimension, Long>, PackableDimension {
     Class elemType = I2B2PatientDimension
     List elemFields = ["id", "trial", "inTrialId", "birthDate", "deathDate",
                       "age", "race", "maritalStatus", "religion", "sexCd",
@@ -427,6 +448,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
     String name = 'patient'
     String alias = 'patientId'
     String columnName = 'patient.id'
+    double packPriority = 30
 
     @Override def selectIDs(Query query) {
         if(query.params.patientSelected) return
@@ -457,12 +479,13 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
 }
 
 @CompileStatic @InheritConstructors
-class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements CompositeElemDim<TrialVisit, Long> {
+class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements CompositeElemDim<TrialVisit, Long>, PackableDimension {
     Class elemType = TrialVisit
     List elemFields = ["id", "relTimeLabel", "relTimeUnit", "relTime"]
     String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
+    double packPriority = 2
 
     @CompileDynamic
     @Override List<TrialVisit> doResolveElements(List<Long> elementKeys) {
@@ -589,7 +612,7 @@ class ProviderDimension extends I2b2NullablePKDimension<String,String> implement
 }
 
 @CompileStatic @InheritConstructors
-class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeElemDim<Assay, Long> {
+class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeElemDim<Assay, Long>, PackableDimension {
     Class elemType = Assay
     List elemFields = ['id', 'sampleCode',
         new PropertyImpl('sampleTypeName', null, String) {
@@ -598,6 +621,7 @@ class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeEl
             def get(element) { ((Assay) element).platform?.id } },
     ]
     String name = 'assay'
+    double packPriority = 100
 }
 
 // TODO: Expose the other Assay properties as the proper dimensions. Their structure should as much as possible be
@@ -609,10 +633,11 @@ class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeEl
 
 @CompileStatic @InheritConstructors
 class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> implements
-        CompositeElemDim<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> {
+        CompositeElemDim<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object>, PackableDimension {
     Class elemType = HddTabularResultHypercubeAdapter.BioMarkerAdapter
     List elemFields = ['label', 'biomarker']
     String name = 'biomarker'
+    double packPriority = 50
 }
 
 @CompileStatic @InheritConstructors

@@ -195,6 +195,13 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         }
     }
 
+    protected PackedCell createPackedCell() {
+
+        HypercubeValue nextVal = iterator.peek()
+
+
+    }
+
     protected Footer buildFooter() {
         def builder = Footer.newBuilder()
         for(dim in cube.dimensions.findAll { it.density.isDense }) {
@@ -210,8 +217,15 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     void write(Map args, Hypercube cube, OutputStream out) {
         this.cube = cube
         this.out = out
-        this.packedDimension = (Dimension) args.packedDimension
-        this.packingEnabled = packedDimension != null
+
+        Dimension packDim = cube.sorting.keySet().asList()[-1]
+        if(packDim.packable.packable) {
+            packedDimension = packDim
+            packingEnabled = true
+        } else {
+            packedDimension = null
+            packingEnabled = false
+        }
 
         this.iterator = cube.iterator()
         this.inlineDims = cube.dimensions.findAll { it != packedDimension && !it.density.isDense }
@@ -220,9 +234,16 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         try {
             buildHeader().writeDelimitedTo(out)
 
-            while(iterator.hasNext()) {
-                def message = createCell(iterator.next())
-                message.build().writeDelimitedTo(out)
+            if(!packingEnabled) {
+                while(iterator.hasNext()) {
+                    def message = createCell(iterator.next())
+                    message.build().writeDelimitedTo(out)
+                }
+            } else {
+                while(iterator.hasNext()) {
+                    def message = createPackedCell()
+                    message.writeDelimitedTo(out)
+                }
             }
 
             buildFooter().writeDelimitedTo(out)
@@ -246,6 +267,25 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
             throw e
         }
+    }
+
+    static class GroupingIterator implements Iterator<List<HypercubeValue>> {
+        Iterator<HypercubeValue> iter
+        Dimension toPack
+
+        GroupingIterator(PeekingIterator<HypercubeValue> iter, Dimension toPack) {
+            this.iter = iter
+            this.toPack = toPack
+        }
+
+        @Override List<HypercubeValue> next() {
+
+        }
+
+        @Override boolean hasNext() {
+
+        }
+
     }
 }
 

@@ -3,6 +3,7 @@ package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
@@ -20,6 +21,7 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
+import org.transmartproject.core.multidimquery.dimensions.Order
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
@@ -40,6 +42,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     private TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ? /* depends on projection */>> table
     private TabularResultAdapterIterator iterator
 
+    ImmutableMap<Dimension, Order> sorting = ImmutableMap.of(biomarkerDim, Order.ASC, assayDim, Order.ASC)
     /**
      * Either an IndexedArraySet or an ImmutableList
      * projectionFields is collected dynamically, but as all tabular cells should contain the same projection fields

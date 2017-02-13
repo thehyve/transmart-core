@@ -2,6 +2,7 @@
 package org.transmartproject.db.clinical
 
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.TupleConstructor
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.dimensions.Order
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.AssayDimension
@@ -124,6 +126,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         dimensions.each {
             it.selectIDs(query)
         }
+
+        ImmutableMap<Dimension,Order> sorting
+
         if (query.params.modifierCodes != ['@']) {
             if(sort != null) throw new NotImplementedException("sorting is not implemented")
 
@@ -143,11 +148,14 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 // 'modifierCd' needs to be excluded or listed last when using modifiers
                 order 'conceptCode'
                 order 'providerId'
-                order 'patient'
                 order 'encounterNum'
                 order 'startDate'
                 order 'instanceNum'
+                order 'patient'
             }
+            sorting = ImmutableMap.copyOf([CONCEPT, PROVIDER, START_TIME, PATIENT].collectEntries { [it, Order.ASC] })
+        } else {
+            sorting = ImmutableMap.copyOf([START_TIME, PATIENT].collectEntries { [it, Order.ASC] })
         }
 
         q.with {
@@ -157,6 +165,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             // support in this service which the tests should then use.
             if(query.params.modifierCodes == ['@']) {
                 order 'startDate'
+                order 'patient'
             }
         }
 
@@ -172,7 +181,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         ScrollableResults results = query.criteria.instance.scroll(ScrollMode.FORWARD_ONLY)
 
-        new HypercubeImpl(results, dimensions, aliases, query, session)
+        new HypercubeImpl(results, dimensions, aliases, sorting, query, session)
         // session will be closed by the Hypercube
     }
 

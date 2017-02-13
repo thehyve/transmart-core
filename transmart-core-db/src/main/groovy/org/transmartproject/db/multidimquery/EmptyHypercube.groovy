@@ -2,6 +2,7 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import com.google.common.collect.PeekingIterator
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
@@ -13,6 +14,7 @@ class EmptyHypercube implements Hypercube {
     final boolean DimensionsPreloadable = false
     final boolean DimensionsPreloaded =  false
     final boolean AutoloadDimensions = false
+    final ImmutableMap sorting = ImmutableMap.of()
 
     void loadDimensions() {}
     ImmutableList<Object> dimensionElements(Dimension dim){

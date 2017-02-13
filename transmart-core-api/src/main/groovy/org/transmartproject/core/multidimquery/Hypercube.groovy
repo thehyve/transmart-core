@@ -2,8 +2,10 @@
 package org.transmartproject.core.multidimquery
 
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import com.google.common.collect.PeekingIterator
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.multidimquery.dimensions.Order
 
 interface Hypercube extends IterableResult<HypercubeValue> {
 
@@ -12,6 +14,13 @@ interface Hypercube extends IterableResult<HypercubeValue> {
     ImmutableList<Object> dimensionElements(Dimension dim)
 
     ImmutableList<Dimension> getDimensions()
+
+    /**
+     * An ordered map that includes the dimensions on which the result is ordered. The order in the map is the same
+     * as the order in which the sorting is applied to the result. The values indicate if the sorting is ascending or
+     * descending.
+     */
+    ImmutableMap<Dimension, Order> getSorting()
 
     Object dimensionElement(Dimension dim, Integer idx)
 

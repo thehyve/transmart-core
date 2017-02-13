@@ -13,6 +13,7 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.core.multidimquery.dimensions.Order
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
@@ -50,6 +51,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     protected final ImmutableMap<Dimension,Integer> dimensionsIndex
     final ImmutableList<DimensionImpl> dimensions
     final ImmutableList<ModifierDimension> modifierDimensions
+    final ImmutableMap<Dimension,Order> sorting
 
     // Map from Dimension -> dimension element keys
     // The IndexedArraySet provides efficient O(1) indexOf/contains operations
@@ -63,11 +65,12 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     private boolean _dimensionsLoaded = false
 
     HypercubeImpl(ScrollableResults results, Collection<DimensionImpl> dimensions, String[] aliases,
-                  Query query, StatelessSessionImpl session) {
+                  ImmutableMap<Dimension,Order> sorting, Query query, StatelessSessionImpl session) {
         this.results = results
         // Make sure modifier dimensions are at the end of this list
         this.dimensions = ImmutableList.copyOf(dimensions)
         this.dimensionsIndex = ImmutableMap.copyOf(this.dimensions.withIndex().collectEntries())
+        this.sorting = sorting
         this.query = query
         this.session = session
 
