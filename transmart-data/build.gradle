@@ -98,7 +98,7 @@ task dataloadingTest << {
 dataloadingTest.dependsOn 'checkDependencies'
 
 task createConfig <<{
-    make('-C config/config install')
+    make('-C config install')
 }
 
 defaultTasks 'createVars'
