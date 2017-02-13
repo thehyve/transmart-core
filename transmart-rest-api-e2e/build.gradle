@@ -26,6 +26,11 @@ test.testLogging.exceptionFormat = 'full'
 // Uncomment to show standard out/error output
 //test.testLogging.showStandardStreams = true
 
+task startWar(type: ExecWait) {
+    command 'java -jar build/libs/transmartApp-17.1-SNAPSHOT.war'
+    ready 'Grails application running at'
+    directory '../transmartApp'
+}
 
 task startTransmartApp(type: ExecWait) {
     command 'grails run-app'
@@ -97,7 +102,7 @@ gradle.addListener new TestLifecycleListener()
 
 class TestLifecycleListener implements TaskExecutionListener {
 
-    def servers = ['TransmartRest']
+    def servers = ['War']
 
     @Override
     void beforeExecute(Task task) {
