@@ -110,6 +110,7 @@ class PatientSetController {
 
     private wrapPatients(Object source) {
         new ContainerResponseWrapper(
+                key: 'subjects',
                 container: source,
                 componentType: Patient,
                 links: [new Link(AbstractLinkingRenderer.RELATIONSHIP_SELF, "/patient_sets")]
