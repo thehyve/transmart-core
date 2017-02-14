@@ -38,7 +38,7 @@ before_install:
 
 install:
   - echo $DIR; cd $DIR
-  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; gradle $INSTALL)
+  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; ../gradlew $INSTALL)
   - cd -
 
 before_script:
