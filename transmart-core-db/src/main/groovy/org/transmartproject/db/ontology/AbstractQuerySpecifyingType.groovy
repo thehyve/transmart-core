@@ -92,9 +92,14 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
     }
 
     protected int countPatients(OntologyTerm term) {
+        def patientsCount = 0
         String sqlQuery = patientSetQueryBuilderService.buildPatientCountQuery(term)
-        def query = sessionFactory.currentSession.createSQLQuery(sqlQuery)
-        query.list()[0] ?: 0
+        if (sqlQuery.length() > 0) {
+            def query = sessionFactory.currentSession.createSQLQuery(sqlQuery)
+            patientsCount = query.list()[0] ?: 0 as int
+        }
+
+        patientsCount
     }
 
     @Override
