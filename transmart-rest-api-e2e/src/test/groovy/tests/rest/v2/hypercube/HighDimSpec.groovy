@@ -285,7 +285,7 @@ class HighDimSpec extends RESTSpec {
 
 
         then:
-        assert selector.cellCount == 18
+        assert selector.cellCount == 12
 
         where:
         acceptType | newSelector
@@ -366,11 +366,11 @@ class HighDimSpec extends RESTSpec {
                                 operator: AND,
                                 args: [
                                         [
-                                            "type": "ConceptConstraint",
+                                            "type": ConceptConstraint,
                                             "path": "\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Breast\\"
                                         ],
                                         [
-                                            "type": "StudyNameConstraint",
+                                            "type": StudyNameConstraint,
                                             "studyId": "RNASEQ_TRANSCRIPT"
                                         ],
                                         [type: ModifierConstraint, path:"\\Public Studies\\RNASEQ_TRANSCRIPT\\Sample Type\\",
@@ -427,7 +427,7 @@ class HighDimSpec extends RESTSpec {
 
         then:
         that responseData.httpStatus, is(400)
-        that responseData.type, is('InvalidArgumentsException')
+        that responseData.type, is('ConstraintBindingException')
         that responseData.message, is('Constraint not supported: invalidConstraint.')
 
         where:

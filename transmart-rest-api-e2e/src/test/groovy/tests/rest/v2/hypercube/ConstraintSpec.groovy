@@ -29,6 +29,7 @@ class ConstraintSpec extends RESTSpec{
      NullConstraint.class
      */
     def final INVALIDARGUMENTEXCEPTION = "InvalidArgumentsException"
+    def final CONSTRAINTBINDINGEXCEPTION = "ConstraintBindingException"
     def final EMPTYCONTSTRAINT = "Empty constraint parameter."
 
     /**
@@ -48,7 +49,7 @@ class ConstraintSpec extends RESTSpec{
 
         then: "then I get a 400 with 'Constraint not supported: BadType.'"
         that responseData.httpStatus, is(400)
-        that responseData.type, is(INVALIDARGUMENTEXCEPTION)
+        that responseData.type, is(CONSTRAINTBINDINGEXCEPTION)
         that responseData.message, is('Constraint not supported: BadType.')
 
         where:

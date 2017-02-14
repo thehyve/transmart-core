@@ -23,6 +23,8 @@ import org.transmartproject.core.multidimquery.dimensions.BioMarker
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
+import org.transmartproject.db.i2b2data.PatientDimension as I2b2Patient
+
 @CompileStatic
 class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<HypercubeValue> implements Hypercube {
     private static Object typeError(cell) {
@@ -57,13 +59,18 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     )
 
     protected ImmutableList<Assay> assays
-    protected ImmutableList<Patient> patients
-    protected List<BioMarker> biomarkers = [] // replaced by an ImmutableList once we have finished iterating
+    protected List<Patient> patients  // replaced by an ImmutableList once we have finished iterating
+    protected List<BioMarker> biomarkers = [] // idem
 
     HddTabularResultHypercubeAdapter(TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ?>> tabularResult) {
         table = tabularResult
         assays = (ImmutableList) ImmutableList.copyOf(table.getIndicesList())
-        patients = (ImmutableList) ImmutableList.copyOf(assays*.patient as Set)
+
+        // The getAll fetches all patients in a single query. Unfortunately before that hibernate decides that it
+        // needs to flush its cache and in the process of it loads the patients one by one. I have no idea why it
+        // deems that necessary. The cached objects it is flushing are the assays we have here and it is cascading to
+        // their patients.
+        patients = new IndexedArraySet<>((List) I2b2Patient.getAll((List) assays*.patient.id))
     }
 
     protected List<? extends Object> _dimensionElems(Dimension dim) {
@@ -118,6 +125,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
             if(!tabularIter.hasNext()) {
                 _projectionFields = ImmutableList.copyOf(_projectionFields)
                 biomarkers = ImmutableList.copyOf(biomarkers)
+                patients = ImmutableList.copyOf(patients)
                 return endOfData()
             }
 
