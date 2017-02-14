@@ -70,7 +70,9 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         // needs to flush its cache and in the process of it loads the patients one by one. I have no idea why it
         // deems that necessary. The cached objects it is flushing are the assays we have here and it is cascading to
         // their patients.
-        patients = new IndexedArraySet<>((List) I2b2Patient.getAll((List) assays*.patient.id))
+        // Also using getAll requires integration tests to test this class, now we can do with only unit tests.
+        // patients = new IndexedArraySet<>((List) I2b2Patient.getAll((List) assays*.patient.id))
+        patients = new IndexedArraySet<>((List) assays*.patient)
     }
 
     protected List<? extends Object> _dimensionElems(Dimension dim) {
