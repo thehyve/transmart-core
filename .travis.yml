@@ -5,7 +5,7 @@ jdk:
 php:
   - 5.6
 env:
-  - TERM=dumb; DIR=transmart-rest-api-e2e; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest :transmart-data:createConfig :transmartApp:bootRepackage"; TEST="test"
+  - TERM=dumb; DIR=transmart-rest-api-e2e; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest :transmart-data:createConfig :transmartApp:war :transmartApp:bootRepackage"; TEST="test"
 
 addons:
   postgres: 9.4
