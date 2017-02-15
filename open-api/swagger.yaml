@@ -200,7 +200,9 @@ info:
     returns all observations not linked to patient with id -62, -52 or -42
     
     ## Biomarker
-    Used to evaluate hiDim observations. It needs a 'biomarkerType' and a 'params' object. It should only be used for the `/v2/high_dim` endpoint.
+    Used to filter high dimensional observations. It needs a 'biomarkerType' and a 'params' object. It can only be used
+    when retrieving high dimensional data, and if so needs to be specified in a separate url parameter
+    `biomarker_constraint`.
     `biomarkerType`: `["transcripts", "genes"]`.
     
     Example:
@@ -676,10 +678,30 @@ paths:
         - application/json
         - application/x-protobuf
       parameters:
+        - name: type
+          required: true
+          in: query
+          description: 'specifies the type of the data you want to retrieve. For clinical data specify `clinical`,
+          for high dimensional data specify the data type or use `autodetect`. If you use `autodetect` the
+          constraints must be such that only a single type of high dimensional data matches.'
+          type: string
         - name: constraint
           required: true
           in: query
-          description: 'json that specifies the constraint. Example: `{"type":"study_name", "studyId":"EHR"}`.'
+          description: 'json that specifies the constraint. Example: `{"type":"study_name", "studyId":"EHR"}` or
+          `{"type":"concept","path":"\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"}`.'
+          type: string
+        - name: biomarker_constraint
+          required: false
+          in: query
+          description: 'json that describes the biomarker. The only valid type is the ''biomarker'' constraint Example:
+          `{"type":"biomarker", "biomarkerType":"genes","params":{"names":["TP53"]}}`.'
+          type: string
+        - name: projection
+          required: false
+          in: query
+          description: 'The projection. Only used with high dimensional data Example: `all_data`, `zscore`,
+          `log_intensity`. Default: `all_data`.'
           type: string
       responses:
         200:
@@ -737,25 +759,6 @@ paths:
             properties:
               count:
                 type: integer
-  /v2/observation_list:
-    get:
-      description: |
-        Gets all observations that satisfy the given constaint as a list. Empty and null values are returned but have no value property
-      tags:
-        - v2
-      parameters:
-        - name: constraint
-          required: true
-          in: query
-          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
-          type: string
-      responses:
-        200:
-          description: 'Returns a list with observation objects.'
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/observation'
   /v2/patients:
     get:
       description: |
@@ -832,35 +835,6 @@ paths:
                 type: string
               username:
                 type: string
-  /v2/high_dim:
-    get:
-      description: |
-        Gets all high dimensional observations that satisfy the given constaints. Only observations the calling user has access to are returned. Empty and null values are returned but have no value property
-      produces:
-        - application/json
-        - application/x-protobuf
-      tags:
-        - v2
-      parameters:
-        - name: assay_constraint
-          required: true
-          in: query
-          description: 'json that describes the assays. Example: `{"type":"concept","path":"\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"}`.'
-          type: string
-        - name: biomarker_constraint
-          in: query
-          description: 'json that describes the biomarker. Example: `{"type":"biomarker","biomarkerType":"genes","params":{"names":["TP53"]}}`.'
-          type: string
-        - name: projection
-          in: query
-          description: 'The projection. Example: `all_data`, `zscore`, `log_intensity`.'
-          type: string
-      responses:
-        200:
-          description: |
-            Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
-          schema:
-            $ref: '#/definitions/observations'
   /v2/tree_nodes:
     get:
       description: |
