@@ -3,13 +3,22 @@ package org.transmartproject.rest
 
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.users.User
+import org.transmartproject.db.multidimquery.QueryService
+import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 
 @Transactional
-class MultidimensionalDataSerialisationService {
+class MultidimensionalDataService {
+
+    @Autowired
+    QueryService queryService
 
     /**
      * Type to represent the requested serialization format.
@@ -56,5 +65,25 @@ class MultidimensionalDataSerialisationService {
                 throw new Exception("Unsupported format: ${format}")
         }
         serializer.write(hypercube, out)
+    }
+
+    void write(Format format,
+               String type,
+               MultiDimConstraint assayConstraint,
+               MultiDimConstraint biomarkerConstraint,
+               String projection,
+               User user,
+               OutputStream out) {
+
+        Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
+
+        try {
+            serialise(hypercube, format, out)
+        } finally {
+            hypercube.close()
+            out.close()
+        }
+
+
     }
 }
