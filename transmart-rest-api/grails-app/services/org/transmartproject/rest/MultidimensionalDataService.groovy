@@ -52,7 +52,7 @@ class MultidimensionalDataService {
      * @param format the output format. Supports JSON and PROTOBUF.
      * @param out the stream to serialise to.
      */@CompileStatic
-    void serialise(Hypercube hypercube, Format format, OutputStream out) {
+    private void serialise(Hypercube hypercube, Format format, OutputStream out) {
         HypercubeSerializer serializer
         switch (format) {
             case Format.JSON:
@@ -67,13 +67,44 @@ class MultidimensionalDataService {
         serializer.write(hypercube, out)
     }
 
-    void write(Format format,
-               String type,
-               MultiDimConstraint assayConstraint,
-               MultiDimConstraint biomarkerConstraint,
-               String projection,
-               User user,
-               OutputStream out) {
+    /**
+     * Write clinical data to the output stream
+     *
+     * @param format
+     * @param constraint
+     * @param user The user accessing the data
+     * @param out
+     */
+    void writeClinical(Format format, MultiDimConstraint constraint, User user, OutputStream out) {
+
+        Hypercube result = queryService.retrieveClinicalData(constraint, user)
+
+        try {
+            log.info "Writing to format: ${format}"
+            serialise(result, format, out)
+        } finally {
+            result.close()
+        }
+    }
+
+    /**
+     * Write high dimensional data to the output stream
+     *
+     * @param format
+     * @param type The type of highdim data or 'autodetect'
+     * @param assayConstraint
+     * @param biomarkerConstraint
+     * @param projection
+     * @param user
+     * @param out
+     */
+    void writeHighdim(Format format,
+                      String type,
+                      MultiDimConstraint assayConstraint,
+                      MultiDimConstraint biomarkerConstraint,
+                      String projection,
+                      User user,
+                      OutputStream out) {
 
         Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
 
@@ -81,9 +112,7 @@ class MultidimensionalDataService {
             serialise(hypercube, format, out)
         } finally {
             hypercube.close()
-            out.close()
         }
-
 
     }
 }

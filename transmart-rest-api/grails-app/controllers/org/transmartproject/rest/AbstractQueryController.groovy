@@ -25,7 +25,7 @@ abstract class AbstractQueryController implements Controller {
     UsersResource usersResource
 
     @Autowired
-    MultidimensionalDataSerialisationService multidimensionalDataSerialisationService
+    MultidimensionalDataService multidimensionalDataService
 
     def conceptsResourceService
 

@@ -26,6 +26,7 @@ import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
@@ -216,7 +217,7 @@ class QueryService {
         (Long) get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
     }
 
-    @Cacheable('org.transmartproject.db.dataquery2.QueryService')
+    @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
     Long cachedCountForConstraint(Constraint constraint, User user) {
         count(constraint, user)
     }
@@ -342,7 +343,7 @@ class QueryService {
         (Long) get(patientCriteria.setProjection(Projections.rowCount()))
     }
 
-    @Cacheable('org.transmartproject.db.dataquery2.QueryService')
+    @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
     Long cachedPatientCountForConstraint(Constraint constraint, User user) {
         patientCount(constraint, user)
     }
@@ -458,12 +459,15 @@ class QueryService {
 
     @CompileStatic
     Hypercube highDimension(
-            Constraint assayConstraint,
-            BiomarkerConstraint biomarkerConstraint = new BiomarkerConstraint(),
+            MultiDimConstraint assayConstraint_,
+            MultiDimConstraint biomarkerConstraint_ = new BiomarkerConstraint(),
             String projectionName = Projection.ALL_DATA_PROJECTION,
-            User user,
+            org.transmartproject.core.users.User user_,
             String type) {
         projectionName = projectionName ?: Projection.ALL_DATA_PROJECTION
+        Constraint assayConstraint = (Constraint) assayConstraint_
+        BiomarkerConstraint biomarkerConstraint = (BiomarkerConstraint) biomarkerConstraint_
+        User user = (User) user_
         checkAccess(assayConstraint, user)
 
         List<ObservationFact> observations = highDimObservationList(assayConstraint, user,
@@ -515,10 +519,13 @@ class QueryService {
         }
     }
 
-    Hypercube retrieveClinicalData(Constraint constraint, User user) {
+    Hypercube retrieveClinicalData(MultiDimConstraint constraint_, org.transmartproject.core.users.User user_) {
+        Constraint constraint = (Constraint) constraint_
+        User user = (User) user_
         checkAccess(constraint, user)
         def dataType = 'clinical'
         def accessibleStudies = accessControlChecks.getDimensionStudiesForUser(user)
         queryResource.retrieveData(dataType, accessibleStudies, constraint: constraint)
     }
+
 }
