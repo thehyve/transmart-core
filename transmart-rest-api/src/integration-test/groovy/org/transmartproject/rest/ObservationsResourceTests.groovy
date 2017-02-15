@@ -25,12 +25,35 @@
 
 package org.transmartproject.rest
 
+import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
+import org.hibernate.Session
+import org.hibernate.SessionFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.db.TestData
+import org.transmartproject.db.user.AccessLevelTestData
+import spock.lang.IgnoreRest
+
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
 import static org.thehyve.commons.test.FastMatchers.mapWith
 import static spock.util.matcher.HamcrestSupport.that
 
+@Rollback
+@Integration
 class ObservationsResourceTests extends ResourceSpec {
+
+    @Autowired
+    SessionFactory sessionFactory
+
+    void setup() {
+        def testData = TestData.createDefault()
+        testData.saveAll()
+//        new org.transmartproject.rest.test.TestData().createTestData()
+//        AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
+//                .saveAll()
+        sessionFactory.currentSession.flush()
+    }
 
     def studyId = 'STUDY_ID_1'
     def label = "\\foo\\study1\\bar\\"
@@ -54,7 +77,9 @@ class ObservationsResourceTests extends ResourceSpec {
             ],
     ]
 
+    @IgnoreRest
     void testListAllObservationsForStudy() {
+
         def response = get("/$VERSION/studies/${studyId}/observations")
 
         when:

@@ -35,11 +35,11 @@ class BootStrap {
     def init = { servletContext ->
         if (Environment.current == Environment.TEST) {
             log.info "Setting up test data..."
-            def testData = TestData.createDefault()
-            testData.saveAll()
-            new org.transmartproject.rest.test.TestData().createTestData()
-            AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
-                    .saveAll()
+//            def testData = TestData.createDefault()
+//            testData.saveAll()
+//            new org.transmartproject.rest.test.TestData().createTestData()
+//            AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
+//                    .saveAll()
         }
     }
 
