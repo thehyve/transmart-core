@@ -27,12 +27,11 @@ package org.transmartproject.rest
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.hibernate.Session
+import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.TestData
 import org.transmartproject.db.user.AccessLevelTestData
-import spock.lang.IgnoreRest
 
 import static org.hamcrest.Matchers.*
 import static org.thehyve.commons.test.FastMatchers.listOfWithOrder
@@ -41,18 +40,20 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Rollback
 @Integration
+@Slf4j
 class ObservationsResourceTests extends ResourceSpec {
 
     @Autowired
     SessionFactory sessionFactory
 
     void setup() {
+        sessionFactory.openSession()
         def testData = TestData.createDefault()
         testData.saveAll()
-//        new org.transmartproject.rest.test.TestData().createTestData()
-//        AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
-//                .saveAll()
-        sessionFactory.currentSession.flush()
+        new org.transmartproject.rest.test.TestData().createTestData()
+        AccessLevelTestData.createWithAlternativeConceptData(testData.conceptData)
+                .saveAll()
+            sessionFactory.currentSession.flush()
     }
 
     def studyId = 'STUDY_ID_1'
@@ -77,7 +78,6 @@ class ObservationsResourceTests extends ResourceSpec {
             ],
     ]
 
-    @IgnoreRest
     void testListAllObservationsForStudy() {
 
         def response = get("/$VERSION/studies/${studyId}/observations")
@@ -224,5 +224,10 @@ class ObservationsResourceTests extends ResourceSpec {
                                                 label: '\\foo\\study1\\bar\\',
                                                 value: 10.0 as Double,
                                         )))))
+    }
+
+    void cleanup() {
+//        sessionFactory.currentSession.createSQLQuery("DROP ALL OBJECTS").executeUpdate()
+        sessionFactory.close()
     }
 }
