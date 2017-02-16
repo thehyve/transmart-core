@@ -27,7 +27,7 @@ public class FTPUtil {
     private static org.apache.log4j.Logger log =
             Logger.getLogger(FTPUtil.class);
     @SuppressWarnings("rawtypes")
-    private static final Map config = Holders.getFlatConfig();
+    private static final Map config = Holders.getConfig();
 
     private static final String FTP_SERVER = (String) config.get("com.recomdata.transmart.data.export.ftp.server");
     private static final String FTP_SERVER_PORT = (String) config.get("com.recomdata.transmart.data.export.ftp.serverport");

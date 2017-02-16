@@ -5,6 +5,7 @@ import groovy.transform.CompileStatic
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermType
+import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.TrialVisitDimension
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
@@ -77,7 +78,7 @@ class TreeNode {
         def constraint = [:] as Map
         if (studyNode && studyId) {
             return [
-                type: StudyNameConstraint.simpleName,
+                type: StudyNameConstraint.constraintName,
                 studyId: studyId
             ] as Map
         }
@@ -89,7 +90,7 @@ class TreeNode {
                 if (columnName == 'concept_path' && hasOperator(['=', 'like'])) {
                     // constraint for the concept
                     def conceptConstraint = [
-                            type: ConceptConstraint.simpleName,
+                            type: ConceptConstraint.constraintName,
                             path: dimensionCode
                     ] as Map
                     // lookup study for this node
@@ -100,10 +101,10 @@ class TreeNode {
                     }
                     // combine concept constraint with study constraint
                     def studyConstraint =                             [
-                            type: StudyNameConstraint.simpleName,
+                            type: StudyNameConstraint.constraintName,
                             studyId: parentStudyId
                     ]
-                    constraint.type = Combination.simpleName
+                    constraint.type = Combination.constraintName
                     constraint.operator = Operator.AND.symbol
                     constraint.args = [
                             conceptConstraint,
@@ -114,7 +115,7 @@ class TreeNode {
                 return null
             case 'patient_dimension':
                 if (columnName == 'patient_num') {
-                    constraint.type = PatientSetConstraint.simpleName
+                    constraint.type = PatientSetConstraint.constraintName
                     def patientIds = []
                     if (hasOperator(['='])) {
                         try {
@@ -138,7 +139,7 @@ class TreeNode {
                 }
                 return null
             case 'modifier_dimension':
-                constraint.type = ModifierConstraint.simpleName
+                constraint.type = ModifierConstraint.constraintName
                 if (columnName == 'modifier_path' && hasOperator(['=', 'like'])) {
                     constraint.path = dimensionCode
                     return constraint
@@ -148,12 +149,12 @@ class TreeNode {
                 }
                 return null
             case 'trial_visit_dimension':
-                constraint.type = FieldConstraint.simpleName
+                constraint.type = FieldConstraint.constraintName
                 def fieldName
                 def value
                 switch (columnName) {
                     case 'study_num':
-                        constraint.type = StudyNameConstraint.simpleName
+                        constraint.type = StudyNameConstraint.constraintName
                         if (hasOperator(['='])) {
                             try {
                                 constraint.id = Long.parseLong(dimensionCode)
@@ -179,7 +180,7 @@ class TreeNode {
                         return null
                 }
                 constraint.field = [
-                        dimension: TrialVisitDimension.simpleName,
+                        dimension: DimensionImpl.TRIAL_VISIT.name,
                         fieldName: fieldName,
                         value: value
                 ] as Map

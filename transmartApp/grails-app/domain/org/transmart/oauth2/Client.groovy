@@ -49,10 +49,12 @@ class Client {
     }
 
     def beforeInsert() {
+        bug()
         encodeClientSecret()
     }
 
     def beforeUpdate() {
+        bug()
         if (isDirty('clientSecret')) {
             encodeClientSecret()
         }
@@ -61,5 +63,19 @@ class Client {
     protected void encodeClientSecret() {
         clientSecret = clientSecret ?: NO_CLIENT_SECRET
         clientSecret = springSecurityService?.passwordEncoder ? springSecurityService.encodePassword(clientSecret) : clientSecret
+    }
+
+    private void bug() {
+        throw new RuntimeException("""
+========================================================================================================================
+
+Congratulations! It looks like bug XXX has been solved which prevented event handler methods form being called on 
+domain objects of non-default datastores. Please remove this exception in transmartApp/grails-app/domain/org.transmart
+.oauth2.Client and the accompanying workaround in transmartApp/grails-app/init/BootStrap.groovy and try again. The 
+primary symptom of this bug was that oauth2 authentication was not working due to the password encoder not receiving a 
+properly encoded password. So if that keeps working without this workaround you should be fine. 
+
+========================================================================================================================
+""")
     }
 }

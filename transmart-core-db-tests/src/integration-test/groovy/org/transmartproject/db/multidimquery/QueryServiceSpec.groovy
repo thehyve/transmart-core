@@ -98,17 +98,17 @@ class QueryServiceSpec extends TransmartSpecification {
         setupHypercubeData()
 
         Constraint constraint = ConstraintFactory.create([
-                type    : 'Combination',
+                type    : 'combination',
                 operator: 'and',
                 args    : [
                         [
-                                type     : 'ValueConstraint',
+                                type     : 'value',
                                 valueType: 'NUMERIC',
                                 operator : '>',
                                 value    : 1
                         ],
                         [
-                                type    : 'FieldConstraint',
+                                type    : 'field',
                                 field   : [dimension: 'patient', fieldName: 'sourcesystemCd'],
                                 operator: 'contains',
                                 value   : 'SUBJ_ID_2'
@@ -137,11 +137,11 @@ class QueryServiceSpec extends TransmartSpecification {
         setupHypercubeData()
 
         Constraint constraint = ConstraintFactory.create([
-                type    : 'Combination',
+                type    : 'combination',
                 operator: 'or',
                 args    : [
-                        [ type: 'ConceptConstraint', path: '\\foo\\concept 2\\' ],
-                        [ type: 'ConceptConstraint', path: '\\foo\\concept 3\\' ]
+                        [ type: 'concept', path: '\\foo\\concept 2\\' ],
+                        [ type: 'concept', path: '\\foo\\concept 3\\' ]
                 ]
         ])
 
@@ -165,7 +165,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when: "I query for patients based on the patient set id"
         Constraint patientSetConstraint = ConstraintFactory.create(
-                [ type: 'PatientSetConstraint', patientSetId: patientSet.id ]
+                [ type: 'patient_set', patientSetId: patientSet.id ]
         )
         def patients2 = queryService.listPatients(patientSetConstraint, accessLevelTestData.users[0])
 

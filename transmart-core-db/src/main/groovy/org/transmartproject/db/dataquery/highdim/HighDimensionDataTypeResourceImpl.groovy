@@ -24,6 +24,7 @@ import groovy.util.logging.Slf4j
 import org.hibernate.ScrollMode
 import org.hibernate.SessionFactory
 import org.hibernate.StatelessSession
+import org.hibernate.criterion.Subqueries
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
@@ -39,8 +40,6 @@ import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataCon
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 import org.transmartproject.db.ontology.I2b2
 
-import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
-
 @Slf4j
 class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource {
 
@@ -55,6 +54,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
     // Lazy otherwise EqualsAndHashCode does not pick it up
     @Lazy
     String dataTypeName = module.name
+
+    List<String> getPlatformMarkerTypes() { module.platformMarkerTypes }
 
     @Override
     String getDataTypeDescription() {
@@ -109,7 +110,8 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
         }
         //We have to specify projection explicitly because of the grails bug
         //https://jira.grails.org/browse/GRAILS-12107
-        //criteriaBuilder.add(getHibernateInCriterion('assay.id', assaysQuery.forIds()))
+        criteriaBuilder.add(Subqueries.propertyIn('assay.id',
+                HibernateCriteriaBuilder.getHibernateDetachedCriteria(null, assaysQuery.forIds())))
 
         /* apply changes to criteria from projection, if any */
         if (projection instanceof CriteriaProjection) {

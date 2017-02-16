@@ -22,10 +22,8 @@ class Config {
     public static final String V1_PATH_PATIENT_SETS = "v1/patient_sets"
 
     public static final String PATH_OBSERVATIONS = "v2/observations"
-    public static final String PATH_HIGH_DIM = "v2/high_dim"
     public static final String PATH_AGGREGATE = "v2/observations/aggregate"
     public static final String PATH_COUNTS = "v2/observations/count"
-    public static final String PATH_OBSERVATION_LIST = "v2/observation_list"
     public static final String PATH_SUPPORTED_FIELDS = "v2/supported_fields"
     public static final String PATH_PATIENTS = "v2/patients"
     public static final String PATH_TREE_NODES = "v2/tree_nodes"

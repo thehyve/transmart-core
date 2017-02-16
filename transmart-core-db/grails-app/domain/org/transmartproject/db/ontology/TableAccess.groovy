@@ -23,39 +23,42 @@ package org.transmartproject.db.ontology
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
 import groovy.transform.EqualsAndHashCode
+import org.hibernate.criterion.MatchMode
 
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.db.util.GormWorkarounds
+import org.transmartproject.db.util.StringUtils
 import org.transmartproject.core.concept.ConceptKey
 
 import static org.transmartproject.db.util.StringUtils.asLikeLiteral
 
-@EqualsAndHashCode(includes = [ 'tableCode' ])
+@EqualsAndHashCode(includes = ['tableCode'])
 class TableAccess extends AbstractQuerySpecifyingType implements
         OntologyTerm, Serializable {
 
-    Integer      level
-    String       fullName
-    String       name
-    String       code
+    Integer level
+    String fullName
+    String name
+    String code
 
-    String       tableName
+    String tableName
 
-    String       tableCode
-    Character    cProtectedAccess
-    Character    cSynonymCd = 'N'
-    String       cVisualattributes = ''
+    String tableCode
+    Character cProtectedAccess
+    Character cSynonymCd = 'N'
+    String cVisualattributes = ''
 
-    BigDecimal   cTotalnum
-    String       cMetadataxml
-    String       cComment
-    String       tooltip
-    Date         cEntryDate
-    Date         cChangeDate
-    Character    cStatusCd
-    String       valuetypeCd
+    BigDecimal cTotalnum
+    String cMetadataxml
+    String cComment
+    String tooltip
+    Date cEntryDate
+    Date cChangeDate
+    Character cStatusCd
+    String valuetypeCd
 
     static mapping = {
         table name: 'table_access', schema: 'I2B2METADATA'
@@ -83,22 +86,24 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     }
 
     static constraints = {
-        tableCode           maxSize:    50
-        tableName           maxSize:    50
-        cProtectedAccess    nullable:   true
-        fullName            maxSize:    700
-        name                maxSize:    2000
-        cSynonymCd          nullable:   true
-        cVisualattributes   maxSize:    3
-        cTotalnum           nullable:   true
-        code                nullable:   true,   maxSize:   50
-        cMetadataxml        nullable:   true
-        cComment            nullable:   true
-        tooltip             nullable:   true,   maxSize:   900
-        cEntryDate          nullable:   true
-        cChangeDate         nullable:   true
-        cStatusCd           nullable:   true
-        valuetypeCd         nullable:   true,   maxSize:   50
+        GormWorkarounds.fixupClassPropertyFetcher(TableAccess)
+
+        tableCode maxSize: 50
+        tableName maxSize: 50
+        cProtectedAccess nullable: true
+        fullName maxSize: 700
+        name maxSize: 2000
+        cSynonymCd nullable: true
+        cVisualattributes maxSize: 3
+        cTotalnum nullable: true
+        code nullable: true, maxSize: 50
+        cMetadataxml nullable: true
+        cComment nullable: true
+        tooltip nullable: true, maxSize: 900
+        cEntryDate nullable: true
+        cChangeDate nullable: true
+        cStatusCd nullable: true
+        valuetypeCd nullable: true, maxSize: 50
 
         AbstractQuerySpecifyingType.constraints.delegate = delegate
         AbstractQuerySpecifyingType.constraints()
@@ -116,8 +121,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         }
     }
 
-    Class getOntologyTermDomainClassReferred()
-    {
+    Class getOntologyTermDomainClassReferred() {
         def domainClass = Holders.getGrailsApplication().domainClasses.find
                 {
                     AbstractI2b2Metadata.class.isAssignableFrom(it.clazz) &&
@@ -238,6 +242,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                                               boolean showSynonyms = false,
                                               boolean isOrdered = true) {
 
+        //HibernateCriteriaBuilder c
         HibernateCriteriaBuilder c
 
         /* extract table code from concept key and resolve it to a table name */
@@ -279,7 +284,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         c = domainClass.createCriteria()
         c.list {
             and {
-                like 'fullName', fullNameSearch
+                add(StringUtils.like('fullName', fullName, MatchMode.START))
                 if (allDescendants) {
                     gt 'level', parentLevel
                 } else {

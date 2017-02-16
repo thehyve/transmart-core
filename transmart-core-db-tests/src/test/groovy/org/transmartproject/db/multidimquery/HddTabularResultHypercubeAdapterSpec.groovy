@@ -104,12 +104,12 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
 
         values*.value == this.cubeValues
         cube.dimensions as List == [BIOMARKER, ASSAY, PATIENT]
-        cube.dimensionElements(patientDim) == patients
+        (cube.dimensionElements(patientDim) as ArrayList).sort {-it.id} == patients
         (0..2).each {
             assert cube.dimensionElement(assayDim, it) == assays[it]
         }
+        (0..2).collect {cube.dimensionElementKey(patientDim, it)} as Set == patients*.id as Set
         (0..2).each {
-            assert cube.dimensionElementKey(patientDim, it) == patients[it].id.toString()
             assert cube.dimensionElementKey(assayDim, it) == assays[it].sampleCode
         }
         cube.dimensionsPreloadable == false
@@ -164,14 +164,14 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
 
         values*.value == this.cubeValues
         cube.dimensions as List == [BIOMARKER, ASSAY, PATIENT, PROJECTION]
-        cube.dimensionElements(patientDim) == patients
+        (cube.dimensionElements(patientDim) as ArrayList).sort {-it.id} == patients
         cube.dimensionElements(projectionDim) == projectionKeys
         (0..2).each {
             assert cube.dimensionElement(assayDim, it) == assays[it]
             assert cube.dimensionElement(projectionDim, it) == projectionKeys[it]
         }
+        (0..2).collect {cube.dimensionElementKey(patientDim, it)} as Set == patients*.id as Set
         (0..2).each {
-            assert cube.dimensionElementKey(patientDim, it) == patients[it].id.toString()
             assert cube.dimensionElementKey(assayDim, it) == assays[it].sampleCode
             assert cube.dimensionElementKey(projectionDim, it) == projectionKeys[it]
         }

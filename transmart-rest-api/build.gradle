@@ -35,7 +35,7 @@ dependencies {
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
     testCompile "org.grails:grails-plugin-testing"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    testCompile group: 'org.grails', name: 'grails-datastore-rest-client', version: '5.0.12.RELEASE'
+    testCompile 'org.grails:grails-datastore-rest-client'
 
     compile 'org.grails.plugins:spring-security-core:3.1.1'
     compile project(':transmart-core-api')
@@ -46,8 +46,11 @@ assets {
     packagePlugin = true
 }
 
-test.testLogging.exceptionFormat = 'full'
-
 bootRun {
     jvmArgs = ['-Xmx4096m']
 }
+
+test.testLogging.exceptionFormat = 'full'
+
+// Uncomment to show standard out/error output
+//test.testLogging.showStandardStreams = true

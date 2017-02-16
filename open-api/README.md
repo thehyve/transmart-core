@@ -19,7 +19,7 @@ You can open the UI [locally](index.html), or visit a
 To generate `swagger.json` and `swagger_spec.js` from `swagger.yaml`, run:
 ```bash
 js-yml swagger.yaml > swagger.json
-{ echo "var spec ="; cat swagger.json; echo ";"; } > swagger_spec.js
+{ echo -n "var spec = "; cat swagger.json; echo ";"; } > swagger_spec.js
 ```
 
 The `js-yml` tool can be obtained by:

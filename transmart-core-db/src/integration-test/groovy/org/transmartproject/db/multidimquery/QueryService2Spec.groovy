@@ -44,7 +44,7 @@ class QueryService2Spec extends Specification {
         ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
         when:
-        Hypercube hypercube = queryService.highDimension(conceptConstraint, user)
+        Hypercube hypercube = queryService.highDimension(conceptConstraint, user, 'autodetect')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -71,7 +71,7 @@ class QueryService2Spec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(combinationConstraint, user)
+        Hypercube hypercube = queryService.highDimension(combinationConstraint, user, 'autodetect')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -93,7 +93,7 @@ class QueryService2Spec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user)
+        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user, 'mrna')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -120,7 +120,7 @@ class QueryService2Spec extends Specification {
         when:
         trialVisitConstraint.value = 'Baseline'
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
-        Hypercube hypercube = queryService.highDimension(combination, user)
+        Hypercube hypercube = queryService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
         then:
@@ -131,7 +131,7 @@ class QueryService2Spec extends Specification {
         when:
         trialVisitConstraint.value = 'Week 1'
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
-        hypercube = queryService.highDimension(combination, user)
+        hypercube = queryService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
         then:
@@ -171,7 +171,7 @@ class QueryService2Spec extends Specification {
         Hypercube hypercube
         when:
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, startDateTimeConstraint])
-        hypercube = queryService.highDimension(combination, user)
+        hypercube = queryService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
         then:
@@ -179,7 +179,7 @@ class QueryService2Spec extends Specification {
 
         when:
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
-        hypercube = queryService.highDimension(combination, user)
+        hypercube = queryService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
         then:
@@ -240,7 +240,7 @@ class QueryService2Spec extends Specification {
                 operator: Operator.AND
         )
         when:
-        Hypercube hypercube = queryService.highDimension(combination, user)
+        Hypercube hypercube = queryService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
         then:
@@ -291,7 +291,7 @@ class QueryService2Spec extends Specification {
         )
         when:
         Combination combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
-        Hypercube hypercube = queryService.highDimension(combination, user)
+        Hypercube hypercube = queryService.highDimension(combination, user, 'autodetect')
 
 
         then:
@@ -320,7 +320,7 @@ class QueryService2Spec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(combinationConstraint, bioMarkerConstraint, user)
+        Hypercube hypercube = queryService.highDimension(combinationConstraint, bioMarkerConstraint, user, 'rnaseq_transcript')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -342,7 +342,7 @@ class QueryService2Spec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user)
+        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user, 'rnaseq_transcript')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *

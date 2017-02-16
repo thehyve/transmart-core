@@ -23,8 +23,10 @@ import com.google.common.collect.HashMultiset
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Multiset
+import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
+import org.hibernate.criterion.Subqueries
 import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -35,7 +37,6 @@ import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.support.InQuery
 
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
-import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
 class TerminalConceptVariablesDataQuery {
 
@@ -71,8 +72,8 @@ class TerminalConceptVariablesDataQuery {
         }
 
         if (patients instanceof PatientQuery) {
-            criteriaBuilder.add(getHibernateInCriterion('patient.id',
-                    patients.forIds()))
+            def hibDetachedCriteria = HibernateCriteriaBuilder.getHibernateDetachedCriteria(null, patients.forIds())
+            criteriaBuilder.add(Subqueries.propertyIn('patient.id', hibDetachedCriteria))
         } else {
             criteriaBuilder.in('patient', Lists.newArrayList(patients))
         }

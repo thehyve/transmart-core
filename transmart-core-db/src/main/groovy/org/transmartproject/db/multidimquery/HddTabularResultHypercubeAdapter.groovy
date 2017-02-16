@@ -23,10 +23,12 @@ import org.transmartproject.core.multidimquery.dimensions.BioMarker
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
+import org.transmartproject.db.i2b2data.PatientDimension as I2b2Patient
+
 @CompileStatic
 class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<HypercubeValue> implements Hypercube {
     private static Object typeError(cell) {
-        throw new RuntimeException("HDD value $cell is not a Double and is not a Map, this projection is not" +
+        throw new RuntimeException("HDD value '$cell' is not a Double and is not a Map, this projection is not" +
                 " implemented in HddTabularResultHypercubeAdapter")
     }
 
@@ -57,13 +59,20 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     )
 
     protected ImmutableList<Assay> assays
-    protected ImmutableList<Patient> patients
-    protected List<BioMarker> biomarkers = [] // replaced by an ImmutableList once we have finished iterating
+    protected List<Patient> patients  // replaced by an ImmutableList once we have finished iterating
+    protected List<BioMarker> biomarkers = [] // idem
 
     HddTabularResultHypercubeAdapter(TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ?>> tabularResult) {
         table = tabularResult
         assays = (ImmutableList) ImmutableList.copyOf(table.getIndicesList())
-        patients = (ImmutableList) ImmutableList.copyOf(assays*.patient as Set)
+
+        // The getAll fetches all patients in a single query. Unfortunately before that hibernate decides that it
+        // needs to flush its cache and in the process of it loads the patients one by one. I have no idea why it
+        // deems that necessary. The cached objects it is flushing are the assays we have here and it is cascading to
+        // their patients.
+        // Also using getAll requires integration tests to test this class, now we can do with only unit tests.
+        // patients = new IndexedArraySet<>((List) I2b2Patient.getAll((List) assays*.patient.id))
+        patients = new IndexedArraySet<>((List) assays*.patient)
     }
 
     protected List<? extends Object> _dimensionElems(Dimension dim) {
@@ -84,11 +93,11 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         _dimensionElems(dim)[idx]
     }
 
-    String dimensionElementKey(Dimension dim, Integer idx) {
+    Object dimensionElementKey(Dimension dim, Integer idx) {
         def elem = dimensionElement(dim, idx)
         if(elem instanceof String) return elem
         else if(elem instanceof DataColumn) return ((DataColumn) elem).label
-        else if(elem instanceof Patient) return ((Patient) elem).id.toString()
+        else if(elem instanceof Patient) return ((Patient) elem).id
         else throw new RuntimeException("unexpected element type ${elem.class}. Expected a String, Patient, or Assay")
     }
 
@@ -118,6 +127,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
             if(!tabularIter.hasNext()) {
                 _projectionFields = ImmutableList.copyOf(_projectionFields)
                 biomarkers = ImmutableList.copyOf(biomarkers)
+                patients = ImmutableList.copyOf(patients)
                 return endOfData()
             }
 
@@ -133,7 +143,9 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                 int patientIndex = patients.indexOf(assay.patient)
                 def value = row[i]
 
-                if(value instanceof Double) {
+                if(value == null) {
+                    continue
+                } else if(value instanceof Double) {
                     nextVals.add(new TabularResultAdapterValue(
                             // The type checker doesn't like a plain 'dimensions', no idea why
                             availableDimensions: getDimensions(),

@@ -4,6 +4,7 @@ package org.transmartproject.db.multidimquery
 import grails.plugin.cache.Cacheable
 import grails.transaction.Transactional
 import grails.util.Holders
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.Criterion
@@ -20,6 +21,8 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.highdim.projections.Projection as HDProjection
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.DataInconsistencyException
+import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Hypercube
@@ -29,6 +32,7 @@ import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.clinical.MultidimensionalDataResourceService
+import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -62,11 +66,14 @@ class QueryService {
             new Field(dimension: ConstraintDimension.Value, fieldName: 'numberValue', type: Type.NUMERIC)
 
     @Lazy
-    private Criterion defaultHDModifierCriterion = Restrictions.in('modifierCd', highDimensionResourceService.knownMarkerTypes.collect {
-        String dataTypeName ->
-        String highDimType = dataTypeName.toUpperCase()
-        "TRANSMART:HIGHDIM:${highDimType}".toString()
-    })
+    private Criterion defaultHDModifierCriterion = Restrictions.in('modifierCd',
+            highDimensionResourceService.knownMarkerTypes.collect { "TRANSMART:HIGHDIM:${it.toUpperCase()}".toString() })
+
+    private Criterion HDModifierCriterionForType(String type) {
+        HighDimensionDataTypeResourceImpl hdres = highDimensionResourceService.getSubResourceForType(type)
+        Restrictions.in('modifierCd',
+                hdres.platformMarkerTypes.collect {"TRANSMART:HIGHDIM:${it.toUpperCase()}".toString()} )
+    }
 
     private void checkAccess(Constraint constraint, User user) throws AccessDeniedException {
         assert 'user is required', user
@@ -449,64 +456,63 @@ class QueryService {
         return getAggregate(type, queryCriteria)
     }
 
+    @CompileStatic
     Hypercube highDimension(
             Constraint assayConstraint,
             BiomarkerConstraint biomarkerConstraint = new BiomarkerConstraint(),
             String projectionName = Projection.ALL_DATA_PROJECTION,
-            User user) {
+            User user,
+            String type) {
+        projectionName = projectionName ?: Projection.ALL_DATA_PROJECTION
         checkAccess(assayConstraint, user)
 
-        List<ObservationFact> observations = highDimObservationList(assayConstraint, user, defaultHDModifierCriterion)
-        List<ObservationFact> basicObservationRows = highDimObservationList(assayConstraint, user)
+        List<ObservationFact> observations = highDimObservationList(assayConstraint, user,
+                type == 'autodetect' ? defaultHDModifierCriterion : HDModifierCriterionForType(type))
 
-
-        if (!basicObservationRows.every { basicObs ->
-            observations.any { modifierObs ->
-                basicObs.conceptCode == modifierObs.conceptCode
-            }
-        }) {
-            throw new InvalidQueryException("Found data that is either clinical or is using the old way of storing high dimensional data.")
+        List assayIds = []
+        for(def o : observations) {
+            if(o.numberValue == null) throw new DataInconsistencyException("Observation row(s) found that miss the assayId")
+            assayIds.add(o.numberValue.toLong())
         }
-
-        if (observations.any { it.numberValue == null }) {
-            throw new InvalidQueryException("Observation row(s) found that miss the assayId")
-        }
-
-        List assayIds = observations.collect { it.numberValue.toLong() }
 
         if (assayIds.empty){
             return new EmptyHypercube()
         }
         List<AssayConstraint> oldAssayConstraints = [
-                highDimensionResourceService.createAssayConstraint([ids: assayIds], AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+                highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
         ]
 
-        Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
-                highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
-
-        if (assaysByType.size() == 0) {
-            throw new InvalidQueryException("Unknown high dimensional data type.")
+        HighDimensionDataTypeResource typeResource
+        if(type == 'autodetect') {
+            Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
+                    highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
+            if (assaysByType.size() == 1) {
+                typeResource = assaysByType.keySet()[0]
+            } else {
+                assert assaysByType.size() != 0, "cannot happen"
+                throw new InvalidQueryException("Autodetecting the high dimensional type found multiple applicable " +
+                        "types: ${assaysByType.keySet()*.dataTypeName.join(', ')}. Please choose one.")
+            }
+        } else {
+            try {
+                typeResource = highDimensionResourceService.getSubResourceForType(type)
+            } catch (NoSuchResourceException e) {
+                throw new InvalidQueryException("Unknown high dimensional data type.", e)
+            }
         }
-        else if (assaysByType.size() > 1) {
-            throw new InvalidQueryException("Expected only one high dimensional data type. Got ${assaysByType.keySet()*.dataTypeName}")
-        }
 
-        def assayByType = assaysByType.iterator().next()
-
-        def platformList = assayByType.value*.platform as Set
-        if (platformList.size() != 1){
-            throw new InvalidQueryException("Result assays contain different platforms: ${platformList*.id}")
-        }
-
-        HighDimensionDataTypeResource typeResource = assayByType.key
-        HDProjection projection = typeResource.createProjection(projectionName ?: Projection.ALL_DATA_PROJECTION)
+        HDProjection projection = typeResource.createProjection(projectionName)
 
         List<DataConstraint> dataConstraints = []
         if (biomarkerConstraint?.biomarkerType) {
             dataConstraints << typeResource.createDataConstraint(biomarkerConstraint.params, biomarkerConstraint.biomarkerType)
         }
-        TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
-        new HddTabularResultHypercubeAdapter(table)
+        try {
+            TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
+            return new HddTabularResultHypercubeAdapter(table)
+        } catch (EmptySetException e) {
+            return new EmptyHypercube()
+        }
     }
 
     Hypercube retrieveClinicalData(Constraint constraint, User user) {
