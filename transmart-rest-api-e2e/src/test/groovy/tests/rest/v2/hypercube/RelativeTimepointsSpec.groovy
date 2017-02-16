@@ -2,6 +2,7 @@
 package tests.rest.v2.hypercube
 
 import base.RESTSpec
+import spock.lang.Ignore
 import spock.lang.Requires
 
 import static config.Config.*
@@ -179,7 +180,7 @@ class RelativeTimepointsSpec extends RESTSpec {
      *  when: "I get observations related to the General relative time label"
      *  then: "multiple concepts from both EHR and CLINICAL_TRIAL are returned"
      */
-    @Requires({ EHR_LOADED && CLINICAL_TRIAL_LOADED })
+    @Requires({ EHR_LOADED && CLINICAL_TRIAL_LOADED && RUN_HUGE_TESTS })
     def "multiple concepts to the same relative timepoint within several studies"() {
         given: "studies EHR and CLINICAL_TRIAL are loaded"
         def request = [

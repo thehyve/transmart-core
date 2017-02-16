@@ -57,6 +57,7 @@ class Config {
     public static final boolean DEBUG = true
     public static final boolean SUPPRESS_KNOWN_BUGS = true
     public static final boolean SUPPRESS_UNIMPLEMENTED = true
+    public static final boolean RUN_HUGE_TESTS = true
 
     //test studies loaded
     public static final boolean ORACLE_1000_PATIENT_LOADED = false

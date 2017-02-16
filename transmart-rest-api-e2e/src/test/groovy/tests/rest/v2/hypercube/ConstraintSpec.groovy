@@ -3,6 +3,7 @@ package tests.rest.v2.hypercube
 
 import base.RESTSpec
 import spock.lang.Ignore
+import spock.lang.Requires
 
 import static config.Config.*
 import static org.hamcrest.Matchers.is
@@ -58,6 +59,7 @@ class ConstraintSpec extends RESTSpec{
         contentTypeForProtobuf | _
     }
 
+    @Requires({ RUN_HUGE_TESTS })
     def "TrueConstraint.class"(){
         def request = [
                 path: PATH_OBSERVATIONS,
@@ -248,6 +250,7 @@ class ConstraintSpec extends RESTSpec{
         contentTypeForProtobuf | protobufSelector
     }
 
+    @Requires({ RUN_HUGE_TESTS })
     def "Negation.class"(){
         def request = [
                 path: PATH_OBSERVATIONS,
@@ -380,6 +383,7 @@ class ConstraintSpec extends RESTSpec{
         contentTypeForProtobuf | protobufSelector
     }
 
+    @Requires({ RUN_HUGE_TESTS })
     def "NullConstraint.class"(){
         def request = [
                 path: PATH_OBSERVATIONS,
