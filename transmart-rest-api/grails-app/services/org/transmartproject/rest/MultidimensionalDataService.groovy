@@ -6,10 +6,8 @@ import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
-import org.transmartproject.db.multidimquery.QueryService
-import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
@@ -18,7 +16,7 @@ import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 class MultidimensionalDataService {
 
     @Autowired
-    QueryService queryService
+    MultiDimensionalDataResource multiDimService
 
     /**
      * Type to represent the requested serialization format.
@@ -77,7 +75,7 @@ class MultidimensionalDataService {
      */
     void writeClinical(Format format, MultiDimConstraint constraint, User user, OutputStream out) {
 
-        Hypercube result = queryService.retrieveClinicalData(constraint, user)
+        Hypercube result = multiDimService.retrieveClinicalData(constraint, user)
 
         try {
             log.info "Writing to format: ${format}"
@@ -106,7 +104,7 @@ class MultidimensionalDataService {
                       User user,
                       OutputStream out) {
 
-        Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
+        Hypercube hypercube = multiDimService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
 
         try {
             serialise(hypercube, format, out)
