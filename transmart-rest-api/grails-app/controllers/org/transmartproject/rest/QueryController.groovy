@@ -5,10 +5,8 @@ import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.core.multidimquery.MultiDimConstraint
-import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
-import org.transmartproject.db.metadata.LegacyStudyException
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator

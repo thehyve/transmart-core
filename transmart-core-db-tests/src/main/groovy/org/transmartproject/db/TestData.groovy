@@ -19,6 +19,12 @@
 
 package org.transmartproject.db
 
+import grails.core.GrailsApplication
+import grails.util.Holders
+import org.hibernate.Session
+import org.hibernate.SessionFactory
+import org.hibernate.exception.GenericJDBCException
+import org.springframework.context.ApplicationContext
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.db.arvados.ArvadosTestData
 import org.transmartproject.db.dataquery.clinical.ClinicalTestData
@@ -139,5 +145,32 @@ class TestData {
         acghData?.saveAll()
         storageTestData?.saveAll()
         arvadosTestData?.saveAll()
+    }
+
+    @Lazy
+    static List<String> H2TruncateScript = {
+        SessionFactory sessionFactory = Holders.applicationContext.getBean(SessionFactory)
+        List<Class> domainClasses = Holders.grailsApplication.getArtefacts("Domain")*.clazz
+        List<String> tables = domainClasses.collect { sessionFactory.getClassMetadata(it).tableName }
+
+        def commands = tables.collect { "TRUNCATE TABLE $it;".toString() }
+        commands
+    }()
+
+    static void clearAllData() {
+        reset()
+
+        Session session = Holders.applicationContext.getBean(SessionFactory).currentSession
+        session.createSQLQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate()
+
+        getH2TruncateScript().each {
+            try {
+                session.createSQLQuery(it).executeUpdate()
+            } catch(GenericJDBCException e) {
+                //ignore CANNOT TRUNCATE xxx, as several domain classes are backed by views
+            }
+        }
+        session.createSQLQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate()
+        session.clear()
     }
 }
