@@ -1,37 +1,40 @@
 /* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2.storage
 
+import annotations.RequiresStudy
 import base.RESTSpec
 
+import static base.ContentTypeFor.contentTypeForJSON
 import static config.Config.*
 
 /**
  *  external file links
  *  TMPREQ-19 Support linking to external data in Arvados from tranSMART API
  */
-class FilesSpec extends RESTSpec{
+@RequiresStudy(EHR_ID)
+class FilesSpec extends RESTSpec {
 
-
+    def studyId = EHR_ID
     def storageId
 
-    def setup(){
+    def setup() {
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def responseDataAll = get([path: PATH_FILES, acceptType: contentTypeForJSON])
-        responseDataAll.files.each{
+        responseDataAll.files.each {
             delete([path: PATH_FILES + "/${it.id}", statusCode: 204])
         }
 
         responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
-        responseDataAll.storageSystems.each{
+        responseDataAll.storageSystems.each {
             delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204])
         }
 
         def sourceSystem = [
-                'name':'Arvbox at The Hyve',
-                'systemType':'Arvados',
-                'url':'http://arvbox-pro-dev.thehyve.net/',
-                'systemVersion':'v1',
-                'singleFileCollections':false,
+                'name'                 : 'Arvbox at The Hyve',
+                'systemType'           : 'Arvados',
+                'url'                  : 'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion'        : 'v1',
+                'singleFileCollections': false,
         ]
         def responseData = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 201])
         storageId = responseData.id
@@ -40,12 +43,12 @@ class FilesSpec extends RESTSpec{
     /**
      *  post, get, put, delete
      */
-    def "post, get, put, delete"(){
+    def "post, get, put, delete"() {
         given:
         def new_file_link = [
                 'name'        : 'new file Link',
                 'sourceSystem': storageId,
-                'study'       : 'EHR',
+                'study'       : studyId,
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
 
@@ -57,7 +60,7 @@ class FilesSpec extends RESTSpec{
         assert responseData.id != null
         assert responseData.name == 'new file Link'
         assert responseData.sourceSystem == storageId
-        assert responseData.study == 'EHR'
+        assert responseData.study == studyId
         assert responseData.uuid == 'aaaaa-bbbbb-ccccccccccccccc'
 
         when:
@@ -67,7 +70,7 @@ class FilesSpec extends RESTSpec{
         assert responseData.id == id
         assert responseData.name == 'new file Link'
         assert responseData.sourceSystem == storageId
-        assert responseData.study == 'EHR'
+        assert responseData.study == studyId
         assert responseData.uuid == 'aaaaa-bbbbb-ccccccccccccccc'
 
         when:
@@ -84,7 +87,7 @@ class FilesSpec extends RESTSpec{
         assert responseData.id == id
         assert responseData.name == 'new file Link renamed'
         assert responseData.sourceSystem == storageId
-        assert responseData.study == 'EHR'
+        assert responseData.study == studyId
         assert responseData.uuid == 'aaaaa-bbbbb-ccccccccccccccc'
 
         when:
@@ -107,25 +110,25 @@ class FilesSpec extends RESTSpec{
     def "post and get from multiple storage systems"() {
         given: "There are multiple storage systems with file links"
         def sourceSystem = [
-                'name':'Arvbox at The Hyve 2',
-                'systemType':'Arvados',
-                'url':'http://arvbox-pro-dev.thehyve.net/',
-                'systemVersion':'v1',
-                'singleFileCollections':false,
+                'name'                 : 'Arvbox at The Hyve 2',
+                'systemType'           : 'Arvados',
+                'url'                  : 'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion'        : 'v1',
+                'singleFileCollections': false,
         ]
         def storageId2 = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 201]).id
 
         def new_file_link1 = [
                 'name'        : 'file in storage 1',
                 'sourceSystem': storageId,
-                'study'       : 'EHR',
+                'study'       : studyId,
                 'uuid'        : 'bbbbb-ccccccccccccccc',
         ]
 
         def new_file_link2 = [
                 'name'        : 'file in storage 2',
                 'sourceSystem': storageId2,
-                'study'       : 'EHR',
+                'study'       : studyId,
                 'uuid'        : 'aaaaa-ccccccccccccccc',
         ]
 
@@ -174,7 +177,7 @@ class FilesSpec extends RESTSpec{
 
         then:
         assert responseData.errors.size() == 4
-        responseData.errors.each {['sourceSystem', 'study', 'name', 'uuid'].contains(it.field)}
+        responseData.errors.each { ['sourceSystem', 'study', 'name', 'uuid'].contains(it.field) }
     }
 
     /**
@@ -199,7 +202,7 @@ class FilesSpec extends RESTSpec{
         def new_file_link = [
                 'name'        : 'new file Link',
                 'sourceSystem': storageId,
-                'study'       : 'EHR',
+                'study'       : studyId,
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
         def responseData = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 201])
@@ -208,8 +211,8 @@ class FilesSpec extends RESTSpec{
 
         when:
         responseData = put([
-                path: (PATH_FILES +"/${id}"),
-                body: toJSON(new_file_link),
+                path      : (PATH_FILES + "/${id}"),
+                body      : toJSON(new_file_link),
                 statusCode: 422])
 
         then:
@@ -229,12 +232,12 @@ class FilesSpec extends RESTSpec{
         def new_file_link = [
                 'name'        : 'new file Link',
                 'sourceSystem': storageId,
-                'study'       : 'EHR',
+                'study'       : studyId,
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
 
         when:
-        def responseData = put([path: PATH_FILES +"/0", body: toJSON(new_file_link), statusCode: 500])
+        def responseData = put([path: PATH_FILES + "/0", body: toJSON(new_file_link), statusCode: 500])
 
         then:
         assert responseData.httpStatus == 500
@@ -247,13 +250,13 @@ class FilesSpec extends RESTSpec{
     /**
      *  no access
      */
-    def "no access"(){
+    def "no access"() {
         given:
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
         def new_file_link = [
                 'name'        : 'new file Link',
                 'sourceSystem': storageId,
-                'study'       : 'EHR',
+                'study'       : studyId,
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
 
