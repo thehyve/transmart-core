@@ -51,7 +51,6 @@ class RequiresStudyExtension extends AbstractAnnotationDrivenExtension<RequiresS
                 throw new ExtensionException("Failed to retrieve loadedStudies for @RequiresStudy", e);
             }
         }
-        println("@RequiresStudy check")
         return loadedStudies.containsAll(studies)
     }
 }

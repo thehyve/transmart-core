@@ -135,10 +135,10 @@ class RestHelper {
                 assert resp.headers.'Content-Type'.contains(requestMap.acceptType) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
                 def result
                 switch (requestMap.acceptType){
-                    case contentTypeForProtobuf:
+                    case ContentTypeFor.Protobuf:
                         result = parseProto(resp.entity.content)
                         break
-                    case contentTypeForJSON:
+                    case ContentTypeFor.JSON:
                         result = reader
                         break
                     default:
