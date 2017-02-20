@@ -32,6 +32,7 @@ class TreeService {
     @Autowired
     AccessControlChecks accessControlChecks
 
+    @Autowired
     MultiDimensionalDataResource multiDimensionalDataResource
 
     @Resource
@@ -124,13 +125,13 @@ class TreeService {
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
                 if (node.tableName == 'concept_dimension' && node.constraint) {
                     Constraint constraint = ConstraintFactory.create(node.constraint)
-                    node.observationCount = multiDimensionalDataResource.cachedCountForConstraint(constraint, user)
-                    node.patientCount = multiDimensionalDataResource.cachedPatientCountForConstraint(constraint, user)
+                    node.observationCount = multiDimensionalDataResource.cachedCount(constraint, user)
+                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(constraint, user)
                 }
             } else {
                 if (OntologyTerm.VisualAttributes.STUDY in node.visualAttributes && node.constraint) {
                     Constraint constraint = ConstraintFactory.create(node.constraint)
-                    node.patientCount = multiDimensionalDataResource.cachedPatientCountForConstraint(constraint, user)
+                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(constraint, user)
                 }
                 enrichWithCounts(node.children, user)
             }

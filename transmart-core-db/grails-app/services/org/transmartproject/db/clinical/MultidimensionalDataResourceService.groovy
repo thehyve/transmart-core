@@ -419,7 +419,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
-    Long cachedCountForConstraint(MultiDimConstraint constraint, User user) {
+    Long cachedCount(MultiDimConstraint constraint, User user) {
         count(constraint, user)
     }
 
@@ -549,7 +549,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
-    Long cachedPatientCountForConstraint(MultiDimConstraint constraint, User user) {
+    Long cachedPatientCount(MultiDimConstraint constraint, User user) {
         patientCount(constraint, user)
     }
 

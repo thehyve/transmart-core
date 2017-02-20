@@ -30,7 +30,7 @@ interface MultiDimensionalDataResource {
 
 
     Long count(MultiDimConstraint constraint, User user)
-    Long cachedCountForConstraint(MultiDimConstraint constraint, User user)
+    Long cachedCount(MultiDimConstraint constraint, User user)
 
     List<Patient> listPatients(MultiDimConstraint constraint, User user)
 
@@ -39,7 +39,7 @@ interface MultiDimensionalDataResource {
     QueryResult findPatientSet(Long patientSetId, User user)
 
     Long patientCount(MultiDimConstraint constraint, User user)
-    Long cachedPatientCountForConstraint(MultiDimConstraint constraint, User user)
+    Long cachedPatientCount(MultiDimConstraint constraint, User user)
 
     Number aggregate(AggregateType type, MultiDimConstraint constraint, User user)
 
