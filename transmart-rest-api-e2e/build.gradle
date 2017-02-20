@@ -21,6 +21,9 @@ dependencies {
 
 tasks.withType(Test) { systemProperties = System.getProperties() }
 
+// Force selected tests to always run, even if Gradle thinks they are up to date
+test.outputs.upToDateWhen {false}
+
 test.testLogging.exceptionFormat = 'full'
 
 // Uncomment to show standard out/error output
