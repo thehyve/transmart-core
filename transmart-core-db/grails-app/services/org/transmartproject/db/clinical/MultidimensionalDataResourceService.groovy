@@ -47,6 +47,7 @@ import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
+import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.AssayDimension
 import org.transmartproject.db.multidimquery.BioMarkerDimension
@@ -417,10 +418,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         (Long) get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
     }
 
-//    @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
-//    Long cachedCountForConstraint(Constraint constraint, User user) {
-//        count(constraint, user)
-//    }
+    @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
+    Long cachedCountForConstraint(MultiDimConstraint constraint, User user) {
+        count(constraint, user)
+    }
 
     /**
      * @description Function for getting a list of patients for which there are observations
@@ -443,6 +444,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     /**
      * @description Function for creating a patient set consisting of patients for which there are observations
      * that are specified by <code>query</code>.
+     *
+     * FIXME: this implementation was copied from QueriesResourceService.runQuery and modified. The two copies should
+     * be folded together.
+     *
      * @param query
      * @param user
      */
@@ -543,8 +548,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         (Long) get(patientCriteria.setProjection(Projections.rowCount()))
     }
 
-    @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
-    Long cachedPatientCountForConstraint(Constraint constraint, User user) {
+    @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
+    Long cachedPatientCountForConstraint(MultiDimConstraint constraint, User user) {
         patientCount(constraint, user)
     }
 
@@ -603,7 +608,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
 
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+                studies: (Collection) accessControlChecks.getDimensionStudiesForUser((DbUser) user)
         )
         List<ConceptConstraint> conceptConstraintList = findConceptConstraints(constraint)
         if (conceptConstraintList.size() == 0) throw new InvalidQueryException('Aggregate requires exactly one ' +
@@ -613,7 +618,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def conceptConstraint = conceptConstraintList[0]
 
         // check if the concept exists
-        def concept = org.transmartproject.db.i2b2data.ConceptDimension.findByConceptPath(conceptConstraint.path)
+        def concept = ConceptDimension.findByConceptPath(conceptConstraint.path)
         if (concept == null) {
             throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}")
         }
