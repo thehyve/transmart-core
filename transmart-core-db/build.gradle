@@ -25,6 +25,8 @@ dependencies {
     runtime('org.postgresql:postgresql:9.3-1100-jdbc41')
     compile project(':transmart-core-api')
 
+
+    compile "org.hibernate:hibernate-entitymanager:5.0.11.Final"
 }
 
 assets {

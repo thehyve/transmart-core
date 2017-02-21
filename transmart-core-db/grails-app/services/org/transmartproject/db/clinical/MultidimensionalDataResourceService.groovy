@@ -8,6 +8,9 @@ import grails.plugin.cache.Cacheable
 import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
+
+import javax.persistence.EntityManager
+import javax.persistence.EntityManagerFactory
 import org.apache.commons.lang.NotImplementedException
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
@@ -90,12 +93,17 @@ import org.transmartproject.db.util.GormWorkarounds
 
 import org.transmartproject.db.user.User as DbUser
 
+import javax.persistence.criteria.CriteriaBuilder
+
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 class MultidimensionalDataResourceService implements MultiDimensionalDataResource {
 
     @Autowired
     SessionFactory sessionFactory
+
+    @Autowired
+    EntityManagerFactory entityManagerFactory
 
     @Autowired
     AccessControlChecks accessControlChecks
@@ -126,6 +134,21 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @return a Hypercube result
      */
     @Override HypercubeImpl retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies) {
+
+        if(args.test == 'test') {
+
+
+            CriteriaBuilder cb = entityManagerFactory.getCriteriaBuilder()
+
+            1+1
+
+            return null
+
+        }
+
+
+
+
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint

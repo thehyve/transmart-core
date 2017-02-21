@@ -27,4 +27,4 @@ assets {
     packagePlugin = true
 }
 
-test.testLogging.exceptionFormat = 'full'
+//test.testLogging.exceptionFormat = 'full'
