@@ -9,7 +9,7 @@ class UrlMappings {
             }
         }
 
-        "/"(controller: 'userLanding', action: 'index')
+        "/"(controller: 'login', action: 'index')
         "500"(view: '/error')
         "/open-api"(redirect: "/open-api/index.html")
 

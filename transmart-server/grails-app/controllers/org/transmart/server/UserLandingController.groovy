@@ -20,17 +20,18 @@ class UserLandingController {
         new AccessLog(username: springSecurityService?.principal?.username, event: "Login",
                 eventmessage: request.getHeader("user-agent"),
                 accesstime: new Date()).save()
-        def skip_disclaimer = grailsApplication.config.com.recomdata?.skipdisclaimer ?: false;
-        if (skip_disclaimer) {
-            if (springSecurityService?.currentUser?.changePassword) {
-                flash.message = messageSource.getMessage('changePassword', new Objects[0], RequestContextUtils.getLocale(request))
-                redirect(controller: 'changeMyPassword')
-            } else {
-                redirect(uri: userLandingPath)
-            }
-        } else {
-            redirect(uri: '/userLanding/disclaimer.gsp')
-        }
+        render(view: '/userLanding/login.gsp', model:[user: springSecurityService?.principal?.username])
+//        def skip_disclaimer = grailsApplication.config.com.recomdata?.skipdisclaimer ?: false;
+//        if (skip_disclaimer) {
+//            if (springSecurityService?.currentUser?.changePassword) {
+//                flash.message = messageSource.getMessage('changePassword', new Objects[0], RequestContextUtils.getLocale(request))
+//                redirect(controller: 'changeMyPassword')
+//            } else {
+//                redirect(uri: userLandingPath)
+//            }
+//        } else {
+//            redirect(uri: '/userLanding/disclaimer.gsp')
+//        }
     }
     def agree = {
         new AccessLog(username: springSecurityService?.principal?.username, event: "Disclaimer accepted",
