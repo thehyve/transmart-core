@@ -23,6 +23,9 @@ import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import org.transmartproject.core.exceptions.DataInconsistencyException
 
+import javax.persistence.Entity
+
+@Entity
 @EqualsAndHashCode(includes = ['encounterNum', 'patient', 'conceptCode', 'providerId', 'startDate', 'modifierCd',
         'instanceNum'])
 class ObservationFact implements Serializable {

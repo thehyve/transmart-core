@@ -8,7 +8,11 @@ import grails.plugin.cache.Cacheable
 import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
+import org.hibernate.Session
+import org.hibernate.jpa.AvailableSettings
 
+import javax.persistence.CacheRetrieveMode
+import javax.persistence.CacheStoreMode
 import javax.persistence.EntityManager
 import javax.persistence.EntityManagerFactory
 import org.apache.commons.lang.NotImplementedException
@@ -93,7 +97,10 @@ import org.transmartproject.db.util.GormWorkarounds
 
 import org.transmartproject.db.user.User as DbUser
 
+import javax.persistence.Tuple
 import javax.persistence.criteria.CriteriaBuilder
+import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Root
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
@@ -118,6 +125,147 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         DimensionDescription.findByName(name).dimension
     }
 
+
+    def retrieveDataJpa(Map args, String dataType, Collection<MDStudy> accessibleStudies) {
+        if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
+
+        Constraint constraint = args.constraint
+        Set<DimensionImpl> dimensions = ImmutableSet.copyOf(
+                args.dimensions.collect {
+                    if(it instanceof DimensionImpl) {
+                        return it
+                    }
+                    if(it instanceof String) {
+                        def dim = DimensionDescription.findByName(it)?.dimension
+                        if(dim == null) throw new InvalidArgumentsException("Unknown dimension: $it")
+                        return dim
+                    }
+                    throw new InvalidArgumentsException("dimension $it is not a valid dimension or dimension name")
+                } ?: [])
+
+        // These are not yet implemented
+        def sort = args.sort
+        def pack = args.pack
+        def preloadDimensions = args.pack ?: false
+
+        // Add any studies that are being selected on
+        def studyIds = findStudyNameConstraints(constraint)*.studyId
+        Set studies = (studyIds.empty ? [] : Study.findAllByStudyIdInList(studyIds)) +
+                findStudyObjectConstraints(constraint)*.study as Set
+
+        EntityManager em = entityManagerFactory.createEntityManager(
+                (AvailableSettings.SHARED_CACHE_RETRIEVE_MODE): CacheRetrieveMode.BYPASS,
+                (AvailableSettings.SHARED_CACHE_STORE_MODE): CacheStoreMode.BYPASS)
+
+        Session session = em.unwrap(Session)
+
+        CriteriaBuilder builder = em.getCriteriaBuilder()
+
+        CriteriaQuery criteria = builder.createTupleQuery()
+        Root<ObservationFact> observations = criteria.from(ObservationFact)
+        criteria.select(observations.get("valueType"))
+
+        javax.persistence.Query qu = em.createQuery(criteria)
+        ScrollableResults result = qu.unwrap(org.hibernate.Query).scroll(ScrollMode.FORWARD_ONLY)
+
+        return result
+
+
+
+
+//        // We need methods from different interfaces that StatelessSessionImpl implements.
+//        def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
+//        session.connection().autoCommit = false
+
+//        HibernateCriteriaBuilder q = GormWorkarounds.createCriteriaBuilder(ObservationFact, 'observation_fact', session)
+//        q.with {
+//            // The main reason to use this projections block is that it clears all the default projections that
+//            // select all fields.
+//            projections {
+//                // NUM_FIXED_PROJECTIONS must match the number of projections defined here
+//                property 'valueType', 'valueType'
+//                property 'textValue', 'textValue'
+//                property 'numberValue', 'numberValue'
+//            }
+//        }
+
+        Set<DimensionImpl> validDimensions
+
+        //TODO Remove after adding all the dimension, added to prevent e2e tests failing
+        def notImplementedDimensions = [AssayDimension, BioMarkerDimension, ProjectionDimension]
+        if(studies) {
+            // This throws a LegacyStudyException for non-17.1 style studies
+            // This could probably be done more efficiently, but GORM support for many-to-many collections is pretty
+            // buggy. And usually the studies and dimensions will be cached in memory.
+            validDimensions = ImmutableSet.copyOf((Set<DimensionImpl>) studies*.dimensions.flatten().findAll{
+                !(it.class in notImplementedDimensions)
+            })
+
+        } else {
+            validDimensions = ImmutableSet.copyOf DimensionDescription.all*.dimension.findAll{
+                !(it.class in notImplementedDimensions)
+            }
+        }
+        // only allow valid dimensions
+        dimensions = (Set<DimensionImpl>) dimensions?.findAll { it in validDimensions } ?: validDimensions
+
+        Query query = new Query(q, [modifierCodes: ['@']])
+
+        dimensions.each {
+            it.selectIDs(query)
+        }
+        if (query.params.modifierCodes != ['@']) {
+            if(sort != null) throw new NotImplementedException("sorting is not implemented")
+
+            // Make sure all primary key dimension columns are selected, even if they are not part of the result
+            primaryKeyDimensions.each {
+                if(!(it in dimensions)) {
+                    it.selectIDs(query)
+                }
+            }
+
+            q.with {
+                // instanceNum is not a dimension
+                property 'instanceNum', 'instanceNum'
+
+                // TODO: The order of sorting should match the one of the main index (or any index). Todo: create
+                // main index.
+                // 'modifierCd' needs to be excluded or listed last when using modifiers
+                order 'conceptCode'
+                order 'providerId'
+                order 'patient'
+                order 'encounterNum'
+                order 'startDate'
+                order 'instanceNum'
+            }
+        }
+
+        q.with {
+            inList 'modifierCd', query.params.modifierCodes
+
+            // FIXME: Ordering by start date is needed for end-to-end tests. This should be replaced by ordering
+            // support in this service which the tests should then use.
+            if(query.params.modifierCodes == ['@']) {
+                order 'startDate'
+            }
+        }
+
+        CriteriaImpl hibernateCriteria = query.criteria.instance
+        String[] aliases = (hibernateCriteria.projection as ProjectionList).aliases
+
+        HibernateCriteriaQueryBuilder restrictionsBuilder = new HibernateCriteriaQueryBuilder(
+                studies: accessibleStudies
+        )
+        // TODO: check that aliases set by dimensions and by restrictions don't clash
+
+        restrictionsBuilder.applyToCriteria(hibernateCriteria, [constraint])
+
+        ScrollableResults results = query.criteria.instance.scroll(ScrollMode.FORWARD_ONLY)
+
+        new HypercubeImpl(results, dimensions, aliases, query, session)
+        // session will be closed by the Hypercube
+    }
+
     /**
      * @param accessibleStudies: The studies the current user has access to.
      * @param dataType: The string identifying the data type. "clinical" for clinical data, for high dimensional data
@@ -134,21 +282,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @return a Hypercube result
      */
     @Override HypercubeImpl retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies) {
-
-        if(args.test == 'test') {
-
-
-            CriteriaBuilder cb = entityManagerFactory.getCriteriaBuilder()
-
-            1+1
-
-            return null
-
-        }
-
-
-
-
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint
