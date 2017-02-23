@@ -17,13 +17,13 @@ RUN curl -s "https://get.sdkman.io" | bash && \
 ENV BRANCH master
 # change this to use a different branch of transmart-upgrade
 
-RUN git clone -b $BRANCH --depth 1 https://github.com/thehyve/transmart-upgrade.git /tmp/transmart-upgrade
+RUN git clone -b $BRANCH --depth 1 https://github.com/thehyve/transmart-core.git /tmp/transmart-core
 
 ENV POSTGRES_PASSWORD ''
 
 RUN ln -snf /root/.sdkman/candidates/groovy/current/bin/groovy /bin/groovy
-RUN echo "cd /tmp/transmart-upgrade/transmart-data && \
+RUN echo "cd /tmp/transmart-core/transmart-data && \
  mkdir -p /var/lib/postgresql/tablespaces/{biomart,deapp,indx,search_app,transmart} && \
  chown -R postgres:postgres /var/lib/postgresql && \
- make -C env ../vars && source /tmp/transmart-upgrade/transmart-data/vars && \
+ make -C env ../vars && source /tmp/transmart-core/transmart-data/vars && \
  make postgres_test" >> /docker-entrypoint-initdb.d/01-create.sh
