@@ -968,7 +968,7 @@ jQuery(document).ready(function() {
 			ids.push(jQuery(checkboxes[i]).attr('name'));
 		}
 
-		if (ids.size() == 0) {return false;}
+		if (ids.length == 0) {return false;}
 
 		window.location = exportURL + "?id=" + ids.join(',');
 		   
@@ -1183,19 +1183,17 @@ function goWelcome() {
 
 //display search results numbers
 function displayResultsNumber(){
-	if(resultNumber!=""){
-		var jsonNumbers = JSON.parse(resultNumber);
-		
+	if(!jQuery.isEmptyObject(resultNumber)){
 		jQuery('#welcome-viewer').empty();
 		jQuery('#metadata-viewer').empty();
 		var htmlResults="<div style='margin: 10px;padding: 10px;'><h3 class='rdc-h3'>Search results by type</h3>";
 		htmlResults+="<table class='details-table'>";
 		htmlResults+="<thead><tr><th class='columnheader'>Object</th><th class='columnheader'>Number of results</th></tr></thead>";
-		htmlResults+="<tr class='details-row odd'><td class='columnname'>Programs</td><td class='columnvalue'>"+jsonNumbers.PROGRAM+"</td></tr>";
-		htmlResults+="<tr class='details-row odd'><td class='columnname'>Studies</td><td class='columnvalue'>"+jsonNumbers.STUDY+"</td></tr>";
-		htmlResults+="<tr class='details-row odd'><td class='columnname'>Assays</td><td class='columnvalue'>"+jsonNumbers.ASSAY+"</td></tr>";
-		htmlResults+="<tr class='details-row odd'><td class='columnname'>Analyses</td><td class='columnvalue'>"+jsonNumbers.ANALYSIS+"</td></tr>";
-		htmlResults+="<tr class='details-row odd'><td class='columnname'>Folders</td><td class='columnvalue'>"+jsonNumbers.FOLDER+"</td></tr>";
+		htmlResults+="<tr class='details-row odd'><td class='columnname'>Programs</td><td class='columnvalue'>"+resultNumber.PROGRAM+"</td></tr>";
+		htmlResults+="<tr class='details-row odd'><td class='columnname'>Studies</td><td class='columnvalue'>"+resultNumber.STUDY+"</td></tr>";
+		htmlResults+="<tr class='details-row odd'><td class='columnname'>Assays</td><td class='columnvalue'>"+resultNumber.ASSAY+"</td></tr>";
+		htmlResults+="<tr class='details-row odd'><td class='columnname'>Analyses</td><td class='columnvalue'>"+resultNumber.ANALYSIS+"</td></tr>";
+		htmlResults+="<tr class='details-row odd'><td class='columnname'>Folders</td><td class='columnvalue'>"+resultNumber.FOLDER+"</td></tr>";
 		htmlResults+="</table></div>";
 		jQuery('#metadata-viewer').html(htmlResults);
 	}

@@ -135,7 +135,12 @@ class ChildProcessAppender extends AppenderSkeleton {
             return "Failed to restart external log handling process \"${command.join(' ')}\", failed $failcount times" +
                     " in less than $restartWindow seconds"
         }
-        input.close()
+
+        try {
+            input.close()
+        } catch (IOException e) { /* ignore. Can happen if the implementation already closed its underlying stream
+        when the child closed its inputstream */ }
+
         if (!inWindow) {
             starttime = now
             failcount = 0

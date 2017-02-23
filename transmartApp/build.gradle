@@ -158,6 +158,8 @@ war {
     } //Rscripts from Rmodules into WEB-INF dir.
 }
 
+test.testLogging.exceptionFormat = 'full'
+
 bootRun {
     jvmArgs = ['-Xmx4096m']
 

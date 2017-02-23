@@ -37,13 +37,15 @@ class LegacyTagLib {
         def updateElem = null
         def successElem
         def failureElem
+        def successHandler
+        def failureHandler
         if (attrs.update instanceof Map) {
             successElem = attrs.update?.success
             failureElem = attrs.update?.failure
         } else {
             updateElem = attrs.update
-            successElem = attrs.onSuccess
-            failureElem = attrs.onFailure
+            successHandler = attrs.onSuccess
+            failureHandler = attrs.onFailure
         }
         def queryParams = attrs.params as String
         def urlParams = ['controller', 'action', 'id'].findAll {
@@ -65,10 +67,12 @@ class LegacyTagLib {
             out << "    complete: function(XMLHttpRequest, textStatus) { ${onComplete} },\n"
         }
         out << """    success: function(data, textStatus) {
+        ${ successHandler ? successHandler + ';' : '' }
         ${ updateElem ? "jQuery('#${updateElem}').val(data);" : '' }
         ${ successElem ? "jQuery('#${successElem}').html(data);" : '' }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
+        ${ failureHandler ? failureHandler + ';' : '' }
         ${ failureElem ? "jQuery('#${failureElem}').html(textStatus);" : '' }
     }\n"""
          out << '});\n'
