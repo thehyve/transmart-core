@@ -379,21 +379,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
     }
 
-//    /**
-//     * @description Function for getting a list of observations that are specified by <code>query</code>.
-//     * @param query
-//     * @param user
-//     */
-//    private List<ObservationFact> list(Constraint constraint, User user) {
-//        checkAccess(constraint, user)
-//        log.info "Studies: ${accessControlChecks.getDimensionStudiesForUser((DbUser) user)*.studyId}"
-//        def builder = new HibernateCriteriaQueryBuilder(
-//                studies: accessControlChecks.getDimensionStudiesForUser((DbUser) user)
-//        )
-//        DetachedCriteria criteria = builder.buildCriteria(constraint)
-//        getList(criteria)
-//    }
-
     /**
      * @description Function for getting a list of observations that are specified by <code>query</code>.
      * @param query
