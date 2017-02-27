@@ -1,4 +1,5 @@
 import grails.plugin.springsecurity.SpringSecurityUtils
+import grails.plugin.springsecurity.oauth2.SpringSecurityOauth2BaseService
 import org.apache.log4j.Logger
 import org.springframework.beans.factory.config.MapFactoryBean
 import org.springframework.security.core.session.SessionRegistryImpl
@@ -7,6 +8,7 @@ import org.springframework.security.web.DefaultRedirectStrategy
 import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.transaction.interceptor.TransactionInterceptor
+import org.springframework.security.web.session.ConcurrentSessionFilter
 import org.springframework.web.util.IntrospectorCleanupListener
 import org.transmart.oauth2.ActiveDirectoryLdapAuthenticationExtension
 import org.transmart.security.AuthUserDetailsService
@@ -28,6 +30,7 @@ beans = {
         lockTimeInMinutes = grailsApplication.config.bruteForceLoginLock.lockTimeInMinutes
     }
 
+    oAuth2BaseService(SpringSecurityOauth2BaseService)
     authSuccessEventListener(AuthSuccessEventListener) {
         bruteForceLoginLockService = ref('bruteForceLoginLockService')
     }
