@@ -20,7 +20,7 @@ class Client {
             resourceIds: String,
             scopes: String,
             autoApproveScopes: String,
-            redirectUris: String
+            redirectUris: String,
     ]
 
     static transients = ['springSecurityService']
@@ -46,6 +46,8 @@ class Client {
 
         redirectUris nullable: true
         additionalInformation nullable: true
+
+        //oAuthIDs nullable: true
     }
 
     def beforeInsert() {
