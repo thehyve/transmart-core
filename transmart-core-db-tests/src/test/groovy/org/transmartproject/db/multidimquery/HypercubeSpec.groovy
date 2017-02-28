@@ -63,5 +63,8 @@ class HypercubeSpec extends Specification {
         expect:
         Dimension.Density.DENSE.isDense
         Dimension.Density.SPARSE.isDense == false
+
+        Dimension.Packable.PACKABLE.packable
+        Dimension.Packable.NOT_PACKABLE.packable == false
     }
 }

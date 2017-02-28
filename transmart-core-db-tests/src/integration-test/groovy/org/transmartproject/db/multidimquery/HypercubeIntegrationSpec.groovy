@@ -81,6 +81,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def expectedPatients = clinicalData.longitudinalClinicalFacts*.patient as Set
         def expectedVisits = clinicalData.longitudinalClinicalFacts*.trialVisit as Set
 
+        def sameTrialVisit = hypercube.getEqualityTester([TRIAL_VISIT])
+        def sameDimensions = hypercube.getEqualityTester([PATIENT, TRIAL_VISIT, CONCEPT])
+
         expect:
 
         hypercube.dimensions.size() == clinicalData.longitudinalStudy.dimensions.size()
@@ -104,6 +107,12 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
             assert iTrialVisit.relTime == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTime
             assert iTrialVisit.relTimeLabel == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTimeLabel
             assert iTrialVisit.relTimeUnit == clinicalData.longitudinalClinicalFacts[i].trialVisit.relTimeUnit
+        }
+
+        for(tvObs in resultObs.collate(2)) {
+            assert sameTrialVisit(tvObs[0], tvObs[1])
+            assert sameDimensions(tvObs[0], tvObs[0])
+            assert !sameDimensions(tvObs[0], tvObs[1])
         }
     }
 
@@ -134,6 +143,16 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def expectedDosages = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}*.numberValue as Set
         expectedDosages << null // a missing dose
 
+        def staticDimensionsEqual = hypercube.getEqualityTester([CONCEPT, STUDY])
+        def sameIndexedDims = hypercube.getEqualityTester([PATIENT, CONCEPT, STUDY])
+        def sameSamples = hypercube.getEqualityTester([clinicalData.tissueTypeDimension])
+
+        when:
+        hypercube.getEqualityTester([TRIAL_VISIT])
+
+        then:
+        thrown(IllegalArgumentException)
+
         expect:
         hypercube.dimensions.size() == clinicalData.sampleStudy.dimensions.size()
         resultValues == expectedValues
@@ -159,6 +178,20 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
                     clinicalData.sampleClinicalFacts.findAll{it.modifierCd == ttDim.modifierCode}[i].textValue
             assert resultObs[i][doseDim] ==
                     clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}[i]?.numberValue
+
+            assert staticDimensionsEqual(resultObs[i], resultObs[i == resultObs.size()-1 ? i : i+1])
+        }
+
+        // The observations with the samples for the same patient grouped together
+        for(samples in resultObs.collate(2)) {
+            assert sameIndexedDims(*samples)
+            assert !sameSamples(*samples)
+        }
+
+        // The observations for the same sample type
+        def connective_tissue_samples = resultObs[(0..<resultObs.size()).step(2)]
+        for(i in connective_tissue_samples.indices[0..-2]) {
+            assert sameSamples(connective_tissue_samples[i], connective_tissue_samples[i+1])
         }
     }
 

@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.PeekingIterator
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.DimensionsEqualator
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 
@@ -36,6 +37,11 @@ class EmptyHypercube implements Hypercube {
     void setAutoloadDimensions(boolean value){}
 
     void preloadDimensions(){}
+
+    DimensionsEqualator getEqualityTester(Collection<Dimension> dimensions) {
+        { i, j -> throw new IllegalArgumentException(
+                "HypercubeValues $i and $j do not belong to this (or any) EmptyHypercube") } as DimensionsEqualator
+    }
 
     PeekingIterator<HypercubeValue> iterator() {
         return new PeekingIterator() {

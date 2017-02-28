@@ -59,25 +59,27 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def observations() {
-        checkParams(params, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
+        checkParams(params, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection', 'pack'])
 
         if (params.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
 
+        boolean pack = params.pack =! 'false'
+
         if (params.type == 'clinical') {
-            clinicalObservations(params.constraint)
+            clinicalObservations(params.constraint, pack)
         } else {
             if(params.assay_constraint) {
                 response.sendError(422, "Parameter 'assay_constraint' is no longer used, use 'constraint' instead")
                 return
             }
-            highdimObservations(params.type, params.constraint, params.biomarker_constraint, params.projection)
+            highdimObservations(params.type, params.constraint, params.biomarker_constraint, params.projection, pack)
         }
     }
 
     /**
      * Helper function for retrieving clinical hypercube data
      */
-    private def clinicalObservations(constraint_text) {
+    private def clinicalObservations(constraint_text, boolean pack) {
 
         def format = contentFormat
         if (format == Format.NONE) {
@@ -102,7 +104,7 @@ class QueryController extends AbstractQueryController {
                     response.outputStream
                 })
         try {
-            multidimensionalDataSerialisationService.serialise(result, format, out)
+            multidimensionalDataSerialisationService.serialise(result, format, out, pack)
         } finally {
             out.close()
         }
@@ -174,7 +176,8 @@ class QueryController extends AbstractQueryController {
      *
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
-    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, projection) {
+    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, projection,
+                                    boolean pack) {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
@@ -192,7 +195,7 @@ class QueryController extends AbstractQueryController {
                     response.outputStream
                 })
         try {
-            multidimensionalDataSerialisationService.serialise(hypercube, format, out)
+            multidimensionalDataSerialisationService.serialise(hypercube, format, out, pack)
         } finally {
             hypercube.close()
             out.close()

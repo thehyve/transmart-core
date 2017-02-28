@@ -18,6 +18,7 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.DimensionsEqualator
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
@@ -194,13 +195,13 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
 
         ImmutableList<Dimension> availableDimensions
         def value
-        BioMarker biomarker
-        Assay assay
-        String projectionKey
-        int biomarkerIndex
-        int assayIndex
-        int patientIndex
-        int projectionIndex
+        protected BioMarker biomarker
+        protected Assay assay
+        protected String projectionKey
+        protected int biomarkerIndex
+        protected int assayIndex
+        protected int patientIndex
+        protected int projectionIndex
 
         Patient getPatient() { assay.patient }
 
@@ -241,6 +242,34 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     final boolean dimensionsPreloadable = false
     final boolean dimensionsPreloaded = false
     boolean autoloadDimensions = true
+
+    DimensionsEqualator getEqualityTester(Collection<Dimension> dimensions) {
+        for(dim in dimensions) if(!(dim in this.dimensions)) {
+            throw new IllegalArgumentException("Dimension '$dim' is not part of this hypercube")
+        }
+        new HddDimensionComparator(
+                biomarker: biomarkerDim in dimensions,
+                assay: assayDim in dimensions,
+                patient: patientDim in dimensions,
+                projection: projectionDim in dimensions,
+        )
+    }
+
+    static class HddDimensionComparator implements DimensionsEqualator {
+        protected boolean biomarker, assay, patient, projection
+
+        @Override boolean call(HypercubeValue i_, HypercubeValue j_) {
+            TabularResultAdapterValue i = (TabularResultAdapterValue) i_
+            TabularResultAdapterValue j = (TabularResultAdapterValue) j_
+
+            if(biomarker && i.biomarkerIndex != j.biomarkerIndex) return false
+            if(assay && i.assayIndex != j.assayIndex) return false
+            if(patient && i.patientIndex != j.patientIndex) return false
+            if(projection && i.projectionIndex != j.projectionIndex) return false
+
+            return true
+        }
+    }
 
     @Override
     void close() {

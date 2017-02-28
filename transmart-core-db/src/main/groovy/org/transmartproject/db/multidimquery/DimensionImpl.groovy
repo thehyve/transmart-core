@@ -297,7 +297,7 @@ trait CompositeElemDim<ELT,ELKey> {
  */
 @CompileStatic
 trait PackableDimension {
-    abstract Size getSize()
+    abstract Dimension.Size getSize()
 
     /**
      * The available packable dimension with the highest pack priority should be used to pack on.

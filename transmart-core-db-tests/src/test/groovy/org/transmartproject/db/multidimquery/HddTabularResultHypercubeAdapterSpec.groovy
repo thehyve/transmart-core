@@ -32,6 +32,9 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         }.flatten()
     }
 
+    int nBioMarkers
+    int nAssays
+
     // Why isn't this method in the default groovy methods?
     static Iterator repeat(start=null, Closure block) {
         [hasNext: {true},
@@ -68,6 +71,9 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
                 indicesList: assays,
                 rowsList: rows
         )
+         // Our TabularResult is now a table with 3 columns and 4 rows (so 3 assays/patients and 4 biomarkers)
+        nAssays = 3
+        nBioMarkers = 4
     }
 
     static class BioMockRow<CELL> extends MockRow<AssayColumn, CELL> implements BioMarkerDataRow<CELL> {
@@ -83,9 +89,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         Iterator<CELL> iterator() { cells.iterator() }
         CELL getAt(int i) { cells[i] }
 
-        @Lazy private Map<COL, CELL> index = {
-            [columns, cells].transpose().collectEntries()
-        }()
+        @Lazy private Map<COL, CELL> index = [columns, cells].transpose().collectEntries()
 
         CELL getAt(COL assay) {
             index[assay]
@@ -100,33 +104,55 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         HddTabularResultHypercubeAdapter cube = new HddTabularResultHypercubeAdapter(mockTabular)
         List<HypercubeValue> values = cube.toList()
 
-        expect:
+        def biomarkersEqual = cube.getEqualityTester([BIOMARKER])
+        def assaysEqual = cube.getEqualityTester([ASSAY, PATIENT])
 
+        when:
+        cube.getEqualityTester([PROJECTION])
+
+        then:
+        thrown(IllegalArgumentException)
+
+        expect:
         values*.value == this.cubeValues
         cube.dimensions as List == [BIOMARKER, ASSAY, PATIENT]
-        (cube.dimensionElements(patientDim) as ArrayList).sort {-it.id} == patients
+        (cube.dimensionElements(PATIENT) as ArrayList).sort {-it.id} == patients
         (0..2).each {
-            assert cube.dimensionElement(assayDim, it) == assays[it]
+            assert cube.dimensionElement(ASSAY, it) == assays[it]
         }
-        (0..2).collect {cube.dimensionElementKey(patientDim, it)} as Set == patients*.id as Set
+        (0..2).collect {cube.dimensionElementKey(PATIENT, it)} as Set == patients*.id as Set
         (0..2).each {
-            assert cube.dimensionElementKey(assayDim, it) == assays[it].sampleCode
+            assert cube.dimensionElementKey(ASSAY, it) == assays[it].sampleCode
         }
         cube.dimensionsPreloadable == false
         cube.dimensionsPreloaded == false
-        [cube.dimensionElements(biomarkerDim), biomarkers].transpose().each { BioMarker actual, String expectedLabel ->
+        [cube.dimensionElements(BIOMARKER), biomarkers].transpose().each { BioMarker actual, String expectedLabel ->
             assert actual.label == expectedLabel
             assert actual.biomarker == "bio$expectedLabel".toString()
         }
 
-        (0..2).each {
-            assert values[it][patientDim] == patients[it]
-            assert values[it][assayDim] == assays[it]
-            assert values[it][biomarkerDim].label == biomarkers[0]
+        (0..<nBioMarkers).each { int row ->
+            (0..<nAssays).each { int col ->
+                assert values[row*nAssays+col][PATIENT] == patients[col]
+                assert values[row*nAssays+col][ASSAY] == assays[col]
+                assert values[row*nAssays+col][BIOMARKER].label == biomarkers[row]
+            }
+        }
+
+        (0..<nBioMarkers).each { int row ->
+            (0..<nAssays-1).each { int col ->
+                assert biomarkersEqual(values[row*nAssays+col], values[row*nAssays+col+1])
+            }
+        }
+
+        (0..<nBioMarkers-1).each { int row ->
+            (0..<nAssays).each { int col ->
+                assert assaysEqual(values[row*nAssays+col], values[(row+1)*nAssays+col])
+            }
         }
 
         when:
-        cube.dimensionElements(projectionDim)
+        cube.dimensionElements(PROJECTION)
 
         then:
         thrown InvalidArgumentsException
