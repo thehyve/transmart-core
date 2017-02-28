@@ -62,8 +62,8 @@ The script `transmart-batch.sh` executes the generated `.jar` by running `java -
 These are the required commands:
 ```bash
     # fetch the source code
-    git clone https://github.com/thehyve/transmart-upgrade/
-    cd transmart-upgrade/transmart-batch
+    git clone https://github.com/thehyve/transmart-core
+    cd transmart-core/transmart-batch
     # build transmart-batch
     gradle shadowJar
     # run transmart-batch

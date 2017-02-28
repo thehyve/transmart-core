@@ -15,7 +15,7 @@ Are you ready to contribute to TranSMART? We'd love to have you on board, and we
 ### Submitting a Pull Request
 Before you submit your pull request consider the following guidelines:
 
-* Search the [tranSMART](https://github.com/thehyve/transmart-upgrade/pulls) repository for an open or closed Pull Request
+* Search the [tranSMART](https://github.com/thehyve/transmart-core/pulls) repository for an open or closed Pull Request
   that relates to your submission.
 * Make your changes in a new git branch
 
@@ -40,7 +40,7 @@ Before you submit your pull request consider the following guidelines:
     git push origin [name_of_your_new_branch]
     ```
 
-* In GitHub, send a pull request to `transmart-upgrade:master`.
+* In GitHub, send a pull request to `transmart-core:master`.
 * If we suggest changes then
   * Make the required updates.
   * Re-run the tests on the project and ensure tests are still passing.
@@ -113,7 +113,7 @@ After your pull request is merged, you have to delete your branch (if it was not
     ```
 
 ## <a name="test-travis"></a> Automated tests on Travis CI
-All Pull Requests are automatically tested on [Travis CI](https://travis-ci.org/thehyve/transmart-upgrade). Currently there is a set of tests for the core modules:
+All Pull Requests are automatically tested on [Travis CI](https://travis-ci.org/thehyve/transmart-core). Currently there is a set of tests for the core modules:
 * Tests for transmart-core-db module against H2 database, 
 * Tests for transmart-rest-api module, 
 * Tests for transmart-core-db module against Postgres database,
