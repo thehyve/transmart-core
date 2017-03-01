@@ -3483,7 +3483,7 @@ jQuery(function(){
          }
          
          //New code to generate popup because the categories don't have children.
-         generateBrowseWindow(node.data.title)
+		 gwasGenerateBrowseWindow(node.data.title)
          
          return true;
      },
@@ -3513,6 +3513,71 @@ jQuery(function(){
  	classNames: {connector: "dynatree-no-connector"}
  });
 });
+
+function gwasGenerateBrowseWindow(nodeClicked)
+{
+	var URLtoUse = "";
+	var filteringFunction;
+
+	var dialogHeight = 350;
+	var dialogWidth = 800;
+
+	//Grab the URL from a JS variable. Different popups need different URLS. We declare these on the RWG Index page.
+	switch(nodeClicked)
+	{
+		case "Study":
+			URLtoUse = studyBrowseWindow;
+			filteringFunction = gwasApplyPopupFiltersStudy;
+			break;
+		case "Analyses":
+			URLtoUse = analysisBrowseWindow;
+			filteringFunction = gwasApplyPopupFiltersAnalyses;
+			break;
+		case "Region of Interest":
+			URLtoUse = regionBrowseWindow;
+			filteringFunction = gwasApplyPopupFiltersRegions;
+			dialogHeight = 340;
+			dialogWidth = 650;
+			break;
+		case "Data Type":
+			URLtoUse = dataTypeBrowseWindow;
+			filteringFunction = gwasApplyPopupFiltersDataTypes;
+			break;
+		case "eQTL Transcript Gene":
+			URLtoUse = eqtlTranscriptGeneWindow;
+			filteringFunction =  gwasApplyPopupFiltersEqtlTranscriptGene;
+			break;
+		default:
+			alert("Failed to find applicable popup! Please contact an administrator.");
+			return false;
+	}
+
+	//Load from the URL into a dialog window to capture the user input. We pass in a function that handles what happens after the user presses "Select".
+	if (jQuery('#divBrowsePopups').is(":visible")) {
+		jQuery('#divBrowsePopups').dialog("destroy");
+	}
+	jQuery('#divBrowsePopups').dialog(
+		{
+			modal: false,
+			open: function()
+			{
+				jQuery(this).empty().addClass('ajaxloading');
+				jQuery(this).load(URLtoUse, function() {
+					jQuery(this).removeClass('ajaxloading');
+				});
+			},
+			height: dialogHeight,
+			width: dialogWidth,
+			title: nodeClicked,
+			show: 'fade',
+			hide: 'fade',
+			resizable: false,
+			buttons: {"Select" : filteringFunction}
+		});
+}
+
+
+
 
 //find the analysis in the array with the given id
 function gwasGetAnalysisIndex(id)  {
