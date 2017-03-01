@@ -197,10 +197,10 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         protected BioMarker biomarker
         protected Assay assay
         protected String projectionKey
-        int biomarkerIndex
-        int assayIndex
-        int patientIndex
-        int projectionIndex
+        protected int biomarkerIndex
+        protected int assayIndex
+        protected int patientIndex
+        protected int projectionIndex
 
         Patient getPatient() { assay.patient }
 
@@ -246,15 +246,16 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         if(!(dimension in this.dimensions)) {
             throw new IllegalArgumentException("Dimension '$dimension' is not part of this hypercube")
         }
-        Method accessor = TabularResultAdapterValue.getMethod("get${dimension.name.capitalize()}Index")
-        return new HddIndexGetter(accessor)
-    }
 
-    @TupleConstructor
-    static class HddIndexGetter implements IndexGetter {
-        final Method m
-        @Override Integer call(HypercubeValue val) {
-            (Integer) m.invoke((TabularResultAdapterValue) val)
+        switch(dimension) {
+            case biomarkerDim:
+                new IndexGetter() { Integer call(HypercubeValue val) {((TabularResultAdapterValue)val).biomarkerIndex}}; break
+            case assayDim:
+                new IndexGetter() { Integer call(HypercubeValue val) {((TabularResultAdapterValue)val).assayIndex}}; break
+            case patientDim:
+                new IndexGetter() { Integer call(HypercubeValue val) {((TabularResultAdapterValue)val).patientIndex}}; break
+            case projectionDim:
+                new IndexGetter() { Integer call(HypercubeValue val) {((TabularResultAdapterValue)val).projectionIndex}}; break
         }
     }
 
