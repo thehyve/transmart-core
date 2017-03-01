@@ -9,6 +9,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 import groovy.transform.TailRecursive
 import groovy.transform.TupleConstructor
+import java.lang.reflect.Method
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
@@ -18,15 +19,13 @@ import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.core.multidimquery.DimensionsEqualator
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.core.multidimquery.IndexGetter
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
 import org.transmartproject.core.multidimquery.dimensions.Order
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
-
-import org.transmartproject.db.i2b2data.PatientDimension as I2b2Patient
 
 @CompileStatic
 class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<HypercubeValue> implements Hypercube {
@@ -198,10 +197,10 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         protected BioMarker biomarker
         protected Assay assay
         protected String projectionKey
-        protected int biomarkerIndex
-        protected int assayIndex
-        protected int patientIndex
-        protected int projectionIndex
+        int biomarkerIndex
+        int assayIndex
+        int patientIndex
+        int projectionIndex
 
         Patient getPatient() { assay.patient }
 
@@ -243,31 +242,19 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     final boolean dimensionsPreloaded = false
     boolean autoloadDimensions = true
 
-    DimensionsEqualator getEqualityTester(Collection<Dimension> dimensions) {
-        for(dim in dimensions) if(!(dim in this.dimensions)) {
-            throw new IllegalArgumentException("Dimension '$dim' is not part of this hypercube")
+    @Override IndexGetter getIndexGetter(Dimension dimension) {
+        if(!(dimension in this.dimensions)) {
+            throw new IllegalArgumentException("Dimension '$dimension' is not part of this hypercube")
         }
-        new HddDimensionComparator(
-                biomarker: biomarkerDim in dimensions,
-                assay: assayDim in dimensions,
-                patient: patientDim in dimensions,
-                projection: projectionDim in dimensions,
-        )
+        Method accessor = TabularResultAdapterValue.getMethod("get${dimension.name.capitalize()}Index")
+        return new HddIndexGetter(accessor)
     }
 
-    static class HddDimensionComparator implements DimensionsEqualator {
-        protected boolean biomarker, assay, patient, projection
-
-        @Override boolean call(HypercubeValue i_, HypercubeValue j_) {
-            TabularResultAdapterValue i = (TabularResultAdapterValue) i_
-            TabularResultAdapterValue j = (TabularResultAdapterValue) j_
-
-            if(biomarker && i.biomarkerIndex != j.biomarkerIndex) return false
-            if(assay && i.assayIndex != j.assayIndex) return false
-            if(patient && i.patientIndex != j.patientIndex) return false
-            if(projection && i.projectionIndex != j.projectionIndex) return false
-
-            return true
+    @TupleConstructor
+    static class HddIndexGetter implements IndexGetter {
+        final Method m
+        @Override Integer call(HypercubeValue val) {
+            (Integer) m.invoke((TabularResultAdapterValue) val)
         }
     }
 

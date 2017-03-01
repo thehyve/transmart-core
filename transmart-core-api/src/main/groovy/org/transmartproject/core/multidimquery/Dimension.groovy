@@ -48,6 +48,8 @@ interface Dimension {
 
     Packable getPackable()
 
+    boolean getDeterminesType()
+
     IterableResult<Object> getElements(Collection<Study> studies)
 
     List resolveElements(List elementKeys)

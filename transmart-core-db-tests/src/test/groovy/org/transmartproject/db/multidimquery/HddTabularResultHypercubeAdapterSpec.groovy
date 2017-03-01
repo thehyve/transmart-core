@@ -104,11 +104,12 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         HddTabularResultHypercubeAdapter cube = new HddTabularResultHypercubeAdapter(mockTabular)
         List<HypercubeValue> values = cube.toList()
 
-        def biomarkersEqual = cube.getEqualityTester([BIOMARKER])
-        def assaysEqual = cube.getEqualityTester([ASSAY, PATIENT])
+        def biomarkerIdx = cube.getIndexGetter(BIOMARKER)
+        def assayIdx = cube.getIndexGetter(ASSAY)
+        def patientIdx = cube.getIndexGetter(PATIENT)
 
         when:
-        cube.getEqualityTester([PROJECTION])
+        cube.getIndexGetter(PROJECTION)
 
         then:
         thrown(IllegalArgumentException)
@@ -141,13 +142,14 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
 
         (0..<nBioMarkers).each { int row ->
             (0..<nAssays-1).each { int col ->
-                assert biomarkersEqual(values[row*nAssays+col], values[row*nAssays+col+1])
+                assert biomarkerIdx(values[row*nAssays+col]) == biomarkerIdx(values[row*nAssays+col+1])
             }
         }
 
         (0..<nBioMarkers-1).each { int row ->
             (0..<nAssays).each { int col ->
-                assert assaysEqual(values[row*nAssays+col], values[(row+1)*nAssays+col])
+                assert assayIdx(values[row*nAssays+col]) == assayIdx(values[(row+1)*nAssays+col])
+                assert patientIdx(values[row*nAssays+col]) == patientIdx(values[(row+1)*nAssays+col])
             }
         }
 

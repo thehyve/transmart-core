@@ -47,6 +47,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     final Density density
     final Packable packable
 
+    @Override boolean getDeterminesType() { false }
 
     // Size is currently not used.
     //
@@ -468,6 +469,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
     Class elemType = I2b2ConceptDimensions
     List elemFields = ["conceptPath", "conceptCode"]
     String name = 'concept'
+    boolean determinesType = true
     String alias = 'conceptCode'
     String columnName = 'conceptCode'
     String nullValue = '@'
@@ -644,4 +646,5 @@ class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapt
 class ProjectionDimension extends HighDimDimension<String,String> implements SerializableElemDim<String> {
     Class elemType = String
     String name = 'projection'
+    boolean determinesType = true
 }

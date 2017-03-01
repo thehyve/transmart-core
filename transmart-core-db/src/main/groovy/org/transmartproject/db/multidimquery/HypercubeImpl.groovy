@@ -11,9 +11,9 @@ import groovy.transform.TupleConstructor
 import org.hibernate.ScrollableResults
 import org.hibernate.internal.StatelessSessionImpl
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.core.multidimquery.DimensionsEqualator
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
+import org.transmartproject.core.multidimquery.IndexGetter
 import org.transmartproject.core.multidimquery.dimensions.Order
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -203,12 +203,10 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         _dimensionsLoaded = true
     }
 
-    @Override DimensionsEqualator getEqualityTester(Collection<Dimension> dims) {
-        new DimensionComparator(dims.collect { dim ->
-            def idx = dimensionsIndex[dim]
-            if(idx == null) throw new IllegalArgumentException("Dimension '$dim' is not part of this hypercube")
-            idx
-        }.stream().mapToInt({it}).toArray())
+    @Override IndexGetter getIndexGetter(Dimension dim) {
+        checkDimension(dim)
+        checkIsDense(dim)
+        return new IndexGetterImpl(dimensionsIndex[dim])
     }
 
     void close() {
@@ -308,25 +306,19 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         }
     }
 
-    class DimensionComparator implements DimensionsEqualator {
-        private final int[] dimElementIdxIdxes  // indexes into the array of indexes to elements that each HypercubeValueImpl has
+    class IndexGetterImpl implements IndexGetter {
+        private final int dimElementIdxIdx   // the index into the array of indexes-to-elements that each HypercubeValueImpl has
 
-        DimensionComparator(int[] deii) {
-            dimElementIdxIdxes = deii
+        IndexGetterImpl(int deii) {
+            dimElementIdxIdx = deii
         }
 
-        @Override boolean call(HypercubeValue i_, HypercubeValue j_) {
+        @Override Integer call(HypercubeValue val_) {
             // can throw ClassCastException
-            HypercubeValueImpl i = (HypercubeValueImpl) i_
-            HypercubeValueImpl j = (HypercubeValueImpl) j_
+            HypercubeValueImpl val = (HypercubeValueImpl) val_
+            val.checkCube(HypercubeImpl.this)
 
-            i.checkCube(HypercubeImpl.this)
-            j.checkCube(HypercubeImpl.this)
-
-            for(int idx in dimElementIdxIdxes) {
-                if(i.getDimElementIndexByIndex(idx) != j.getDimElementIndexByIndex(idx)) return false
-            }
-            return true
+            return val.getDimElementIndexByIndex(dimElementIdxIdx)
         }
     }
 

@@ -6,10 +6,10 @@ class EmptyHypercubeSpec extends Specification {
 
     void testEqualator() {
         def e = new EmptyHypercube()
-        def eq = e.getEqualityTester([])
+        def eq = e.getIndexGetter(null)
 
         when:
-        eq(null, null)
+        eq(null)
 
         then:
         thrown(IllegalArgumentException)

@@ -52,22 +52,19 @@ interface Hypercube extends IterableResult<HypercubeValue> {
     void loadDimensions()
 
     /**
-     * Get a DimensionsEqualator that will test HypercubeValues from this cube for equality on the specified dimensions
+     * @return an IndexGetter that will (efficiently) retrieve the element index for the specified dimension. The
+     * IndexGetter can only be used on HypercubeValues that were retrieved from this Hypercube
+     * @param dim The dimension for which to retrieve the index
      */
-    DimensionsEqualator getEqualityTester(Collection<Dimension> dimensions)
+    IndexGetter getIndexGetter(Dimension dim)
 }
 
-/**
- * A Comparator-like interface that only tests equality but not ordering. This will only test equality on a specific
- * set of dimensions (specified in the factory function). Only values from the same hypercube that you got this
- * DimensionsEqualator from can be compared.
- */
-interface DimensionsEqualator {
-
+interface IndexGetter {
     /**
-     * @param i
-     * @param j
-     * @return True if the two values are the same on the dimensions that this DimensionsEqualator checks on.
+     * Retrieve the element index for the dimension that was passed to the factory function when this IndexGetter was
+     * created
+     * @param value the HypercubeValue
+     * @return the index, or null if not present for this value
      */
-    boolean call(HypercubeValue i, HypercubeValue j)
+    Integer call(HypercubeValue value)
 }

@@ -81,8 +81,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def expectedPatients = clinicalData.longitudinalClinicalFacts*.patient as Set
         def expectedVisits = clinicalData.longitudinalClinicalFacts*.trialVisit as Set
 
-        def sameTrialVisit = hypercube.getEqualityTester([TRIAL_VISIT])
-        def sameDimensions = hypercube.getEqualityTester([PATIENT, TRIAL_VISIT, CONCEPT])
+        def trialVisitIdx = hypercube.getIndexGetter(TRIAL_VISIT)
+        def dimensionsIdx = [PATIENT, TRIAL_VISIT, CONCEPT].collect { hypercube.getIndexGetter(it) }
 
         expect:
 
@@ -110,9 +110,9 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         }
 
         for(tvObs in resultObs.collate(2)) {
-            assert sameTrialVisit(tvObs[0], tvObs[1])
-            assert sameDimensions(tvObs[0], tvObs[0])
-            assert !sameDimensions(tvObs[0], tvObs[1])
+            assert trialVisitIdx(tvObs[0]) == trialVisitIdx(tvObs[1])
+            assert dimensionsIdx.collect {it(tvObs[0])} == dimensionsIdx.collect {it(tvObs[0])}
+            assert dimensionsIdx.collect {it(tvObs[0])} != dimensionsIdx.collect {it(tvObs[1])}
         }
     }
 
@@ -143,12 +143,12 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def expectedDosages = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}*.numberValue as Set
         expectedDosages << null // a missing dose
 
-        def staticDimensionsEqual = hypercube.getEqualityTester([CONCEPT, STUDY])
-        def sameIndexedDims = hypercube.getEqualityTester([PATIENT, CONCEPT, STUDY])
-        def sameSamples = hypercube.getEqualityTester([clinicalData.tissueTypeDimension])
+        def staticDimIdxes = [CONCEPT, STUDY].collect {hypercube.getIndexGetter(it)}
+        def sameIndexes = [PATIENT, CONCEPT, STUDY].collect {hypercube.getIndexGetter(it)}
+        def tissueTypeIdx = hypercube.getIndexGetter(clinicalData.tissueTypeDimension)
 
         when:
-        hypercube.getEqualityTester([TRIAL_VISIT])
+        hypercube.getIndexGetter(TRIAL_VISIT)
 
         then:
         thrown(IllegalArgumentException)
@@ -179,19 +179,20 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
             assert resultObs[i][doseDim] ==
                     clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}[i]?.numberValue
 
-            assert staticDimensionsEqual(resultObs[i], resultObs[i == resultObs.size()-1 ? i : i+1])
+            assert staticDimIdxes.collect{it(resultObs[i])} ==
+                    staticDimIdxes.collect {it(resultObs[i == resultObs.size()-1 ? i : i+1])}
         }
 
         // The observations with the samples for the same patient grouped together
         for(samples in resultObs.collate(2)) {
-            assert sameIndexedDims(*samples)
-            assert !sameSamples(*samples)
+            assert sameIndexes.collect {it(samples[0])} == sameIndexes.collect {it(samples[1])}
+            assert tissueTypeIdx(samples[0]) != tissueTypeIdx(samples[1])
         }
 
         // The observations for the same sample type
         def connective_tissue_samples = resultObs[(0..<resultObs.size()).step(2)]
         for(i in connective_tissue_samples.indices[0..-2]) {
-            assert sameSamples(connective_tissue_samples[i], connective_tissue_samples[i+1])
+            assert tissueTypeIdx(connective_tissue_samples[i]) == tissueTypeIdx(connective_tissue_samples[i+1])
         }
     }
 
