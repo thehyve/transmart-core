@@ -81,6 +81,7 @@ function gwasLoadAnalysisResultsGrid(analysisID, paramMap) {
 		bDestroy : true,
 		bServerSide : true,
 		data : paramMap,
+		async: false,
 		"success" : function(jqXHR) {
 			jQuery('#analysis_holder_' + analysisID).unmask();
 			jQuery('#analysis_results_table_' + analysisID + '_wrapper').html(
@@ -104,6 +105,7 @@ function gwasLoadTableResultsGrid(paramMap) {
 				bDestroy : true,
 				bServerSide : true,
 				data : paramMap,
+				async: false,
 				"success" : function(jqXHR) {
 					jQuery('#table-results-div').html(jqXHR).removeClass(
 							'ajaxloading');
@@ -193,7 +195,7 @@ function gwasApplyPopupFiltersAnalyses()
 	})
 	
 	//This destroys our popup window.
-	jQuery(this).dialog("destroy")
+	jQuery(this).dialog("destroy");
 }
 
 function gwasApplyPopupFiltersRegions() {
@@ -715,10 +717,9 @@ function gwasShowSearchResults(tabToShow)	{
     console.log('gwas gwasShowSearchResults tab'+tabToShow);
 	// call method which retrieves facet counts and search results
 	gwasShowFacetResults(tabToShow);
-	
+
 	//all analyses will be closed when doing a new search, so clear this array
 	openAnalyses = [];
-
 }
 
 //update a node's count (not including children)
@@ -763,26 +764,23 @@ function gwasClearFacetResults()	{
 
 
 //Method to load the facet results in the search tree and populate search results panel
-function gwasShowFacetResults(tabToShow)	{
-	
-    console.log('gwas showFacetResults');
+function gwasShowFacetResults(tabToShow) {
+
+	console.log('gwas showFacetResults');
 	var savedSearchTermsArray;
 	var savedSearchTerms;
-	
-	if (currentSearchTerms.toString() == '')
-		{
-			savedSearchTermsArray = new Array();
-			savedSearchTerms = '';
-		
-		}
-	else
-		{
+
+	if (currentSearchTerms.toString() == '') {
+		savedSearchTermsArray = new Array();
+		savedSearchTerms = '';
+
+	}
+	else {
 		savedSearchTerms = currentSearchTerms.join(",,,");
 		savedSearchTermsArray = savedSearchTerms.split(",,,");
-		}
+	}
 
 
-	
 	// Generate list of categories/terms to send to facet search
 	// create a string to send into the facet search, in form Cat1:Term1,Term2&Cat2:Term3,Term4,Term5&...
 
@@ -791,152 +789,160 @@ function gwasShowFacetResults(tabToShow)	{
 	var terms = new Array();         // will be an array of strings "Term1|Term2", "Term3"
 
 	// first, loop through each term and add categories and terms to respective arrays 		
- for (var i=0; i<savedSearchTermsArray.length; i++)	{
+	for (var i = 0; i < savedSearchTermsArray.length; i++) {
 		var fields = savedSearchTermsArray[i].split(SEARCH_DELIMITER);
 		// search terms are in format <Category Display>|<Category>:<Search term display>:<Search term id>
-		var termId = fields[2]; 
+		var termId = fields[2];
 		var categoryFields = fields[0].split("|");
 		var category = categoryFields[1].replace(" ", "_");   // replace any spaces with underscores (these will then match the SOLR field names) 
-		
+
 		var categoryIndex = categories.indexOf(category);
 
 		// if category not in array yet, add category and term to their respective array, else just append term to proper spot in its array
-		if (categoryIndex == -1)  {
-		    categories.push(category);
-		    terms.push(termId);
+		if (categoryIndex == -1) {
+			categories.push(category);
+			terms.push(termId);
 		}
-		else  {
-		    terms[categoryIndex] = terms[categoryIndex] + "|" + termId; 			
+		else {
+			terms[categoryIndex] = terms[categoryIndex] + "|" + termId;
 		}
 	}
- 
-    console.log('gwasShowFacetResults: getTree')
-	jQuery("#gwas-filter-div").dynatree();
+
+	 console.log('gwasShowFacetResults: getTree')
+	// jQuery("#gwas-filter-div").dynatree();
 	var tree = jQuery("#gwas-filter-div").dynatree("getTree");
 
 	// create an array of the categories that come from the tree
 	var treeCategories = new Array();
-	tree.visit(  function(node) {
-     if (node.data.isCategory)  {
-  	   var categoryName = node.data.categoryName.split("|");
-  	   var cat = categoryName[1].replace(/ /g, "_");
-  	   
-  	   treeCategories.push(cat);        	    
-     }
-   }
-   , false
- );
+    tree.visit(function (node) {
+            if (node.data.isCategory) {
+                var categoryName = node.data.categoryName.split("|");
+                var cat = categoryName[1].replace(/ /g, "_");
 
- // now construct the facetSearch array by concatenating the values from the cats and terms array
- for (var i=0; i<categories.length; i++)	{
- 	var queryType = "";
- 	
- 	// determine if category is part of the tree; differentiate these types of query categories
- 	// from others
- 	if (treeCategories.indexOf(categories[i])>-1) {
- 		queryType = "fq";
- 	}
- 	else  {
- 		queryType = "q";
- 	}
- 	facetSearch.push(queryType + "=" + categories[i] + SEARCH_DELIMITER + terms[i]);
- }
+                treeCategories.push(cat);
+            }
+        }
+        , false
+    );
 
- // now add all tree categories that aren't being searched on to the string
- for (var i=0; i<treeCategories.length; i++)  {
- 	if (categories.indexOf(treeCategories[i])==-1)  {
- 		queryType = "ff";
-     	facetSearch.push(queryType + "=" + treeCategories[i]);
- 	}
- }    
- 
- //display loading message. Note: because the contents of the 'results-div' is replaced,
- //there is no need to 'unmask' the loading message
-	jQuery("#results-div").mask("Loading..."); 
- 
- // add study id to list of fields to facet (so we can get count for show search results)
- facetSearch.push("ff=STUDY_ID");
- 
- var queryString = facetSearch.join("&");
- 
- //Show significant results is disabled
+	// now construct the facetSearch array by concatenating the values from the cats and terms array
+	for (var i = 0; i < categories.length; i++) {
+		var queryType = "";
+
+		// determine if category is part of the tree; differentiate these types of query categories
+		// from others
+		if (treeCategories.indexOf(categories[i]) > -1) {
+			queryType = "fq";
+		}
+		else {
+			queryType = "q";
+		}
+		facetSearch.push(queryType + "=" + categories[i] + SEARCH_DELIMITER + terms[i]);
+	}
+
+	// now add all tree categories that aren't being searched on to the string
+	for (var i = 0; i < treeCategories.length; i++) {
+		if (categories.indexOf(treeCategories[i]) == -1) {
+			queryType = "ff";
+			facetSearch.push(queryType + "=" + treeCategories[i]);
+		}
+	}
+
+	//display loading message. Note: because the contents of the 'results-div' is replaced,
+	//there is no need to 'unmask' the loading message
+	jQuery("#results-div").mask("Loading...");
+
+	// add study id to list of fields to facet (so we can get count for show search results)
+	facetSearch.push("ff=STUDY_ID");
+	// setTimeout(function(){
+	var queryString = facetSearch.join("&");
+
+	//Show significant results is disabled
 	//queryString = queryString + "&showSignificantResults=" + document.getElementById('cbShowSignificantResults').checked
- 
 	//Only do one of these depending on the highlighted tab. If the table results div is hidden, do the tree view
- if (tabToShow == "analysis") {
- 	jQuery.ajax({
-			url:gwasFacetResultsURL,
-			data:queryString,
-			success: function(response) {
-				
+	if (tabToShow == "analysis") {
+		console.log("queryString"+queryString);
+		// setTimeout(function(){
+		jQuery.ajax({
+			url: gwasFacetResultsURL,
+			data: queryString,
+			success: function (response) {
+				var facetCounts = response['facetCounts'];
+				var html = response['html'];
 
-					var facetCounts = response['facetCounts'];
-					var html = response['html'];
-					
-					// set html for results panel
-					//document.getElementById('results-div').innerHTML = html;
-					
-					jQuery('#results-div').html(html);
+				// set html for results panel
+				//document.getElementById('results-div').innerHTML = html;
 
-					// assign counts that were returned in json object to the tree
-					tree.visit(  function(node) {
-						           if (!node.data.isCategory && node.data.id)  {
-						        	   var id = node.data.id.toString();
-						        	   var catFields = node.data.categoryName.split("|")
-						        	   var cat = catFields[1].replace(" ","_");
-						        	   //var catArray = response[cat];
-						        	   var catArray = facetCounts[cat];
-						        	   var count = catArray[id];
-						        	   
-						        	   // no count returned for this node means it isn't in solr index because no records exist
-						        	   if (!count)  {
-						        		   count = 0;
-						        	   }
-						        	   
-						        	   gwasUpdateNodeIndividualFacetCount(node, count);   
-						           }
-					             }
-				                 , false
-				               );
-										
-					 // redraw entire tree after counts updated
-					 tree.redraw();
+				jQuery('#results-div').html(html);
+
+				// assign counts that were returned in json object to the tree
+				tree.visit(function (node) {
+						if (!node.data.isCategory && node.data.id) {
+							var id = node.data.id.toString();
+							var catFields = node.data.categoryName.split("|")
+							var cat = catFields[1].replace(" ", "_");
+							//var catArray = response[cat];
+							var catArray = facetCounts[cat];
+							var count = catArray[id];
+
+							// no count returned for this node means it isn't in solr index because no records exist
+							if (!count) {
+								count = 0;
+							}
+
+							gwasUpdateNodeIndividualFacetCount(node, count);
+						}
+					}
+					, false
+				);
+
+				// redraw entire tree after counts updated
+				tree.redraw();
 				//}
 
 			},
-			error: function(xhr) {
+			error: function (xhr) {
 
-		// this is a bit bogus - but the problem is that the Jquery request is returning the HTML for the display
-                // an uncomfortable mix of data and rendering - so rather then send an error as a JSON status return
-                // it is being signaled by a 500 error status and a Grails-generated error page.
-                // but if the error page contains the string 'solrConnection' (which is most likely the case)
-                // then the probablity is high that SOLR is not running on the server.
+				// this is a bit bogus - but the problem is that the Jquery request is returning the HTML for the display
+				// an uncomfortable mix of data and rendering - so rather then send an error as a JSON status return
+				// it is being signaled by a 500 error status and a Grails-generated error page.
+				// but if the error page contains the string 'solrConnection' (which is most likely the case)
+				// then the probablity is high that SOLR is not running on the server.
 
-		var html = xhr['responseText'];
-                var userMessage = "Unknown server error - data loading failed"
-                if (html.indexOf("solrConnection") > -1) {
-                    userMessage = "Server error - cannot connect to SOLR on the tranSMART server - is it running?"
-                }
-                userMessage = 'Error!  Status = ' + xhr.status + "; " + userMessage
-                alert(userMessage)
-                console.log(userMessage);
-                jQuery('#results-div').html(userMessage)
-            }
-    });
- }
- else {
-	   	jQuery.ajax({
-			url:gwasFacetTableResultsURL,
-			data:queryString,
-			success: function(response) {
-				jQuery('#table-results-div').html(response);
-				gwasLoadTableResultsGrid({'max': 100, 'offset':0, 'cutoff': 0, 'search': "", 'sortField': "", "order": "asc"});
+				var html = xhr['responseText'];
+				var userMessage = "Unknown server error - data loading failed"
+				if (html.indexOf("solrConnection") > -1) {
+					userMessage = "Server error - cannot connect to SOLR on the tranSMART server - is it running?"
+				}
+				userMessage = 'Error!  Status = ' + xhr.status + "; " + userMessage
+				alert(userMessage)
+				console.log(userMessage);
+				jQuery('#results-div').html(userMessage)
 			},
-			error: function(xhr) {
+			async: false
+		});
+	}
+	else {
+		jQuery.ajax({
+			url: gwasFacetTableResultsURL,
+			data: queryString,
+			async: false,
+			success: function (response) {
+				jQuery('#table-results-div').html(response);
+				gwasLoadTableResultsGrid({
+					'max': 100,
+					'offset': 0,
+					'cutoff': 0,
+					'search': "",
+					'sortField': "",
+					"order": "asc"
+				});
+			},
+			error: function (xhr) {
 				console.log('Error!  Status = ' + xhr.status + xhr.statusText);
 			}
-	   	});
- }
+		});
+	}
 }
 
 //Add the search term to the array and show it in the panel.
@@ -3151,7 +3157,7 @@ function gwasOpenSaveSearchDialog()  {
 //save a faceted search to the database
 function gwasSaveSearch(keywords, name, desc)  {
 
-	var nam1e = jQuery("#searchName").val();
+	var name = jQuery("#searchName").val();
 	var desc = jQuery("#searchDescription").val();
 	var keywords = gwasGetSearchKeywordList();
 
@@ -3358,7 +3364,8 @@ console.log("about to call jQuery dynatree using gwasTreeURL")
 jQuery(function(){
     jQuery("#gwas-filter-div").dynatree({
 	initAjax: {  url: gwasTreeURL,
- 		data: { mode: "all" } 
+ 		data: { mode: "all" },
+        async: false
  	},
  	checkbox: true,
  	persist: false,

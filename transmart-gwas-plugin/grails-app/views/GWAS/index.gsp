@@ -85,25 +85,25 @@
                         popupWindowPropertiesMap['Study'] = {
 		                'URLToUse': studyBrowseWindow,
 		                'filteringFunction': gwasApplyPopupFiltersStudy
-		        }
+		        };
                         popupWindowPropertiesMap['Analyses'] = {
 		                'URLToUse': analysisBrowseWindow,
 		                'filteringFunction': gwasApplyPopupFiltersAnalyses
-		        }
+		        };
                         popupWindowPropertiesMap['Data Type'] = {
 		                'URLToUse': dataTypeBrowseWindow,
 		                'filteringFunction': gwasApplyPopupFiltersDataTypes
-		        }
+		        };
                         popupWindowPropertiesMap['Region of Interest'] = {
 		                'URLToUse': regionBrowseWindow,
 		                'filteringFunction': gwasApplyPopupFiltersRegions,
 		                'dialogHeight' : 450,
 		                'dialogWidth' : 900
-		        }
+		        };
                         popupWindowPropertiesMap['eQTL Transcript Gene'] = {
 		                'URLToUse': eqtlTranscriptGeneWindow,
 		                'filteringFunction': gwasApplyPopupFiltersEqtlTranscriptGene
-		        }
+		        };
 
 //		        jQuery("#xtButton").colorbox({opacity:.75, inline:true, width:"95%", height:"95%"});
 
