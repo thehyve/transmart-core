@@ -808,8 +808,7 @@ function gwasShowFacetResults(tabToShow) {
 		}
 	}
 
-	 console.log('gwasShowFacetResults: getTree')
-	// jQuery("#gwas-filter-div").dynatree();
+    console.log('gwasShowFacetResults: getTree')
 	var tree = jQuery("#gwas-filter-div").dynatree("getTree");
 
 	// create an array of the categories that come from the tree
@@ -854,7 +853,6 @@ function gwasShowFacetResults(tabToShow) {
 
 	// add study id to list of fields to facet (so we can get count for show search results)
 	facetSearch.push("ff=STUDY_ID");
-	// setTimeout(function(){
 	var queryString = facetSearch.join("&");
 
 	//Show significant results is disabled
