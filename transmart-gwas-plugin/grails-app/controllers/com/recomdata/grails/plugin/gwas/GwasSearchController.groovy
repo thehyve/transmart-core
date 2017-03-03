@@ -28,7 +28,6 @@ class GwasSearchController {
     def RModulesOutputRenderService
     def springSecurityService
     def gwasSearchService
-    def sendFileService
     def inLimit = 1000
     LinkGenerator grailsLinkGenerator
 
@@ -503,7 +502,8 @@ class GwasSearchController {
             return
         }
 
-        sendFileService.sendFile servletContext, request, response, targetFile
+        render(file: targetFile, fileName: targetFile.name, contentType: servletContext.getMimeType(targetFile.name
+                .toLowerCase()))
     }
 
     def getQQPlotImage = {
@@ -681,8 +681,7 @@ class GwasSearchController {
             //get rdc-modules plugin info
             def pluginManager = Holders.pluginManager
             def plugin = pluginManager.getGrailsPlugin("rdc-rmodules")
-            String pluginDir = "rdc-rmodules-"+plugin.version;
-            pluginDir =  "${explodedDeplDir}/plugins/${pluginDir}/Rscripts/";
+            String pluginDir =  grailsApplication.config.RModules.pluginScriptDirectory;
 
             def manhattanPlotExistingImage = manhattanPlotDir + File.separator + params.analysisId +  File.separator + "manhattan.png"
 
