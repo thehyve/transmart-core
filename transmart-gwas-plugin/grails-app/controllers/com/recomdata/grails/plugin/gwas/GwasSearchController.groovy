@@ -3,6 +3,7 @@ package com.recomdata.grails.plugin.gwas
 import au.com.bytecode.opencsv.CSVWriter
 import com.recomdata.transmart.domain.searchapp.FormLayout
 import grails.converters.JSON
+import grails.util.Holders
 import grails.web.mapping.LinkGenerator
 import org.grails.web.json.JSONObject;
 import org.transmart.biomart.BioAssayAnalysis
@@ -678,7 +679,7 @@ class GwasSearchController {
             String tempImageFolder = explodedDeplDir + grailsApplication.config.com.recomdata.rwg.manhattanplots.temporaryImageFolder
 
             //get rdc-modules plugin info
-            def pluginManager = PluginManagerHolder.pluginManager
+            def pluginManager = Holders.pluginManager
             def plugin = pluginManager.getGrailsPlugin("rdc-rmodules")
             String pluginDir = "rdc-rmodules-"+plugin.version;
             pluginDir =  "${explodedDeplDir}/plugins/${pluginDir}/Rscripts/";
