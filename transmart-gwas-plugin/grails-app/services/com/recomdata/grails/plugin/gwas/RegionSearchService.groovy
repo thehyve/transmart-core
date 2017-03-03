@@ -460,10 +460,10 @@ class RegionSearchService {
         analysisQuery = analysisQuery.replace("_orderclause_", sortOrder + " " + order)
         countQuery = countQuery.replace("_regionlist_", regionList.toString())
 
-        // analysis name query
-
-
+        def results = []
+        def total = 0
         try {
+            // analysis name query
             def nameQuery = analysisNameQuery + analysisQCriteria.toString();
             stmt = con.prepareStatement(nameQuery)
 
@@ -471,56 +471,34 @@ class RegionSearchService {
             while (rs.next()) {
                 analysisNameMap.put(rs.getLong("id"), rs.getString("name"));
             }
-        }catch(Exception e){
-            log.error(e.getMessage(),e)
-            throw e;
-        }
-        finally {
-            rs?.close();
-            stmt?.close();
-            con?.close();
-        }
 
-        //println(analysisNameMap)
-        // data query
-        def finalQuery = analysisQuery + queryCriteria.toString() + "\n) a";
-        if (limit > 0) {
-            finalQuery += " where a.row_nbr between ${offset+1} and ${offset+limit}";
-        }
-        stmt = con.prepareStatement(finalQuery);
+            //println(analysisNameMap)
+            // data query
+            def finalQuery = analysisQuery + queryCriteria.toString() + "\n) a";
+            if (limit > 0) {
+                finalQuery += " where a.row_nbr between ${offset + 1} and ${offset + limit}";
+            }
 
-        //stmt.setString(1, sortField)
-        if (cutoff) {
-            stmt.setDouble(1, cutoff);
-        }
+            stmt = con.prepareStatement(finalQuery);
 
-        log.debug("Executing: " + finalQuery)
+            //stmt.setString(1, sortField)
+            if (cutoff) {
+                stmt.setDouble(1, cutoff);
+            }
+            log.debug("Executing: " + finalQuery)
 
-
-        def results = []
-        try{
             rs = stmt.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 if ((type.equals("gwas"))) {
-                    results.push([rs.getString("rsid"), rs.getString("pvalue_char"), rs.getDouble("logpvalue"), rs.getString("extdata"),analysisNameMap.get( rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("beta"), rs.getString("standard_error"), rs.getString("effect_allele"), rs.getString("other_allele"), rs.getString("strand")]);
-                }
-                else {
+                    results.push([rs.getString("rsid"), rs.getString("pvalue_char"), rs.getDouble("logpvalue"), rs.getString("extdata"), analysisNameMap.get(rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("beta"), rs.getString("standard_error"), rs.getString("effect_allele"), rs.getString("other_allele"), rs.getString("strand")]);
+                } else {
                     results.push([rs.getString("rsid"), rs.getString("pvalue_char"), rs.getDouble("logpvalue"), rs.getString("extdata"), analysisNameMap.get(rs.getLong("analysis_id")), rs.getString("rsgene"), rs.getString("chrom"), rs.getLong("pos"), rs.getString("intronexon"), rs.getString("recombinationrate"), rs.getString("regulome"), rs.getString("gene"), rs.getString("strand")]);
                 }
             }
-        }
-        catch(Exception e){
-            log.error(e.getMessage(), e);
-        }
-        finally{
-            rs?.close();
-            stmt?.close();
-        }
 
-        //Count - skip if we're not to do this (loading results from cache)
-        def total = 0;
-        if (doCount) {
-            try {
+            //Count - skip if we're not to do this (loading results from cache)
+            if (doCount) {
+
                 def finalCountQuery = countQuery + queryCriteria.toString();
                 stmt = con.prepareStatement(finalCountQuery)
                 if (cutoff) {
@@ -533,18 +511,18 @@ class RegionSearchService {
                 if (rs.next()) {
                     total = rs.getLong("TOTAL")
                 }
-            }
-            catch (Exception e) {
-                log.error(e, e.getMessage())
-                throw e;
-            }
-            finally {
-                rs?.close();
-                stmt?.close();
-                con?.close();
+
             }
         }
-
+        catch (Exception e) {
+            log.error(e.getMessage())
+            throw e;
+        }
+        finally {
+            rs?.close();
+            stmt?.close();
+            con?.close();
+        }
         return [results: results, total: total];
     }
 

@@ -20,7 +20,7 @@ def searchIndex       = catalinaBase + '/searchIndex' //create this directory
 def jobsDirectory     = "/var/tmp/jobs/"
 def samlEnabled  = false
 org.transmartproject.app.oauthEnabled = true
-org.transmartproject.app.gwavaEnabled = false
+org.transmartproject.app.gwavaEnabled = true
 org.transmartproject.app.transmartURL = "http://localhost:${System.getProperty('server.port', '8080')}"
 
 //Disabling/Enabling UI tabs
@@ -442,9 +442,14 @@ if (org.transmartproject.app.gwavaEnabled) {
         gwavaInstance = 'transmartstg'
         transmart.url = org.transmartproject.app.transmartURL - ~'\\/$'
    } } } }
-   com { recomdata { rwg { qqplots {
-       cacheImages = new File(jobsDirectory, 'cachedQQplotImages').toString()
-   } } } }
+   com { recomdata { rwg {
+       qqplots {
+           cacheImages = new File(jobsDirectory, 'cachedQQplotImages').toString()
+       }
+       manhattanplots {
+           cacheImages = new File(jobsDirectory, 'cachedManhattanplotImages').toString()
+       }
+   } } }
 }
 /* }}} */
 
