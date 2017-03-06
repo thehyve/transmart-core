@@ -1,14 +1,14 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        maven { url "https://repo.grails.org/grails/core" }
-    }
-    dependencies {
-        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.11.6"
-        classpath "org.grails.plugins:hibernate5:6.0.6"
-    }
-}
+//buildscript {
+//    repositories {
+//        mavenLocal()
+//        maven { url "https://repo.grails.org/grails/core" }
+//    }
+//    dependencies {
+//        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+//        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.11.6"
+//        classpath "org.grails.plugins:hibernate5:6.0.6"
+//    }
+//}
 
 version "17.1"
 group "transmart.server"
@@ -20,10 +20,10 @@ apply plugin:"org.grails.grails-web"
 apply plugin:"org.grails.grails-gsp"
 apply plugin:"asset-pipeline"
 
-repositories {
-    mavenLocal()
-    maven { url "https://repo.grails.org/grails/core" }
-}
+//repositories {
+//    mavenLocal()
+//    maven { url "https://repo.grails.org/grails/core" }
+//}
 
 dependencyManagement {
     imports {
@@ -35,9 +35,10 @@ dependencyManagement {
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.grails:grails-core"
     compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
+    provided "org.springframework.boot:spring-boot-starter-tomcat"
+    compile "org.springframework.boot:spring-boot-starter-security"
+    compile "org.grails:grails-core"
     compile "org.grails:grails-dependencies"
     compile "org.grails:grails-web-boot"
     compile "org.grails.plugins:cache"
@@ -55,17 +56,20 @@ dependencies {
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     // end of default Grails 3.2 deps
 
-    compile "org.springframework.boot:spring-boot-starter-security"
     compile 'org.grails.plugins:spring-security-core:3.1.1'
-    compile 'org.grails.plugins:spring-security-oauth2-provider:3.0.0-RC2'
     runtime 'org.springframework.security:spring-security-config:3.2.3.RELEASE'
+    compile 'org.springframework.security:spring-security-ldap:3.2.3.RELEASE'
+    compile 'org.springframework.security:spring-security-web:3.2.3.RELEASE'
+    compile 'org.grails.plugins:spring-security-oauth2:1.1.0'
+    compile 'org.grails.plugins:spring-security-oauth2-google:1.1.0'
+    compile 'org.grails.plugins:spring-security-oauth2-provider:3.0.0-RC2'
     // end of project specific deps
 
     // local gradle submodule deps
     //compile project(':transmart-core-api')
     //compile project(':transmart-core-db')
-    /*compile project(':search-domain')
-    compile project(':transmart-java')
+    compile project(':search-domain')
+    /*compile project(':transmart-java')
     compile project(':search-domain')
     compile project(':biomart-domain')
     compile project(':transmart-legacy-db')*/
