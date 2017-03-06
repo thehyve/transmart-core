@@ -1,9 +1,10 @@
 /* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2
 
+import annotations.RequiresStudy
 import base.RESTSpec
-import spock.lang.Requires
 
+import static base.ContentTypeFor.contentTypeForJSON
 import static config.Config.*
 import static tests.rest.v2.QueryType.*
 import static tests.rest.v2.constraints.ConceptConstraint
@@ -16,25 +17,26 @@ import static tests.rest.v2.constraints.ConceptConstraint
  *      maximum
  *      average
  */
-class AggregatedSpec extends RESTSpec{
+class AggregatedSpec extends RESTSpec {
 
     /**
      *  given: "study EHR is loaded"
      *  when: "for that study I Aggregated the concept Heart Rate with type max"
      *  then: "the number 102.0 is returned"
      */
-    @Requires({EHR_LOADED})
-    def "aggregated timeseries maximum"(){
+    @RequiresStudy(EHR_ID)
+    def "aggregated timeseries maximum"() {
+
         given: "study EHR is loaded"
         def request = [
-                path: PATH_AGGREGATE,
+                path      : PATH_AGGREGATE,
                 acceptType: contentTypeForJSON,
-                query: [
+                query     : [
                         constraint: toJSON([
                                 type: ConceptConstraint,
-                                path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                                path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
                         ]),
-                        type: MAX
+                        type      : MAX
                 ]
         ]
 
@@ -50,18 +52,18 @@ class AggregatedSpec extends RESTSpec{
      *  when: "for that study I Aggregated the concept Heart Rate with type min"
      *  then: "the number 56.0 is returned"
      */
-    @Requires({EHR_LOADED})
-    def "aggregated timeseries minimum"(){
+    @RequiresStudy(EHR_ID)
+    def "aggregated timeseries minimum"() {
         given: "study EHR is loaded"
         def request = [
-                path: PATH_AGGREGATE,
+                path      : PATH_AGGREGATE,
                 acceptType: contentTypeForJSON,
-                query: [
+                query     : [
                         constraint: toJSON([
                                 type: ConceptConstraint,
-                                path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                                path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
                         ]),
-                        type: MIN
+                        type      : MIN
                 ]
         ]
 
@@ -77,18 +79,18 @@ class AggregatedSpec extends RESTSpec{
      *  when: "for that study I Aggregated the concept Heart Rate with type average"
      *  then: "the number 74.77777777777777 is returned"
      */
-    @Requires({EHR_LOADED})
-    def "aggregated timeseries average"(){
+    @RequiresStudy(EHR_ID)
+    def "aggregated timeseries average"() {
         given: "study EHR is loaded"
         def request = [
-                path: PATH_AGGREGATE,
+                path      : PATH_AGGREGATE,
                 acceptType: contentTypeForJSON,
-                query: [
+                query     : [
                         constraint: toJSON([
                                 type: ConceptConstraint,
-                                path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                                path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
                         ]),
-                        type: AVERAGE
+                        type      : AVERAGE
                 ]
         ]
 
@@ -104,16 +106,16 @@ class AggregatedSpec extends RESTSpec{
      *  when: "for that study I Aggregated the concept Heart Rate without a type"
      *  then: "an error is returned"
      */
-    @Requires({EHR_LOADED})
-    def "aggregated missing type"(){
+    @RequiresStudy(EHR_ID)
+    def "aggregated missing type"() {
         given: "study EHR is loaded"
         def request = [
-                path: PATH_AGGREGATE,
+                path      : PATH_AGGREGATE,
                 acceptType: contentTypeForJSON,
-                query: [
+                query     : [
                         constraint: toJSON([
                                 type: ConceptConstraint,
-                                path:"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                                path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
                         ])
                 ],
                 statusCode: 400
@@ -133,16 +135,16 @@ class AggregatedSpec extends RESTSpec{
      *  when: "for that study I Aggregated the concept Heart Rate with type average"
      *  then: "I get an access error"
      */
-    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
-    def "restricted aggregated average"(){
+    @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
+    def "restricted aggregated average"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
         def conceptPath = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
         def request = [
-                path: PATH_AGGREGATE,
+                path      : PATH_AGGREGATE,
                 acceptType: contentTypeForJSON,
-                query: [
+                query     : [
                         constraint: toJSON([type: ConceptConstraint, path: conceptPath]),
-                        type: AVERAGE
+                        type      : AVERAGE
                 ],
                 statusCode: 403
         ]
@@ -161,17 +163,17 @@ class AggregatedSpec extends RESTSpec{
      *  when: "for that study I Aggregated the concept Heart Rate with type average"
      *  then: "I get an average"
      */
-    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
+    @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
     def "unrestricted aggregated average"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
         def conceptPath = '\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
         def request = [
-                path: PATH_AGGREGATE,
+                path      : PATH_AGGREGATE,
                 acceptType: contentTypeForJSON,
-                query: [
+                query     : [
                         constraint: toJSON([type: ConceptConstraint, path: conceptPath]),
-                        type: AVERAGE
+                        type      : AVERAGE
                 ]
         ]
 
