@@ -6,14 +6,17 @@ CREATE TABLE bio_assay_analysis_gwas (
     bio_assay_analysis_id bigint,
     rs_id character varying(50),
     p_value_char character varying(100),
-    etl_id bigint,
-    ext_data character varying(4000),
     p_value double precision,
     log_p_value double precision,
-    beta double precision,
-    standard_error double precision,
+    etl_id bigint,
+    ext_data character varying(4000),
     effect_allele character varying(30),
-    other_allele character varying(30)
+    other_allele character varying(30),
+    pass_fail character varying(1),
+    probe_name character varying(100),
+    bio_asy_geno_platform_probe_id bigint,
+    beta double precision,
+    standard_error double precision
 );
 
 --
