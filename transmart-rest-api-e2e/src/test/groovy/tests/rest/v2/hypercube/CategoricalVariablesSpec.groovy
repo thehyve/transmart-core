@@ -1,10 +1,12 @@
 /* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2.hypercube
 
+import annotations.RequiresStudy
 import base.RESTSpec
-import spock.lang.Requires
 
-import static config.Config.CATEGORICAL_VALUES_LOADED
+import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.contentTypeForProtobuf
+import static config.Config.CATEGORICAL_VALUES_ID
 import static config.Config.PATH_OBSERVATIONS
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.EQUALS
@@ -16,20 +18,20 @@ import static tests.rest.v2.constraints.*
  *      enabling fetching patients and observations where a categorical variable has a certain value.
  *      E.g., fetching data for patients with value 'female' for 'Sex' or with value 'Unknown' for 'Diagnosis'.
  */
-@Requires({CATEGORICAL_VALUES_LOADED})
-class CategoricalVariablesSpec extends RESTSpec{
+@RequiresStudy(CATEGORICAL_VALUES_ID)
+class CategoricalVariablesSpec extends RESTSpec {
 
     /**
      *  given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
      *  when: "I get all observations from the study that have concept Gender"
      *  then: "no observations are returned"
      */
-    def "get observations using old data format new style query"(def acceptType){
+    def "get observations using old data format new style query"(def acceptType) {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"])
         ]
 
         when: "I get all observations from the  study that have concept Gender"
@@ -39,8 +41,8 @@ class CategoricalVariablesSpec extends RESTSpec{
         assert responseData.cells == []
 
         where:
-        acceptType | _
-        contentTypeForJSON | _
+        acceptType             | _
+        contentTypeForJSON     | _
         contentTypeForProtobuf | _
     }
 
@@ -49,12 +51,12 @@ class CategoricalVariablesSpec extends RESTSpec{
      *  when: "I get all observations from the study that have concept Gender\Female"
      *  then: "1 observation is returned"
      */
-    def "get observations using old data format old style query"(){
+    def "get observations using old data format old style query"() {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"])
         ]
 
         when: "I get all observations from the study that have concept Female"
@@ -68,8 +70,8 @@ class CategoricalVariablesSpec extends RESTSpec{
         assert selector.select(0) == 'Female'
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -78,12 +80,12 @@ class CategoricalVariablesSpec extends RESTSpec{
      *  when: "I get all observations from the study that have concept Race"
      *  then: "2 observations are returned"
      */
-    def "get observations using new data format new style query"(){
+    def "get observations using new data format new style query"() {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"])
         ]
 
         when: "I get all observations from the study that have concept Race"
@@ -98,8 +100,8 @@ class CategoricalVariablesSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -108,17 +110,17 @@ class CategoricalVariablesSpec extends RESTSpec{
      *  when: "I get all observations from the study that have concept Race with value Caucasian"
      *  then: "2 observations are returned"
      */
-    def "get observations using new data format new style query with value"(){
+    def "get observations using new data format new style query with value"() {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: Combination,
+                query     : toQuery([
+                        type    : Combination,
                         operator: AND,
-                        args: [
+                        args    : [
                                 [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"],
-                                [type: ValueConstraint, valueType: STRING, operator: EQUALS, value:'Caucasian']
+                                [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: 'Caucasian']
                         ]
                 ])
         ]
@@ -136,8 +138,8 @@ class CategoricalVariablesSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 }

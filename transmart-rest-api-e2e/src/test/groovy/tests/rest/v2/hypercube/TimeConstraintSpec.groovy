@@ -1,10 +1,13 @@
 /* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2.hypercube
 
+import annotations.RequiresStudy
 import base.RESTSpec
-import spock.lang.Requires
 
-import static config.Config.*
+import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.contentTypeForProtobuf
+import static config.Config.EHR_ID
+import static config.Config.PATH_OBSERVATIONS
 import static tests.rest.v2.Operator.*
 import static tests.rest.v2.constraints.*
 
@@ -14,28 +17,28 @@ import static tests.rest.v2.constraints.*
  *      start time
  *      end time
  */
-class TimeConstraintSpec extends RESTSpec{
+@RequiresStudy(EHR_ID)
+class TimeConstraintSpec extends RESTSpec {
 
     /**
      *  given: "Ward-EHR is loaded"
      *  when: "I query observations in this study with startDate after 01-01-2016"
      *  then: "6 observations are returned"
      */
-    @Requires({EHR_LOADED})
-    def "query observations based on time constraint after startDate"(){
+    def "query observations based on time constraint after startDate"() {
         given: "Ward-EHR is loaded"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: Combination,
+                query     : toQuery([
+                        type    : Combination,
                         operator: AND,
-                        args: [
+                        args    : [
                                 [type: StudyNameConstraint, studyId: EHR_ID],
-                                [type: TimeConstraint,
-                                 field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
+                                [type    : TimeConstraint,
+                                 field   : [dimension: 'start time', fieldName: 'startDate', type: 'DATE'],
                                  operator: AFTER,
-                                 values: [toDateString("01-01-2016Z")]]
+                                 values  : [toDateString("01-01-2016Z")]]
                         ]
                 ])
         ]
@@ -52,8 +55,8 @@ class TimeConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -62,23 +65,22 @@ class TimeConstraintSpec extends RESTSpec{
      *  when: "I query observations in this study with startDate between 29-3-2016 10:00:00 and 29-3-2016 10:11:00"
      *  then: "2 observations are returned"
      */
-    @Requires({EHR_LOADED})
-    def "query observations based on time constraint between startDates"(){
+    def "query observations based on time constraint between startDates"() {
         given: "Ward-EHR is loaded"
         def date1 = toDateString("29-3-2016 10:00:00Z", "dd-MM-yyyy HH:mm:ssX")
         def date2 = toDateString("29-3-2016 10:11:00Z", "dd-MM-yyyy HH:mm:ssX")
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: Combination,
+                query     : toQuery([
+                        type    : Combination,
                         operator: AND,
-                        args: [
+                        args    : [
                                 [type: StudyNameConstraint, studyId: EHR_ID],
-                                [type: TimeConstraint,
-                                 field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
+                                [type    : TimeConstraint,
+                                 field   : [dimension: 'start time', fieldName: 'startDate', type: 'DATE'],
                                  operator: BETWEEN,
-                                 values: [date1, date2]]
+                                 values  : [date1, date2]]
                         ]
                 ])
         ]
@@ -95,8 +97,8 @@ class TimeConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -105,21 +107,20 @@ class TimeConstraintSpec extends RESTSpec{
      *  when: "I query observations in this study with startDate before 01-01-2016"
      *  then: "1 observation is returned"
      */
-    @Requires({EHR_LOADED})
-    def "query observations based on time constraint before startDate"(){
+    def "query observations based on time constraint before startDate"() {
         given: "Ward-EHR is loaded"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: Combination,
+                query     : toQuery([
+                        type    : Combination,
                         operator: AND,
-                        args: [
+                        args    : [
                                 [type: StudyNameConstraint, studyId: EHR_ID],
-                                [type: TimeConstraint,
-                                 field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
+                                [type    : TimeConstraint,
+                                 field   : [dimension: 'start time', fieldName: 'startDate', type: 'DATE'],
                                  operator: BEFORE,
-                                 values: toDateString("01-01-2016Z")]
+                                 values  : toDateString("01-01-2016Z")]
                         ]
                 ])
         ]
@@ -135,8 +136,8 @@ class TimeConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -145,27 +146,26 @@ class TimeConstraintSpec extends RESTSpec{
      *  when: "I query observations in this study with startDate after 01-01-2016 and an endDate before 01-04-2016"
      *  then: "4 observations are returned"
      */
-    @Requires({EHR_LOADED})
-    def "query observations based on starDate and endDate"(){
+    def "query observations based on starDate and endDate"() {
         given: "EHR is loaded"
         def date1 = toDateString("01-01-2016Z")
         def date2 = toDateString("04-04-2016Z")
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: Combination,
+                query     : toQuery([
+                        type    : Combination,
                         operator: AND,
-                        args: [
+                        args    : [
                                 [type: StudyNameConstraint, studyId: EHR_ID],
-                                [type: TimeConstraint,
-                                 field: [dimension: 'start time', fieldName: 'startDate', type: 'DATE' ],
+                                [type    : TimeConstraint,
+                                 field   : [dimension: 'start time', fieldName: 'startDate', type: 'DATE'],
                                  operator: AFTER,
-                                 values: date1],
-                                [type: TimeConstraint,
-                                 field: [dimension: 'end time', fieldName: 'endDate', type: 'DATE' ],
+                                 values  : date1],
+                                [type    : TimeConstraint,
+                                 field   : [dimension: 'end time', fieldName: 'endDate', type: 'DATE'],
                                  operator: BEFORE,
-                                 values: date2]
+                                 values  : date2]
                         ]
                 ])
         ]
@@ -182,8 +182,8 @@ class TimeConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 }

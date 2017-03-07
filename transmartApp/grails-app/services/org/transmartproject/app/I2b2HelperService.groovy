@@ -1781,7 +1781,7 @@ class I2b2HelperService {
         log.trace(sqlt);
         sql.eachRow(sqlt, [resultInstanceId], { row ->
             log.trace("in xml query");
-            log.trace(row.REQUEST_XML);
+            log.trace(row.REQUEST_XML.toString());
             xmlrequest = clobToString(row.REQUEST_XML);
             log.trace("Request XML:" + xmlrequest);
         })
