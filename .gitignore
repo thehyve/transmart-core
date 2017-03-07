@@ -1,0 +1,13 @@
+glowing-bear/.idea
+glowing-bear/node_modules
+glowing-bear/jspm_packages
+glowing-bear/npm-debug.log
+glowing-bear/debug.log
+glowing-bear/src/**/*.js
+glowing-bear/!src/systemjs.config.extras.js
+glowing-bear/!src/systemjs.config.js
+glowing-bear/*.js.map
+glowing-bear/e2e/**/*.js
+glowing-bear/e2e/**/*.js.map
+glowing-bear/_test-output
+glowing-bear/_temp
