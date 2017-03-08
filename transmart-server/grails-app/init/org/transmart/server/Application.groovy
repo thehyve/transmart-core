@@ -12,7 +12,7 @@ import org.springframework.context.EnvironmentAware
 import org.springframework.core.env.Environment
 
 @Slf4j
-    @EnableAutoConfiguration(exclude = [SecurityFilterAutoConfiguration])
+@EnableAutoConfiguration(exclude = [SecurityFilterAutoConfiguration])
 class Application extends GrailsAutoConfiguration implements EnvironmentAware {
     static void main(String[] args) {
         GrailsApp.run(Application, args)

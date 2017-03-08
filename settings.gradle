@@ -6,4 +6,5 @@ include 'transmartApp', 'transmart-core-db', 'transmart-core-db-tests', 'transma
         'transmart-gwas-plugin',
         'transmart-rest-api-e2e',
         'ontology-service',
-        'transmart-server'
+        'transmart-server',
+        'transmart-oauth'

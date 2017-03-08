@@ -8,10 +8,9 @@ import org.springframework.security.web.DefaultRedirectStrategy
 import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.transaction.interceptor.TransactionInterceptor
-import org.springframework.security.web.session.ConcurrentSessionFilter
 import org.springframework.web.util.IntrospectorCleanupListener
 import org.transmart.oauth2.ActiveDirectoryLdapAuthenticationExtension
-import org.transmart.security.AuthUserDetailsService
+import org.transmart.oauth2.AuthUserDetailsService
 import org.transmart.oauth2.BruteForceLoginLockService
 import org.transmart.oauth2.LdapAuthUserDetailsMapper
 import security.AuthSuccessEventListener
@@ -22,8 +21,6 @@ def logger = Logger.getLogger('com.recomdata.conf.resources')
 beans = {
     xmlns context: "http://www.springframework.org/schema/context"
     xmlns aop: "http://www.springframework.org/schema/aop"
-    //overrides bean implementing GormUserDetailsService?
-    userDetailsService(AuthUserDetailsService)
 
     bruteForceLoginLockService(BruteForceLoginLockService) {
         allowedNumberOfAttempts = grailsApplication.config.bruteForceLoginLock.allowedNumberOfAttempts
@@ -48,8 +45,6 @@ beans = {
         defaultFailureUrl = '/login'
     }
 
-    //overrides bean implementing GrailsUserDetailsService?
-    userDetailsService(AuthUserDetailsService)
 
     transactionInterceptor(TransactionInterceptor) {
         transactionManagerBeanName = 'transactionManager'
@@ -113,5 +108,7 @@ beans = {
         defaultFailureUrl = '/login'
     }
 
+    //overrides bean implementing GrailsUserDetailsService?
+    userDetailsService(AuthUserDetailsService)
 
 }

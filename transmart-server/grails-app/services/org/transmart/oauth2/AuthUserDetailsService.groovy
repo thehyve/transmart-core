@@ -3,7 +3,7 @@
  * @author $Author: mmcduffie $
  * @version $Revision: 9178 $
  */
-package org.transmart.security
+package org.transmart.oauth2
 
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugin.springsecurity.userdetails.GrailsUserDetailsService
