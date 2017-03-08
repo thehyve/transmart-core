@@ -13,7 +13,7 @@ import org.springframework.util.Assert
 import org.transmart.searchapp.AccessLog
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.Role
-import org.transmart.security.AuthUserDetailsService
+import org.transmart.oauth2.AuthUserDetailsService
 
 public class LdapAuthUserDetailsMapper implements UserDetailsContextMapper {
     @Autowired

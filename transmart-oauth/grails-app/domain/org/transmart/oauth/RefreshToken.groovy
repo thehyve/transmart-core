@@ -1,4 +1,4 @@
-package org.transmart.oauth2
+package org.transmart.oauth
 
 class RefreshToken {
 
