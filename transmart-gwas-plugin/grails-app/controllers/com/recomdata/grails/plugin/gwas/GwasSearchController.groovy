@@ -506,6 +506,30 @@ class GwasSearchController {
                 .toLowerCase()))
     }
 
+    def downloadManhattanPlotImage() {
+
+        def analysisId = params.getLong('analysisId')
+        def cachedImageDir = grailsApplication.config.com.recomdata.rwg.manhattanplots.cacheImages
+        def targetFile
+
+        if (!analysisId) {
+            log.warn "Request without analysisId"
+            render status: 404
+            return
+        }
+
+        targetFile = new File(new File(cachedImageDir, analysisId as String), 'manhattan.png')
+
+        if (!targetFile.isFile()) {
+            log.warn "Request for $targetFile, but such file does not exist"
+            render status: 404
+            return
+        }
+
+        render(file: targetFile, fileName: targetFile.name, contentType: servletContext.getMimeType(targetFile.name
+                .toLowerCase()))
+    }
+
     def getQQPlotImage = {
 
         def returnJSON = [:]
@@ -689,11 +713,16 @@ class GwasSearchController {
 
             // use QQPlots cached images if they are available. QQPlots takes >10 minutes to run and only needs to be generated once per analysis.
             if (manhattanPlotFile.exists()) {
-                def manhattanPlotImageURL = gwasWebService.moveManhattanCachedImageFile(manhattanPlotExistingImage,"ManhattanPlots"+File.separator+"manhattanplot-"+params.analysisId + ".png",tempImageFolder)
-                returnJSON['imageURL'] = manhattanPlotImageURL
-                render returnJSON as JSON;
-                return;
+                returnJSON['imageURL'] =  grailsLinkGenerator.link(
+                        controller: 'gwasSearch',
+                        action: 'downloadManhattanPlotImage',
+                        absolute: true,
+                        params: [analysisId: params.analysisId])
+
+                render returnJSON as JSON
+                return
             }
+
 
             def pvalueCutoff = params.double('pvalueCutoff')
             def search = params.search
@@ -761,7 +790,7 @@ class GwasSearchController {
                 def indexCount = 0;
 
                 //The third element is our large text field. Split it into an array.
-                def largeTextField = it[3]?.split(";", -1)
+                def largeTextField = it[3 as String]?.split(";" as char, -1)
 
                 //This will be the array that is reordered according to the meta-data index table.
                 String[] newLargeTextField = new String[indexMap.size()]
@@ -820,16 +849,16 @@ class GwasSearchController {
 
             if(!new File(imagePath)) {
                 throw new Exception("Image file creation failed!")
+            } else {
+                FileUtils.copyFile(new File(imagePath), new File(manhattanPlotExistingImage))
+                returnJSON['imageURL'] = grailsLinkGenerator.link(
+                        controller: 'gwasSearch',
+                        action: 'downloadManhattanPlotImage',
+                        absolute: true,
+                        params: [analysisId: params.analysisId])
+                return
             }
-            else {
-                FileUtils.copyFile(new File(imagePath), new File(manhattanPlotExistingImage));
-                def manhattanPlotImageURL = gwasWebService.moveManhattanCachedImageFile(manhattanPlotExistingImage,"ManhattanPlots"+File.separator+"manhattanplot-"+params.analysisId + ".png",tempImageFolder)
-                returnJSON['imageURL'] = manhattanPlotImageURL
-                render returnJSON as JSON;
-                return;
-            }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             response.status = 500
             renderException(e)
         }
