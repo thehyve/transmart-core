@@ -7,7 +7,7 @@ import grails.plugin.springsecurity.oauth2.google.GoogleOAuth2Service
 import grails.plugin.springsecurity.oauth2.token.OAuth2SpringToken
 import grails.plugin.springsecurity.userdetails.GrailsUser
 import org.springframework.web.servlet.support.RequestContextUtils
-import org.transmart.oauth2.AccessToken
+import org.transmart.oauth.AccessToken
 import org.transmart.searchapp.AccessLog
 
 class UserLandingController {

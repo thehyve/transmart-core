@@ -1,4 +1,4 @@
-package org.transmart.server
+package org.transmart.oauth
 
 import grails.converters.JSON
 import org.springframework.beans.factory.annotation.Autowired
