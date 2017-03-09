@@ -1,11 +1,13 @@
 /* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2.hypercube
 
+import annotations.RequiresStudy
 import base.RESTSpec
-import spock.lang.Requires
 
+import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.contentTypeForProtobuf
 import static config.Config.PATH_OBSERVATIONS
-import static config.Config.TUMOR_NORMAL_SAMPLES_LOADED
+import static config.Config.TUMOR_NORMAL_SAMPLES_ID
 import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.ValueType.STRING
 import static tests.rest.v2.constraints.ModifierConstraint
@@ -14,21 +16,21 @@ import static tests.rest.v2.constraints.ValueConstraint
 /**
  *   TMPREQ-12 Support storing and fetching multiple samples.
  */
-class SamplesSpec extends RESTSpec{
+@RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
+class SamplesSpec extends RESTSpec {
 
     /**
      *  given: "study TUMOR_NORMAL_SAMPLES is loaded"
      *  when: "I get all observations related to a modifier "Sample type" with value "Tumor""
      *  then: "8 observations are returned, with concept Cell Count, Breast, Lung"
      */
-    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
-    def "get observations related to a modifier"(){
+    def "get observations related to a modifier"() {
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                query     : toQuery([
+                        type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
                 ])
         ]
@@ -45,8 +47,8 @@ class SamplesSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -55,14 +57,13 @@ class SamplesSpec extends RESTSpec{
      *  when: "I get all observations related to a modifier "Sample type" without value"
      *  then: "16 observations are returned, with concept Cell Count, Breast, Lung"
      */
-    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
-    def "get observations related to a modifier without value"(){
+    def "get observations related to a modifier without value"() {
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\"
+                query     : toQuery([
+                        type: ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\"
                 ])
         ]
 
@@ -78,8 +79,8 @@ class SamplesSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -88,14 +89,13 @@ class SamplesSpec extends RESTSpec{
      *  when: "I get all observations related to a modifier "does not exist"
      *  then: "0 observations are returned"
      */
-    @Requires({TUMOR_NORMAL_SAMPLES_LOADED})
-    def "get observations related to a modifier that does not exist"(){
+    def "get observations related to a modifier that does not exist"() {
         given: "study TUMOR_NORMAL_SAMPLES is loaded"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\does not exist\\"
+                query     : toQuery([
+                        type: ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\does not exist\\"
                 ])
         ]
 
@@ -106,8 +106,8 @@ class SamplesSpec extends RESTSpec{
         assert responseData.cells == []
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 }

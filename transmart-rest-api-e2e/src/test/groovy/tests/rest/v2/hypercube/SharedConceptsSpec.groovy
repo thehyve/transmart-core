@@ -1,9 +1,11 @@
 /* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2.hypercube
 
+import annotations.RequiresStudy
 import base.RESTSpec
-import spock.lang.Requires
 
+import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.contentTypeForProtobuf
 import static config.Config.*
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.OR
@@ -12,7 +14,7 @@ import static tests.rest.v2.constraints.*
 /**
  *  TMPREQ-5 Building a generic concept tree across studies
  */
-@Requires({SHARED_CONCEPTS_LOADED})
+@RequiresStudy([SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID])
 class SharedConceptsSpec extends RESTSpec {
 
     /**
@@ -20,12 +22,12 @@ class SharedConceptsSpec extends RESTSpec {
      *  when: "I get observaties using this shared Consept id"
      *  then: "observations are returned from both Studies"
      */
-    def "get shared concept multi study"(){
+    def "get shared concept multi study"() {
         given: "studies STUDIENAME and STUDIENAME are loaded and both use shared Consept ids"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
         ]
 
         when: "I get observaties using this shared Consept id"
@@ -40,8 +42,8 @@ class SharedConceptsSpec extends RESTSpec {
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -50,15 +52,15 @@ class SharedConceptsSpec extends RESTSpec {
      *  when: "I get observaties of one study using this shared Consept id"
      *  then: "observations are returned from only that Studies"
      */
-    def "get shared concept single study"(){
+    def "get shared concept single study"() {
         given: "studies SHARED_CONCEPTS_A and SHARED_CONCEPTS_B are loaded and both use shared Consept ids"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: Combination,
+                query     : toQuery([
+                        type    : Combination,
                         operator: AND,
-                        args: [
+                        args    : [
                                 [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_A_ID],
                                 [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
                         ]
@@ -77,8 +79,8 @@ class SharedConceptsSpec extends RESTSpec {
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -87,13 +89,13 @@ class SharedConceptsSpec extends RESTSpec {
      *  when: "I get observaties using a shared Consept id"
      *  then: "observations are returned from both public Studies but not the restricted study"
      */
-    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
-    def "get shared concept restricted"(){
+    @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
+    def "get shared concept restricted"() {
         given: "studies STUDIENAME, STUDIENAME and STUDIENAME_RESTRICTED are loaded and all use shared Consept ids"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
         ]
 
         when: "I get observaties using this shared Consept id"
@@ -109,8 +111,8 @@ class SharedConceptsSpec extends RESTSpec {
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -119,14 +121,14 @@ class SharedConceptsSpec extends RESTSpec {
      *  when: "I get observaties using a shared Consept id"
      *  then: "observations are returned from both public Studies but not the restricted study"
      */
-    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
-    def "get shared concept unrestricted"(){
+    @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
+    def "get shared concept unrestricted"() {
         given: "studies STUDIENAME, STUDIENAME and STUDIENAME_RESTRICTED are loaded and all use shared Consept ids"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
         ]
 
         when: "I get observaties using this shared Consept id"
@@ -141,28 +143,29 @@ class SharedConceptsSpec extends RESTSpec {
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "limit shared concept"(){
-        setUser(ADMIN_USERNAME,ADMIN_PASSWORD)
+    @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
+    def "limit shared concept"() {
+        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def heartRate = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
 
         def studiesOR = [
-                type: Combination,
+                type    : Combination,
                 operator: OR,
-                args: [
+                args    : [
                         [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_A_ID],
                         [type: StudyNameConstraint, studyId: SHARED_CONCEPTS_B_ID]
                 ]
         ]
 
         def constaint = [
-                type: Combination,
+                type    : Combination,
                 operator: AND,
-                args: [
+                args    : [
                         studiesOR,
                         heartRate
                 ]
@@ -180,8 +183,8 @@ class SharedConceptsSpec extends RESTSpec {
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 }

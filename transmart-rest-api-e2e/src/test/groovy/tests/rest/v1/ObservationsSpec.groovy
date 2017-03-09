@@ -1,33 +1,34 @@
 /* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v1
 
+import annotations.RequiresStudy
 import base.RESTSpec
 import spock.lang.Requires
 
+import static base.ContentTypeFor.contentTypeForJSON
 import static config.Config.*
 
-@Requires({GSE8581_LOADED})
-class ObservationsSpec extends RESTSpec{
+@RequiresStudy(GSE8581_ID)
+class ObservationsSpec extends RESTSpec {
 
     /**
      *  given: "study GSE8581 is loaded"
      *  when: "I request all observations related to a patient and concept"
      *  then: "I get all relevant observations"
      */
-    @Requires({GSE8581_ID})
-    def "v1 observations by query map"(){
+    def "v1 observations by query map"() {
         given: "study GSE8581 is loaded"
         def path = "\\Public Studies\\GSE8581\\Subjects\\Age\\"
         def id = get([
-                path: V1_PATH_STUDIES+"/${GSE8581_ID}/subjects",
+                path      : V1_PATH_STUDIES + "/${GSE8581_ID}/subjects",
                 acceptType: contentTypeForJSON
         ]).subjects[0].id
 
         when: "I request all observations related to a patient and concept"
         def responseData = get([
-                path: V1_PATH_observations,
-                query: [
-                        patients: [id],
+                path      : V1_PATH_observations,
+                query     : [
+                        patients     : [id],
                         concept_paths: [path]
                 ],
                 acceptType: contentTypeForJSON
@@ -45,8 +46,7 @@ class ObservationsSpec extends RESTSpec{
      *  when: "I request all observations related to this study and concept"
      *  then: "I get observations"
      */
-    @Requires({GSE8581_ID})
-    def "v1 observations by concept"(){
+    def "v1 observations by concept"() {
         given: "study GSE8581 is loaded"
         def studyId = GSE8581_ID
         def conceptPath = 'Subjects/Age/'
@@ -63,7 +63,6 @@ class ObservationsSpec extends RESTSpec{
         }
     }
 
-
     /**
      *  given: "study GSE8581 is loaded"
      *  when: "I request all observations related to this study"
@@ -71,13 +70,13 @@ class ObservationsSpec extends RESTSpec{
      *
      *  Highdim data in 17.1 is linked via modifiers, these trigger this error.
      */
-    @Requires({GSE8581_ID && DB_MIGRATED})
-    def "v1 observations by study"(){
+    @Requires({ DB_MIGRATED })
+    def "v1 observations by study"() {
         given: "study GSE8581 is loaded"
         def studyId = GSE8581_ID
 
         when: "I request all observations related to this study"
-        def responseData = get([path: V1_PATH_STUDIES+"/${studyId}/observations", acceptType: contentTypeForJSON, statusCode: 500])
+        def responseData = get([path: V1_PATH_STUDIES + "/${studyId}/observations", acceptType: contentTypeForJSON, statusCode: 500])
 
         then: "I get observations"
         assert responseData.httpStatus == 500
