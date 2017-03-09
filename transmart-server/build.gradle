@@ -72,6 +72,7 @@ dependencies {
     compile project(':biomart-domain')
     compile project(':transmart-legacy-db')*/
     compile project(':transmart-rest-api')
+    compile project(':transmartApp')
 }
 
 bootRun {
