@@ -1,4 +1,4 @@
-package org.transmart.oauth2
+package org.transmart.oauth.authentication
 
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
@@ -40,7 +40,7 @@ class BruteForceLoginLockService {
      */
     def failLogin(String login) {
         def numberOfAttempts = failedAttempts.get(login)
-        log.debug "fail login ${login} previous number for failedAttempts $numberOfAttempts"
+        BruteForceLoginLockService.log.debug "fail login ${login} previous number for failedAttempts $numberOfAttempts"
         failedAttempts.put(login, numberOfAttempts + 1)
     }
 
@@ -50,7 +50,7 @@ class BruteForceLoginLockService {
      */
     def loginSuccess(String login) {
         if (!isLocked(login)) {
-            log.debug "successfull login for ${login}"
+            BruteForceLoginLockService.log.debug "successfull login for ${login}"
             failedAttempts.invalidate(login)
         }
     }

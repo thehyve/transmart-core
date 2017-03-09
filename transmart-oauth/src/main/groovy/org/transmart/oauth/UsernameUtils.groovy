@@ -1,11 +1,7 @@
-package com.recomdata.security
+package org.transmart.oauth
 
 import org.transmart.searchapp.AuthUser
 
-/**
- * Date: 07.07.2015
- * Time: 19:39
- */
 class UsernameUtils {
     static final String FEDERATED_ID_PLACEHOLDER = '<FEDERATED_ID>'
     static final String ID_PLACEHOLDER = '<ID>'

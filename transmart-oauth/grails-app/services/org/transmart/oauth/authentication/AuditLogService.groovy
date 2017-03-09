@@ -17,7 +17,7 @@
  * Transmart.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmart.audit
+package org.transmart.oauth.authentication
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

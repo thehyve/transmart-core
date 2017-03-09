@@ -1,4 +1,4 @@
-package org.transmart.oauth2
+package org.transmart.oauth
 import grails.util.Holders
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around

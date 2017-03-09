@@ -1,4 +1,4 @@
-package org.transmart.server
+package org.transmart.oauth.authentication
 
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.AuthUserSecureAccess

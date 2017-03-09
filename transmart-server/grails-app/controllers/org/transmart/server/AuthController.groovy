@@ -1,71 +1,27 @@
 package org.transmart.server
 
-import com.github.scribejava.core.model.OAuth2AccessToken
 import grails.plugin.springsecurity.oauth2.SpringSecurityOauth2BaseService
-import grails.plugin.springsecurity.oauth2.exception.OAuth2Exception
-import grails.plugin.springsecurity.oauth2.google.GoogleOAuth2Service
-import grails.plugin.springsecurity.oauth2.token.OAuth2SpringToken
-import grails.plugin.springsecurity.userdetails.GrailsUser
-import org.springframework.web.servlet.support.RequestContextUtils
-import org.transmart.oauth.AccessToken
 import org.transmart.searchapp.AccessLog
 
-class UserLandingController {
+class AuthController {
+
     /**
      * Dependency injection for the springSecurityService.
      */
     def springSecurityService
-    def messageSource
     SpringSecurityOauth2BaseService springSecurityOauth2BaseService
-
-    private String getUserLandingPath() {
-        grailsApplication.config.with {
-            com.recomdata.defaults.landing ?: ui.tabs.browse.hide ? '/datasetExplorer' : '/RWG'
-        }
-    }
 
     def index = {
         new AccessLog(username: springSecurityService?.principal?.username, event: "Login",
                 eventmessage: request.getHeader("user-agent"),
                 accesstime: new Date()).save()
-        render(view: '/userLanding/login.gsp', model:[user: springSecurityService?.principal?.username])
-//        def skip_disclaimer = grailsApplication.config.com.recomdata?.skipdisclaimer ?: false;
-//        if (skip_disclaimer) {
-//            if (springSecurityService?.currentUser?.changePassword) {
-//                flash.message = messageSource.getMessage('changePassword', new Objects[0], RequestContextUtils.getLocale(request))
-//                redirect(controller: 'changeMyPassword')
-//            } else {
-//                redirect(uri: userLandingPath)
-//            }
-//        } else {
-//            redirect(uri: '/userLanding/disclaimer.gsp')
-//        }
-    }
-    def agree = {
-        new AccessLog(username: springSecurityService?.principal?.username, event: "Disclaimer accepted",
-                accesstime: new Date()).save()
-        if (springSecurityService?.currentUser?.changePassword) {
-            flash.message = messageSource.getMessage('changePassword', new Objects[0], RequestContextUtils.getLocale(request))
-            redirect(controller: 'changeMyPassword')
-        } else {
-            redirect(uri: userLandingPath)
-        }
-    }
-
-    def disagree = {
-        new AccessLog(username: springSecurityService?.principal?.username, event: "Disclaimer not accepted",
-                accesstime: new Date()).save()
-        redirect(uri: '/logout')
-    }
-
-    def checkHeartBeat = {
-        render(text: "OK")
+        render(view: '/auth/login.gsp', model: [user: springSecurityService?.principal?.username])
     }
 
     def token = {
         def token = session[springSecurityOauth2BaseService.sessionKeyForAccessToken('google')]
-        render(view: '/userLanding/token.gsp',
-               model:[token: token])
+        render(view: '/auth/token.gsp',
+                model:[token: token])
     }
 
 //    def onSuccess(String provider) {
@@ -107,5 +63,4 @@ class UserLandingController {
 //        }
 //        return oAuthToken
 //    }
-
 }

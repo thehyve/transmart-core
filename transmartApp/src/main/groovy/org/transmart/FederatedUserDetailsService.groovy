@@ -1,6 +1,5 @@
 package org.transmart
 
-import com.recomdata.security.AuthUserDetailsService
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.hibernate.SessionFactory
@@ -10,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.saml.SAMLCredential
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService
 import org.springframework.transaction.TransactionStatus
+import org.transmart.oauth.authentication.AuthUserDetailsService
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.Role
 import org.transmartproject.core.exceptions.UnexpectedResultException

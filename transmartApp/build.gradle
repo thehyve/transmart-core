@@ -65,6 +65,7 @@ dependencies {
     compile project(':search-domain')
     compile project(':biomart-domain')
     compile project(':transmart-legacy-db')
+    compile project(':transmart-oauth')
 
     testCompile project(':transmart-core-db-tests')
     testCompile "org.grails:grails-plugin-testing"

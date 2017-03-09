@@ -1,23 +1,15 @@
-package org.transmart.security
+package org.transmart.oauth
 
 import grails.plugin.springsecurity.SpringSecurityService
-import grails.plugin.springsecurity.authentication.encoding.BCryptPasswordEncoder
-import grails.test.mixin.TestMixin
-import grails.test.mixin.domain.DomainClassUnitTestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.services.ServiceUnitTestMixin
 import grails.transaction.Rollback
 import grails.util.Holders
-import org.gmock.WithGMock
 import org.hamcrest.Description
 import org.hamcrest.DiagnosingMatcher
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
-import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmart.oauth2.Client
-import org.transmartproject.security.OAuth2SyncService
 
 import static org.hamcrest.Matchers.*
 import static org.junit.Assert.assertThat
