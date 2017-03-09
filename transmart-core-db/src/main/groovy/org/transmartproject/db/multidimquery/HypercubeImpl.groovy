@@ -79,7 +79,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         this.aliases = ImmutableMap.copyOf(aliases.collectEntries { [it, idx++] })
 
         dimensionElementKeys = this.dimensions
-                .findAll { it.density == Dimension.Density.DENSE }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
+                .findAll { it.density.isDense }.collectEntries(new HashMap()) { [it, new IndexedArraySet()] }
 
         hasModifiers = (query.params.modifierCodes != ['@'])
         modifierDimensions = ImmutableList.copyOf((List) this.dimensions.findAll {it instanceof ModifierDimension})
@@ -145,7 +145,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     }
 
     protected void checkDimension(Dimension dim) {
-        if(!(dim in dimensions)) throw new IllegalArgumentException("Dimension $dim is not part of this result")
+        if(!dimensionsIndex.containsKey(dim)) throw new IllegalArgumentException("Dimension $dim is not part of this result")
     }
 
     protected int getDimensionsIndex(Dimension dim) {

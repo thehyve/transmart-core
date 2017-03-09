@@ -53,7 +53,8 @@ interface Hypercube extends IterableResult<HypercubeValue> {
 
     /**
      * @return an IndexGetter that will (efficiently) retrieve the element index for the specified dimension. The
-     * IndexGetter can only be used on HypercubeValues that were retrieved from this Hypercube
+     * IndexGetter can only be used on HypercubeValues that were retrieved from this Hypercube. IndexGetters can be
+     * used to efficiently compare HypercubeValue's for equality on selected dimensions.
      * @param dim The dimension for which to retrieve the index
      */
     IndexGetter getIndexGetter(Dimension dim)
