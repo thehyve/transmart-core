@@ -1,4 +1,4 @@
-package org.transmart.server
+package org.transmart.oauth.authentication
 
 import org.grails.core.exceptions.InvalidPropertyException
 import org.springframework.transaction.TransactionStatus

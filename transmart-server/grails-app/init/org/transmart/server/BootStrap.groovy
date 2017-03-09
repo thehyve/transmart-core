@@ -42,11 +42,7 @@ class BootStrap {
 //        // force marshaller registrar initialization
 //        grailsApplication.mainContext.getBean 'marshallerRegistrarService'
 
-        if ('clientCredentialsAuthenticationProvider' in
-                grailsApplication.config.grails.plugin.springsecurity.providerNames) {
-            OAuth2SyncService.syncOAuth2Clients()
-        }
-    }
+}
 
     private boolean copyResources(String root, File targetDirectory) {
         log.info "Copying resources from ${root} to ${targetDirectory.absolutePath} ..."

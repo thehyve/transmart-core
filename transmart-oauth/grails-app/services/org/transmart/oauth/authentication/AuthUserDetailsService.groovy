@@ -3,7 +3,7 @@
  * @author $Author: mmcduffie $
  * @version $Revision: 9178 $
  */
-package com.recomdata.security
+package org.transmart.oauth.authentication
 
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugin.springsecurity.userdetails.GrailsUserDetailsService
@@ -11,6 +11,7 @@ import org.hibernate.criterion.CriteriaSpecification
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UsernameNotFoundException
+import org.transmart.oauth.AuthUserDetails
 
 import javax.annotation.Resource
 

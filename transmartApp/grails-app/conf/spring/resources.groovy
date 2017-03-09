@@ -1,6 +1,5 @@
 import com.google.common.collect.ImmutableMap
 import com.recomdata.extensions.ExtensionsRegistry
-import com.recomdata.security.ActiveDirectoryLdapAuthenticationExtension
 import grails.plugin.springsecurity.SpringSecurityUtils
 import org.apache.log4j.Logger
 import org.grails.spring.DefaultBeanConfiguration
@@ -18,6 +17,7 @@ import org.transmart.authorization.CurrentUserBeanFactoryBean
 import org.transmart.authorization.CurrentUserBeanProxyFactory
 import org.transmart.authorization.QueriesResourceAuthorizationDecorator
 import org.transmart.marshallers.MarshallerRegistrarService
+import org.transmart.oauth.authentication.AuthUserDetailsService
 import org.transmart.spring.QuartzSpringScope
 import org.transmartproject.core.users.User
 
@@ -49,6 +49,9 @@ beans = {
             contextProvider(org.springframework.security.saml.context.SAMLContextProviderImpl)
         }
     }
+
+    //overrides bean implementing GrailsUserDetailsService?
+    userDetailsService(AuthUserDetailsService)
 
     /* core-api authorization wrapped beans */
     queriesResourceAuthorizationDecorator(QueriesResourceAuthorizationDecorator) {
@@ -120,53 +123,12 @@ beans = {
         defaultFailureUrl = '/login'
     }
 
-    //overrides bean implementing GormUserDetailsService?
-    userDetailsService(com.recomdata.security.AuthUserDetailsService)
-
     transactionInterceptor(TransactionInterceptor) {
         transactionManagerBeanName = 'transactionManager'
         transactionAttributeSource = ref('transactionAttributeSource')
     }
 
     marshallerRegistrarService(MarshallerRegistrarService)
-
-    def transmartSecurity = grailsApplication.config.org.transmart.security
-    if (SpringSecurityUtils.securityConfig.ldap.active) {
-        ldapUserDetailsMapper(com.recomdata.security.LdapAuthUserDetailsMapper) {
-            springSecurityService = ref('springSecurityService')
-            bruteForceLoginLockService = ref('bruteForceLoginLockService')
-            // pattern for newly created user, can include <ID> for record id or <FEDERATED_ID> for external user name
-            if (transmartSecurity.ldap.newUsernamePattern) {
-                newUsernamePattern = transmartSecurity.ldap.newUsernamePattern
-            }
-            // comma separated list of new user authorities
-            if (transmartSecurity.ldap.defaultAuthorities) {
-                defaultAuthorities = transmartSecurity.ldap.defaultAuthorities
-            }
-            // if inheritPassword == false specified user will not be able to login without LDAP
-            inheritPassword = transmartSecurity.ldap.inheritPassword
-            // can be 'username' or 'federatedId'
-            mappedUsernameProperty = transmartSecurity.ldap.mappedUsernameProperty
-        }
-
-        if (grailsApplication.config.org.transmart.security.ldap.ad.domain) {
-
-            adExtension(ActiveDirectoryLdapAuthenticationExtension)
-
-            aop {
-                config("proxy-target-class": true) {
-                    aspect(id: 'adExtensionService', ref: 'adExtension')
-                }
-            }
-
-            ldapAuthProvider(ActiveDirectoryLdapAuthenticationProvider,
-                    transmartSecurity.ldap.ad.domain,
-                    SpringSecurityUtils.securityConfig.ldap.context.server
-            ) {
-                userDetailsContextMapper = ref('ldapUserDetailsMapper')
-            }
-        }
-    }
 
     if (grailsApplication.config.org.transmart.security.spnegoEnabled) {
         // plugin is not functional at this point

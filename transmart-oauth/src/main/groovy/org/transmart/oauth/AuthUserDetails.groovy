@@ -1,4 +1,4 @@
-package org.transmart.oauth2
+package org.transmart.oauth
 
 import grails.plugin.springsecurity.userdetails.GrailsUser
 import grails.util.Holders

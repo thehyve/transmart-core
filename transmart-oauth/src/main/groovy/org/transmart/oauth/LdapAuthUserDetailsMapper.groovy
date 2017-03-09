@@ -1,4 +1,4 @@
-package org.transmart.oauth2
+package org.transmart.oauth
 
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
@@ -13,7 +13,7 @@ import org.springframework.util.Assert
 import org.transmart.searchapp.AccessLog
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.Role
-import org.transmart.oauth2.AuthUserDetailsService
+import org.transmart.oauth.authentication.AuthUserDetailsService
 
 public class LdapAuthUserDetailsMapper implements UserDetailsContextMapper {
     @Autowired

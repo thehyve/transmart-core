@@ -2,7 +2,7 @@ package security
 
 import org.springframework.context.ApplicationListener
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent
-import org.transmart.oauth2.BruteForceLoginLockService
+import org.transmart.oauth.authentication.BruteForceLoginLockService
 
 class AuthSuccessEventListener implements ApplicationListener<AuthenticationSuccessEvent> {
 
