@@ -9,10 +9,13 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.transaction.interceptor.TransactionInterceptor
 import org.springframework.web.util.IntrospectorCleanupListener
+import org.transmart.authorization.CurrentUserBeanFactoryBean
+import org.transmart.authorization.CurrentUserBeanProxyFactory
 import org.transmart.oauth.ActiveDirectoryLdapAuthenticationExtension
 import org.transmart.oauth.authentication.AuthUserDetailsService
 import org.transmart.oauth.authentication.BruteForceLoginLockService
 import org.transmart.oauth.LdapAuthUserDetailsMapper
+import org.transmartproject.core.users.User
 import security.AuthSuccessEventListener
 import security.BadCredentialsEventListener
 
@@ -21,6 +24,15 @@ def logger = Logger.getLogger('com.recomdata.conf.resources')
 beans = {
     xmlns context: "http://www.springframework.org/schema/context"
     xmlns aop: "http://www.springframework.org/schema/aop"
+
+    currentUserBean(CurrentUserBeanProxyFactory)
+    "${CurrentUserBeanProxyFactory.SUB_BEAN_REQUEST}"(CurrentUserBeanFactoryBean) { bean ->
+        bean.scope = 'request'
+    }
+    "${CurrentUserBeanProxyFactory.SUB_BEAN_QUARTZ}"(User) { bean ->
+        // Spring never actually creates this bean
+        bean.scope = 'quartz'
+    }
 
     bruteForceLoginLockService(BruteForceLoginLockService) {
         allowedNumberOfAttempts = grailsApplication.config.bruteForceLoginLock.allowedNumberOfAttempts
