@@ -9,10 +9,10 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.transaction.interceptor.TransactionInterceptor
 import org.springframework.web.util.IntrospectorCleanupListener
-import org.transmart.oauth2.ActiveDirectoryLdapAuthenticationExtension
-import org.transmart.oauth2.AuthUserDetailsService
-import org.transmart.oauth2.BruteForceLoginLockService
-import org.transmart.oauth2.LdapAuthUserDetailsMapper
+import org.transmart.oauth.ActiveDirectoryLdapAuthenticationExtension
+import org.transmart.oauth.authentication.AuthUserDetailsService
+import org.transmart.oauth.authentication.BruteForceLoginLockService
+import org.transmart.oauth.LdapAuthUserDetailsMapper
 import security.AuthSuccessEventListener
 import security.BadCredentialsEventListener
 
@@ -99,16 +99,6 @@ beans = {
     }
 
     introspectorCleanupListener(IntrospectorCleanupListener)
-    sessionRegistry(SessionRegistryImpl)
-    redirectStrategy(DefaultRedirectStrategy)
-    accessDeniedHandler(AccessDeniedHandlerImpl) {
-        errorPage = '/login'
-    }
-    failureHandler(SimpleUrlAuthenticationFailureHandler) {
-        defaultFailureUrl = '/login'
-    }
 
-    //overrides bean implementing GrailsUserDetailsService?
     userDetailsService(AuthUserDetailsService)
-
 }
