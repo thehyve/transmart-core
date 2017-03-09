@@ -1,33 +1,31 @@
 /* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v1
 
+import annotations.RequiresStudy
 import base.RESTSpec
-
 import org.apache.http.conn.EofSensorInputStream
-import spock.lang.Requires
 
-import static config.Config.CELL_LINE_ID
-import static config.Config.CELL_LINE_LOADED
+import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.contentTypeForoctetStream
 import static config.Config.GSE8581_ID
-import static config.Config.GSE8581_LOADED
 import static config.Config.V1_PATH_STUDIES
 
-@Requires({GSE8581_LOADED})
-class HighDimSpec extends RESTSpec{
+@RequiresStudy(GSE8581_ID)
+class HighDimSpec extends RESTSpec {
 
     /**
      *  given: "study CELL-LINE is loaded"
      *  when: "I request all highdim dataTypes for a concept"
      *  then: "I get all relevant dataTypes"
      */
-    def "v1 highdim dataTypes"(){
+    def "v1 highdim dataTypes"() {
         given: "study GSE8581 is loaded"
 
         def studieId = GSE8581_ID
         def conceptPath = 'Biomarker Data/Affymetrix Human Genome U133 Plus 2.0 Array/Lung/'
 
         when: "I request all highdim dataTypes for a concept"
-        def responseData = get([path: V1_PATH_STUDIES+"/${studieId}/concepts/${conceptPath}/highdim", acceptType: contentTypeForJSON])
+        def responseData = get([path: V1_PATH_STUDIES + "/${studieId}/concepts/${conceptPath}/highdim", acceptType: contentTypeForJSON])
 
         then: "I get all relevant dataTypes"
         assert responseData.dataTypes.each {
@@ -44,17 +42,17 @@ class HighDimSpec extends RESTSpec{
      *  when: "I request highdim data"
      *  then: "I get a file stream"
      */
-    def "v1 single "(){
+    def "v1 single "() {
         given: "study GSE8581 is loaded"
         def studieId = GSE8581_ID
         def conceptPath = 'Biomarker Data/Affymetrix Human Genome U133 Plus 2.0 Array/Lung/'
 
         when: "I request highdim data"
         def responseData = get([
-                path: V1_PATH_STUDIES+"/${studieId}/concepts/${conceptPath}/highdim",
-                query: [
-                        dataType: 'mrna',
-                        projection: 'default_real_projection',
+                path      : V1_PATH_STUDIES + "/${studieId}/concepts/${conceptPath}/highdim",
+                query     : [
+                        dataType        : 'mrna',
+                        projection      : 'default_real_projection',
                         assayConstraints: toJSON([patient_id_list: [ids: ["GSE8581GSM210196"]]])
                 ],
                 acceptType: contentTypeForoctetStream

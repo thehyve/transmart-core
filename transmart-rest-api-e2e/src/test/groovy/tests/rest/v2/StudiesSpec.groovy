@@ -1,10 +1,11 @@
 /* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2
 
+import annotations.RequiresStudy
 import base.RESTSpec
 import groovy.util.logging.Slf4j
-import spock.lang.Requires
 
+import static base.ContentTypeFor.contentTypeForJSON
 import static config.Config.*
 
 /**
@@ -13,28 +14,21 @@ import static config.Config.*
  *  This class tests if the /v2/studies endpoint works correctly.
  */
 @Slf4j
-class StudiesSpec extends  RESTSpec{
+@RequiresStudy([SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
+class StudiesSpec extends RESTSpec {
 
     /**
      *  given: "All studies are loaded and I do have unlimited access"
      *  when: "I try to fetch all studies"
      *  then: "the list of all studies is returned"
      */
-    @Requires({
-        EHR_LOADED &&
-        EHR_HIGHDIM_LOADED &&
-        CLINICAL_TRIAL_LOADED &&
-        CATEGORICAL_VALUES_LOADED &&
-        TUMOR_NORMAL_SAMPLES_LOADED &&
-        SHARED_CONCEPTS_LOADED &&
-        SHARED_CONCEPTS_RESTRICTED_LOADED
-    })
-    def "all studies are returned"(){
+    @RequiresStudy([EHR_ID, EHR_HIGHDIM_ID, CLINICAL_TRIAL_ID, CATEGORICAL_VALUES_ID, TUMOR_NORMAL_SAMPLES_ID, SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
+    def "all studies are returned"() {
         given: "All studies are loaded and I do have unlimited access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
         when: "I try to fetch all studies"
         def responseData = get([
-                path: PATH_STUDIES,
+                path      : PATH_STUDIES,
                 acceptType: contentTypeForJSON,
         ])
         def studies = responseData.studies as List
@@ -53,21 +47,13 @@ class StudiesSpec extends  RESTSpec{
      *  when: "I try to fetch all studies"
      *  then: "the list of all unrestricted studies is returned"
      */
-    @Requires({
-        EHR_LOADED &&
-        EHR_HIGHDIM_LOADED &&
-        CLINICAL_TRIAL_LOADED &&
-        CATEGORICAL_VALUES_LOADED &&
-        TUMOR_NORMAL_SAMPLES_LOADED &&
-        SHARED_CONCEPTS_LOADED &&
-        SHARED_CONCEPTS_RESTRICTED_LOADED
-    })
-    def "all unrestricted studies are returned"(){
+    @RequiresStudy([EHR_ID, EHR_HIGHDIM_ID, CLINICAL_TRIAL_ID, CATEGORICAL_VALUES_ID, TUMOR_NORMAL_SAMPLES_ID, SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
+    def "all unrestricted studies are returned"() {
         given: "All studies are loaded and I do have limited access"
 
         when: "I try to fetch all studies"
         def responseData = get([
-                path: PATH_STUDIES,
+                path      : PATH_STUDIES,
                 acceptType: contentTypeForJSON,
         ])
         def studies = responseData.studies as List
@@ -84,16 +70,12 @@ class StudiesSpec extends  RESTSpec{
      *  when: "I try to fetch study A by id"
      *  then: "the study object is returned"
      */
-    @Requires({
-        SHARED_CONCEPTS_LOADED &&
-        SHARED_CONCEPTS_RESTRICTED_LOADED
-    })
-    def "study is fetched by id"(){
+    def "study is fetched by id"() {
         given: "Shared concepts studies are loaded and I do have limited access"
 
         when: "I try to fetch study A by id"
         def studyResponse = get([
-                path: "${PATH_STUDIES}/${SHARED_CONCEPTS_A_DB_ID}",
+                path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_A_DB_ID}",
                 acceptType: contentTypeForJSON,
         ])
 
@@ -106,17 +88,13 @@ class StudiesSpec extends  RESTSpec{
      *  when: "I try to fetch study A by id"
      *  then: "the study object is returned"
      */
-    @Requires({
-        SHARED_CONCEPTS_LOADED &&
-                SHARED_CONCEPTS_RESTRICTED_LOADED
-    })
-    def "restricted study is fetched by id"(){
+    def "restricted study is fetched by id"() {
         given: "Shared concepts studies are loaded and I do have un limited access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I try to fetch study A by id"
         def studyResponse = get([
-                path: "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
+                path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
                 acceptType: contentTypeForJSON,
         ])
 
@@ -129,16 +107,12 @@ class StudiesSpec extends  RESTSpec{
      *  when: "I try to fetch study A by id"
      *  then: "the study object is returned"
      */
-    @Requires({
-        SHARED_CONCEPTS_LOADED &&
-                SHARED_CONCEPTS_RESTRICTED_LOADED
-    })
-    def "access denied when restricted study is fetched by id"(){
+    def "access denied when restricted study is fetched by id"() {
         given: "Shared concepts studies are loaded and I do have limited access"
 
         when: "I try to fetch study A by id"
         def studyResponse = get([
-                path: "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
+                path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
                 acceptType: contentTypeForJSON,
                 statusCode: 403
         ])
@@ -153,16 +127,12 @@ class StudiesSpec extends  RESTSpec{
      *  when: "I try to fetch study A by studyId"
      *  then: "the study object is returned"
      */
-    @Requires({
-        SHARED_CONCEPTS_LOADED &&
-        SHARED_CONCEPTS_RESTRICTED_LOADED
-    })
-    def "study is fetched by name"(){
+    def "study is fetched by name"() {
         given: "Shared concepts studies are loaded and I do have limited access"
 
         when: "I try to fetch study A by studyId"
         def studyResponse = get([
-                path: "${PATH_STUDIES}/studyId/${SHARED_CONCEPTS_A_ID}",
+                path      : "${PATH_STUDIES}/studyId/${SHARED_CONCEPTS_A_ID}",
                 acceptType: contentTypeForJSON,
         ])
 

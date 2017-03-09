@@ -1,29 +1,31 @@
 /* Copyright © 2017 The Hyve B.V. */
 package tests.rest.v2.hypercube
 
+import annotations.RequiresStudy
 import base.RESTSpec
-import spock.lang.Requires
 
+import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.contentTypeForProtobuf
 import static config.Config.*
 import static tests.rest.v2.constraints.ConceptConstraint
 
 /**
  *  TMPREQ-8 Specifying user/group access by study
  */
-@Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
-class AccessLevelSpec extends RESTSpec{
+@RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
+class AccessLevelSpec extends RESTSpec {
 
     /**
      *  given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
      *  when: "I try to get a concept from that study"
      *  then: "I get an access error"
      */
-    def "restricted access "(def acceptType){
+    def "restricted access "(def acceptType) {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]),
+                query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]),
                 statusCode: 403
         ]
 
@@ -37,8 +39,8 @@ class AccessLevelSpec extends RESTSpec{
         assert responseData.message == 'Access denied to concept path: \\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
 
         where:
-        acceptType | _
-        contentTypeForJSON | _
+        acceptType             | _
+        contentTypeForJSON     | _
         contentTypeForProtobuf | _
     }
 
@@ -47,13 +49,13 @@ class AccessLevelSpec extends RESTSpec{
      *  when: "I try to get a concept from that study"
      *  then: "I get the observations"
      */
-    def "unrestricted access"(def acceptType, def newSelector){
+    def "unrestricted access"(def acceptType, def newSelector) {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"])
         ]
 
 
@@ -68,8 +70,8 @@ class AccessLevelSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -78,13 +80,13 @@ class AccessLevelSpec extends RESTSpec{
      *  when: "I try to get a concept from that study"
      *  then: "I get the observations"
      */
-    def "unrestricted access admin"(def acceptType, def newSelector){
+    def "unrestricted access admin"(def acceptType, def newSelector) {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"])
         ]
 
 
@@ -100,8 +102,8 @@ class AccessLevelSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 }
