@@ -13,7 +13,6 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
-import org.transmartproject.core.multidimquery.IndexGetter
 import org.transmartproject.core.multidimquery.dimensions.Order
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
@@ -203,12 +202,6 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         _dimensionsLoaded = true
     }
 
-    @Override IndexGetter getIndexGetter(Dimension dim) {
-        checkDimension(dim)
-        checkIsDense(dim)
-        return new IndexGetterImpl(dimensionsIndex[dim])
-    }
-
     void close() {
         if(closed) return
         results.close()
@@ -306,22 +299,6 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         }
     }
 
-    class IndexGetterImpl implements IndexGetter {
-        private final int dimElementIdxIdx   // the index into the array of indexes-to-elements that each HypercubeValueImpl has
-
-        IndexGetterImpl(int deii) {
-            dimElementIdxIdx = deii
-        }
-
-        @Override Integer call(HypercubeValue val_) {
-            // can throw ClassCastException
-            HypercubeValueImpl val = (HypercubeValueImpl) val_
-            val.checkCube(HypercubeImpl.this)
-
-            return val.getDimElementIndexByIndex(dimElementIdxIdx)
-        }
-    }
-
 }
 
 @CompileStatic
@@ -337,11 +314,6 @@ class HypercubeValueImpl implements HypercubeValue {
         this.cube = cube
         this.dimensionElementIdxes = dimensionElementIdxes
         this.value = value
-    }
-
-    void checkCube(HypercubeImpl cube_) {
-        if(!cube.is(cube_)) throw new IllegalArgumentException(
-                "HypercubeValue $this does not belong to the same HyperCube as this DimensionsEqualator")
     }
 
     def getAt(Dimension dim) {
@@ -361,16 +333,6 @@ class HypercubeValueImpl implements HypercubeValue {
         cube.checkDimension(dim)
         cube.checkIsDense(dim)
         (Integer) dimensionElementIdxes[cube.getDimensionsIndex(dim)]
-    }
-
-    /**
-     * Same as getDimElementIndex but takes the index of a dimension in this hypercube value as input. This method
-     * must only be called with indexes of non-inline dimensions.
-     * @param idx
-     * @return
-     */
-    protected Integer getDimElementIndexByIndex(int idx) {
-        (Integer) dimensionElementIdxes[idx]
     }
 
     def getDimKey(Dimension dim) {

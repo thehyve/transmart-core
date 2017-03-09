@@ -50,22 +50,4 @@ interface Hypercube extends IterableResult<HypercubeValue> {
      * Loads all dimension elements for the currently known dimension keys
      */
     void loadDimensions()
-
-    /**
-     * @return an IndexGetter that will (efficiently) retrieve the element index for the specified dimension. The
-     * IndexGetter can only be used on HypercubeValues that were retrieved from this Hypercube. IndexGetters can be
-     * used to efficiently compare HypercubeValue's for equality on selected dimensions.
-     * @param dim The dimension for which to retrieve the index
-     */
-    IndexGetter getIndexGetter(Dimension dim)
-}
-
-interface IndexGetter {
-    /**
-     * Retrieve the element index for the dimension that was passed to the factory function when this IndexGetter was
-     * created
-     * @param value the HypercubeValue
-     * @return the index, or null if not present for this value
-     */
-    Integer call(HypercubeValue value)
 }

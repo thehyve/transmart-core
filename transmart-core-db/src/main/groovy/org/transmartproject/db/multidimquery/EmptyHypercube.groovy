@@ -8,7 +8,6 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
-import org.transmartproject.core.multidimquery.IndexGetter
 
 class EmptyHypercube implements Hypercube {
 
@@ -37,13 +36,6 @@ class EmptyHypercube implements Hypercube {
     void setAutoloadDimensions(boolean value){}
 
     void preloadDimensions(){}
-
-    // I think EmptyHypercube is sometimes returned when there are no results but there might be valid dimensions. So
-    // we will assume that all dimensions are valid and only throw if the IndexGetter is invoked
-    IndexGetter getIndexGetter(Dimension dimension) {
-        { v -> throw new IllegalArgumentException(
-                "HypercubeValue $v does not belong to this (or any) EmptyHypercube") } as IndexGetter
-    }
 
     PeekingIterator<HypercubeValue> iterator() {
         return new PeekingIterator() {

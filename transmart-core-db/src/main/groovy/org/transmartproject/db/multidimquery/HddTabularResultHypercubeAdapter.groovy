@@ -21,7 +21,6 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
-import org.transmartproject.core.multidimquery.IndexGetter
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
 import org.transmartproject.core.multidimquery.dimensions.Order
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
@@ -241,23 +240,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     final boolean dimensionsPreloadable = false
     final boolean dimensionsPreloaded = false
     boolean autoloadDimensions = true
-
-    @Override IndexGetter getIndexGetter(Dimension dimension) {
-        if(!(dimension in this.dimensions)) {
-            throw new IllegalArgumentException("Dimension '$dimension' is not part of this hypercube")
-        }
-
-        switch(dimension) {
-            case biomarkerDim:
-                new IndexGetter() { Integer call(HypercubeValue val) {((TabularResultAdapterValue)val).biomarkerIndex}}; break
-            case assayDim:
-                new IndexGetter() { Integer call(HypercubeValue val) {((TabularResultAdapterValue)val).assayIndex}}; break
-            case patientDim:
-                new IndexGetter() { Integer call(HypercubeValue val) {((TabularResultAdapterValue)val).patientIndex}}; break
-            case projectionDim:
-                new IndexGetter() { Integer call(HypercubeValue val) {((TabularResultAdapterValue)val).projectionIndex}}; break
-        }
-    }
 
     @Override
     void close() {
