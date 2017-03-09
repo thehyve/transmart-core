@@ -509,7 +509,7 @@ class QueryService {
         }
         try {
             TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
-            return new HddTabularResultHypercubeAdapter(table)
+            return new HddTabularResultHypercubeAdapter(table, projection)
         } catch (EmptySetException e) {
             return new EmptyHypercube()
         }

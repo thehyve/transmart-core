@@ -8,8 +8,8 @@ import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 import groovy.transform.TailRecursive
-import groovy.transform.TupleConstructor
-import java.lang.reflect.Method
+import org.transmartproject.core.dataquery.highdim.projections.MultiValueProjection
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
@@ -41,7 +41,9 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     private TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ? /* depends on projection */>> table
     private TabularResultAdapterIterator iterator
 
-    ImmutableMap<Dimension, Order> sorting = ImmutableMap.of(biomarkerDim, Order.ASC, assayDim, Order.ASC)
+    Projection projection
+
+    ImmutableMap<Dimension, Order> sorting = ImmutableMap.of(biomarkerDim, Order.ASC, projectionDim, Order.ASC, assayDim, Order.ASC)
     /**
      * Either an IndexedArraySet or an ImmutableList
      * projectionFields is collected dynamically, but as all tabular cells should contain the same projection fields
@@ -64,8 +66,10 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     protected List<Patient> patients  // replaced by an ImmutableList once we have finished iterating
     protected List<BioMarker> biomarkers = [] // idem
 
-    HddTabularResultHypercubeAdapter(TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ?>> tabularResult) {
+    HddTabularResultHypercubeAdapter(TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ?>> tabularResult,
+                                     Projection projection) {
         table = tabularResult
+        this.projection = projection
         assays = (ImmutableList) ImmutableList.copyOf(table.getIndicesList())
 
         // The getAll fetches all patients in a single query. Unfortunately before that hibernate decides that it
@@ -112,6 +116,8 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     class TabularResultAdapterIterator extends AbstractIterator<HypercubeValue> implements
             PeekingIterator<HypercubeValue> {
         private Iterator<? extends DataRow<AssayColumn, ?>> tabularIter = table.getRows()
+        private Set<String> projectionFields = (projection instanceof MultiValueProjection) ?
+                ((MultiValueProjection) projection).dataProperties.keySet() : null
         private List<HypercubeValue> nextVals = []
         private Iterator<HypercubeValue> nextIter = nextVals.iterator()
 
@@ -139,44 +145,56 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
             int biomarkerIdx = biomarkers.size()
             biomarkers << bm
 
-            // assays.size() compiles to GroovyDefaultMethods.size(Iterable) on Groovy 2.4.7 :(
-            for(int i = 0; i < ((List)assays).size(); i++) {
-                Assay assay = assays[i]
-                int patientIndex = patients.indexOf(assay.patient)
-                def value = row[i]
+            if(projectionFields == null) {
 
-                if(value == null) {
-                    continue
-                } else if(value instanceof Double) {
-                    nextVals.add(new TabularResultAdapterValue(
-                            // The type checker doesn't like a plain 'dimensions', no idea why
-                            availableDimensions: getDimensions(),
-                            value: value,
-                            biomarker: bm,
-                            assay: assay,
-                            biomarkerIndex: biomarkerIdx,
-                            assayIndex: i,
-                            patientIndex: patientIndex,
-                            projectionIndex: -1
-                    ))
-                } else if(value instanceof Map) {
-                    Map<String, Object> mapValue = (Map<String,Object>) value
-                    for(entry in mapValue.entrySet()) {
-                        _projectionFields.add(entry.key)
+                // assays.size() compiles to GroovyDefaultMethods.size(Iterable) on Groovy 2.4.7 :(
+                for(int i = 0; i < ((List)assays).size(); i++) {
+                    Assay assay = assays[i]
+                    int patientIndex = patients.indexOf(assay.patient)
+                    def value = row[i]
+
+                    if (value == null) {
+                        continue
+                    } else if (value instanceof Number || value instanceof String) {
                         nextVals.add(new TabularResultAdapterValue(
+                                // The type checker doesn't like a plain 'dimensions', no idea why
                                 availableDimensions: getDimensions(),
-                                value: entry.value,
+                                value: value,
                                 biomarker: bm,
                                 assay: assay,
-                                projectionKey: entry.key,
                                 biomarkerIndex: biomarkerIdx,
                                 assayIndex: i,
                                 patientIndex: patientIndex,
-                                projectionIndex: _projectionFields.indexOf(entry.key)
+                                projectionIndex: -1
+                        ))
+                    } else typeError(value)
+                }
+
+            } else {
+                for(String field in projectionFields) {
+                    _projectionFields.add(field)
+                    int projectionIndex = _projectionFields.indexOf(field)
+
+                    // assays.size() compiles to GroovyDefaultMethods.size(Iterable) on Groovy 2.4.7 :(
+                    for(int i = 0; i < ((List)assays).size(); i++) {
+                        def value = row[i].getAt(field)
+                        if(value == null) continue
+
+                        Assay assay = assays[i]
+                        int patientIndex = patients.indexOf(assay.patient)
+
+                        nextVals.add(new TabularResultAdapterValue(
+                                availableDimensions: getDimensions(),
+                                value: value,
+                                biomarker: bm,
+                                assay: assay,
+                                projectionKey: field,
+                                biomarkerIndex: biomarkerIdx,
+                                assayIndex: i,
+                                patientIndex: patientIndex,
+                                projectionIndex: projectionIndex
                         ))
                     }
-                } else {
-                    typeError(value)
                 }
             }
 
@@ -185,7 +203,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         }
     }
 
-    @TupleConstructor
     static class TabularResultAdapterValue implements HypercubeValue {
         static int dimError(dim) {
             throw new IndexOutOfBoundsException("Dimension $dim is not applicable to this hypercube result")
@@ -204,26 +221,26 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         Patient getPatient() { assay.patient }
 
         def getAt(Dimension dim) {
-            if(dim == biomarkerDim) return biomarker
-            if(dim == assayDim) return assay
-            if(dim == patientDim) return patient
-            if(dim == projectionDim && projectionKey) return projectionKey
+            if(dim.is(biomarkerDim)) return biomarker
+            if(dim.is(assayDim)) return assay
+            if(dim.is(patientDim)) return patient
+            if(dim.is(projectionDim) && projectionKey != null) return projectionKey
             dimError(dim)
         }
 
         Integer getDimElementIndex(Dimension dim) {
-            if(dim == biomarkerDim) return biomarkerIndex
-            if(dim == assayDim) return assayIndex
-            if(dim == patientDim) return patientIndex
-            if(dim == projectionDim && projectionKey) return projectionIndex
+            if(dim.is(biomarkerDim)) return biomarkerIndex
+            if(dim.is(assayDim)) return assayIndex
+            if(dim.is(patientDim)) return patientIndex
+            if(dim.is(projectionDim) && projectionKey != null) return projectionIndex
             dimError(dim)
         }
 
         def getDimKey(Dimension dim) {
-            if(dim == biomarkerDim) return biomarker.biomarker ?: biomarker.label
-            if(dim == assayDim) return assay.sampleCode
-            if(dim == patientDim) return patient.id
-            if(dim == projectionDim && projectionKey) return projectionKey
+            if(dim.is(biomarkerDim)) return biomarker.biomarker ?: biomarker.label
+            if(dim.is(assayDim)) return assay.sampleCode
+            if(dim.is(patientDim)) return patient.id
+            if(dim.is(projectionDim) && projectionKey != null) return projectionKey
             dimError(dim)
         }
     }

@@ -1,16 +1,18 @@
 package org.transmartproject.db.multidimquery
 
-import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.dimensions.BioMarker
 import org.transmartproject.db.dataquery.MockTabularResult
+import org.transmartproject.db.dataquery.highdim.projections.AllDataProjectionImpl
 import spock.lang.Specification
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
@@ -101,7 +103,8 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         setup:
         setupData(repeat(Math.PI) {++it})
 
-        HddTabularResultHypercubeAdapter cube = new HddTabularResultHypercubeAdapter(mockTabular)
+        def projection = new Projection(){ def doWithResult(Object object) {null} }
+        HddTabularResultHypercubeAdapter cube = new HddTabularResultHypercubeAdapter(mockTabular, projection)
         List<HypercubeValue> values = cube.toList()
 
         def biomarkerIdx = cube.getIndexGetter(BIOMARKER)
@@ -183,9 +186,11 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
             m
         })
 
-        def projectionKeys = ImmutableList.copyOf "value logValue extra".split()
+        def projectionFields = ImmutableMap.copyOf([value: Double, logValue: Double, extra: String])
+        def projectionKeys = projectionFields.keySet().asList()
+        def projection = new AllDataProjectionImpl(projectionFields, [:])
 
-        HddTabularResultHypercubeAdapter cube = new HddTabularResultHypercubeAdapter(mockTabular)
+        HddTabularResultHypercubeAdapter cube = new HddTabularResultHypercubeAdapter(mockTabular, projection)
         List<HypercubeValue> values = cube.toList()
 
         expect:
