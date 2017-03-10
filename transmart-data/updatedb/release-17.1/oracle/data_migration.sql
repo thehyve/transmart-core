@@ -223,7 +223,8 @@ update i2b2demodata.observation_fact set trial_visit_num =
         where tv.rel_time_label = 'General')
 where trial_visit_num is null;
 
-ALTER TABLE "I2B2DEMODATA"."OBSERVATION_FACT" MODIFY "TRIAL_VISIT_NUM" NOT NULL;
+-- What to do with the SECURITY records that have null in the trial visit?
+-- ALTER TABLE "I2B2DEMODATA"."OBSERVATION_FACT" MODIFY "TRIAL_VISIT_NUM" NOT NULL;
 
 -- Fix referencial consistency for the visit dimension.
 update i2b2demodata.observation_fact set encounter_num = -1
