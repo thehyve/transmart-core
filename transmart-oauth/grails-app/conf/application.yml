@@ -107,7 +107,10 @@ grails:
             logout:
                 afterLogoutUrl: '/login/forceAuth'
 
-
+bruteForceLoginLock:
+    allowedNumberOfAttempts: 3
+    lockTimeInMinutes: 10
+}
 ---
 hibernate:
     cache:
