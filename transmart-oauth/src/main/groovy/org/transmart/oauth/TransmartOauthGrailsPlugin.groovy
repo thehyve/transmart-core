@@ -1,6 +1,21 @@
 package transmart.oauth
 
+import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugins.*
+import org.springframework.beans.factory.config.MapFactoryBean
+import org.springframework.security.core.session.SessionRegistryImpl
+import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider
+import org.springframework.security.web.DefaultRedirectStrategy
+import org.springframework.security.web.access.AccessDeniedHandlerImpl
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
+import org.springframework.transaction.interceptor.TransactionInterceptor
+import org.springframework.web.util.IntrospectorCleanupListener
+import org.transmart.oauth.ActiveDirectoryLdapAuthenticationExtension
+import org.transmart.oauth.AuthSuccessEventListener
+import org.transmart.oauth.BadCredentialsEventListener
+import org.transmart.oauth.LdapAuthUserDetailsMapper
+import org.transmart.oauth.authentication.AuthUserDetailsService
+import org.transmart.oauth.authentication.BruteForceLoginLockService
 
 class TransmartOauthGrailsPlugin extends Plugin {
 
@@ -40,8 +55,85 @@ Brief summary/description of the plugin.
     // Online location of the plugin's browseable source code.
 //    def scm = [ url: "http://svn.codehaus.org/grails-plugins/" ]
 
-    Closure doWithSpring() { {->
-            // TODO Implement runtime spring config (optional)
+    Closure doWithSpring() {
+        { ->
+            xmlns context: "http://www.springframework.org/schema/context"
+            xmlns aop: "http://www.springframework.org/schema/aop"
+
+            sessionRegistry(SessionRegistryImpl)
+
+            redirectStrategy(DefaultRedirectStrategy)
+            accessDeniedHandler(AccessDeniedHandlerImpl) {
+                errorPage = '/login'
+            }
+            failureHandler(SimpleUrlAuthenticationFailureHandler) {
+                defaultFailureUrl = '/login'
+            }
+
+            transactionInterceptor(TransactionInterceptor) {
+                transactionManagerBeanName = 'transactionManager'
+                transactionAttributeSource = ref('transactionAttributeSource')
+            }
+
+            def transmartSecurity = grailsApplication.config.org.transmart.security
+            if (SpringSecurityUtils.securityConfig.ldap.active) {
+                ldapUserDetailsMapper(LdapAuthUserDetailsMapper) {
+                    springSecurityService = ref('springSecurityService')
+                    // pattern for newly created user, can include <ID> for record id or <FEDERATED_ID> for external user name
+                    if (transmartSecurity.ldap.newUsernamePattern) {
+                        newUsernamePattern = transmartSecurity.ldap.newUsernamePattern
+                    }
+                    // comma separated list of new user authorities
+                    if (transmartSecurity.ldap.defaultAuthorities) {
+                        defaultAuthorities = transmartSecurity.ldap.defaultAuthorities
+                    }
+                    // if inheritPassword == false specified user will not be able to login without LDAP
+                    inheritPassword = transmartSecurity.ldap.inheritPassword
+                    // can be 'username' or 'federatedId'
+                    mappedUsernameProperty = transmartSecurity.ldap.mappedUsernameProperty
+                }
+
+                if (grailsApplication.config.org.transmart.security.ldap.ad.domain) {
+
+                    adExtension(ActiveDirectoryLdapAuthenticationExtension)
+
+                    aop {
+                        config("proxy-target-class": true) {
+                            aspect(id: 'adExtensionService', ref: 'adExtension')
+                        }
+                    }
+
+                    ldapAuthProvider(ActiveDirectoryLdapAuthenticationProvider,
+                            transmartSecurity.ldap.ad.domain,
+                            SpringSecurityUtils.securityConfig.ldap.context.server
+                    ) {
+                        userDetailsContextMapper = ref('ldapUserDetailsMapper')
+                    }
+                }
+            }
+
+            bruteForceLoginLockService = ref('bruteForceLoginLockService')
+            bruteForceLoginLockService(BruteForceLoginLockService) {
+                allowedNumberOfAttempts = grailsApplication.config.bruteForceLoginLock.allowedNumberOfAttempts
+                lockTimeInMinutes = grailsApplication.config.bruteForceLoginLock.lockTimeInMinutes
+            }
+
+            authSuccessEventListener(AuthSuccessEventListener) {
+                bruteForceLoginLockService = ref('bruteForceLoginLockService')
+            }
+
+            badCredentialsEventListener(BadCredentialsEventListener) {
+                bruteForceLoginLockService = ref('bruteForceLoginLockService')
+            }
+
+            acghBedExporterRgbColorScheme(MapFactoryBean) {
+                sourceMap = grailsApplication.config.dataExport.bed.acgh.rgbColorScheme
+            }
+
+            introspectorCleanupListener(IntrospectorCleanupListener)
+
+            //overrides bean implementing GrailsUserDetailsService
+            userDetailsService(AuthUserDetailsService)
         }
     }
 
