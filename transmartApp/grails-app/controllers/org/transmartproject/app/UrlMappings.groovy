@@ -10,7 +10,6 @@ class UrlMappings {
         "/$controller/$action?/$id?" {
             constraints {}
         }
-        "/"(controller: 'userLanding', action: 'index')
         "500"(view: '/error')
         "/open-api"(redirect: "/open-api/index.html")
     }

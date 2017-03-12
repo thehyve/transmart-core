@@ -1,7 +1,8 @@
-package org.transmartproject.security
+package org.transmart.oauth
 
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
+import org.transmart.oauth.authentication.BruteForceLoginLockService
 import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit

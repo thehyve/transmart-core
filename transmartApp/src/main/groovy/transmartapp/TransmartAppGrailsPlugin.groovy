@@ -21,9 +21,6 @@ import org.transmart.oauth.authentication.AuthUserDetailsService
 import org.transmart.spring.QuartzSpringScope
 import org.transmartproject.core.users.User
 import org.transmartproject.export.HighDimExporter
-import org.transmartproject.security.AuthSuccessEventListener
-import org.transmartproject.security.BadCredentialsEventListener
-import org.transmartproject.security.BruteForceLoginLockService
 
 class TransmartAppGrailsPlugin extends Plugin {
 
@@ -131,6 +128,7 @@ Brief summary/description of the plugin.
             }
 
             redirectStrategy(DefaultRedirectStrategy)
+
             accessDeniedHandler(AccessDeniedHandlerImpl) {
                 errorPage = '/login'
             }
@@ -144,19 +142,6 @@ Brief summary/description of the plugin.
             }
 
             marshallerRegistrarService(MarshallerRegistrarService)
-
-            bruteForceLoginLockService(BruteForceLoginLockService) {
-                allowedNumberOfAttempts = grailsApplication.config.bruteForceLoginLock.allowedNumberOfAttempts
-                lockTimeInMinutes = grailsApplication.config.bruteForceLoginLock.lockTimeInMinutes
-            }
-
-            authSuccessEventListener(AuthSuccessEventListener) {
-                bruteForceLoginLockService = ref('bruteForceLoginLockService')
-            }
-
-            badCredentialsEventListener(BadCredentialsEventListener) {
-                bruteForceLoginLockService = ref('bruteForceLoginLockService')
-            }
 
             acghBedExporterRgbColorScheme(org.springframework.beans.factory.config.MapFactoryBean) {
                 sourceMap = grailsApplication.config.dataExport.bed.acgh.rgbColorScheme

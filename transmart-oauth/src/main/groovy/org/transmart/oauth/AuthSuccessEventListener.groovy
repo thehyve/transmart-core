@@ -1,4 +1,4 @@
-package security
+package org.transmart.oauth
 
 import org.springframework.context.ApplicationListener
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent
