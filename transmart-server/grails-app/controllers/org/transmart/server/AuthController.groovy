@@ -15,7 +15,7 @@ class AuthController {
         new AccessLog(username: springSecurityService?.principal?.username, event: "Login",
                 eventmessage: request.getHeader("user-agent"),
                 accesstime: new Date()).save()
-        render(view: '/auth/login.gsp', model: [user: springSecurityService?.principal?.username])
+        render(view: '/auth/main.gsp', model: [user: springSecurityService?.principal?.username, redirectUri: "/login/forceAuth"])
     }
 
     def token = {

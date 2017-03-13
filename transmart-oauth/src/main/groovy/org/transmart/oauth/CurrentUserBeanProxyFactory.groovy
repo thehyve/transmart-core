@@ -1,4 +1,4 @@
-package org.transmart.authorization
+package org.transmart.oauth
 
 import groovy.util.logging.Slf4j
 import org.springframework.aop.TargetSource

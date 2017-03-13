@@ -1,4 +1,4 @@
-package org.transmart.authorization
+package org.transmart.oauth
 
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.SpringSecurityUtils

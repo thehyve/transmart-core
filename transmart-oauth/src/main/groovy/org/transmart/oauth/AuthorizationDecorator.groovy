@@ -1,4 +1,4 @@
-package org.transmart.authorization
+package org.transmart.oauth
 
 interface AuthorizationDecorator<T> {
 
