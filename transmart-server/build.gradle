@@ -64,15 +64,11 @@ dependencies {
     // end of project specific deps
 
     // local gradle submodule deps
-    //compile project(':transmart-core-api')
-    //compile project(':transmart-core-db')
     compile project(':transmart-oauth')
     compile project(':search-domain')
-    /*compile project(':transmart-java')
-    compile project(':biomart-domain')
-    compile project(':transmart-legacy-db')*/
     compile project(':transmart-rest-api')
-    compile project(':transmartApp')
+
+    runtime project(':transmartApp')
 }
 
 bootRun {
