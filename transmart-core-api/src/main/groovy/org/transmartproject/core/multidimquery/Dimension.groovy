@@ -52,8 +52,20 @@ interface Dimension {
 
     IterableResult<Object> getElements(Collection<Study> studies)
 
+    /**
+     * Transform a list of element keys into their corresponding elements.
+     * @param elementKeys a List of element keys
+     * @return a list of dimension elements
+     * @see HypercubeValue#getDimKey
+     */
     List resolveElements(List elementKeys)
 
+    /**
+     * Same as {@Link #resolveElements}, but for a single key. resolveElements can be more efficient than calling
+     * this method multiple times over.
+     * @param elementKey
+     * @return the dimension element
+     */
     def resolveElement(elementKey)
 
     /**
