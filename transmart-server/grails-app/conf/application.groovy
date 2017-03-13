@@ -1,9 +1,9 @@
 org.transmart.originalConfigBinding = getBinding()
 
 org.transmartproject.app.oauthEnabled = true
-org.transmartproject.app.gwavaEnabled = false
+org.transmartproject.app.tmAppCompiled = true
 org.transmartproject.app.transmartURL = "http://localhost:${System.getProperty('server.port', '8080')}"
-
+org.transmart.defaultLoginRedirect  = '/'
 
 grails.assets.bundle = true
 
@@ -49,38 +49,14 @@ grails.databinding.trimStrings = false
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
 
-com.recomdata.search.autocomplete.max = 20
-// default paging size
-com.recomdata.search.paginate.max = 20
-com.recomdata.search.paginate.maxsteps = 5
-com.recomdata.admin.paginate.max = 20
-
-//**************************
-//This is the login information for the different i2b2 projects.
-//SUBJECT Data.
-com.recomdata.i2b2.subject.domain = 'i2b2demo'
-com.recomdata.i2b2.subject.projectid = 'i2b2demo'
-com.recomdata.i2b2.subject.username = 'Demo'
-com.recomdata.i2b2.subject.password = 'demouser'
-
-//SAMPLE Data.
-com.recomdata.i2b2.sample.domain = 'i2b2demo'
-com.recomdata.i2b2.sample.projectid = 'i2b2demo'
-com.recomdata.i2b2.sample.username = 'sample'
-com.recomdata.i2b2.sample.password = 'manager'
+com.recomdata.skipdisclaimer = true
 
 //core-db settings
 org.transmartproject.i2b2.user_id = 'i2b2'
 org.transmartproject.i2b2.group_id = 'Demo'
 //**************************
 
-// max genes to display after disease search
-com.recomdata.search.gene.max = 250;
-
-// set schema names for I2B2HelperService
-com.recomdata.i2b2helper.i2b2hive = "i2b2hive"
-com.recomdata.i2b2helper.i2b2metadata = "i2b2metadata"
-com.recomdata.i2b2helper.i2b2demodata = "i2b2demodata"
+com.recomdata.admin.paginate.max = 20
 
 com.recomdata.transmart.data.export.max.export.jobs.loaded = 20
 
@@ -100,41 +76,9 @@ com.recomdata.transmart.data.export.ftp.username = ''
 com.recomdata.transmart.data.export.ftp.password = ''
 com.recomdata.transmart.data.export.ftp.remote.path = ''
 
-// Control which gene/pathway search is used in Dataset Explorer
-// A value of "native" forces Dataset Explorer's native algorithm.
-// Abscence of this property or any other value forces the use of the Search Algorithm
-//com.recomdata.search.genepathway="native"
-
-// The tags in the Concept to indicate Progression-free Survival and Censor flags, used by Survival Analysis
-com.recomdata.analysis.survival.survivalDataList = [
-        '(PFS)',
-        '(OS)',
-        '(TTT)',
-        '(DURTFI)'
-];
-com.recomdata.analysis.survival.censorFlagList = [
-        '(PFSCENS)',
-        '(OSCENS)',
-        '(TTTCENS)',
-        '(DURTFICS)'
-];
-
-com.recomdata.analysis.genepattern.file.dir = "data"; // Relative to the app root "web-app" - deprecated - replaced with data.file.dir
-
-com.recomdata.analysis.data.file.dir = "data"; // Relative to the app root "web-app"
-
 // Directories to write R scripts to for use by RServe. Resources are copied at startup.
 org.transmartproject.rmodules.deployment.rscripts = new File(System.getProperty("user.home"), '.grails/transmart-rscripts')
 org.transmartproject.rmodules.deployment.dataexportRscripts = new File(System.getProperty("user.home"), '.grails/transmart-dataexport-rscripts')
-
-// Disclaimer
-StringBuilder disclaimer = new StringBuilder()
-disclaimer.append("<p></p>")
-com.recomdata.disclaimer = disclaimer.toString()
-
-// customization views
-//com.recomdata.view.studyview='_clinicaltrialdetail'
-com.recomdata.skipdisclaimer = true
 
 grails.spring.bean.packages = []
 
@@ -182,7 +126,7 @@ grails { plugin { springsecurity {
             google {
                 api_key= '926735483521-6qp4cuc6rcr6p1qujtnri6v63iql440o.apps.googleusercontent.com'  //needed
                 api_secret= 'VJyrDQ8w3v_gQ28BHavHDIb7'    //needed
-                successUri= "/userLanding/token"    //optional
+                successUri= "/auth/token"    //optional
                 failureUri= "/oauth2/google/failure"    //optional
                 callback= "/oauth2/google/callback"     //optional
                 scopes= "https://www.googleapis.com/auth/userinfo.email"    //optional, see https://developers.google.com/identity/protocols/googlescopes#monitoringv3
@@ -204,7 +148,7 @@ grails { plugin { springsecurity {
     securityConfigType = grails.plugin.springsecurity.SecurityConfigType.Requestmap
     // url to redirect after login in
     // just_rest branch provides alternative default via org.transmart.defaultLoginRedirect
-    successHandler.defaultTargetUrl = org.transmart.defaultLoginRedirect ?: '/userLanding'
+    successHandler.defaultTargetUrl = '/'
     // logout url
     logout.afterLogoutUrl = '/login/forceAuth'
 
@@ -221,12 +165,6 @@ grails { plugin { springsecurity {
         def oauthEndpoints = [
                 [pattern: '/oauth/authorize.dispatch', access: ["isFullyAuthenticated() and request.getMethod().equals('POST')"]],
                 [pattern: '/oauth/token.dispatch', access: ["isFullyAuthenticated() and (request.getMethod().equals('GET') or request.getMethod().equals('POST'))"]],
-        ]
-
-        // This looks dangerous and it possibly is (would need to check), but
-        // reflects the instructions I got from the developer.
-        def gwavaMappings = [
-                [pattern: '/gwasWeb/**', access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
         ]
 
         interceptUrlMap = [
@@ -253,7 +191,6 @@ grails { plugin { springsecurity {
                 [pattern: '/secureObjectAccess/**',      access: ['ROLE_ADMIN']]
         ] +
                 (org.transmartproject.app.oauthEnabled ?  oauthEndpoints : []) +
-                (org.transmartproject.app.gwavaEnabled ?  gwavaMappings : []) +
                 [
                         [pattern: '/**',                         access: ['IS_AUTHENTICATED_REMEMBERED']], // must be last
                 ]
@@ -369,7 +306,6 @@ environments {
         }
     }
 }
-
 
 // Added by the Spring Security OAuth2 Google Plugin:
 grails.plugin.springsecurity.oauth2.domainClass = 'org.transmart.oauth2.AccessToken'

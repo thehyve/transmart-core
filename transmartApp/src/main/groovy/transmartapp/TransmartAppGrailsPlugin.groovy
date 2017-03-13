@@ -13,8 +13,8 @@ import org.springframework.security.web.authentication.session.ConcurrentSession
 import org.springframework.security.web.session.ConcurrentSessionFilter
 import org.springframework.transaction.interceptor.TransactionInterceptor
 import org.springframework.web.util.IntrospectorCleanupListener
-import org.transmart.authorization.CurrentUserBeanFactoryBean
-import org.transmart.authorization.CurrentUserBeanProxyFactory
+import org.transmart.oauth.CurrentUserBeanFactoryBean
+import org.transmart.oauth.CurrentUserBeanProxyFactory
 import org.transmart.authorization.QueriesResourceAuthorizationDecorator
 import org.transmart.marshallers.MarshallerRegistrarService
 import org.transmart.oauth.authentication.AuthUserDetailsService
@@ -105,15 +105,6 @@ Brief summary/description of the plugin.
             quartzSpringScope(QuartzSpringScope)
             quartzScopeConfigurer(CustomScopeConfigurer) {
                 scopes = ImmutableMap.of('quartz', ref('quartzSpringScope'))
-            }
-
-            currentUserBean(CurrentUserBeanProxyFactory)
-            "${CurrentUserBeanProxyFactory.SUB_BEAN_REQUEST}"(CurrentUserBeanFactoryBean) { bean ->
-                bean.scope = 'request'
-            }
-            "${CurrentUserBeanProxyFactory.SUB_BEAN_QUARTZ}"(User) { bean ->
-                // Spring never actually creates this bean
-                bean.scope = 'quartz'
             }
 
             legacyQueryResultAccessCheckRequestCache(

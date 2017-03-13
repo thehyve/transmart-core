@@ -13,9 +13,12 @@ import org.springframework.web.util.IntrospectorCleanupListener
 import org.transmart.oauth.ActiveDirectoryLdapAuthenticationExtension
 import org.transmart.oauth.AuthSuccessEventListener
 import org.transmart.oauth.BadCredentialsEventListener
+import org.transmart.oauth.CurrentUserBeanFactoryBean
+import org.transmart.oauth.CurrentUserBeanProxyFactory
 import org.transmart.oauth.LdapAuthUserDetailsMapper
 import org.transmart.oauth.authentication.AuthUserDetailsService
 import org.transmart.oauth.authentication.BruteForceLoginLockService
+import org.transmartproject.core.users.User
 
 class TransmartOauthGrailsPlugin extends Plugin {
 
@@ -134,6 +137,15 @@ Brief summary/description of the plugin.
 
             //overrides bean implementing GrailsUserDetailsService
             userDetailsService(AuthUserDetailsService)
+
+            currentUserBean(CurrentUserBeanProxyFactory)
+            "${CurrentUserBeanProxyFactory.SUB_BEAN_REQUEST}"(CurrentUserBeanFactoryBean) { bean ->
+                bean.scope = 'request'
+            }
+            "${CurrentUserBeanProxyFactory.SUB_BEAN_QUARTZ}"(User) { bean ->
+                // Spring never actually creates this bean
+                bean.scope = 'quartz'
+            }
         }
     }
 
