@@ -9,7 +9,7 @@ CREATE TABLE bio_analysis_cohort_xref (
 );
 
 --
--- Name: bio_analysis_cohort_xref_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_analysis_cohort_xref bio_analysis_cohort_xref_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_analysis_cohort_xref
     ADD CONSTRAINT bio_analysis_cohort_xref_pk PRIMARY KEY (bio_assay_analysis_id);

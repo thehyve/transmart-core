@@ -10,7 +10,7 @@ CREATE TABLE bio_content_repository (
 );
 
 --
--- Name: external_file_repository_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_content_repository external_file_repository_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_content_repository
     ADD CONSTRAINT external_file_repository_pk PRIMARY KEY (bio_content_repo_id);
@@ -35,7 +35,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_content_repo_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_content_repository trg_bio_content_repo_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_content_repo_id BEFORE INSERT ON bio_content_repository FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_content_repo_id();
 

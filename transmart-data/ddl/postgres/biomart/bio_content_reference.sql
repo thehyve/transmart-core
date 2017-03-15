@@ -11,7 +11,7 @@ CREATE TABLE bio_content_reference (
 );
 
 --
--- Name: bio_content_ref_n_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_content_reference bio_content_ref_n_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_content_reference
     ADD CONSTRAINT bio_content_ref_n_pk PRIMARY KEY (bio_content_reference_id);
@@ -36,12 +36,12 @@ end;
 $$;
 
 --
--- Name: trg_bio_content_ref_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_content_reference trg_bio_content_ref_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_content_ref_id BEFORE INSERT ON bio_content_reference FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_content_ref_id();
 
 --
--- Name: bio_content_ref_cont_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_content_reference bio_content_ref_cont_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_content_reference
     ADD CONSTRAINT bio_content_ref_cont_fk FOREIGN KEY (bio_content_id) REFERENCES bio_content(bio_file_content_id);

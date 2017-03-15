@@ -11,7 +11,7 @@ CREATE TABLE bio_patient_event_attr (
 );
 
 --
--- Name: bio_patient_attribute_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_patient_event_attr bio_patient_attribute_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_patient_event_attr
     ADD CONSTRAINT bio_patient_attribute_pk PRIMARY KEY (bio_patient_attribute_id);
@@ -36,18 +36,18 @@ end;
 $$;
 
 --
--- Name: trg_bio_pt_evt_attr_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_patient_event_attr trg_bio_pt_evt_attr_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_pt_evt_attr_id BEFORE INSERT ON bio_patient_event_attr FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_pt_evt_attr_id();
 
 --
--- Name: bio_pt_attr_trl_attr_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_patient_event_attr bio_pt_attr_trl_attr_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_patient_event_attr
     ADD CONSTRAINT bio_pt_attr_trl_attr_fk FOREIGN KEY (bio_clinic_trial_attr_id) REFERENCES bio_clinc_trial_attr(bio_clinc_trial_attr_id);
 
 --
--- Name: bio_pt_event_attr_evt_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_patient_event_attr bio_pt_event_attr_evt_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_patient_event_attr
     ADD CONSTRAINT bio_pt_event_attr_evt_fk FOREIGN KEY (bio_patient_event_id) REFERENCES bio_patient_event(bio_patient_event_id);

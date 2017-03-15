@@ -24,7 +24,7 @@ CREATE TABLE bio_assay (
 );
 
 --
--- Name: rbmorderdim_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay rbmorderdim_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay
     ADD CONSTRAINT rbmorderdim_pk PRIMARY KEY (bio_assay_id);
@@ -49,18 +49,18 @@ end;
 $$;
 
 --
--- Name: trg_bio_assay_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_assay trg_bio_assay_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_assay_id BEFORE INSERT ON bio_assay FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_assay_id();
 
 --
--- Name: bio_asy_asy_pfm_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay bio_asy_asy_pfm_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay
     ADD CONSTRAINT bio_asy_asy_pfm_fk FOREIGN KEY (bio_assay_platform_id) REFERENCES bio_assay_platform(bio_assay_platform_id);
 
 --
--- Name: dataset_experiment_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay dataset_experiment_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay
     ADD CONSTRAINT dataset_experiment_fk FOREIGN KEY (experiment_id) REFERENCES bio_experiment(bio_experiment_id);

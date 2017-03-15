@@ -12,7 +12,7 @@ CREATE TABLE bio_data_ext_code (
 );
 
 --
--- Name: bio_data_ext_code_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_data_ext_code bio_data_ext_code_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_data_ext_code
     ADD CONSTRAINT bio_data_ext_code_pk PRIMARY KEY (bio_data_ext_code_id);
@@ -47,7 +47,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_data_ext_code_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_data_ext_code trg_bio_data_ext_code_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_data_ext_code_id BEFORE INSERT ON bio_data_ext_code FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_data_ext_code_id();
 

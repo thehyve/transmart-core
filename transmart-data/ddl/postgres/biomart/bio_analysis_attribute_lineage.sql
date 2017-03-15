@@ -9,7 +9,7 @@ CREATE TABLE bio_analysis_attribute_lineage (
 );
 
 --
--- Name: pk_baal_id; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_analysis_attribute_lineage pk_baal_id; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_analysis_attribute_lineage
     ADD CONSTRAINT pk_baal_id PRIMARY KEY (bio_analysis_att_lineage_id);
@@ -30,7 +30,7 @@ END;
 $$;
 
 --
--- Name: trg_bio_analysis_al_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_analysis_attribute_lineage trg_bio_analysis_al_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_analysis_al_id BEFORE INSERT ON bio_analysis_attribute_lineage FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_analysis_al_id();
 

@@ -12,19 +12,20 @@ CREATE TABLE de_rnaseq_transcript_annot (
 );
 
 --
--- Name: de_rnaseq_transcript_annot_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_rnaseq_transcript_annot de_rnaseq_transcript_annot_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_rnaseq_transcript_annot
     ADD CONSTRAINT de_rnaseq_transcript_annot_pkey PRIMARY KEY (id);
 
 --
--- Name: de_rnaseq_transcript_annot_gpl_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_rnaseq_transcript_annot de_rnaseq_transcript_annot_ref_id_unq; Type: CONSTRAINT; Schema: deapp; Owner: -
+--
+ALTER TABLE ONLY de_rnaseq_transcript_annot
+    ADD CONSTRAINT de_rnaseq_transcript_annot_ref_id_unq UNIQUE (gpl_id, ref_id);
+
+--
+-- Name: de_rnaseq_transcript_annot de_rnaseq_transcript_annot_gpl_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_rnaseq_transcript_annot
     ADD CONSTRAINT de_rnaseq_transcript_annot_gpl_id_fkey FOREIGN KEY (gpl_id) REFERENCES de_gpl_info(platform);
 
---
--- Name: de_rnaseq_transcript_annot_ref_id_unq; Type: CONSTRAINT; Schema: deapp; Owner: -
---
-ALTER TABLE ONLY de_rnaseq_transcript_annot
-    ADD CONSTRAINT de_rnaseq_transcript_annot_ref_id_unq UNIQUE (gpl_id, ref_id);

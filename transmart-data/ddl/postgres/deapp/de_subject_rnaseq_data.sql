@@ -15,7 +15,7 @@ CREATE TABLE de_subject_rnaseq_data (
 );
 
 --
--- Name: de_subject_rnaseq_data_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_subject_rnaseq_data de_subject_rnaseq_data_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_subject_rnaseq_data
     ADD CONSTRAINT de_subject_rnaseq_data_pkey PRIMARY KEY (assay_id, region_id);
@@ -31,7 +31,7 @@ CREATE INDEX de_subject_rnaseq_data_patient ON de_subject_rnaseq_data USING btre
 CREATE INDEX de_subject_rnaseq_data_region ON de_subject_rnaseq_data USING btree (region_id);
 
 --
--- Name: de_subj_rnaseq_region_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_subject_rnaseq_data de_subj_rnaseq_region_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_subject_rnaseq_data
     ADD CONSTRAINT de_subj_rnaseq_region_id_fkey FOREIGN KEY (region_id) REFERENCES de_chromosomal_region(region_id);

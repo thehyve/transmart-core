@@ -24,6 +24,13 @@ $dependencies = array (
     2 => 'bio_experiment',
     3 => 'bio_marker',
   ),
+  'views/bio_marker_exp_analysis_mv_10' => 
+  array (
+    0 => 'bio_assay_analysis_data',
+    1 => 'bio_assay_data_annotation',
+    2 => 'bio_experiment',
+    3 => 'bio_marker',
+  ),
   'views/ctd_arm_view' => 
   array (
     0 => 'ctd_full',
@@ -161,6 +168,9 @@ $dependencies = array (
   ),
   'views/vw_faceted_search_disease' => 
   array (
+    0 => 'bio_data_disease',
+    1 => 'bio_disease',
+    2 => 'mesh',
   ),
   'bio_assay_analysis_data' => 
   array (
@@ -184,6 +194,10 @@ $dependencies = array (
   array (
     0 => 'bio_assay',
     1 => 'bio_sample',
+  ),
+  'bio_asy_analysis_data_ext' => 
+  array (
+    0 => 'bio_assay_analysis_gwas',
   ),
   'bio_assay' => 
   array (
@@ -313,6 +327,29 @@ $dependencies = array (
   'bio_content' => 
   array (
     0 => 'bio_content_repository',
+  ),
+  'bio_assay_analysis_ext' => 
+  array (
+    0 => 'bio_assay_analysis',
+  ),
+  'bio_assay_geno_platform_probe' => 
+  array (
+    0 => 'bio_assay_platform',
+  ),
+  'bio_asy_platform_probe_anno' => 
+  array (
+    0 => 'bio_assay_geno_platform_probe',
+    1 => 'bio_assay_platform',
+    2 => 'genotype_probe_annotation',
+  ),
+  'bio_assay_analysis_gwas' => 
+  array (
+    0 => 'bio_assay_analysis',
+    1 => 'bio_assay_geno_platform_probe',
+  ),
+  'bio_asy_analysis_gwas_top50' => 
+  array (
+    0 => 'bio_assay_analysis',
   ),
 )
 ;

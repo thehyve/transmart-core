@@ -39,6 +39,7 @@
 \i deapp/de_snp_data_by_probe.sql
 \i deapp/de_snp_data_dataset_loc.sql
 \i deapp/views/de_snp_gene_map.sql
+\i deapp/views/de_snp_info_hg19_mv.sql
 \i deapp/de_snp_probe_sorted_def.sql
 \i deapp/de_snp_subject_sorted_def.sql
 \i deapp/de_subject_acgh_data.sql

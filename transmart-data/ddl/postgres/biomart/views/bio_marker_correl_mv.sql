@@ -30,7 +30,7 @@ UNION
    FROM bio_marker b,
     bio_data_correlation c,
     bio_data_correl_descr d
-  WHERE ((((b.bio_marker_id = c.bio_data_id) AND (c.bio_data_correl_descr_id = d.bio_data_correl_descr_id)) AND ((b.primary_source_code)::text <> 'ARIADNE'::text)) AND ((d.correlation)::text = 'PATHWAY GENE'::text))
+  WHERE ((b.bio_marker_id = c.bio_data_id) AND (c.bio_data_correl_descr_id = d.bio_data_correl_descr_id) AND ((b.primary_source_code)::text <> 'ARIADNE'::text) AND ((d.correlation)::text = 'PATHWAY GENE'::text))
 UNION
  SELECT DISTINCT c.bio_data_id AS bio_marker_id,
     c.asso_bio_data_id AS asso_bio_marker_id,
@@ -39,7 +39,7 @@ UNION
    FROM bio_marker b,
     bio_data_correlation c,
     bio_data_correl_descr d
-  WHERE (((b.bio_marker_id = c.bio_data_id) AND (c.bio_data_correl_descr_id = d.bio_data_correl_descr_id)) AND ((d.correlation)::text = 'HOMOLOGENE GENE'::text))
+  WHERE ((b.bio_marker_id = c.bio_data_id) AND (c.bio_data_correl_descr_id = d.bio_data_correl_descr_id) AND ((d.correlation)::text = 'HOMOLOGENE GENE'::text))
 UNION
  SELECT DISTINCT c.bio_data_id AS bio_marker_id,
     c.asso_bio_data_id AS asso_bio_marker_id,
@@ -48,7 +48,7 @@ UNION
    FROM bio_marker b,
     bio_data_correlation c,
     bio_data_correl_descr d
-  WHERE (((b.bio_marker_id = c.bio_data_id) AND (c.bio_data_correl_descr_id = d.bio_data_correl_descr_id)) AND ((d.correlation)::text = 'PROTEIN TO GENE'::text))
+  WHERE ((b.bio_marker_id = c.bio_data_id) AND (c.bio_data_correl_descr_id = d.bio_data_correl_descr_id) AND ((d.correlation)::text = 'PROTEIN TO GENE'::text))
 UNION
  SELECT DISTINCT c.bio_data_id AS bio_marker_id,
     c.asso_bio_data_id AS asso_bio_marker_id,
@@ -57,7 +57,7 @@ UNION
    FROM bio_marker b,
     bio_data_correlation c,
     bio_data_correl_descr d
-  WHERE (((b.bio_marker_id = c.bio_data_id) AND (c.bio_data_correl_descr_id = d.bio_data_correl_descr_id)) AND ((d.correlation)::text = 'GENE TO PROTEIN'::text))
+  WHERE ((b.bio_marker_id = c.bio_data_id) AND (c.bio_data_correl_descr_id = d.bio_data_correl_descr_id) AND ((d.correlation)::text = 'GENE TO PROTEIN'::text))
 UNION
  SELECT DISTINCT c1.bio_data_id AS bio_marker_id,
     c2.asso_bio_data_id AS asso_bio_marker_id,
@@ -75,21 +75,20 @@ UNION
     9 AS mv_id
    FROM bio_marker b
   WHERE ((b.bio_marker_type)::text = 'METABOLITE'::text)
-  UNION
-  SELECT DISTINCT
-    b.bio_marker_id,
+UNION
+ SELECT DISTINCT b.bio_marker_id,
     b.bio_marker_id AS asso_bio_marker_id,
     'TRANSCRIPT'::text AS correl_type,
     10 AS mv_id
-  FROM biomart.bio_marker b
+   FROM bio_marker b
   WHERE ((b.bio_marker_type)::text = 'TRANSCRIPT'::text)
-  UNION
-  SELECT DISTINCT c.bio_data_id AS bio_marker_id,
+UNION
+ SELECT DISTINCT c.bio_data_id AS bio_marker_id,
     c.asso_bio_data_id AS asso_bio_marker_id,
     'GENE TO TRANSCRIPT'::text AS correl_type,
     11 AS mv_id
    FROM bio_marker b,
     bio_data_correlation c,
     bio_data_correl_descr d
-  WHERE (((b.bio_marker_id = c.bio_data_id) AND (c.bio_data_correl_descr_id = d.bio_data_correl_descr_id)) AND ((d.correlation)::text = 'GENE TO TRANSCRIPT'::text));
+  WHERE ((b.bio_marker_id = c.bio_data_id) AND (c.bio_data_correl_descr_id = d.bio_data_correl_descr_id) AND ((d.correlation)::text = 'GENE TO TRANSCRIPT'::text));
 

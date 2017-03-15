@@ -8,7 +8,7 @@ CREATE TABLE bio_data_taxonomy (
 );
 
 --
--- Name: bio_taxon_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_data_taxonomy bio_taxon_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_data_taxonomy
     ADD CONSTRAINT bio_taxon_fk FOREIGN KEY (bio_taxonomy_id) REFERENCES bio_taxonomy(bio_taxonomy_id);

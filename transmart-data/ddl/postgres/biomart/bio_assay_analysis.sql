@@ -24,11 +24,14 @@ CREATE TABLE bio_assay_analysis (
     tea_data_count bigint,
     analysis_update_date date,
     lsmean_cutoff double precision,
-    etl_id_source bigint
+    etl_id_source bigint,
+    update_of numeric(18,0),
+    created_by character varying(30),
+    modified_by character varying(30)
 );
 
 --
--- Name: bio_data_anl_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis bio_data_anl_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis
     ADD CONSTRAINT bio_data_anl_pk PRIMARY KEY (bio_assay_analysis_id);
@@ -53,7 +56,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_assay_analysis_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis trg_bio_assay_analysis_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_assay_analysis_id BEFORE INSERT ON bio_assay_analysis FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_assay_analysis_id();
 
@@ -79,12 +82,12 @@ end;
 $$;
 
 --
--- Name: trg_bio_assay_analysis_uid; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis trg_bio_assay_analysis_uid; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_assay_analysis_uid BEFORE INSERT ON bio_assay_analysis FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_assay_analysis_uid();
 
 --
--- Name: bio_assay_ans_pltfm_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis bio_assay_ans_pltfm_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis
     ADD CONSTRAINT bio_assay_ans_pltfm_fk FOREIGN KEY (bio_asy_analysis_pltfm_id) REFERENCES bio_asy_analysis_pltfm(bio_asy_analysis_pltfm_id);

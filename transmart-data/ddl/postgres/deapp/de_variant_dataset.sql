@@ -13,13 +13,13 @@ CREATE TABLE de_variant_dataset (
 );
 
 --
--- Name: dataset_id; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_variant_dataset dataset_id; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_variant_dataset
     ADD CONSTRAINT dataset_id PRIMARY KEY (dataset_id);
 
 --
--- Name: gpl_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_variant_dataset gpl_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_variant_dataset
     ADD CONSTRAINT gpl_id FOREIGN KEY (gpl_id) REFERENCES de_gpl_info(platform);

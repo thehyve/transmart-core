@@ -8,13 +8,13 @@ CREATE TABLE bio_data_uid (
 );
 
 --
--- Name: bio_data_uid_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_data_uid bio_data_uid_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_data_uid
     ADD CONSTRAINT bio_data_uid_pk PRIMARY KEY (bio_data_id);
 
 --
--- Name: bio_data_uid_uk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_data_uid bio_data_uid_uk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_data_uid
     ADD CONSTRAINT bio_data_uid_uk UNIQUE (unique_id);

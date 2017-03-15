@@ -9,7 +9,7 @@ CREATE TABLE bio_taxonomy (
 );
 
 --
--- Name: bio_taxon_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_taxonomy bio_taxon_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_taxonomy
     ADD CONSTRAINT bio_taxon_pk PRIMARY KEY (bio_taxonomy_id);
@@ -28,7 +28,7 @@ END;
 $$;
 
 --
--- Name: trg_bio_taxon_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_taxonomy trg_bio_taxon_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_taxon_id BEFORE INSERT ON bio_taxonomy FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_taxon_id();
 

@@ -17,7 +17,7 @@ CREATE TABLE bio_assay_data (
 );
 
 --
--- Name: bio_experiment_data_fact_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_data bio_experiment_data_fact_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_data
     ADD CONSTRAINT bio_experiment_data_fact_pk PRIMARY KEY (bio_assay_data_id);
@@ -42,24 +42,24 @@ end;
 $$;
 
 --
--- Name: trg_bio_assay_data_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_assay_data trg_bio_assay_data_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_assay_data_id BEFORE INSERT ON bio_assay_data FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_assay_data_id();
 
 --
--- Name: bio_asy_dt_ds_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_data bio_asy_dt_ds_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_data
     ADD CONSTRAINT bio_asy_dt_ds_fk FOREIGN KEY (bio_assay_dataset_id) REFERENCES bio_assay_dataset(bio_assay_dataset_id);
 
 --
--- Name: bio_asy_exp_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_data bio_asy_exp_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_data
     ADD CONSTRAINT bio_asy_exp_fk FOREIGN KEY (bio_experiment_id) REFERENCES bio_experiment(bio_experiment_id);
 
 --
--- Name: bio_exp_data_fact_samp_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_data bio_exp_data_fact_samp_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_data
     ADD CONSTRAINT bio_exp_data_fact_samp_fk FOREIGN KEY (bio_sample_id) REFERENCES bio_sample(bio_sample_id);

@@ -10,7 +10,7 @@ CREATE TABLE bio_analysis_attribute (
 );
 
 --
--- Name: pk_baa_id; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_analysis_attribute pk_baa_id; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_analysis_attribute
     ADD CONSTRAINT pk_baa_id PRIMARY KEY (bio_analysis_attribute_id);
@@ -31,7 +31,7 @@ END;
 $$;
 
 --
--- Name: trg_bio_analysis_attribute_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_analysis_attribute trg_bio_analysis_attribute_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_analysis_attribute_id BEFORE INSERT ON bio_analysis_attribute FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_analysis_attribute_id();
 

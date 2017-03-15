@@ -34,7 +34,7 @@ END;
 $$;
 
 --
--- Name: trg_ctd2_inhib_details; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: ctd2_inhib_details trg_ctd2_inhib_details; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_ctd2_inhib_details BEFORE INSERT ON ctd2_inhib_details FOR EACH ROW EXECUTE PROCEDURE tf_trg_ctd2_inhib_details();
 

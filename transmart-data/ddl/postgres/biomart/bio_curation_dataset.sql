@@ -13,7 +13,7 @@ CREATE TABLE bio_curation_dataset (
 );
 
 --
--- Name: bio_external_analysis_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_curation_dataset bio_external_analysis_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_curation_dataset
     ADD CONSTRAINT bio_external_analysis_pk PRIMARY KEY (bio_curation_dataset_id);
@@ -38,12 +38,12 @@ end;
 $$;
 
 --
--- Name: trg_bio_curation_dataset_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_curation_dataset trg_bio_curation_dataset_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_curation_dataset_id BEFORE INSERT ON bio_curation_dataset FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_curation_dataset_id();
 
 --
--- Name: bio_ext_anl_pltfm_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_curation_dataset bio_ext_anl_pltfm_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_curation_dataset
     ADD CONSTRAINT bio_ext_anl_pltfm_fk FOREIGN KEY (bio_asy_analysis_pltfm_id) REFERENCES bio_asy_analysis_pltfm(bio_asy_analysis_pltfm_id);

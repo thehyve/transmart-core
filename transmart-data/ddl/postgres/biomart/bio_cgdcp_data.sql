@@ -12,7 +12,7 @@ CREATE TABLE bio_cgdcp_data (
 );
 
 --
--- Name: bio_cancer_gene_curation_fact_; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_cgdcp_data bio_cancer_gene_curation_fact_; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_cgdcp_data
     ADD CONSTRAINT bio_cancer_gene_curation_fact_ PRIMARY KEY (bio_data_id);

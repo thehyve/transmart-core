@@ -91,30 +91,30 @@ END
 $$;
 
 --
--- Name: trg_bio_asy_analysis_data_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis_data trg_bio_asy_analysis_data_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_asy_analysis_data_id BEFORE INSERT ON bio_assay_analysis_data FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_asy_analysis_data_id();
 
 --
--- Name: bio_assay_analysis_data_n_fk1; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis_data bio_assay_analysis_data_n_fk1; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis_data
     ADD CONSTRAINT bio_assay_analysis_data_n_fk1 FOREIGN KEY (bio_assay_analysis_id) REFERENCES bio_assay_analysis(bio_assay_analysis_id);
 
 --
--- Name: bio_assay_analysis_data_n_fk2; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis_data bio_assay_analysis_data_n_fk2; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis_data
     ADD CONSTRAINT bio_assay_analysis_data_n_fk2 FOREIGN KEY (bio_experiment_id) REFERENCES bio_experiment(bio_experiment_id);
 
 --
--- Name: bio_assay_analysis_data_n_fk3; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis_data bio_assay_analysis_data_n_fk3; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis_data
     ADD CONSTRAINT bio_assay_analysis_data_n_fk3 FOREIGN KEY (bio_assay_platform_id) REFERENCES bio_assay_platform(bio_assay_platform_id);
 
 --
--- Name: bio_asy_ad_fg_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis_data bio_asy_ad_fg_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis_data
     ADD CONSTRAINT bio_asy_ad_fg_fk FOREIGN KEY (bio_assay_feature_group_id) REFERENCES bio_assay_feature_group(bio_assay_feature_group_id);

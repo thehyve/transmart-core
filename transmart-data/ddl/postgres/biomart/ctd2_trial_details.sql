@@ -113,7 +113,7 @@ END;
 $$;
 
 --
--- Name: trg_ctd2_trial_details; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: ctd2_trial_details trg_ctd2_trial_details; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_ctd2_trial_details BEFORE INSERT ON ctd2_trial_details FOR EACH ROW EXECUTE PROCEDURE tf_trg_ctd2_trial_details();
 
