@@ -790,7 +790,7 @@ class GwasSearchController {
                 def indexCount = 0;
 
                 //The third element is our large text field. Split it into an array.
-                def largeTextField = it[3 as String]?.split(";" as char, -1)
+                def largeTextField = (it[3] as String)?.split(';', -1)
 
                 //This will be the array that is reordered according to the meta-data index table.
                 String[] newLargeTextField = new String[indexMap.size()]
