@@ -9,7 +9,20 @@ option java_outer_classname = "ObservationsProto";
 
 // A full hypercube is a series of messages, each prefixed by its length in the protobuf varint encoding. A hypercube
 // starts with a header, then one or more observations or one or more packedObservations (depending on if there is a
-// dimension marked 'packed'), and then one footer.
+// dimension marked 'packed'), and then one footer. If the `last` field in Header, Cell or PackedCell is true no more
+// cells will follow and the next message is the Footer.
+
+// If an unexpected error occurs on the server while streaming a hypercube, an Error message can be sent instead of any
+// of the other root message types. To a parser this will look like the expected root message type with only its `error`
+// field set. If this happens the entire hypercube result should be treated as corrupted and discarded. The `error`
+// string will contain the error message.
+// Sending an Error message should be a last resort, any errors that a server can detect before starting to stream the
+// hypercube should be detected and handled by a more appropriate error mechanism such as returning an HTTP 5xx status
+// code.
+
+// This format uses indexes into other fields in several places. These indexes are 1-based. This leaves a 0 value to
+// indicate `not present` or `null`. This is only used in the dimensionIndexes field in Cell and PackedCell. To maintain
+// consistency all other index fields are also 1-based.
 
 enum Type {
     DOUBLE = 0;
@@ -64,7 +77,7 @@ message FieldDefinition {
 message Cell {
     // This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
     // dimension along which observations are packed, if packing is used) and follows their
-    // order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+    // order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
     // 'not present'.
     repeated int64 dimensionIndexes = 1; // `packed` is the default in proto3
 
@@ -97,16 +110,37 @@ message PackedCell {
 
     // Only one of these must be set
     // This list are the observation values. If there are multiple samples this list can be longer than the number of
-    // elements in the packed dimension.
+    // elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+    // the number of which is indicated by the nullElementCount value.
+    //
+    // The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+    // indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+    // not accounted for values are absent.
     repeated string stringValues = 3;
     repeated double numericValues = 4;
 
-    // The number of entries in either stringValues or numericValues, i.e., the number of observations represented
-    // by this message.
-    //int32 numObervations = 5;
+    // The number of values for which the packed dimension is null. These are prepended to the list of values.
+    int32 nullElementCount = 8;
+
+    // Only one of these must be present.
+    //
+    // If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+    // multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+    // must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+    // Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+    //
+    // If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+    // contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+    // This field is 1-based.
+    //
+    // If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+    //
+    // In either case the stringValues or numericValues contain all the values that are present concatenated together
+    // in order.
+    repeated int32 sampleCounts = 5;
+    repeated int32 absentValues = 6;
 
     bool last = 7; // default: false
-
 
     // see Header.error
     string error = 99;
@@ -161,8 +195,18 @@ message DimensionElements { // Multiple dimension elements are stored in a "colu
     // 1-based list of indices for which the fields are absent in all dimension elements encoded here.
     repeated int32 absentFieldColumnIndices = 4;
 
-    // only used when this message is embedded in a packedObservations
-    bool perSample = 2;
+    // only used when this message is embedded in a packedCell
+    oneof scope {
+        // if neither is set: multiple observations for the same packed element share the element of this dimension,
+        // so the number of elements in this message is equal to the number of elements in the packed dimension
+
+        // if perSample is set there is an individual element for each observation
+        bool perSample = 2;
+
+        // if perPackedCell is set this DimensionElements contains only a single element, which applies to all
+        // observations in this packedCell
+        bool perPackedCell = 5;
+    }
 }
 
 message DimensionElementFieldColumn {

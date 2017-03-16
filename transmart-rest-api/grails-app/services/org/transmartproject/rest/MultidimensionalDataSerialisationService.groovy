@@ -43,7 +43,7 @@ class MultidimensionalDataSerialisationService {
      * @param format the output format. Supports JSON and PROTOBUF.
      * @param out the stream to serialise to.
      */@CompileStatic
-    void serialise(Hypercube hypercube, Format format, OutputStream out) {
+    void serialise(Hypercube hypercube, Format format, OutputStream out, boolean pack) {
         HypercubeSerializer serializer
         switch (format) {
             case Format.JSON:
@@ -55,6 +55,6 @@ class MultidimensionalDataSerialisationService {
             default:
                 throw new Exception("Unsupported format: ${format}")
         }
-        serializer.write(hypercube, out)
+        serializer.write(hypercube, out, pack: pack)
     }
 }

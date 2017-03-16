@@ -180,7 +180,9 @@ public final class ObservationsProto {
      * <pre>
      * If an error happens while streaming of the result has already started, this field can be set with the error message.
      * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
-     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
+     * that can be detected before writing to the response stream has started will be and will cause an HTTP error
+     * to be returned with a textual or json error message in the body.
      * </pre>
      *
      * <code>optional string error = 99;</code>
@@ -190,7 +192,9 @@ public final class ObservationsProto {
      * <pre>
      * If an error happens while streaming of the result has already started, this field can be set with the error message.
      * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
-     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
+     * that can be detected before writing to the response stream has started will be and will cause an HTTP error
+     * to be returned with a textual or json error message in the body.
      * </pre>
      *
      * <code>optional string error = 99;</code>
@@ -345,7 +349,9 @@ public final class ObservationsProto {
      * <pre>
      * If an error happens while streaming of the result has already started, this field can be set with the error message.
      * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
-     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
+     * that can be detected before writing to the response stream has started will be and will cause an HTTP error
+     * to be returned with a textual or json error message in the body.
      * </pre>
      *
      * <code>optional string error = 99;</code>
@@ -366,7 +372,9 @@ public final class ObservationsProto {
      * <pre>
      * If an error happens while streaming of the result has already started, this field can be set with the error message.
      * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
-     * these error fields generally indicates an internal application bug or a database consistency issue.
+     * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
+     * that can be detected before writing to the response stream has started will be and will cause an HTTP error
+     * to be returned with a textual or json error message in the body.
      * </pre>
      *
      * <code>optional string error = 99;</code>
@@ -1018,7 +1026,9 @@ public final class ObservationsProto {
        * <pre>
        * If an error happens while streaming of the result has already started, this field can be set with the error message.
        * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
-       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
+       * that can be detected before writing to the response stream has started will be and will cause an HTTP error
+       * to be returned with a textual or json error message in the body.
        * </pre>
        *
        * <code>optional string error = 99;</code>
@@ -1039,7 +1049,9 @@ public final class ObservationsProto {
        * <pre>
        * If an error happens while streaming of the result has already started, this field can be set with the error message.
        * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
-       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
+       * that can be detected before writing to the response stream has started will be and will cause an HTTP error
+       * to be returned with a textual or json error message in the body.
        * </pre>
        *
        * <code>optional string error = 99;</code>
@@ -1061,7 +1073,9 @@ public final class ObservationsProto {
        * <pre>
        * If an error happens while streaming of the result has already started, this field can be set with the error message.
        * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
-       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
+       * that can be detected before writing to the response stream has started will be and will cause an HTTP error
+       * to be returned with a textual or json error message in the body.
        * </pre>
        *
        * <code>optional string error = 99;</code>
@@ -1080,7 +1094,9 @@ public final class ObservationsProto {
        * <pre>
        * If an error happens while streaming of the result has already started, this field can be set with the error message.
        * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
-       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
+       * that can be detected before writing to the response stream has started will be and will cause an HTTP error
+       * to be returned with a textual or json error message in the body.
        * </pre>
        *
        * <code>optional string error = 99;</code>
@@ -1095,7 +1111,9 @@ public final class ObservationsProto {
        * <pre>
        * If an error happens while streaming of the result has already started, this field can be set with the error message.
        * If so, the client should stop parsing the rest of the stream and consider the result corrupt. An error in one of
-       * these error fields generally indicates an internal application bug or a database consistency issue.
+       * these error fields generally indicates an internal application bug or a database consistency issue. Any errors
+       * that can be detected before writing to the response stream has started will be and will cause an HTTP error
+       * to be returned with a textual or json error message in the body.
        * </pre>
        *
        * <code>optional string error = 99;</code>
@@ -1165,10 +1183,18 @@ public final class ObservationsProto {
       com.google.protobuf.MessageOrBuilder {
 
     /**
+     * <pre>
+     * each dimension present in the output is declared with this message
+     * </pre>
+     *
      * <code>optional string name = 1;</code>
      */
     java.lang.String getName();
     /**
+     * <pre>
+     * each dimension present in the output is declared with this message
+     * </pre>
+     *
      * <code>optional string name = 1;</code>
      */
     com.google.protobuf.ByteString
@@ -1176,7 +1202,8 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * A description of the elements of the dimension. 
+     * A description of the elements of the dimension. 'fields' is only set if type is
+     *OBJECT 
      * </pre>
      *
      * <code>optional .hypercube.Type type = 2;</code>
@@ -1184,7 +1211,8 @@ public final class ObservationsProto {
     int getTypeValue();
     /**
      * <pre>
-     * A description of the elements of the dimension. 
+     * A description of the elements of the dimension. 'fields' is only set if type is
+     *OBJECT 
      * </pre>
      *
      * <code>optional .hypercube.Type type = 2;</code>
@@ -1261,10 +1289,6 @@ public final class ObservationsProto {
     org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementsOrBuilder getElementsOrBuilder();
   }
   /**
-   * <pre>
-   * each dimension present in the output is declared with this message
-   * </pre>
-   *
    * Protobuf type {@code hypercube.DimensionDeclaration}
    */
   public  static final class DimensionDeclaration extends
@@ -1382,6 +1406,10 @@ public final class ObservationsProto {
     public static final int NAME_FIELD_NUMBER = 1;
     private volatile java.lang.Object name_;
     /**
+     * <pre>
+     * each dimension present in the output is declared with this message
+     * </pre>
+     *
      * <code>optional string name = 1;</code>
      */
     public java.lang.String getName() {
@@ -1397,6 +1425,10 @@ public final class ObservationsProto {
       }
     }
     /**
+     * <pre>
+     * each dimension present in the output is declared with this message
+     * </pre>
+     *
      * <code>optional string name = 1;</code>
      */
     public com.google.protobuf.ByteString
@@ -1417,7 +1449,8 @@ public final class ObservationsProto {
     private int type_;
     /**
      * <pre>
-     * A description of the elements of the dimension. 
+     * A description of the elements of the dimension. 'fields' is only set if type is
+     *OBJECT 
      * </pre>
      *
      * <code>optional .hypercube.Type type = 2;</code>
@@ -1427,7 +1460,8 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * A description of the elements of the dimension. 
+     * A description of the elements of the dimension. 'fields' is only set if type is
+     *OBJECT 
      * </pre>
      *
      * <code>optional .hypercube.Type type = 2;</code>
@@ -1734,10 +1768,6 @@ public final class ObservationsProto {
       return builder;
     }
     /**
-     * <pre>
-     * each dimension present in the output is declared with this message
-     * </pre>
-     *
      * Protobuf type {@code hypercube.DimensionDeclaration}
      */
     public static final class Builder extends
@@ -1949,6 +1979,10 @@ public final class ObservationsProto {
 
       private java.lang.Object name_ = "";
       /**
+       * <pre>
+       * each dimension present in the output is declared with this message
+       * </pre>
+       *
        * <code>optional string name = 1;</code>
        */
       public java.lang.String getName() {
@@ -1964,6 +1998,10 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * each dimension present in the output is declared with this message
+       * </pre>
+       *
        * <code>optional string name = 1;</code>
        */
       public com.google.protobuf.ByteString
@@ -1980,6 +2018,10 @@ public final class ObservationsProto {
         }
       }
       /**
+       * <pre>
+       * each dimension present in the output is declared with this message
+       * </pre>
+       *
        * <code>optional string name = 1;</code>
        */
       public Builder setName(
@@ -1993,6 +2035,10 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * each dimension present in the output is declared with this message
+       * </pre>
+       *
        * <code>optional string name = 1;</code>
        */
       public Builder clearName() {
@@ -2002,6 +2048,10 @@ public final class ObservationsProto {
         return this;
       }
       /**
+       * <pre>
+       * each dimension present in the output is declared with this message
+       * </pre>
+       *
        * <code>optional string name = 1;</code>
        */
       public Builder setNameBytes(
@@ -2019,7 +2069,8 @@ public final class ObservationsProto {
       private int type_ = 0;
       /**
        * <pre>
-       * A description of the elements of the dimension. 
+       * A description of the elements of the dimension. 'fields' is only set if type is
+       *OBJECT 
        * </pre>
        *
        * <code>optional .hypercube.Type type = 2;</code>
@@ -2029,7 +2080,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A description of the elements of the dimension. 
+       * A description of the elements of the dimension. 'fields' is only set if type is
+       *OBJECT 
        * </pre>
        *
        * <code>optional .hypercube.Type type = 2;</code>
@@ -2041,7 +2093,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A description of the elements of the dimension. 
+       * A description of the elements of the dimension. 'fields' is only set if type is
+       *OBJECT 
        * </pre>
        *
        * <code>optional .hypercube.Type type = 2;</code>
@@ -2052,7 +2105,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A description of the elements of the dimension. 
+       * A description of the elements of the dimension. 'fields' is only set if type is
+       *OBJECT 
        * </pre>
        *
        * <code>optional .hypercube.Type type = 2;</code>
@@ -2068,7 +2122,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * A description of the elements of the dimension. 
+       * A description of the elements of the dimension. 'fields' is only set if type is
+       *OBJECT 
        * </pre>
        *
        * <code>optional .hypercube.Type type = 2;</code>
@@ -2609,7 +2664,8 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * message defines the name and type of a DimensionElement field.
+     * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
+     * This message defines the name and type of a DimensionElement field or a DimensionElements.fields field column.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2619,7 +2675,8 @@ public final class ObservationsProto {
     java.lang.String getName();
     /**
      * <pre>
-     * message defines the name and type of a DimensionElement field.
+     * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
+     * This message defines the name and type of a DimensionElement field or a DimensionElements.fields field column.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2649,10 +2706,6 @@ public final class ObservationsProto {
     org.transmartproject.rest.hypercubeProto.ObservationsProto.Type getType();
   }
   /**
-   * <pre>
-   * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
-   * </pre>
-   *
    * Protobuf type {@code hypercube.FieldDefinition}
    */
   public  static final class FieldDefinition extends
@@ -2732,7 +2785,8 @@ public final class ObservationsProto {
     private volatile java.lang.Object name_;
     /**
      * <pre>
-     * message defines the name and type of a DimensionElement field.
+     * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
+     * This message defines the name and type of a DimensionElement field or a DimensionElements.fields field column.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2753,7 +2807,8 @@ public final class ObservationsProto {
     }
     /**
      * <pre>
-     * message defines the name and type of a DimensionElement field.
+     * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
+     * This message defines the name and type of a DimensionElement field or a DimensionElements.fields field column.
      * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
      * age, gender, race, etc.
      * </pre>
@@ -2948,10 +3003,6 @@ public final class ObservationsProto {
       return builder;
     }
     /**
-     * <pre>
-     * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
-     * </pre>
-     *
      * Protobuf type {@code hypercube.FieldDefinition}
      */
     public static final class Builder extends
@@ -3092,7 +3143,8 @@ public final class ObservationsProto {
       private java.lang.Object name_ = "";
       /**
        * <pre>
-       * message defines the name and type of a DimensionElement field.
+       * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
+       * This message defines the name and type of a DimensionElement field or a DimensionElements.fields field column.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -3113,7 +3165,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * message defines the name and type of a DimensionElement field.
+       * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
+       * This message defines the name and type of a DimensionElement field or a DimensionElements.fields field column.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -3135,7 +3188,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * message defines the name and type of a DimensionElement field.
+       * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
+       * This message defines the name and type of a DimensionElement field or a DimensionElements.fields field column.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -3154,7 +3208,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * message defines the name and type of a DimensionElement field.
+       * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
+       * This message defines the name and type of a DimensionElement field or a DimensionElements.fields field column.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -3169,7 +3224,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * message defines the name and type of a DimensionElement field.
+       * A field of a DimensionElement. This only applies to dimensions that have type OBJECT.
+       * This message defines the name and type of a DimensionElement field or a DimensionElements.fields field column.
        * Examples of this for the Patient dimension would be the fields of a Patient object, e.g.
        * age, gender, race, etc.
        * </pre>
@@ -3313,7 +3369,7 @@ public final class ObservationsProto {
      * <pre>
      * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
      * dimension along which observations are packed, if packing is used) and follows their
-     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
      * 'not present'.
      * </pre>
      *
@@ -3324,7 +3380,7 @@ public final class ObservationsProto {
      * <pre>
      * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
      * dimension along which observations are packed, if packing is used) and follows their
-     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
      * 'not present'.
      * </pre>
      *
@@ -3335,7 +3391,7 @@ public final class ObservationsProto {
      * <pre>
      * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
      * dimension along which observations are packed, if packing is used) and follows their
-     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
      * 'not present'.
      * </pre>
      *
@@ -3650,7 +3706,7 @@ public final class ObservationsProto {
      * <pre>
      * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
      * dimension along which observations are packed, if packing is used) and follows their
-     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
      * 'not present'.
      * </pre>
      *
@@ -3664,7 +3720,7 @@ public final class ObservationsProto {
      * <pre>
      * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
      * dimension along which observations are packed, if packing is used) and follows their
-     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
      * 'not present'.
      * </pre>
      *
@@ -3677,7 +3733,7 @@ public final class ObservationsProto {
      * <pre>
      * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
      * dimension along which observations are packed, if packing is used) and follows their
-     * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+     * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
      * 'not present'.
      * </pre>
      *
@@ -4417,7 +4473,7 @@ public final class ObservationsProto {
        * <pre>
        * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
        * dimension along which observations are packed, if packing is used) and follows their
-       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
        * 'not present'.
        * </pre>
        *
@@ -4431,7 +4487,7 @@ public final class ObservationsProto {
        * <pre>
        * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
        * dimension along which observations are packed, if packing is used) and follows their
-       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
        * 'not present'.
        * </pre>
        *
@@ -4444,7 +4500,7 @@ public final class ObservationsProto {
        * <pre>
        * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
        * dimension along which observations are packed, if packing is used) and follows their
-       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
        * 'not present'.
        * </pre>
        *
@@ -4457,7 +4513,7 @@ public final class ObservationsProto {
        * <pre>
        * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
        * dimension along which observations are packed, if packing is used) and follows their
-       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
        * 'not present'.
        * </pre>
        *
@@ -4474,7 +4530,7 @@ public final class ObservationsProto {
        * <pre>
        * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
        * dimension along which observations are packed, if packing is used) and follows their
-       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
        * 'not present'.
        * </pre>
        *
@@ -4490,7 +4546,7 @@ public final class ObservationsProto {
        * <pre>
        * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
        * dimension along which observations are packed, if packing is used) and follows their
-       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
        * 'not present'.
        * </pre>
        *
@@ -4508,7 +4564,7 @@ public final class ObservationsProto {
        * <pre>
        * This list of dimensionIndexes has the same length as the number of dense dimensionDeclarations (excluding the
        * dimension along which observations are packed, if packing is used) and follows their
-       * order. The value is the index into the dimElementField value. The index should be 1-based to reserve the 0 for
+       * order. The value is the index into the dimElementField value. The index is 1-based to reserve the 0 for
        * 'not present'.
        * </pre>
        *
@@ -5304,7 +5360,11 @@ public final class ObservationsProto {
      * <pre>
      * Only one of these must be set
      * This list are the observation values. If there are multiple samples this list can be longer than the number of
-     * elements in the packed dimension.
+     * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+     * the number of which is indicated by the nullElementCount value.
+     * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+     * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+     * not accounted for values are absent.
      * </pre>
      *
      * <code>repeated string stringValues = 3;</code>
@@ -5315,7 +5375,11 @@ public final class ObservationsProto {
      * <pre>
      * Only one of these must be set
      * This list are the observation values. If there are multiple samples this list can be longer than the number of
-     * elements in the packed dimension.
+     * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+     * the number of which is indicated by the nullElementCount value.
+     * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+     * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+     * not accounted for values are absent.
      * </pre>
      *
      * <code>repeated string stringValues = 3;</code>
@@ -5325,7 +5389,11 @@ public final class ObservationsProto {
      * <pre>
      * Only one of these must be set
      * This list are the observation values. If there are multiple samples this list can be longer than the number of
-     * elements in the packed dimension.
+     * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+     * the number of which is indicated by the nullElementCount value.
+     * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+     * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+     * not accounted for values are absent.
      * </pre>
      *
      * <code>repeated string stringValues = 3;</code>
@@ -5335,7 +5403,11 @@ public final class ObservationsProto {
      * <pre>
      * Only one of these must be set
      * This list are the observation values. If there are multiple samples this list can be longer than the number of
-     * elements in the packed dimension.
+     * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+     * the number of which is indicated by the nullElementCount value.
+     * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+     * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+     * not accounted for values are absent.
      * </pre>
      *
      * <code>repeated string stringValues = 3;</code>
@@ -5355,6 +5427,83 @@ public final class ObservationsProto {
      * <code>repeated double numericValues = 4;</code>
      */
     double getNumericValues(int index);
+
+    /**
+     * <pre>
+     * The number of values for which the packed dimension is null. These are prepended to the list of values.
+     * </pre>
+     *
+     * <code>optional int32 nullElementCount = 8;</code>
+     */
+    int getNullElementCount();
+
+    /**
+     * <pre>
+     * Only one of these must be present.
+     * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+     * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+     * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+     * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+     * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+     * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+     * This field is 1-based.
+     * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+     * In either case the stringValues or numericValues contain all the values that are present concatenated together
+     * in order.
+     * </pre>
+     *
+     * <code>repeated int32 sampleCounts = 5;</code>
+     */
+    java.util.List<java.lang.Integer> getSampleCountsList();
+    /**
+     * <pre>
+     * Only one of these must be present.
+     * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+     * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+     * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+     * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+     * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+     * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+     * This field is 1-based.
+     * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+     * In either case the stringValues or numericValues contain all the values that are present concatenated together
+     * in order.
+     * </pre>
+     *
+     * <code>repeated int32 sampleCounts = 5;</code>
+     */
+    int getSampleCountsCount();
+    /**
+     * <pre>
+     * Only one of these must be present.
+     * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+     * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+     * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+     * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+     * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+     * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+     * This field is 1-based.
+     * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+     * In either case the stringValues or numericValues contain all the values that are present concatenated together
+     * in order.
+     * </pre>
+     *
+     * <code>repeated int32 sampleCounts = 5;</code>
+     */
+    int getSampleCounts(int index);
+
+    /**
+     * <code>repeated int32 absentValues = 6;</code>
+     */
+    java.util.List<java.lang.Integer> getAbsentValuesList();
+    /**
+     * <code>repeated int32 absentValues = 6;</code>
+     */
+    int getAbsentValuesCount();
+    /**
+     * <code>repeated int32 absentValues = 6;</code>
+     */
+    int getAbsentValues(int index);
 
     /**
      * <pre>
@@ -5399,6 +5548,9 @@ public final class ObservationsProto {
       inlineDimensions_ = java.util.Collections.emptyList();
       stringValues_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       numericValues_ = java.util.Collections.emptyList();
+      nullElementCount_ = 0;
+      sampleCounts_ = java.util.Collections.emptyList();
+      absentValues_ = java.util.Collections.emptyList();
       last_ = false;
       error_ = "";
     }
@@ -5488,9 +5640,56 @@ public final class ObservationsProto {
               input.popLimit(limit);
               break;
             }
+            case 40: {
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+                sampleCounts_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000020;
+              }
+              sampleCounts_.add(input.readInt32());
+              break;
+            }
+            case 42: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020) && input.getBytesUntilLimit() > 0) {
+                sampleCounts_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000020;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                sampleCounts_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 48: {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+                absentValues_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000040;
+              }
+              absentValues_.add(input.readInt32());
+              break;
+            }
+            case 50: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
+                absentValues_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000040;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                absentValues_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
             case 56: {
 
               last_ = input.readBool();
+              break;
+            }
+            case 64: {
+
+              nullElementCount_ = input.readInt32();
               break;
             }
             case 794: {
@@ -5518,6 +5717,12 @@ public final class ObservationsProto {
         }
         if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           numericValues_ = java.util.Collections.unmodifiableList(numericValues_);
+        }
+        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+          sampleCounts_ = java.util.Collections.unmodifiableList(sampleCounts_);
+        }
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+          absentValues_ = java.util.Collections.unmodifiableList(absentValues_);
         }
         makeExtensionsImmutable();
       }
@@ -5646,7 +5851,11 @@ public final class ObservationsProto {
      * <pre>
      * Only one of these must be set
      * This list are the observation values. If there are multiple samples this list can be longer than the number of
-     * elements in the packed dimension.
+     * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+     * the number of which is indicated by the nullElementCount value.
+     * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+     * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+     * not accounted for values are absent.
      * </pre>
      *
      * <code>repeated string stringValues = 3;</code>
@@ -5659,7 +5868,11 @@ public final class ObservationsProto {
      * <pre>
      * Only one of these must be set
      * This list are the observation values. If there are multiple samples this list can be longer than the number of
-     * elements in the packed dimension.
+     * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+     * the number of which is indicated by the nullElementCount value.
+     * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+     * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+     * not accounted for values are absent.
      * </pre>
      *
      * <code>repeated string stringValues = 3;</code>
@@ -5671,7 +5884,11 @@ public final class ObservationsProto {
      * <pre>
      * Only one of these must be set
      * This list are the observation values. If there are multiple samples this list can be longer than the number of
-     * elements in the packed dimension.
+     * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+     * the number of which is indicated by the nullElementCount value.
+     * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+     * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+     * not accounted for values are absent.
      * </pre>
      *
      * <code>repeated string stringValues = 3;</code>
@@ -5683,7 +5900,11 @@ public final class ObservationsProto {
      * <pre>
      * Only one of these must be set
      * This list are the observation values. If there are multiple samples this list can be longer than the number of
-     * elements in the packed dimension.
+     * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+     * the number of which is indicated by the nullElementCount value.
+     * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+     * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+     * not accounted for values are absent.
      * </pre>
      *
      * <code>repeated string stringValues = 3;</code>
@@ -5715,6 +5936,107 @@ public final class ObservationsProto {
       return numericValues_.get(index);
     }
     private int numericValuesMemoizedSerializedSize = -1;
+
+    public static final int NULLELEMENTCOUNT_FIELD_NUMBER = 8;
+    private int nullElementCount_;
+    /**
+     * <pre>
+     * The number of values for which the packed dimension is null. These are prepended to the list of values.
+     * </pre>
+     *
+     * <code>optional int32 nullElementCount = 8;</code>
+     */
+    public int getNullElementCount() {
+      return nullElementCount_;
+    }
+
+    public static final int SAMPLECOUNTS_FIELD_NUMBER = 5;
+    private java.util.List<java.lang.Integer> sampleCounts_;
+    /**
+     * <pre>
+     * Only one of these must be present.
+     * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+     * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+     * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+     * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+     * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+     * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+     * This field is 1-based.
+     * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+     * In either case the stringValues or numericValues contain all the values that are present concatenated together
+     * in order.
+     * </pre>
+     *
+     * <code>repeated int32 sampleCounts = 5;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getSampleCountsList() {
+      return sampleCounts_;
+    }
+    /**
+     * <pre>
+     * Only one of these must be present.
+     * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+     * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+     * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+     * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+     * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+     * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+     * This field is 1-based.
+     * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+     * In either case the stringValues or numericValues contain all the values that are present concatenated together
+     * in order.
+     * </pre>
+     *
+     * <code>repeated int32 sampleCounts = 5;</code>
+     */
+    public int getSampleCountsCount() {
+      return sampleCounts_.size();
+    }
+    /**
+     * <pre>
+     * Only one of these must be present.
+     * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+     * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+     * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+     * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+     * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+     * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+     * This field is 1-based.
+     * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+     * In either case the stringValues or numericValues contain all the values that are present concatenated together
+     * in order.
+     * </pre>
+     *
+     * <code>repeated int32 sampleCounts = 5;</code>
+     */
+    public int getSampleCounts(int index) {
+      return sampleCounts_.get(index);
+    }
+    private int sampleCountsMemoizedSerializedSize = -1;
+
+    public static final int ABSENTVALUES_FIELD_NUMBER = 6;
+    private java.util.List<java.lang.Integer> absentValues_;
+    /**
+     * <code>repeated int32 absentValues = 6;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getAbsentValuesList() {
+      return absentValues_;
+    }
+    /**
+     * <code>repeated int32 absentValues = 6;</code>
+     */
+    public int getAbsentValuesCount() {
+      return absentValues_.size();
+    }
+    /**
+     * <code>repeated int32 absentValues = 6;</code>
+     */
+    public int getAbsentValues(int index) {
+      return absentValues_.get(index);
+    }
+    private int absentValuesMemoizedSerializedSize = -1;
 
     public static final int LAST_FIELD_NUMBER = 7;
     private boolean last_;
@@ -5804,8 +6126,25 @@ public final class ObservationsProto {
       for (int i = 0; i < numericValues_.size(); i++) {
         output.writeDoubleNoTag(numericValues_.get(i));
       }
+      if (getSampleCountsList().size() > 0) {
+        output.writeUInt32NoTag(42);
+        output.writeUInt32NoTag(sampleCountsMemoizedSerializedSize);
+      }
+      for (int i = 0; i < sampleCounts_.size(); i++) {
+        output.writeInt32NoTag(sampleCounts_.get(i));
+      }
+      if (getAbsentValuesList().size() > 0) {
+        output.writeUInt32NoTag(50);
+        output.writeUInt32NoTag(absentValuesMemoizedSerializedSize);
+      }
+      for (int i = 0; i < absentValues_.size(); i++) {
+        output.writeInt32NoTag(absentValues_.get(i));
+      }
       if (last_ != false) {
         output.writeBool(7, last_);
+      }
+      if (nullElementCount_ != 0) {
+        output.writeInt32(8, nullElementCount_);
       }
       if (!getErrorBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
@@ -5854,9 +6193,41 @@ public final class ObservationsProto {
         }
         numericValuesMemoizedSerializedSize = dataSize;
       }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < sampleCounts_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(sampleCounts_.get(i));
+        }
+        size += dataSize;
+        if (!getSampleCountsList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        sampleCountsMemoizedSerializedSize = dataSize;
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < absentValues_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(absentValues_.get(i));
+        }
+        size += dataSize;
+        if (!getAbsentValuesList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        absentValuesMemoizedSerializedSize = dataSize;
+      }
       if (last_ != false) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(7, last_);
+      }
+      if (nullElementCount_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(8, nullElementCount_);
       }
       if (!getErrorBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
@@ -5885,6 +6256,12 @@ public final class ObservationsProto {
           .equals(other.getStringValuesList());
       result = result && getNumericValuesList()
           .equals(other.getNumericValuesList());
+      result = result && (getNullElementCount()
+          == other.getNullElementCount());
+      result = result && getSampleCountsList()
+          .equals(other.getSampleCountsList());
+      result = result && getAbsentValuesList()
+          .equals(other.getAbsentValuesList());
       result = result && (getLast()
           == other.getLast());
       result = result && getError()
@@ -5914,6 +6291,16 @@ public final class ObservationsProto {
       if (getNumericValuesCount() > 0) {
         hash = (37 * hash) + NUMERICVALUES_FIELD_NUMBER;
         hash = (53 * hash) + getNumericValuesList().hashCode();
+      }
+      hash = (37 * hash) + NULLELEMENTCOUNT_FIELD_NUMBER;
+      hash = (53 * hash) + getNullElementCount();
+      if (getSampleCountsCount() > 0) {
+        hash = (37 * hash) + SAMPLECOUNTS_FIELD_NUMBER;
+        hash = (53 * hash) + getSampleCountsList().hashCode();
+      }
+      if (getAbsentValuesCount() > 0) {
+        hash = (37 * hash) + ABSENTVALUES_FIELD_NUMBER;
+        hash = (53 * hash) + getAbsentValuesList().hashCode();
       }
       hash = (37 * hash) + LAST_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
@@ -6051,6 +6438,12 @@ public final class ObservationsProto {
         bitField0_ = (bitField0_ & ~0x00000004);
         numericValues_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000008);
+        nullElementCount_ = 0;
+
+        sampleCounts_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000020);
+        absentValues_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000040);
         last_ = false;
 
         error_ = "";
@@ -6103,6 +6496,17 @@ public final class ObservationsProto {
           bitField0_ = (bitField0_ & ~0x00000008);
         }
         result.numericValues_ = numericValues_;
+        result.nullElementCount_ = nullElementCount_;
+        if (((bitField0_ & 0x00000020) == 0x00000020)) {
+          sampleCounts_ = java.util.Collections.unmodifiableList(sampleCounts_);
+          bitField0_ = (bitField0_ & ~0x00000020);
+        }
+        result.sampleCounts_ = sampleCounts_;
+        if (((bitField0_ & 0x00000040) == 0x00000040)) {
+          absentValues_ = java.util.Collections.unmodifiableList(absentValues_);
+          bitField0_ = (bitField0_ & ~0x00000040);
+        }
+        result.absentValues_ = absentValues_;
         result.last_ = last_;
         result.error_ = error_;
         result.bitField0_ = to_bitField0_;
@@ -6200,6 +6604,29 @@ public final class ObservationsProto {
           } else {
             ensureNumericValuesIsMutable();
             numericValues_.addAll(other.numericValues_);
+          }
+          onChanged();
+        }
+        if (other.getNullElementCount() != 0) {
+          setNullElementCount(other.getNullElementCount());
+        }
+        if (!other.sampleCounts_.isEmpty()) {
+          if (sampleCounts_.isEmpty()) {
+            sampleCounts_ = other.sampleCounts_;
+            bitField0_ = (bitField0_ & ~0x00000020);
+          } else {
+            ensureSampleCountsIsMutable();
+            sampleCounts_.addAll(other.sampleCounts_);
+          }
+          onChanged();
+        }
+        if (!other.absentValues_.isEmpty()) {
+          if (absentValues_.isEmpty()) {
+            absentValues_ = other.absentValues_;
+            bitField0_ = (bitField0_ & ~0x00000040);
+          } else {
+            ensureAbsentValuesIsMutable();
+            absentValues_.addAll(other.absentValues_);
           }
           onChanged();
         }
@@ -6708,7 +7135,11 @@ public final class ObservationsProto {
        * <pre>
        * Only one of these must be set
        * This list are the observation values. If there are multiple samples this list can be longer than the number of
-       * elements in the packed dimension.
+       * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+       * the number of which is indicated by the nullElementCount value.
+       * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+       * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+       * not accounted for values are absent.
        * </pre>
        *
        * <code>repeated string stringValues = 3;</code>
@@ -6721,7 +7152,11 @@ public final class ObservationsProto {
        * <pre>
        * Only one of these must be set
        * This list are the observation values. If there are multiple samples this list can be longer than the number of
-       * elements in the packed dimension.
+       * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+       * the number of which is indicated by the nullElementCount value.
+       * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+       * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+       * not accounted for values are absent.
        * </pre>
        *
        * <code>repeated string stringValues = 3;</code>
@@ -6733,7 +7168,11 @@ public final class ObservationsProto {
        * <pre>
        * Only one of these must be set
        * This list are the observation values. If there are multiple samples this list can be longer than the number of
-       * elements in the packed dimension.
+       * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+       * the number of which is indicated by the nullElementCount value.
+       * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+       * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+       * not accounted for values are absent.
        * </pre>
        *
        * <code>repeated string stringValues = 3;</code>
@@ -6745,7 +7184,11 @@ public final class ObservationsProto {
        * <pre>
        * Only one of these must be set
        * This list are the observation values. If there are multiple samples this list can be longer than the number of
-       * elements in the packed dimension.
+       * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+       * the number of which is indicated by the nullElementCount value.
+       * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+       * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+       * not accounted for values are absent.
        * </pre>
        *
        * <code>repeated string stringValues = 3;</code>
@@ -6758,7 +7201,11 @@ public final class ObservationsProto {
        * <pre>
        * Only one of these must be set
        * This list are the observation values. If there are multiple samples this list can be longer than the number of
-       * elements in the packed dimension.
+       * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+       * the number of which is indicated by the nullElementCount value.
+       * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+       * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+       * not accounted for values are absent.
        * </pre>
        *
        * <code>repeated string stringValues = 3;</code>
@@ -6777,7 +7224,11 @@ public final class ObservationsProto {
        * <pre>
        * Only one of these must be set
        * This list are the observation values. If there are multiple samples this list can be longer than the number of
-       * elements in the packed dimension.
+       * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+       * the number of which is indicated by the nullElementCount value.
+       * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+       * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+       * not accounted for values are absent.
        * </pre>
        *
        * <code>repeated string stringValues = 3;</code>
@@ -6796,7 +7247,11 @@ public final class ObservationsProto {
        * <pre>
        * Only one of these must be set
        * This list are the observation values. If there are multiple samples this list can be longer than the number of
-       * elements in the packed dimension.
+       * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+       * the number of which is indicated by the nullElementCount value.
+       * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+       * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+       * not accounted for values are absent.
        * </pre>
        *
        * <code>repeated string stringValues = 3;</code>
@@ -6813,7 +7268,11 @@ public final class ObservationsProto {
        * <pre>
        * Only one of these must be set
        * This list are the observation values. If there are multiple samples this list can be longer than the number of
-       * elements in the packed dimension.
+       * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+       * the number of which is indicated by the nullElementCount value.
+       * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+       * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+       * not accounted for values are absent.
        * </pre>
        *
        * <code>repeated string stringValues = 3;</code>
@@ -6828,7 +7287,11 @@ public final class ObservationsProto {
        * <pre>
        * Only one of these must be set
        * This list are the observation values. If there are multiple samples this list can be longer than the number of
-       * elements in the packed dimension.
+       * elements in the packed dimension. The list starts with observations for which the packed dimension is null,
+       * the number of which is indicated by the nullElementCount value.
+       * The number of accounted-for values (i.e. what is in stringValue/numericValue plus the number of absent values
+       * indicated by absentValues/sampleCounts may be less than the number of packed dimension elements. In that case any
+       * not accounted for values are absent.
        * </pre>
        *
        * <code>repeated string stringValues = 3;</code>
@@ -6907,6 +7370,274 @@ public final class ObservationsProto {
       public Builder clearNumericValues() {
         numericValues_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
+      }
+
+      private int nullElementCount_ ;
+      /**
+       * <pre>
+       * The number of values for which the packed dimension is null. These are prepended to the list of values.
+       * </pre>
+       *
+       * <code>optional int32 nullElementCount = 8;</code>
+       */
+      public int getNullElementCount() {
+        return nullElementCount_;
+      }
+      /**
+       * <pre>
+       * The number of values for which the packed dimension is null. These are prepended to the list of values.
+       * </pre>
+       *
+       * <code>optional int32 nullElementCount = 8;</code>
+       */
+      public Builder setNullElementCount(int value) {
+        
+        nullElementCount_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * The number of values for which the packed dimension is null. These are prepended to the list of values.
+       * </pre>
+       *
+       * <code>optional int32 nullElementCount = 8;</code>
+       */
+      public Builder clearNullElementCount() {
+        
+        nullElementCount_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<java.lang.Integer> sampleCounts_ = java.util.Collections.emptyList();
+      private void ensureSampleCountsIsMutable() {
+        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
+          sampleCounts_ = new java.util.ArrayList<java.lang.Integer>(sampleCounts_);
+          bitField0_ |= 0x00000020;
+         }
+      }
+      /**
+       * <pre>
+       * Only one of these must be present.
+       * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+       * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+       * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+       * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+       * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+       * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+       * This field is 1-based.
+       * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+       * In either case the stringValues or numericValues contain all the values that are present concatenated together
+       * in order.
+       * </pre>
+       *
+       * <code>repeated int32 sampleCounts = 5;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getSampleCountsList() {
+        return java.util.Collections.unmodifiableList(sampleCounts_);
+      }
+      /**
+       * <pre>
+       * Only one of these must be present.
+       * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+       * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+       * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+       * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+       * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+       * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+       * This field is 1-based.
+       * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+       * In either case the stringValues or numericValues contain all the values that are present concatenated together
+       * in order.
+       * </pre>
+       *
+       * <code>repeated int32 sampleCounts = 5;</code>
+       */
+      public int getSampleCountsCount() {
+        return sampleCounts_.size();
+      }
+      /**
+       * <pre>
+       * Only one of these must be present.
+       * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+       * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+       * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+       * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+       * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+       * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+       * This field is 1-based.
+       * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+       * In either case the stringValues or numericValues contain all the values that are present concatenated together
+       * in order.
+       * </pre>
+       *
+       * <code>repeated int32 sampleCounts = 5;</code>
+       */
+      public int getSampleCounts(int index) {
+        return sampleCounts_.get(index);
+      }
+      /**
+       * <pre>
+       * Only one of these must be present.
+       * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+       * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+       * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+       * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+       * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+       * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+       * This field is 1-based.
+       * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+       * In either case the stringValues or numericValues contain all the values that are present concatenated together
+       * in order.
+       * </pre>
+       *
+       * <code>repeated int32 sampleCounts = 5;</code>
+       */
+      public Builder setSampleCounts(
+          int index, int value) {
+        ensureSampleCountsIsMutable();
+        sampleCounts_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Only one of these must be present.
+       * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+       * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+       * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+       * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+       * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+       * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+       * This field is 1-based.
+       * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+       * In either case the stringValues or numericValues contain all the values that are present concatenated together
+       * in order.
+       * </pre>
+       *
+       * <code>repeated int32 sampleCounts = 5;</code>
+       */
+      public Builder addSampleCounts(int value) {
+        ensureSampleCountsIsMutable();
+        sampleCounts_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Only one of these must be present.
+       * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+       * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+       * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+       * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+       * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+       * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+       * This field is 1-based.
+       * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+       * In either case the stringValues or numericValues contain all the values that are present concatenated together
+       * in order.
+       * </pre>
+       *
+       * <code>repeated int32 sampleCounts = 5;</code>
+       */
+      public Builder addAllSampleCounts(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureSampleCountsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, sampleCounts_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Only one of these must be present.
+       * If for some element of the packed dimension there are multiple samples (e.g. because the study data contains
+       * multiple samples, or because some dimensions that differentiate the samples are not retrieved) the sampleCounts
+       * must be set. The length of the sampleCounts array is the same as the number of elements in the packed dimension.
+       * Each value in sampleCounts indicates the number of samples for each respective packed dimension element.
+       * If for each packed dimension element there are only zero or one value, the absentValues array should be used.
+       * contains the indexes of the dimension elements for which no value is present, similar to other absentXxx fields.
+       * This field is 1-based.
+       * If neither are set, the array of values corresponds one-to-one to the packed dimension elements
+       * In either case the stringValues or numericValues contain all the values that are present concatenated together
+       * in order.
+       * </pre>
+       *
+       * <code>repeated int32 sampleCounts = 5;</code>
+       */
+      public Builder clearSampleCounts() {
+        sampleCounts_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000020);
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<java.lang.Integer> absentValues_ = java.util.Collections.emptyList();
+      private void ensureAbsentValuesIsMutable() {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+          absentValues_ = new java.util.ArrayList<java.lang.Integer>(absentValues_);
+          bitField0_ |= 0x00000040;
+         }
+      }
+      /**
+       * <code>repeated int32 absentValues = 6;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getAbsentValuesList() {
+        return java.util.Collections.unmodifiableList(absentValues_);
+      }
+      /**
+       * <code>repeated int32 absentValues = 6;</code>
+       */
+      public int getAbsentValuesCount() {
+        return absentValues_.size();
+      }
+      /**
+       * <code>repeated int32 absentValues = 6;</code>
+       */
+      public int getAbsentValues(int index) {
+        return absentValues_.get(index);
+      }
+      /**
+       * <code>repeated int32 absentValues = 6;</code>
+       */
+      public Builder setAbsentValues(
+          int index, int value) {
+        ensureAbsentValuesIsMutable();
+        absentValues_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 absentValues = 6;</code>
+       */
+      public Builder addAbsentValues(int value) {
+        ensureAbsentValuesIsMutable();
+        absentValues_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 absentValues = 6;</code>
+       */
+      public Builder addAllAbsentValues(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureAbsentValuesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, absentValues_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 absentValues = 6;</code>
+       */
+      public Builder clearAbsentValues() {
+        absentValues_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000040);
         onChanged();
         return this;
       }
@@ -10540,12 +11271,24 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * only used when this message is embedded in a packedObservations
+     * if perSample is set there is an individual element for each observation
      * </pre>
      *
      * <code>optional bool perSample = 2;</code>
      */
     boolean getPerSample();
+
+    /**
+     * <pre>
+     * if perPackedCell is set this DimensionElements contains only a single element, which applies to all
+     * observations in this packedCell
+     * </pre>
+     *
+     * <code>optional bool perPackedCell = 5;</code>
+     */
+    boolean getPerPackedCell();
+
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements.ScopeCase getScopeCase();
   }
   /**
    * <pre>
@@ -10566,7 +11309,6 @@ public final class ObservationsProto {
       name_ = "";
       fields_ = java.util.Collections.emptyList();
       absentFieldColumnIndices_ = java.util.Collections.emptyList();
-      perSample_ = false;
     }
 
     @java.lang.Override
@@ -10604,8 +11346,8 @@ public final class ObservationsProto {
               break;
             }
             case 16: {
-
-              perSample_ = input.readBool();
+              scopeCase_ = 2;
+              scope_ = input.readBool();
               break;
             }
             case 26: {
@@ -10633,6 +11375,11 @@ public final class ObservationsProto {
                 absentFieldColumnIndices_.add(input.readInt32());
               }
               input.popLimit(limit);
+              break;
+            }
+            case 40: {
+              scopeCase_ = 5;
+              scope_ = input.readBool();
               break;
             }
           }
@@ -10665,6 +11412,44 @@ public final class ObservationsProto {
     }
 
     private int bitField0_;
+    private int scopeCase_ = 0;
+    private java.lang.Object scope_;
+    public enum ScopeCase
+        implements com.google.protobuf.Internal.EnumLite {
+      PERSAMPLE(2),
+      PERPACKEDCELL(5),
+      SCOPE_NOT_SET(0);
+      private final int value;
+      private ScopeCase(int value) {
+        this.value = value;
+      }
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static ScopeCase valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static ScopeCase forNumber(int value) {
+        switch (value) {
+          case 2: return PERSAMPLE;
+          case 5: return PERPACKEDCELL;
+          case 0: return SCOPE_NOT_SET;
+          default: return null;
+        }
+      }
+      public int getNumber() {
+        return this.value;
+      }
+    };
+
+    public ScopeCase
+    getScopeCase() {
+      return ScopeCase.forNumber(
+          scopeCase_);
+    }
+
     public static final int NAME_FIELD_NUMBER = 3;
     private volatile java.lang.Object name_;
     /**
@@ -10803,16 +11588,34 @@ public final class ObservationsProto {
     private int absentFieldColumnIndicesMemoizedSerializedSize = -1;
 
     public static final int PERSAMPLE_FIELD_NUMBER = 2;
-    private boolean perSample_;
     /**
      * <pre>
-     * only used when this message is embedded in a packedObservations
+     * if perSample is set there is an individual element for each observation
      * </pre>
      *
      * <code>optional bool perSample = 2;</code>
      */
     public boolean getPerSample() {
-      return perSample_;
+      if (scopeCase_ == 2) {
+        return (java.lang.Boolean) scope_;
+      }
+      return false;
+    }
+
+    public static final int PERPACKEDCELL_FIELD_NUMBER = 5;
+    /**
+     * <pre>
+     * if perPackedCell is set this DimensionElements contains only a single element, which applies to all
+     * observations in this packedCell
+     * </pre>
+     *
+     * <code>optional bool perPackedCell = 5;</code>
+     */
+    public boolean getPerPackedCell() {
+      if (scopeCase_ == 5) {
+        return (java.lang.Boolean) scope_;
+      }
+      return false;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -10831,8 +11634,9 @@ public final class ObservationsProto {
       for (int i = 0; i < fields_.size(); i++) {
         output.writeMessage(1, fields_.get(i));
       }
-      if (perSample_ != false) {
-        output.writeBool(2, perSample_);
+      if (scopeCase_ == 2) {
+        output.writeBool(
+            2, (boolean)((java.lang.Boolean) scope_));
       }
       if (!getNameBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 3, name_);
@@ -10843,6 +11647,10 @@ public final class ObservationsProto {
       }
       for (int i = 0; i < absentFieldColumnIndices_.size(); i++) {
         output.writeInt32NoTag(absentFieldColumnIndices_.get(i));
+      }
+      if (scopeCase_ == 5) {
+        output.writeBool(
+            5, (boolean)((java.lang.Boolean) scope_));
       }
     }
 
@@ -10855,9 +11663,10 @@ public final class ObservationsProto {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, fields_.get(i));
       }
-      if (perSample_ != false) {
+      if (scopeCase_ == 2) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(2, perSample_);
+          .computeBoolSize(
+              2, (boolean)((java.lang.Boolean) scope_));
       }
       if (!getNameBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, name_);
@@ -10875,6 +11684,11 @@ public final class ObservationsProto {
               .computeInt32SizeNoTag(dataSize);
         }
         absentFieldColumnIndicesMemoizedSerializedSize = dataSize;
+      }
+      if (scopeCase_ == 5) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(
+              5, (boolean)((java.lang.Boolean) scope_));
       }
       memoizedSize = size;
       return size;
@@ -10898,8 +11712,21 @@ public final class ObservationsProto {
           .equals(other.getFieldsList());
       result = result && getAbsentFieldColumnIndicesList()
           .equals(other.getAbsentFieldColumnIndicesList());
-      result = result && (getPerSample()
-          == other.getPerSample());
+      result = result && getScopeCase().equals(
+          other.getScopeCase());
+      if (!result) return false;
+      switch (scopeCase_) {
+        case 2:
+          result = result && (getPerSample()
+              == other.getPerSample());
+          break;
+        case 5:
+          result = result && (getPerPackedCell()
+              == other.getPerPackedCell());
+          break;
+        case 0:
+        default:
+      }
       return result;
     }
 
@@ -10920,9 +11747,20 @@ public final class ObservationsProto {
         hash = (37 * hash) + ABSENTFIELDCOLUMNINDICES_FIELD_NUMBER;
         hash = (53 * hash) + getAbsentFieldColumnIndicesList().hashCode();
       }
-      hash = (37 * hash) + PERSAMPLE_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-          getPerSample());
+      switch (scopeCase_) {
+        case 2:
+          hash = (37 * hash) + PERSAMPLE_FIELD_NUMBER;
+          hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+              getPerSample());
+          break;
+        case 5:
+          hash = (37 * hash) + PERPACKEDCELL_FIELD_NUMBER;
+          hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+              getPerPackedCell());
+          break;
+        case 0:
+        default:
+      }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -11056,8 +11894,8 @@ public final class ObservationsProto {
         }
         absentFieldColumnIndices_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000004);
-        perSample_ = false;
-
+        scopeCase_ = 0;
+        scope_ = null;
         return this;
       }
 
@@ -11097,8 +11935,14 @@ public final class ObservationsProto {
           bitField0_ = (bitField0_ & ~0x00000004);
         }
         result.absentFieldColumnIndices_ = absentFieldColumnIndices_;
-        result.perSample_ = perSample_;
+        if (scopeCase_ == 2) {
+          result.scope_ = scope_;
+        }
+        if (scopeCase_ == 5) {
+          result.scope_ = scope_;
+        }
         result.bitField0_ = to_bitField0_;
+        result.scopeCase_ = scopeCase_;
         onBuilt();
         return result;
       }
@@ -11180,8 +12024,18 @@ public final class ObservationsProto {
           }
           onChanged();
         }
-        if (other.getPerSample() != false) {
-          setPerSample(other.getPerSample());
+        switch (other.getScopeCase()) {
+          case PERSAMPLE: {
+            setPerSample(other.getPerSample());
+            break;
+          }
+          case PERPACKEDCELL: {
+            setPerPackedCell(other.getPerPackedCell());
+            break;
+          }
+          case SCOPE_NOT_SET: {
+            break;
+          }
         }
         onChanged();
         return this;
@@ -11208,6 +12062,21 @@ public final class ObservationsProto {
         }
         return this;
       }
+      private int scopeCase_ = 0;
+      private java.lang.Object scope_;
+      public ScopeCase
+          getScopeCase() {
+        return ScopeCase.forNumber(
+            scopeCase_);
+      }
+
+      public Builder clearScope() {
+        scopeCase_ = 0;
+        scope_ = null;
+        onChanged();
+        return this;
+      }
+
       private int bitField0_;
 
       private java.lang.Object name_ = "";
@@ -11723,41 +12592,90 @@ public final class ObservationsProto {
         return this;
       }
 
-      private boolean perSample_ ;
       /**
        * <pre>
-       * only used when this message is embedded in a packedObservations
+       * if perSample is set there is an individual element for each observation
        * </pre>
        *
        * <code>optional bool perSample = 2;</code>
        */
       public boolean getPerSample() {
-        return perSample_;
+        if (scopeCase_ == 2) {
+          return (java.lang.Boolean) scope_;
+        }
+        return false;
       }
       /**
        * <pre>
-       * only used when this message is embedded in a packedObservations
+       * if perSample is set there is an individual element for each observation
        * </pre>
        *
        * <code>optional bool perSample = 2;</code>
        */
       public Builder setPerSample(boolean value) {
-        
-        perSample_ = value;
+        scopeCase_ = 2;
+        scope_ = value;
         onChanged();
         return this;
       }
       /**
        * <pre>
-       * only used when this message is embedded in a packedObservations
+       * if perSample is set there is an individual element for each observation
        * </pre>
        *
        * <code>optional bool perSample = 2;</code>
        */
       public Builder clearPerSample() {
-        
-        perSample_ = false;
+        if (scopeCase_ == 2) {
+          scopeCase_ = 0;
+          scope_ = null;
+          onChanged();
+        }
+        return this;
+      }
+
+      /**
+       * <pre>
+       * if perPackedCell is set this DimensionElements contains only a single element, which applies to all
+       * observations in this packedCell
+       * </pre>
+       *
+       * <code>optional bool perPackedCell = 5;</code>
+       */
+      public boolean getPerPackedCell() {
+        if (scopeCase_ == 5) {
+          return (java.lang.Boolean) scope_;
+        }
+        return false;
+      }
+      /**
+       * <pre>
+       * if perPackedCell is set this DimensionElements contains only a single element, which applies to all
+       * observations in this packedCell
+       * </pre>
+       *
+       * <code>optional bool perPackedCell = 5;</code>
+       */
+      public Builder setPerPackedCell(boolean value) {
+        scopeCase_ = 5;
+        scope_ = value;
         onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * if perPackedCell is set this DimensionElements contains only a single element, which applies to all
+       * observations in this packedCell
+       * </pre>
+       *
+       * <code>optional bool perPackedCell = 5;</code>
+       */
+      public Builder clearPerPackedCell() {
+        if (scopeCase_ == 5) {
+          scopeCase_ = 0;
+          scope_ = null;
+          onChanged();
+        }
         return this;
       }
       public final Builder setUnknownFields(
@@ -13746,31 +14664,34 @@ public final class ObservationsProto {
       "e.DimensionElement\022\036\n\026absentInlineDimens" +
       "ions\030\005 \003(\005\022\025\n\013stringValue\030\003 \001(\tH\000\022\026\n\014num" +
       "ericValue\030\004 \001(\001H\000\022\014\n\004last\030\007 \001(\010\022\r\n\005error" +
-      "\030c \001(\tB\007\n\005value\"\250\001\n\nPackedCell\022\030\n\020dimens" +
+      "\030c \001(\tB\007\n\005value\"\356\001\n\nPackedCell\022\030\n\020dimens" +
       "ionIndexes\030\001 \003(\003\0226\n\020inlineDimensions\030\002 \003" +
       "(\0132\034.hypercube.DimensionElements\022\024\n\014stri" +
-      "ngValues\030\003 \003(\t\022\025\n\rnumericValues\030\004 \003(\001\022\014\n" +
-      "\004last\030\007 \001(\010\022\r\n\005error\030c \001(\t\"\244\001\n\020Dimension",
-      "Element\022 \n\006fields\030\001 \003(\0132\020.hypercube.Valu" +
-      "e\022\020\n\010intValue\030\002 \001(\022\022\023\n\013doubleValue\030\003 \001(\001" +
-      "\022\023\n\013stringValue\030\004 \001(\t\022\026\n\016timestampValue\030" +
-      "\005 \001(\003\022\032\n\022absentFieldIndices\030\006 \003(\005\"l\n\005Val" +
-      "ue\022\025\n\013stringValue\030\001 \001(\tH\000\022\025\n\013doubleValue" +
-      "\030\002 \001(\001H\000\022\022\n\010intValue\030\003 \001(\022H\000\022\030\n\016timestam" +
-      "pValue\030\004 \001(\003H\000B\007\n\005value\"H\n\006Footer\022/\n\tdim" +
-      "ension\030\001 \003(\0132\034.hypercube.DimensionElemen" +
-      "ts\022\r\n\005error\030c \001(\t\"\216\001\n\021DimensionElements\022" +
-      "\014\n\004name\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.hypercub",
-      "e.DimensionElementFieldColumn\022 \n\030absentF" +
-      "ieldColumnIndices\030\004 \003(\005\022\021\n\tperSample\030\002 \001" +
-      "(\010\"\215\001\n\033DimensionElementFieldColumn\022\023\n\013st" +
-      "ringValue\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010" +
-      "intValue\030\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022\032" +
-      "\n\022absentValueIndices\030\005 \003(\005\"\026\n\005Error\022\r\n\005e" +
-      "rror\030c \001(\t*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING" +
-      "\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004B=" +
-      "\n(org.transmartproject.rest.hypercubePro" +
-      "toB\021ObservationsProtob\006proto3"
+      "ngValues\030\003 \003(\t\022\025\n\rnumericValues\030\004 \003(\001\022\030\n" +
+      "\020nullElementCount\030\010 \001(\005\022\024\n\014sampleCounts\030",
+      "\005 \003(\005\022\024\n\014absentValues\030\006 \003(\005\022\014\n\004last\030\007 \001(" +
+      "\010\022\r\n\005error\030c \001(\t\"\244\001\n\020DimensionElement\022 \n" +
+      "\006fields\030\001 \003(\0132\020.hypercube.Value\022\020\n\010intVa" +
+      "lue\030\002 \001(\022\022\023\n\013doubleValue\030\003 \001(\001\022\023\n\013string" +
+      "Value\030\004 \001(\t\022\026\n\016timestampValue\030\005 \001(\003\022\032\n\022a" +
+      "bsentFieldIndices\030\006 \003(\005\"l\n\005Value\022\025\n\013stri" +
+      "ngValue\030\001 \001(\tH\000\022\025\n\013doubleValue\030\002 \001(\001H\000\022\022" +
+      "\n\010intValue\030\003 \001(\022H\000\022\030\n\016timestampValue\030\004 \001" +
+      "(\003H\000B\007\n\005value\"H\n\006Footer\022/\n\tdimension\030\001 \003" +
+      "(\0132\034.hypercube.DimensionElements\022\r\n\005erro",
+      "r\030c \001(\t\"\262\001\n\021DimensionElements\022\014\n\004name\030\003 " +
+      "\001(\t\0226\n\006fields\030\001 \003(\0132&.hypercube.Dimensio" +
+      "nElementFieldColumn\022 \n\030absentFieldColumn" +
+      "Indices\030\004 \003(\005\022\023\n\tperSample\030\002 \001(\010H\000\022\027\n\rpe" +
+      "rPackedCell\030\005 \001(\010H\000B\007\n\005scope\"\215\001\n\033Dimensi" +
+      "onElementFieldColumn\022\023\n\013stringValue\030\001 \003(" +
+      "\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010intValue\030\003 \003(\022" +
+      "\022\026\n\016timestampValue\030\004 \003(\003\022\032\n\022absentValueI" +
+      "ndices\030\005 \003(\005\"\026\n\005Error\022\r\n\005error\030c \001(\t*B\n\004" +
+      "Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING\020\001\022\007\n\003INT\020\002\022\r\n",
+      "\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004B=\n(org.transmar" +
+      "tproject.rest.hypercubeProtoB\021Observatio" +
+      "nsProtob\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -13813,7 +14734,7 @@ public final class ObservationsProto {
     internal_static_hypercube_PackedCell_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_PackedCell_descriptor,
-        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValues", "NumericValues", "Last", "Error", });
+        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValues", "NumericValues", "NullElementCount", "SampleCounts", "AbsentValues", "Last", "Error", });
     internal_static_hypercube_DimensionElement_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_hypercube_DimensionElement_fieldAccessorTable = new
@@ -13837,7 +14758,7 @@ public final class ObservationsProto {
     internal_static_hypercube_DimensionElements_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElements_descriptor,
-        new java.lang.String[] { "Name", "Fields", "AbsentFieldColumnIndices", "PerSample", });
+        new java.lang.String[] { "Name", "Fields", "AbsentFieldColumnIndices", "PerSample", "PerPackedCell", "Scope", });
     internal_static_hypercube_DimensionElementFieldColumn_descriptor =
       getDescriptor().getMessageTypes().get(9);
     internal_static_hypercube_DimensionElementFieldColumn_fieldAccessorTable = new
