@@ -365,13 +365,14 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
             for (int i=0; i<groups.size(); i++) {
                 def group = groups[i]
-                if (!sampleCountMode && group.size() == 0) {
+                if(sampleCountMode) {
+                    builder.addSampleCounts(group.size())
+                } else if(group.size() == 0) {
                     // 1-based
                     builder.addAbsentValues(i + 1)
                     continue
                 }
 
-                builder.addSampleCounts(group.size())
                 for (hv in group) {
                     addValue(hv)
                 }
