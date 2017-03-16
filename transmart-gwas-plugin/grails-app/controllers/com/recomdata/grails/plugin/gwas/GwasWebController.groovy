@@ -75,9 +75,6 @@ class GwasWebController {
 				if (sessionUserMap.get(cUser)!=null) { // fetch user info existing session id
 					cUser = sessionUserMap[cUser]
 				}
-				else {
-					cUser = null;
-				}
 
 				def results = gwasWebService.getSecureModelInfo(type,cUser)
 				renderDataSet(results)

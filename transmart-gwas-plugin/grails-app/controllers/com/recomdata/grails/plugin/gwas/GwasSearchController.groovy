@@ -116,8 +116,8 @@ class GwasSearchController {
 							    <jar href="./lib/jersey-core-1.4.jar"/>
 							    <jar href="./lib/jgoodies-common-1.3.1.jar"/>
 							    <jar href="./lib/jgoodies-looks-2.5.1.jar"/>
-							    <jar href="./lib/log4j-api-2.4.5.jar"/>
-							    <jar href="./lib/log4j-core-2.4.5.jar"/>
+							    <jar href="./lib/log4j-api-2.5.jar"/>
+							    <jar href="./lib/log4j-core-2.5.jar"/>
 							    <jar href="${jar}"/>
 
 							    <property name="jsessionid" value='""" + session.getId() + """'/>
@@ -790,7 +790,7 @@ class GwasSearchController {
                 def indexCount = 0;
 
                 //The third element is our large text field. Split it into an array.
-                def largeTextField = it[3 as String]?.split(";" as char, -1)
+                def largeTextField = (it[3] as String)?.split(';', -1)
 
                 //This will be the array that is reordered according to the meta-data index table.
                 String[] newLargeTextField = new String[indexMap.size()]
