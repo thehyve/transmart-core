@@ -1,10 +1,12 @@
 /* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.rest.serialization
 
+import com.google.common.collect.AbstractIterator
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.PeekingIterator
 import grails.util.Pair
 import groovy.transform.CompileStatic
+import groovy.transform.TupleConstructor
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
@@ -132,10 +134,10 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         return builder.build()
     }
 
-    protected DimensionElements buildDimensionElements(Dimension dim, List dimElements, boolean setName=true) {
-        def builder = DimensionElements.newBuilder()
+    private DimensionElements.Builder debuilder = DimensionElements.newBuilder()
+    protected DimensionElements.Builder buildDimensionElements(Dimension dim, List dimElements, boolean setName=true) {
+        def builder = debuilder.clear()
         if(setName) builder.name = dim.name
-        //builder.perSample = false //TODO: implement this
 
         if(dim.elementsSerializable) {
             def fieldColumnBuilder = transferFieldColumn.clear()
@@ -168,7 +170,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             }
         }
 
-        builder.build()
+        return builder
     }
 
 
@@ -269,27 +271,49 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
             putIndexedDims(prototype)
 
+            // shuffle the group list so that values that do not have an element for the packed dimension are at the
+            // front. putValues expects that
+            moveNullPackedDimensionToFront(group)
+
             putValues(group)
 
 
 
             if(!iterator.hasNext()) builder.last = true
 
-            finalizeInlineDimensions(builder)
+            //finalizeInlineDimensions(builder)
 
             builder.build()
         }
 
+        /**
+         * Moves the HypercubeValues that do not have an element for the packed dimension to the fron of the list, and
+         * returns how many of them were found
+         */
+        private int moveNullPackedDimensionToFront(List<HypercubeValue> group) {
+            int firstNonNull = 0
+            for(int i=0; i<group.size(); i++) {
+                if (group[i].getDimElementIndex(packedDimension) == null) {
+                    group.swap(i, firstNonNull)
+                    firstNonNull++
+                }
+            }
+        }
+
         private void putValues(List<HypercubeValue> group) {
 
-            // put values which do not have an element for the packed dimension
+            // put values which do not have an element for the packed dimension. These must be at the front of the group
             // elemIdx of -1 because these values don't have an elemIdx
             elemIdx = -1
+            int groupPtr = 0
             currentNumSamples = 0
-            for (HypercubeValue hv in group) {
+            for (; groupPtr < group.size(); groupPtr++) {
+                HypercubeValue hv = group[groupPtr]
                 // put all the values with a null pack dimension element first
                 if (hv.getDimElementIndex(packedDimension) == null) {
                     addValue(hv)
+                } else {
+                    break
                 }
             }
             builder.setNullElementCount(currentNumSamples)
@@ -315,11 +339,9 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             // The index into the list of dimension elements that is being packed
             assert elemIdx == 0
             // groupPtr is the index into the current group
-            for (int groupPtr = 0; groupPtr < group.size(); groupPtr++) {
+            for (; groupPtr < group.size(); groupPtr++) {
                 HypercubeValue hv = group[groupPtr]
-                Integer idxBox = hv.getDimElementIndex(packedDimension)
-                if (idxBox == null) continue  // we already handled these null cases above
-                int idx = idxBox
+                int idx = hv.getDimElementIndex(packedDimension) // Null values for this have already been handled
 
                 if (idx == elemIdx) {
                     // If there is one observation per dim element, idx should be equal to elemIdx+1. This means we have
@@ -407,10 +429,122 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             sampleCountMode = true
         }
 
+
+        private List transferElements = new ArrayList()
+        private DimensionElements.Builder inlineDimension(List<HypercubeValue> values, int nulls,
+                                     List<Integer> sampleCounts, Dimension dim) {
+            transferElements.clear()
+
+            byte mode = getMode(values, nulls, sampleCounts, dim)
+
+            def builder
+
+            if(mode == PERPACK) {
+                transferElements << values[0][dim]
+                builder = buildDimensionElements(dim, transferElements, true)
+                builder.setPerPackedCell(true)
+            } else if(mode == PERPACKELEMENT) {
+                if(nulls != 0) transferElements << values[0][dim]
+                if(sampleCounts != null && !sampleCounts.empty) {
+                    int idx = nulls
+                    for(int sampleCount : sampleCounts) {
+                        transferElements
+                    }
+                }
+            }
+
+            return builder
+        }
+
+        @TupleConstructor
+        private static class SamplesIterator extends AbstractIterator<ElementSamples> implements Iterator<ElementSamples> {
+            List<HypercubeValue> values
+            int nulls
+            List<Integer> sampleCounts
+            int valuesOffset = 0
+            int samplesOffset = 0
+
+            @Override ElementSamples computeNext() {
+                if(valuesOffset == 0 && nulls != 0) {
+                    valuesOffset += nulls
+                    return new ElementSamples(values, 0, nulls)
+                }
+
+                if(sampleCounts == null) return new ElementSamples(values, valuesOffset++, 1)
+                if(samplesOffset >= sampleCounts.size()) return endOfData()
+
+                int offset = valuesOffset
+                int sampleCount = sampleCounts[samplesOffset++]
+                valuesOffset += sampleCount
+                return new ElementSamples(values, offset, sampleCount)
+            }
+
+            @TupleConstructor
+            private static class ElementSamples extends AbstractList<HypercubeValue> {
+                List<HypercubeValue> values
+                int startIdx
+                int size
+
+                @Override int size() { size }
+                @Override HypercubeValue get(int i) {
+                    if(i > size) throw new IndexOutOfBoundsException(i.toString())
+                    values[startIdx+size]
+                }
+            }
+        }
+
+
+        static final byte PERPACK = 0
+        static final byte PERPACKELEMENT = 1
+        static final byte PEROBSERVATION = 2
+
+        private byte getMode(List<HypercubeValue> values, int nulls, List<Integer> sampleCounts, Dimension dim) {
+            // first find out in what 'mode' this dimension is to be stored. Options: perPackedCell,
+            // perPackedElement, or perSample. See the protobuf definition in observations.proto for more explanation.
+            def firstElement = values[0][dim]
+
+            // values with a null packed dimension count as a single pack-element
+            for(int i=1; i<nulls; i++) {
+                if(!firstElement.equals(values[i][dim])) return PEROBSERVATION
+            }
+
+            // No multiple samples, so we can just scan if any elements are different
+            if(sampleCounts == null || sampleCounts.empty) {
+                for(int i = nulls+1; i<values.size(); i++) {
+                    if(!firstElement.equals(values[i][dim])) return PERPACKELEMENT
+                }
+                return PERPACK
+            }
+
+            boolean allEqual = true
+            int idx = nulls
+            for(int sampleCount : sampleCounts) {
+
+                def elemForSamples = null
+
+                for(int i=0; i<sampleCount; i++) {
+                    def elem = values[idx][dim]
+                    if(allEqual && firstElement.equals(elem)) continue
+                    allEqual = false
+
+                    if(elemForSamples == null) {
+                        elemForSamples = elem
+                        continue
+                    }
+
+                    if(!elemForSamples.equals(elem)) return PEROBSERVATION
+
+                    idx++
+                }
+
+                elemForSamples = null
+            }
+
+            return allEqual ? PERPACK : PERPACKELEMENT
+        }
+
+
         static class DimElementsBuilder {
-            static final byte PERPACK = 0
-            static final byte PERPACKELEMENT = 1
-            static final byte PEROBSERVATION = 2
 
             byte scope = PERPACK
             def lastElement

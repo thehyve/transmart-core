@@ -7,6 +7,9 @@ option java_package = "org.transmartproject.rest.hypercubeProto";
 option java_outer_classname = "ObservationsProto";
 
 
+// Command to generate the java code: (executed in transmart-rest-api/)
+// protoc --java_out=src/main/groovy/ src/protobuf/v2/observations.proto
+
 // A full hypercube is a series of messages, each prefixed by its length in the protobuf varint encoding. A hypercube
 // starts with a header, then one or more observations or one or more packedObservations (depending on if there is a
 // dimension marked 'packed'), and then one footer. If the `last` field in Header, Cell or PackedCell is true no more
@@ -195,16 +198,26 @@ message DimensionElements { // Multiple dimension elements are stored in a "colu
     // 1-based list of indices for which the fields are absent in all dimension elements encoded here.
     repeated int32 absentFieldColumnIndices = 4;
 
-    // only used when this message is embedded in a packedCell
+    // `scope` is only used when this message is embedded in a packedCell. If this message is embedded in the Footer,
+    // it is logically just a list of dimension elements into which the `dimensionIndexes` point.
+    //
+    // A DimensionElements in a PackedCell can store elements in three modes. In the below description, 'current
+    // dimension' refers to the (inline) dimension represented by this DimensionElements. The modes are:
+    // 1) one element for the entire packed cell. All values in this packed cell have the same element for the
+    //    current dimension.
+    // 2) one element for each element of the packed dimension (the number of elements in this DimensionElements
+    //    equals the number of elements in the packed dimension). If there are multiple samples for a packed dimension
+    //    element they have the same element for the current dimension.
+    // 3) one element for each sample/value in the PackedCell. The number of elements in this DimensionElements
+    //    equals the number of values (including nulls) in the packed cell.
     oneof scope {
-        // if neither is set: multiple observations for the same packed element share the element of this dimension,
-        // so the number of elements in this message is equal to the number of elements in the packed dimension
+        // if neither is set we are in mode 2 (expected to be the most common)
 
-        // if perSample is set there is an individual element for each observation
+        // if perSample is set we are in mode 3, there is an individual element for each observation
         bool perSample = 2;
 
-        // if perPackedCell is set this DimensionElements contains only a single element, which applies to all
-        // observations in this packedCell
+        // if perPackedCell is set we are in mode 1. This DimensionElements contains only a single element, which
+        // applies to all observations in the packedCell
         bool perPackedCell = 5;
     }
 }

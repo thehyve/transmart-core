@@ -11271,7 +11271,7 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * if perSample is set there is an individual element for each observation
+     * if perSample is set we are in mode 3, there is an individual element for each observation
      * </pre>
      *
      * <code>optional bool perSample = 2;</code>
@@ -11280,8 +11280,8 @@ public final class ObservationsProto {
 
     /**
      * <pre>
-     * if perPackedCell is set this DimensionElements contains only a single element, which applies to all
-     * observations in this packedCell
+     * if perPackedCell is set we are in mode 1. This DimensionElements contains only a single element, which
+     * applies to all observations in the packedCell
      * </pre>
      *
      * <code>optional bool perPackedCell = 5;</code>
@@ -11590,7 +11590,7 @@ public final class ObservationsProto {
     public static final int PERSAMPLE_FIELD_NUMBER = 2;
     /**
      * <pre>
-     * if perSample is set there is an individual element for each observation
+     * if perSample is set we are in mode 3, there is an individual element for each observation
      * </pre>
      *
      * <code>optional bool perSample = 2;</code>
@@ -11605,8 +11605,8 @@ public final class ObservationsProto {
     public static final int PERPACKEDCELL_FIELD_NUMBER = 5;
     /**
      * <pre>
-     * if perPackedCell is set this DimensionElements contains only a single element, which applies to all
-     * observations in this packedCell
+     * if perPackedCell is set we are in mode 1. This DimensionElements contains only a single element, which
+     * applies to all observations in the packedCell
      * </pre>
      *
      * <code>optional bool perPackedCell = 5;</code>
@@ -12594,7 +12594,7 @@ public final class ObservationsProto {
 
       /**
        * <pre>
-       * if perSample is set there is an individual element for each observation
+       * if perSample is set we are in mode 3, there is an individual element for each observation
        * </pre>
        *
        * <code>optional bool perSample = 2;</code>
@@ -12607,7 +12607,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * if perSample is set there is an individual element for each observation
+       * if perSample is set we are in mode 3, there is an individual element for each observation
        * </pre>
        *
        * <code>optional bool perSample = 2;</code>
@@ -12620,7 +12620,7 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * if perSample is set there is an individual element for each observation
+       * if perSample is set we are in mode 3, there is an individual element for each observation
        * </pre>
        *
        * <code>optional bool perSample = 2;</code>
@@ -12636,8 +12636,8 @@ public final class ObservationsProto {
 
       /**
        * <pre>
-       * if perPackedCell is set this DimensionElements contains only a single element, which applies to all
-       * observations in this packedCell
+       * if perPackedCell is set we are in mode 1. This DimensionElements contains only a single element, which
+       * applies to all observations in the packedCell
        * </pre>
        *
        * <code>optional bool perPackedCell = 5;</code>
@@ -12650,8 +12650,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * if perPackedCell is set this DimensionElements contains only a single element, which applies to all
-       * observations in this packedCell
+       * if perPackedCell is set we are in mode 1. This DimensionElements contains only a single element, which
+       * applies to all observations in the packedCell
        * </pre>
        *
        * <code>optional bool perPackedCell = 5;</code>
@@ -12664,8 +12664,8 @@ public final class ObservationsProto {
       }
       /**
        * <pre>
-       * if perPackedCell is set this DimensionElements contains only a single element, which applies to all
-       * observations in this packedCell
+       * if perPackedCell is set we are in mode 1. This DimensionElements contains only a single element, which
+       * applies to all observations in the packedCell
        * </pre>
        *
        * <code>optional bool perPackedCell = 5;</code>

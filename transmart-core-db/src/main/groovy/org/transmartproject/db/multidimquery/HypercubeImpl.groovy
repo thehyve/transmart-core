@@ -325,7 +325,7 @@ class HypercubeValueImpl implements HypercubeValue {
         if(dim.density.isDense) {
             cube.dimensionElement(dim, (Integer) dimensionElementIdxes[cube.getDimensionsIndex(dim)])
         } else {
-            dim.resolveElement(dimensionElementIdxes[cube.getDimensionsIndex(dim)])
+            DimensionImpl.resolveElement((DimensionImpl) dim, dimensionElementIdxes[cube.getDimensionsIndex(dim)])
         }
     }
 

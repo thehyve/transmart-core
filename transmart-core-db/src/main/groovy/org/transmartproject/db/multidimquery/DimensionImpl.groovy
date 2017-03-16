@@ -107,6 +107,8 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         this.size = size
         this.density = density
         this.packable = packable
+
+        this.needsResolveElement = !(this instanceof SerializableElemDim)
     }
 
     @Override abstract String getName()
@@ -180,6 +182,15 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         assert (elementFields == null) == serializable
     }
 
+    // This is a (probably superfluous) optimization that is equivalent to dim.resolveElement(element)
+    // HotSpot cannot inline dim.resolveElement because it is megamorphic, but it is used in the inner loop when
+    // constructing PackedCell's in the rest api. This method skips the indirect function call.
+    private boolean needsResolveElement
+    protected static resolveElement(DimensionImpl dim, element) {
+        if(dim.needsResolveElement) return dim.resolveElement(element)
+        return element
+    }
+
     static List<ELT> resolveWithInQuery(BuildableCriteria criteria, List<ELKey> elementKeys, String property = 'id') {
         List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, property, elementKeys).list()
         sort(res, elementKeys, property)
@@ -226,6 +237,9 @@ trait SerializableElemDim<ELTKey> {
 
     def asSerializable(/*ELTKey*/ element) { element }
 
+    // NB: for dimensions implementing this trait, DimensionImpl.needsResolveElement can be set to 'false' which
+    // means calls to the below methods may be skipped. DimensionImpl.needsResolveElement is initialized in the
+    // constructor of DimensionImpl.
     List<ELTKey> resolveElements(List/*<ELTKey>*/ elementKeys) { elementKeys }
     ELTKey resolveElement(/*ELTKey*/ key) { key }
 }
@@ -457,7 +471,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long>
         query.params.patientSelected = true
     }
 
-    @CompileDynamic
+    //@CompileDynamic
     @Override List<I2B2PatientDimension> doResolveElements(List<Long> elementKeys) {
         resolveWithInQuery(I2B2PatientDimension.createCriteria(), elementKeys)
     }
@@ -474,9 +488,8 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
     String columnName = 'conceptCode'
     String nullValue = '@'
 
-    @CompileDynamic
     @Override List<I2b2ConceptDimensions> doResolveElements(List<String> elementKeys) {
-        resolveWithInQuery(I2b2ConceptDimensions.createCriteria(), elementKeys, columnName)
+        resolveWithInQuery(I2b2ConceptDimensions.createCriteria(), elementKeys, alias)
     }
 }
 
@@ -489,7 +502,6 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
     String columnName = 'trialVisit.id'
     double packPriority = 2
 
-    @CompileDynamic
     @Override List<TrialVisit> doResolveElements(List<Long> elementKeys) {
         resolveWithInQuery(TrialVisit.createCriteria(), elementKeys)
     }
