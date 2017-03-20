@@ -1,4 +1,3 @@
-/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.i2b2data
 
 import org.transmartproject.core.ontology.MDStudy

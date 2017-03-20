@@ -1,4 +1,3 @@
-/* Copyright © 2017 The Hyve B.V. */
 package selectors
 
 import org.transmartproject.rest.hypercubeProto.ObservationsProto

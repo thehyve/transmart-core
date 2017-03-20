@@ -1,4 +1,3 @@
-/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.dataquery.highdim.rnaseq.transcript
 
 import org.transmartproject.db.dataquery.highdim.DeGplInfo

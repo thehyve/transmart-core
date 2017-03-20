@@ -1,4 +1,3 @@
-/* Copyright © 2017 The Hyve B.V. */
 package mock.ontology.server
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
