@@ -136,35 +136,17 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     protected DimensionElements.Builder buildDimensionElements(Dimension dim, List dimElements) {
         def builder = debuilder.clear()
 
-        if(dim.elementsSerializable) {
-            def fieldColumnBuilder = transferFieldColumn.clear()
-            Type type = Type.get(dim.elementType)
-            boolean allEmpty = true
-            for(int i=0; i<dimElements.size(); i++) {
-                def element = dimElements[i]
-                if(element != null) {
-                    allEmpty = false
-                    type.addToColumn(fieldColumnBuilder, element)
-                } else {
-                    fieldColumnBuilder.addAbsentValueIndices(i+1)
-                }
-            }
-            if(allEmpty) {
-                builder.addAbsentFieldColumnIndices(1)
-            } else {
-                builder.addFields(fieldColumnBuilder.build())
-            }
-
-        } else { // dimension elements are compound
-            def properties = dim.elementFields.values().asList()
-            for(int i=0; i<properties.size(); i++) {
-                def fieldColumn = buildElementFields(properties[i], dimElements)
-                if(fieldColumn == null) {
-                    builder.addAbsentFieldColumnIndices(i+1)
-                } else {
-                    builder.addFields(fieldColumn)
-                }
-            }
+        def properties = (dim.elementsSerializable
+                ? [new Property() {
+                    String name = null; Class type = dim.elementType
+                    @Override def get(element) { element }
+                }]
+                : dim.elementFields.values().asList())
+        for(int i=0; i<properties.size(); i++) {
+            def fieldColumn = buildElementFields(properties[i], dimElements)
+            if(fieldColumn == null) {
+                builder.addAbsentFieldColumnIndices(i+1)
+            } else builder.addFields(fieldColumn)
         }
 
         return builder
@@ -178,25 +160,20 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         Type type = Type.get(prop.type)
 
-        long absentCount = 0
+        boolean allEmpty = true
         for(int i=0; i<dimElements.size(); i++) {
             def elem = prop.get(dimElements[i])
             if(elem == null) {
-                absentCount++
                 builder.addAbsentValueIndices(i+1)
             } else {
+                allEmpty = false
                 type.addToColumn(builder, elem)
             }
         }
-
-        if (absentCount == dimElements.size()) {
-            null
-        } else {
-            builder.build()
-        }
+        return allEmpty ? null : builder.build()
     }
 
-    PackedCellBuilder packedCellBuilder
+    @Lazy PackedCellBuilder packedCellBuilder = new PackedCellBuilder()
     protected PackedCell createPackedCell() {
         packedCellBuilder.createPackedCell()
     }
@@ -496,7 +473,6 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         if(args.pack && packDim != null) {
             packedDimension = packDim
             packingEnabled = true
-            packedCellBuilder = new PackedCellBuilder()
         } else {
             packedDimension = null
             packingEnabled = false

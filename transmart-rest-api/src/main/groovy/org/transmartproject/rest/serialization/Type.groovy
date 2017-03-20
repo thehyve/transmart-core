@@ -79,21 +79,11 @@ enum Type {
 
 
     static protected Type get(Class cls) {
-        switch (cls) {
-            case String:
-                return STRING
-            case Integer:
-            case Long:
-            case Short:
-                return INT
-            case Double:
-            case Float:
-            case Number:
-                return DOUBLE
-            case Date:
-                return TIMESTAMP
-            default:
-                throw new RuntimeException("Unsupported type: $cls. This type is not serializable")
-        }
+        if(cls.is(String)) return STRING
+        if(cls.is(Integer) || cls.is(Long) || cls.is(Short)) return INT
+        if(Number.isAssignableFrom(cls)) return DOUBLE
+        if(cls.is(Date)) return TIMESTAMP
+
+        throw new RuntimeException("Unsupported type: $cls. This type is not serializable")
     }
 }
