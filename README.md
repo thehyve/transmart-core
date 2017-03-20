@@ -43,7 +43,7 @@ git replace 58a48ff dd57ce1
 
 ## License
 
-Copyright &copy; 2008-2017  The tranSMART developers.
+Copyright &copy; 2008-2017
 See the [COPYRIGHT](COPYRIGHT) file.
 
 tranSMART is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
