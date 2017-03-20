@@ -1,4 +1,3 @@
-/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.dataquery.highdim.tworegion
 
 import com.google.common.collect.AbstractIterator

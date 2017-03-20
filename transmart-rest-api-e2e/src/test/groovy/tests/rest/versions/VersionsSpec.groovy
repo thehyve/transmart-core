@@ -1,4 +1,3 @@
-/* Copyright © 2017 The Hyve B.V. */
 package tests.rest.versions
 
 import base.RESTSpec

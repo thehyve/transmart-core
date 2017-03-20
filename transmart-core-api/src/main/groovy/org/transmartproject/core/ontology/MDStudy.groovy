@@ -1,4 +1,3 @@
-/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.core.ontology
 
 import org.transmartproject.core.multidimquery.Dimension

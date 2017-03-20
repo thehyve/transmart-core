@@ -1,4 +1,3 @@
-/* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableList
