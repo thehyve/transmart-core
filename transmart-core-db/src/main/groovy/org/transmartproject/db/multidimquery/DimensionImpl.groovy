@@ -270,9 +270,8 @@ trait CompositeElemDim<ELT,ELKey> {
         }
 
         Map result = [:]
-        def pogo = (GroovyObject) element
         for(prop in elementFields.values()) {
-            result[prop.name] = prop.get(pogo)
+            result[prop.name] = prop.get(element)
         }
         result
     }

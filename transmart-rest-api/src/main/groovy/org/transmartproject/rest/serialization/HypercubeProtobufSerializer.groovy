@@ -1,11 +1,13 @@
 /* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.rest.serialization
 
+import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.PeekingIterator
 import grails.util.Pair
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import jdk.nashorn.internal.ir.annotations.Immutable
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -97,22 +99,16 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         builder
     }
 
-    Value.Builder transferValue = Value.newBuilder()
-
-    private Value.Builder buildValue(@Nonnull value) {
-        def builder = transferValue.clear()
-        builder.clear()
+    private Value buildValue(@Nonnull value) {
+        def builder = Value.newBuilder()
         Type.get(value.class).setValue(builder, value)
-        builder
+        builder.build()
     }
 
-    private DimensionElement.Builder transferDimElem = DimensionElement.newBuilder()
-
     DimensionElement buildDimensionElement(Dimension dim, @Nonnull Object value) {
-        def builder = transferDimElem.clear()
+        def builder = DimensionElement.newBuilder()
         if (dim.elementsSerializable) {
-            Value.Builder v = buildValue(dim.asSerializable(value))
-            if(v == null) return null
+            Value v = buildValue(dim.asSerializable(value))
             builder.intValue = v.intValue
             builder.doubleValue = v.doubleValue
             builder.timestampValue = v.timestampValue
@@ -125,22 +121,21 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                     // 1-based!
                     builder.addAbsentFieldIndices(i+1)
                 } else {
-                    builder.addFields(buildValue(fieldVal).build())
+                    builder.addFields(buildValue(fieldVal))
                 }
             }
         }
         return builder.build()
     }
 
-    private DimensionElements.Builder debuilder = DimensionElements.newBuilder()
     protected DimensionElements.Builder buildDimensionElements(Dimension dim, List dimElements) {
-        def builder = debuilder.clear()
+        def builder = DimensionElements.newBuilder()
 
         def properties = (dim.elementsSerializable
-                ? [new Property() {
+                ? ImmutableList.of(new Property() {  // An immutable singleton list can (I hope) get stack allocated
                     String name = null; Class type = dim.elementType
                     @Override def get(element) { element }
-                }]
+                })
                 : dim.elementFields.values().asList())
         for(int i=0; i<properties.size(); i++) {
             def fieldColumn = buildElementFields(properties[i], dimElements)
@@ -153,10 +148,8 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     }
 
 
-    private DimensionElementFieldColumn.Builder transferFieldColumn = DimensionElementFieldColumn.newBuilder()
-
     protected DimensionElementFieldColumn buildElementFields(Property prop, List dimElements) {
-        DimensionElementFieldColumn.Builder builder = transferFieldColumn.clear()
+        DimensionElementFieldColumn.Builder builder = DimensionElementFieldColumn.newBuilder()
 
         Type type = Type.get(prop.type)
 
@@ -179,35 +172,35 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     }
 
     class PackedCellBuilder {
+        private PackedCell.Builder builder = PackedCell.newBuilder()
+        private Class valueType
 
-        private boolean sameIndices(HypercubeValue val, List<Integer> indices) {
+        private boolean sameIndices(HypercubeValue val, ArrayList<Integer> indices) {
             for (int i = 0; i < indices.size(); i++) {
                 if (val.getDimElementIndex(indexedDims[i]) != indices[i]) return false
             }
             return true
         }
 
-        private List<Integer> groupIndices = new ArrayList()
-        private List<Integer> indices(HypercubeValue val) {
-            groupIndices.clear()
+        private ArrayList<Integer> indices(HypercubeValue val) {
+            def groupIndices = new ArrayList(indexedDims.size())
             for (Dimension d in indexedDims) {
                 groupIndices.add(val.getDimElementIndex(d))
             }
             groupIndices
         }
 
-        private Class valueType
-        private ArrayList<HypercubeValue> group = new ArrayList()
+        private ArrayList<HypercubeValue> group = []  // cache the list object
         private Pair<ArrayList<HypercubeValue>, Class> nextGroup() {
             group.clear()
-            valueType = null
             HypercubeValue prototype = iterator.next()
-            List<Integer> groupIndices = indices(prototype)
+            def groupValueType = new Reference<Class>(prototype.value?.class)
+            def groupIndices = indices(prototype)
             group.add(prototype)
 
             while (iterator.hasNext() && sameIndices(iterator.peek(), groupIndices)) {
                 Class valueType = iterator.peek().value?.class
-                if (!compatibleValueType(valueType)) {
+                if (!compatibleValueType(valueType, groupValueType)) {
                     log.warn("Observations with incompatible value types found for the same concept or projection. " +
                             "Got $valueType.simpleName while previous observation(s) had values of type ${this.valueType.simpleName}")
                     break
@@ -215,21 +208,20 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                 group.add(iterator.next())
             }
 
-            new Pair(group, valueType)
+            new Pair(group, groupValueType.get())
         }
 
-        boolean compatibleValueType(Class type) {
+        boolean compatibleValueType(Class type, Reference<Class> groupValueType) {
             // The prototype may not have a value at all, and therefore a null value type. So we need to handle three cases:
             // null, String, or Number.
-            if (valueType.is(null)) {
-                valueType = type
+            if (groupValueType.get() == null) {
+                groupValueType.set type
                 return true
             } else {
-                return valueType == type
+                return groupValueType.get().is(type)
             }
         }
 
-        private PackedCell.Builder builder = PackedCell.newBuilder()
         protected PackedCell createPackedCell() {
             builder.clear()
             valueType = null
@@ -258,7 +250,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             builder.build()
         }
 
-        private List<List<HypercubeValue>> groupedValues = []
+        private List<List<HypercubeValue>> groupedValues = []  // cache the list object
         private List<List<HypercubeValue>> groupSamples(List<HypercubeValue> values) {
             groupedValues.clear()
 
@@ -269,13 +261,14 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             Integer currentPackIndex = null
             int startIdx = 0
             for(int i=0; i<values.size(); i++) {
-                def hv = values[i]
-                def hvPackIndex = hv.getDimElementIndex(packedDimension)
+                def hvPackIndex = values[i].getDimElementIndex(packedDimension)
                 if(hvPackIndex != currentPackIndex) {
                     groupedValues << values.subList(startIdx, i)
                     startIdx = i
+                    currentPackIndex = hvPackIndex
                 }
             }
+            groupedValues << values.subList(startIdx, values.size())
 
             return groupedValues
         }
@@ -357,15 +350,15 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         }
 
         private void addValue(HypercubeValue value) {
-            if (valueType instanceof Number) {
-                builder.addNumericValues(((Number) value.value).toDouble())
-            } else {
+            if (String.is(valueType)) {
                 builder.addStringValues(value.value.toString())
+            } else {
+                builder.addNumericValues(((Number) value.value).toDouble())
             }
         }
 
         private void putInlineDims(List<List<HypercubeValue>> groups) {
-            for(Dimension dim in inlineDims) {
+            for(dim in inlineDims) {
                 builder.addInlineDimensions(inlineDimension(groups, dim))
             }
         }
@@ -374,29 +367,27 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         static final byte PERPACKELEMENT = 1
         static final byte PEROBSERVATION = 2
 
-        private List transferElements = new ArrayList()
         private DimensionElements.Builder inlineDimension(List<List<HypercubeValue>> groups, Dimension dim) {
-            transferElements.clear()
 
             byte mode = getMode(groups, dim)
 
             def builder
 
             if(mode == PERPACK) {
-                transferElements << firstNestedElement(groups)[dim] ?: { assert false }()
-                builder = buildDimensionElements(dim, transferElements)
+                builder = buildDimensionElements(dim, [firstNestedElement(groups)[dim] ?: { assert false }()])
                 builder.setPerPackedCell(true)
             } else if(mode == PERPACKELEMENT) {
+                def elements = []
                 for(group in groups) {
-                    if(group.empty) continue
-                    transferElements << group[0][dim]
+                    if(!group.empty) elements << group[0][dim]
                 }
-                builder = buildDimensionElements(dim, transferElements)
+                builder = buildDimensionElements(dim, elements)
             } else if(mode == PEROBSERVATION) {
+                def elements = []
                 for(group in groups) for(hv in group) {
-                    transferElements << hv[dim]
+                    elements << hv[dim]
                 }
-                builder = buildDimensionElements(dim, transferElements)
+                builder = buildDimensionElements(dim, elements)
                 builder.setPerSample(true)
             } else throw new AssertionError((Object) "unreachable")
 
