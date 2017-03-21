@@ -1,9 +1,11 @@
 # tranSMART
 [![Build Status](https://travis-ci.org/thehyve/transmart-core.svg?branch=master)](https://travis-ci.org/thehyve/transmart-core/branches)
 
-Repository containing the core components and documentation of the _tranSMART_ platform,
-an open source data sharing and analytics platform for translational biomedical research, maintained
-by the [tranSMART Foundation](http://transmartfoundation.org).
+This is the repository containing the core components and documentation of the _tranSMART_ platform,
+an open source data sharing and analytics platform for translational biomedical research. tranSMART
+is maintained by the [tranSMART Foundation](http://transmartfoundation.org). Official releases
+can be found on the tranSMART Foundation website, and the tranSMART Foundation's development repositories
+can be found at <https://github.com/transmart/>.
 
 ## Overview
 
@@ -15,6 +17,14 @@ The OAuth2 authentication of the API is currently also part of `transmartApp`.
 
 Database definitions and installation instructions are in [transmart-data](transmart-data).
 A data loading tool based on Spring Batch is available as [transmart-batch](transmart-batch).
+
+## Relation to other transmart repositories
+
+Before version 17.1, the tranSMART source code was split over a number of different repositories with names such
+as transmartApp, transmart-core-api, transmart-core-db, transmart-rest-api, RModules, etc. As of version 17.1 the
+components that make up the core server have been merged into a single repository. If you want the source for
+tranSMART 16.x or older, look at the separate repositores, if you want the sources for version 17+, you will want
+this repository.
 
 ## Build and run
 
