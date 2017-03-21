@@ -4,9 +4,9 @@ glowing-bear/jspm_packages
 glowing-bear/npm-debug.log
 glowing-bear/debug.log
 glowing-bear/src/**/*.js
+glowing-bear/src/**/*.js.map
 glowing-bear/!src/systemjs.config.extras.js
 glowing-bear/!src/systemjs.config.js
-glowing-bear/*.js.map
 glowing-bear/e2e/**/*.js
 glowing-bear/e2e/**/*.js.map
 glowing-bear/_test-output
