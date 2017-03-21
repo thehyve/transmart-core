@@ -43,7 +43,10 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
 
     Projection projection
 
-    ImmutableMap<Dimension, Order> sorting = ImmutableMap.of(biomarkerDim, Order.ASC, projectionDim, Order.ASC, assayDim, Order.ASC)
+    ImmutableMap<Dimension, Order> sorting = ImmutableMap.of(
+            biomarkerDim, Order.ASC,
+            projectionDim, Order.ASC,
+            assayDim, Order.ASC)
     /**
      * Either an IndexedArraySet or an ImmutableList
      * projectionFields is collected dynamically, but as all tabular cells should contain the same projection fields
@@ -177,7 +180,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
 
                     // assays.size() compiles to GroovyDefaultMethods.size(Iterable) on Groovy 2.4.7 :(
                     for(int i = 0; i < ((List)assays).size(); i++) {
-                        def value = row[i].getAt(field)
+                        def value = row[i]?.getAt(field)
                         if(value == null) continue
 
                         Assay assay = assays[i]

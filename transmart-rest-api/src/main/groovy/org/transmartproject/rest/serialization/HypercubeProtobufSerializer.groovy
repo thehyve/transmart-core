@@ -49,11 +49,11 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             builder.type = dim.elementsSerializable ? Type.get(dim.elementType).protobufType : ProtoType.OBJECT
 
             if(!dim.elementsSerializable) {
-                dim.elementFields.values().each { field ->
+                for(field in dim.elementFields.values()) {
                     builder.addFields FieldDefinition.newBuilder().with {
                         name = field.name
                         type = Type.get(field.type).protobufType
-                        assert type != ProtoType.OBJECT
+                        assert type != ProtoType.OBJECT, "Nested compound properties on dimension elements are not supported"
                         build()
                     }
                 }
@@ -155,12 +155,12 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         boolean allEmpty = true
         for(int i=0; i<dimElements.size(); i++) {
-            def elem = prop.get(dimElements[i])
-            if(elem == null) {
+            def field = prop.get(dimElements[i])
+            if(field == null) {
                 builder.addAbsentValueIndices(i+1)
             } else {
                 allEmpty = false
-                type.addToColumn(builder, elem)
+                type.addToColumn(builder, field)
             }
         }
         return allEmpty ? null : builder.build()
@@ -367,27 +367,28 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         static final byte PERPACKELEMENT = 1
         static final byte PEROBSERVATION = 2
 
+        private List transferElements = []  // cache ArrayList
         private DimensionElements.Builder inlineDimension(List<List<HypercubeValue>> groups, Dimension dim) {
+            transferElements.clear()
 
             byte mode = getMode(groups, dim)
 
             def builder
 
             if(mode == PERPACK) {
-                builder = buildDimensionElements(dim, [firstNestedElement(groups)[dim] ?: { assert false }()])
+                builder = buildDimensionElements(dim,
+                        transferElements << firstNestedElement(groups)[dim])
                 builder.setPerPackedCell(true)
             } else if(mode == PERPACKELEMENT) {
-                def elements = []
                 for(group in groups) {
-                    if(!group.empty) elements << group[0][dim]
+                    if(!group.empty) transferElements << group[0][dim]
                 }
-                builder = buildDimensionElements(dim, elements)
+                builder = buildDimensionElements(dim, transferElements)
             } else if(mode == PEROBSERVATION) {
-                def elements = []
                 for(group in groups) for(hv in group) {
-                    elements << hv[dim]
+                    transferElements << hv[dim]
                 }
-                builder = buildDimensionElements(dim, elements)
+                builder = buildDimensionElements(dim, transferElements)
                 builder.setPerSample(true)
             } else throw new AssertionError((Object) "unreachable")
 
@@ -401,14 +402,14 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         }
 
         private byte getMode(List<List<HypercubeValue>> values, Dimension dim) {
-            def firstElement = firstNestedElement(values)[dim]
-            assert firstElement != null // We know there is at least one value in the list of lists, otherwise this wouldn't be called
+            def firstElement = firstNestedElement(values)[dim] // We know there is at least one value in the list of lists, otherwise this wouldn't be called
 
             boolean allEqual = true
             for(group in values) {
                 if(group.empty) continue
                 def groupElement = group[0][dim]
-                if(allEqual && !firstElement.equals(groupElement)) allEqual = false
+                // Note: dynamic call to .equals!
+                if(allEqual && firstElement != groupElement) allEqual = false
                 if(group.size() == 1) continue
 
                 for(hv in group.subList(1, group.size())) {
