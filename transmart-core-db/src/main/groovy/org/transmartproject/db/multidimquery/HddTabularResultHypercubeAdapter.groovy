@@ -35,7 +35,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
 
     static Dimension biomarkerDim = DimensionImpl.BIOMARKER
     static Dimension assayDim = DimensionImpl.ASSAY
-    static Dimension patientDim = DimensionImpl.PATIENT
     static Dimension projectionDim = DimensionImpl.PROJECTION
 
     private TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ? /* depends on projection */>> table
@@ -61,32 +60,22 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
 
     @Lazy ImmutableList<Dimension> dimensions = (
         !projectionFields
-            ? ImmutableList.of(biomarkerDim, assayDim, patientDim)
-            : ImmutableList.of(biomarkerDim, assayDim, patientDim, projectionDim)
+            ? ImmutableList.of(biomarkerDim, assayDim)
+            : ImmutableList.of(biomarkerDim, assayDim, projectionDim)
     )
 
     protected ImmutableList<Assay> assays
-    protected List<Patient> patients  // replaced by an ImmutableList once we have finished iterating
-    protected List<BioMarker> biomarkers = [] // idem
+    protected List<BioMarker> biomarkers = [] // replaced by an ImmutableList once we have finished iterating
 
     HddTabularResultHypercubeAdapter(TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ?>> tabularResult,
                                      Projection projection) {
         table = tabularResult
         this.projection = projection
         assays = (ImmutableList) ImmutableList.copyOf(table.getIndicesList())
-
-        // The getAll fetches all patients in a single query. Unfortunately before that hibernate decides that it
-        // needs to flush its cache and in the process of it loads the patients one by one. I have no idea why it
-        // deems that necessary. The cached objects it is flushing are the assays we have here and it is cascading to
-        // their patients.
-        // Also using getAll requires integration tests to test this class, now we can do with only unit tests.
-        // patients = new IndexedArraySet<>((List) I2b2Patient.getAll((List) assays*.patient.id))
-        patients = new IndexedArraySet<>((List) assays*.patient)
     }
 
     protected List<? extends Object> _dimensionElems(Dimension dim) {
         if(dim == assayDim) return assays
-        else if(dim == patientDim) return patients
         else if(dim == biomarkerDim) return biomarkers
         else if(dim == projectionDim && projectionFields) {
             return ImmutableList.copyOf(projectionFields)
@@ -98,16 +87,16 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         ImmutableList.copyOf(_dimensionElems(dim))
     }
 
-    Object dimensionElement(Dimension dim, Integer idx) {
+    def dimensionElement(Dimension dim, Integer idx) {
         _dimensionElems(dim)[idx]
     }
 
-    Object dimensionElementKey(Dimension dim, Integer idx) {
+    def dimensionElementKey(Dimension dim, Integer idx) {
         def elem = dimensionElement(dim, idx)
         if(elem instanceof String) return elem
-        else if(elem instanceof DataColumn) return ((DataColumn) elem).label
-        else if(elem instanceof Patient) return ((Patient) elem).id
-        else throw new RuntimeException("unexpected element type ${elem.class}. Expected a String, Patient, or Assay")
+        else if(elem instanceof Assay) return ((Assay) elem).id
+        else if(elem instanceof BioMarkerAdapter) return ((BioMarkerAdapter) elem).key
+        else throw new RuntimeException("unexpected element type ${elem.class}. Expected a String, BioMarker or Assay")
     }
 
 
@@ -138,7 +127,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
             if(!tabularIter.hasNext()) {
                 _projectionFields = ImmutableList.copyOf(_projectionFields)
                 biomarkers = ImmutableList.copyOf(biomarkers)
-                patients = ImmutableList.copyOf(patients)
                 return endOfData()
             }
 
@@ -153,7 +141,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                 // assays.size() compiles to GroovyDefaultMethods.size(Iterable) on Groovy 2.4.7 :(
                 for(int i = 0; i < ((List)assays).size(); i++) {
                     Assay assay = assays[i]
-                    int patientIndex = patients.indexOf(assay.patient)
                     def value = row[i]
 
                     if (value == null) {
@@ -167,7 +154,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                                 assay: assay,
                                 biomarkerIndex: biomarkerIdx,
                                 assayIndex: i,
-                                patientIndex: patientIndex,
                                 projectionIndex: -1
                         ))
                     } else typeError(value)
@@ -184,7 +170,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                         if(value == null) continue
 
                         Assay assay = assays[i]
-                        int patientIndex = patients.indexOf(assay.patient)
 
                         nextVals.add(new TabularResultAdapterValue(
                                 availableDimensions: getDimensions(),
@@ -194,7 +179,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                                 projectionKey: field,
                                 biomarkerIndex: biomarkerIdx,
                                 assayIndex: i,
-                                patientIndex: patientIndex,
                                 projectionIndex: projectionIndex
                         ))
                     }
@@ -218,15 +202,11 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         protected String projectionKey
         protected int biomarkerIndex
         protected int assayIndex
-        protected int patientIndex
         protected int projectionIndex
-
-        Patient getPatient() { assay.patient }
 
         def getAt(Dimension dim) {
             if(dim.is(biomarkerDim)) return biomarker
             if(dim.is(assayDim)) return assay
-            if(dim.is(patientDim)) return patient
             if(dim.is(projectionDim) && projectionKey != null) return projectionKey
             dimError(dim)
         }
@@ -234,7 +214,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         Integer getDimElementIndex(Dimension dim) {
             if(dim.is(biomarkerDim)) return biomarkerIndex
             if(dim.is(assayDim)) return assayIndex
-            if(dim.is(patientDim)) return patientIndex
             if(dim.is(projectionDim) && projectionKey != null) return projectionIndex
             dimError(dim)
         }
@@ -242,7 +221,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         def getDimKey(Dimension dim) {
             if(dim.is(biomarkerDim)) return biomarker.biomarker ?: biomarker.label
             if(dim.is(assayDim)) return assay.sampleCode
-            if(dim.is(patientDim)) return patient.id
             if(dim.is(projectionDim) && projectionKey != null) return projectionKey
             dimError(dim)
         }
@@ -252,6 +230,8 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     static class BioMarkerAdapter implements BioMarker {
         final String label
         final String biomarker
+
+        String getKey() { biomarker ?: label }
     }
 
 

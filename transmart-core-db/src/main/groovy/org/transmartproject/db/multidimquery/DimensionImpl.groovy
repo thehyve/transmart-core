@@ -632,6 +632,9 @@ class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeEl
             def get(element) { ((Assay) element).sampleType?.label } },
         new PropertyImpl('platform', null, String) {
             def get(element) { ((Assay) element).platform?.id } },
+        new PropertyImpl('patientId', null, Long) {
+            def get(element) { ((Assay) element).patient.id} },
+        'patientInTrialId',
     ]
     String name = 'assay'
     double packPriority = 100
