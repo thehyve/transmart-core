@@ -198,6 +198,15 @@ message DimensionElements { // Multiple dimension elements are stored in a "colu
     // 1-based list of indices for which the fields are absent in all dimension elements encoded here.
     repeated int32 absentFieldColumnIndices = 4;
 
+    // 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+    // thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+    // `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+    repeated int32 absentElementIndices = 5;
+
+    // Set to true if there are no elements whatsoever in this DimensionElements. In that case `fields`,
+    // `absentFieldColumnIndices` and `absentElementsIndices` will all be empty.
+    bool empty = 6;
+
     // `scope` is only used when this message is embedded in a packedCell. If this message is embedded in the Footer,
     // it is logically just a list of dimension elements into which the `dimensionIndexes` point.
     //
@@ -218,7 +227,7 @@ message DimensionElements { // Multiple dimension elements are stored in a "colu
 
         // if perPackedCell is set we are in mode 1. This DimensionElements contains only a single element, which
         // applies to all observations in the packedCell
-        bool perPackedCell = 5;
+        bool perPackedCell = 7;
     }
 }
 

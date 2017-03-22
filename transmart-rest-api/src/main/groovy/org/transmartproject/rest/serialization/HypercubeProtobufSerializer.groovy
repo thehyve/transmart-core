@@ -128,20 +128,46 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         return builder.build()
     }
 
-    protected DimensionElements.Builder buildDimensionElements(Dimension dim, List dimElements) {
+    protected DimensionElements.Builder buildDimensionElements(Dimension dim, List dimElements, boolean setName = false) {
         def builder = DimensionElements.newBuilder()
 
-        def properties = (dim.elementsSerializable
-                ? ImmutableList.of(new Property() {  // An immutable singleton list can (I hope) get stack allocated
-                    String name = null; Class type = dim.elementType
-                    @Override def get(element) { element }
-                })
-                : dim.elementFields.values().asList())
-        for(int i=0; i<properties.size(); i++) {
-            def fieldColumn = buildElementFields(properties[i], dimElements)
-            if(fieldColumn == null) {
-                builder.addAbsentFieldColumnIndices(i+1)
-            } else builder.addFields(fieldColumn)
+        if(setName) builder.name = dim.name
+
+        boolean empty = true
+        boolean elementsPresent = false
+
+        for(int i=0; i<dimElements.size(); i++) {
+            if(dimElements[i] == null) {
+                builder.addAbsentElementIndices(i+1)
+            } else {
+                elementsPresent = true
+            }
+        }
+
+        if(elementsPresent) {
+            def properties = (dim.elementsSerializable
+                    ? ImmutableList.of(new Property() {  // An immutable singleton list can (I hope) get stack allocated
+                        String name = null; Class type = dim.elementType
+                        @Override def get(element) { element }
+                    })
+                    : dim.elementFields.values().asList())
+
+            for(int i=0; i<properties.size(); i++) {
+                def fieldColumn = buildElementFields(properties[i], dimElements)
+                if(fieldColumn == null) {
+                    builder.addAbsentFieldColumnIndices(i+1)
+                } else {
+                    builder.addFields(fieldColumn)
+                    empty = false
+                }
+            }
+        }
+
+        if(empty) {
+            builder.empty = true
+            builder.clearAbsentElementIndices()
+            builder.clearAbsentFieldColumnIndices()
+            builder.clearFields()
         }
 
         return builder
@@ -155,7 +181,9 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         boolean allEmpty = true
         for(int i=0; i<dimElements.size(); i++) {
-            def field = prop.get(dimElements[i])
+            def element = dimElements[i]
+            if(element == null) continue
+            def field = prop.get(element)
             if(field == null) {
                 builder.addAbsentValueIndices(i+1)
             } else {
@@ -376,8 +404,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             def builder
 
             if(mode == PERPACK) {
-                builder = buildDimensionElements(dim,
-                        transferElements << firstNestedElement(groups)[dim])
+                builder = buildDimensionElements(dim, transferElements << firstNestedElement(groups)[dim])
                 builder.setPerPackedCell(true)
             } else if(mode == PERPACKELEMENT) {
                 for(group in groups) {
@@ -425,7 +452,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     protected Footer buildFooter() {
         def builder = Footer.newBuilder()
         for(dim in cube.dimensions.findAll { it.density.isDense }) {
-            builder.addDimension(buildDimensionElements(dim, cube.dimensionElements(dim)))
+            builder.addDimension(buildDimensionElements(dim, cube.dimensionElements(dim), true))
         }
         builder.build()
     }

@@ -11271,6 +11271,47 @@ public final class ObservationsProto {
 
     /**
      * <pre>
+     * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+     * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+     * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+     * </pre>
+     *
+     * <code>repeated int32 absentElementIndices = 5;</code>
+     */
+    java.util.List<java.lang.Integer> getAbsentElementIndicesList();
+    /**
+     * <pre>
+     * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+     * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+     * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+     * </pre>
+     *
+     * <code>repeated int32 absentElementIndices = 5;</code>
+     */
+    int getAbsentElementIndicesCount();
+    /**
+     * <pre>
+     * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+     * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+     * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+     * </pre>
+     *
+     * <code>repeated int32 absentElementIndices = 5;</code>
+     */
+    int getAbsentElementIndices(int index);
+
+    /**
+     * <pre>
+     * Set to true if there are no elements whatsoever in this DimensionElements. In that case `fields`,
+     * `absentFieldColumnIndices` and `absentElementsIndices` will all be empty.
+     * </pre>
+     *
+     * <code>optional bool empty = 6;</code>
+     */
+    boolean getEmpty();
+
+    /**
+     * <pre>
      * if perSample is set we are in mode 3, there is an individual element for each observation
      * </pre>
      *
@@ -11284,7 +11325,7 @@ public final class ObservationsProto {
      * applies to all observations in the packedCell
      * </pre>
      *
-     * <code>optional bool perPackedCell = 5;</code>
+     * <code>optional bool perPackedCell = 7;</code>
      */
     boolean getPerPackedCell();
 
@@ -11309,6 +11350,8 @@ public final class ObservationsProto {
       name_ = "";
       fields_ = java.util.Collections.emptyList();
       absentFieldColumnIndices_ = java.util.Collections.emptyList();
+      absentElementIndices_ = java.util.Collections.emptyList();
+      empty_ = false;
     }
 
     @java.lang.Override
@@ -11378,7 +11421,33 @@ public final class ObservationsProto {
               break;
             }
             case 40: {
-              scopeCase_ = 5;
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+                absentElementIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000008;
+              }
+              absentElementIndices_.add(input.readInt32());
+              break;
+            }
+            case 42: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008) && input.getBytesUntilLimit() > 0) {
+                absentElementIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000008;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                absentElementIndices_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 48: {
+
+              empty_ = input.readBool();
+              break;
+            }
+            case 56: {
+              scopeCase_ = 7;
               scope_ = input.readBool();
               break;
             }
@@ -11395,6 +11464,9 @@ public final class ObservationsProto {
         }
         if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
           absentFieldColumnIndices_ = java.util.Collections.unmodifiableList(absentFieldColumnIndices_);
+        }
+        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+          absentElementIndices_ = java.util.Collections.unmodifiableList(absentElementIndices_);
         }
         makeExtensionsImmutable();
       }
@@ -11417,7 +11489,7 @@ public final class ObservationsProto {
     public enum ScopeCase
         implements com.google.protobuf.Internal.EnumLite {
       PERSAMPLE(2),
-      PERPACKEDCELL(5),
+      PERPACKEDCELL(7),
       SCOPE_NOT_SET(0);
       private final int value;
       private ScopeCase(int value) {
@@ -11434,7 +11506,7 @@ public final class ObservationsProto {
       public static ScopeCase forNumber(int value) {
         switch (value) {
           case 2: return PERSAMPLE;
-          case 5: return PERPACKEDCELL;
+          case 7: return PERPACKEDCELL;
           case 0: return SCOPE_NOT_SET;
           default: return null;
         }
@@ -11587,6 +11659,61 @@ public final class ObservationsProto {
     }
     private int absentFieldColumnIndicesMemoizedSerializedSize = -1;
 
+    public static final int ABSENTELEMENTINDICES_FIELD_NUMBER = 5;
+    private java.util.List<java.lang.Integer> absentElementIndices_;
+    /**
+     * <pre>
+     * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+     * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+     * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+     * </pre>
+     *
+     * <code>repeated int32 absentElementIndices = 5;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getAbsentElementIndicesList() {
+      return absentElementIndices_;
+    }
+    /**
+     * <pre>
+     * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+     * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+     * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+     * </pre>
+     *
+     * <code>repeated int32 absentElementIndices = 5;</code>
+     */
+    public int getAbsentElementIndicesCount() {
+      return absentElementIndices_.size();
+    }
+    /**
+     * <pre>
+     * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+     * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+     * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+     * </pre>
+     *
+     * <code>repeated int32 absentElementIndices = 5;</code>
+     */
+    public int getAbsentElementIndices(int index) {
+      return absentElementIndices_.get(index);
+    }
+    private int absentElementIndicesMemoizedSerializedSize = -1;
+
+    public static final int EMPTY_FIELD_NUMBER = 6;
+    private boolean empty_;
+    /**
+     * <pre>
+     * Set to true if there are no elements whatsoever in this DimensionElements. In that case `fields`,
+     * `absentFieldColumnIndices` and `absentElementsIndices` will all be empty.
+     * </pre>
+     *
+     * <code>optional bool empty = 6;</code>
+     */
+    public boolean getEmpty() {
+      return empty_;
+    }
+
     public static final int PERSAMPLE_FIELD_NUMBER = 2;
     /**
      * <pre>
@@ -11602,17 +11729,17 @@ public final class ObservationsProto {
       return false;
     }
 
-    public static final int PERPACKEDCELL_FIELD_NUMBER = 5;
+    public static final int PERPACKEDCELL_FIELD_NUMBER = 7;
     /**
      * <pre>
      * if perPackedCell is set we are in mode 1. This DimensionElements contains only a single element, which
      * applies to all observations in the packedCell
      * </pre>
      *
-     * <code>optional bool perPackedCell = 5;</code>
+     * <code>optional bool perPackedCell = 7;</code>
      */
     public boolean getPerPackedCell() {
-      if (scopeCase_ == 5) {
+      if (scopeCase_ == 7) {
         return (java.lang.Boolean) scope_;
       }
       return false;
@@ -11648,9 +11775,19 @@ public final class ObservationsProto {
       for (int i = 0; i < absentFieldColumnIndices_.size(); i++) {
         output.writeInt32NoTag(absentFieldColumnIndices_.get(i));
       }
-      if (scopeCase_ == 5) {
+      if (getAbsentElementIndicesList().size() > 0) {
+        output.writeUInt32NoTag(42);
+        output.writeUInt32NoTag(absentElementIndicesMemoizedSerializedSize);
+      }
+      for (int i = 0; i < absentElementIndices_.size(); i++) {
+        output.writeInt32NoTag(absentElementIndices_.get(i));
+      }
+      if (empty_ != false) {
+        output.writeBool(6, empty_);
+      }
+      if (scopeCase_ == 7) {
         output.writeBool(
-            5, (boolean)((java.lang.Boolean) scope_));
+            7, (boolean)((java.lang.Boolean) scope_));
       }
     }
 
@@ -11685,10 +11822,28 @@ public final class ObservationsProto {
         }
         absentFieldColumnIndicesMemoizedSerializedSize = dataSize;
       }
-      if (scopeCase_ == 5) {
+      {
+        int dataSize = 0;
+        for (int i = 0; i < absentElementIndices_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(absentElementIndices_.get(i));
+        }
+        size += dataSize;
+        if (!getAbsentElementIndicesList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        absentElementIndicesMemoizedSerializedSize = dataSize;
+      }
+      if (empty_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(6, empty_);
+      }
+      if (scopeCase_ == 7) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(
-              5, (boolean)((java.lang.Boolean) scope_));
+              7, (boolean)((java.lang.Boolean) scope_));
       }
       memoizedSize = size;
       return size;
@@ -11712,6 +11867,10 @@ public final class ObservationsProto {
           .equals(other.getFieldsList());
       result = result && getAbsentFieldColumnIndicesList()
           .equals(other.getAbsentFieldColumnIndicesList());
+      result = result && getAbsentElementIndicesList()
+          .equals(other.getAbsentElementIndicesList());
+      result = result && (getEmpty()
+          == other.getEmpty());
       result = result && getScopeCase().equals(
           other.getScopeCase());
       if (!result) return false;
@@ -11720,7 +11879,7 @@ public final class ObservationsProto {
           result = result && (getPerSample()
               == other.getPerSample());
           break;
-        case 5:
+        case 7:
           result = result && (getPerPackedCell()
               == other.getPerPackedCell());
           break;
@@ -11747,13 +11906,20 @@ public final class ObservationsProto {
         hash = (37 * hash) + ABSENTFIELDCOLUMNINDICES_FIELD_NUMBER;
         hash = (53 * hash) + getAbsentFieldColumnIndicesList().hashCode();
       }
+      if (getAbsentElementIndicesCount() > 0) {
+        hash = (37 * hash) + ABSENTELEMENTINDICES_FIELD_NUMBER;
+        hash = (53 * hash) + getAbsentElementIndicesList().hashCode();
+      }
+      hash = (37 * hash) + EMPTY_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getEmpty());
       switch (scopeCase_) {
         case 2:
           hash = (37 * hash) + PERSAMPLE_FIELD_NUMBER;
           hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
               getPerSample());
           break;
-        case 5:
+        case 7:
           hash = (37 * hash) + PERPACKEDCELL_FIELD_NUMBER;
           hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
               getPerPackedCell());
@@ -11894,6 +12060,10 @@ public final class ObservationsProto {
         }
         absentFieldColumnIndices_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000004);
+        absentElementIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000008);
+        empty_ = false;
+
         scopeCase_ = 0;
         scope_ = null;
         return this;
@@ -11935,10 +12105,16 @@ public final class ObservationsProto {
           bitField0_ = (bitField0_ & ~0x00000004);
         }
         result.absentFieldColumnIndices_ = absentFieldColumnIndices_;
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          absentElementIndices_ = java.util.Collections.unmodifiableList(absentElementIndices_);
+          bitField0_ = (bitField0_ & ~0x00000008);
+        }
+        result.absentElementIndices_ = absentElementIndices_;
+        result.empty_ = empty_;
         if (scopeCase_ == 2) {
           result.scope_ = scope_;
         }
-        if (scopeCase_ == 5) {
+        if (scopeCase_ == 7) {
           result.scope_ = scope_;
         }
         result.bitField0_ = to_bitField0_;
@@ -12023,6 +12199,19 @@ public final class ObservationsProto {
             absentFieldColumnIndices_.addAll(other.absentFieldColumnIndices_);
           }
           onChanged();
+        }
+        if (!other.absentElementIndices_.isEmpty()) {
+          if (absentElementIndices_.isEmpty()) {
+            absentElementIndices_ = other.absentElementIndices_;
+            bitField0_ = (bitField0_ & ~0x00000008);
+          } else {
+            ensureAbsentElementIndicesIsMutable();
+            absentElementIndices_.addAll(other.absentElementIndices_);
+          }
+          onChanged();
+        }
+        if (other.getEmpty() != false) {
+          setEmpty(other.getEmpty());
         }
         switch (other.getScopeCase()) {
           case PERSAMPLE: {
@@ -12592,6 +12781,155 @@ public final class ObservationsProto {
         return this;
       }
 
+      private java.util.List<java.lang.Integer> absentElementIndices_ = java.util.Collections.emptyList();
+      private void ensureAbsentElementIndicesIsMutable() {
+        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
+          absentElementIndices_ = new java.util.ArrayList<java.lang.Integer>(absentElementIndices_);
+          bitField0_ |= 0x00000008;
+         }
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+       * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+       * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+       * </pre>
+       *
+       * <code>repeated int32 absentElementIndices = 5;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getAbsentElementIndicesList() {
+        return java.util.Collections.unmodifiableList(absentElementIndices_);
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+       * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+       * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+       * </pre>
+       *
+       * <code>repeated int32 absentElementIndices = 5;</code>
+       */
+      public int getAbsentElementIndicesCount() {
+        return absentElementIndices_.size();
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+       * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+       * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+       * </pre>
+       *
+       * <code>repeated int32 absentElementIndices = 5;</code>
+       */
+      public int getAbsentElementIndices(int index) {
+        return absentElementIndices_.get(index);
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+       * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+       * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+       * </pre>
+       *
+       * <code>repeated int32 absentElementIndices = 5;</code>
+       */
+      public Builder setAbsentElementIndices(
+          int index, int value) {
+        ensureAbsentElementIndicesIsMutable();
+        absentElementIndices_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+       * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+       * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+       * </pre>
+       *
+       * <code>repeated int32 absentElementIndices = 5;</code>
+       */
+      public Builder addAbsentElementIndices(int value) {
+        ensureAbsentElementIndicesIsMutable();
+        absentElementIndices_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+       * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+       * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+       * </pre>
+       *
+       * <code>repeated int32 absentElementIndices = 5;</code>
+       */
+      public Builder addAllAbsentElementIndices(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureAbsentElementIndicesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, absentElementIndices_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based list of indices of elements that are absent. This are the indices for which no element is present, and
+       * thus in all field columns the value is absent. A decoder can treat this field as if it is unioned into the
+       * `absentValueIndices` list in each DimensionElementFieldColumn in `fields`.
+       * </pre>
+       *
+       * <code>repeated int32 absentElementIndices = 5;</code>
+       */
+      public Builder clearAbsentElementIndices() {
+        absentElementIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
+      }
+
+      private boolean empty_ ;
+      /**
+       * <pre>
+       * Set to true if there are no elements whatsoever in this DimensionElements. In that case `fields`,
+       * `absentFieldColumnIndices` and `absentElementsIndices` will all be empty.
+       * </pre>
+       *
+       * <code>optional bool empty = 6;</code>
+       */
+      public boolean getEmpty() {
+        return empty_;
+      }
+      /**
+       * <pre>
+       * Set to true if there are no elements whatsoever in this DimensionElements. In that case `fields`,
+       * `absentFieldColumnIndices` and `absentElementsIndices` will all be empty.
+       * </pre>
+       *
+       * <code>optional bool empty = 6;</code>
+       */
+      public Builder setEmpty(boolean value) {
+        
+        empty_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Set to true if there are no elements whatsoever in this DimensionElements. In that case `fields`,
+       * `absentFieldColumnIndices` and `absentElementsIndices` will all be empty.
+       * </pre>
+       *
+       * <code>optional bool empty = 6;</code>
+       */
+      public Builder clearEmpty() {
+        
+        empty_ = false;
+        onChanged();
+        return this;
+      }
+
       /**
        * <pre>
        * if perSample is set we are in mode 3, there is an individual element for each observation
@@ -12640,10 +12978,10 @@ public final class ObservationsProto {
        * applies to all observations in the packedCell
        * </pre>
        *
-       * <code>optional bool perPackedCell = 5;</code>
+       * <code>optional bool perPackedCell = 7;</code>
        */
       public boolean getPerPackedCell() {
-        if (scopeCase_ == 5) {
+        if (scopeCase_ == 7) {
           return (java.lang.Boolean) scope_;
         }
         return false;
@@ -12654,10 +12992,10 @@ public final class ObservationsProto {
        * applies to all observations in the packedCell
        * </pre>
        *
-       * <code>optional bool perPackedCell = 5;</code>
+       * <code>optional bool perPackedCell = 7;</code>
        */
       public Builder setPerPackedCell(boolean value) {
-        scopeCase_ = 5;
+        scopeCase_ = 7;
         scope_ = value;
         onChanged();
         return this;
@@ -12668,10 +13006,10 @@ public final class ObservationsProto {
        * applies to all observations in the packedCell
        * </pre>
        *
-       * <code>optional bool perPackedCell = 5;</code>
+       * <code>optional bool perPackedCell = 7;</code>
        */
       public Builder clearPerPackedCell() {
-        if (scopeCase_ == 5) {
+        if (scopeCase_ == 7) {
           scopeCase_ = 0;
           scope_ = null;
           onChanged();
@@ -14679,19 +15017,20 @@ public final class ObservationsProto {
       "\n\010intValue\030\003 \001(\022H\000\022\030\n\016timestampValue\030\004 \001" +
       "(\003H\000B\007\n\005value\"H\n\006Footer\022/\n\tdimension\030\001 \003" +
       "(\0132\034.hypercube.DimensionElements\022\r\n\005erro",
-      "r\030c \001(\t\"\262\001\n\021DimensionElements\022\014\n\004name\030\003 " +
+      "r\030c \001(\t\"\337\001\n\021DimensionElements\022\014\n\004name\030\003 " +
       "\001(\t\0226\n\006fields\030\001 \003(\0132&.hypercube.Dimensio" +
       "nElementFieldColumn\022 \n\030absentFieldColumn" +
-      "Indices\030\004 \003(\005\022\023\n\tperSample\030\002 \001(\010H\000\022\027\n\rpe" +
-      "rPackedCell\030\005 \001(\010H\000B\007\n\005scope\"\215\001\n\033Dimensi" +
-      "onElementFieldColumn\022\023\n\013stringValue\030\001 \003(" +
-      "\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010intValue\030\003 \003(\022" +
-      "\022\026\n\016timestampValue\030\004 \003(\003\022\032\n\022absentValueI" +
-      "ndices\030\005 \003(\005\"\026\n\005Error\022\r\n\005error\030c \001(\t*B\n\004" +
-      "Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING\020\001\022\007\n\003INT\020\002\022\r\n",
-      "\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004B=\n(org.transmar" +
-      "tproject.rest.hypercubeProtoB\021Observatio" +
-      "nsProtob\006proto3"
+      "Indices\030\004 \003(\005\022\034\n\024absentElementIndices\030\005 " +
+      "\003(\005\022\r\n\005empty\030\006 \001(\010\022\023\n\tperSample\030\002 \001(\010H\000\022" +
+      "\027\n\rperPackedCell\030\007 \001(\010H\000B\007\n\005scope\"\215\001\n\033Di" +
+      "mensionElementFieldColumn\022\023\n\013stringValue" +
+      "\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010intValue\030" +
+      "\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022\032\n\022absentV" +
+      "alueIndices\030\005 \003(\005\"\026\n\005Error\022\r\n\005error\030c \001(",
+      "\t*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING\020\001\022\007\n\003INT" +
+      "\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004B=\n(org.tra" +
+      "nsmartproject.rest.hypercubeProtoB\021Obser" +
+      "vationsProtob\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -14758,7 +15097,7 @@ public final class ObservationsProto {
     internal_static_hypercube_DimensionElements_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElements_descriptor,
-        new java.lang.String[] { "Name", "Fields", "AbsentFieldColumnIndices", "PerSample", "PerPackedCell", "Scope", });
+        new java.lang.String[] { "Name", "Fields", "AbsentFieldColumnIndices", "AbsentElementIndices", "Empty", "PerSample", "PerPackedCell", "Scope", });
     internal_static_hypercube_DimensionElementFieldColumn_descriptor =
       getDescriptor().getMessageTypes().get(9);
     internal_static_hypercube_DimensionElementFieldColumn_fieldAccessorTable = new
