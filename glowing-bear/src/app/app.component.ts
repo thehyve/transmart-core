@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ResourceService } from './resource.service';
+import { Study } from './study';
 
 @Component({
   selector: 'my-app',
