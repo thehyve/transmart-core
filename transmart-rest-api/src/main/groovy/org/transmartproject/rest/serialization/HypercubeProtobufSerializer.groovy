@@ -8,6 +8,7 @@ import grails.util.Pair
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import jdk.nashorn.internal.ir.annotations.Immutable
+import org.transmartproject.core.multidimquery.DefaultProperty
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -146,10 +147,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         if(elementsPresent) {
             def properties = (dim.elementsSerializable
-                    ? ImmutableList.of(new Property() {  // An immutable singleton list can (I hope) get stack allocated
-                        String name = null; Class type = dim.elementType
-                        @Override def get(element) { element }
-                    })
+                    ? ImmutableList.of(new DefaultProperty(null, dim.elementType))  // An immutable singleton list can (I hope) get stack allocated
                     : dim.elementFields.values().asList())
 
             for(int i=0; i<properties.size(); i++) {
@@ -482,14 +480,14 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         return lastIndexedDim.packable.packable ? lastIndexedDim : null
     }
 
-    void write(Map args, Hypercube cube, OutputStream out) {
+    void init(Map args, Hypercube cube, OutputStream out) {
         this.cube = cube
         this.out = out
 
         ImmutableSet<Dimension> sortedDims = cube.sorting.keySet()
         Dimension packDim = findPackableDimension(sortedDims, cube.dimensions.findAll { it.density.isDense })
 
-        if(args.pack && packDim != null) {
+        if (args.pack && packDim != null) {
             packedDimension = packDim
             packingEnabled = true
         } else {
@@ -500,8 +498,11 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         this.inlineDims = cube.dimensions.findAll { it != packedDimension && it.density.isSparse }
         this.indexedDims = cube.dimensions.findAll { it != packedDimension && it.density.isDense }
 
-
         this.iterator = cube.iterator()
+    }
+
+    void write(Map args, Hypercube cube, OutputStream out) {
+        init(args, cube, out)
 
         try {
             buildHeader().writeDelimitedTo(out)

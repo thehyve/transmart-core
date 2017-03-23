@@ -2,6 +2,7 @@
 package org.transmartproject.core.multidimquery
 
 import com.google.common.collect.ImmutableMap
+import groovy.transform.CompileStatic
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.ontology.Study
 
@@ -116,4 +117,14 @@ interface Property {
 
     /** Given an element, return the value for this property */
     def get(element)
+}
+
+// A default Property implementation. Defined here so it can also be used in tests
+@CompileStatic
+class DefaultProperty implements Property {
+    String name; Class type
+    DefaultProperty(String name, Class type) {
+        this.name = name; this.type = type
+    }
+    def get(element) { element[name] }
 }
