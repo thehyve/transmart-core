@@ -11,4 +11,6 @@ glowing-bear/e2e/**/*.js
 glowing-bear/e2e/**/*.js.map
 glowing-bear/_test-output
 glowing-bear/_temp
+.gradle/
+.idea/
 *.iml
