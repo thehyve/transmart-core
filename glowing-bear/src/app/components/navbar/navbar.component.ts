@@ -17,8 +17,8 @@ export class NavbarComponent {
   constructor(private router: Router) {
     router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        console.log('NavigationEnd:', event.urlAfterRedirects.split('/')[1]);
-        this.updateNavbar(event.url.split('/')[1]);
+        let whichStep = event.urlAfterRedirects.split('/')[1];
+        this.updateNavbar(whichStep);
       }
     });
   }
@@ -29,6 +29,11 @@ export class NavbarComponent {
     this.isAnalysis = (whichStep === 'analysis');
     this.isExport = (whichStep === 'export');
 
+    // console.log('-- which step: ', whichStep);
+    // console.log('isDashboard: ', this.isDashboard);
+    // console.log('isCohortSelection: ', this.isCohortSelection);
+    // console.log('isAnalysis: ', this.isAnalysis);
+    // console.log('isExport: ', this.isExport);
   }
 
 }
