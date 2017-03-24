@@ -47,16 +47,19 @@ class RestApiUrlMappings {
             "/observation_list"(method: 'GET', controller: 'query', action: 'observationList') {
                 apiVersion = 'v2'
             }
-            "/observations"(method: 'GET', controller: 'query', action: 'observations') {
+            "/observations"(controller: 'query') {
+                action = [GET: 'observations', POST: 'observations']
                 apiVersion = 'v2'
             }
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
                 apiVersion = 'v2'
             }
-            "/observations/aggregate"(method: 'GET', controller: 'query', action: 'aggregate') {
+            "/observations/aggregate"(controller: 'query') {
+                action = [GET: 'aggregate', POST: 'aggregate']
                 apiVersion = 'v2'
             }
-            "/observations/count"(method: 'GET', controller: 'query', action: 'count') {
+            "/observations/count"(controller: 'query') {
+                action = [GET: 'count', POST: 'count']
                 apiVersion = 'v2'
             }
             "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
@@ -65,10 +68,12 @@ class RestApiUrlMappings {
             "/patient_sets"(method: 'POST', controller: 'patientQuery', action: 'createPatientSet') {
                 apiVersion = 'v2'
             }
-            "/patients/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatient') {
+            "/patients/$id"(controller: 'patientQuery') {
+                action = [GET: 'findPatient', POST: 'findPatient']
                 apiVersion = 'v2'
             }
-            "/patients"(method: 'GET', controller: 'patientQuery', action: 'listPatients') {
+            "/patients"(controller: 'patientQuery') {
+                action = [GET: 'listPatients', POST: 'listPatients']
                 apiVersion = 'v2'
             }
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
