@@ -1,21 +1,20 @@
-import { Component } from '@angular/core';
-import { ResourceService } from './resource.service';
-import { Study } from './study';
+import {Component} from '@angular/core';
+
+import {ResourceService} from './resource.service';
+import {Study} from './study';
 
 @Component({
+  moduleId: module.id,
   selector: 'my-app',
-  template: `<h1>Bowing Glear</h1>
-    <li *ngFor="let study of studies;">
-      <span>{{study.studyId}}</span>
-    </li>
-  `,
-  providers: [ ResourceService ]
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
+  providers: [ResourceService]
 })
-export class AppComponent  { 
+export class AppComponent {
   studies: Study[];
 
   constructor(private resourceService: ResourceService) {
-    this.studies = []
+    this.studies = [];
     this.loadStudies();
   }
 
@@ -24,4 +23,6 @@ export class AppComponent  {
       this.studies = studies;
     })
   }
+
+
 }

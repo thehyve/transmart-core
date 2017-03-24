@@ -1,5 +1,16 @@
-h1 {
+@import 'https://fonts.googleapis.com/icon?family=Material+Icons';
+@import 'https://fonts.googleapis.com/icon?family=Roboto';
+@import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+@import '../node_modules/@angular/material/core/theming/prebuilt/deeppurple-amber.css';
+
+body {
+  font-family: Roboto;
+}
+
+.loading-message {
   color: #369;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 250%;
+  font-size: 300%;
+  text-align: center;
+  padding: 200px;
+  opacity: .8;
 }
