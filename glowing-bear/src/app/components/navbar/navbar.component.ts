@@ -17,7 +17,7 @@ export class NavbarComponent {
   constructor(private router: Router) {
     router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        console.log('NavigationEnd:', event.url.split('/')[1]);
+        console.log('NavigationEnd:', event.urlAfterRedirects.split('/')[1]);
         this.updateNavbar(event.url.split('/')[1]);
       }
     });
