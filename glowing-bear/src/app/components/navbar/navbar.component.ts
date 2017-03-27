@@ -10,7 +10,7 @@ import {Router, NavigationEnd} from '@angular/router';
 export class NavbarComponent {
 
   isDashboard = true;
-  isCohortSelection = false;
+  isDataSelection = false;
   isAnalysis = false;
   isExport = false;
 
@@ -25,7 +25,7 @@ export class NavbarComponent {
 
   updateNavbar(whichStep: string) {
     this.isDashboard = (whichStep === 'dashboard');
-    this.isCohortSelection = (whichStep === 'cohort-selection');
+    this.isDataSelection = (whichStep === 'cohort-selection');
     this.isAnalysis = (whichStep === 'analysis');
     this.isExport = (whichStep === 'export');
 

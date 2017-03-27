@@ -9,7 +9,7 @@ import {routing} from './app.routes';
 import {AppComponent}  from './app.component';
 import {NavbarComponent} from "./components/navbar/navbar.component";
 import {DashboardComponent} from "./components/dashboard/dashboard.component";
-import {CohortSelectionComponent} from "./components/cohort-selection/cohort-selection.component";
+import {DataSelectionComponent} from "./components/data-selection/data-selection.component";
 import {AnalysisComponent} from "./components/analysis/analysis.component";
 import {ExportComponent} from "./components/export/export.component";
 
@@ -25,7 +25,7 @@ import {ExportComponent} from "./components/export/export.component";
     AppComponent,
     NavbarComponent,
     DashboardComponent,
-    CohortSelectionComponent,
+    DataSelectionComponent,
     AnalysisComponent,
     ExportComponent
   ],

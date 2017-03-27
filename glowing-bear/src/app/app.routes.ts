@@ -1,7 +1,7 @@
 import { ModuleWithProviders }  from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { CohortSelectionComponent } from './components/cohort-selection/cohort-selection.component';
+import { DataSelectionComponent } from './components/data-selection/data-selection.component';
 import { AnalysisComponent } from './components/analysis/analysis.component';
 import { ExportComponent } from './components/export/export.component';
 
@@ -16,8 +16,8 @@ export const routes: Routes = [
     path: 'dashboard',
     component: DashboardComponent },
   {
-    path: 'cohort-selection',
-    component: CohortSelectionComponent },
+    path: 'data-selection',
+    component: DataSelectionComponent },
   {
     path: 'analysis',
     component: AnalysisComponent },
