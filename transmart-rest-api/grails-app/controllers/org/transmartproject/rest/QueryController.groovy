@@ -45,7 +45,6 @@ class QueryController extends AbstractQueryController {
      *
      *
      * For high dimensional data:
-     * <code>/v2/high_dim?type=${type}&constraint=${assays}&biomarker_constraint=${biomarker}&projection=${projection}</code>
      *
      * The type must be the data type name of a high dimension type, or 'autodetect'. The latter will automatically
      * try to detect the datatype based on the assay constraint. If there are multiple possible types an error is

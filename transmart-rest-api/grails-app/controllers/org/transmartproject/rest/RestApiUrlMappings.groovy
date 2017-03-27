@@ -50,9 +50,6 @@ class RestApiUrlMappings {
             "/observations"(method: 'GET', controller: 'query', action: 'observations') {
                 apiVersion = 'v2'
             }
-            "/high_dim"(method: 'GET', controller: 'query', action: 'highDim') {
-                apiVersion = 'v2'
-            }
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
                 apiVersion = 'v2'
             }
