@@ -1,3 +1,5 @@
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.rest.protobug
 
 import grails.test.mixin.integration.Integration

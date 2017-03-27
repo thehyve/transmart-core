@@ -1,3 +1,5 @@
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.db.multidimquery.query
 
 interface QueryBuilder<ConstraintResult, QueryResult> {

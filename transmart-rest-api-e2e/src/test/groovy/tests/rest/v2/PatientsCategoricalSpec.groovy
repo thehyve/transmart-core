@@ -1,3 +1,5 @@
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2
 
 import base.RESTSpec

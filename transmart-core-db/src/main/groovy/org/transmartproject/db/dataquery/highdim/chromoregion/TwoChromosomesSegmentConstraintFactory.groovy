@@ -1,3 +1,5 @@
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.db.dataquery.highdim.chromoregion
 
 import org.springframework.beans.factory.annotation.Autowired

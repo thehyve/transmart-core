@@ -1,3 +1,5 @@
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.rest.serialization
 
 import grails.converters.JSON

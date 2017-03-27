@@ -1,3 +1,5 @@
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.AbstractIterator
