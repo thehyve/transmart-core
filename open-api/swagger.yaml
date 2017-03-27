@@ -714,10 +714,79 @@ paths:
             Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
           schema:
             $ref: '#/definitions/observations'
+    post:
+          description: |
+            Gets all observations that satisfy the given constaint. Only observations the calling user has access to are returned. Empty and null values are returned but have no value property. Supports passing longer constraints than for the GET method.
+          tags:
+            - v2
+          produces:
+            - application/json
+            - application/x-protobuf
+          parameters:
+            - name: type
+              required: true
+              in: query
+              description: 'specifies the type of the data you want to retrieve. For clinical data specify `clinical`,
+              for high dimensional data specify the data type or use `autodetect`. If you use `autodetect` the
+              constraints must be such that only a single type of high dimensional data matches.'
+              type: string
+            - name: constraint
+              required: true
+              in: query
+              description: 'json that specifies the constraint. Example: `{"type":"study_name", "studyId":"EHR"}` or
+              `{"type":"concept","path":"\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"}`.'
+              type: string
+            - name: biomarker_constraint
+              required: false
+              in: query
+              description: 'json that describes the biomarker. The only valid type is the ''biomarker'' constraint Example:
+              `{"type":"biomarker", "biomarkerType":"genes","params":{"names":["TP53"]}}`.'
+              type: string
+            - name: projection
+              required: false
+              in: query
+              description: 'The projection. Only used with high dimensional data Example: `all_data`, `zscore`,
+              `log_intensity`. Default: `all_data`.'
+              type: string
+          responses:
+            200:
+              description: |
+                Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
+              schema:
+                $ref: '#/definitions/observations'
   /v2/observations/aggregate:
     get:
       description: |
         Calculates and returns an aggregate value.
+      tags:
+        - v2
+      parameters:
+        - name: constraint
+          required: true
+          in: query
+          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+          type: string
+        - name: type
+          required: true
+          in: query
+          description: 'min, max, average'
+          type: string
+      responses:
+        200:
+          description: 'return the result in a json object. Example: `{min: 56}`.'
+          schema:
+            type: object
+            description: 'only the value of the requested aggregate type will be present.'
+            properties:
+              min:
+                type: number
+              max:
+                type: number
+              average:
+                type: number
+    post:
+      description: |
+        Calculates and returns an aggregate value. Supports passing longer constraints than for the GET method.
       tags:
         - v2
       parameters:
@@ -764,6 +833,25 @@ paths:
             properties:
               count:
                 type: integer
+    post:
+          description: |
+            Counts the number of observations that satisfy the given constraint. Supports passing longer constraints than for the GET method.
+          tags:
+            - v2
+          parameters:
+            - name: constraint
+              required: true
+              in: query
+              description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+              type: string
+          responses:
+            200:
+              description: 'Return the result as a json object. Example: `{count: 56}`.'
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
   /v2/patients:
     get:
       description: |
@@ -786,6 +874,27 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/patient'
+    post:
+          description: |
+            Gets all patients that have an observation that satisfy the given constaint. Only patients the calling user has access to are returned. Supports passing longer constraints than for the GET method.
+          tags:
+            - v2
+          parameters:
+            - name: constraint
+              required: true
+              in: query
+              description: 'json that specifies the constraint. Example: `{"type":"study_name","studyId":"EHR"}`.'
+              type: string
+          responses:
+            200:
+              description: OK
+              schema:
+                type: object
+                properties:
+                  patients:
+                    type: array
+                    items:
+                      $ref: '#/definitions/patient'
   /v2/patients/{id}:
     get:
       description: |
