@@ -146,7 +146,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         if(elementsPresent) {
             def properties = (dim.elementsSerializable
-                    ? ImmutableList.of(new IdentityProperty(null, dim.elementType))  // An immutable singleton list can (I hope) get stack allocated
+                    ? ImmutableList.of(new IdentityProperty(null, dim.elementType))
                     : dim.elementFields.values().asList())
 
             for(int i=0; i<properties.size(); i++) {
