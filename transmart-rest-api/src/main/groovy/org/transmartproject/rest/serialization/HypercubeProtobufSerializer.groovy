@@ -7,8 +7,7 @@ import com.google.common.collect.PeekingIterator
 import grails.util.Pair
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import jdk.nashorn.internal.ir.annotations.Immutable
-import org.transmartproject.core.multidimquery.DefaultProperty
+import org.transmartproject.core.multidimquery.IdentityProperty
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
@@ -147,7 +146,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         if(elementsPresent) {
             def properties = (dim.elementsSerializable
-                    ? ImmutableList.of(new DefaultProperty(null, dim.elementType))  // An immutable singleton list can (I hope) get stack allocated
+                    ? ImmutableList.of(new IdentityProperty(null, dim.elementType))  // An immutable singleton list can (I hope) get stack allocated
                     : dim.elementFields.values().asList())
 
             for(int i=0; i<properties.size(); i++) {

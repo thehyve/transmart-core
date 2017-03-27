@@ -17,7 +17,9 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.multidimquery.DefaultProperty
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.IdentityProperty
 import org.transmartproject.core.multidimquery.Property
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.ontology.Study
@@ -145,7 +147,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     abstract def resolveElement(key)
 
     // This should live in CompositeElemDim, but @Lazy doesn't work in traits
-    @Lazy ImmutableMap<String,PropertyImpl> elementFields = ImmutableMap.copyOf(
+    @Lazy ImmutableMap<String,Property> elementFields = ImmutableMap.copyOf(
         elemFields.collectEntries {
             Property prop
             if(it instanceof String) {
@@ -165,7 +167,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     }
 
     /** Dimensions may override this to use custom Property implementations. */
-    protected abstract PropertyImpl makeProperty(String field, String propertyname, Class type)
+    protected abstract Property makeProperty(String field, String propertyname, Class type)
 
     static boolean isSerializableType(Class t) {
         [Number, String, Date].any { it.isAssignableFrom(t) }
@@ -211,12 +213,6 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     }
 }
 
-@CompileStatic @TupleConstructor
-class PropertyImpl implements Property {
-    final String name; final String propertyName; final Class type
-    def get(element) { element.getAt(propertyName) }
-}
-
 
 /**
  * Implement this in dimensions that have a serializable element type (Number, String, or Date)
@@ -231,7 +227,7 @@ trait SerializableElemDim<ELTKey> {
     Class<? extends Serializable> getElementType() { getElemType() }
     List getElemFields() { null }
     ImmutableMap<String,Class> getElementFields() { null }
-    PropertyImpl makeProperty(String field, String propertyname, Class type) {
+    Property makeProperty(String field, String propertyname, Class type) {
         throw new UnsupportedOperationException("makeProperty not available for serializable element dimensions: $this")
     }
 
@@ -259,8 +255,8 @@ trait CompositeElemDim<ELT,ELKey> {
 
     Class<? extends Serializable> getElementType() { null }
 
-    PropertyImpl makeProperty(String field, String propertyname, Class type) {
-        new PropertyImpl(field, propertyname, type)
+    Property makeProperty(String field, String propertyname, Class type) {
+        new DefaultProperty(field, propertyname, type)
     }
 
     Map<String,Object> asSerializable(/*ELT*/ element) {
@@ -455,7 +451,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long>
     Class elemType = I2B2PatientDimension
     List elemFields = ["id", "trial", "inTrialId", "birthDate", "deathDate",
                       "age", "race", "maritalStatus", "religion", "sexCd",
-                      new PropertyImpl('sex', 'sex', String) {
+                      new DefaultProperty('sex', 'sex', String) {
                           @Override def get(element) { super.get(element).toString() }
                       }]
 
@@ -628,11 +624,11 @@ class ProviderDimension extends I2b2NullablePKDimension<String,String> implement
 class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeElemDim<Assay, Long>, PackableDimension {
     Class elemType = Assay
     List elemFields = ['id', 'sampleCode',
-        new PropertyImpl('sampleTypeName', null, String) {
+        new IdentityProperty('sampleTypeName', String) {
             def get(element) { ((Assay) element).sampleType?.label } },
-        new PropertyImpl('platform', null, String) {
+        new IdentityProperty('platform', String) {
             def get(element) { ((Assay) element).platform?.id } },
-        new PropertyImpl('patientId', null, Long) {
+        new IdentityProperty('patientId', Long) {
             def get(element) { ((Assay) element).patient.id} },
         'patientInTrialId',
     ]

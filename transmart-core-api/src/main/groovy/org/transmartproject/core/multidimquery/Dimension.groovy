@@ -119,12 +119,26 @@ interface Property {
     def get(element)
 }
 
-// A default Property implementation. Defined here so it can also be used in tests
+
+// Default Property implementations. Defined here so they can also be used in tests. These do not form part of the
+// API contract of the core api.
+
 @CompileStatic
-class DefaultProperty implements Property {
-    String name; Class type
-    DefaultProperty(String name, Class type) {
+class IdentityProperty implements Property {
+    final String name; final Class type
+
+    IdentityProperty(String name, Class type) {
         this.name = name; this.type = type
     }
-    def get(element) { element[name] }
+    def get(element) { element }
+}
+
+@CompileStatic
+class DefaultProperty implements Property {
+    final String name; final String propertyName; final Class type
+
+    DefaultProperty(String name, String propertyName, Class type) {
+        this.name = name; this.propertyName = propertyName; this.type = type
+    }
+    def get(element) { element[propertyName] }
 }
