@@ -688,28 +688,28 @@ var spec = {
           {
             "name": "type",
             "required": true,
-            "in": "query",
+            "in": "body",
             "description": "specifies the type of the data you want to retrieve. For clinical data specify `clinical`, for high dimensional data specify the data type or use `autodetect`. If you use `autodetect` the constraints must be such that only a single type of high dimensional data matches.",
             "type": "string"
           },
           {
             "name": "constraint",
             "required": true,
-            "in": "query",
+            "in": "body",
             "description": "json that specifies the constraint. Example: `{\"type\":\"study_name\", \"studyId\":\"EHR\"}` or `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\CLINICAL_TRIAL_HIGHDIM\\\\High Dimensional data\\\\Expression Lung\\\\\"}`.",
             "type": "string"
           },
           {
             "name": "biomarker_constraint",
             "required": false,
-            "in": "query",
+            "in": "body",
             "description": "json that describes the biomarker. The only valid type is the 'biomarker' constraint Example: `{\"type\":\"biomarker\", \"biomarkerType\":\"genes\",\"params\":{\"names\":[\"TP53\"]}}`.",
             "type": "string"
           },
           {
             "name": "projection",
             "required": false,
-            "in": "query",
+            "in": "body",
             "description": "The projection. Only used with high dimensional data Example: `all_data`, `zscore`, `log_intensity`. Default: `all_data`.",
             "type": "string"
           }
@@ -776,14 +776,14 @@ var spec = {
           {
             "name": "constraint",
             "required": true,
-            "in": "query",
+            "in": "body",
             "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
             "type": "string"
           },
           {
             "name": "type",
             "required": true,
-            "in": "query",
+            "in": "body",
             "description": "min, max, average",
             "type": "string"
           }
@@ -848,7 +848,7 @@ var spec = {
           {
             "name": "constraint",
             "required": true,
-            "in": "query",
+            "in": "body",
             "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
             "type": "string"
           }
@@ -909,7 +909,7 @@ var spec = {
           {
             "name": "constraint",
             "required": true,
-            "in": "query",
+            "in": "body",
             "description": "json that specifies the constraint. Example: `{\"type\":\"study_name\",\"studyId\":\"EHR\"}`.",
             "type": "string"
           }

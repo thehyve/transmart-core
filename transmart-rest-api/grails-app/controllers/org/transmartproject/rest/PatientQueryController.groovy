@@ -32,9 +32,10 @@ class PatientQueryController extends AbstractQueryController {
      * which there are observations that satisfy the constraint.
      */
     def listPatients(@RequestParam('api_version') String apiVersion) {
-        checkParams(params, ['constraint'])
+        def constraintMap = request.method == "POST" ? request.JSON as Map : params
+        checkParams(constraintMap, ['constraint'])
 
-        Constraint constraint = bindConstraint(params.constraint)
+        Constraint constraint = bindConstraint(constraintMap.constraint.toString())
         if (constraint == null) {
             return
         }

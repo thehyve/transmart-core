@@ -59,18 +59,22 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def observations() {
-        checkParams(params, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
+        def constraintMap = request.method == "POST" ? request.JSON as Map : params
+        checkParams(constraintMap, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
 
-        if (params.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
+        if (constraintMap.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
 
-        if (params.type == 'clinical') {
-            clinicalObservations(params.constraint)
+        if (constraintMap.type == 'clinical') {
+            clinicalObservations(constraintMap.constraint.toString())
         } else {
-            if(params.assay_constraint) {
+            if(constraintMap.assay_constraint) {
                 response.sendError(422, "Parameter 'assay_constraint' is no longer used, use 'constraint' instead")
                 return
             }
-            highdimObservations(params.type, params.constraint, params.biomarker_constraint, params.projection)
+            highdimObservations(constraintMap.type as String,
+                                constraintMap.constraint.toString(),
+                                constraintMap.biomarker_constraint.toString(),
+                                constraintMap.projection.toString())
         }
     }
 
@@ -119,9 +123,10 @@ class QueryController extends AbstractQueryController {
      * @return a the number of observations that satisfy the constraint.
      */
     def count() {
-        checkParams(params, ['constraint'])
+        def constraintMap = request.method == "POST" ? request.JSON as Map : params
+        checkParams(constraintMap, ['constraint'])
 
-        Constraint constraint = bindConstraint(params.constraint)
+        Constraint constraint = bindConstraint(constraintMap.constraint.toString())
         if (constraint == null) {
             return
         }
@@ -148,16 +153,17 @@ class QueryController extends AbstractQueryController {
      * @return a map with the aggregate type as key and the result as value.
      */
     def aggregate() {
-        checkParams(params, ['constraint', 'type'])
+        def constraintMap = request.method == "POST" ? request.JSON as Map : params
+        checkParams(constraintMap, ['constraint', 'type'])
 
-        if (!params.type) {
+        if (!constraintMap.type) {
             throw new InvalidArgumentsException("Type parameter is missing.")
         }
-        Constraint constraint = bindConstraint(params.constraint)
+        Constraint constraint = bindConstraint(constraintMap.constraint.toString())
         if (constraint == null) {
             return
         }
-        def aggregateType = AggregateType.forName(params.type as String)
+        def aggregateType = AggregateType.forName(constraintMap.type as String)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def aggregatedValue = multiDimService.aggregate(aggregateType, constraint, user)
         def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
