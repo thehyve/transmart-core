@@ -12,6 +12,7 @@ import {DashboardComponent} from "./components/dashboard/dashboard.component";
 import {DataSelectionComponent} from "./components/data-selection/data-selection.component";
 import {AnalysisComponent} from "./components/analysis/analysis.component";
 import {DataViewComponent} from "./components/data-view/data-view.component";
+import {ExportComponent} from "./components/export/export.component";
 
 
 @NgModule({
@@ -27,7 +28,8 @@ import {DataViewComponent} from "./components/data-view/data-view.component";
     DashboardComponent,
     DataSelectionComponent,
     DataViewComponent,
-    AnalysisComponent
+    AnalysisComponent,
+    ExportComponent
   ],
   bootstrap: [AppComponent]
 })

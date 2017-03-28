@@ -8,14 +8,19 @@
           [routerLink]="['/data-selection']">
     Data Selection
   </button>
-  <span class="glyphicon glyphicon-menu-right nav-pointer"></span>
-  <button type="button" [ngClass]="{'btn': true, 'btn-link': true, 'nav-btn': true, 'nav-active': isDataView}"
-          [routerLink]="['/data-view']">
-    Data View
-  </button>
+  <!--<span class="glyphicon glyphicon-menu-right nav-pointer"></span>-->
+  <!--<button type="button" [ngClass]="{'btn': true, 'btn-link': true, 'nav-btn': true, 'nav-active': isDataView}"-->
+          <!--[routerLink]="['/data-view']">-->
+    <!--Data View-->
+  <!--</button>-->
   <span class="glyphicon glyphicon-menu-right nav-pointer"></span>
   <button type="button" [ngClass]="{'btn': true, 'btn-link': true, 'nav-btn': true, 'nav-active': isAnalysis}"
           [routerLink]="['/analysis']">
     Analysis
+  </button>
+  <span class="glyphicon glyphicon-menu-right nav-pointer"></span>
+  <button type="button" [ngClass]="{'btn': true, 'btn-link': true, 'nav-btn': true, 'nav-active': isExport}"
+          [routerLink]="['/export']">
+    Export
   </button>
 </div>
