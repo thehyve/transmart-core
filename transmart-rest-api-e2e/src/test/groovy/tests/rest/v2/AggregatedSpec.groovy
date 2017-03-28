@@ -50,6 +50,34 @@ class AggregatedSpec extends RESTSpec {
 
     /**
      *  given: "study EHR is loaded"
+     *  when: "for that study I Aggregated the concept Heart Rate with type max"
+     *  then: "the number 102.0 is returned"
+     */
+    @RequiresStudy(EHR_ID)
+    def "aggregated timeseries maximum using POST method"() {
+
+        given: "study EHR is loaded"
+        def request = [
+                path      : PATH_AGGREGATE,
+                acceptType: contentTypeForJSON,
+                body     : [
+                        constraint: toJSON([
+                                type: ConceptConstraint,
+                                path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                        ]),
+                        type      : MAX
+                ]
+        ]
+
+        when: "for that study I Aggregated the concept Heart Rate with type max"
+        def responseData = post(request)
+
+        then: "the number 102 is returned"
+        assert responseData.max == 102.0
+    }
+
+    /**
+     *  given: "study EHR is loaded"
      *  when: "for that study I Aggregated the concept Heart Rate with type min"
      *  then: "the number 56.0 is returned"
      */
