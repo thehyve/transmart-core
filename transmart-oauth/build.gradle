@@ -56,8 +56,3 @@ dependencies {
 
     compile project(':search-domain')
 }
-
-bootRun {
-    jvmArgs = ['-Dspring.output.ansi.enabled=always']
-}
-
