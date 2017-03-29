@@ -5430,10 +5430,47 @@ public final class ObservationsProto {
 
     /**
      * <pre>
+     * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+     * null valued observations. This field exists to support null values if Transmart will change in this respect in
+     * the future, but do not expect this field to be populated with current (version 17+) versions.
+     * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+     * are still inline dimensions, while for absentValues there are not.
+     * </pre>
+     *
+     * <code>repeated int32 nullValueIndices = 8;</code>
+     */
+    java.util.List<java.lang.Integer> getNullValueIndicesList();
+    /**
+     * <pre>
+     * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+     * null valued observations. This field exists to support null values if Transmart will change in this respect in
+     * the future, but do not expect this field to be populated with current (version 17+) versions.
+     * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+     * are still inline dimensions, while for absentValues there are not.
+     * </pre>
+     *
+     * <code>repeated int32 nullValueIndices = 8;</code>
+     */
+    int getNullValueIndicesCount();
+    /**
+     * <pre>
+     * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+     * null valued observations. This field exists to support null values if Transmart will change in this respect in
+     * the future, but do not expect this field to be populated with current (version 17+) versions.
+     * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+     * are still inline dimensions, while for absentValues there are not.
+     * </pre>
+     *
+     * <code>repeated int32 nullValueIndices = 8;</code>
+     */
+    int getNullValueIndices(int index);
+
+    /**
+     * <pre>
      * The number of values for which the packed dimension is null. These are prepended to the list of values.
      * </pre>
      *
-     * <code>optional int32 nullElementCount = 8;</code>
+     * <code>optional int32 nullElementCount = 9;</code>
      */
     int getNullElementCount();
 
@@ -5548,6 +5585,7 @@ public final class ObservationsProto {
       inlineDimensions_ = java.util.Collections.emptyList();
       stringValues_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       numericValues_ = java.util.Collections.emptyList();
+      nullValueIndices_ = java.util.Collections.emptyList();
       nullElementCount_ = 0;
       sampleCounts_ = java.util.Collections.emptyList();
       absentValues_ = java.util.Collections.emptyList();
@@ -5641,9 +5679,9 @@ public final class ObservationsProto {
               break;
             }
             case 40: {
-              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
                 sampleCounts_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000020;
+                mutable_bitField0_ |= 0x00000040;
               }
               sampleCounts_.add(input.readInt32());
               break;
@@ -5651,9 +5689,9 @@ public final class ObservationsProto {
             case 42: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
                 sampleCounts_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000020;
+                mutable_bitField0_ |= 0x00000040;
               }
               while (input.getBytesUntilLimit() > 0) {
                 sampleCounts_.add(input.readInt32());
@@ -5662,9 +5700,9 @@ public final class ObservationsProto {
               break;
             }
             case 48: {
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
                 absentValues_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000080;
               }
               absentValues_.add(input.readInt32());
               break;
@@ -5672,9 +5710,9 @@ public final class ObservationsProto {
             case 50: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080) && input.getBytesUntilLimit() > 0) {
                 absentValues_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000080;
               }
               while (input.getBytesUntilLimit() > 0) {
                 absentValues_.add(input.readInt32());
@@ -5688,6 +5726,27 @@ public final class ObservationsProto {
               break;
             }
             case 64: {
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+                nullValueIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              nullValueIndices_.add(input.readInt32());
+              break;
+            }
+            case 66: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010) && input.getBytesUntilLimit() > 0) {
+                nullValueIndices_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                nullValueIndices_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 72: {
 
               nullElementCount_ = input.readInt32();
               break;
@@ -5718,11 +5777,14 @@ public final class ObservationsProto {
         if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           numericValues_ = java.util.Collections.unmodifiableList(numericValues_);
         }
-        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           sampleCounts_ = java.util.Collections.unmodifiableList(sampleCounts_);
         }
-        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
           absentValues_ = java.util.Collections.unmodifiableList(absentValues_);
+        }
+        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+          nullValueIndices_ = java.util.Collections.unmodifiableList(nullValueIndices_);
         }
         makeExtensionsImmutable();
       }
@@ -5937,14 +5999,61 @@ public final class ObservationsProto {
     }
     private int numericValuesMemoizedSerializedSize = -1;
 
-    public static final int NULLELEMENTCOUNT_FIELD_NUMBER = 8;
+    public static final int NULLVALUEINDICES_FIELD_NUMBER = 8;
+    private java.util.List<java.lang.Integer> nullValueIndices_;
+    /**
+     * <pre>
+     * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+     * null valued observations. This field exists to support null values if Transmart will change in this respect in
+     * the future, but do not expect this field to be populated with current (version 17+) versions.
+     * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+     * are still inline dimensions, while for absentValues there are not.
+     * </pre>
+     *
+     * <code>repeated int32 nullValueIndices = 8;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getNullValueIndicesList() {
+      return nullValueIndices_;
+    }
+    /**
+     * <pre>
+     * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+     * null valued observations. This field exists to support null values if Transmart will change in this respect in
+     * the future, but do not expect this field to be populated with current (version 17+) versions.
+     * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+     * are still inline dimensions, while for absentValues there are not.
+     * </pre>
+     *
+     * <code>repeated int32 nullValueIndices = 8;</code>
+     */
+    public int getNullValueIndicesCount() {
+      return nullValueIndices_.size();
+    }
+    /**
+     * <pre>
+     * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+     * null valued observations. This field exists to support null values if Transmart will change in this respect in
+     * the future, but do not expect this field to be populated with current (version 17+) versions.
+     * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+     * are still inline dimensions, while for absentValues there are not.
+     * </pre>
+     *
+     * <code>repeated int32 nullValueIndices = 8;</code>
+     */
+    public int getNullValueIndices(int index) {
+      return nullValueIndices_.get(index);
+    }
+    private int nullValueIndicesMemoizedSerializedSize = -1;
+
+    public static final int NULLELEMENTCOUNT_FIELD_NUMBER = 9;
     private int nullElementCount_;
     /**
      * <pre>
      * The number of values for which the packed dimension is null. These are prepended to the list of values.
      * </pre>
      *
-     * <code>optional int32 nullElementCount = 8;</code>
+     * <code>optional int32 nullElementCount = 9;</code>
      */
     public int getNullElementCount() {
       return nullElementCount_;
@@ -6143,8 +6252,15 @@ public final class ObservationsProto {
       if (last_ != false) {
         output.writeBool(7, last_);
       }
+      if (getNullValueIndicesList().size() > 0) {
+        output.writeUInt32NoTag(66);
+        output.writeUInt32NoTag(nullValueIndicesMemoizedSerializedSize);
+      }
+      for (int i = 0; i < nullValueIndices_.size(); i++) {
+        output.writeInt32NoTag(nullValueIndices_.get(i));
+      }
       if (nullElementCount_ != 0) {
-        output.writeInt32(8, nullElementCount_);
+        output.writeInt32(9, nullElementCount_);
       }
       if (!getErrorBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 99, error_);
@@ -6225,9 +6341,23 @@ public final class ObservationsProto {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(7, last_);
       }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < nullValueIndices_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(nullValueIndices_.get(i));
+        }
+        size += dataSize;
+        if (!getNullValueIndicesList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        nullValueIndicesMemoizedSerializedSize = dataSize;
+      }
       if (nullElementCount_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(8, nullElementCount_);
+          .computeInt32Size(9, nullElementCount_);
       }
       if (!getErrorBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(99, error_);
@@ -6256,6 +6386,8 @@ public final class ObservationsProto {
           .equals(other.getStringValuesList());
       result = result && getNumericValuesList()
           .equals(other.getNumericValuesList());
+      result = result && getNullValueIndicesList()
+          .equals(other.getNullValueIndicesList());
       result = result && (getNullElementCount()
           == other.getNullElementCount());
       result = result && getSampleCountsList()
@@ -6291,6 +6423,10 @@ public final class ObservationsProto {
       if (getNumericValuesCount() > 0) {
         hash = (37 * hash) + NUMERICVALUES_FIELD_NUMBER;
         hash = (53 * hash) + getNumericValuesList().hashCode();
+      }
+      if (getNullValueIndicesCount() > 0) {
+        hash = (37 * hash) + NULLVALUEINDICES_FIELD_NUMBER;
+        hash = (53 * hash) + getNullValueIndicesList().hashCode();
       }
       hash = (37 * hash) + NULLELEMENTCOUNT_FIELD_NUMBER;
       hash = (53 * hash) + getNullElementCount();
@@ -6438,12 +6574,14 @@ public final class ObservationsProto {
         bitField0_ = (bitField0_ & ~0x00000004);
         numericValues_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000008);
+        nullValueIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000010);
         nullElementCount_ = 0;
 
         sampleCounts_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000020);
-        absentValues_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000040);
+        absentValues_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000080);
         last_ = false;
 
         error_ = "";
@@ -6496,15 +6634,20 @@ public final class ObservationsProto {
           bitField0_ = (bitField0_ & ~0x00000008);
         }
         result.numericValues_ = numericValues_;
+        if (((bitField0_ & 0x00000010) == 0x00000010)) {
+          nullValueIndices_ = java.util.Collections.unmodifiableList(nullValueIndices_);
+          bitField0_ = (bitField0_ & ~0x00000010);
+        }
+        result.nullValueIndices_ = nullValueIndices_;
         result.nullElementCount_ = nullElementCount_;
-        if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        if (((bitField0_ & 0x00000040) == 0x00000040)) {
           sampleCounts_ = java.util.Collections.unmodifiableList(sampleCounts_);
-          bitField0_ = (bitField0_ & ~0x00000020);
+          bitField0_ = (bitField0_ & ~0x00000040);
         }
         result.sampleCounts_ = sampleCounts_;
-        if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((bitField0_ & 0x00000080) == 0x00000080)) {
           absentValues_ = java.util.Collections.unmodifiableList(absentValues_);
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000080);
         }
         result.absentValues_ = absentValues_;
         result.last_ = last_;
@@ -6607,13 +6750,23 @@ public final class ObservationsProto {
           }
           onChanged();
         }
+        if (!other.nullValueIndices_.isEmpty()) {
+          if (nullValueIndices_.isEmpty()) {
+            nullValueIndices_ = other.nullValueIndices_;
+            bitField0_ = (bitField0_ & ~0x00000010);
+          } else {
+            ensureNullValueIndicesIsMutable();
+            nullValueIndices_.addAll(other.nullValueIndices_);
+          }
+          onChanged();
+        }
         if (other.getNullElementCount() != 0) {
           setNullElementCount(other.getNullElementCount());
         }
         if (!other.sampleCounts_.isEmpty()) {
           if (sampleCounts_.isEmpty()) {
             sampleCounts_ = other.sampleCounts_;
-            bitField0_ = (bitField0_ & ~0x00000020);
+            bitField0_ = (bitField0_ & ~0x00000040);
           } else {
             ensureSampleCountsIsMutable();
             sampleCounts_.addAll(other.sampleCounts_);
@@ -6623,7 +6776,7 @@ public final class ObservationsProto {
         if (!other.absentValues_.isEmpty()) {
           if (absentValues_.isEmpty()) {
             absentValues_ = other.absentValues_;
-            bitField0_ = (bitField0_ & ~0x00000040);
+            bitField0_ = (bitField0_ & ~0x00000080);
           } else {
             ensureAbsentValuesIsMutable();
             absentValues_.addAll(other.absentValues_);
@@ -7374,13 +7527,135 @@ public final class ObservationsProto {
         return this;
       }
 
+      private java.util.List<java.lang.Integer> nullValueIndices_ = java.util.Collections.emptyList();
+      private void ensureNullValueIndicesIsMutable() {
+        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+          nullValueIndices_ = new java.util.ArrayList<java.lang.Integer>(nullValueIndices_);
+          bitField0_ |= 0x00000010;
+         }
+      }
+      /**
+       * <pre>
+       * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+       * null valued observations. This field exists to support null values if Transmart will change in this respect in
+       * the future, but do not expect this field to be populated with current (version 17+) versions.
+       * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+       * are still inline dimensions, while for absentValues there are not.
+       * </pre>
+       *
+       * <code>repeated int32 nullValueIndices = 8;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getNullValueIndicesList() {
+        return java.util.Collections.unmodifiableList(nullValueIndices_);
+      }
+      /**
+       * <pre>
+       * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+       * null valued observations. This field exists to support null values if Transmart will change in this respect in
+       * the future, but do not expect this field to be populated with current (version 17+) versions.
+       * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+       * are still inline dimensions, while for absentValues there are not.
+       * </pre>
+       *
+       * <code>repeated int32 nullValueIndices = 8;</code>
+       */
+      public int getNullValueIndicesCount() {
+        return nullValueIndices_.size();
+      }
+      /**
+       * <pre>
+       * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+       * null valued observations. This field exists to support null values if Transmart will change in this respect in
+       * the future, but do not expect this field to be populated with current (version 17+) versions.
+       * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+       * are still inline dimensions, while for absentValues there are not.
+       * </pre>
+       *
+       * <code>repeated int32 nullValueIndices = 8;</code>
+       */
+      public int getNullValueIndices(int index) {
+        return nullValueIndices_.get(index);
+      }
+      /**
+       * <pre>
+       * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+       * null valued observations. This field exists to support null values if Transmart will change in this respect in
+       * the future, but do not expect this field to be populated with current (version 17+) versions.
+       * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+       * are still inline dimensions, while for absentValues there are not.
+       * </pre>
+       *
+       * <code>repeated int32 nullValueIndices = 8;</code>
+       */
+      public Builder setNullValueIndices(
+          int index, int value) {
+        ensureNullValueIndicesIsMutable();
+        nullValueIndices_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+       * null valued observations. This field exists to support null values if Transmart will change in this respect in
+       * the future, but do not expect this field to be populated with current (version 17+) versions.
+       * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+       * are still inline dimensions, while for absentValues there are not.
+       * </pre>
+       *
+       * <code>repeated int32 nullValueIndices = 8;</code>
+       */
+      public Builder addNullValueIndices(int value) {
+        ensureNullValueIndicesIsMutable();
+        nullValueIndices_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+       * null valued observations. This field exists to support null values if Transmart will change in this respect in
+       * the future, but do not expect this field to be populated with current (version 17+) versions.
+       * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+       * are still inline dimensions, while for absentValues there are not.
+       * </pre>
+       *
+       * <code>repeated int32 nullValueIndices = 8;</code>
+       */
+      public Builder addAllNullValueIndices(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureNullValueIndicesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, nullValueIndices_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+       * null valued observations. This field exists to support null values if Transmart will change in this respect in
+       * the future, but do not expect this field to be populated with current (version 17+) versions.
+       * The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+       * are still inline dimensions, while for absentValues there are not.
+       * </pre>
+       *
+       * <code>repeated int32 nullValueIndices = 8;</code>
+       */
+      public Builder clearNullValueIndices() {
+        nullValueIndices_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000010);
+        onChanged();
+        return this;
+      }
+
       private int nullElementCount_ ;
       /**
        * <pre>
        * The number of values for which the packed dimension is null. These are prepended to the list of values.
        * </pre>
        *
-       * <code>optional int32 nullElementCount = 8;</code>
+       * <code>optional int32 nullElementCount = 9;</code>
        */
       public int getNullElementCount() {
         return nullElementCount_;
@@ -7390,7 +7665,7 @@ public final class ObservationsProto {
        * The number of values for which the packed dimension is null. These are prepended to the list of values.
        * </pre>
        *
-       * <code>optional int32 nullElementCount = 8;</code>
+       * <code>optional int32 nullElementCount = 9;</code>
        */
       public Builder setNullElementCount(int value) {
         
@@ -7403,7 +7678,7 @@ public final class ObservationsProto {
        * The number of values for which the packed dimension is null. These are prepended to the list of values.
        * </pre>
        *
-       * <code>optional int32 nullElementCount = 8;</code>
+       * <code>optional int32 nullElementCount = 9;</code>
        */
       public Builder clearNullElementCount() {
         
@@ -7414,9 +7689,9 @@ public final class ObservationsProto {
 
       private java.util.List<java.lang.Integer> sampleCounts_ = java.util.Collections.emptyList();
       private void ensureSampleCountsIsMutable() {
-        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
           sampleCounts_ = new java.util.ArrayList<java.lang.Integer>(sampleCounts_);
-          bitField0_ |= 0x00000020;
+          bitField0_ |= 0x00000040;
          }
       }
       /**
@@ -7571,16 +7846,16 @@ public final class ObservationsProto {
        */
       public Builder clearSampleCounts() {
         sampleCounts_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000040);
         onChanged();
         return this;
       }
 
       private java.util.List<java.lang.Integer> absentValues_ = java.util.Collections.emptyList();
       private void ensureAbsentValuesIsMutable() {
-        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
           absentValues_ = new java.util.ArrayList<java.lang.Integer>(absentValues_);
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000080;
          }
       }
       /**
@@ -7637,7 +7912,7 @@ public final class ObservationsProto {
        */
       public Builder clearAbsentValues() {
         absentValues_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000080);
         onChanged();
         return this;
       }
@@ -15161,35 +15436,36 @@ public final class ObservationsProto {
       "e.DimensionElement\022\036\n\026absentInlineDimens" +
       "ions\030\005 \003(\005\022\025\n\013stringValue\030\003 \001(\tH\000\022\026\n\014num" +
       "ericValue\030\004 \001(\001H\000\022\014\n\004last\030\007 \001(\010\022\r\n\005error" +
-      "\030c \001(\tB\007\n\005value\"\356\001\n\nPackedCell\022\030\n\020dimens" +
+      "\030c \001(\tB\007\n\005value\"\210\002\n\nPackedCell\022\030\n\020dimens" +
       "ionIndexes\030\001 \003(\003\0226\n\020inlineDimensions\030\002 \003" +
       "(\0132\034.hypercube.DimensionElements\022\024\n\014stri" +
       "ngValues\030\003 \003(\t\022\025\n\rnumericValues\030\004 \003(\001\022\030\n" +
-      "\020nullElementCount\030\010 \001(\005\022\024\n\014sampleCounts\030",
-      "\005 \003(\005\022\024\n\014absentValues\030\006 \003(\005\022\014\n\004last\030\007 \001(" +
-      "\010\022\r\n\005error\030c \001(\t\"\265\001\n\020DimensionElement\022 \n" +
-      "\006fields\030\001 \003(\0132\020.hypercube.Value\022\022\n\010intVa" +
-      "lue\030\002 \001(\022H\000\022\025\n\013doubleValue\030\003 \001(\001H\000\022\025\n\013st" +
-      "ringValue\030\004 \001(\tH\000\022\030\n\016timestampValue\030\005 \001(" +
-      "\003H\000\022\032\n\022absentFieldIndices\030\006 \003(\005B\007\n\005value" +
-      "\"l\n\005Value\022\025\n\013stringValue\030\001 \001(\tH\000\022\025\n\013doub" +
-      "leValue\030\002 \001(\001H\000\022\022\n\010intValue\030\003 \001(\022H\000\022\030\n\016t" +
-      "imestampValue\030\004 \001(\003H\000B\007\n\005value\"H\n\006Footer" +
-      "\022/\n\tdimension\030\001 \003(\0132\034.hypercube.Dimensio",
-      "nElements\022\r\n\005error\030c \001(\t\"\337\001\n\021DimensionEl" +
-      "ements\022\014\n\004name\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.h" +
-      "ypercube.DimensionElementFieldColumn\022 \n\030" +
-      "absentFieldColumnIndices\030\004 \003(\005\022\034\n\024absent" +
-      "ElementIndices\030\005 \003(\005\022\r\n\005empty\030\006 \001(\010\022\023\n\tp" +
-      "erSample\030\002 \001(\010H\000\022\027\n\rperPackedCell\030\007 \001(\010H" +
-      "\000B\007\n\005scope\"\215\001\n\033DimensionElementFieldColu" +
-      "mn\022\023\n\013stringValue\030\001 \003(\t\022\023\n\013doubleValue\030\002" +
-      " \003(\001\022\020\n\010intValue\030\003 \003(\022\022\026\n\016timestampValue" +
-      "\030\004 \003(\003\022\032\n\022absentValueIndices\030\005 \003(\005\"\026\n\005Er",
-      "ror\022\r\n\005error\030c \001(\t*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n" +
-      "\n\006STRING\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OB" +
-      "JECT\020\004B=\n(org.transmartproject.rest.hype" +
-      "rcubeProtoB\021ObservationsProtob\006proto3"
+      "\020nullValueIndices\030\010 \003(\005\022\030\n\020nullElementCo",
+      "unt\030\t \001(\005\022\024\n\014sampleCounts\030\005 \003(\005\022\024\n\014absen" +
+      "tValues\030\006 \003(\005\022\014\n\004last\030\007 \001(\010\022\r\n\005error\030c \001" +
+      "(\t\"\265\001\n\020DimensionElement\022 \n\006fields\030\001 \003(\0132" +
+      "\020.hypercube.Value\022\022\n\010intValue\030\002 \001(\022H\000\022\025\n" +
+      "\013doubleValue\030\003 \001(\001H\000\022\025\n\013stringValue\030\004 \001(" +
+      "\tH\000\022\030\n\016timestampValue\030\005 \001(\003H\000\022\032\n\022absentF" +
+      "ieldIndices\030\006 \003(\005B\007\n\005value\"l\n\005Value\022\025\n\013s" +
+      "tringValue\030\001 \001(\tH\000\022\025\n\013doubleValue\030\002 \001(\001H" +
+      "\000\022\022\n\010intValue\030\003 \001(\022H\000\022\030\n\016timestampValue\030" +
+      "\004 \001(\003H\000B\007\n\005value\"H\n\006Footer\022/\n\tdimension\030",
+      "\001 \003(\0132\034.hypercube.DimensionElements\022\r\n\005e" +
+      "rror\030c \001(\t\"\337\001\n\021DimensionElements\022\014\n\004name" +
+      "\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.hypercube.Dimen" +
+      "sionElementFieldColumn\022 \n\030absentFieldCol" +
+      "umnIndices\030\004 \003(\005\022\034\n\024absentElementIndices" +
+      "\030\005 \003(\005\022\r\n\005empty\030\006 \001(\010\022\023\n\tperSample\030\002 \001(\010" +
+      "H\000\022\027\n\rperPackedCell\030\007 \001(\010H\000B\007\n\005scope\"\215\001\n" +
+      "\033DimensionElementFieldColumn\022\023\n\013stringVa" +
+      "lue\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010intVal" +
+      "ue\030\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022\032\n\022abse",
+      "ntValueIndices\030\005 \003(\005\"\026\n\005Error\022\r\n\005error\030c" +
+      " \001(\t*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING\020\001\022\007\n\003" +
+      "INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004B=\n(org." +
+      "transmartproject.rest.hypercubeProtoB\021Ob" +
+      "servationsProtob\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -15232,7 +15508,7 @@ public final class ObservationsProto {
     internal_static_hypercube_PackedCell_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_PackedCell_descriptor,
-        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValues", "NumericValues", "NullElementCount", "SampleCounts", "AbsentValues", "Last", "Error", });
+        new java.lang.String[] { "DimensionIndexes", "InlineDimensions", "StringValues", "NumericValues", "NullValueIndices", "NullElementCount", "SampleCounts", "AbsentValues", "Last", "Error", });
     internal_static_hypercube_DimensionElement_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_hypercube_DimensionElement_fieldAccessorTable = new

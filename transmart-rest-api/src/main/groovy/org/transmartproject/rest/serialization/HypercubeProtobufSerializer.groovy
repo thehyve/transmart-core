@@ -195,7 +195,8 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
     class PackedCellBuilder {
         private PackedCell.Builder builder = PackedCell.newBuilder()
-        private Class valueType
+        private Class valueType = null
+        private int valueIndex = 0
 
         private boolean sameIndices(HypercubeValue val, ArrayList<Integer> indices) {
             for (int i = 0; i < indices.size(); i++) {
@@ -212,6 +213,10 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             groupIndices
         }
 
+        /**
+         * Parse the next group from the values iterator.
+         * @return The group and its type. If only null values were seen before the iterator was exhausted, returns null
+         */
         private Pair<ArrayList<HypercubeValue>, Class> nextGroup() {
             ArrayList<HypercubeValue> group = []
             HypercubeValue prototype = iterator.next()
@@ -223,18 +228,20 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                 Class valueType = iterator.peek().value?.class
                 if (!compatibleValueType(valueType, groupValueType)) {
                     log.warn("Observations with incompatible value types found for the same concept or projection. " +
-                            "Got $valueType.simpleName while previous observation(s) had values of type ${this.valueType.simpleName}")
+                            "Got ${valueType?.simpleName ?: "null"} while previous observation(s) had values of type " +
+                            "${groupValueType.get()?.simpleName ?: "null"}")
                     break
                 }
                 group.add(iterator.next())
             }
 
+            if(groupValueType.get() == null) return null
             new Pair(group, groupValueType.get())
         }
 
         boolean compatibleValueType(Class type, Reference<Class> groupValueType) {
             // The prototype may not have a value at all, and therefore a null value type. So we need to handle three cases:
-            // null, String, or Number.
+            // null, String, or Number. Null values are not serialized, so the final group type
             if (groupValueType.get() == null) {
                 groupValueType.set type
                 return true
@@ -246,8 +253,10 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         protected PackedCell createPackedCell() {
             builder.clear()
             valueType = null
+            valueIndex = 0
 
             Pair<ArrayList<HypercubeValue>, Class> groupAndType = nextGroup()
+            if(groupAndType == null) return null
             ArrayList<HypercubeValue> group = groupAndType.aValue
             valueType = groupAndType.bValue
             HypercubeValue prototype = group[0]
@@ -370,6 +379,10 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         }
 
         private void addValue(HypercubeValue value) {
+            if(value.value == null) {
+                builder.addNullValueIndices(valueIndex+1)  // 1-based
+            }
+            valueIndex++
             if (String.is(valueType)) {
                 builder.addStringValues(value.value.toString())
             } else {
@@ -501,13 +514,11 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
             if(!packingEnabled) {
                 while(iterator.hasNext()) {
-                    def message = createCell(iterator.next())
-                    message.writeDelimitedTo(out)
+                    createCell(iterator.next())?.writeDelimitedTo(out)
                 }
             } else {
                 while(iterator.hasNext()) {
-                    def message = createPackedCell()
-                    message.writeDelimitedTo(out)
+                    createPackedCell()?.writeDelimitedTo(out)
                 }
             }
 

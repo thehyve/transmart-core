@@ -13,7 +13,9 @@ import com.google.common.collect.ImmutableSet
 interface HypercubeValue {
 
     /**
-     * @return The value of this cell. This can be a String, a Number, or a Date
+     * @return The value of this cell. In the current Transmart implementation this can be a String or a
+     * Double/BigDecimal. The Hypercube format in principle supports any type of values but this is not used.
+     * The Hypercube api also supports null values, but that too is not used in Transmart as of version 17.
      */
     def getValue()
 

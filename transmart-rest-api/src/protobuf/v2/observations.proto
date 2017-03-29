@@ -122,8 +122,15 @@ message PackedCell {
     repeated string stringValues = 3;
     repeated double numericValues = 4;
 
+    // 1-based indices of missing/null values. Note that Transmart currently has no or very limited support for having
+    // null valued observations. This field exists to support null values if Transmart will change in this respect in
+    // the future, but do not expect this field to be populated with current (version 17+) versions.
+    // The difference between this field and `absentValues` is that for value indexes in `nullValueIndices`, there
+    // are still inline dimensions, while for absentValues there are not.
+    repeated int32 nullValueIndices = 8;
+
     // The number of values for which the packed dimension is null. These are prepended to the list of values.
-    int32 nullElementCount = 8;
+    int32 nullElementCount = 9;
 
     // Only one of these must be present.
     //

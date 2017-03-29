@@ -144,6 +144,10 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                     def value = row[i]
 
                     if (value == null) {
+                        // The tabular results returns nulls for missing values in the table. The hypercube generally
+                        // omits null values altogether. While the hypercube format itself can support null values,
+                        // they are not usually stored in the Transmart database, and the ETL tools don't support
+                        // loading null observations.
                         continue
                     } else if (value instanceof Number || value instanceof String) {
                         nextVals.add(new TabularResultAdapterValue(
