@@ -1,6 +1,5 @@
 package org.transmartproject.rest.serialization
 
-import com.google.protobuf.ValueOrBuilder
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.CellOrBuilder
@@ -45,7 +44,7 @@ class DeserializationHelper {
         assert false // a value must be set
     }
 
-    static def decodeDimensionElement(DimensionElementOrBuilder dimElement, Collection properties = null) {
+    static def decodeDimensionElement(DimensionElementOrBuilder dimElement, Collection<String> propertyNames = null) {
         def value = [
                 (ObservationsProto.DimensionElement.ValueCase.STRINGVALUE): dimElement.stringValue,
                 (ObservationsProto.DimensionElement.ValueCase.INTVALUE): dimElement.intValue,
@@ -64,9 +63,9 @@ class DeserializationHelper {
 
         value = handleAbsents(value.collect { getValue(it) }, dimElement.absentFieldIndicesList)
 
-        if(properties != null) {
-            assert value.size() == properties.size()
-            return [properties*.name, value].transpose().collectEntries()
+        if(propertyNames != null) {
+            assert value.size() == propertyNames.size()
+            return [propertyNames.asList(), value].transpose().collectEntries()
         }
 
         return value
@@ -79,19 +78,12 @@ class DeserializationHelper {
      * @param additionalAbsents
      * @return
      */
-    static List parseFieldColumn(ObservationsProto.DimensionElementFieldColumnOrBuilder column, Class type,
+    static List parseFieldColumn(ObservationsProto.DimensionElementFieldColumnOrBuilder column,
                                  List<Integer> additionalAbsents = []) {
-        def values = [
-                (String): column.stringValueList,
-                (Double): column.doubleValueList,
-                (Integer): column.intValueList,
-                (Long): column.intValueList,
-                (Date): column.timestampValueList,
-        ][type]
-        if(type != String) assert column.stringValueCount == 0
-        if(type != Double) assert column.doubleValueCount == 0
-        if(type != Date) assert column.timestampValueCount == 0
-        if(type != Integer && type != Long) assert column.intValueCount == 0
+        def values = column.stringValueList ?: column.doubleValueList ?: column.intValueList ?: column.timestampValueList
+
+        assert [column.stringValueCount, column.intValueCount, column.doubleValueCount, column.timestampValueCount]
+                .collect { it == 0 ? 0 : 1 }.sum() == 1
 
         def absents = column.absentValueIndicesList
         if(additionalAbsents) {
@@ -112,27 +104,24 @@ class DeserializationHelper {
      * is empty we don't know how many elements it represents, so this returns null. If `properties` is not specified
      * the return value is a list of plain elements.
      */
-    static List parseDimensionElements(ObservationsProto.DimensionElementsOrBuilder dimElems, propertiesOrType) {
+    static List parseDimensionElements(ObservationsProto.DimensionElementsOrBuilder dimElems, Collection<String> propertyNames=null) {
         List<List> columns = []
         if(dimElems.empty) return null
         def columnDefs = handleAbsents(dimElems.fieldsList, dimElems.absentFieldColumnIndicesList)
-        if(propertiesOrType instanceof Class) {
+        if(propertyNames == null) {
             assert columnDefs.size() == 1
             def columnDef = columnDefs[0]
             assert columnDef != null, "All columns null, the `empty` flag should have been set"
-            return parseFieldColumn(columnDef, propertiesOrType, dimElems.absentElementIndicesList)
+            return parseFieldColumn(columnDef, dimElems.absentElementIndicesList)
         }
-        def properties = propertiesOrType as List
 
-        assert columnDefs.size() == properties.size()
-        for(c_prop in [columnDefs, properties].transpose()) {
-            ObservationsProto.DimensionElementFieldColumnOrBuilder c = c_prop[0]
-            Class type = c_prop[1].type
+        assert columnDefs.size() == propertyNames.size()
+        for(c in columnDefs) {
             if(c == null) {
                 columns << null
                 continue
             }
-            columns << parseFieldColumn(c, type, dimElems.absentElementIndicesList)
+            columns << parseFieldColumn(c, dimElems.absentElementIndicesList)
         }
         def sizes = columns.findAll { it != null }.collect { it.size() }
         assert sizes.min() == sizes.max()
@@ -140,9 +129,8 @@ class DeserializationHelper {
 
         columns = columns.collect { it == null ? [null] * size : it }
 
-        List<String> propNames = properties*.name
         def fields = columns.transpose()
-        return fields.collect { [propNames, it].transpose().collectEntries() }
+        return fields.collect { [propertyNames.asList(), it].transpose().collectEntries() }
     }
 
 
@@ -163,7 +151,7 @@ class DeserializationHelper {
             return elems.collect { it == null ? null : decodeDimensionElement(it)}
         }
         [elems, dimensions].transpose().collect { elem, Dimension dim ->
-            elem ? decodeDimensionElement(elem, dim?.elementFields?.values()) : null
+            elem ? decodeDimensionElement(elem, dim?.elementFields?.keySet()) : null
         }
     }
 

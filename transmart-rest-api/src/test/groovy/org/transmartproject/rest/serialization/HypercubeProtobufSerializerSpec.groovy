@@ -32,6 +32,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
     final conceptDim = new DenseDim('concept', fields: [path: String, code: Double],
             packable: Dimension.Packable.NOT_PACKABLE)
     final dateDim = new SparseDim('date', type: Date)
+    final visitDim = new DenseDim('visit', type: Integer, serializable: true)
 
     List<Map> getPatients() { [
             [id: 10, trialId: "patient_10"],
@@ -44,13 +45,20 @@ class HypercubeProtobufSerializerSpec extends Specification {
     ] }
 
     List<Map> getObservations() { [
-            [patient: patients[0], concept: concepts[0], value: 1.2, date: new Date(100)],
-            [patient: patients[1], concept: concepts[0], value: 2.2, date: new Date(110)],
-            // skipped: [patient: patients[2], concept: concepts[0], value: 1.5, date: new Date(120)],
-            [patient: patients[0], concept: concepts[1], value: "FOO", date: new Date(105)],
-            [patient: patients[1], concept: concepts[1], value: null, date: new Date(115)],
-            [patient: patients[2], concept: concepts[1], value: "BAZ", date: null],
-            [patient: null, concept: concepts[1], value: "QUUX", date: null],
+            [visit: 0, patient: patients[0], concept: concepts[0], value: 1.2, date: new Date(100)],
+            [visit: 0, patient: patients[1], concept: concepts[0], value: 2.2, date: new Date(110)],
+            // skipped: [visit: 0, patient: patients[2], concept: concepts[0], value: 1.5, date: new Date(120)],
+            [visit: 0, patient: patients[0], concept: concepts[1], value: "FOO", date: new Date(105)],
+            [visit: 0, patient: patients[1], concept: concepts[1], value: null, date: new Date(115)],
+            [visit: 0, patient: patients[2], concept: concepts[1], value: "BAZ", date: null],
+            [visit: 0, patient: null, concept: concepts[1], value: "QUUX", date: null],
+
+            [visit: 1, patient: patients[0], concept: concepts[0], value: 1.3, date: new Date(200)],
+            [visit: 1, patient: patients[1], concept: concepts[0], value: 2.1, date: new Date(210)],
+            [visit: 1, patient: patients[2], concept: concepts[0], value: 1.5, date: new Date(220)],
+            [visit: 1, patient: patients[0], concept: concepts[1], value: "FOO", date: new Date(205)],
+            [visit: 1, patient: patients[1], concept: concepts[1], value: "BAR", date: new Date(215)],
+            [visit: 1, patient: patients[2], concept: concepts[1], value: "BAZ2", date: null],
     ] }
 
 //    def immutate(collection) {
@@ -75,10 +83,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
             }])
 
 
-    // todo: create mock values, test value serialization
-
-
-    def getIndexedDims() { [conceptDim, patientDim]}
+    def getIndexedDims() { [visitDim, conceptDim, patientDim] }
     def getInlineDims() { [dateDim] }
     def getAllDims() { indexedDims + inlineDims }
 
@@ -127,7 +132,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
         then:
         serializer.packingEnabled
         serializer.packedDimension == patientDim
-        serializer.indexedDims == [conceptDim]
+        serializer.indexedDims == indexedDims - patientDim
         serializer.inlineDims == [dateDim]
 
         when:
@@ -182,12 +187,12 @@ class HypercubeProtobufSerializerSpec extends Specification {
                 assert dec.elements.fieldsList.empty
         }
 
-        dimensionDecs[0..1]*.type.each { assert it == ObservationsProto.Type.OBJECT }
-        dimensionDecs[2].type == TIMESTAMP
+        dimensionDecs[1..2]*.type.each { assert it == ObservationsProto.Type.OBJECT }
+        dimensionDecs[3].type == TIMESTAMP
 
-        dimensionDecs[1].packed == indexedDims[-1].packable.packable
+        dimensionDecs[2].packed == indexedDims[-1].packable.packable
 
-        [dimensionDecs[0..1], indexedDims].transpose().each {
+        [dimensionDecs[1..2], indexedDims - visitDim].transpose().each {
             ObservationsProto.DimensionDeclaration dec, Dimension dim ->
                 [dec.fieldsList, dim.elementFields.values().asList()].transpose().each {
                     ObservationsProto.FieldDefinition field, Property prop ->
@@ -268,14 +273,14 @@ class HypercubeProtobufSerializerSpec extends Specification {
         def patientElem = serializer.buildDimensionElement(patientDim, patient)
 
         then:
-        decodeDimensionElement(patientElem, patientDim.elementFields.values()) == patient
+        decodeDimensionElement(patientElem, patientDim.elementFields.keySet()) == patient
 
         when:
         patient = [id: 20]
         def partialElem = serializer.buildDimensionElement(patientDim, patient)
 
         then:
-        decodeDimensionElement(partialElem, patientDim.elementFields.values()) == [id: 20, trialId: null]
+        decodeDimensionElement(partialElem, patientDim.elementFields.keySet()) == [id: 20, trialId: null]
     }
 
     void 'test createCell'() {
@@ -334,7 +339,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
         // standard cases (no nulls) for each type
 
         then:
-        parseFieldColumn(column, type) == elements
+        parseFieldColumn(column) == elements
 
         when:
         elements = [1,2,3]
@@ -342,14 +347,14 @@ class HypercubeProtobufSerializerSpec extends Specification {
         column = mkcolumn()
 
         then:
-        parseFieldColumn(column, type) == elements
+        parseFieldColumn(column) == elements
 
         when:
         type = Double
         column = mkcolumn()
 
         then:
-        parseFieldColumn(column, type) == elements
+        parseFieldColumn(column) == elements
 
         when:
         type = Date
@@ -357,7 +362,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
         column = mkcolumn()
 
         then:
-        parseFieldColumn(column, type) == elements.collect { it.time }
+        parseFieldColumn(column) == elements.collect { it.time }
 
 
         // null cases: both when the element is null and when only the property is null
@@ -368,7 +373,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
         column = mkcolumn()
 
         then:
-        parseFieldColumn(column, type, [2]) == elements
+        parseFieldColumn(column, [2]) == elements
 
         when:
         elements = ["hello", "cruel", "__"]
@@ -376,14 +381,14 @@ class HypercubeProtobufSerializerSpec extends Specification {
         column = serializer.buildElementFields(testProperty, elements)
 
         then:
-        parseFieldColumn(column, type) == ["hello", "cruel", null]
+        parseFieldColumn(column) == ["hello", "cruel", null]
 
         when:
         elements = ["hello", null, "__"]
         column = serializer.buildElementFields(testProperty, elements)
 
         then:
-        parseFieldColumn(column, type, [2]) == ["hello", null, null]
+        parseFieldColumn(column, [2]) == ["hello", null, null]
 
         serializer.buildElementFields(testProperty, []) == null
         serializer.buildElementFields(testProperty, [null, null]) == null
@@ -403,11 +408,11 @@ class HypercubeProtobufSerializerSpec extends Specification {
         def dimElems
         final mkElems = { dimElems = serializer.buildDimensionElements(testStringDim, elements) }
         mkElems()
-        def properties = testStringDim.elementFields.values().asList()
+        def fieldNames = testStringDim.elementFields.keySet()
 
         then:
         !dimElems.empty
-        parseDimensionElements(dimElems, properties)*.field == elements
+        parseDimensionElements(dimElems, fieldNames)*.field == elements
         dimElems.scopeCase == ObservationsProto.DimensionElements.ScopeCase.SCOPE_NOT_SET
 
         when:
@@ -416,7 +421,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
 
         then:
         dimElems.empty
-        parseDimensionElements(dimElems, properties) == null
+        parseDimensionElements(dimElems, fieldNames) == null
 
         when:
         elements = [null, "hoi"]
@@ -424,14 +429,14 @@ class HypercubeProtobufSerializerSpec extends Specification {
 
         then:
         dimElems.absentElementIndicesList == [1]
-        parseDimensionElements(dimElems, properties)*.field == elements
+        parseDimensionElements(dimElems, fieldNames)*.field == elements
 
         when:
         elements = ["__", "hoi"]
         mkElems()
 
         then:
-        parseDimensionElements(dimElems, properties)*.field == [null, "hoi"]
+        parseDimensionElements(dimElems, fieldNames)*.field == [null, "hoi"]
     }
 
     void 'test buildFooter'() {
@@ -443,7 +448,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
         then:
         [footer.dimensionList, cube.dimIndexes.entrySet().asList()].transpose().every {
             ObservationsProto.DimensionElements elems, Map.Entry<Dimension, List> entry ->
-            parseDimensionElements(elems, entry.key.elementFields.values()) == entry.value
+            parseDimensionElements(elems, entry.key.elementFields?.keySet()) == entry.value
         }
         !footer.error
     }
