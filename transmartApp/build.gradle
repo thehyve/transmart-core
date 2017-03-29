@@ -60,6 +60,7 @@ dependencies {
 
     compile project(':transmart-core-api')
     compile project(':transmart-core-db')
+    compile project(':transmart-core-db')
     compile project(':transmart-rest-api')
     compile project(':transmart-java')
     compile project(':search-domain')
@@ -82,6 +83,8 @@ dependencies {
     compile project(':Rmodules')
     compile project(':transmart-gwas-plugin')
     compile project(':folder-management-plugin')
+    compile project(':transmart-solr-indexing')
+
 }
 
 grails {
