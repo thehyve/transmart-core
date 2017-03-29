@@ -215,9 +215,8 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             groupIndices
         }
 
-        private ArrayList<HypercubeValue> group = []  // cache the list object
         private Pair<ArrayList<HypercubeValue>, Class> nextGroup() {
-            group.clear()
+            ArrayList<HypercubeValue> group = []
             HypercubeValue prototype = iterator.next()
             def groupValueType = new Reference<Class>(prototype.value?.class)
             def groupIndices = indices(prototype)
@@ -275,9 +274,8 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             builder.build()
         }
 
-        private List<List<HypercubeValue>> groupedValues = []  // cache the list object
         private List<List<HypercubeValue>> groupSamples(List<HypercubeValue> values) {
-            groupedValues.clear()
+            List<List<HypercubeValue>> groupedValues = []
 
             // We assume that the values are already grouped by their packedDimension, and that values that do not
             // have an element for the packed dimension are also grouped together. The rest of this code assumes that
@@ -392,27 +390,25 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         static final byte PERPACKELEMENT = 1
         static final byte PEROBSERVATION = 2
 
-        private List transferElements = []  // cache ArrayList
         private DimensionElements.Builder inlineDimension(List<List<HypercubeValue>> groups, Dimension dim) {
-            transferElements.clear()
-
             byte mode = getMode(groups, dim)
-
             def builder
 
             if(mode == PERPACK) {
-                builder = buildDimensionElements(dim, transferElements << firstNestedElement(groups)[dim])
+                builder = buildDimensionElements(dim, [firstNestedElement(groups)[dim]])
                 builder.setPerPackedCell(true)
             } else if(mode == PERPACKELEMENT) {
+                List elements = []
                 for(group in groups) {
-                    if(!group.empty) transferElements << group[0][dim]
+                    if(!group.empty) elements << group[0][dim]
                 }
-                builder = buildDimensionElements(dim, transferElements)
+                builder = buildDimensionElements(dim, elements)
             } else if(mode == PEROBSERVATION) {
+                List elements = []
                 for(group in groups) for(hv in group) {
-                    transferElements << hv[dim]
+                    elements << hv[dim]
                 }
-                builder = buildDimensionElements(dim, transferElements)
+                builder = buildDimensionElements(dim, elements)
                 builder.setPerSample(true)
             } else throw new AssertionError((Object) "unreachable")
 
