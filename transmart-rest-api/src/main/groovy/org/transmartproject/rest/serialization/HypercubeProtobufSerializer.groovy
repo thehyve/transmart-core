@@ -71,7 +71,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         }
     }
 
-    protected Cell.Builder createCell(HypercubeValue value) {
+    protected Cell createCell(HypercubeValue value) {
         def builder = Cell.newBuilder()
         if (value.value != null) {
             if (value.value instanceof Number) {
@@ -96,7 +96,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             }
         }
         if(!iterator.hasNext()) builder.last = true
-        builder
+        builder.build()
     }
 
     private Value buildValue(@Nonnull value) {
@@ -108,11 +108,8 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     DimensionElement buildDimensionElement(Dimension dim, @Nonnull Object value) {
         def builder = DimensionElement.newBuilder()
         if (dim.elementsSerializable) {
-            Value v = buildValue(dim.asSerializable(value))
-            builder.intValue = v.intValue
-            builder.doubleValue = v.doubleValue
-            builder.timestampValue = v.timestampValue
-            builder.stringValue = v.stringValue
+            def serializedValue = dim.asSerializable(value)
+            Type.get(serializedValue.class).setValue(builder, serializedValue)
         } else {
             List<Property> elementProperties = dim.elementFields.values().asList()
             for (int i=0; i<elementProperties.size(); i++) {
@@ -505,7 +502,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             if(!packingEnabled) {
                 while(iterator.hasNext()) {
                     def message = createCell(iterator.next())
-                    message.build().writeDelimitedTo(out)
+                    message.writeDelimitedTo(out)
                 }
             } else {
                 while(iterator.hasNext()) {

@@ -156,10 +156,13 @@ message DimensionElement {
     // Having the optional fields as well is a size optimization, it avoids the overhead of a repeated field and a
     // nested message for every inline dimension in each observation.
     repeated Value fields = 1;
-    sint64 intValue = 2;
-    double doubleValue = 3;
-    string stringValue = 4;
-    int64 timestampValue = 5;
+    oneof value {
+        // `fields` should also go in here, but `oneof` does not work for repeated fields.
+        sint64 intValue = 2;
+        double doubleValue = 3;
+        string stringValue = 4;
+        int64 timestampValue = 5;
+    }
 
     // 1-based list of indices of fields that are absent
     repeated int32 absentFieldIndices = 6;

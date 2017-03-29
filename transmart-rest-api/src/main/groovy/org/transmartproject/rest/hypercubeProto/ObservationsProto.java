@@ -7881,6 +7881,10 @@ public final class ObservationsProto {
         int index);
 
     /**
+     * <pre>
+     * `fields` should also go in here, but `oneof` does not work for repeated fields.
+     * </pre>
+     *
      * <code>optional sint64 intValue = 2;</code>
      */
     long getIntValue();
@@ -7929,6 +7933,8 @@ public final class ObservationsProto {
      * <code>repeated int32 absentFieldIndices = 6;</code>
      */
     int getAbsentFieldIndices(int index);
+
+    public org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElement.ValueCase getValueCase();
   }
   /**
    * <pre>
@@ -7947,10 +7953,6 @@ public final class ObservationsProto {
     }
     private DimensionElement() {
       fields_ = java.util.Collections.emptyList();
-      intValue_ = 0L;
-      doubleValue_ = 0D;
-      stringValue_ = "";
-      timestampValue_ = 0L;
       absentFieldIndices_ = java.util.Collections.emptyList();
     }
 
@@ -7989,24 +7991,24 @@ public final class ObservationsProto {
               break;
             }
             case 16: {
-
-              intValue_ = input.readSInt64();
+              valueCase_ = 2;
+              value_ = input.readSInt64();
               break;
             }
             case 25: {
-
-              doubleValue_ = input.readDouble();
+              valueCase_ = 3;
+              value_ = input.readDouble();
               break;
             }
             case 34: {
               java.lang.String s = input.readStringRequireUtf8();
-
-              stringValue_ = s;
+              valueCase_ = 4;
+              value_ = s;
               break;
             }
             case 40: {
-
-              timestampValue_ = input.readInt64();
+              valueCase_ = 5;
+              value_ = input.readInt64();
               break;
             }
             case 48: {
@@ -8060,6 +8062,48 @@ public final class ObservationsProto {
     }
 
     private int bitField0_;
+    private int valueCase_ = 0;
+    private java.lang.Object value_;
+    public enum ValueCase
+        implements com.google.protobuf.Internal.EnumLite {
+      INTVALUE(2),
+      DOUBLEVALUE(3),
+      STRINGVALUE(4),
+      TIMESTAMPVALUE(5),
+      VALUE_NOT_SET(0);
+      private final int value;
+      private ValueCase(int value) {
+        this.value = value;
+      }
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static ValueCase valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static ValueCase forNumber(int value) {
+        switch (value) {
+          case 2: return INTVALUE;
+          case 3: return DOUBLEVALUE;
+          case 4: return STRINGVALUE;
+          case 5: return TIMESTAMPVALUE;
+          case 0: return VALUE_NOT_SET;
+          default: return null;
+        }
+      }
+      public int getNumber() {
+        return this.value;
+      }
+    };
+
+    public ValueCase
+    getValueCase() {
+      return ValueCase.forNumber(
+          valueCase_);
+    }
+
     public static final int FIELDS_FIELD_NUMBER = 1;
     private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> fields_;
     /**
@@ -8131,37 +8175,49 @@ public final class ObservationsProto {
     }
 
     public static final int INTVALUE_FIELD_NUMBER = 2;
-    private long intValue_;
     /**
+     * <pre>
+     * `fields` should also go in here, but `oneof` does not work for repeated fields.
+     * </pre>
+     *
      * <code>optional sint64 intValue = 2;</code>
      */
     public long getIntValue() {
-      return intValue_;
+      if (valueCase_ == 2) {
+        return (java.lang.Long) value_;
+      }
+      return 0L;
     }
 
     public static final int DOUBLEVALUE_FIELD_NUMBER = 3;
-    private double doubleValue_;
     /**
      * <code>optional double doubleValue = 3;</code>
      */
     public double getDoubleValue() {
-      return doubleValue_;
+      if (valueCase_ == 3) {
+        return (java.lang.Double) value_;
+      }
+      return 0D;
     }
 
     public static final int STRINGVALUE_FIELD_NUMBER = 4;
-    private volatile java.lang.Object stringValue_;
     /**
      * <code>optional string stringValue = 4;</code>
      */
     public java.lang.String getStringValue() {
-      java.lang.Object ref = stringValue_;
+      java.lang.Object ref = "";
+      if (valueCase_ == 4) {
+        ref = value_;
+      }
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        stringValue_ = s;
+        if (valueCase_ == 4) {
+          value_ = s;
+        }
         return s;
       }
     }
@@ -8170,12 +8226,17 @@ public final class ObservationsProto {
      */
     public com.google.protobuf.ByteString
         getStringValueBytes() {
-      java.lang.Object ref = stringValue_;
+      java.lang.Object ref = "";
+      if (valueCase_ == 4) {
+        ref = value_;
+      }
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        stringValue_ = b;
+        if (valueCase_ == 4) {
+          value_ = b;
+        }
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -8183,12 +8244,14 @@ public final class ObservationsProto {
     }
 
     public static final int TIMESTAMPVALUE_FIELD_NUMBER = 5;
-    private long timestampValue_;
     /**
      * <code>optional int64 timestampValue = 5;</code>
      */
     public long getTimestampValue() {
-      return timestampValue_;
+      if (valueCase_ == 5) {
+        return (java.lang.Long) value_;
+      }
+      return 0L;
     }
 
     public static final int ABSENTFIELDINDICES_FIELD_NUMBER = 6;
@@ -8242,17 +8305,20 @@ public final class ObservationsProto {
       for (int i = 0; i < fields_.size(); i++) {
         output.writeMessage(1, fields_.get(i));
       }
-      if (intValue_ != 0L) {
-        output.writeSInt64(2, intValue_);
+      if (valueCase_ == 2) {
+        output.writeSInt64(
+            2, (long)((java.lang.Long) value_));
       }
-      if (doubleValue_ != 0D) {
-        output.writeDouble(3, doubleValue_);
+      if (valueCase_ == 3) {
+        output.writeDouble(
+            3, (double)((java.lang.Double) value_));
       }
-      if (!getStringValueBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, stringValue_);
+      if (valueCase_ == 4) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, value_);
       }
-      if (timestampValue_ != 0L) {
-        output.writeInt64(5, timestampValue_);
+      if (valueCase_ == 5) {
+        output.writeInt64(
+            5, (long)((java.lang.Long) value_));
       }
       if (getAbsentFieldIndicesList().size() > 0) {
         output.writeUInt32NoTag(50);
@@ -8272,20 +8338,23 @@ public final class ObservationsProto {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, fields_.get(i));
       }
-      if (intValue_ != 0L) {
+      if (valueCase_ == 2) {
         size += com.google.protobuf.CodedOutputStream
-          .computeSInt64Size(2, intValue_);
+          .computeSInt64Size(
+              2, (long)((java.lang.Long) value_));
       }
-      if (doubleValue_ != 0D) {
+      if (valueCase_ == 3) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(3, doubleValue_);
+          .computeDoubleSize(
+              3, (double)((java.lang.Double) value_));
       }
-      if (!getStringValueBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, stringValue_);
+      if (valueCase_ == 4) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, value_);
       }
-      if (timestampValue_ != 0L) {
+      if (valueCase_ == 5) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(5, timestampValue_);
+          .computeInt64Size(
+              5, (long)((java.lang.Long) value_));
       }
       {
         int dataSize = 0;
@@ -8319,18 +8388,33 @@ public final class ObservationsProto {
       boolean result = true;
       result = result && getFieldsList()
           .equals(other.getFieldsList());
-      result = result && (getIntValue()
-          == other.getIntValue());
-      result = result && (
-          java.lang.Double.doubleToLongBits(getDoubleValue())
-          == java.lang.Double.doubleToLongBits(
-              other.getDoubleValue()));
-      result = result && getStringValue()
-          .equals(other.getStringValue());
-      result = result && (getTimestampValue()
-          == other.getTimestampValue());
       result = result && getAbsentFieldIndicesList()
           .equals(other.getAbsentFieldIndicesList());
+      result = result && getValueCase().equals(
+          other.getValueCase());
+      if (!result) return false;
+      switch (valueCase_) {
+        case 2:
+          result = result && (getIntValue()
+              == other.getIntValue());
+          break;
+        case 3:
+          result = result && (
+              java.lang.Double.doubleToLongBits(getDoubleValue())
+              == java.lang.Double.doubleToLongBits(
+                  other.getDoubleValue()));
+          break;
+        case 4:
+          result = result && getStringValue()
+              .equals(other.getStringValue());
+          break;
+        case 5:
+          result = result && (getTimestampValue()
+              == other.getTimestampValue());
+          break;
+        case 0:
+        default:
+      }
       return result;
     }
 
@@ -8345,20 +8429,32 @@ public final class ObservationsProto {
         hash = (37 * hash) + FIELDS_FIELD_NUMBER;
         hash = (53 * hash) + getFieldsList().hashCode();
       }
-      hash = (37 * hash) + INTVALUE_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          getIntValue());
-      hash = (37 * hash) + DOUBLEVALUE_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          java.lang.Double.doubleToLongBits(getDoubleValue()));
-      hash = (37 * hash) + STRINGVALUE_FIELD_NUMBER;
-      hash = (53 * hash) + getStringValue().hashCode();
-      hash = (37 * hash) + TIMESTAMPVALUE_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          getTimestampValue());
       if (getAbsentFieldIndicesCount() > 0) {
         hash = (37 * hash) + ABSENTFIELDINDICES_FIELD_NUMBER;
         hash = (53 * hash) + getAbsentFieldIndicesList().hashCode();
+      }
+      switch (valueCase_) {
+        case 2:
+          hash = (37 * hash) + INTVALUE_FIELD_NUMBER;
+          hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+              getIntValue());
+          break;
+        case 3:
+          hash = (37 * hash) + DOUBLEVALUE_FIELD_NUMBER;
+          hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+              java.lang.Double.doubleToLongBits(getDoubleValue()));
+          break;
+        case 4:
+          hash = (37 * hash) + STRINGVALUE_FIELD_NUMBER;
+          hash = (53 * hash) + getStringValue().hashCode();
+          break;
+        case 5:
+          hash = (37 * hash) + TIMESTAMPVALUE_FIELD_NUMBER;
+          hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+              getTimestampValue());
+          break;
+        case 0:
+        default:
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -8489,16 +8585,10 @@ public final class ObservationsProto {
         } else {
           fieldsBuilder_.clear();
         }
-        intValue_ = 0L;
-
-        doubleValue_ = 0D;
-
-        stringValue_ = "";
-
-        timestampValue_ = 0L;
-
         absentFieldIndices_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000020);
+        valueCase_ = 0;
+        value_ = null;
         return this;
       }
 
@@ -8532,16 +8622,25 @@ public final class ObservationsProto {
         } else {
           result.fields_ = fieldsBuilder_.build();
         }
-        result.intValue_ = intValue_;
-        result.doubleValue_ = doubleValue_;
-        result.stringValue_ = stringValue_;
-        result.timestampValue_ = timestampValue_;
+        if (valueCase_ == 2) {
+          result.value_ = value_;
+        }
+        if (valueCase_ == 3) {
+          result.value_ = value_;
+        }
+        if (valueCase_ == 4) {
+          result.value_ = value_;
+        }
+        if (valueCase_ == 5) {
+          result.value_ = value_;
+        }
         if (((bitField0_ & 0x00000020) == 0x00000020)) {
           absentFieldIndices_ = java.util.Collections.unmodifiableList(absentFieldIndices_);
           bitField0_ = (bitField0_ & ~0x00000020);
         }
         result.absentFieldIndices_ = absentFieldIndices_;
         result.bitField0_ = to_bitField0_;
+        result.valueCase_ = valueCase_;
         onBuilt();
         return result;
       }
@@ -8609,19 +8708,6 @@ public final class ObservationsProto {
             }
           }
         }
-        if (other.getIntValue() != 0L) {
-          setIntValue(other.getIntValue());
-        }
-        if (other.getDoubleValue() != 0D) {
-          setDoubleValue(other.getDoubleValue());
-        }
-        if (!other.getStringValue().isEmpty()) {
-          stringValue_ = other.stringValue_;
-          onChanged();
-        }
-        if (other.getTimestampValue() != 0L) {
-          setTimestampValue(other.getTimestampValue());
-        }
         if (!other.absentFieldIndices_.isEmpty()) {
           if (absentFieldIndices_.isEmpty()) {
             absentFieldIndices_ = other.absentFieldIndices_;
@@ -8631,6 +8717,29 @@ public final class ObservationsProto {
             absentFieldIndices_.addAll(other.absentFieldIndices_);
           }
           onChanged();
+        }
+        switch (other.getValueCase()) {
+          case INTVALUE: {
+            setIntValue(other.getIntValue());
+            break;
+          }
+          case DOUBLEVALUE: {
+            setDoubleValue(other.getDoubleValue());
+            break;
+          }
+          case STRINGVALUE: {
+            valueCase_ = 4;
+            value_ = other.value_;
+            onChanged();
+            break;
+          }
+          case TIMESTAMPVALUE: {
+            setTimestampValue(other.getTimestampValue());
+            break;
+          }
+          case VALUE_NOT_SET: {
+            break;
+          }
         }
         onChanged();
         return this;
@@ -8657,6 +8766,21 @@ public final class ObservationsProto {
         }
         return this;
       }
+      private int valueCase_ = 0;
+      private java.lang.Object value_;
+      public ValueCase
+          getValueCase() {
+        return ValueCase.forNumber(
+            valueCase_);
+      }
+
+      public Builder clearValue() {
+        valueCase_ = 0;
+        value_ = null;
+        onChanged();
+        return this;
+      }
+
       private int bitField0_;
 
       private java.util.List<org.transmartproject.rest.hypercubeProto.ObservationsProto.Value> fields_ =
@@ -9025,45 +9149,63 @@ public final class ObservationsProto {
         return fieldsBuilder_;
       }
 
-      private long intValue_ ;
       /**
+       * <pre>
+       * `fields` should also go in here, but `oneof` does not work for repeated fields.
+       * </pre>
+       *
        * <code>optional sint64 intValue = 2;</code>
        */
       public long getIntValue() {
-        return intValue_;
+        if (valueCase_ == 2) {
+          return (java.lang.Long) value_;
+        }
+        return 0L;
       }
       /**
+       * <pre>
+       * `fields` should also go in here, but `oneof` does not work for repeated fields.
+       * </pre>
+       *
        * <code>optional sint64 intValue = 2;</code>
        */
       public Builder setIntValue(long value) {
-        
-        intValue_ = value;
+        valueCase_ = 2;
+        value_ = value;
         onChanged();
         return this;
       }
       /**
+       * <pre>
+       * `fields` should also go in here, but `oneof` does not work for repeated fields.
+       * </pre>
+       *
        * <code>optional sint64 intValue = 2;</code>
        */
       public Builder clearIntValue() {
-        
-        intValue_ = 0L;
-        onChanged();
+        if (valueCase_ == 2) {
+          valueCase_ = 0;
+          value_ = null;
+          onChanged();
+        }
         return this;
       }
 
-      private double doubleValue_ ;
       /**
        * <code>optional double doubleValue = 3;</code>
        */
       public double getDoubleValue() {
-        return doubleValue_;
+        if (valueCase_ == 3) {
+          return (java.lang.Double) value_;
+        }
+        return 0D;
       }
       /**
        * <code>optional double doubleValue = 3;</code>
        */
       public Builder setDoubleValue(double value) {
-        
-        doubleValue_ = value;
+        valueCase_ = 3;
+        value_ = value;
         onChanged();
         return this;
       }
@@ -9071,23 +9213,29 @@ public final class ObservationsProto {
        * <code>optional double doubleValue = 3;</code>
        */
       public Builder clearDoubleValue() {
-        
-        doubleValue_ = 0D;
-        onChanged();
+        if (valueCase_ == 3) {
+          valueCase_ = 0;
+          value_ = null;
+          onChanged();
+        }
         return this;
       }
 
-      private java.lang.Object stringValue_ = "";
       /**
        * <code>optional string stringValue = 4;</code>
        */
       public java.lang.String getStringValue() {
-        java.lang.Object ref = stringValue_;
+        java.lang.Object ref = "";
+        if (valueCase_ == 4) {
+          ref = value_;
+        }
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          stringValue_ = s;
+          if (valueCase_ == 4) {
+            value_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -9098,12 +9246,17 @@ public final class ObservationsProto {
        */
       public com.google.protobuf.ByteString
           getStringValueBytes() {
-        java.lang.Object ref = stringValue_;
+        java.lang.Object ref = "";
+        if (valueCase_ == 4) {
+          ref = value_;
+        }
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          stringValue_ = b;
+          if (valueCase_ == 4) {
+            value_ = b;
+          }
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
@@ -9117,8 +9270,8 @@ public final class ObservationsProto {
         if (value == null) {
     throw new NullPointerException();
   }
-  
-        stringValue_ = value;
+  valueCase_ = 4;
+        value_ = value;
         onChanged();
         return this;
       }
@@ -9126,9 +9279,11 @@ public final class ObservationsProto {
        * <code>optional string stringValue = 4;</code>
        */
       public Builder clearStringValue() {
-        
-        stringValue_ = getDefaultInstance().getStringValue();
-        onChanged();
+        if (valueCase_ == 4) {
+          valueCase_ = 0;
+          value_ = null;
+          onChanged();
+        }
         return this;
       }
       /**
@@ -9140,25 +9295,27 @@ public final class ObservationsProto {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
-        
-        stringValue_ = value;
+        valueCase_ = 4;
+        value_ = value;
         onChanged();
         return this;
       }
 
-      private long timestampValue_ ;
       /**
        * <code>optional int64 timestampValue = 5;</code>
        */
       public long getTimestampValue() {
-        return timestampValue_;
+        if (valueCase_ == 5) {
+          return (java.lang.Long) value_;
+        }
+        return 0L;
       }
       /**
        * <code>optional int64 timestampValue = 5;</code>
        */
       public Builder setTimestampValue(long value) {
-        
-        timestampValue_ = value;
+        valueCase_ = 5;
+        value_ = value;
         onChanged();
         return this;
       }
@@ -9166,9 +9323,11 @@ public final class ObservationsProto {
        * <code>optional int64 timestampValue = 5;</code>
        */
       public Builder clearTimestampValue() {
-        
-        timestampValue_ = 0L;
-        onChanged();
+        if (valueCase_ == 5) {
+          valueCase_ = 0;
+          value_ = null;
+          onChanged();
+        }
         return this;
       }
 
@@ -15008,29 +15167,29 @@ public final class ObservationsProto {
       "ngValues\030\003 \003(\t\022\025\n\rnumericValues\030\004 \003(\001\022\030\n" +
       "\020nullElementCount\030\010 \001(\005\022\024\n\014sampleCounts\030",
       "\005 \003(\005\022\024\n\014absentValues\030\006 \003(\005\022\014\n\004last\030\007 \001(" +
-      "\010\022\r\n\005error\030c \001(\t\"\244\001\n\020DimensionElement\022 \n" +
-      "\006fields\030\001 \003(\0132\020.hypercube.Value\022\020\n\010intVa" +
-      "lue\030\002 \001(\022\022\023\n\013doubleValue\030\003 \001(\001\022\023\n\013string" +
-      "Value\030\004 \001(\t\022\026\n\016timestampValue\030\005 \001(\003\022\032\n\022a" +
-      "bsentFieldIndices\030\006 \003(\005\"l\n\005Value\022\025\n\013stri" +
-      "ngValue\030\001 \001(\tH\000\022\025\n\013doubleValue\030\002 \001(\001H\000\022\022" +
-      "\n\010intValue\030\003 \001(\022H\000\022\030\n\016timestampValue\030\004 \001" +
-      "(\003H\000B\007\n\005value\"H\n\006Footer\022/\n\tdimension\030\001 \003" +
-      "(\0132\034.hypercube.DimensionElements\022\r\n\005erro",
-      "r\030c \001(\t\"\337\001\n\021DimensionElements\022\014\n\004name\030\003 " +
-      "\001(\t\0226\n\006fields\030\001 \003(\0132&.hypercube.Dimensio" +
-      "nElementFieldColumn\022 \n\030absentFieldColumn" +
-      "Indices\030\004 \003(\005\022\034\n\024absentElementIndices\030\005 " +
-      "\003(\005\022\r\n\005empty\030\006 \001(\010\022\023\n\tperSample\030\002 \001(\010H\000\022" +
-      "\027\n\rperPackedCell\030\007 \001(\010H\000B\007\n\005scope\"\215\001\n\033Di" +
-      "mensionElementFieldColumn\022\023\n\013stringValue" +
-      "\030\001 \003(\t\022\023\n\013doubleValue\030\002 \003(\001\022\020\n\010intValue\030" +
-      "\003 \003(\022\022\026\n\016timestampValue\030\004 \003(\003\022\032\n\022absentV" +
-      "alueIndices\030\005 \003(\005\"\026\n\005Error\022\r\n\005error\030c \001(",
-      "\t*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n\n\006STRING\020\001\022\007\n\003INT" +
-      "\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OBJECT\020\004B=\n(org.tra" +
-      "nsmartproject.rest.hypercubeProtoB\021Obser" +
-      "vationsProtob\006proto3"
+      "\010\022\r\n\005error\030c \001(\t\"\265\001\n\020DimensionElement\022 \n" +
+      "\006fields\030\001 \003(\0132\020.hypercube.Value\022\022\n\010intVa" +
+      "lue\030\002 \001(\022H\000\022\025\n\013doubleValue\030\003 \001(\001H\000\022\025\n\013st" +
+      "ringValue\030\004 \001(\tH\000\022\030\n\016timestampValue\030\005 \001(" +
+      "\003H\000\022\032\n\022absentFieldIndices\030\006 \003(\005B\007\n\005value" +
+      "\"l\n\005Value\022\025\n\013stringValue\030\001 \001(\tH\000\022\025\n\013doub" +
+      "leValue\030\002 \001(\001H\000\022\022\n\010intValue\030\003 \001(\022H\000\022\030\n\016t" +
+      "imestampValue\030\004 \001(\003H\000B\007\n\005value\"H\n\006Footer" +
+      "\022/\n\tdimension\030\001 \003(\0132\034.hypercube.Dimensio",
+      "nElements\022\r\n\005error\030c \001(\t\"\337\001\n\021DimensionEl" +
+      "ements\022\014\n\004name\030\003 \001(\t\0226\n\006fields\030\001 \003(\0132&.h" +
+      "ypercube.DimensionElementFieldColumn\022 \n\030" +
+      "absentFieldColumnIndices\030\004 \003(\005\022\034\n\024absent" +
+      "ElementIndices\030\005 \003(\005\022\r\n\005empty\030\006 \001(\010\022\023\n\tp" +
+      "erSample\030\002 \001(\010H\000\022\027\n\rperPackedCell\030\007 \001(\010H" +
+      "\000B\007\n\005scope\"\215\001\n\033DimensionElementFieldColu" +
+      "mn\022\023\n\013stringValue\030\001 \003(\t\022\023\n\013doubleValue\030\002" +
+      " \003(\001\022\020\n\010intValue\030\003 \003(\022\022\026\n\016timestampValue" +
+      "\030\004 \003(\003\022\032\n\022absentValueIndices\030\005 \003(\005\"\026\n\005Er",
+      "ror\022\r\n\005error\030c \001(\t*B\n\004Type\022\n\n\006DOUBLE\020\000\022\n" +
+      "\n\006STRING\020\001\022\007\n\003INT\020\002\022\r\n\tTIMESTAMP\020\003\022\n\n\006OB" +
+      "JECT\020\004B=\n(org.transmartproject.rest.hype" +
+      "rcubeProtoB\021ObservationsProtob\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -15079,7 +15238,7 @@ public final class ObservationsProto {
     internal_static_hypercube_DimensionElement_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_hypercube_DimensionElement_descriptor,
-        new java.lang.String[] { "Fields", "IntValue", "DoubleValue", "StringValue", "TimestampValue", "AbsentFieldIndices", });
+        new java.lang.String[] { "Fields", "IntValue", "DoubleValue", "StringValue", "TimestampValue", "AbsentFieldIndices", "Value", });
     internal_static_hypercube_Value_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_hypercube_Value_fieldAccessorTable = new

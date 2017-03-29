@@ -22,6 +22,9 @@ enum Type {
         void setValue(Value.Builder builder, elem) {
             builder.stringValue = (String) elem
         }
+        void setValue(DimensionElement.Builder builder, elem) {
+            builder.stringValue = (String) elem
+        }
     },
 
     INT {
@@ -31,6 +34,9 @@ enum Type {
             builder.addIntValue((Long) elem)
         }
         void setValue(Value.Builder builder, elem) {
+            builder.intValue = (Long) elem
+        }
+        void setValue(DimensionElement.Builder builder, elem) {
             builder.intValue = (Long) elem
         }
     },
@@ -44,6 +50,9 @@ enum Type {
         void setValue(Value.Builder builder, elem) {
             builder.doubleValue = (Double) elem
         }
+        void setValue(DimensionElement.Builder builder, elem) {
+            builder.doubleValue = (Double) elem
+        }
     },
 
     TIMESTAMP {
@@ -53,6 +62,9 @@ enum Type {
             builder.addTimestampValue(((Date) elem).time)
         }
         void setValue(Value.Builder builder, elem) {
+            builder.timestampValue = ((Date) elem).time
+        }
+        void setValue(DimensionElement.Builder builder, elem) {
             builder.timestampValue = ((Date) elem).time
         }
     }
@@ -70,9 +82,10 @@ enum Type {
     abstract void addToColumn(DimensionElementFieldColumn.Builder builder, elem)
 
     /**
-     * Set a value compatible with this Type on a Value.Builder
+     * Set a value compatible with this Type on a Value.Builder or DimensionElement.Builder
      */
     abstract void setValue(Value.Builder builder, elem)
+    abstract void setValue(DimensionElement.Builder builder, elem)
 
 
     abstract String getJsonType()
