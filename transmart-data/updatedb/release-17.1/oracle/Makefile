@@ -12,6 +12,8 @@ FILES = \
 	storage_system \
 	linked_file_collection \
 	data_migration \
+	biomart_pf_to_tf \
+	deapp_pf_to_tf \
 	bio_marker_correl_mv
 
 RUN_SQL   = groovy -cp '$(CP_ORA)' ../../../ddl/oracle/_scripts/run_sql.groovy
