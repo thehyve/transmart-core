@@ -40,6 +40,7 @@ class Config {
     public static final String EHR_ID = 'EHR'
     public static final String EHR_HIGHDIM_ID = 'EHR_HIGHDIM'
     public static final String CLINICAL_TRIAL_ID = 'CLINICAL_TRIAL'
+    public static final String CLINICAL_TRIAL_HIGHDIM_ID = 'CLINICAL_TRIAL_HIGHDIM'
     public static final String CATEGORICAL_VALUES_ID = 'CATEGORICAL_VALUES'
     public static final String TUMOR_NORMAL_SAMPLES_ID = 'TUMOR_NORMAL_SAMPLES'
     public static final String SHARED_CONCEPTS_A_ID = 'SHARED_CONCEPTS_STUDY_A'
@@ -58,15 +59,4 @@ class Config {
     public static final boolean SUPPRESS_KNOWN_BUGS = true
     public static final boolean SUPPRESS_UNIMPLEMENTED = true
 
-    //test studies loaded
-    public static final boolean ORACLE_1000_PATIENT_LOADED = false
-    public static final boolean GSE8581_LOADED = false
-    public static final boolean CELL_LINE_LOADED = false
-    public static final boolean EHR_LOADED = true
-    public static final boolean EHR_HIGHDIM_LOADED = true
-    public static final boolean CLINICAL_TRIAL_LOADED = true
-    public static final boolean CATEGORICAL_VALUES_LOADED = true
-    public static final boolean TUMOR_NORMAL_SAMPLES_LOADED = true
-    public static final boolean SHARED_CONCEPTS_LOADED = true
-    public static final boolean SHARED_CONCEPTS_RESTRICTED_LOADED = true
 }

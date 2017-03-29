@@ -953,8 +953,14 @@ border-top: 1px solid #CCC;
 }
 
 .dataTables_length {
-     float: left;
-     margin-right: 64px;   
+    float: left;
+    margin-right: 64px;
+    height: 30px;
+}
+
+.dataTables_filter {
+    width: 55%;
+    text-align: right;
 }
 
 a.paginate_disabled_previous, a.paginate_disabled_next {
@@ -970,6 +976,12 @@ a.paginate_disabled_previous, a.paginate_disabled_next {
     color: #000;
     margin: 0px 8px;
     cursor: pointer;
+    background: none;
+}
+
+.paginate_disabled_previous, .paginate_enabled_previous, .paginate_disabled_next, .paginate_enabled_next {
+    float: right;
+    background: none;
 }
 
 .linkbutton {
@@ -981,11 +993,13 @@ a.paginate_disabled_previous, a.paginate_disabled_next {
 }
 
 .dataTables_paginate {
-	min-height: 30px;	
+	min-height: 30px;
+    position: static;
 }
 
 .dataTables_wrapper {
 	font-size: 9pt;
+    position: relative;
 }
 
 /* VERY cheap fix for left/right selection box issue! */

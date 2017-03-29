@@ -79,17 +79,17 @@
 		</g:else>
 	</div>
 	<div class="dataTables_paginate paging_two_button" id="analysis_results_table_${analysisId}_paginate">
-		<g:if test="${offset > 0}">
-			<a class="paginate_enabled_previous" tabindex="0" role="button" id="analysis_results_table_${analysisId}_previous" onclick="gwasLoadAnalysisResultsGrid(${analysisId}, {offset: ${offset-max}})">Previous</a>
-		</g:if>
-		<g:else>
-			<a class="paginate_disabled_previous" tabindex="0" role="button" id="analysis_results_table_${analysisId}_previous">Previous</a>
-		</g:else>
-		
+
 		<g:if test="${offset + max < totalCount}">
 			<a class="paginate_enabled_next" tabindex="0" role="button" id="analysis_results_table_${analysisId}_next" onclick="gwasLoadAnalysisResultsGrid(${analysisId}, {offset: ${offset+max}})">Next</a>
 		</g:if>
 		<g:else>
 			<a class="paginate_disabled_next" tabindex="0" role="button" id="analysis_results_table_${analysisId}_next">Next</a>
+		</g:else>
+		<g:if test="${offset > 0}">
+			<a class="paginate_enabled_previous" tabindex="0" role="button" id="analysis_results_table_${analysisId}_previous" onclick="gwasLoadAnalysisResultsGrid(${analysisId}, {offset: ${offset-max}})">Previous</a>
+		</g:if>
+		<g:else>
+			<a class="paginate_disabled_previous" tabindex="0" role="button" id="analysis_results_table_${analysisId}_previous">Previous</a>
 		</g:else>
 	</div>
