@@ -16,13 +16,15 @@ import org.transmartproject.core.multidimquery.Property
 import org.transmartproject.core.multidimquery.dimensions.Order
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
-import org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementFieldColumnOrBuilder
+import org.transmartproject.rest.serialization.HypercubeProtobufSerializer.PackedCellBuilder
 import spock.lang.Specification
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.DOUBLE
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.INT
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.STRING
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.TIMESTAMP
+
+import static org.transmartproject.rest.serialization.DeserializationHelper.*
 
 
 class HypercubeProtobufSerializerSpec extends Specification {
@@ -31,11 +33,46 @@ class HypercubeProtobufSerializerSpec extends Specification {
             packable: Dimension.Packable.NOT_PACKABLE)
     final dateDim = new SparseDim('date', type: Date)
 
+    List<Map> getPatients() { [
+            [id: 10, trialId: "patient_10"],
+            [id: 11, trialId: "patient_11"],
+            [id: 12, trialId: "patient_12"],
+    ] }
+    List<Map> getConcepts() { [
+            [path: "foo", code: 1.1],
+            [path: "bar", code: 1.2],
+    ] }
+
+    List<Map> getObservations() { [
+            [patient: patients[0], concept: concepts[0], value: 1.2, date: new Date(100)],
+            [patient: patients[1], concept: concepts[0], value: 2.2, date: new Date(110)],
+            // skipped: [patient: patients[2], concept: concepts[0], value: 1.5, date: new Date(120)],
+            [patient: patients[0], concept: concepts[1], value: "FOO", date: new Date(105)],
+            [patient: patients[1], concept: concepts[1], value: null, date: new Date(115)],
+            [patient: patients[2], concept: concepts[1], value: "BAZ", date: null],
+            [patient: null, concept: concepts[1], value: "QUUX", date: null],
+    ] }
+
+//    def immutate(collection) {
+//        if(!(collection instanceof Collection)) return collection
+//        assert collection instanceof List || collection instanceof Map
+//        if(collection instanceof List) {
+//            ImmutableList.copyOf( collection.collect { immutate(it) })
+//        } else if(collection instanceof Map) {
+//            ImmutableMap.copyOf( collection.collectEntries { k, v ->
+//                [immutate(k), immutate(v)]
+//            })
+//        }
+//    }
 
     // scalar test dimensions
     final stringDim = new SparseDim('string', type: String)
     final doubleDim = new SparseDim('double', type: Double)
     final intDim = new SparseDim('int', type: Long)
+    final testStringDim = new SparseDim('testString', type: String, serializable: false, elementFields: [
+            field: new IdentityProperty('field', String) {
+                def get(element) { element == "__" ? null : element }
+            }])
 
 
     // todo: create mock values, test value serialization
@@ -46,7 +83,12 @@ class HypercubeProtobufSerializerSpec extends Specification {
     def getAllDims() { indexedDims + inlineDims }
 
     def getDefaultSerializer() {
-        makeSerializer(new MockHypercube(dimensions: allDims))
+        makeSerializer(new MockHypercube(dimensions: allDims, values: observations))
+    }
+
+    def getDefaultPackedSerializer() {
+        def s = defaultSerializer
+        [s, s.packedCellBuilder]
     }
 
     HypercubeProtobufSerializer makeSerializer(Map args=[:], Hypercube cube) {
@@ -55,52 +97,6 @@ class HypercubeProtobufSerializerSpec extends Specification {
         s.init(args, cube, new ByteArrayOutputStream())
         s
     }
-
-    /**
-     * Parse a list of items where absent values are indicated by a separate list of 1-based indices (the format used
-     * in the protobuf serialization).
-     * @param elements
-     * @param absentIndices
-     * @return the elements with absents represented as nulls
-     */
-    static <T> List<T> handleAbsents(List<T> elements, List<Integer> absentIndices) {
-        // absentIndices is 1-based
-        int elemIdx = 0
-        int absentIdx = 0
-        List result = []
-        for(i in 0..<(elements.size() + absentIndices.size())) {
-            if((absentIndices[absentIdx] ?: 0) - 1 == i) {
-                result << null
-                absentIdx++
-            } else {
-                result << elements.get(elemIdx++)
-            }
-        }
-        return result
-    }
-
-    static List parseFieldColumn(DimensionElementFieldColumnOrBuilder column, Class type,
-                                 List<Integer> additionalAbsents = []) {
-        def values = [
-                (String): column.stringValueList,
-                (Double): column.doubleValueList,
-                (Integer): column.intValueList,
-                (Long): column.intValueList,
-                (Date): column.timestampValueList,
-        ][type]
-        if(type != String) assert column.stringValueCount == 0
-        if(type != Double) assert column.doubleValueCount == 0
-        if(type != Date) assert column.timestampValueCount == 0
-        if(type != Integer && type != Long) assert column.intValueCount == 0
-
-        def absents = column.absentValueIndicesList
-        if(additionalAbsents) {
-            absents += additionalAbsents
-            absents.sort()
-        }
-        return handleAbsents(values, absents)
-    }
-
 
 
     void testDimensions() {
@@ -175,7 +171,6 @@ class HypercubeProtobufSerializerSpec extends Specification {
 
     void 'test DimensionDeclaration'() {
         when:
-        def dimensions = indexedDims + inlineDims
         def serializer = defaultSerializer
         List dimensionDecs = serializer.getDimensionsDefs()
 
@@ -214,6 +209,14 @@ class HypercubeProtobufSerializerSpec extends Specification {
 
         then:
         // not too much specifics to test here
+        !header.last
+        header.dimensionDeclarationsList*.name == allDims*.name
+
+        when:
+        serializer = makeSerializer(new MockHypercube(dimensions: allDims, values: []))
+        header = serializer.buildHeader()
+
+        then:
         header.last
         header.dimensionDeclarationsList*.name == allDims*.name
     }
@@ -257,39 +260,64 @@ class HypercubeProtobufSerializerSpec extends Specification {
         def doubleElem = serializer.buildDimensionElement(doubleDim, 2.5)
 
         then:
-        stringElem.stringValue == "hello world"
-        stringElem.fieldsCount == 0
-        doubleElem.stringValue == ""
-        doubleElem.doubleValue == 2.5 as Double
-        doubleElem.intValue == 0
-        doubleElem.timestampValue == 0
+        decodeDimensionElement(stringElem) == "hello world"
+        decodeDimensionElement(doubleElem) == 2.5
 
         when:
         def patient = [id: 10, trialId: "patient_10"]
         def patientElem = serializer.buildDimensionElement(patientDim, patient)
 
         then:
-        patientElem.intValue == 0
-        patientElem.doubleValue == 0.0 as double
-        patientElem.stringValue == ""
-        patientElem.timestampValue == 0
-        patientElem.absentFieldIndicesList == []
-        patientElem.fieldsList[0].valueCase == ObservationsProto.Value.ValueCase.INTVALUE
-        patientElem.fieldsList[0].intValue == patient.id
-        patientElem.fieldsList[1].valueCase == ObservationsProto.Value.ValueCase.STRINGVALUE
-        patientElem.fieldsList[1].stringValue == patient.trialId
+        decodeDimensionElement(patientElem, patientDim.elementFields.values()) == patient
 
         when:
         patient = [id: 20]
         def partialElem = serializer.buildDimensionElement(patientDim, patient)
 
         then:
-        partialElem.absentFieldIndicesList == [2]
-        partialElem.fieldsList.size() == 1
-        partialElem.fieldsList[0].valueCase == ObservationsProto.Value.ValueCase.INTVALUE
-        partialElem.fieldsList[0].intValue == patient.id
+        decodeDimensionElement(partialElem, patientDim.elementFields.values()) == [id: 20, trialId: null]
     }
 
+    void 'test createCell'() {
+        when:
+        def serializer = makeSerializer(new MockHypercube(dimensions: allDims, values: observations), pack: false)
+        def cells = serializer.iterator.collect { serializer.createCell(it) }
+        def cube = serializer.cube
+        def decodedCells = cells.collect { decodeCell(it, cube.dimIndexes, inlineDims) }
+
+        then:
+        decodedCells*.value == observations*.value
+        decodedCells*.patient == observations*.patient
+        decodedCells*.concept == observations*.concept
+        decodedCells*.date == observations*.date
+
+
+        // The below does the work of decodeCell by hand. I'm leaving it in now since it's there and works, but if
+        // the test need to change for some reason don't be afraid to remove this block.
+        cells.collect {cellValue(it)} == observations*.value
+        cells.collect { inlineDims(it)[0] } == observations*.date
+        cells.collect {
+            decodeIndexedDim(it.dimensionIndexesList[indexedDims.indexOf(patientDim)] as Integer,
+                    cube.dimensionElements(patientDim))
+        } == observations*.patient
+        cells.collect {
+            decodeIndexedDim(it.dimensionIndexesList[indexedDims.indexOf(conceptDim)] as Integer,
+                    cube.dimensionElements(conceptDim))
+        } == observations*.concept
+        cells.collect {
+            def elem = handleAbsents(it.inlineDimensionsList, it.absentInlineDimensionsList)[0]
+            elem ? decodeDimensionElement(elem) : null
+        } == observations*.date
+
+        when:
+        def lastFlags = cells*.last
+
+        then:
+        lastFlags[-1]
+        lastFlags[0..-2].every { !it }
+
+        cells*.error.every { !it }
+    }
 
     void 'test buildElementFields'() {
         when:
@@ -344,9 +372,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
 
         when:
         elements = ["hello", "cruel", "__"]
-        def testProperty = new IdentityProperty(name, type) {
-            def get(element) { element == "__" ? null : super.get(element) }
-        }
+        def testProperty = testStringDim.elementFields.field
         column = serializer.buildElementFields(testProperty, elements)
 
         then:
@@ -368,14 +394,84 @@ class HypercubeProtobufSerializerSpec extends Specification {
         when:
         def serializer = defaultSerializer
 
-        expect:
+        then:
         serializer.buildDimensionElements(stringDim, []).name == ""
         serializer.buildDimensionElements(stringDim, [], true).name == stringDim.name
+
+        when:
+        def elements = ["hello", "nice", "world"]
+        def dimElems
+        final mkElems = { dimElems = serializer.buildDimensionElements(testStringDim, elements) }
+        mkElems()
+        def properties = testStringDim.elementFields.values().asList()
+
+        then:
+        !dimElems.empty
+        parseDimensionElements(dimElems, properties)*.field == elements
+        dimElems.scopeCase == ObservationsProto.DimensionElements.ScopeCase.SCOPE_NOT_SET
+
+        when:
+        elements = [null, null]
+        mkElems()
+
+        then:
+        dimElems.empty
+        parseDimensionElements(dimElems, properties) == null
+
+        when:
+        elements = [null, "hoi"]
+        mkElems()
+
+        then:
+        dimElems.absentElementIndicesList == [1]
+        parseDimensionElements(dimElems, properties)*.field == elements
+
+        when:
+        elements = ["__", "hoi"]
+        mkElems()
+
+        then:
+        parseDimensionElements(dimElems, properties)*.field == [null, "hoi"]
     }
 
+    void 'test buildFooter'() {
+        when:
+        def serializer = defaultSerializer
+        def cube = serializer.cube
+        def footer = serializer.buildFooter()
 
-    // buildElements
-    // createCell
+        then:
+        [footer.dimensionList, cube.dimIndexes.entrySet().asList()].transpose().every {
+            ObservationsProto.DimensionElements elems, Map.Entry<Dimension, List> entry ->
+            parseDimensionElements(elems, entry.key.elementFields.values()) == entry.value
+        }
+        !footer.error
+    }
+
+    void 'test indices'() {
+        expect:
+        def serializer = makeSerializer(new MockHypercube(dimensions: allDims, values: observations), pack: false)
+        def packer = serializer.packedCellBuilder
+        def cube = serializer.cube
+        [cube.toList(), observations].transpose().each { HypercubeValue hv, obs ->
+            assert packer.indices(hv) == indexedDims.collect {
+                cube.dimIndexes[it].indexOf(obs[it.name])
+            }
+        }
+    }
+
+    void 'test sameIndices'() {
+        when:
+        def serializer = makeSerializer(new MockHypercube(dimensions: allDims, values: observations), pack: false)
+        def packer = serializer.packedCellBuilder
+        MockHypercube cube = serializer.cube
+
+        then:
+        cube.values.each {
+            assert packer.sameIndices(it, packer.indices(it))
+        }
+    }
+
 
 }
 
@@ -431,7 +527,7 @@ class MockDimension implements Dimension {
     Map elementFields
     ImmutableMap<String, Property> getElementFields() {
 //        if(elementFields)
-            return elementsSerializable ? null : ImmutableMap.copyOf(elementFields)
+            return elementFields == null ? null : ImmutableMap.copyOf(elementFields)
 //
 //        List<String> fieldNames = fields ?: values.find().metaClass.properties*.name
 //        ImmutableMap.copyOf(fieldNames.collectEntries {
@@ -459,17 +555,20 @@ class MockHypercube implements Hypercube {
 
     MockHypercube(Map args) {
         dimensions = args.dimensions ?: []
-        values = args.values ?: []
+
+        def mapValues = args.values ?: []
 
         //for(d in dimensions) if(d instanceof MockDimension) d.values = values
 
         for(dim in dimensions) {
             if(dim.density.isDense) {
-                dimIndexes[dim] = values.collect(new HashSet()) { it[dim.name] } as List
+                dimIndexes[dim] = mapValues.collect(new LinkedHashSet()) { it[dim.name] }.findAll() as List
             }
         }
 
         sorting = dimensions
+
+        values = mapValues.collect { new MockValue(it, this) }
 
         'dimensions values'.split().each { args.remove(it) }
         args.each { k, v -> this[k] = v }
@@ -518,5 +617,37 @@ class MockHypercube implements Hypercube {
     void loadDimensions() {}
     void close() {
         for(d in dimensions) if(d instanceof MockDimension) d.values = null
+    }
+}
+
+class MockValue implements HypercubeValue {
+
+    MockValue(Map val, MockHypercube cube) {
+        this.val = val
+        this.cube = cube
+    }
+
+    private val
+    private MockHypercube cube
+
+    def getValue() {
+        val.value
+    }
+
+    def getAt(Dimension dim) {
+        val[dim.name]
+    }
+
+    Integer getDimElementIndex(Dimension dim) {
+        assert dim.density.isDense
+        cube.dimIndexes[dim].indexOf(val[dim.name])
+    }
+
+    def getDimKey(Dimension dim) {
+        throw new NotImplementedException()
+    }
+
+    ImmutableList<Dimension> getAvailableDimensions() {
+        cube.dimensions
     }
 }
