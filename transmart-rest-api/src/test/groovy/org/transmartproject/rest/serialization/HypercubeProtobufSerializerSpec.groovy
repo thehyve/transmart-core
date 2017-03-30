@@ -45,21 +45,32 @@ class HypercubeProtobufSerializerSpec extends Specification {
     ] }
 
     List<Map> getObservations() { [
-            [visit: 0, patient: patients[0], concept: concepts[0], value: 1.2, date: new Date(100)],
-            [visit: 0, patient: patients[1], concept: concepts[0], value: 2.2, date: new Date(110)],
-            // skipped: [visit: 0, patient: patients[2], concept: concepts[0], value: 1.5, date: new Date(120)],
-            [visit: 0, patient: patients[0], concept: concepts[1], value: "FOO", date: new Date(105)],
-            [visit: 0, patient: patients[1], concept: concepts[1], value: null, date: new Date(115)],
+            [visit: 0, patient: patients[0], concept: concepts[0], value: 1.2, date: new Date(100000)],
+            // skipped: [visit: 0, patient: patients[1], concept: concepts[0], value: 1.5, date: new Date(110000)],
+            [visit: 0, patient: patients[2], concept: concepts[0], value: 2.2, date: new Date(120000)],
+            [visit: 0, patient: patients[0], concept: concepts[1], value: "FOO", date: new Date(105000)],
+            [visit: 0, patient: patients[1], concept: concepts[1], value: null, date: new Date(115000)],
             [visit: 0, patient: patients[2], concept: concepts[1], value: "BAZ", date: null],
+
             [visit: 0, patient: null, concept: concepts[1], value: "QUUX", date: null],
 
-            [visit: 1, patient: patients[0], concept: concepts[0], value: 1.3, date: new Date(200)],
-            [visit: 1, patient: patients[1], concept: concepts[0], value: 2.1, date: new Date(210)],
-            [visit: 1, patient: patients[2], concept: concepts[0], value: 1.5, date: new Date(220)],
-            [visit: 1, patient: patients[0], concept: concepts[1], value: "FOO", date: new Date(205)],
-            [visit: 1, patient: patients[1], concept: concepts[1], value: "BAR", date: new Date(215)],
-            [visit: 1, patient: patients[2], concept: concepts[1], value: "BAZ2", date: null],
+            [visit: 1, patient: patients[0], concept: concepts[0], value: 1.3, date: new Date(200000)],
+            [visit: 1, patient: patients[0], concept: concepts[0], value: 1.1, date: new Date(200000)],
+            [visit: 1, patient: patients[1], concept: concepts[0], value: 2.1, date: new Date(210000)],
+            [visit: 1, patient: patients[2], concept: concepts[0], value: 1.5, date: new Date(220000)],
+            [visit: 1, patient: patients[2], concept: concepts[0], value: 1.7, date: new Date(220000)],
+            [visit: 1, patient: patients[0], concept: concepts[1], value: null, date: new Date(205000)],
+            [visit: 1, patient: patients[1], concept: concepts[1], value: "BAR", date: new Date(215000)],
+            [visit: 1, patient: patients[2], concept: concepts[1], value: null, date: null],
     ] }
+
+    List<List<Map>> getGroupedObservations() {
+        observations.groupBy { [it.visit, it.concept] }.values().asList()
+    }
+
+    def groupsWithNulls = ImmutableList.of(1)
+    def groupsWithMissing = ImmutableList.of(0)
+    def groupsWithMulti = ImmutableList.of(20)
 
 //    def immutate(collection) {
 //        if(!(collection instanceof Collection)) return collection
@@ -460,7 +471,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
         def cube = serializer.cube
         [cube.toList(), observations].transpose().each { HypercubeValue hv, obs ->
             assert packer.indices(hv) == indexedDims.collect {
-                cube.dimIndexes[it].indexOf(obs[it.name])
+                def idx = cube.dimIndexes[it].indexOf(obs[it.name]); idx == -1 ? null : idx
             }
         }
     }
@@ -478,6 +489,101 @@ class HypercubeProtobufSerializerSpec extends Specification {
     }
 
 
+    void 'test compatibleValueType'() {
+        when:
+        def (serializer, PackedCellBuilder packer) = defaultPackedSerializer
+        def stringRef = new Reference(String)
+        def nullRef = new Reference()
+        def doubleRef = new Reference(Double)
+
+        then:
+        packer.compatibleValueType(String, stringRef)
+        packer.compatibleValueType(null, stringRef)
+        packer.compatibleValueType(null, nullRef)
+        !packer.compatibleValueType(Double, stringRef)
+        !packer.compatibleValueType(Number, doubleRef)
+
+        packer.compatibleValueType(Double, nullRef)
+        !packer.compatibleValueType(String, nullRef)
+    }
+
+    def <T> List<T> iterateWhile(Closure<Boolean> condition, Closure<T> callable) {
+        List res = []
+        while(condition.call()) {
+            res << callable.call()
+        }
+        res
+    }
+
+    void 'test nextGroup'() {
+        when:
+        def (serializer, PackedCellBuilder packer) = defaultPackedSerializer
+        def iterator = serializer.iterator
+        def group_type = iterateWhile({iterator.hasNext()}) { packer.nextGroup() }
+        def groups = group_type*.aValue
+
+        then:
+        groups.size() == 4
+        group_type.each { pair ->
+            def group = pair.aValue, type = pair.bValue
+            group.each {
+                assert it.value?.class in [type, null]
+            }
+        }
+
+        when:
+        // group by visit and concept, then within each group move the patient==null cases to the front
+        def groupedObs = observations.groupBy { [it.visit, it.concept] }.values() as List
+
+        then:
+        groupedObs == groups.collectNested { it.val }
+    }
+
+    void 'test moveNullPackedDimensionToFront'() {
+        when:
+        def (serializer, PackedCellBuilder packer) = defaultPackedSerializer
+        def cube = serializer.cube
+//        def iterator = serializer.iterator
+//        def groups = iterateWhile({iterator.hasNext()}) { packer.nextGroup() }*.aValue
+        def group = groupedObservations[groupsWithNulls[0]].collect { new MockValue(it, cube) }
+        def nulldGroup = group.clone()
+        packer.moveNullPackedDimensionToFront(nulldGroup)
+
+        then:
+        group != nulldGroup
+        group as Set == nulldGroup as Set
+
+    }
+
+    void 'test groupSamples'() {
+        when:
+        def (serializer, PackedCellBuilder packer) = defaultPackedSerializer
+        def iterator = serializer.iterator
+        def groups = iterateWhile({iterator.hasNext()}) { packer.nextGroup() }*.aValue
+        def nullSampleGroup = groups[1]
+        def multiSampleGroup = groups[2]
+
+        packer.groupSamples(nullSampleGroup)
+
+        then:
+        thrown(AssertionError)
+
+//        when:
+//        groups.each { packer.moveNullPackedDimensionToFront(it) }
+//        packer.groupSamples(nullSampleGroup) // does not throw now
+//
+//        then:
+//        for(i in [0,1,3]) {
+//            assert packer.groupSamples(groups[i]) == [[]] + groups[i].collect {[it]}
+//        }
+//
+//        packer.groupSamples(groups[2]).each { group ->
+//            assert (group.collect { it[patientDim] } as Set).size() == 1
+//        }
+
+
+
+    }
 }
 
 
@@ -567,7 +673,7 @@ class MockHypercube implements Hypercube {
 
         for(dim in dimensions) {
             if(dim.density.isDense) {
-                dimIndexes[dim] = mapValues.collect(new LinkedHashSet()) { it[dim.name] }.findAll() as List
+                dimIndexes[dim] = mapValues.collect(new LinkedHashSet()) { it[dim.name] }.findAll { it != null } as List
             }
         }
 
@@ -645,7 +751,8 @@ class MockValue implements HypercubeValue {
 
     Integer getDimElementIndex(Dimension dim) {
         assert dim.density.isDense
-        cube.dimIndexes[dim].indexOf(val[dim.name])
+        int idx = cube.dimIndexes[dim].indexOf(val[dim.name])
+        return idx == -1 ? null : idx
     }
 
     def getDimKey(Dimension dim) {

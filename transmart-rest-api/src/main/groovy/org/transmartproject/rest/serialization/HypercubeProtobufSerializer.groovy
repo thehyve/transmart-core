@@ -241,7 +241,8 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
         boolean compatibleValueType(Class type, Reference<Class> groupValueType) {
             // The prototype may not have a value at all, and therefore a null value type. So we need to handle three cases:
-            // null, String, or Number. Null values are not serialized, so the final group type
+            // null, String, or Number.
+            if(type == null) return true
             if (groupValueType.get() == null) {
                 groupValueType.set type
                 return true
@@ -280,6 +281,12 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             builder.build()
         }
 
+        /**
+         * Group a list of HypercubeValues into samples. For each packed dimension element, there is a list with
+         * values for it. The first sublist contains the values that have null for the packed dimension element.
+         * @param values The list of HypercubeValues, with the values with a null packed dimension element in front.
+         * @return a list of lists of HypercubeValues
+         */
         private List<List<HypercubeValue>> groupSamples(List<HypercubeValue> values) {
             List<List<HypercubeValue>> groupedValues = []
 
@@ -292,6 +299,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             for(int i=0; i<values.size(); i++) {
                 def hvPackIndex = values[i].getDimElementIndex(packedDimension)
                 if(hvPackIndex != currentPackIndex) {
+                    assert hvPackIndex != null  // Nulls must be in front
                     groupedValues << values.subList(startIdx, i)
                     startIdx = i
                     currentPackIndex = hvPackIndex
@@ -314,6 +322,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                     firstNonNull++
                 }
             }
+            return firstNonNull
         }
 
         private void putIndexedDims(HypercubeValue prototype) {
