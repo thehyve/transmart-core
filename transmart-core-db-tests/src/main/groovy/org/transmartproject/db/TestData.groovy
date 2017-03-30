@@ -148,7 +148,7 @@ class TestData {
     }
 
     @Lazy
-    static List<String> H2TruncateScript = {
+    static List<String> h2TruncateScript = {
         SessionFactory sessionFactory = Holders.applicationContext.getBean(SessionFactory)
         List<Class> domainClasses = Holders.grailsApplication.getArtefacts("Domain")*.clazz
         List<String> tables = domainClasses.collect { sessionFactory.getClassMetadata(it).tableName }
