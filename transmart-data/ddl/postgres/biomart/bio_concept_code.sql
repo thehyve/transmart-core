@@ -11,13 +11,13 @@ CREATE TABLE bio_concept_code (
 );
 
 --
--- Name: bio_concept_code_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_concept_code bio_concept_code_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_concept_code
     ADD CONSTRAINT bio_concept_code_pk PRIMARY KEY (bio_concept_code_id);
 
 --
--- Name: bio_concept_code_uk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_concept_code bio_concept_code_uk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_concept_code
     ADD CONSTRAINT bio_concept_code_uk UNIQUE (bio_concept_code, code_type_name);
@@ -42,7 +42,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_concept_code_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_concept_code trg_bio_concept_code_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_concept_code_id BEFORE INSERT ON bio_concept_code FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_concept_code_id();
 

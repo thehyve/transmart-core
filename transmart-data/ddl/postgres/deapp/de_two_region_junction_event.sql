@@ -60,19 +60,19 @@ COMMENT ON COLUMN de_two_region_junction_event.reads_counter IS 'number of reads
 COMMENT ON COLUMN de_two_region_junction_event.base_freq IS 'frequency in the baseline set of genomes for the junction';
 
 --
--- Name: two_region_junction_event_id_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_two_region_junction_event two_region_junction_event_id_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_two_region_junction_event
     ADD CONSTRAINT two_region_junction_event_id_pk PRIMARY KEY (two_region_junction_event_id);
 
 --
--- Name: two_region_junction_event_id_event_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_two_region_junction_event two_region_junction_event_id_event_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_two_region_junction_event
     ADD CONSTRAINT two_region_junction_event_id_event_fk FOREIGN KEY (event_id) REFERENCES de_two_region_event(two_region_event_id);
 
 --
--- Name: two_region_junction_event_id_junction_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_two_region_junction_event two_region_junction_event_id_junction_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_two_region_junction_event
     ADD CONSTRAINT two_region_junction_event_id_junction_fk FOREIGN KEY (junction_id) REFERENCES de_two_region_junction(two_region_junction_id);

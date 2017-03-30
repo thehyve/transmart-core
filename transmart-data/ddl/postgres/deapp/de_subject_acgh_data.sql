@@ -33,7 +33,7 @@ COMMENT ON COLUMN de_subject_acgh_data.segmented IS 'segmented log2ratio';
 COMMENT ON COLUMN de_subject_acgh_data.flag IS 'call  -2:homloss, -1:loss, 0:normal, 1:gain, 2:amp';
 
 --
--- Name: de_subject_acgh_data_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_subject_acgh_data de_subject_acgh_data_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_subject_acgh_data
     ADD CONSTRAINT de_subject_acgh_data_pkey PRIMARY KEY (assay_id, region_id);
@@ -49,7 +49,7 @@ CREATE INDEX de_subject_acgh_data_patient ON de_subject_acgh_data USING btree (p
 CREATE INDEX de_subject_acgh_data_region ON de_subject_acgh_data USING btree (region_id);
 
 --
--- Name: de_subj_acgh_region_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_subject_acgh_data de_subj_acgh_region_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_subject_acgh_data
     ADD CONSTRAINT de_subj_acgh_region_id_fkey FOREIGN KEY (region_id) REFERENCES de_chromosomal_region(region_id);

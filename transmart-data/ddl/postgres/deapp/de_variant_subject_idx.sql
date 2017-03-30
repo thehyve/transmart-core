@@ -24,7 +24,7 @@ CREATE TABLE de_variant_subject_idx (
 CREATE UNIQUE INDEX variant_subject_idx_uk ON de_variant_subject_idx USING btree (dataset_id, subject_id, "position");
 
 --
--- Name: variant_subject_idx_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_variant_subject_idx variant_subject_idx_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_variant_subject_idx
     ADD CONSTRAINT variant_subject_idx_fk FOREIGN KEY (dataset_id) REFERENCES de_variant_dataset(dataset_id);

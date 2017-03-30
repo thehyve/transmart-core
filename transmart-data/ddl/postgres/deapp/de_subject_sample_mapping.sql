@@ -33,6 +33,41 @@ CREATE TABLE de_subject_sample_mapping (
 );
 
 --
+-- Name: COLUMN de_subject_sample_mapping.patient_id; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_subject_sample_mapping.patient_id IS 'The patient id linking the patient_dimension. Should not be empty, although it is nullable.';
+
+--
+-- Name: COLUMN de_subject_sample_mapping.subject_id; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_subject_sample_mapping.subject_id IS ' Corresponds to a part of the sourcesystem_cd column of patient_dimension. The patient_id column should be used for properly referencing patients.';
+
+--
+-- Name: COLUMN de_subject_sample_mapping.concept_code; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_subject_sample_mapping.concept_code IS 'Refers to concept_cd in concept_dimension. E.g., CTHD:HD:EXPLUNG.';
+
+--
+-- Name: COLUMN de_subject_sample_mapping.assay_id; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_subject_sample_mapping.assay_id IS ' Used as primary key of this table (although it is not an actual primary key and there is not even a proper index for this column). This key is references by high dimensional data tables, like de_subject_microarray_data and de_rnaseq_transcript_data.';
+
+--
+-- Name: COLUMN de_subject_sample_mapping.trial_name; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_subject_sample_mapping.trial_name IS 'Name of the trial this sample is part of. Not used.';
+
+--
+-- Name: COLUMN de_subject_sample_mapping.gpl_id; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_subject_sample_mapping.gpl_id IS 'Id of the GPL platform for this sample. Links to de_gpl_info table.';
+
+--
+-- Name: COLUMN de_subject_sample_mapping.sample_cd; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON COLUMN de_subject_sample_mapping.sample_cd IS ' Code to distinguish different samples for the same patient.';
+
+--
 -- Name: de_subject_smpl_mpng_idx1; Type: INDEX; Schema: deapp; Owner: -
 --
 CREATE INDEX de_subject_smpl_mpng_idx1 ON de_subject_sample_mapping USING btree (timepoint, patient_id, trial_name);
@@ -47,15 +82,3 @@ CREATE INDEX de_subject_smpl_mpng_idx2 ON de_subject_sample_mapping USING btree 
 --
 CREATE INDEX idx_de_subj_smpl_trial_ccode ON de_subject_sample_mapping USING btree (trial_name, concept_code);
 
---
--- add documentation
---
-COMMENT ON TABLE deapp.de_subject_sample_mapping IS 'Table to store information about assays, which are associated with high dimensional observations. Assays are typically associated with a patient. There can be many assays per patient, which may be distinguished by sample code, tissue type, platform, etc.';
-
-COMMENT ON COLUMN de_subject_sample_mapping.assay_id IS ' Used as primary key of this table (although it is not an actual primary key and there is not even a proper index for this column). This key is references by high dimensional data tables, like de_subject_microarray_data and de_rnaseq_transcript_data.';
-COMMENT ON COLUMN de_subject_sample_mapping.patient_id IS 'The patient id linking the patient_dimension. Should not be empty, although it is nullable.';
-COMMENT ON COLUMN de_subject_sample_mapping.subject_id IS ' Corresponds to a part of the sourcesystem_cd column of patient_dimension. The patient_id column should be used for properly referencing patients.';
-COMMENT ON COLUMN de_subject_sample_mapping.concept_code IS 'Refers to concept_cd in concept_dimension. E.g., CTHD:HD:EXPLUNG.';
-COMMENT ON COLUMN de_subject_sample_mapping.trial_name IS 'Name of the trial this sample is part of. Not used.';
-COMMENT ON COLUMN de_subject_sample_mapping.gpl_id IS 'Id of the GPL platform for this sample. Links to de_gpl_info table.';
-COMMENT ON COLUMN de_subject_sample_mapping.sample_cd IS ' Code to distinguish different samples for the same patient.';

@@ -19,7 +19,7 @@ CREATE TABLE bio_patient (
 );
 
 --
--- Name: bio_patient_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_patient bio_patient_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_patient
     ADD CONSTRAINT bio_patient_pk PRIMARY KEY (bio_patient_id);
@@ -39,24 +39,24 @@ end;
 $$;
 
 --
--- Name: trg_bio_patient_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_patient trg_bio_patient_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_patient_id BEFORE INSERT ON bio_patient FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_patient_id();
 
 --
--- Name: bio_patient_bio_clinic_tri_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_patient bio_patient_bio_clinic_tri_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_patient
     ADD CONSTRAINT bio_patient_bio_clinic_tri_fk FOREIGN KEY (bio_clinical_trial_p_group_id) REFERENCES bio_clinc_trial_pt_group(bio_clinical_trial_p_group_id);
 
 --
--- Name: bio_patient_bio_clinical_trial; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_patient bio_patient_bio_clinical_trial; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_patient
     ADD CONSTRAINT bio_patient_bio_clinical_trial FOREIGN KEY (bio_experiment_id) REFERENCES bio_clinical_trial(bio_experiment_id);
 
 --
--- Name: bio_patient_bio_subject_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_patient bio_patient_bio_subject_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_patient
     ADD CONSTRAINT bio_patient_bio_subject_fk FOREIGN KEY (bio_patient_id) REFERENCES bio_subject(bio_subject_id);

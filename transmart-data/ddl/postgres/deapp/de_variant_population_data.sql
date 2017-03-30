@@ -24,7 +24,7 @@ CREATE TABLE de_variant_population_data (
 );
 
 --
--- Name: de_variant_population_data_id_idx; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_variant_population_data de_variant_population_data_id_idx; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_variant_population_data
     ADD CONSTRAINT de_variant_population_data_id_idx PRIMARY KEY (variant_population_data_id);
@@ -35,7 +35,7 @@ ALTER TABLE ONLY de_variant_population_data
 CREATE INDEX de_variant_population_data_default_idx ON de_variant_population_data USING btree (dataset_id, chr, pos, info_name);
 
 --
--- Name: de_variant_population_data_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_variant_population_data de_variant_population_data_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_variant_population_data
     ADD CONSTRAINT de_variant_population_data_fk FOREIGN KEY (dataset_id) REFERENCES de_variant_dataset(dataset_id);

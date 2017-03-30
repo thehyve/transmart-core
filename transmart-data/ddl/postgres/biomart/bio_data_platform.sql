@@ -7,3 +7,8 @@ CREATE TABLE bio_data_platform (
     etl_source character varying(100)
 );
 
+--
+-- Name: bio_data_platform_pk; Type: INDEX; Schema: biomart; Owner: -
+--
+CREATE UNIQUE INDEX bio_data_platform_pk ON bio_data_platform USING btree (bio_data_id, bio_assay_platform_id);
+

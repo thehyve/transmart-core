@@ -13,7 +13,7 @@ CREATE TABLE de_pathway (
 );
 
 --
--- Name: de_pathway_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_pathway de_pathway_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_pathway
     ADD CONSTRAINT de_pathway_pkey PRIMARY KEY (id);
@@ -33,7 +33,7 @@ end;
 $$;
 
 --
--- Name: trg_de_pathway_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_pathway trg_de_pathway_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_de_pathway_id BEFORE INSERT ON de_pathway FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_pathway_id();
 

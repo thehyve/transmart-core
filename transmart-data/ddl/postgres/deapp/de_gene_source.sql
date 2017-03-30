@@ -1,5 +1,5 @@
 --
--- Name: de_gene_SOURCE; Type: TABLE; Schema: deapp; Owner: -
+-- Name: de_gene_source; Type: TABLE; Schema: deapp; Owner: -
 --
 CREATE TABLE de_gene_source (
     gene_source_id integer NOT NULL,
@@ -9,16 +9,14 @@ CREATE TABLE de_gene_source (
     url character varying(255)
 );
 
-
 --
--- Name: de_gene_source_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_gene_source de_gene_source_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_gene_source
     ADD CONSTRAINT de_gene_source_pkey PRIMARY KEY (gene_source_id);
 
-
 --
--- Name: u_gene_source_name; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_gene_source u_gene_source_name; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_gene_source
     ADD CONSTRAINT u_gene_source_name UNIQUE (gene_source_name);
@@ -38,7 +36,7 @@ end;
 $$;
 
 --
--- Name: trg_de_gene_source_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_gene_source trg_de_gene_source_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_de_gene_source_id BEFORE INSERT ON de_gene_source FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_gene_source_id();
 

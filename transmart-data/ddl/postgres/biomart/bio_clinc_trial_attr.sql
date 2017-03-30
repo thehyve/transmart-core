@@ -9,7 +9,7 @@ CREATE TABLE bio_clinc_trial_attr (
 );
 
 --
--- Name: bio_clinical_trial_patient_grp; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_clinc_trial_attr bio_clinical_trial_patient_grp; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_clinc_trial_attr
     ADD CONSTRAINT bio_clinical_trial_patient_grp PRIMARY KEY (bio_clinc_trial_attr_id);
@@ -34,12 +34,12 @@ end;
 $$;
 
 --
--- Name: trg_bio_cln_trl_attr_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_clinc_trial_attr trg_bio_cln_trl_attr_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_cln_trl_attr_id BEFORE INSERT ON bio_clinc_trial_attr FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_cln_trl_attr_id();
 
 --
--- Name: bio_clinical_trial_property_bi; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_clinc_trial_attr bio_clinical_trial_property_bi; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_clinc_trial_attr
     ADD CONSTRAINT bio_clinical_trial_property_bi FOREIGN KEY (bio_experiment_id) REFERENCES bio_clinical_trial(bio_experiment_id);

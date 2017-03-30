@@ -24,7 +24,7 @@ CREATE TABLE de_gene_info (
 );
 
 --
--- Name: gene_info_id; Type: DEFAULT; Schema: deapp; Owner: -
+-- Name: de_gene_info gene_info_id; Type: DEFAULT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_gene_info ALTER COLUMN gene_info_id SET DEFAULT nextval('de_gene_info_gene_info_id_seq'::regclass);
 

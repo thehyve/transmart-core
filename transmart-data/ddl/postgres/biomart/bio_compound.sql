@@ -19,7 +19,7 @@ CREATE TABLE bio_compound (
 );
 
 --
--- Name: compounddim_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_compound compounddim_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_compound
     ADD CONSTRAINT compounddim_pk PRIMARY KEY (bio_compound_id);
@@ -44,7 +44,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_compound_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_compound trg_bio_compound_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_compound_id BEFORE INSERT ON bio_compound FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_compound_id();
 

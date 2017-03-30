@@ -12,7 +12,7 @@ CREATE TABLE mirna_bio_marker (
 );
 
 --
--- Name: mirna_bm_org_pri_eid_key; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: mirna_bio_marker mirna_bm_org_pri_eid_key; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY mirna_bio_marker
     ADD CONSTRAINT mirna_bm_org_pri_eid_key UNIQUE (organism, primary_external_id);

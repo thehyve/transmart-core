@@ -11,7 +11,7 @@ CREATE TABLE de_snp_probe_sorted_def (
 );
 
 --
--- Name: sys_c0020600; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_snp_probe_sorted_def sys_c0020600; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_snp_probe_sorted_def
     ADD CONSTRAINT sys_c0020600 PRIMARY KEY (snp_probe_sorted_def_id);
@@ -31,7 +31,7 @@ end;
 $$;
 
 --
--- Name: trg_de_snp_probe_sorted_def_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_snp_probe_sorted_def trg_de_snp_probe_sorted_def_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_de_snp_probe_sorted_def_id BEFORE INSERT ON de_snp_probe_sorted_def FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_snp_probe_sorted_def_id();
 

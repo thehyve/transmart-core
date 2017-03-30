@@ -167,61 +167,6 @@
     } ]
   }, {
     "child" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX1"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_MICROARRAY_DATA"
-    } ]
-  }, {
-    "child" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX2"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_MICROARRAY_DATA"
-    } ]
-  }, {
-    "child" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX3"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_MICROARRAY_DATA"
-    } ]
-  }, {
-    "child" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX4"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_MICROARRAY_DATA"
-    } ]
-  }, {
-    "child" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX5"
-    },
-    "parents" : [ {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_MICROARRAY_DATA"
-    } ]
-  }, {
-    "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_MRNA_ANNOTATION"
@@ -490,6 +435,39 @@
     } ]
   }, {
     "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_RSNP_CHROMPOS_IND"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_RSNP_CHROM_COMP_IDX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_R_S_I_IND4"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
+    } ]
+  }, {
+    "child" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_SAMPLE_SNP_DATA"
@@ -520,6 +498,17 @@
       "name" : "DE_SNP_CALLS_BY_GSM"
     },
     "parents" : [ ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_CHROMPOS_IND"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_INFO"
+    } ]
   }, {
     "child" : {
       "type" : "TABLE",
@@ -1365,12 +1354,56 @@
     "child" : {
       "type" : "INDEX",
       "owner" : "DEAPP",
+      "name" : "IDX_DE_SNP_GENE_MAP_GENEN"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_GENE_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
       "name" : "IDX_DE_SUBJ_SMPL_TRIAL_CCODE"
     },
     "parents" : [ {
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_SAMPLE_MAPPING"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DSDBP1_ANNO_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PROBE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DSDBP1_GP_PROBE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PROBE"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DSDBP_TRIAL_NAME"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PROBE"
     } ]
   }, {
     "child" : {
@@ -1404,6 +1437,28 @@
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_SNP_COPY_NUMBER"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IND_VCF_POS"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IND_VCF_RSID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_RC_SNP_INFO"
     } ]
   }, {
     "child" : {
@@ -1491,10 +1546,6 @@
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_PROTEIN_DATA"
     }, {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
-    }, {
       "type" : "FUNCTION",
       "owner" : "DEAPP",
       "name" : "TEXT_PARSER"
@@ -1517,10 +1568,6 @@
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_SUBJECT_PROTEIN_DATA"
-    }, {
-      "type" : "TABLE",
-      "owner" : "DEAPP",
-      "name" : "DE_SUBJECT_SAMPLE_MAPPING"
     }, {
       "type" : "FUNCTION",
       "owner" : "DEAPP",
@@ -1640,6 +1687,17 @@
     "child" : {
       "type" : "INDEX",
       "owner" : "DEAPP",
+      "name" : "SNP_GENE_MAP_IDX"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_GENE_MAP"
+    } ]
+  }, {
+    "child" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
       "name" : "SNP_NAME_IDX1"
     },
     "parents" : [ {
@@ -1651,7 +1709,7 @@
     "child" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
-      "name" : "SYS_C007534"
+      "name" : "SYS_C005719"
     },
     "parents" : [ {
       "type" : "TABLE",
@@ -1979,6 +2037,21 @@
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_SNP_DATA_BY_PATIENT"
+    }, {
+      "type" : "SEQUENCE",
+      "owner" : "DEAPP",
+      "name" : "SEQ_DATA_ID"
+    } ]
+  }, {
+    "child" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_SNP_DATA_BY_PPROBE_ID"
+    },
+    "parents" : [ {
+      "type" : "TABLE",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_DATA_BY_PROBE"
     }, {
       "type" : "SEQUENCE",
       "owner" : "DEAPP",
@@ -2338,41 +2411,6 @@
     "file" : "deapp/de_metabolite_sub_pathways.sql"
   }, {
     "item" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX1"
-    },
-    "file" : "deapp/de_subject_microarray_data.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX2"
-    },
-    "file" : "deapp/de_subject_microarray_data.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX3"
-    },
-    "file" : "deapp/de_subject_microarray_data.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX4"
-    },
-    "file" : "deapp/de_subject_microarray_data.sql"
-  }, {
-    "item" : {
-      "type" : "INDEX",
-      "owner" : "DEAPP",
-      "name" : "DE_MICROARRAY_DATA_IDX5"
-    },
-    "file" : "deapp/de_subject_microarray_data.sql"
-  }, {
-    "item" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_MRNA_ANNOTATION"
@@ -2569,6 +2607,27 @@
     "file" : "deapp/de_rnaseq_transcript_data.sql"
   }, {
     "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_RSNP_CHROMPOS_IND"
+    },
+    "file" : "deapp/de_rc_snp_info.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_RSNP_CHROM_COMP_IDX"
+    },
+    "file" : "deapp/de_rc_snp_info.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_R_S_I_IND4"
+    },
+    "file" : "deapp/de_rc_snp_info.sql"
+  }, {
+    "item" : {
       "type" : "TABLE",
       "owner" : "DEAPP",
       "name" : "DE_SAMPLE_SNP_DATA"
@@ -2595,6 +2654,13 @@
       "name" : "DE_SNP_CALLS_BY_GSM"
     },
     "file" : "deapp/de_snp_calls_by_gsm.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "DE_SNP_CHROMPOS_IND"
+    },
+    "file" : "deapp/de_snp_info.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -3236,9 +3302,37 @@
     "item" : {
       "type" : "INDEX",
       "owner" : "DEAPP",
+      "name" : "IDX_DE_SNP_GENE_MAP_GENEN"
+    },
+    "file" : "deapp/de_snp_gene_map.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
       "name" : "IDX_DE_SUBJ_SMPL_TRIAL_CCODE"
     },
     "file" : "deapp/de_subject_sample_mapping.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DSDBP1_ANNO_ID"
+    },
+    "file" : "deapp/de_snp_data_by_probe.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DSDBP1_GP_PROBE_ID"
+    },
+    "file" : "deapp/de_snp_data_by_probe.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IDX_DSDBP_TRIAL_NAME"
+    },
+    "file" : "deapp/de_snp_data_by_probe.sql"
   }, {
     "item" : {
       "type" : "INDEX",
@@ -3260,6 +3354,20 @@
       "name" : "IDX_SNP_COPY_NUMBER_PS"
     },
     "file" : "deapp/de_snp_copy_number.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IND_VCF_POS"
+    },
+    "file" : "deapp/de_rc_snp_info.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
+      "name" : "IND_VCF_RSID"
+    },
+    "file" : "deapp/de_rc_snp_info.sql"
   }, {
     "item" : {
       "type" : "TABLE",
@@ -3411,6 +3519,13 @@
     "item" : {
       "type" : "INDEX",
       "owner" : "DEAPP",
+      "name" : "SNP_GENE_MAP_IDX"
+    },
+    "file" : "deapp/de_snp_gene_map.sql"
+  }, {
+    "item" : {
+      "type" : "INDEX",
+      "owner" : "DEAPP",
       "name" : "SNP_NAME_IDX1"
     },
     "file" : "deapp/de_snp_gene_map.sql"
@@ -3418,7 +3533,7 @@
     "item" : {
       "type" : "REF_CONSTRAINT",
       "owner" : "DEAPP",
-      "name" : "SYS_C007534"
+      "name" : "SYS_C005719"
     },
     "file" : "deapp/de_gene_info.sql"
   }, {
@@ -3575,6 +3690,13 @@
       "name" : "TRG_SNP_DATA_BY_PATIENT_ID"
     },
     "file" : "deapp/de_snp_data_by_patient.sql"
+  }, {
+    "item" : {
+      "type" : "TRIGGER",
+      "owner" : "DEAPP",
+      "name" : "TRG_SNP_DATA_BY_PPROBE_ID"
+    },
+    "file" : "deapp/de_snp_data_by_probe.sql"
   }, {
     "item" : {
       "type" : "TRIGGER",

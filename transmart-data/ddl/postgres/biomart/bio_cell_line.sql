@@ -18,7 +18,7 @@ CREATE TABLE bio_cell_line (
 );
 
 --
--- Name: celllinedictionary_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_cell_line celllinedictionary_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_cell_line
     ADD CONSTRAINT celllinedictionary_pk PRIMARY KEY (bio_cell_line_id);
@@ -48,12 +48,12 @@ end;
 $$;
 
 --
--- Name: trg_bio_cell_line_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_cell_line trg_bio_cell_line_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_cell_line_id BEFORE INSERT ON bio_cell_line FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_cell_line_id();
 
 --
--- Name: cd_disease_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_cell_line cd_disease_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_cell_line
     ADD CONSTRAINT cd_disease_fk FOREIGN KEY (bio_disease_id) REFERENCES bio_disease(bio_disease_id);

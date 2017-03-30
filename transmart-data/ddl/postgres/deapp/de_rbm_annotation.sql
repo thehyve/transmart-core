@@ -12,7 +12,7 @@ CREATE TABLE de_rbm_annotation (
 );
 
 --
--- Name: de_rbm_annotation_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_rbm_annotation de_rbm_annotation_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_rbm_annotation
     ADD CONSTRAINT de_rbm_annotation_pkey PRIMARY KEY (id);
@@ -32,7 +32,7 @@ end;
 $$;
 
 --
--- Name: rbm_id_trigger; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_rbm_annotation rbm_id_trigger; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER rbm_id_trigger BEFORE INSERT ON de_rbm_annotation FOR EACH ROW EXECUTE PROCEDURE tf_rbm_id_trigger();
 

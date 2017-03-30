@@ -9,7 +9,7 @@ CREATE TABLE bio_asy_analysis_pltfm (
 );
 
 --
--- Name: bio_assay_analysis_platform_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_asy_analysis_pltfm bio_assay_analysis_platform_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_asy_analysis_pltfm
     ADD CONSTRAINT bio_assay_analysis_platform_pk PRIMARY KEY (bio_asy_analysis_pltfm_id);
@@ -34,7 +34,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_asy_analysis_pltfm_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_asy_analysis_pltfm trg_bio_asy_analysis_pltfm_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_asy_analysis_pltfm_id BEFORE INSERT ON bio_asy_analysis_pltfm FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_asy_analysis_pltfm_id();
 

@@ -12,7 +12,7 @@ CREATE TABLE de_qpcr_mirna_annotation (
 );
 
 --
--- Name: de_qpcr_mirna_annotation_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_qpcr_mirna_annotation de_qpcr_mirna_annotation_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_qpcr_mirna_annotation
     ADD CONSTRAINT de_qpcr_mirna_annotation_pkey PRIMARY KEY (probeset_id);

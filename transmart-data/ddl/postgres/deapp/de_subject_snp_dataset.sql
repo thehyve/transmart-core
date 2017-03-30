@@ -16,7 +16,7 @@ CREATE TABLE de_subject_snp_dataset (
 );
 
 --
--- Name: sys_c0020606; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_subject_snp_dataset sys_c0020606; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_subject_snp_dataset
     ADD CONSTRAINT sys_c0020606 PRIMARY KEY (subject_snp_dataset_id);
@@ -36,7 +36,7 @@ end;
 $$;
 
 --
--- Name: trg_de_subject_snp_dataset_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_subject_snp_dataset trg_de_subject_snp_dataset_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_de_subject_snp_dataset_id BEFORE INSERT ON de_subject_snp_dataset FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_subject_snp_dataset_id();
 

@@ -202,7 +202,7 @@ $$;
 SET default_with_oids = false;
 
 --
--- Name: trig_clinical_trial_design_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: ctd_full trig_clinical_trial_design_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trig_clinical_trial_design_id BEFORE INSERT ON ctd_full FOR EACH ROW EXECUTE PROCEDURE tf_trig_clinical_trial_design_id();
 

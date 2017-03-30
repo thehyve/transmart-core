@@ -16,7 +16,7 @@ CREATE TABLE bio_assay_analysis_eqtl (
 );
 
 --
--- Name: bio_assay_analysis_eqtl_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis_eqtl bio_assay_analysis_eqtl_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis_eqtl
     ADD CONSTRAINT bio_assay_analysis_eqtl_pk PRIMARY KEY (bio_asy_analysis_eqtl_id);

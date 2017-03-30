@@ -11,7 +11,7 @@ CREATE TABLE bio_clinc_trial_pt_group (
 );
 
 --
--- Name: bio_clinical_trial_pt_group; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_clinc_trial_pt_group bio_clinical_trial_pt_group; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_clinc_trial_pt_group
     ADD CONSTRAINT bio_clinical_trial_pt_group PRIMARY KEY (bio_clinical_trial_p_group_id);
@@ -36,12 +36,12 @@ end;
 $$;
 
 --
--- Name: trg_bio_clin_trl_pt_grp_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_clinc_trial_pt_group trg_bio_clin_trl_pt_grp_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_clin_trl_pt_grp_id BEFORE INSERT ON bio_clinc_trial_pt_group FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_clin_trl_pt_grp_id();
 
 --
--- Name: bio_clinc_trl_pt_grp_exp_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_clinc_trial_pt_group bio_clinc_trl_pt_grp_exp_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_clinc_trial_pt_group
     ADD CONSTRAINT bio_clinc_trl_pt_grp_exp_fk FOREIGN KEY (bio_experiment_id) REFERENCES bio_clinical_trial(bio_experiment_id);

@@ -26,7 +26,7 @@ END;
 $$;
 
 --
--- Name: trg_ctd2_study_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: ctd2_study trg_ctd2_study_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_ctd2_study_id BEFORE INSERT ON ctd2_study FOR EACH ROW EXECUTE PROCEDURE tf_trg_ctd2_study_id();
 

@@ -25,7 +25,7 @@ CREATE TABLE bio_experiment (
 );
 
 --
--- Name: experimentdim_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_experiment experimentdim_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_experiment
     ADD CONSTRAINT experimentdim_pk PRIMARY KEY (bio_experiment_id);
@@ -60,7 +60,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_experiment_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_experiment trg_bio_experiment_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_experiment_id BEFORE INSERT ON bio_experiment FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_experiment_id();
 
@@ -86,7 +86,7 @@ END;
 $$;
 
 --
--- Name: trg_bio_experiment_uid; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_experiment trg_bio_experiment_uid; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_experiment_uid BEFORE INSERT ON bio_experiment FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_experiment_uid();
 
