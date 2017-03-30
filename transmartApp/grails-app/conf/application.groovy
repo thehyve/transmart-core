@@ -259,6 +259,7 @@ grails { plugin { springsecurity {
                 [pattern: '/analysis/getGenePatternFile',access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
                 [pattern: '/analysis/getTestFile',       access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
                 [pattern: '/open-api/**',                access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/versions/**',                access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
                 [pattern: '/requestmap/**',              access: ['ROLE_ADMIN']],
                 [pattern: '/role/**',                    access: ['ROLE_ADMIN']],
                 [pattern: '/authUser/**',                access: ['ROLE_ADMIN']],
@@ -310,7 +311,6 @@ grails { plugin { springsecurity {
                         '-exceptionTranslationFilter',
                 ].join(','),
                 '/oauth/inspectToken': securedResourcesFilters,
-                '/versions/**': securedResourcesFilters,
                 '/v1/**': securedResourcesFilters,
                 '/v2/**': securedResourcesFilters,
                 '/**': [
