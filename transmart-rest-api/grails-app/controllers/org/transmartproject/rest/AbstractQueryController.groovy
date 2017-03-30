@@ -6,8 +6,8 @@ import grails.converters.JSON
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.ConstraintBindingException
 import org.transmartproject.db.multidimquery.query.ConstraintFactory
@@ -16,7 +16,7 @@ import org.transmartproject.rest.misc.CurrentUser
 abstract class AbstractQueryController implements Controller {
 
     @Autowired
-    QueryService queryService
+    MultiDimensionalDataResource multiDimService
 
     @Autowired
     CurrentUser currentUser
@@ -25,7 +25,7 @@ abstract class AbstractQueryController implements Controller {
     UsersResource usersResource
 
     @Autowired
-    MultidimensionalDataSerialisationService multidimensionalDataSerialisationService
+    MultidimensionalDataService multidimensionalDataService
 
     def conceptsResourceService
 

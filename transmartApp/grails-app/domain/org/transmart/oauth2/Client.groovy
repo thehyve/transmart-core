@@ -69,7 +69,7 @@ class Client {
         throw new RuntimeException("""
 ========================================================================================================================
 
-Congratulations! It looks like bug XXX has been solved which prevented event handler methods form being called on 
+Congratulations! It looks like bug https://github.com/grails/grails-core/issues/10451 has been solved which prevented event handler methods form being called on 
 domain objects of non-default datastores. Please remove this exception in transmartApp/grails-app/domain/org.transmart
 .oauth2.Client and the accompanying workaround in transmartApp/grails-app/init/BootStrap.groovy and try again. The 
 primary symptom of this bug was that oauth2 authentication was not working due to the password encoder not receiving a 

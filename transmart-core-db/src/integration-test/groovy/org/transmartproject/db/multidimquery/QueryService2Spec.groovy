@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
@@ -31,7 +32,7 @@ import static org.transmartproject.db.multidimquery.query.ConstraintDimension.*
 class QueryService2Spec extends Specification {
 
     @Autowired
-    QueryService queryService
+    MultiDimensionalDataResource multiDimService
 
     Dimension assayDim = DimensionImpl.ASSAY
     Dimension biomarkerDim = DimensionImpl.BIOMARKER
@@ -44,7 +45,7 @@ class QueryService2Spec extends Specification {
         ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
         when:
-        Hypercube hypercube = queryService.highDimension(conceptConstraint, user, 'autodetect')
+        Hypercube hypercube = multiDimService.highDimension(conceptConstraint, user, 'autodetect')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -71,7 +72,7 @@ class QueryService2Spec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(combinationConstraint, user, 'autodetect')
+        Hypercube hypercube = multiDimService.highDimension(combinationConstraint, user, 'autodetect')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -93,7 +94,7 @@ class QueryService2Spec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user, 'mrna')
+        Hypercube hypercube = multiDimService.highDimension(conceptConstraint, bioMarkerConstraint, user, 'mrna')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -120,7 +121,7 @@ class QueryService2Spec extends Specification {
         when:
         trialVisitConstraint.value = 'Baseline'
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
-        Hypercube hypercube = queryService.highDimension(combination, user, 'autodetect')
+        Hypercube hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
         then:
@@ -131,7 +132,7 @@ class QueryService2Spec extends Specification {
         when:
         trialVisitConstraint.value = 'Week 1'
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, trialVisitConstraint])
-        hypercube = queryService.highDimension(combination, user, 'autodetect')
+        hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
         then:
@@ -171,7 +172,7 @@ class QueryService2Spec extends Specification {
         Hypercube hypercube
         when:
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, startDateTimeConstraint])
-        hypercube = queryService.highDimension(combination, user, 'autodetect')
+        hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
         then:
@@ -179,7 +180,7 @@ class QueryService2Spec extends Specification {
 
         when:
         combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
-        hypercube = queryService.highDimension(combination, user, 'autodetect')
+        hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
         then:
@@ -208,7 +209,7 @@ class QueryService2Spec extends Specification {
                 operator: Operator.AND
         )
         when:
-        Hypercube hypercube = queryService.retrieveClinicalData(combination, user)
+        Hypercube hypercube = multiDimService.retrieveClinicalData(combination, user)
         def observations = hypercube.toList()
 
         then:
@@ -240,7 +241,7 @@ class QueryService2Spec extends Specification {
                 operator: Operator.AND
         )
         when:
-        Hypercube hypercube = queryService.highDimension(combination, user, 'autodetect')
+        Hypercube hypercube = multiDimService.highDimension(combination, user, 'autodetect')
         hypercube.toList()
 
         then:
@@ -269,7 +270,7 @@ class QueryService2Spec extends Specification {
                 args: [modifierConstraint, conceptConstraint]
         )
         when:
-        Hypercube hypercube = queryService.retrieveClinicalData(combination, user)
+        Hypercube hypercube = multiDimService.retrieveClinicalData(combination, user)
         hypercube.toList()
 
         then:
@@ -291,7 +292,7 @@ class QueryService2Spec extends Specification {
         )
         when:
         Combination combination = new Combination(operator: Operator.AND, args: [conceptConstraint, endDateTimeConstraint])
-        Hypercube hypercube = queryService.highDimension(combination, user, 'autodetect')
+        Hypercube hypercube = multiDimService.highDimension(combination, user, 'autodetect')
 
 
         then:
@@ -320,7 +321,7 @@ class QueryService2Spec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(combinationConstraint, bioMarkerConstraint, user, 'rnaseq_transcript')
+        Hypercube hypercube = multiDimService.highDimension(combinationConstraint, bioMarkerConstraint, user, 'rnaseq_transcript')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *
@@ -342,7 +343,7 @@ class QueryService2Spec extends Specification {
         )
 
         when:
-        Hypercube hypercube = queryService.highDimension(conceptConstraint, bioMarkerConstraint, user, 'rnaseq_transcript')
+        Hypercube hypercube = multiDimService.highDimension(conceptConstraint, bioMarkerConstraint, user, 'rnaseq_transcript')
 
         then:
         hypercube.toList().size() == hypercube.dimensionElements(biomarkerDim).size() *

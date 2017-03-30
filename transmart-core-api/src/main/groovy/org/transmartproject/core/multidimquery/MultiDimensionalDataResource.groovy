@@ -1,7 +1,11 @@
 /* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.core.multidimquery
 
+import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.users.User
 
 interface MultiDimensionalDataResource {
 
@@ -24,4 +28,27 @@ interface MultiDimensionalDataResource {
 
     Dimension getDimension(String name)
 
+
+    Long count(MultiDimConstraint constraint, User user)
+    Long cachedCount(MultiDimConstraint constraint, User user)
+
+    List<Patient> listPatients(MultiDimConstraint constraint, User user)
+
+    QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user)
+
+    QueryResult findPatientSet(Long patientSetId, User user)
+
+    Long patientCount(MultiDimConstraint constraint, User user)
+    Long cachedPatientCount(MultiDimConstraint constraint, User user)
+
+    Number aggregate(AggregateType type, MultiDimConstraint constraint, User user)
+
+    Hypercube highDimension(
+            MultiDimConstraint assayConstraint_,
+            MultiDimConstraint biomarkerConstraint,
+            String projectionName,
+            User user,
+            String type)
+
+    Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user)
 }

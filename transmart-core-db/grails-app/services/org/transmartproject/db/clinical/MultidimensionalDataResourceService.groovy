@@ -4,31 +4,91 @@ package org.transmartproject.db.clinical
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
+import grails.plugin.cache.Cacheable
+import grails.util.Holders
+import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
+import org.hibernate.criterion.Criterion
+import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.ProjectionList
+import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Restrictions
+import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
+import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
+import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.dataquery.highdim.projections.Projection
+import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.DataInconsistencyException
+import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.core.users.User
+import org.transmartproject.db.accesscontrol.AccessControlChecks
+import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
+import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
+import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.AssayDimension
 import org.transmartproject.db.multidimquery.BioMarkerDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.multidimquery.EmptyHypercube
+import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
 import org.transmartproject.db.multidimquery.HypercubeImpl
 import org.transmartproject.db.multidimquery.ProjectionDimension
-import org.transmartproject.db.multidimquery.QueryService
+import org.transmartproject.core.multidimquery.AggregateType
+import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
+import org.transmartproject.db.multidimquery.query.Combination
+import org.transmartproject.db.multidimquery.query.ConceptConstraint
 import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.ConstraintDimension
+import org.transmartproject.db.multidimquery.query.Field
+import org.transmartproject.db.multidimquery.query.FieldConstraint
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.multidimquery.query.InvalidQueryException
+import org.transmartproject.db.multidimquery.query.ModifierConstraint
+import org.transmartproject.db.multidimquery.query.Negation
+import org.transmartproject.db.multidimquery.query.NullConstraint
+import org.transmartproject.db.multidimquery.query.Operator
+import org.transmartproject.db.multidimquery.query.PatientSetConstraint
+import org.transmartproject.db.multidimquery.query.QueryBuilder
+import org.transmartproject.db.multidimquery.query.QueryBuilderException
+import org.transmartproject.db.multidimquery.query.StudyNameConstraint
+import org.transmartproject.db.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.db.multidimquery.query.TemporalConstraint
+import org.transmartproject.db.multidimquery.query.TimeConstraint
+import org.transmartproject.db.multidimquery.query.TrueConstraint
+import org.transmartproject.db.multidimquery.query.Type
+import org.transmartproject.db.multidimquery.query.ValueConstraint
+import org.transmartproject.db.querytool.QtPatientSetCollection
+import org.transmartproject.db.querytool.QtQueryInstance
+import org.transmartproject.db.querytool.QtQueryMaster
+import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.util.GormWorkarounds
+
+import org.transmartproject.db.user.User as DbUser
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
@@ -36,6 +96,15 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     @Autowired
     SessionFactory sessionFactory
+
+    @Autowired
+    AccessControlChecks accessControlChecks
+
+    @Autowired
+    HighDimensionResourceService highDimensionResourceService
+
+    @Autowired
+    ConceptsResource conceptsResource
 
     Dimension getDimension(String name) {
         DimensionDescription.findByName(name).dimension
@@ -56,7 +125,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      *
      * @return a Hypercube result
      */
-    HypercubeImpl retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies) {
+    @Override HypercubeImpl retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies) {
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint
@@ -79,9 +148,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def preloadDimensions = args.pack ?: false
 
         // Add any studies that are being selected on
-        def studyIds = QueryService.findStudyNameConstraints(constraint)*.studyId
+        def studyIds = findStudyNameConstraints(constraint)*.studyId
         Set studies = (studyIds.empty ? [] : Study.findAllByStudyIdInList(studyIds)) +
-                QueryService.findStudyObjectConstraints(constraint)*.study as Set
+                findStudyObjectConstraints(constraint)*.study as Set
 
         // We need methods from different interfaces that StatelessSessionImpl implements.
         def session = (StatelessSessionImpl) sessionFactory.openStatelessSession()
@@ -189,6 +258,463 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     For Oracle we should look into the UNPIVOT operator
      */
 
+
+
+
+
+    private final Field valueTypeField = new Field(dimension: ConstraintDimension.Value, fieldName: 'valueType', type: Type.STRING)
+    private final Field textValueField = new Field(dimension: ConstraintDimension.Value, fieldName: 'textValue', type: Type.STRING)
+    private final Field numberValueField =
+            new Field(dimension: ConstraintDimension.Value, fieldName: 'numberValue', type: Type.NUMERIC)
+
+    @Lazy
+    private Criterion defaultHDModifierCriterion = Restrictions.in('modifierCd',
+            highDimensionResourceService.knownMarkerTypes.collect { "TRANSMART:HIGHDIM:${it.toUpperCase()}".toString() })
+
+    private Criterion HDModifierCriterionForType(String type) {
+        HighDimensionDataTypeResourceImpl hdres = highDimensionResourceService.getSubResourceForType(type)
+        Restrictions.in('modifierCd',
+                hdres.platformMarkerTypes.collect {"TRANSMART:HIGHDIM:${it.toUpperCase()}".toString()} )
+    }
+
+    private void checkAccess(MultiDimConstraint constraint, User user) throws AccessDeniedException {
+        assert 'user is required', user
+        assert 'constraint is required', constraint
+
+        if (constraint instanceof TrueConstraint
+                || constraint instanceof ModifierConstraint
+                || constraint instanceof ValueConstraint
+                || constraint instanceof TimeConstraint
+                || constraint instanceof NullConstraint) {
+            //
+        } else if (constraint instanceof Negation) {
+            checkAccess(constraint.arg, user)
+        } else if (constraint instanceof Combination) {
+            constraint.args.each { checkAccess(it, user) }
+        } else if (constraint instanceof TemporalConstraint) {
+            checkAccess(constraint.eventConstraint, user)
+        } else if (constraint instanceof BioMarkerDimension) {
+            throw new InvalidQueryException("Not supported yet: ${constraint?.class?.simpleName}.")
+        } else if (constraint instanceof PatientSetConstraint) {
+            if (constraint.patientSetId) {
+                QueryResult queryResult = QtQueryResultInstance.findById(constraint.patientSetId)
+                if (queryResult == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+                    throw new AccessDeniedException("Access denied to patient set or patient set does not exist: ${constraint.patientSetId}")
+                }
+            }
+        } else if (constraint instanceof FieldConstraint) {
+            if (constraint.field.dimension == ConstraintDimension.Concept) {
+                throw new AccessDeniedException("Access denied. Concept dimension not allowed in field constraints. Use a ConceptConstraint instead.")
+            } else if (constraint.field.dimension == ConstraintDimension.Study) {
+                throw new AccessDeniedException("Access denied. Study dimension not allowed in field constraints. Use a StudyConstraint instead.")
+            } else if (constraint.field.dimension == ConstraintDimension.TrialVisit) {
+                if (constraint.field.fieldName == 'study') {
+                    throw new AccessDeniedException("Access denied. Field 'study' of trial visit dimension not allowed in field constraints. Use a StudyConstraint instead.")
+                }
+            }
+        } else if (constraint instanceof ConceptConstraint) {
+            if (constraint.path && constraint.conceptCode) {
+                throw new InvalidQueryException("Expected one of path and conceptCode, got both.")
+            } else if (!constraint.path && !constraint.conceptCode) {
+                throw new InvalidQueryException("Expected one of path and conceptCode, got none.")
+            } else if (constraint.path) {
+                if (!accessControlChecks.checkConceptAccess(user, conceptPath: constraint.path)) {
+                    throw new AccessDeniedException("Access denied to concept path: ${constraint.path}")
+                }
+            } else {
+                if (!accessControlChecks.checkConceptAccess(user, conceptCode: constraint.conceptCode)) {
+                    throw new AccessDeniedException("Access denied to concept code: ${constraint.conceptCode}")
+                }
+            }
+        } else if (constraint instanceof StudyNameConstraint) {
+            def study = Study.findByStudyId(constraint.studyId)
+            if (study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, study)) {
+                throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.studyId}")
+            }
+        } else if (constraint instanceof StudyObjectConstraint) {
+            if (constraint.study == null || !user.canPerform(ProtectedOperation.WellKnownOperations.READ, constraint.study)) {
+                throw new AccessDeniedException("Access denied to study or study does not exist: ${constraint.study?.studyId}")
+            }
+        } else {
+            throw new InvalidQueryException("Unknown constraint type: ${constraint?.class?.simpleName}.")
+        }
+    }
+
+    private Number getAggregate(AggregateType aggregateType, DetachedCriteria criteria) {
+        switch (aggregateType) {
+            case AggregateType.MIN:
+                criteria = criteria.setProjection(Projections.min('numberValue'))
+                break
+            case AggregateType.AVERAGE:
+                criteria = criteria.setProjection(Projections.avg('numberValue'))
+                break
+            case AggregateType.MAX:
+                criteria = criteria.setProjection(Projections.max('numberValue'))
+                break
+            case AggregateType.COUNT:
+                criteria = criteria.setProjection(Projections.rowCount())
+                break
+            default:
+                throw new QueryBuilderException("Query type not supported: ${aggregateType}")
+        }
+        aggregateType == AggregateType.COUNT ? (Long) get(criteria) : (Number) get(criteria)
+    }
+
+    private Object get(DetachedCriteria criteria) {
+        criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult()
+    }
+
+    private List getList(DetachedCriteria criteria) {
+        criteria.getExecutableCriteria(sessionFactory.currentSession).list()
+    }
+
+    /**
+     * Checks if an observation fact exists that satisfies <code>constraint</code>.
+     * @param builder the {@link HibernateCriteriaQueryBuilder} used to build the query.
+     * @param constraint the constraint that is applied to filter for observation facts.
+     * @return true iff an observation fact is found that satisfies <code>constraint</code>.
+     */
+    private boolean exists(HibernateCriteriaQueryBuilder builder, Constraint constraint) {
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
+        (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
+    }
+
+    /**
+     * @description Function for getting a list of observations that are specified by <code>query</code>.
+     * @param query
+     * @param user
+     */
+    private List<ObservationFact> highDimObservationList(Constraint constraint, User user, Criterion modifier = null) {
+        checkAccess(constraint, user)
+        log.info "Studies: ${accessControlChecks.getDimensionStudiesForUser((DbUser) user)*.studyId}"
+        def builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+        )
+        DetachedCriteria criteria = modifier ? builder.buildCriteria(constraint, modifier)
+                : builder.buildCriteria(constraint)
+        getList(criteria)
+    }
+
+    @Override Long count(MultiDimConstraint constraint, User user) {
+        checkAccess(constraint, user)
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+        )
+        (Long) get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
+    }
+
+    @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
+    Long cachedCount(MultiDimConstraint constraint, User user) {
+        count(constraint, user)
+    }
+
+    /**
+     * @description Function for getting a list of patients for which there are observations
+     * that are specified by <code>query</code>.
+     * @param query
+     * @param user
+     */
+    @Override List<Patient> listPatients(MultiDimConstraint constraint, User user) {
+        checkAccess(constraint, user)
+        def builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+        )
+        DetachedCriteria constraintCriteria = builder.buildCriteria((Constraint) constraint)
+        DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
+        DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
+        patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
+        getList(patientCriteria)
+    }
+
+    /**
+     * @description Function for creating a patient set consisting of patients for which there are observations
+     * that are specified by <code>query</code>.
+     *
+     * FIXME: this implementation was copied from QueriesResourceService.runQuery and modified. The two copies should
+     * be folded together.
+     *
+     * @param query
+     * @param user
+     */
+    @Override QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user) {
+        List patients = listPatients(constraint, user)
+
+        // 1. Populate qt_query_master
+        def queryMaster = new QtQueryMaster(
+                name           : name,
+                userId         : user.username,
+                groupId        : Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
+                createDate     : new Date(),
+                generatedSql   : null,
+                requestXml     : "",
+                i2b2RequestXml : null,
+        )
+
+        // 2. Populate qt_query_instance
+        def queryInstance = new QtQueryInstance(
+                userId       : user.username,
+                groupId      : Holders.grailsApplication.config.org.transmartproject.i2b2.group_id,
+                startDate    : new Date(),
+                statusTypeId : QueryStatus.PROCESSING.id,
+                queryMaster  : queryMaster,
+        )
+        queryMaster.addToQueryInstances(queryInstance)
+
+        // 3. Populate qt_query_result_instance
+        def resultInstance = new QtQueryResultInstance(
+                statusTypeId  : QueryStatus.PROCESSING.id,
+                startDate     : new Date(),
+                queryInstance : queryInstance
+        )
+        queryInstance.addToQueryResults(resultInstance)
+
+        // 4. Save the three objects
+        if (!queryMaster.validate()) {
+            throw new InvalidRequestException('Could not create a valid ' +
+                    'QtQueryMaster: ' + queryMaster.errors)
+        }
+        if (queryMaster.save() == null) {
+            throw new RuntimeException('Failure saving QtQueryMaster')
+        }
+
+        patients.each { patient ->
+            def entry = new QtPatientSetCollection(
+                    resultInstance: resultInstance,
+                    patient: patient
+            )
+            resultInstance.addToPatientSet(entry)
+        }
+
+        def newResultInstance = resultInstance.save()
+        if (!newResultInstance) {
+            throw new RuntimeException('Failure saving patient set. Errors: ' +
+                    resultInstance.errors)
+        }
+
+        // 7. Update result instance and query instance
+        resultInstance.setSize = resultInstance.realSetSize = patients.size()
+        resultInstance.description = "Patient set for \"${name}\""
+        resultInstance.endDate = new Date()
+        resultInstance.statusTypeId = QueryStatus.FINISHED.id
+
+        queryInstance.endDate = new Date()
+        queryInstance.statusTypeId = QueryStatus.COMPLETED.id
+
+        newResultInstance = resultInstance.save()
+        if (!newResultInstance) {
+            throw new RuntimeException('Failure saving resultInstance after ' +
+                    'successfully building patient set. Errors: ' +
+                    resultInstance.errors)
+        }
+
+        resultInstance
+    }
+
+    @Override QueryResult findPatientSet(Long patientSetId, User user) {
+        QueryResult queryResult = QtQueryResultInstance.findById(patientSetId)
+        if (queryResult == null) {
+            throw new NoSuchResourceException("Patient set not found with id ${patientSetId}.")
+        }
+        if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+            throw new AccessDeniedException("Access denied to patient set with id ${patientSetId}.")
+        }
+        queryResult
+    }
+
+    @Override Long patientCount(MultiDimConstraint constraint, User user) {
+        checkAccess(constraint, user)
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+        )
+        DetachedCriteria constraintCriteria = builder.buildCriteria(constraint)
+        DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
+        DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
+        patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
+        (Long) get(patientCriteria.setProjection(Projections.rowCount()))
+    }
+
+    @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
+    Long cachedPatientCount(MultiDimConstraint constraint, User user) {
+        patientCount(constraint, user)
+    }
+
+    static List<StudyNameConstraint> findStudyNameConstraints(MultiDimConstraint constraint) {
+        if (constraint instanceof StudyNameConstraint) {
+            return [constraint]
+        } else if (constraint instanceof Combination) {
+            constraint.args.collectMany { findStudyNameConstraints(it) }
+        } else {
+            return []
+        }
+    }
+
+    static List<StudyObjectConstraint> findStudyObjectConstraints(MultiDimConstraint constraint) {
+        if (constraint instanceof StudyObjectConstraint) {
+            return [constraint]
+        } else if (constraint instanceof Combination) {
+            constraint.args.collectMany { findStudyObjectConstraints(it) }
+        } else {
+            return []
+        }
+    }
+
+    static List<ConceptConstraint> findConceptConstraints(MultiDimConstraint constraint) {
+        if (constraint instanceof ConceptConstraint) {
+            return [constraint]
+        } else if (constraint instanceof Combination) {
+            constraint.args.collectMany { findConceptConstraints(it) }
+        } else {
+            return []
+        }
+    }
+
+    private static List<BiomarkerConstraint> findAllBiomarkerConstraints(MultiDimConstraint constraint) {
+        if (constraint instanceof BiomarkerConstraint) {
+            return [constraint]
+        } else if (constraint instanceof Combination) {
+            constraint.args.collectMany { findAllBiomarkerConstraints(it) }
+        } else {
+            return []
+        }
+    }
+
+    /**
+     * @description Function for getting a aggregate value of a single field.
+     * The allowed queryTypes are MIN, MAX and AVERAGE.
+     * The responsibility for checking the queryType is allocated to the controller.
+     * Only allowed for numerical values and so checks if this is the case
+     * @param query
+     * @param user
+     */
+    @Override Number aggregate(AggregateType type, MultiDimConstraint constraint, User user) {
+        checkAccess(constraint, user)
+        if (type == AggregateType.NONE) {
+            throw new InvalidQueryException("Aggregate requires a valid aggregate type.")
+        }
+
+        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
+                studies: (Collection) accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+        )
+        List<ConceptConstraint> conceptConstraintList = findConceptConstraints(constraint)
+        if (conceptConstraintList.size() == 0) throw new InvalidQueryException('Aggregate requires exactly one ' +
+                'concept constraint, found none.')
+        if (conceptConstraintList.size() > 1) throw new InvalidQueryException("Aggregate requires exactly one concept" +
+                " constraint, found ${conceptConstraintList.size()}.")
+        def conceptConstraint = conceptConstraintList[0]
+
+        // check if the concept exists
+        def concept = ConceptDimension.findByConceptPath(conceptConstraint.path)
+        if (concept == null) {
+            throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}")
+        }
+        // check if there are any observations for the concept
+        if (!exists(builder, conceptConstraint)) {
+            throw new InvalidQueryException("No observations found for concept path: ${conceptConstraint.path}")
+        }
+
+        // check if the concept is truly numerical (all textValue are E and all numberValue have a value)
+        // all(A) and all(B) <=> not(any(not A) or any(not B))
+        def valueTypeNotNumericConstraint = new FieldConstraint(
+                operator: Operator.NOT_EQUALS,
+                field: valueTypeField,
+                value: ObservationFact.TYPE_NUMBER
+        )
+        def textValueNotEConstraint = new FieldConstraint(
+                operator: Operator.NOT_EQUALS,
+                field: textValueField,
+                value: "E"
+        )
+        def numberValueNullConstraint = new NullConstraint(
+                field: numberValueField
+        )
+        def notNumericalCombination = new Combination(
+                operator: Operator.OR,
+                args: [valueTypeNotNumericConstraint, textValueNotEConstraint, numberValueNullConstraint]
+        )
+        def conceptNotNumericalCombination = new Combination(
+                operator: Operator.AND,
+                args: [conceptConstraint, notNumericalCombination]
+        )
+
+        if (exists(builder, conceptNotNumericalCombination)) {
+            def message = 'One of the observationFacts had either an empty numerical value or a ' +
+                    'textValue with something else then \'E\''
+            throw new InvalidQueryException(message)
+        }
+
+        // get aggregate value
+        DetachedCriteria queryCriteria = builder.buildCriteria((Constraint) constraint)
+        return getAggregate(type, queryCriteria)
+    }
+
+    @CompileStatic @Override
+    Hypercube highDimension(
+            MultiDimConstraint assayConstraint_,
+            MultiDimConstraint biomarkerConstraint_ = new BiomarkerConstraint(),
+            String projectionName = Projection.ALL_DATA_PROJECTION,
+            User user,
+            String type) {
+        projectionName = projectionName ?: Projection.ALL_DATA_PROJECTION
+        Constraint assayConstraint = (Constraint) assayConstraint_
+        BiomarkerConstraint biomarkerConstraint = (BiomarkerConstraint) biomarkerConstraint_
+        checkAccess(assayConstraint, user)
+
+        List<ObservationFact> observations = highDimObservationList(assayConstraint, user,
+                type == 'autodetect' ? defaultHDModifierCriterion : HDModifierCriterionForType(type))
+
+        List assayIds = []
+        for(def o : observations) {
+            if(o.numberValue == null) throw new DataInconsistencyException("Observation row(s) found that miss the assayId")
+            assayIds.add(o.numberValue.toLong())
+        }
+
+        if (assayIds.empty){
+            return new EmptyHypercube()
+        }
+        List<AssayConstraint> oldAssayConstraints = [
+                highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+        ]
+
+        HighDimensionDataTypeResource typeResource
+        if(type == 'autodetect') {
+            Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
+                    highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
+            if (assaysByType.size() == 1) {
+                typeResource = assaysByType.keySet()[0]
+            } else {
+                assert assaysByType.size() != 0, "cannot happen"
+                throw new InvalidQueryException("Autodetecting the high dimensional type found multiple applicable " +
+                        "types: ${assaysByType.keySet()*.dataTypeName.join(', ')}. Please choose one.")
+            }
+        } else {
+            try {
+                typeResource = highDimensionResourceService.getSubResourceForType(type)
+            } catch (NoSuchResourceException e) {
+                throw new InvalidQueryException("Unknown high dimensional data type.", e)
+            }
+        }
+
+        Projection projection = typeResource.createProjection(projectionName)
+
+        List<DataConstraint> dataConstraints = []
+        if (biomarkerConstraint?.biomarkerType) {
+            dataConstraints << typeResource.createDataConstraint(biomarkerConstraint.params, biomarkerConstraint.biomarkerType)
+        }
+        try {
+            TabularResult table = typeResource.retrieveData(oldAssayConstraints, dataConstraints, projection)
+            return new HddTabularResultHypercubeAdapter(table)
+        } catch (EmptySetException e) {
+            return new EmptyHypercube()
+        }
+    }
+
+    @Override Hypercube retrieveClinicalData(MultiDimConstraint constraint_, User user) {
+        Constraint constraint = (Constraint) constraint_
+        checkAccess(constraint, user)
+        def dataType = 'clinical'
+        def accessibleStudies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+        retrieveData(dataType, accessibleStudies, constraint: constraint)
+    }
 }
 
 @TupleConstructor

@@ -3,6 +3,8 @@ package org.transmartproject.db.multidimquery
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.AggregateType
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.i2b2data.Study
@@ -18,7 +20,7 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 class QueryServiceSpec extends TransmartSpecification {
 
     @Autowired
-    QueryService queryService
+    MultiDimensionalDataResource multiDimService
 
     TestData testData
     AccessLevelTestData accessLevelTestData
@@ -88,7 +90,7 @@ class QueryServiceSpec extends TransmartSpecification {
         TrueConstraint constraint = new TrueConstraint()
 
         when:
-        def result = queryService.list(constraint, accessLevelTestData.users[0])
+        def result = multiDimService.list(constraint, accessLevelTestData.users[0])
 
         then:
         result.size() == testData.clinicalData.facts.size()
@@ -124,7 +126,7 @@ class QueryServiceSpec extends TransmartSpecification {
             createAlias('patient', 'p')
             like('p.sourcesystemCd', '%SUBJ_ID_2%')
         }
-        def result = queryService.list(constraint, accessLevelTestData.users[0])
+        def result = multiDimService.list(constraint, accessLevelTestData.users[0])
 
         then:
         result.size() == observations.size()
@@ -146,8 +148,8 @@ class QueryServiceSpec extends TransmartSpecification {
         ])
 
         when: "I query for all observations and patients for a constraint"
-        def observations = queryService.list(constraint, accessLevelTestData.users[0])
-        def patients = queryService.listPatients(constraint, accessLevelTestData.users[0])
+        def observations = multiDimService.list(constraint, accessLevelTestData.users[0])
+        def patients = multiDimService.listPatients(constraint, accessLevelTestData.users[0])
 
         then: "I get the expected number of observations and patients"
         observations.size() == 5
@@ -157,7 +159,7 @@ class QueryServiceSpec extends TransmartSpecification {
         observations*.patient.unique().sort() == patients.sort()
 
         when: "I build a patient set based on the constraint"
-        def patientSet = queryService.createPatientSet("Test set", constraint, accessLevelTestData.users[0])
+        def patientSet = multiDimService.createPatientSet("Test set", constraint, accessLevelTestData.users[0])
 
         then: "I get a patient set id"
         patientSet != null
@@ -167,7 +169,7 @@ class QueryServiceSpec extends TransmartSpecification {
         Constraint patientSetConstraint = ConstraintFactory.create(
                 [ type: 'patient_set', patientSetId: patientSet.id ]
         )
-        def patients2 = queryService.listPatients(patientSetConstraint, accessLevelTestData.users[0])
+        def patients2 = multiDimService.listPatients(patientSetConstraint, accessLevelTestData.users[0])
 
         then: "I get the same set of patient as before"
         patients.sort() == patients2.sort()
@@ -184,19 +186,19 @@ class QueryServiceSpec extends TransmartSpecification {
         def query = createQueryForConcept(observationFact)
 
         when:
-        def result = queryService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
+        def result = multiDimService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
 
         then:
         result == 50
 
         when:
-        result = queryService.aggregate(AggregateType.MIN, query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate(AggregateType.MIN, query, accessLevelTestData.users[0])
 
         then:
         result == 10
 
         when:
-        result = queryService.aggregate(AggregateType.AVERAGE, query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate(AggregateType.AVERAGE, query, accessLevelTestData.users[0])
 
         then:
         result == 30 //(10+50) / 2
@@ -211,8 +213,8 @@ class QueryServiceSpec extends TransmartSpecification {
         def query = createQueryForConcept(of1)
 
         when:
-        def count1 = queryService.count(query, accessLevelTestData.users[0])
-        def patientCount1 = queryService.patientCount(query, accessLevelTestData.users[0])
+        def count1 = multiDimService.count(query, accessLevelTestData.users[0])
+        def patientCount1 = multiDimService.patientCount(query, accessLevelTestData.users[0])
 
         then:
         count1 == 2L
@@ -224,8 +226,8 @@ class QueryServiceSpec extends TransmartSpecification {
         of2.patient = of1.patient
         testData.clinicalData.facts << of2
         testData.saveAll()
-        def count2 = queryService.count(query, accessLevelTestData.users[0])
-        def patientCount2 = queryService.patientCount(query, accessLevelTestData.users[0])
+        def count2 = multiDimService.count(query, accessLevelTestData.users[0])
+        def patientCount2 = multiDimService.patientCount(query, accessLevelTestData.users[0])
 
         then:
         count2 == count1 + 1
@@ -245,7 +247,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         Constraint query = createQueryForConcept(observationFact)
-        queryService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
+        multiDimService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
 
         then:
         thrown(InvalidQueryException)
@@ -263,7 +265,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         Constraint query = createQueryForConcept(observationFact)
-        queryService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
+        multiDimService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
 
         then:
         thrown(InvalidQueryException)
@@ -279,7 +281,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         def constraint = new TrueConstraint()
-        queryService.aggregate(AggregateType.MAX, constraint, user)
+        multiDimService.aggregate(AggregateType.MAX, constraint, user)
 
         then:
         thrown(InvalidQueryException)
@@ -304,7 +306,7 @@ class QueryServiceSpec extends TransmartSpecification {
                 ]
         )
 
-        queryService.aggregate(AggregateType.MAX, constraint, user)
+        multiDimService.aggregate(AggregateType.MAX, constraint, user)
 
         then:
         thrown(InvalidQueryException)
@@ -312,7 +314,7 @@ class QueryServiceSpec extends TransmartSpecification {
         when:
         def firstConceptConstraint = constraint.args.find { it.class == ConceptConstraint }
         constraint.args = constraint.args - firstConceptConstraint
-        def result = queryService.aggregate(AggregateType.MAX, constraint, user)
+        def result = multiDimService.aggregate(AggregateType.MAX, constraint, user)
 
         then:
         result == 10

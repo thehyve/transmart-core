@@ -5,21 +5,21 @@ import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
-import org.transmartproject.db.metadata.LegacyStudyException
+import org.transmartproject.core.exceptions.LegacyStudyException
+import org.transmartproject.core.multidimquery.AggregateType
+import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 
-import static org.transmartproject.rest.MultidimensionalDataSerialisationService.*
+import static MultidimensionalDataService.*
 
 @Slf4j
 class QueryController extends AbstractQueryController {
 
     static responseFormats = ['json', 'hal', 'protobuf']
 
-    HighDimensionResourceService highDimensionResourceService
+    MultidimensionalDataService multidimensionalDataService
 
     protected Format getContentFormat() {
         Format format = Format.NONE
@@ -88,25 +88,26 @@ class QueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Hypercube result
+
+        OutputStream out = getLazyOutputStream(format)
+
         try {
-            result = queryService.retrieveClinicalData(constraint, user)
+            multidimensionalDataService.writeClinical(format, constraint, user, out)
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
+        } finally {
+            out.close()
         }
 
-        log.info "Writing to format: ${format}"
-        OutputStream out = new LazyOutputStreamDecorator(
+        return false
+    }
+
+    private getLazyOutputStream(Format format) {
+        new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
                     response.contentType = format.toString()
                     response.outputStream
                 })
-        try {
-            multidimensionalDataSerialisationService.serialise(result, format, out)
-        } finally {
-            out.close()
-        }
-        return false
     }
 
     /**
@@ -125,7 +126,7 @@ class QueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def count = queryService.count(constraint, user)
+        def count = multiDimService.count(constraint, user)
         def result = [count: count]
         render result as JSON
     }
@@ -134,7 +135,7 @@ class QueryController extends AbstractQueryController {
      * Aggregate endpoint:
      * <code>/v2/observations/aggregate?type=${type}&constraint=${constraint}</code>
      *
-     * Expects an {@link AggregateType} parameter <code>type</code> and {@link Constraint}
+     * Expects an {@link org.transmartproject.core.multidimquery.AggregateType} parameter <code>type</code> and {@link Constraint}
      * parameter <code>constraint</code>.
      *
      * Checks if the supplied constraint contains a concept constraint on top level, because
@@ -158,7 +159,7 @@ class QueryController extends AbstractQueryController {
         }
         def aggregateType = AggregateType.forName(params.type as String)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def aggregatedValue = queryService.aggregate(aggregateType, constraint, user)
+        def aggregatedValue = multiDimService.aggregate(aggregateType, constraint, user)
         def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
         render result as JSON
     }
@@ -174,27 +175,21 @@ class QueryController extends AbstractQueryController {
      *
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
-    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, projection) {
+    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, String projection) {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        Constraint assayConstraint = parseConstraint(URLDecoder.decode(assay_constraint, 'UTF-8'))
+        MultiDimConstraint assayConstraint = parseConstraint(URLDecoder.decode(assay_constraint, 'UTF-8'))
 
-        BiomarkerConstraint biomarkerConstraint = biomarker_constraint ?
-                (BiomarkerConstraint) parseConstraint(URLDecoder.decode(biomarker_constraint, 'UTF-8')) : new BiomarkerConstraint()
+        MultiDimConstraint biomarkerConstraint = biomarker_constraint ?
+                (MultiDimConstraint) parseConstraint(URLDecoder.decode(biomarker_constraint, 'UTF-8')) : new BiomarkerConstraint()
 
-        Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
+        Format format = contentFormat
+        OutputStream out = getLazyOutputStream(format)
 
-        def format = contentFormat
-        OutputStream out = new LazyOutputStreamDecorator(
-                outputStreamProducer: { ->
-                    response.contentType = format.toString()
-                    response.outputStream
-                })
         try {
-            multidimensionalDataSerialisationService.serialise(hypercube, format, out)
+            multidimensionalDataService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection, user, out)
         } finally {
-            hypercube.close()
             out.close()
         }
     }
