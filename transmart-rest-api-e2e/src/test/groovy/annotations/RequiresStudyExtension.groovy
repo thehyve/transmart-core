@@ -28,9 +28,7 @@ class RequiresStudyExtension extends AbstractAnnotationDrivenExtension<RequiresS
     }
 
     private void doVisit(RequiresStudy annotation, ISkippable skippable) {
-        Object result = studiesLoaded(annotation.value())
-
-        if (!GroovyRuntimeUtil.isTruthy(result)) {
+        if (!studiesLoaded(annotation.value())) {
             skippable.setSkipped(true)
         }
     }
