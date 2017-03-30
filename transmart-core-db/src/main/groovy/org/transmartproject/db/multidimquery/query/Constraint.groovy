@@ -584,20 +584,20 @@ class ConstraintFactory {
     static final constraintDataBinder = new ConstraintDataBinder()
 
     static final Map<String, Class> constraintClasses = [
-            TrueConstraint.class,
-            BiomarkerConstraint.class,
-            ModifierConstraint.class,
-            FieldConstraint.class,
-            ValueConstraint.class,
-            TimeConstraint.class,
-            PatientSetConstraint.class,
-            Negation.class,
-            Combination.class,
-            TemporalConstraint.class,
-            ConceptConstraint.class,
-            StudyNameConstraint.class,
-            StudyObjectConstraint.class,
-            NullConstraint.class
+            TrueConstraint,
+            BiomarkerConstraint,
+            ModifierConstraint,
+            FieldConstraint,
+            ValueConstraint,
+            TimeConstraint,
+            PatientSetConstraint,
+            Negation,
+            Combination,
+            TemporalConstraint,
+            ConceptConstraint,
+            StudyNameConstraint,
+            StudyObjectConstraint,
+            NullConstraint
         ].collectEntries { Class type ->
             [(type.constraintName): type]
         } as Map<String, Class>
