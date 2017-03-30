@@ -533,6 +533,24 @@ class Combination extends Constraint {
 }
 
 /**
+ * Subclass of Combination that implements a conjunction
+ */
+@Canonical
+class AndConstraint extends Combination {
+    static String constraintName = "and"
+    Operator getOperator() { Operator.AND }
+}
+
+/**
+ * Subclass of Combination that implements a disjunction
+ */
+@Canonical
+class OrConstraint extends Combination {
+    static String constraintName = "or"
+    Operator getOperator() { Operator.OR }
+}
+
+/**
  * Constraint that specifies a temporal relation between result observations
  * and observations specified in the <code>eventConstraint</code>.
  *
@@ -593,6 +611,8 @@ class ConstraintFactory {
             PatientSetConstraint,
             Negation,
             Combination,
+            AndConstraint,
+            OrConstraint,
             TemporalConstraint,
             ConceptConstraint,
             StudyNameConstraint,

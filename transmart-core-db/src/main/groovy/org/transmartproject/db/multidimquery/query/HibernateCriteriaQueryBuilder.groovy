@@ -463,7 +463,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             throw new QueryBuilderException("Study id constraint shouldn't have a null value for ids")
         }
         def trialVisitAlias = getAlias('trialVisit')
-        return Restrictions.eq("${trialVisitAlias}.study", constraint.study.id)
+        return Restrictions.eq("${trialVisitAlias}.study", constraint.study)
     }
 
 

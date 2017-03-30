@@ -12,6 +12,7 @@ import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.AccessLevelTestData
+import spock.lang.Ignore
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
@@ -85,15 +86,16 @@ class QueryServiceSpec extends TransmartSpecification {
     }
 
     void "test query for all observations"() {
-        setupData()
+        setupHypercubeData()
 
-        TrueConstraint constraint = new TrueConstraint()
+        Constraint constraint = new OrConstraint(args: hypercubeTestData.clinicalData.allHypercubeStudies.collect {
+            new StudyObjectConstraint(it)})
 
         when:
-        def result = multiDimService.list(constraint, accessLevelTestData.users[0])
+        def result = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
 
         then:
-        result.size() == testData.clinicalData.facts.size()
+        result.size() == hypercubeTestData.clinicalData.allHypercubeFacts.findAll { it.modifierCd == '@' }.size()
     }
 
     void "test query for values > 1 and subject id 2"() {
@@ -114,6 +116,15 @@ class QueryServiceSpec extends TransmartSpecification {
                                 field   : [dimension: 'patient', fieldName: 'sourcesystemCd'],
                                 operator: 'contains',
                                 value   : 'SUBJ_ID_2'
+                        ],
+                        [
+                                type    : 'or',
+                                args    : hypercubeTestData.clinicalData.allHypercubeStudies.collect {
+                                    [
+                                            type:   'study',
+                                            study:  it
+                                    ]
+                                }
                         ]
                 ]
         ])
@@ -126,37 +137,44 @@ class QueryServiceSpec extends TransmartSpecification {
             createAlias('patient', 'p')
             like('p.sourcesystemCd', '%SUBJ_ID_2%')
         }
-        def result = multiDimService.list(constraint, accessLevelTestData.users[0])
+        def result = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
 
         then:
         result.size() == observations.size()
-        result[0].valueType == ObservationFact.TYPE_NUMBER
-        result[0].numberValue > 1
-        result[0].patient.sourcesystemCd.contains('SUBJ_ID_2')
+        result[0].value.class in Number
+        result[0].value > 1
+        result[0][DimensionImpl.PATIENT].sourcesystemCd.contains('SUBJ_ID_2')
     }
 
     void "test patient query and patient set creation"() {
         setupHypercubeData()
 
         Constraint constraint = ConstraintFactory.create([
-                type    : 'combination',
-                operator: 'or',
+                type    : 'and',
                 args    : [
-                        [ type: 'concept', path: '\\foo\\concept 2\\' ],
-                        [ type: 'concept', path: '\\foo\\concept 3\\' ]
+                [
+                    type    : 'or',
+                    args    : [
+                            [ type: 'concept', path: '\\foo\\concept 5\\' ],
+                            [ type: 'concept', path: '\\foo\\concept 6\\' ]
+                    ]
+                ], [
+                    type:   'study',
+                    study:  hypercubeTestData.clinicalData.longitudinalStudy
                 ]
+            ]
         ])
 
         when: "I query for all observations and patients for a constraint"
-        def observations = multiDimService.list(constraint, accessLevelTestData.users[0])
+        def observations = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
         def patients = multiDimService.listPatients(constraint, accessLevelTestData.users[0])
 
         then: "I get the expected number of observations and patients"
-        observations.size() == 5
+        observations.size() == hypercubeTestData.clinicalData.longitudinalClinicalFacts.size()
         patients.size() == 3
 
         then: "I set of patients matches the patients associated with the observations"
-        observations*.patient.unique().sort() == patients.sort()
+        observations*.getAt(DimensionImpl.PATIENT) as Set == patients as Set
 
         when: "I build a patient set based on the constraint"
         def patientSet = multiDimService.createPatientSet("Test set", constraint, accessLevelTestData.users[0])
@@ -172,7 +190,7 @@ class QueryServiceSpec extends TransmartSpecification {
         def patients2 = multiDimService.listPatients(patientSetConstraint, accessLevelTestData.users[0])
 
         then: "I get the same set of patient as before"
-        patients.sort() == patients2.sort()
+        patients as Set == patients2 as Set
     }
 
     void "test for max, min, average aggregate"() {
