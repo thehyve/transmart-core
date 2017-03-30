@@ -26,22 +26,28 @@ class ObservationSpec extends RESTSpec {
     def "get observations using POST method"() {
 
         given: "study EHR is loaded"
+        def params = [
+                constraint: toJSON([
+                        type: ConceptConstraint,
+                        path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                ]),
+                type      : 'clinical'
+        ]
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: contentTypeForJSON,
-                body      : [
-                        constraint: toJSON([
-                                type: ConceptConstraint,
-                                path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
-                        ]),
-                        type      : 'clinical'
-                ]
+
         ]
 
         when: "for that study I get all observations for a heart rate"
-        def responseData = post(request)
+        def responseData = getOrPostRequest(method, request, params)
 
         then: "9 observations are returned"
         assert responseData.cells.size() == 9
+
+        where:
+        method | _
+        "POST" | _
+        "GET"  | _
     }
 }

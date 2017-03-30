@@ -29,51 +29,28 @@ class AggregatedSpec extends RESTSpec {
     def "aggregated timeseries maximum"() {
 
         given: "study EHR is loaded"
+        def params = [
+                constraint: toJSON([
+                        type: ConceptConstraint,
+                        path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                ]),
+                type      : MAX
+        ]
         def request = [
                 path      : PATH_AGGREGATE,
-                acceptType: contentTypeForJSON,
-                query     : [
-                        constraint: toJSON([
-                                type: ConceptConstraint,
-                                path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
-                        ]),
-                        type      : MAX
-                ]
+                acceptType: contentTypeForJSON
         ]
 
         when: "for that study I Aggregated the concept Heart Rate with type max"
-        def responseData = get(request)
+        def responseData = getOrPostRequest(method, request, params)
 
         then: "the number 102 is returned"
         assert responseData.max == 102.0
-    }
 
-    /**
-     *  given: "study EHR is loaded"
-     *  when: "for that study I Aggregated the concept Heart Rate with type max"
-     *  then: "the number 102.0 is returned"
-     */
-    @RequiresStudy(EHR_ID)
-    def "aggregated timeseries maximum using POST method"() {
-
-        given: "study EHR is loaded"
-        def request = [
-                path      : PATH_AGGREGATE,
-                acceptType: contentTypeForJSON,
-                body     : [
-                        constraint: toJSON([
-                                type: ConceptConstraint,
-                                path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
-                        ]),
-                        type      : MAX
-                ]
-        ]
-
-        when: "for that study I Aggregated the concept Heart Rate with type max"
-        def responseData = post(request)
-
-        then: "the number 102 is returned"
-        assert responseData.max == 102.0
+        where:
+        method | _
+        "POST" | _
+        "GET"  | _
     }
 
     /**

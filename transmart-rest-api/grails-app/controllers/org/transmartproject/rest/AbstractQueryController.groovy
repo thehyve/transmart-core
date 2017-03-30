@@ -51,34 +51,44 @@ abstract class AbstractQueryController implements Controller {
         }
     }
 
-    protected static Constraint parseConstraint(String constraintText) {
+    protected static Constraint parseConstraintFromUrlStringOrJson(constraintParam) {
         try {
-            Map constraintData = JSON.parse(constraintText) as Map
-            try {
-                return ConstraintFactory.create(constraintData)
-            } catch (ConstraintBindingException e) {
-                throw e
-            } catch (Exception e) {
-                throw new InvalidArgumentsException(e.message)
+            if (constraintParam instanceof String) {
+                def constraint_text = URLDecoder.decode(constraintParam, 'UTF-8')
+                def constraintData = JSON.parse(constraint_text) as Map
+                parseConstraint(constraintData)
+            } else {
+                parseConstraint(constraintParam)
             }
-        } catch (ConverterException e) {
+        }
+        catch (ConverterException e) {
             throw new InvalidArgumentsException('Cannot parse constraint parameter.')
         }
     }
 
-    protected Constraint getConstraint(String constraint, String paramName = 'constraint') {
+    protected static Constraint parseConstraint(constraintData) {
+        try {
+            return ConstraintFactory.create(constraintData)
+        } catch (ConstraintBindingException e) {
+            throw e
+        } catch (Exception e) {
+            throw new InvalidArgumentsException(e.message)
+        }
+    }
+
+    protected static Constraint getConstraint(constraint, String paramName = 'constraint') {
         if (constraint == null) {
             throw new InvalidArgumentsException("${paramName} parameter is missing.")
         }
         if (!constraint) {
             throw new InvalidArgumentsException('Empty constraint parameter.')
         }
-        String constraintParam = URLDecoder.decode(constraint, 'UTF-8')
-        parseConstraint(constraintParam)
+        parseConstraintFromUrlStringOrJson(constraint)
     }
 
-    protected Constraint bindConstraint(String constraint_text) {
-        Constraint constraint = getConstraint(constraint_text)
+    protected Constraint bindConstraint(constraintParam) {
+        Constraint constraint = getConstraint(constraintParam)
+
         // check for parse errors
         if (constraint.hasErrors()) {
             response.status = 400
@@ -98,5 +108,14 @@ abstract class AbstractQueryController implements Controller {
         return constraint
     }
 
-
+    /**
+     * Gets arguments from received REST request
+     * either from queryString for GET method
+     * or from request body for POST method.
+     *
+     * @return Map with passed arguments
+     */
+    protected Map getArgs() {
+        request.method == "POST" ? request.JSON as Map : params
+    }
 }

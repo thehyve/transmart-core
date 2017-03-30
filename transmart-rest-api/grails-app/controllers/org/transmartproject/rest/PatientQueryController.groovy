@@ -32,10 +32,10 @@ class PatientQueryController extends AbstractQueryController {
      * which there are observations that satisfy the constraint.
      */
     def listPatients(@RequestParam('api_version') String apiVersion) {
-        def constraintMap = request.method == "POST" ? request.JSON as Map : params
-        checkParams(constraintMap, ['constraint'])
+        def args = getArgs()
+        checkParams(args, ['constraint'])
 
-        Constraint constraint = bindConstraint(constraintMap.constraint.toString())
+        Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
             return
         }
@@ -139,7 +139,7 @@ class PatientQueryController extends AbstractQueryController {
         if (body.empty) {
             throw new InvalidRequestException('No constraint found in request body.')
         }
-        Constraint constraint = parseConstraint(body)
+        Constraint constraint = parseConstraintFromUrlStringOrJson(body)
         if (constraint == null) {
             return null
         }

@@ -40,40 +40,24 @@ class ObservationCountsSpec extends RESTSpec {
     def "unrestricted count"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
+        def params = [
+                constraint: toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
+        ]
         def request = [
                 path      : PATH_COUNTS,
-                acceptType: contentTypeForJSON,
-                query     : toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
+                acceptType: contentTypeForJSON
         ]
 
         when: "I count observations for the concept Heart Rate"
-        def responseData = get(request)
+        def responseData = getOrPostRequest(method, request, params)
 
         then: "I get a count including observations from the restricted study"
         assert responseData.count == 7
-    }
 
-    /**
-     *  given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
-     *  when: "I count observations for the concept Heart Rate"
-     *  then: "I get a count including observations from the restricted study"
-     */
-    def "unrestricted count using POST method"() {
-        given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
-        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
-        def request = [
-                path      : PATH_COUNTS,
-                acceptType: contentTypeForJSON,
-                body      : [
-                        constraint: [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
-                ]
-        ]
-
-        when: "I count observations for the concept Heart Rate"
-        def responseData = post(request)
-
-        then: "I get a count including observations from the restricted study"
-        assert responseData.count == 7
+        where:
+        method | _
+        "POST" | _
+        "GET"  | _
     }
 
 }

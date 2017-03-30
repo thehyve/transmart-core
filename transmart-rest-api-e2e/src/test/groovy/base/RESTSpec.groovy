@@ -42,6 +42,17 @@ abstract class RESTSpec extends Specification{
         return oauth2token.get(user.'username')
     }
 
+    def getOrPostRequest(method, request, params){
+        if(method == "GET") {
+            request.query = params
+            return get(request)
+        }
+        else {
+            request.body = params
+            return post(request)
+        }
+    }
+
     def delete(def requestMap){
         if (!requestMap.skipOauth && OAUTH_NEEDED){
             requestMap.'accessToken' = getToken()
