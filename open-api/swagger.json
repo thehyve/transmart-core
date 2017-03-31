@@ -676,7 +676,7 @@
         }
       },
       "post": {
-        "description": "Gets all observations that satisfy the given constaint. Only observations the calling user has access to are returned. Empty and null values are returned but have no value property. Supports passing longer constraints than for the GET method.\n",
+        "description": "Works the same as GET method, but with a support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
         "tags": [
           "v2"
         ],
@@ -768,7 +768,7 @@
         }
       },
       "post": {
-        "description": "Calculates and returns an aggregate value. Supports passing longer constraints than for the GET method.\n",
+        "description": "Works the same as GET method, but with a support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
         "tags": [
           "v2"
         ],
@@ -840,7 +840,7 @@
         }
       },
       "post": {
-        "description": "Counts the number of observations that satisfy the given constraint. Supports passing longer constraints than for the GET method.\n",
+        "description": "Works the same as GET method, but with a support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
         "tags": [
           "v2"
         ],
@@ -901,7 +901,7 @@
         }
       },
       "post": {
-        "description": "Gets all patients that have an observation that satisfy the given constaint. Only patients the calling user has access to are returned. Supports passing longer constraints than for the GET method.\n",
+        "description": "Works the same as GET method, but with a support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
         "tags": [
           "v2"
         ],
