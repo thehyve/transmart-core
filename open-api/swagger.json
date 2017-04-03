@@ -39,23 +39,54 @@
   "paths": {
     "/versions": {
       "get": {
-        "description": "Gets all available API versions and prefixes.\n",
+        "description": "Gets all available API versions and prefixes. The API version is separate from the version of transmart itself.\n\nThe API version follows semantic versioning: major versions can be incompatible, but minor version upgrades should be compatible with previous versions within the same major version. Patch versions are not used at the moment. The rest api can support multiple major versions at the same time using different prefixes.\n\nThe default settings expose this endpoint without any authentication requirements, as the version info may be needed to select an authentication method, however clients should be prepared to only be able to see the supported major versions without authentication. In that case the innermost dictionary in the response json will only contain \"id\", \"prefix\" and \"major\" keys.\n\nDevelopment and preview releases may also contain version tags, e.g. the version leading up to the development of 2.1 can be called 2.1-dev. Such tagged releases also support separate feature revisions. See `transmart-rest-api/grails-app/controllers/org/transmartproject/rest/VersionController.groovy` for details about that.\n",
         "responses": {
           "200": {
-            "description": "Successful response. Example: `{ \"versions\": [ \"id\": \"v2\", \"prefix\": \"/v2\"] }`.",
+            "description": "Successful response. Example:\n`{ \"versions\": {\n    \"v2\": {\n        \"id\": \"v2\",\n        \"prefix\": \"/v2\",\n        \"version: \"2.1\",\n        \"major\": 2,\n        \"minor\": 1\n    }\n} }`'\n",
             "schema": {
               "type": "object",
               "properties": {
                 "versions": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "prefix": {
-                        "type": "string"
+                  "type": "object",
+                  "properties": {
+                    "version ids": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "required": true
+                        },
+                        "prefix": {
+                          "type": "string",
+                          "required": true,
+                          "description": "the url prefix where this api can be found"
+                        },
+                        "version": {
+                          "type": "string",
+                          "description": "the full version string"
+                        },
+                        "major": {
+                          "type": "integer",
+                          "required": true
+                        },
+                        "minor": {
+                          "type": "integer"
+                        },
+                        "patch": {
+                          "type": "integer"
+                        },
+                        "tag": {
+                          "type": "string"
+                        },
+                        "features": {
+                          "type": "object",
+                          "properties": {
+                            "features": {
+                              "type": "integer",
+                              "description": "string keys and numeric values that indicate features and their revision level. These are only present for -dev versions."
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -68,7 +99,7 @@
     },
     "/versions/{id}": {
       "get": {
-        "description": "Gets the version and its prefix if available.\n",
+        "description": "Gets information about the version if available. This returns the same information as `/versions`, but only for a single version.\n",
         "parameters": [
           {
             "name": "id",
@@ -82,15 +113,7 @@
           "200": {
             "description": "Successful response.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "prefix": {
-                  "type": "string"
-                }
-              }
+              "$ref": "#/paths//versions/get/response/schema/properties/versions/properties/version ids"
             }
           },
           "404": {
