@@ -296,21 +296,7 @@ paths:
                 type: object
                 properties:
                   version ids:
-                    type: object
-                    properties:
-                      id: { type: string, required: true }
-                      prefix: { type: string, required: true, description: the url prefix where this api can be found }
-                      version: { type: string, description: the full version string }
-                      major: { type: integer, required: true }
-                      minor: { type: integer }
-                      patch: { type: integer }
-                      tag: { type: string }
-                      features:
-                        type: object
-                        properties:
-                          features:
-                            type: integer
-                            description: string keys and numeric values that indicate features and their revision level. These are only present for -dev versions.
+                    $ref: "#/definitions/version"
 
   /versions/{id}:
     get:
@@ -327,7 +313,7 @@ paths:
         200:
           description: Successful response.
           schema:
-            $ref: "#/paths//versions/get/response/schema/properties/versions/properties/version ids"
+            $ref: "#/definitions/version"
 
         404:
           description: Version not available.
@@ -1255,6 +1241,23 @@ paths:
           description: 'returns null'
 
 definitions:
+  version:
+    type: object
+    properties:
+      id: { type: string, required: true }
+      prefix: { type: string, required: true, description: the url prefix where this api can be found }
+      version: { type: string, description: the full version string }
+      major: { type: integer, required: true }
+      minor: { type: integer }
+      patch: { type: integer }
+      tag: { type: string }
+      features:
+        type: object
+        properties:
+          features:
+            type: integer
+            description: string keys and numeric values that indicate features and their revision level. These are only present for -dev versions.
+
   v1observation:
     type: object
     properties:
