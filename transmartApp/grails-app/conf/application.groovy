@@ -30,7 +30,6 @@ org.transmartproject.app.oauthEnabled = true
 org.transmartproject.app.gwavaEnabled = false
 org.transmartproject.app.transmartURL = "http://localhost:${System.getProperty('server.port', '8080')}"
 
-
 grails.assets.bundle = true
 
 grails.resources.pattern = '/**'
@@ -172,11 +171,6 @@ org.transmart.security.sslValidation = true
 
 grails.plugin.springsecurity.useSecurityEventListener = true
 
-bruteForceLoginLock {
-    allowedNumberOfAttempts = 3
-    lockTimeInMinutes = 10
-}
-
 grails {
     cache {
         enabled = true
@@ -188,10 +182,10 @@ grails {
 }
 
 // Added by the Spring Security OAuth2 Provider plugin:
-grails.plugin.springsecurity.oauthProvider.clientLookup.className = 'org.transmart.oauth2.Client'
-grails.plugin.springsecurity.oauthProvider.authorizationCodeLookup.className = 'org.transmart.oauth2.AuthorizationCode'
-grails.plugin.springsecurity.oauthProvider.accessTokenLookup.className = 'org.transmart.oauth2.AccessToken'
-grails.plugin.springsecurity.oauthProvider.refreshTokenLookup.className = 'org.transmart.oauth2.RefreshToken'
+grails.plugin.springsecurity.oauthProvider.clientLookup.className = 'org.transmart.oauth.Client'
+grails.plugin.springsecurity.oauthProvider.authorizationCodeLookup.className = 'org.transmart.oauth.AuthorizationCode'
+grails.plugin.springsecurity.oauthProvider.accessTokenLookup.className = 'org.transmart.oauth.AccessToken'
+grails.plugin.springsecurity.oauthProvider.refreshTokenLookup.className = 'org.transmart.oauth.RefreshToken'
 
 // Disable LDAP by default to prevent authentication errors for installations without LDAP
 grails.plugin.springsecurity.ldap.active = false
@@ -216,7 +210,7 @@ grails { plugin { springsecurity {
     securityConfigType = grails.plugin.springsecurity.SecurityConfigType.Requestmap
     // url to redirect after login in
     // just_rest branch provides alternative default via org.transmart.defaultLoginRedirect
-    successHandler.defaultTargetUrl = org.transmart.defaultLoginRedirect ?: '/userLanding'
+    successHandler.defaultTargetUrl = '/userLanding'
     // logout url
     logout.afterLogoutUrl = '/login/forceAuth'
 

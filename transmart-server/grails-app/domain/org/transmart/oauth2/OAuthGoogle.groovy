@@ -15,7 +15,7 @@
  */
 package org.transmart.oauth2
 
-import org.transmart.oauth2.Client
+import org.transmart.oauth.Client
 
 /**
  * Simple domain class that records the identities of users authenticating via

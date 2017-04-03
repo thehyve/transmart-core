@@ -58,26 +58,21 @@ dependencies {
 
     compile 'org.grails.plugins:spring-security-core:3.1.1'
     runtime 'org.springframework.security:spring-security-config:3.2.3.RELEASE'
-    compile 'org.springframework.security:spring-security-ldap:3.2.3.RELEASE'
     compile 'org.springframework.security:spring-security-web:3.2.3.RELEASE'
     compile 'org.grails.plugins:spring-security-oauth2:1.1.0'
     compile 'org.grails.plugins:spring-security-oauth2-google:1.1.0'
-    compile 'org.grails.plugins:spring-security-oauth2-provider:3.0.0-RC2'
     // end of project specific deps
 
     // local gradle submodule deps
-    //compile project(':transmart-core-api')
-    //compile project(':transmart-core-db')
+    compile project(':transmart-oauth')
     compile project(':search-domain')
-    /*compile project(':transmart-java')
-    compile project(':search-domain')
-    compile project(':biomart-domain')
-    compile project(':transmart-legacy-db')*/
     compile project(':transmart-rest-api')
+
+    runtime project(':transmartApp')
 }
 
 bootRun {
-    jvmArgs('-Dspring.output.ansi.enabled=always')
+    jvmArgs('-Xmx4096m')
 }
 
 
