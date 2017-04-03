@@ -63,7 +63,8 @@ class VersionController {
                 id: 'v2',
                 version: '2.1-dev',
                 features: [
-                        'versioning'
+                        'versioning',
+                        'and-or-constraints',
                 ]
             ]
     ])

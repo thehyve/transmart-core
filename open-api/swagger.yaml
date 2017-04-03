@@ -31,22 +31,31 @@ info:
     # Constraints
     Constraints are used to build queries and are required in the `v2` API. They consist of a `Type` and that type's specific arguments. The implementation is in [Constraint.groovy](../transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy).
     
-    ## Combination
-    Most often a combination of constraints is needed to get the right result. This can be done by a constraint with type combination.
-    It takes an op `operator` and a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.
-    However an `and` operator with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.
+    ## Combinations (And/Or)
+    Most often a combination of constraints is needed to get the right result. This can be done by the constraints with type "and" and "or".
+    They take a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.
+    However an `and` constraint with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.
+    (There is also a constraint with type "combination" on which the And and Or constraints are built. It does not provide any functionality not provided by And and Or constraints, and it should be considered deprecated for direct usage.)
     
     Example:
     ```json
-    {"type": "combination",
-     "operator": "and",
+    {"type": "and",
      "args": [
         {"type": "patient_set", "patientIds": -62},
         {"type": "concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
         ]
     }
     ```
-    
+
+    ```json
+    {"type": "or",
+     "args": [
+        {"type": "concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Blood Pressure\\"}
+        {"type": "concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
+        ]
+    }
+    ```
+
     ## StudyName
     Evaluate if an observation is part of a particular study
     
