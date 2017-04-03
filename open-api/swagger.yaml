@@ -716,9 +716,11 @@ paths:
             $ref: '#/definitions/observations'
     post:
           description: |
-            Works the same as GET method, but with a support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+            Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
           tags:
             - v2
+          consumes:
+            - application/json
           produces:
             - application/json
             - application/x-protobuf
@@ -726,27 +728,22 @@ paths:
             - name: type
               required: true
               in: body
-              description: 'specifies the type of the data you want to retrieve. For clinical data specify `clinical`,
-              for high dimensional data specify the data type or use `autodetect`. If you use `autodetect` the
-              constraints must be such that only a single type of high dimensional data matches.'
+              description: see GET parameters
               type: string
             - name: constraint
               required: true
               in: body
-              description: 'json that specifies the constraint. Example: `{"type":"study_name", "studyId":"EHR"}` or
-              `{"type":"concept","path":"\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\"}`.'
+              description: see GET parameters
               type: string
             - name: biomarker_constraint
               required: false
               in: body
-              description: 'json that describes the biomarker. The only valid type is the ''biomarker'' constraint Example:
-              `{"type":"biomarker", "biomarkerType":"genes","params":{"names":["TP53"]}}`.'
+              description: see GET parameters
               type: string
             - name: projection
               required: false
               in: body
-              description: 'The projection. Only used with high dimensional data Example: `all_data`, `zscore`,
-              `log_intensity`. Default: `all_data`.'
+              description: see GET parameters
               type: string
           responses:
             200:
@@ -786,19 +783,21 @@ paths:
                 type: number
     post:
       description: |
-        Works the same as GET method, but with a support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+        Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
       tags:
         - v2
+      consumes:
+        - application/json
       parameters:
         - name: constraint
           required: true
           in: body
-          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+          description: see GET parameters
           type: string
         - name: type
           required: true
           in: body
-          description: 'min, max, average'
+          description: see GET parameters
           type: string
       responses:
         200:
@@ -835,14 +834,16 @@ paths:
                 type: integer
     post:
           description: |
-            Works the same as GET method, but with a support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+            Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
           tags:
             - v2
+          consumes:
+            - application/json
           parameters:
             - name: constraint
               required: true
               in: body
-              description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+              description: see GET parameters
               type: string
           responses:
             200:
@@ -855,7 +856,7 @@ paths:
   /v2/patients:
     get:
       description: |
-        Gets all patients that have an observation that satisfy the given constaint. Only patients the calling user has access to are returned.
+        Gets all patients that have an observation that satisfy the given constaint. Only patients that the calling user has access to are returned.
       tags:
         - v2
       parameters:
@@ -876,14 +877,16 @@ paths:
                   $ref: '#/definitions/patient'
     post:
           description: |
-            Works the same as GET method, but with a support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+            Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
           tags:
             - v2
+          consumes:
+            - application/json
           parameters:
             - name: constraint
               required: true
               in: body
-              description: 'json that specifies the constraint. Example: `{"type":"study_name","studyId":"EHR"}`.'
+              description: see GET parameters
               type: string
           responses:
             200:
