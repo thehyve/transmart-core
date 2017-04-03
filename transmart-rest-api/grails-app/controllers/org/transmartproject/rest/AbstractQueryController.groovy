@@ -10,7 +10,6 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintBindingException
 import org.transmartproject.db.multidimquery.query.ConstraintFactory
 import org.transmartproject.rest.misc.CurrentUser
 
@@ -51,43 +50,25 @@ abstract class AbstractQueryController implements Controller {
         }
     }
 
-    protected static Constraint parseConstraintFromUrlStringOrJson(constraintParam) {
-        try {
-            if (constraintParam instanceof String) {
-                def constraint_text = URLDecoder.decode(constraintParam, 'UTF-8')
-                def constraintData = JSON.parse(constraint_text) as Map
-                parseConstraint(constraintData)
-            } else {
-                parseConstraint(constraintParam)
-            }
-        }
-        catch (ConverterException e) {
-            throw new InvalidArgumentsException('Cannot parse constraint parameter.')
-        }
-    }
-
-    protected static Constraint parseConstraint(constraintData) {
-        try {
-            return ConstraintFactory.create(constraintData)
-        } catch (ConstraintBindingException e) {
-            throw e
-        } catch (Exception e) {
-            throw new InvalidArgumentsException(e.message)
-        }
-    }
-
-    protected static Constraint getConstraint(constraint, String paramName = 'constraint') {
-        if (constraint == null) {
-            throw new InvalidArgumentsException("${paramName} parameter is missing.")
-        }
-        if (!constraint) {
+    protected static Constraint getConstraintFromStringOrJson(constraintParam) {
+        if (!constraintParam) {
             throw new InvalidArgumentsException('Empty constraint parameter.')
         }
-        parseConstraintFromUrlStringOrJson(constraint)
+
+        if (constraintParam instanceof String) {
+            try {
+                def constraintData = JSON.parse(constraintParam) as Map
+                return ConstraintFactory.create(constraintData)
+            } catch (ConverterException c) {
+                throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
+            }
+        } else {
+            return ConstraintFactory.create(constraintParam)
+        }
     }
 
     protected Constraint bindConstraint(constraintParam) {
-        Constraint constraint = getConstraint(constraintParam)
+        Constraint constraint = getConstraintFromStringOrJson(constraintParam)
 
         // check for parse errors
         if (constraint.hasErrors()) {
@@ -115,7 +96,12 @@ abstract class AbstractQueryController implements Controller {
      *
      * @return Map with passed arguments
      */
-    protected Map getArgs() {
-        request.method == "POST" ? request.JSON as Map : params
+    protected Map getGetOrPostParams() {
+        if(request.method == "POST") {
+            return request.JSON as Map
+        }
+        return params.collectEntries { String k, String v ->
+            [k, URLDecoder.decode(v, 'UTF-8')]
+        }
     }
 }

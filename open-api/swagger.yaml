@@ -541,8 +541,7 @@ paths:
   /v1/patient_sets/{resultInstanceId}:
     get:
       parameters:
-        -
-          name: resultInstanceId
+        - name: resultInstanceId
           in: path
           description: ID of the patient set, called resultInstance ID because internally it refers to the result of a query
           required: true

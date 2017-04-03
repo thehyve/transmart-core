@@ -23,7 +23,7 @@ class ObservationSpec extends RESTSpec {
  *  then: "9 observations are returned"
  */
     @RequiresStudy(EHR_ID)
-    def "get observations using POST method"() {
+    def "get observations"() {
 
         given: "study EHR is loaded"
         def params = [

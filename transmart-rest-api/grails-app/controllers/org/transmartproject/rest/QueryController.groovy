@@ -60,7 +60,7 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def observations() {
-        def args = getArgs()
+        def args = getGetOrPostParams()
         checkParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
 
         if (args.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
@@ -121,7 +121,7 @@ class QueryController extends AbstractQueryController {
      * @return a the number of observations that satisfy the constraint.
      */
     def count() {
-        def args = getArgs()
+        def args = getGetOrPostParams()
         checkParams(args, ['constraint'])
 
         Constraint constraint = bindConstraint(args.constraint)
@@ -151,7 +151,7 @@ class QueryController extends AbstractQueryController {
      * @return a map with the aggregate type as key and the result as value.
      */
     def aggregate() {
-        def args = getArgs()
+        def args = getGetOrPostParams()
         checkParams(args, ['constraint', 'type'])
 
         if (!args.type) {
@@ -183,10 +183,10 @@ class QueryController extends AbstractQueryController {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        Constraint assayConstraint = parseConstraintFromUrlStringOrJson(assay_constraint)
+        Constraint assayConstraint = getConstraintFromStringOrJson(assay_constraint)
 
         BiomarkerConstraint biomarkerConstraint = biomarker_constraint ?
-                (BiomarkerConstraint) parseConstraintFromUrlStringOrJson(biomarker_constraint) : new BiomarkerConstraint()
+                (BiomarkerConstraint) getConstraintFromStringOrJson(biomarker_constraint) : new BiomarkerConstraint()
 
         Format format = contentFormat
         OutputStream out = getLazyOutputStream(format)
