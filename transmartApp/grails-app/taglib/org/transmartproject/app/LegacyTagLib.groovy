@@ -39,15 +39,16 @@ class LegacyTagLib {
         def updateElem = null
         def successElem
         def failureElem
-        def successHandler
-        def failureHandler
+        def successHandler = attrs.onSuccess
+        def failureHandler = attrs.onFailure
+
         if (attrs.update instanceof Map) {
             successElem = attrs.update?.success
             failureElem = attrs.update?.failure
+
         } else {
             updateElem = attrs.update
-            successHandler = attrs.onSuccess
-            failureHandler = attrs.onFailure
+
         }
         def queryParams = attrs.params as String
         def urlParams = ['controller', 'action', 'id'].findAll {

@@ -18,7 +18,7 @@ info:
     
     # Constraints
     Constraints are used to build queries and are required in the `v2` API. They consist of a `Type` and that type's specific arguments. The implementation is in [Constraint.groovy](../transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy).
-    
+
     ## Combinations (And/Or)
     Most often a combination of constraints is needed to get the right result. This can be done by the constraints with type "and" and "or".
     They take a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.
