@@ -1,5 +1,6 @@
-/* Copyright © 2017 The Hyve B.V. */
-package org.transmartproject.core.multidimquery
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
+package org.transmartproject.db.multidimquery.query
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
