@@ -29,6 +29,13 @@ abstract class AbstractQueryController implements Controller {
 
     def conceptsResourceService
 
+    static def globalParams = [
+            "controller",
+            "action",
+            "format",
+            "apiVersion"
+    ]
+
     /**
      * Checks if there are any parameters that are not in the set of default parameters
      * (format, action, controller, apiVersion) or the set of additional parameters for
@@ -39,7 +46,7 @@ abstract class AbstractQueryController implements Controller {
      * @throws InvalidArgumentsException iff a parameter is used that is not supported.
      */
     static void checkParams(Map parameters, Collection<String> acceptedParameters) {
-        def acceptedParams = (['format', 'action', 'controller', 'apiVersion'] as Set) + acceptedParameters
+        def acceptedParams = (globalParams as Set) + acceptedParameters
         def unacceptableParams = parameters.keySet() - acceptedParams
         if (!unacceptableParams.empty) {
             if (unacceptableParams.size() == 1) {
@@ -100,8 +107,10 @@ abstract class AbstractQueryController implements Controller {
         if(request.method == "POST") {
             return request.JSON as Map
         }
-        return params.collectEntries { String k, String v ->
-            [k, URLDecoder.decode(v, 'UTF-8')]
+        return params.collectEntries { String k, v ->
+            if (!globalParams.contains(k))
+                [k, URLDecoder.decode(v, 'UTF-8')]
+            else [:]
         }
     }
 }
