@@ -437,17 +437,21 @@ if (org.transmartproject.app.gwavaEnabled) {
     com { recomdata { rwg { webstart {
         def url       = new URL(org.transmartproject.app.transmartURL)
         codebase      = "$url.protocol://$url.host${url.port != -1 ? ":$url.port" : ''}/gwava"
-        jar           = './ManhattanViz2.1g.jar'
+        jar           = './ManhattanViz2.1k.jar'
         mainClass     = 'com.pfizer.mrbt.genomics.Driver'
-        gwavaInstance = 'transmartstg'
+        gwavaInstance = 'transmartstage'
         transmart.url = org.transmartproject.app.transmartURL - ~'\\/$'
    } } } }
    com { recomdata { rwg {
        qqplots {
-           cacheImages = new File(jobsDirectory, 'cachedQQplotImages').toString()
+           cacheImages = jobsDirectory + '/cachedQQplotImages/'
+           temporaryImageFolder = '/images/tempImages/'
+           temporaryImageFolderFullPath = explodedWarDir + temporaryImageFolder
        }
        manhattanplots {
-           cacheImages = new File(jobsDirectory, 'cachedManhattanplotImages').toString()
+           cacheImages = jobsDirectory + '/cachedManhattanplotImages/'
+           temporaryImageFolder = '/images/tempImages/'
+           temporaryImageFolderFullPath = explodedWarDir + temporaryImageFolder
        }
    } } }
 }
