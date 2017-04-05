@@ -258,15 +258,14 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
             Pair<ArrayList<HypercubeValue>, Class> groupAndType = nextGroup()
             if(groupAndType == null) return null
-            ArrayList<HypercubeValue> group = groupAndType.aValue
+            List<HypercubeValue> group = groupAndType.aValue
             valueType = groupAndType.bValue
             HypercubeValue prototype = group[0]
 
             putIndexedDims(prototype)
 
-            // shuffle the group list so that values that do not have an element for the packed dimension are at the
-            // front. putValues expects that
-            moveNullPackedDimensionToFront(group)
+            // split the group list by values that do not have an element for the packed dimension.
+            //def splitGroup = splitNullPackedDim(group)
 
             // The values are grouped by their packed dimension element, but still in one list. To ease further
             // processing transform this into a list of lists, one for each
@@ -288,21 +287,22 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
          * @return a list of lists of HypercubeValues
          */
         private List<List<HypercubeValue>> groupSamples(List<HypercubeValue> values) {
-            List<List<HypercubeValue>> groupedValues = []
 
-            // We assume that the values are already grouped by their packedDimension, and that values that do not
-            // have an element for the packed dimension are also grouped together. The rest of this code assumes that
-            // these elements are the first group.
+            def splitGroup = splitNullPackedDim(values)
+            List<List<HypercubeValue>> groupedValues = [splitGroup.aValue]
+            values = splitGroup.bValue
 
-            Integer currentPackIndex = null
+            // We assume that the values that do not have an element for the packed dimension have already been split
+            // off into nullValues, so getDimElementIndex(packedDimension) will not return null.
+            int currentPackIndex = 0
             int startIdx = 0
             for(int i=0; i<values.size(); i++) {
-                def hvPackIndex = values[i].getDimElementIndex(packedDimension)
-                if(hvPackIndex != currentPackIndex) {
-                    assert hvPackIndex != null  // Nulls must be in front
+                int hvPackIndex = values[i].getDimElementIndex(packedDimension)
+                while(currentPackIndex != hvPackIndex) {
+                    assert currentPackIndex < hvPackIndex, "Data is not properly sorted to use for packed protobuf output"
                     groupedValues << values.subList(startIdx, i)
                     startIdx = i
-                    currentPackIndex = hvPackIndex
+                    currentPackIndex++
                 }
             }
             groupedValues << values.subList(startIdx, values.size())
@@ -311,18 +311,48 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         }
 
         /**
-         * Moves the HypercubeValues that do not have an element for the packed dimension to the fron of the list, and
-         * returns how many of them were found
+         * Splits the values that do not have an element for the packed dimension off into a separate list, and
+         * returns the two lists in a pair (nullPackedDim, nonNullPackedDim).
+         *
+         * The assumption is that values with a null packed dim element are already clustered at the front or at the
+         * back, the way an SQL database would sort those values depending on whether "NULLS FIRST" or "NULLS LAST" was
+         * specified in the sort clause of the SQL query.
+         *
+         * @return a pair of (null element values, non-null element values) for null or non-null of the packed
+         * dimension element
          */
-        private int moveNullPackedDimensionToFront(List<HypercubeValue> group) {
-            int firstNonNull = 0
-            for(int i=0; i<group.size(); i++) {
-                if (group[i].getDimElementIndex(packedDimension) == null) {
-                    group.swap(i, firstNonNull)
-                    firstNonNull++
+        private Pair<List<HypercubeValue>, List<HypercubeValue>> splitNullPackedDim(List<HypercubeValue> group) {
+            int endNulls = group.size()  // the number of values with a null packed dim element at the end of the list
+            for(int i=group.size()-1; i>=0; i--) {
+                if (group[i].getDimElementIndex(packedDimension) != null) {
+                    endNulls = group.size()-1 - i
+                    break
                 }
             }
-            return firstNonNull
+
+            if(endNulls == group.size()) return new Pair(group, [])  // all are null
+
+            int frontNulls = group.size()  // the number of values with a null packed dim element at the front of the list
+            for(int i=0; i<group.size(); i++) {
+                if (group[i].getDimElementIndex(packedDimension) != null) {
+                    frontNulls = i
+                    break
+                }
+            }
+
+            if(frontNulls == 0 && endNulls == 0) return new Pair([], group)
+            else if(endNulls == 0) return new Pair(group.subList(0, frontNulls), group.subList(frontNulls, group.size()))
+            else if(frontNulls == 0) return new Pair(
+                        group.subList(group.size() - endNulls, group.size()),
+                        group.subList(0, group.size() - endNulls))
+            else {
+                // Unlikely case, if the input is sorted by the database we expect nulls to be at the front or at the
+                // back, but we will support this anyway. Nulls are gathered in a new list.
+                ArrayList<HypercubeValue> nulls = new ArrayList(frontNulls+endNulls)
+                nulls.addAll(group.subList(0, frontNulls))
+                nulls.addAll(group.subList(group.size()-endNulls, group.size()))
+                return new Pair(nulls, group.subList(frontNulls, group.size()-endNulls))
+            }
         }
 
         private void putIndexedDims(HypercubeValue prototype) {
