@@ -3,7 +3,6 @@
 package org.transmartproject.core.multidimquery
 
 import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.User
