@@ -1,7 +1,7 @@
 package org.transmartproject.search.indexing.modules
 
 import com.google.common.collect.ImmutableSet
-import fm.FmFile
+import org.transmartproject.browse.fm.FmFile
 import grails.util.Holders
 import groovy.util.logging.Log4j
 import org.springframework.stereotype.Component
