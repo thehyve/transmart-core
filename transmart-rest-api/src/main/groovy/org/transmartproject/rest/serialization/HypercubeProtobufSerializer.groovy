@@ -312,29 +312,13 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                 if(i == 0 || idx == lastIdx) {
                     groupSize++
                 } else {
-                    /* `group` is either null (if not yet set), an ArrayList.SubList, or an ArrayList. If all values
-                     * in the group so far are contiguous in `values`, we use a sublist to limit memory usage and
-                     * garbage creation. If the values are not contiguous we copy them to a new array list.
-                     */
-                    def group = groups.get(lastIdx)
-                    if(group == null) {
-                        group = values.subList(i-groupSize, i)
-                        groups.set(lastIdx, group)
-                    } else {
-                        // There is no api-guaranteed type to indicate a sublist, but this is unlikely to change.
-                        if(SubListType.isInstance(group)) {
-                            def oldGroup = group
-                            group = []
-                            for(v in oldGroup) group.add(v)
-                            groups.set(lastIdx, group)
-                        }
-                        assert group instanceof ArrayList
-                        for(int j=i-groupSize; j<i; j++) group.add(values[j])
-                    }
+                    addGroup(groups, values, lastIdx, i-groupSize, i)
                     groupSize = 1
                 }
-                lastIdx == idx
+                lastIdx = idx
             }
+            if(groupSize > 0) addGroup(groups, values, lastIdx, values.size()-groupSize, values.size())
+
             // Truncate list so we don't send more groups than needed. The Protobuf format supports this.
             while(groups.size() > maxIdx+1) groups.remove(groups.size()-1)
             // Replace any remaining nulls with empty lists for easier further processing.
@@ -344,6 +328,28 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                 if(groups.get(i) == null) groups.set(i, values.subList(0,0))
             }
             return groups
+        }
+
+        private addGroup(List<List> groups, List<HypercubeValue> values, int index, int groupStart, int groupEnd) {
+            /* `group` is either null (if not yet set), an ArrayList.SubList, or an ArrayList. If all values
+             * in the group so far are contiguous in `values`, we use a sublist to limit memory usage and
+             * garbage creation. If the values are not contiguous we copy them to a new array list.
+             */
+            def group = groups.get(index)
+            if(group == null) {
+                group = values.subList(groupStart, groupEnd)
+                groups.set(index, group)
+            } else {
+                // There is no api-guaranteed type to indicate a sublist, but this is unlikely to change.
+                if(SubListType.isInstance(group)) {
+                    def oldGroup = group
+                    group = []
+                    for(v in oldGroup) group.add(v)
+                    groups.set(index, group)
+                }
+                assert group instanceof ArrayList
+                for(int j=groupStart; j<groupEnd; j++) group.add(values[j])
+            }
         }
 
         private void putIndexedDims(HypercubeValue prototype) {
