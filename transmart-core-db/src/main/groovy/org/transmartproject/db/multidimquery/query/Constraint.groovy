@@ -1,4 +1,5 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.db.multidimquery.query
 
 import grails.databinding.BindUsing
@@ -533,6 +534,24 @@ class Combination extends Constraint {
 }
 
 /**
+ * Subclass of Combination that implements a conjunction
+ */
+@Canonical
+class AndConstraint extends Combination {
+    static String constraintName = "and"
+    Operator getOperator() { Operator.AND }
+}
+
+/**
+ * Subclass of Combination that implements a disjunction
+ */
+@Canonical
+class OrConstraint extends Combination {
+    static String constraintName = "or"
+    Operator getOperator() { Operator.OR }
+}
+
+/**
  * Constraint that specifies a temporal relation between result observations
  * and observations specified in the <code>eventConstraint</code>.
  *
@@ -584,20 +603,22 @@ class ConstraintFactory {
     static final constraintDataBinder = new ConstraintDataBinder()
 
     static final Map<String, Class> constraintClasses = [
-            TrueConstraint.class,
-            BiomarkerConstraint.class,
-            ModifierConstraint.class,
-            FieldConstraint.class,
-            ValueConstraint.class,
-            TimeConstraint.class,
-            PatientSetConstraint.class,
-            Negation.class,
-            Combination.class,
-            TemporalConstraint.class,
-            ConceptConstraint.class,
-            StudyNameConstraint.class,
-            StudyObjectConstraint.class,
-            NullConstraint.class
+            TrueConstraint,
+            BiomarkerConstraint,
+            ModifierConstraint,
+            FieldConstraint,
+            ValueConstraint,
+            TimeConstraint,
+            PatientSetConstraint,
+            Negation,
+            Combination,
+            AndConstraint,
+            OrConstraint,
+            TemporalConstraint,
+            ConceptConstraint,
+            StudyNameConstraint,
+            StudyObjectConstraint,
+            NullConstraint
         ].collectEntries { Class type ->
             [(type.constraintName): type]
         } as Map<String, Class>

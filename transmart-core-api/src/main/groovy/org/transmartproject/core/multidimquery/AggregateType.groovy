@@ -1,5 +1,6 @@
-/* Copyright © 2017 The Hyve B.V. */
-package org.transmartproject.db.multidimquery.query
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
+package org.transmartproject.core.multidimquery
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
@@ -7,8 +8,8 @@ import groovy.util.logging.Slf4j
 /**
  * Result types for observation queries.
  */
-@CompileStatic
 @Slf4j
+@CompileStatic
 enum AggregateType {
     MIN,
     MAX,

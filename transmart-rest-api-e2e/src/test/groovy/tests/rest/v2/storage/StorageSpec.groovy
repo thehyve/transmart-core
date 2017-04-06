@@ -1,25 +1,27 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2.storage
 
 import base.RESTSpec
 
+import static base.ContentTypeFor.contentTypeForJSON
 import static config.Config.*
 
 /**
  *  external storage
  *  TMPREQ-19 Support linking to external data in Arvados from tranSMART API
  */
-class StorageSpec extends RESTSpec{
+class StorageSpec extends RESTSpec {
 
     def setup() {
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def responseDataAll = get([path: PATH_FILES, acceptType: contentTypeForJSON])
-        responseDataAll.files.each{
+        responseDataAll.files.each {
             delete([path: PATH_FILES + "/${it.id}", statusCode: 204])
         }
 
         responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
-        responseDataAll.storageSystems.each{
+        responseDataAll.storageSystems.each {
             delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204])
         }
     }
@@ -27,15 +29,15 @@ class StorageSpec extends RESTSpec{
     /**
      *  post, get, put, delete
      */
-    def "post, get, put, delete"(){
+    def "post, get, put, delete"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = [
-                'name':'Arvbox at The Hyve',
-                'systemType':'Arvados',
-                'url':'http://arvbox-pro-dev.thehyve.net/',
-                'systemVersion':'v1',
-                'singleFileCollections':false,
+                'name'                 : 'Arvbox at The Hyve',
+                'systemType'           : 'Arvados',
+                'url'                  : 'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion'        : 'v1',
+                'singleFileCollections': false,
         ]
 
         when:
@@ -93,14 +95,14 @@ class StorageSpec extends RESTSpec{
 
     /**
      *  post invalid
-    */
-    def"post missing values"(){
+     */
+    def "post missing values"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = [
-                'name':'post invalid',
-                'systemType':'Arvados',
-                'url':'http://arvbox-pro-dev.thehyve.net/',
+                'name'      : 'post invalid',
+                'systemType': 'Arvados',
+                'url'       : 'http://arvbox-pro-dev.thehyve.net/',
         ]
 
         when:
@@ -115,15 +117,15 @@ class StorageSpec extends RESTSpec{
     /**
      *  post invalid
      */
-    def "post invalid json format"(){
+    def "post invalid json format"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = toJSON([
-                'name':'Arvbox at The Hyve',
-                'systemType':'Arvados',
-                'url':'http://arvbox-pro-dev.thehyve.net/',
-                'systemVersion':'v1',
-                'singleFileCollections':false,
+                'name'                 : 'Arvbox at The Hyve',
+                'systemType'           : 'Arvados',
+                'url'                  : 'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion'        : 'v1',
+                'singleFileCollections': false,
         ])
         sourceSystem = sourceSystem.take(20)
 
@@ -137,15 +139,15 @@ class StorageSpec extends RESTSpec{
     /**
      *  post invalid
      */
-    def "post invalid value"(){
+    def "post invalid value"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = [
-                'name':'Arvbox at The Hyve',
-                'systemType':'Arvados',
-                'url':'http://arvbox-pro-dev.thehyve.net/',
-                'systemVersion':'v1',
-                'singleFileCollections':'bad_value',
+                'name'                 : 'Arvbox at The Hyve',
+                'systemType'           : 'Arvados',
+                'url'                  : 'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion'        : 'v1',
+                'singleFileCollections': 'bad_value',
         ]
 
         when:
@@ -161,7 +163,7 @@ class StorageSpec extends RESTSpec{
     /**
      *  post empty
      */
-    def "post invalid empty"(){
+    def "post invalid empty"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
 
@@ -175,7 +177,7 @@ class StorageSpec extends RESTSpec{
     /**
      *  get invalid
      */
-    def "get invalid value"(){
+    def "get invalid value"() {
         when:
         def responseData = get([path: PATH_STORAGE + "/some_letters", acceptType: contentTypeForJSON, statusCode: 404])
 
@@ -188,7 +190,7 @@ class StorageSpec extends RESTSpec{
     /**
      *  get nonexistent
      */
-    def "get nonexistent"(){
+    def "get nonexistent"() {
         when:
         def responseData = get([path: PATH_STORAGE + "/0", acceptType: contentTypeForJSON, statusCode: 404])
 
@@ -201,15 +203,15 @@ class StorageSpec extends RESTSpec{
     /**
      *  put invalid
      */
-    def "put invalid values"(){
+    def "put invalid values"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = [
-                'name':'Arvbox at The Hyve',
-                'systemType':'Arvados',
-                'url':'http://arvbox-pro-dev.thehyve.net/',
-                'systemVersion':'v1',
-                'singleFileCollections':false,
+                'name'                 : 'Arvbox at The Hyve',
+                'systemType'           : 'Arvados',
+                'url'                  : 'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion'        : 'v1',
+                'singleFileCollections': false,
         ]
 
         when:
@@ -227,16 +229,16 @@ class StorageSpec extends RESTSpec{
     /**
      *  put nonexistent
      */
-    def "put nonexistent"(){
+    def "put nonexistent"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def id = 0
         def sourceSystem = [
-                'name':'Arvbox at The Hyve',
-                'systemType':'Arvados',
-                'url':'http://arvbox-pro-dev.thehyve.net/',
-                'systemVersion':'v1',
-                'singleFileCollections':false,
+                'name'                 : 'Arvbox at The Hyve',
+                'systemType'           : 'Arvados',
+                'url'                  : 'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion'        : 'v1',
+                'singleFileCollections': false,
         ]
 
         when:
@@ -251,15 +253,15 @@ class StorageSpec extends RESTSpec{
     /**
      *  no access
      */
-    def "post no access"(){
+    def "post no access"() {
         given:
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
         def sourceSystem = [
-                'name':'Arvbox at The Hyve',
-                'systemType':'Arvados',
-                'url':'http://arvbox-pro-dev.thehyve.net/',
-                'systemVersion':'v1',
-                'singleFileCollections':false,
+                'name'                 : 'Arvbox at The Hyve',
+                'systemType'           : 'Arvados',
+                'url'                  : 'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion'        : 'v1',
+                'singleFileCollections': false,
         ]
 
         when:
@@ -273,28 +275,27 @@ class StorageSpec extends RESTSpec{
     /**
      *  no access
      */
-    def "delete no access"(){
+    def "delete no access"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = [
-                'name':'Arvbox at The Hyve',
-                'systemType':'Arvados',
-                'url':'http://arvbox-pro-dev.thehyve.net/',
-                'systemVersion':'v1',
-                'singleFileCollections':false,
+                'name'                 : 'Arvbox at The Hyve',
+                'systemType'           : 'Arvados',
+                'url'                  : 'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion'        : 'v1',
+                'singleFileCollections': false,
         ]
 
         when:
         def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
-        responseData = delete([ path: PATH_STORAGE + "/${responseData.id}", statusCode: 403])
+        responseData = delete([path: PATH_STORAGE + "/${responseData.id}", statusCode: 403])
 
         then:
         assert responseData.httpStatus == 403
         assert responseData.message == 'Removing a storage system entry is an admin action'
         assert responseData.type == 'AccessDeniedException'
     }
-
 
 
 }

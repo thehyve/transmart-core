@@ -1,9 +1,13 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2.hypercube
 
+import annotations.RequiresStudy
 import base.RESTSpec
 import spock.lang.Requires
 
+import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.contentTypeForProtobuf
 import static config.Config.*
 import static tests.rest.v2.Operator.*
 import static tests.rest.v2.ValueType.NUMERIC
@@ -24,13 +28,13 @@ class RelativeTimepointsSpec extends RESTSpec {
      *  when: "I get observations from that study related to Baseline"
      *  then: "4 observations are returned"
      */
-    @Requires({ CLINICAL_TRIAL_LOADED })
+    @RequiresStudy(CLINICAL_TRIAL_ID)
     def "multiple observations to a relative timepoint"() {
         given: "study CLINICAL_TRIAL is loaded"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
+                query     : toQuery([
                         type    : Combination,
                         operator: AND,
                         args    : [
@@ -56,8 +60,8 @@ class RelativeTimepointsSpec extends RESTSpec {
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -67,13 +71,13 @@ class RelativeTimepointsSpec extends RESTSpec {
      *  and: "I get observations related to 7 days"
      *  then: "both sets of observations are the same"
      */
-    @Requires({ CLINICAL_TRIAL_LOADED })
+    @RequiresStudy(CLINICAL_TRIAL_ID)
     def "label and relative time is te same"() {
         given: "study CLINICAL_TRIAL is loaded"
         def request1week = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
+                query     : toQuery([
                         type    : Combination,
                         operator: AND,
                         args    : [
@@ -89,9 +93,9 @@ class RelativeTimepointsSpec extends RESTSpec {
         ]
 
         def request7days = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
+                query     : toQuery([
                         type    : Combination,
                         operator: AND,
                         args    : [
@@ -126,8 +130,8 @@ class RelativeTimepointsSpec extends RESTSpec {
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -136,13 +140,13 @@ class RelativeTimepointsSpec extends RESTSpec {
      *  when: "I get observations within that study related to General"
      *  then: "multiple concepts are returned"
      */
-    @Requires({ EHR_LOADED })
+    @RequiresStudy(EHR_ID)
     def "multiple concepts to the same relative timepoint within the same study"() {
         given: "study EHR is loaded"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
+                query     : toQuery([
                         type    : Combination,
                         operator: AND,
                         args    : [
@@ -169,8 +173,8 @@ class RelativeTimepointsSpec extends RESTSpec {
         assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR')
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -179,18 +183,18 @@ class RelativeTimepointsSpec extends RESTSpec {
      *  when: "I get observations related to the General relative time label"
      *  then: "multiple concepts from both EHR and CLINICAL_TRIAL are returned"
      */
-    @Requires({ EHR_LOADED && CLINICAL_TRIAL_LOADED })
+    @RequiresStudy([CLINICAL_TRIAL_ID, EHR_ID]) @Requires({ RUN_HUGE_TESTS })
     def "multiple concepts to the same relative timepoint within several studies"() {
         given: "studies EHR and CLINICAL_TRIAL are loaded"
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type    : FieldConstraint,
-                                field   : [dimension: 'trial visit',
-                                           fieldName: 'relTimeLabel',
-                                           type     : STRING],
-                                operator: EQUALS,
-                                value   : 'General'])
+                query     : toQuery([type    : FieldConstraint,
+                                     field   : [dimension: 'trial visit',
+                                                fieldName: 'relTimeLabel',
+                                                type     : STRING],
+                                     operator: EQUALS,
+                                     value   : 'General'])
         ]
 
         when: "I get observations related to the General relative time label"
@@ -205,8 +209,8 @@ class RelativeTimepointsSpec extends RESTSpec {
         assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR', 'CT:DEM:AGE')
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
@@ -216,13 +220,13 @@ class RelativeTimepointsSpec extends RESTSpec {
      *  and: "I get observations related to GREATER_THEN the second to last week"
      *  then: "both sets of observations are the same"
      */
-    @Requires({ CLINICAL_TRIAL_LOADED })
+    @RequiresStudy(CLINICAL_TRIAL_ID)
     def "relative timescale compared to other relative timepoints"() {
         given: "study CLINICAL_TRIAL is loaded"
         def request3week = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
+                query     : toQuery([
                         type    : Combination,
                         operator: AND,
                         args    : [
@@ -238,9 +242,9 @@ class RelativeTimepointsSpec extends RESTSpec {
         ]
 
         def request7days = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
+                query     : toQuery([
                         type    : Combination,
                         operator: AND,
                         args    : [
@@ -275,8 +279,8 @@ class RelativeTimepointsSpec extends RESTSpec {
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 }

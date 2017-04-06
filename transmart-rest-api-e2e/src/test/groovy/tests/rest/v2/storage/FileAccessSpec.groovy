@@ -1,33 +1,37 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2.storage
 
+import annotations.RequiresStudy
 import base.RESTSpec
 
+import static base.ContentTypeFor.contentTypeForJSON
 import static config.Config.*
 
+@RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
 class FileAccessSpec extends RESTSpec {
 
     def storageId
     def file_link
 
-    def setup(){
+    def setup() {
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def responseDataAll = get([path: PATH_FILES, acceptType: contentTypeForJSON])
-        responseDataAll.files.each{
+        responseDataAll.files.each {
             delete([path: PATH_FILES + "/${it.id}", statusCode: 204])
         }
 
         responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
-        responseDataAll.storageSystems.each{
+        responseDataAll.storageSystems.each {
             delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204])
         }
 
         def sourceSystem = [
-                'name':'Arvbox at The Hyve',
-                'systemType':'Arvados',
-                'url':'http://arvbox-pro-dev.thehyve.net/',
-                'systemVersion':'v1',
-                'singleFileCollections':false,
+                'name'                 : 'Arvbox at The Hyve',
+                'systemType'           : 'Arvados',
+                'url'                  : 'http://arvbox-pro-dev.thehyve.net/',
+                'systemVersion'        : 'v1',
+                'singleFileCollections': false,
         ]
         def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
         storageId = responseData.id
@@ -46,13 +50,13 @@ class FileAccessSpec extends RESTSpec {
      *  when: "I get files for that study"
      *  then: "I get an access error"
      */
-    def "get files by study"(){
+    def "get files by study"() {
         given: "a file is attached to a restricted study and I do not have access"
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
 
         when: "I get files for that study"
         def responseData = get([
-                path: PATH_STUDIES+"/${SHARED_CONCEPTS_RESTRICTED_ID}/files",
+                path      : PATH_STUDIES + "/${SHARED_CONCEPTS_RESTRICTED_ID}/files",
                 acceptType: contentTypeForJSON,
                 statusCode: 403
         ])
@@ -67,13 +71,13 @@ class FileAccessSpec extends RESTSpec {
      *  when: "I get files for that study"
      *  then: "I get a list of files"
      */
-    def "get files by study unrestricted"(){
+    def "get files by study unrestricted"() {
         given: "a file is attached to a restricted study and I have access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I get files for that study"
         def responseData = get([
-                path: PATH_STUDIES+"/${SHARED_CONCEPTS_RESTRICTED_ID}/files",
+                path      : PATH_STUDIES + "/${SHARED_CONCEPTS_RESTRICTED_ID}/files",
                 acceptType: contentTypeForJSON,
         ])
 

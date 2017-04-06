@@ -1,9 +1,12 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.versions
 
 import base.RESTSpec
 
-import static config.Config.*
+import static base.ContentTypeFor.contentTypeForJSON
+import static config.Config.NON_EXISTING_API_VERSION
+import static config.Config.VERSIONS_PATH
 
 class VersionsSpec extends RESTSpec {
 
@@ -39,7 +42,7 @@ class VersionsSpec extends RESTSpec {
     def "fetch non existing version"() {
         when: "I fetch version v0"
         def responseData = get([
-                path: "${VERSIONS_PATH}/${NON_EXISTING_API_VERSION}",
+                path      : "${VERSIONS_PATH}/${NON_EXISTING_API_VERSION}",
                 acceptType: contentTypeForJSON,
                 statusCode: 404
         ])

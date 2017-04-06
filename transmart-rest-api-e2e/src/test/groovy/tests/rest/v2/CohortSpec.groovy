@@ -1,24 +1,28 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2
 
+import annotations.RequiresStudy
 import base.RESTSpec
 
+import static base.ContentTypeFor.contentTypeForJSON
+import static config.Config.CATEGORICAL_VALUES_ID
 import static config.Config.PATH_PATIENTS
 import static tests.rest.v2.Operator.AND
 import static tests.rest.v2.Operator.EQUALS
 import static tests.rest.v2.ValueType.STRING
 import static tests.rest.v2.constraints.*
 
+@RequiresStudy(CATEGORICAL_VALUES_ID)
 class CohortSpec extends RESTSpec {
 
-
-    def "get males that are caucasian the wrong way"(){
+    def "get males that are caucasian the wrong way"() {
         def caucasian = [
-                type: Combination,
+                type    : Combination,
                 operator: AND,
-                args: [
+                args    : [
                         [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"],
-                        [type: ValueConstraint, valueType: STRING, operator: EQUALS, value:'Caucasian']
+                        [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: 'Caucasian']
                 ]
         ]
 
@@ -26,13 +30,12 @@ class CohortSpec extends RESTSpec {
 
 
         def constraintMap = [
-                type: Combination,
+                type    : Combination,
                 operator: AND,
-                args: [
+                args    : [
                         caucasian, male
                 ]
         ]
-
 
         when:
         def responseData = get([path: PATH_PATIENTS, acceptType: contentTypeForJSON, query: toQuery(constraintMap)])
@@ -41,13 +44,13 @@ class CohortSpec extends RESTSpec {
         assert responseData.patients.size() == 0
     }
 
-    def "get males that are caucasian the right way"(){
+    def "get males that are caucasian the right way"() {
         def caucasian = [
-                type: Combination,
+                type    : Combination,
                 operator: AND,
-                args: [
+                args    : [
                         [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"],
-                        [type: ValueConstraint, valueType: STRING, operator: EQUALS, value:'Caucasian']
+                        [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: 'Caucasian']
                 ]
         ]
 
@@ -60,9 +63,9 @@ class CohortSpec extends RESTSpec {
         }
 
         def male = [
-                type: Combination,
+                type    : Combination,
                 operator: AND,
-                args: [
+                args    : [
                         [type: PatientSetConstraint, patientIds: patientIds],
                         [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Male\\"]
                 ]
@@ -73,7 +76,7 @@ class CohortSpec extends RESTSpec {
 
         then: "1 patient is returned"
 
-        def expected = [age:26, birthDate:null, deathDate:null, id:-60, inTrialId:'1', maritalStatus:null, race:'Caucasian', religion:null, sex:'MALE', trial:'CATEGORICAL_VALUES']
+        def expected = [age: 26, birthDate: null, deathDate: null, id: -60, inTrialId: '1', maritalStatus: null, race: 'Caucasian', religion: null, sex: 'MALE', trial: 'CATEGORICAL_VALUES']
         assert responseData.patients.size() == 1
         assert responseData.patients[0].equals(expected)
     }

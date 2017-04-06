@@ -1,29 +1,31 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2
 
+import annotations.RequiresStudy
 import base.RESTSpec
-import spock.lang.Requires
 
+import static base.ContentTypeFor.contentTypeForJSON
 import static config.Config.*
 
 /**
  *  TMPREQ-6 Building a tree where concepts are study-specific
  */
-class TreeNodesSpec extends  RESTSpec{
+@RequiresStudy([SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
+class TreeNodesSpec extends RESTSpec {
 
     /**
      *  given: "Study SHARED_CONCEPTS_STUDY_C_PRIV and SHARED_CONCEPTS_A is loaded, and I have access"
      *  when: "I try to get the tree_nodes from all studies"
      *  then: "nodes from SHARED_CONCEPTS_STUDY_C_PRIV and SHARED_CONCEPTS_A are included"
      */
-    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED && SHARED_CONCEPTS_LOADED})
-    def "restricted tree_nodes are included"(){
+    def "restricted tree_nodes are included"() {
         given: "Study SHARED_CONCEPTS_STUDY_C_PRIV and SHARED_CONCEPTS_A is loaded, and I do not have access"
         setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I try to get the tree_nodes from all studies"
         def responseData = get([
-                path: PATH_TREE_NODES,
+                path      : PATH_TREE_NODES,
                 acceptType: contentTypeForJSON,
         ])
 
@@ -35,20 +37,17 @@ class TreeNodesSpec extends  RESTSpec{
         assert getChildrenAtributes(studyC, 'name').containsAll([SHARED_CONCEPTS_RESTRICTED_ID, 'Vital Signs', 'Heart Rate', 'Demography', 'Age'])
     }
 
-
-
     /**
      *  given: "Study SHARED_CONCEPTS_STUDY_C_PRIV and SHARED_CONCEPTS_A is loaded, and I do not have access"
      *  when: "I try to get the tree_nodes from all studies"
      *  then: "only nodes from SHARED_CONCEPTS_A are returned"
      */
-    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED && SHARED_CONCEPTS_LOADED})
-    def "restricted tree_nodes are excluded"(){
+    def "restricted tree_nodes are excluded"() {
         given: "Study SHARED_CONCEPTS_STUDY_C_PRIV and SHARED_CONCEPTS_A is loaded, and I do not have access"
 
         when: "I try to get the tree_nodes from all studies"
         def responseData = get([
-                path: PATH_TREE_NODES,
+                path      : PATH_TREE_NODES,
                 acceptType: contentTypeForJSON,
         ])
 
@@ -65,15 +64,14 @@ class TreeNodesSpec extends  RESTSpec{
      *  when: "I get the tree_nodes with a subNode and depth"
      *  then: "only de subNodes of that node are returned"
      */
-    @Requires({SHARED_CONCEPTS_LOADED})
-    def "params limit nodes returned"(){
+    def "params limit nodes returned"() {
         given: "Study SHARED_CONCEPTS is loaded"
 
         when: "I get the tree_nodes with a subNode and depth"
         def responseData = get([
-                path: PATH_TREE_NODES,
+                path      : PATH_TREE_NODES,
                 acceptType: contentTypeForJSON,
-                query: [root : "\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\", depth : 2]
+                query     : [root: "\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\", depth: 2]
         ])
 
         then: "only de subNodes of that node are returned"
@@ -88,15 +86,14 @@ class TreeNodesSpec extends  RESTSpec{
      *  when: "I get the tree_nodes with counts=true"
      *  then: "then concept nodes have observationCount and patientCount"
      */
-    @Requires({SHARED_CONCEPTS_LOADED})
-    def "nodes with counts true"(){
+    def "nodes with counts true"() {
         given: "Study SHARED_CONCEPTS is loaded"
 
         when: "I get the tree_nodes with counts=true"
         def responseData = get([
-                path: PATH_TREE_NODES,
+                path      : PATH_TREE_NODES,
                 acceptType: contentTypeForJSON,
-                query: ['counts' : true]
+                query     : ['counts': true]
         ])
 
         then: "then concept nodes have observationCount and patientCount"
@@ -113,15 +110,14 @@ class TreeNodesSpec extends  RESTSpec{
      *  when: "I get the tree_nodes with counts=true"
      *  then: "then concept nodes have observationCount and patientCount"
      */
-    @Requires({SHARED_CONCEPTS_LOADED})
-    def "shared nodes with counts true restricted"(){
+    def "shared nodes with counts true restricted"() {
         given: "Study SHARED_CONCEPTS is loaded"
 
         when: "I get the tree_nodes with counts=true"
         def responseData = get([
-                path: PATH_TREE_NODES,
+                path      : PATH_TREE_NODES,
                 acceptType: contentTypeForJSON,
-                query: ['counts' : true]
+                query     : ['counts': true]
         ])
 
         then: "then concept nodes have observationCount and patientCount"
@@ -136,16 +132,15 @@ class TreeNodesSpec extends  RESTSpec{
      *  when: "I get the tree_nodes with counts=true"
      *  then: "then concept nodes have observationCount and patientCount"
      */
-    @Requires({SHARED_CONCEPTS_LOADED})
-    def "nodes with counts true unrestricted"(){
+    def "nodes with counts true unrestricted"() {
         given: "Study SHARED_CONCEPTS is loaded"
-        setUser(UNRESTRICTED_USERNAME,UNRESTRICTED_PASSWORD)
+        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I get the tree_nodes with counts=true"
         def responseData = get([
-                path: PATH_TREE_NODES,
+                path      : PATH_TREE_NODES,
                 acceptType: contentTypeForJSON,
-                query: ['counts' : true]
+                query     : ['counts': true]
         ])
 
         then: "then concept nodes have observationCount and patientCount"
@@ -160,15 +155,15 @@ class TreeNodesSpec extends  RESTSpec{
      *  when: "I get the tree_nodes with tags=true"
      *  then: "then concept nodes have observationCount and patientCount"
      */
-    @Requires({CELL_LINE_LOADED})
-    def "nodes with tags true"(){
+    @RequiresStudy(CELL_LINE_ID)
+    def "nodes with tags true"() {
         given: "Study SHARED_CONCEPTS is loaded"
 
         when: "I get the tree_nodes with tags=true"
         def responseData = get([
-                path: PATH_TREE_NODES,
+                path      : PATH_TREE_NODES,
                 acceptType: contentTypeForJSON,
-                query: ['tags' : true]
+                query     : ['tags': true]
         ])
 
         then: "then concept nodes have observationCount and patientCount"
@@ -181,16 +176,15 @@ class TreeNodesSpec extends  RESTSpec{
      *  when: "I try to get the tree_nodes from that study"
      *  then: "I get an access error"
      */
-    @Requires({SHARED_CONCEPTS_RESTRICTED_LOADED})
     def "restricted tree_nodes"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
         def path = "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\"
 
         when: "I try to get the tree_nodes from that study"
         def responseData = get([
-                path: PATH_TREE_NODES,
+                path      : PATH_TREE_NODES,
                 acceptType: contentTypeForJSON,
-                query: [root : path, depth : 1],
+                query     : [root: path, depth: 1],
                 statusCode: 403
         ])
 
@@ -200,25 +194,25 @@ class TreeNodesSpec extends  RESTSpec{
         assert responseData.message == "Access denied to path: ${path}"
     }
 
-    def getRootNodeByName(list, name){
+    def getRootNodeByName(list, name) {
         def root
-        list.tree_nodes.each{
-            if (it.name == name){
+        list.tree_nodes.each {
+            if (it.name == name) {
                 root = it
             }
         }
         return root
     }
 
-    def getNodeByName(root, name){
-        if (root.name == name){
+    def getNodeByName(root, name) {
+        if (root.name == name) {
             return root
         }
         def result
-        if (root.children){
-            root.children.each{
+        if (root.children) {
+            root.children.each {
                 def node = getNodeByName(it, name)
-                if (node){
+                if (node) {
                     result = node
                 }
             }
@@ -226,10 +220,10 @@ class TreeNodesSpec extends  RESTSpec{
         return result
     }
 
-    def getChildrenAtributes(node, attribute){
+    def getChildrenAtributes(node, attribute) {
         def nodeNames = [node.get(attribute)]
-        if (node.children){
-            node.children.each{
+        if (node.children) {
+            node.children.each {
                 nodeNames.addAll(getChildrenAtributes(it, attribute))
             }
         }

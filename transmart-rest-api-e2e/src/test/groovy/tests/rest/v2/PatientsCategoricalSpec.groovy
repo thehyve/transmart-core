@@ -1,10 +1,12 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2
 
+import annotations.RequiresStudy
 import base.RESTSpec
-import spock.lang.Requires
 
-import static config.Config.CATEGORICAL_VALUES_LOADED
+import static base.ContentTypeFor.contentTypeForJSON
+import static config.Config.CATEGORICAL_VALUES_ID
 import static config.Config.PATH_PATIENTS
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
@@ -18,20 +20,20 @@ import static tests.rest.v2.constraints.*
  *      enabling fetching patients and observations where a categorical variable has a certain value.
  *      E.g., fetching data for patients with value 'female' for 'Sex' or with value 'Unknown' for 'Diagnosis'.
  */
-class PatientsCategoricalSpec extends RESTSpec{
+@RequiresStudy(CATEGORICAL_VALUES_ID)
+class PatientsCategoricalSpec extends RESTSpec {
 
     /**
      *  given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
      *  when: "I get all patients from the study that have concept Gender"
      *  then: "no patients are returned"
      */
-    @Requires({CATEGORICAL_VALUES_LOADED})
-    def "get patient using old data format new style query"(){
+    def "get patient using old data format new style query"() {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
         def request = [
-                path: PATH_PATIENTS,
+                path      : PATH_PATIENTS,
                 acceptType: contentTypeForJSON,
-                query: toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"])
         ]
 
         when: "I get all patients from the  study that have concept Gender"
@@ -46,13 +48,12 @@ class PatientsCategoricalSpec extends RESTSpec{
      *  when: "I get all patients from the study that have concept Gender\Female"
      *  then: "1 patient is returned"
      */
-    @Requires({CATEGORICAL_VALUES_LOADED})
-    def "get patient using old data format old style query"(){
+    def "get patient using old data format old style query"() {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
         def request = [
-                path: PATH_PATIENTS,
+                path      : PATH_PATIENTS,
                 acceptType: contentTypeForJSON,
-                query: toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"])
         ]
 
         when: "I get all patients from the study that have concept Female"
@@ -68,13 +69,12 @@ class PatientsCategoricalSpec extends RESTSpec{
      *  when: "I get all patients from the study that have concept Race"
      *  then: "2 patients are returned"
      */
-    @Requires({CATEGORICAL_VALUES_LOADED})
-    def "get patient using new data format new style query"(){
+    def "get patient using new data format new style query"() {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
         def request = [
-                path: PATH_PATIENTS,
+                path      : PATH_PATIENTS,
                 acceptType: contentTypeForJSON,
-                query: toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"])
         ]
 
         when: "I get all patients from the study that have concept Race"
@@ -90,18 +90,17 @@ class PatientsCategoricalSpec extends RESTSpec{
      *  when: "I get all patients from the study that have concept Race with value Caucasian"
      *  then: "2 patients are returned"
      */
-    @Requires({CATEGORICAL_VALUES_LOADED})
-    def "get patient using new data format new style query with value"(){
+    def "get patient using new data format new style query with value"() {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
         def request = [
-                path: PATH_PATIENTS,
+                path      : PATH_PATIENTS,
                 acceptType: contentTypeForJSON,
-                query: toQuery([
-                        type: Combination,
+                query     : toQuery([
+                        type    : Combination,
                         operator: AND,
-                        args: [
+                        args    : [
                                 [type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"],
-                                [type: ValueConstraint, valueType: STRING, operator: EQUALS, value:'Caucasian']
+                                [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: 'Caucasian']
                         ]
                 ])
         ]

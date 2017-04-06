@@ -1,9 +1,12 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2.hypercube
 
 import base.RESTSpec
-import spock.lang.Ignore
+import spock.lang.Requires
 
+import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.contentTypeForProtobuf
 import static config.Config.*
 import static org.hamcrest.Matchers.is
 import static spock.util.matcher.HamcrestSupport.that
@@ -11,7 +14,7 @@ import static tests.rest.v2.Operator.*
 import static tests.rest.v2.ValueType.*
 import static tests.rest.v2.constraints.*
 
-class ConstraintSpec extends RESTSpec{
+class ConstraintSpec extends RESTSpec {
 
     /**
      * TrueConstraint.class,
@@ -36,12 +39,12 @@ class ConstraintSpec extends RESTSpec{
      *  when:" I do a Get query/observations with a wrong type."
      *  then: "then I get a 400 with 'Constraint not supported: BadType.'"
      */
-    def "Get /query/observations malformed query"(){
-        when:" I do a Get query/observations with a wrong type."
+    def "Get /query/observations malformed query"() {
+        when: " I do a Get query/observations with a wrong type."
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: 'BadType']),
+                query     : toQuery([type: 'BadType']),
                 statusCode: 400
         ]
 
@@ -53,16 +56,17 @@ class ConstraintSpec extends RESTSpec{
         that responseData.message, is('Constraint not supported: BadType.')
 
         where:
-        acceptType | _
-        contentTypeForJSON | _
+        acceptType             | _
+        contentTypeForJSON     | _
         contentTypeForProtobuf | _
     }
 
-    def "TrueConstraint.class"(){
+    @Requires({ RUN_HUGE_TESTS })
+    def "TrueConstraint.class"() {
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: TrueConstraint])
+                query     : toQuery([type: TrueConstraint])
         ]
 
         when:
@@ -76,17 +80,17 @@ class ConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "ModifierConstraint.class"(){
+    def "ModifierConstraint.class"() {
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: ModifierConstraint, path:"\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                query     : toQuery([
+                        type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
                 ])
         ]
@@ -105,10 +109,10 @@ class ConstraintSpec extends RESTSpec{
 
         when:
         request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: ModifierConstraint, modifierCode: "TNS:SMPL",
+                query     : toQuery([
+                        type  : ModifierConstraint, modifierCode: "TNS:SMPL",
                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
                 ])
         ]
@@ -124,21 +128,21 @@ class ConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "FieldConstraint.class"(){
+    def "FieldConstraint.class"() {
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: FieldConstraint,
-                                field: [dimension: 'patient',
-                                        fieldName: 'age',
-                                        type: NUMERIC ],
-                                operator: EQUALS,
-                                value:30])
+                query     : toQuery([type    : FieldConstraint,
+                                     field   : [dimension: 'patient',
+                                                fieldName: 'age',
+                                                type     : NUMERIC],
+                                     operator: EQUALS,
+                                     value   : 30])
         ]
 
         when:
@@ -151,16 +155,16 @@ class ConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "ValueConstraint.class"(){
+    def "ValueConstraint.class"() {
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value:176])
+                query     : toQuery([type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value: 176])
         ]
 
         when:
@@ -173,19 +177,19 @@ class ConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "TimeConstraint.class"(){
+    def "TimeConstraint.class"() {
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: TimeConstraint,
-                                field: [dimension: 'start time', fieldName: 'startDate', type: DATE ],
-                                operator: AFTER,
-                                values: [toDateString("01-01-2016Z")]])
+                query     : toQuery([type    : TimeConstraint,
+                                     field   : [dimension: 'start time', fieldName: 'startDate', type: DATE],
+                                     operator: AFTER,
+                                     values  : [toDateString("01-01-2016Z")]])
         ]
 
         when:
@@ -198,25 +202,25 @@ class ConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "PatientSetConstraint.class"(){
+    def "PatientSetConstraint.class"() {
         def postRequest = [
-                path: PATH_PATIENT_SET,
-                acceptType: contentTypeForJSON,
+                path          : PATH_PATIENT_SET,
+                acceptType    : contentTypeForJSON,
                 'Content-Type': contentTypeForJSON,
-                query: [name: 'test_PatientSetConstraint'],
-                body: toJSON([type: PatientSetConstraint, patientIds: -62])
+                query         : [name: 'test_PatientSetConstraint'],
+                body          : toJSON([type: PatientSetConstraint, patientIds: -62])
         ]
         def setID = post(postRequest)
 
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: PatientSetConstraint, patientSetId: setID.id])
+                query     : toQuery([type: PatientSetConstraint, patientSetId: setID.id])
         ]
 
         when:
@@ -230,9 +234,9 @@ class ConstraintSpec extends RESTSpec{
 
         when:
         request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: PatientSetConstraint, patientIds: -62])
+                query     : toQuery([type: PatientSetConstraint, patientIds: -62])
         ]
         responseData = get(request)
         selector = newSelector(responseData)
@@ -243,18 +247,19 @@ class ConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "Negation.class"(){
+    @Requires({ RUN_HUGE_TESTS })
+    def "Negation.class"() {
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
+                query     : toQuery([
                         type: Negation,
-                        arg: [type: PatientSetConstraint, patientIds: [-62, -52, -42]]
+                        arg : [type: PatientSetConstraint, patientIds: [-62, -52, -42]]
                 ])
         ]
 
@@ -268,19 +273,19 @@ class ConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "Combination.class"(){
+    def "Combination.class"() {
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: Combination,
+                query     : toQuery([
+                        type    : Combination,
                         operator: AND,
-                        args: [
+                        args    : [
                                 [type: PatientSetConstraint, patientSetId: 0, patientIds: -62],
                                 [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]
                         ]
@@ -297,23 +302,23 @@ class ConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "TemporalConstraint.class"(){
+    def "TemporalConstraint.class"() {
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: TemporalConstraint,
-                        operator: AFTER,
+                query     : toQuery([
+                        type           : TemporalConstraint,
+                        operator       : AFTER,
                         eventConstraint: [
-                                type: ValueConstraint,
+                                type     : ValueConstraint,
                                 valueType: NUMERIC,
-                                operator: LESS_THAN,
-                                value: 60
+                                operator : LESS_THAN,
+                                value    : 60
                         ]
                 ])
         ]
@@ -328,19 +333,19 @@ class ConstraintSpec extends RESTSpec{
         (0..<selector.cellCount).each {
             conceptCodes.add selector.select(it, "concept", "conceptCode", 'String')
         }
-        assert conceptCodes.containsAll("EHR:VSIGN:HR","EHRHD:VSIGN:HR","EHRHD:HD:EXPLUNG","EHRHD:HD:EXPBREAST")
+        assert conceptCodes.containsAll("EHR:VSIGN:HR", "EHRHD:VSIGN:HR", "EHRHD:HD:EXPLUNG", "EHRHD:HD:EXPBREAST")
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "ConceptConstraint.class"(){
+    def "ConceptConstraint.class"() {
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"])
         ]
 
         when:
@@ -353,16 +358,16 @@ class ConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "StudyConstraint.class"(){
+    def "StudyConstraint.class"() {
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([type: StudyNameConstraint, studyId: EHR_ID])
+                query     : toQuery([type: StudyNameConstraint, studyId: EHR_ID])
         ]
 
         when:
@@ -375,35 +380,36 @@ class ConstraintSpec extends RESTSpec{
         }
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 
-    def "NullConstraint.class"(){
+    @Requires({ RUN_HUGE_TESTS })
+    def "NullConstraint.class"() {
         def request = [
-                path: PATH_OBSERVATIONS,
+                path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query: toQuery([
-                        type: NullConstraint,
-                        field: [dimension: 'end time', fieldName: 'endDate', type: DATE ]
+                query     : toQuery([
+                        type : NullConstraint,
+                        field: [dimension: 'end time', fieldName: 'endDate', type: DATE]
                 ])
         ]
-        
+
         when:
         def responseData = get(request)
         def selector = newSelector(responseData)
 
         then:
-        HashSet conceptCodes= []
+        HashSet conceptCodes = []
         (0..<selector.cellCount).each {
             conceptCodes.add(selector.select(it, "concept", "conceptCode", 'String'))
         }
         assert conceptCodes.containsAll(['CV:DEM:SEX:M', 'CV:DEM:SEX:F', 'CV:DEM:RACE', 'CV:DEM:AGE'])
 
         where:
-        acceptType | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
         contentTypeForProtobuf | protobufSelector
     }
 

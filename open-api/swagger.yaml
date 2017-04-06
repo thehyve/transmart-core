@@ -1,17 +1,5 @@
-# Open API specification for the tranSMART platform.
-# Copyright (C) 2017  The Hyve
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#  http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2017, tranSMART Foundation, Inc.
+
 swagger: '2.0'
 
 info:
@@ -30,23 +18,32 @@ info:
     
     # Constraints
     Constraints are used to build queries and are required in the `v2` API. They consist of a `Type` and that type's specific arguments. The implementation is in [Constraint.groovy](../transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy).
-    
-    ## Combination
-    Most often a combination of constraints is needed to get the right result. This can be done by a constraint with type combination.
-    It takes an op `operator` and a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.
-    However an `and` operator with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.
+
+    ## Combinations (And/Or)
+    Most often a combination of constraints is needed to get the right result. This can be done by the constraints with type "and" and "or".
+    They take a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.
+    However an `and` constraint with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.
+    (There is also a constraint with type "combination" on which the And and Or constraints are built. It does not provide any functionality not provided by And and Or constraints, and it should be considered deprecated for direct usage.)
     
     Example:
     ```json
-    {"type": "combination",
-     "operator": "and",
+    {"type": "and",
      "args": [
         {"type": "patient_set", "patientIds": -62},
         {"type": "concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
         ]
     }
     ```
-    
+
+    ```json
+    {"type": "or",
+     "args": [
+        {"type": "concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Blood Pressure\\"}
+        {"type": "concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
+        ]
+    }
+    ```
+
     ## StudyName
     Evaluate if an observation is part of a particular study
     
@@ -260,26 +257,39 @@ paths:
   /versions:
     get:
       description: |
-        Gets all available API versions and prefixes.
+        Gets all available API versions and prefixes. The API version is separate from the version of transmart itself.
+
+        The API version follows semantic versioning: major versions can be incompatible, but minor version upgrades should be compatible with previous versions within the same major version. Patch versions are not used at the moment. The rest api can support multiple major versions at the same time using different prefixes.
+
+        The default settings expose this endpoint without any authentication requirements, as the version info may be needed to select an authentication method, however clients should be prepared to only be able to see the supported major versions without authentication. In that case the innermost dictionary in the response json will only contain "id", "prefix" and "major" keys.
+
+        Development and preview releases may also contain version tags, e.g. the version leading up to the development of 2.1 can be called 2.1-dev. Such tagged releases also support separate feature revisions. See `transmart-rest-api/grails-app/controllers/org/transmartproject/rest/VersionController.groovy` for details about that.
       responses:
         200:
-          description: 'Successful response. Example: `{ "versions": [ "id": "v2", "prefix": "/v2"] }`.'
+          description: |
+            Successful response. Example:
+            `{ "versions": {
+                "v2": {
+                    "id": "v2",
+                    "prefix": "/v2",
+                    "version: "2.1",
+                    "major": 2,
+                    "minor": 1
+                }
+            } }`'
           schema:
             type: object
             properties:
               versions:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    prefix:
-                      type: string
+                type: object
+                properties:
+                  version ids:
+                    $ref: "#/definitions/version"
+
   /versions/{id}:
     get:
       description: |
-        Gets the version and its prefix if available.
+        Gets information about the version if available. This returns the same information as `/versions`, but only for a single version.
       parameters:
         - name: id
           in: path
@@ -291,12 +301,7 @@ paths:
         200:
           description: Successful response.
           schema:
-            type: object
-            properties:
-              id:
-                type: string
-              prefix:
-                type: string
+            $ref: "#/definitions/version"
 
         404:
           description: Version not available.
@@ -1224,6 +1229,23 @@ paths:
           description: 'returns null'
 
 definitions:
+  version:
+    type: object
+    properties:
+      id: { type: string, required: true }
+      prefix: { type: string, required: true, description: the url prefix where this api can be found }
+      version: { type: string, description: the full version string }
+      major: { type: integer, required: true }
+      minor: { type: integer }
+      patch: { type: integer }
+      tag: { type: string }
+      features:
+        type: object
+        properties:
+          features:
+            type: integer
+            description: string keys and numeric values that indicate features and their revision level. These are only present for -dev versions.
+
   v1observation:
     type: object
     properties:

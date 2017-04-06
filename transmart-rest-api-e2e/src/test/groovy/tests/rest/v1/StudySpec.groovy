@@ -1,32 +1,28 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v1
 
+import annotations.RequiresStudy
 import base.RESTSpec
 
-import spock.lang.Requires
-
-import static config.Config.ADMIN_PASSWORD
-import static config.Config.ADMIN_USERNAME
-import static config.Config.EHR_HIGHDIM_LOADED
-import static config.Config.EHR_LOADED
+import static base.ContentTypeFor.contentTypeForJSON
 import static config.Config.GSE8581_ID
-import static config.Config.GSE8581_LOADED
 import static config.Config.V1_PATH_STUDIES
 
-@Requires({GSE8581_LOADED})
-class StudySpec extends RESTSpec{
+@RequiresStudy(GSE8581_ID)
+class StudySpec extends RESTSpec {
 
     /**
      *  given: "several studies are loaded"
      *  when: "I request all studies"
      *  then: "I get all studies I have access to"
      */
-    def "v1 all studies"(){
+    def "v1 all studies"() {
         given: "several studies are loaded"
 
         when: "I request all studies"
         def responseData = get([
-                path: V1_PATH_STUDIES,
+                path      : V1_PATH_STUDIES,
                 acceptType: contentTypeForJSON
         ])
 
@@ -45,13 +41,13 @@ class StudySpec extends RESTSpec{
      *  when: "I request studies with id EHR"
      *  then: "only the EHR study is returned"
      */
-    def "v1 single study"(){
+    def "v1 single study"() {
         given: "study EHR is loaded"
         def studieId = GSE8581_ID
 
         when: "I request studies with id EHR"
         def responseData = get([
-                path: V1_PATH_STUDIES+"/${studieId}",
+                path      : V1_PATH_STUDIES + "/${studieId}",
                 acceptType: contentTypeForJSON
         ])
 

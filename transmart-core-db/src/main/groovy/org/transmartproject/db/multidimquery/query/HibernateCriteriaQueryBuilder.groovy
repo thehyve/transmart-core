@@ -1,4 +1,5 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.db.multidimquery.query
 
 import groovy.util.logging.Slf4j
@@ -463,7 +464,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             throw new QueryBuilderException("Study id constraint shouldn't have a null value for ids")
         }
         def trialVisitAlias = getAlias('trialVisit')
-        return Restrictions.eq("${trialVisitAlias}.study", constraint.study.id)
+        return Restrictions.eq("${trialVisitAlias}.study", constraint.study)
     }
 
 

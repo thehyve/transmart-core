@@ -1,34 +1,29 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v1
 
+import annotations.RequiresStudy
 import base.RESTSpec
 
-import spock.lang.Requires
+import static base.ContentTypeFor.contentTypeForJSON
+import static config.Config.*
 
-import static config.Config.ADMIN_PASSWORD
-import static config.Config.ADMIN_USERNAME
-import static config.Config.EHR_ID
-import static config.Config.EHR_LOADED
-import static config.Config.GSE8581_ID
-import static config.Config.GSE8581_LOADED
-import static config.Config.V1_PATH_STUDIES
-
-@Requires({GSE8581_LOADED})
-class SubjectsSpec extends RESTSpec{
+@RequiresStudy(GSE8581_ID)
+class SubjectsSpec extends RESTSpec {
 
     /**
      *  given: "study EHR is loaded"
      *  when: "I request subjects related to this study"
      *  then: "subjects are returned"
      */
-    def "v1 subjects"(){
+    def "v1 subjects"() {
         given: "study EHR is loaded"
-        setUser(ADMIN_USERNAME,ADMIN_PASSWORD)
+        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def studyId = GSE8581_ID
 
         when: "I request subjects related to this study"
         def responseData = get([
-                path: V1_PATH_STUDIES+"/${studyId}/subjects",
+                path      : V1_PATH_STUDIES + "/${studyId}/subjects",
                 acceptType: contentTypeForJSON
         ])
 
@@ -53,19 +48,19 @@ class SubjectsSpec extends RESTSpec{
      *  when: "I request a subject by it's id"
      *  then: "only that subject is returned"
      */
-    def "v1 single subject"(){
+    def "v1 single subject"() {
         given: "study EHR is loaded"
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def studyId = GSE8581_ID
 
         when: "I request a subject by it's id"
         def subjectId = get([
-                path: V1_PATH_STUDIES+"/${studyId}/subjects",
+                path      : V1_PATH_STUDIES + "/${studyId}/subjects",
                 acceptType: contentTypeForJSON
         ]).subjects[0].id
 
         def responseData = get([
-                path: V1_PATH_STUDIES+"/${studyId}/subjects/${subjectId}",
+                path      : V1_PATH_STUDIES + "/${studyId}/subjects/${subjectId}",
                 acceptType: contentTypeForJSON
         ])
 
@@ -87,15 +82,15 @@ class SubjectsSpec extends RESTSpec{
      *  when: "I request subjects related to this study and a concept path"
      *  then: "subjects are returned"
      */
-    def "v1 subjects by concept"(){
+    def "v1 subjects by concept"() {
         given: "study EHR is loaded"
-        setUser(ADMIN_USERNAME,ADMIN_PASSWORD)
+        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def studyId = GSE8581_ID
         def conceptPath = "Subjects/Age/"
 
         when: "I request subjects related to this study and a concept path"
         def responseData = get([
-                path: V1_PATH_STUDIES+"/${studyId}/concepts/${conceptPath}/subjects",
+                path      : V1_PATH_STUDIES + "/${studyId}/concepts/${conceptPath}/subjects",
                 acceptType: contentTypeForJSON
         ])
 

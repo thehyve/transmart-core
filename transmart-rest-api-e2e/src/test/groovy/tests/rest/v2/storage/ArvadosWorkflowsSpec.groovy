@@ -1,21 +1,23 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2.storage
 
 import base.RESTSpec
 
+import static base.ContentTypeFor.contentTypeForJSON
 import static config.Config.*
 
 /**
  *  Creating ArvadosWorkflows
  *  TMPREQ-31 Starting an Arvados workflow from tranSMART API.
  */
-class ArvadosWorkflowsSpec extends RESTSpec{
+class ArvadosWorkflowsSpec extends RESTSpec {
 
 
     def setup() {
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: contentTypeForJSON])
-        responseDataAll.supportedWorkflows.each{
+        responseDataAll.supportedWorkflows.each {
             delete([path: PATH_ARVADOS_WORKFLOWS + "/${it.id}", acceptType: contentTypeForJSON, statusCode: 204])
         }
     }
@@ -23,24 +25,24 @@ class ArvadosWorkflowsSpec extends RESTSpec{
     /**
      *  post, get, put, delete
      */
-    def "post, get, put, delete"(){
+    def "post, get, put, delete"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def data = ["uuid":"bla",
-                    "arvadosInstanceUrl":"a",
-                    "name":"name",
-                    "description":"sc",
-                    "arvadosVersion":"v1",
-                    "defaultParams": [
-                            "a":1, "b":"b"
+        def data = ["uuid"              : "bla",
+                    "arvadosInstanceUrl": "a",
+                    "name"              : "name",
+                    "description"       : "sc",
+                    "arvadosVersion"    : "v1",
+                    "defaultParams"     : [
+                            "a": 1, "b": "b"
                     ],
         ]
 
         when:
         def responseData = post([
-                path: PATH_ARVADOS_WORKFLOWS,
+                path      : PATH_ARVADOS_WORKFLOWS,
                 acceptType: contentTypeForJSON,
-                body: toJSON(data),
+                body      : toJSON(data),
                 statusCode: 201
         ])
         def id = responseData.id
@@ -101,14 +103,14 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def request = [
-                path: PATH_ARVADOS_WORKFLOWS,
+                path      : PATH_ARVADOS_WORKFLOWS,
                 acceptType: contentTypeForJSON,
-                body: toJSON(["uuid": null,
-                              "arvadosInstanceUrl": null,
-                              "name": null,
-                              "description": null,
-                              "arvadosVersion": null,
-                              "defaultParams": null
+                body      : toJSON(["uuid"              : null,
+                                    "arvadosInstanceUrl": null,
+                                    "name"              : null,
+                                    "description"       : null,
+                                    "arvadosVersion"    : null,
+                                    "defaultParams"     : null
                 ]),
                 statusCode: 500
         ]
@@ -132,9 +134,9 @@ class ArvadosWorkflowsSpec extends RESTSpec{
 
         when:
         def responseData = post([
-                path: PATH_ARVADOS_WORKFLOWS,
+                path      : PATH_ARVADOS_WORKFLOWS,
                 acceptType: contentTypeForJSON,
-                body: null,
+                body      : null,
                 statusCode: 500
         ])
 
@@ -153,7 +155,7 @@ class ArvadosWorkflowsSpec extends RESTSpec{
 
         when:
         def responseData = get([
-                path: PATH_ARVADOS_WORKFLOWS + "/0",
+                path      : PATH_ARVADOS_WORKFLOWS + "/0",
                 acceptType: contentTypeForJSON,
                 statusCode: 404
         ])
@@ -171,19 +173,19 @@ class ArvadosWorkflowsSpec extends RESTSpec{
     def "put invalid"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def data = ["uuid":"bla",
-                    "arvadosInstanceUrl":"a",
-                    "name":"name",
-                    "description":"sc",
-                    "arvadosVersion":"v1",
-                    "defaultParams": [
-                            "a":1, "b":"b"
+        def data = ["uuid"              : "bla",
+                    "arvadosInstanceUrl": "a",
+                    "name"              : "name",
+                    "description"       : "sc",
+                    "arvadosVersion"    : "v1",
+                    "defaultParams"     : [
+                            "a": 1, "b": "b"
                     ],
         ]
         def responseData = post([
-                path: PATH_ARVADOS_WORKFLOWS,
+                path      : PATH_ARVADOS_WORKFLOWS,
                 acceptType: contentTypeForJSON,
-                body: toJSON(data),
+                body      : toJSON(data),
                 statusCode: 201
 
         ])
@@ -191,8 +193,8 @@ class ArvadosWorkflowsSpec extends RESTSpec{
 
         when:
         responseData = put([
-                path: PATH_ARVADOS_WORKFLOWS +"/${responseData.id}",
-                body: toJSON(data),
+                path      : PATH_ARVADOS_WORKFLOWS + "/${responseData.id}",
+                body      : toJSON(data),
                 statusCode: 422
         ])
 
@@ -210,21 +212,21 @@ class ArvadosWorkflowsSpec extends RESTSpec{
     def "put nonexistent"() {
         given:
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def data = ["uuid":"bla",
-                    "arvadosInstanceUrl":"a",
-                    "name":"name",
-                    "description":"sc",
-                    "arvadosVersion":"v1",
-                    "defaultParams": [
-                            "a":1, "b":"b"
+        def data = ["uuid"              : "bla",
+                    "arvadosInstanceUrl": "a",
+                    "name"              : "name",
+                    "description"       : "sc",
+                    "arvadosVersion"    : "v1",
+                    "defaultParams"     : [
+                            "a": 1, "b": "b"
                     ],
         ]
 
         when:
         def responseData = put([
-                path: PATH_ARVADOS_WORKFLOWS +"/0",
+                path      : PATH_ARVADOS_WORKFLOWS + "/0",
                 acceptType: contentTypeForJSON,
-                body: toJSON(data),
+                body      : toJSON(data),
                 statusCode: 404
         ])
 
@@ -238,24 +240,24 @@ class ArvadosWorkflowsSpec extends RESTSpec{
     /**
      *  no access
      */
-    def "no access"(){
+    def "no access"() {
         given:
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
-        def data = ["uuid":"bla",
-                    "arvadosInstanceUrl":"a",
-                    "name":"name",
-                    "description":"sc",
-                    "arvadosVersion":"v1",
-                    "defaultParams": [
-                            "a":1, "b":"b"
+        def data = ["uuid"              : "bla",
+                    "arvadosInstanceUrl": "a",
+                    "name"              : "name",
+                    "description"       : "sc",
+                    "arvadosVersion"    : "v1",
+                    "defaultParams"     : [
+                            "a": 1, "b": "b"
                     ],
         ]
 
         when:
         def responseData = post([
-                path: PATH_ARVADOS_WORKFLOWS,
+                path      : PATH_ARVADOS_WORKFLOWS,
                 acceptType: contentTypeForJSON,
-                body: toJSON(data),
+                body      : toJSON(data),
                 statusCode: 403
         ])
 
@@ -267,9 +269,9 @@ class ArvadosWorkflowsSpec extends RESTSpec{
         when:
         data.name = 'new file Link renamed'
         responseData = put([
-                path: PATH_ARVADOS_WORKFLOWS + "/0",
+                path      : PATH_ARVADOS_WORKFLOWS + "/0",
                 acceptType: contentTypeForJSON,
-                body: toJSON(data),
+                body      : toJSON(data),
                 statusCode: 403
         ])
 

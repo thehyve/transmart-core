@@ -1,17 +1,13 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package base
 
 import groovy.json.JsonBuilder
-import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
-import groovyx.net.http.Method
-import groovyx.net.http.URIBuilder
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import selectors.ObservationSelector
 import selectors.ObservationSelectorJson
-import selectors.ObservationsMessageProto
-import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import selectors.ObservationsMessageJson
 import spock.lang.Shared
 import spock.lang.Specification
@@ -22,12 +18,6 @@ import static config.Config.*
 import static org.hamcrest.Matchers.*
 
 abstract class RESTSpec extends Specification{
-
-    def static contentTypeForHAL = 'application/hal+json'
-    def static contentTypeForJSON = 'application/json'
-    def static contentTypeForProtobuf = 'application/x-protobuf'
-    def static contentTypeForoctetStream = 'application/octet-stream'
-    def static contentTypeForXML = 'application/xml'
 
     private static HashMap<String, String> oauth2token = [:]
 
@@ -45,157 +35,39 @@ abstract class RESTSpec extends Specification{
                 'password' : password]
     }
 
-    def oauth2Authenticate(userCredentials){
-        def json = post([
-                path: 'oauth/token',
-                acceptType: contentTypeForJSON,
-                query: ['grant_type': 'password', 'client_id': 'glowingbear-js', 'client_secret': '', 'username': userCredentials.'username', 'password': userCredentials.'password'],
-                skipOauth: true
-        ])
-
-        if (DEBUG){
-            println "Authenticate: username=${userCredentials.'username'} password=${userCredentials.'password'} token=${json.access_token}"
-        }
-
-        oauth2token.put(userCredentials.username, json.access_token)
-    }
-
     def getToken(User = user){
         if (oauth2token.get(user.'username') == null){
-            oauth2Authenticate(user)
+            oauth2token.put(RestHelper.oauth2Authenticate(http, user))
         }
         return oauth2token.get(user.'username')
     }
 
     def delete(def requestMap){
-        http.request(Method.DELETE) { req ->
-            uri.path = requestMap.path
-            uri.query = requestMap.query
-            if (!requestMap.skipOauth && OAUTH_NEEDED){
-                headers.'Authorization' = 'Bearer ' + getToken()
-            }
-
-            println(uri.toString())
-            response.success = { resp, reader ->
-                println resp.statusLine.statusCode
-                println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
-                def result
-                result = reader
-                if (DEBUG) { println result }
-                return result
-            }
-
-            response.failure = { resp, reader ->
-                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
-                def result = reader
-                if (DEBUG){ println result }
-                return result
-            }
+        if (!requestMap.skipOauth && OAUTH_NEEDED){
+            requestMap.'accessToken' = getToken()
         }
+        RestHelper.delete(http, requestMap)
     }
 
     def put(def requestMap){
-        http.request(Method.PUT, ContentType.JSON) { req ->
-            uri.path = requestMap.path
-            uri.query = requestMap.query
-            headers.Accept = requestMap.acceptType
-            body = requestMap.body
-            if (!requestMap.skipOauth && OAUTH_NEEDED){
-                headers.'Authorization' = 'Bearer ' + getToken()
-            }
-
-            println(uri.toString())
-            response.success = { resp, reader ->
-                println resp.statusLine.statusCode
-                println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
-                def result = reader
-                if (DEBUG) { println result }
-                return result
-            }
-
-            response.failure = { resp, reader ->
-                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
-                def result = reader
-                if (DEBUG){ println result }
-                return result
-            }
+        if (!requestMap.skipOauth && OAUTH_NEEDED){
+            requestMap.'accessToken' = getToken()
         }
+        RestHelper.put(http, requestMap)
     }
 
     def post(def requestMap){
-        http.request(Method.POST, ContentType.JSON) { req ->
-            uri.path = requestMap.path
-            uri.query = requestMap.query
-            headers.Accept = requestMap.acceptType
-            headers.'Content-Type' = requestMap.contentType
-            body = requestMap.body
-            if (!requestMap.skipOauth && OAUTH_NEEDED){
-                headers.'Authorization' = 'Bearer ' + getToken()
-            }
-
-            println(uri.toString())
-            response.success = { resp, reader ->
-                println resp.statusLine.statusCode
-                println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
-                def result = reader
-                if (DEBUG) { println result }
-                return result
-            }
-
-            response.failure = { resp, reader ->
-                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
-                def result = reader
-                if (DEBUG){ println result }
-                return result
-            }
+        if (!requestMap.skipOauth && OAUTH_NEEDED){
+            requestMap.'accessToken' = getToken()
         }
+        RestHelper.post(http, requestMap)
     }
 
     def get(def requestMap){
-        http.request(Method.GET) { req ->
-            if(requestMap.path == PATH_OBSERVATIONS && !requestMap.query.type) {
-                requestMap.query.type = 'clinical'
-            }
-
-            uri.path = requestMap.path
-            uri.query = requestMap.query
-            headers.Accept = requestMap.acceptType
-            if (!requestMap.skipOauth && OAUTH_NEEDED){
-                headers.'Authorization' = 'Bearer ' + getToken()
-            }
-
-
-            println(uri.toString())
-            response.success = { resp, reader ->
-                println resp.statusLine.statusCode
-                println resp.headers.'Content-Type'
-                assert resp.statusLine.statusCode == requestMap.statusCode ?: 200
-                assert resp.headers.'Content-Type'.contains(requestMap.acceptType) : "response was successful but not what was expected. if type = html: either login failed or the endpoint is not in your application.groovy file"
-                def result
-                switch (requestMap.acceptType){
-                    case contentTypeForProtobuf:
-                        result = parseProto(resp.entity.content)
-                        break
-                    case contentTypeForJSON:
-                        result = reader
-                        break
-                    default:
-                        result = reader
-                }
-                if (DEBUG) { println result }
-                return result
-            }
-
-            response.failure = { resp, reader ->
-                assert resp.statusLine.statusCode == requestMap.statusCode : "Expected statusCode: ${requestMap.statusCode} got: ${resp.statusLine.statusCode} with body: ${reader}"
-                def result = reader
-                if (DEBUG){ println result }
-                return result
-            }
+        if (!requestMap.skipOauth && OAUTH_NEEDED){
+            requestMap.'accessToken' = getToken()
         }
+        RestHelper.get(http, requestMap)
     }
 
     static def jsonSelector = {new ObservationSelectorJson(parseHypercube(it))}
@@ -225,32 +97,6 @@ abstract class RESTSpec extends Specification{
         def cells = jsonHypercube.cells
         def dimensionElements = jsonHypercube.dimensionElements
         return new ObservationsMessageJson(dimensionDeclarations, cells, dimensionElements)
-    }
-
-    static def parseProto(s_in){
-        def header = ObservationsProto.Header.parseDelimitedFrom(s_in)
-        if(header.error) throw new RuntimeException("Error in protobuf header message: "+header.error)
-        if (header.dimensionDeclarationsCount == 0){
-            return new ObservationsMessageProto()
-        }
-        if (DEBUG){println('proto header = ' + header)}
-        boolean last = header.last
-        def cells = []
-        int count = 0
-        while(!last) {
-            count++
-            def cell = ObservationsProto.Cell.parseDelimitedFrom(s_in)
-            assert cell != null, "null cell found"
-            if(cell.error) throw new RuntimeException("Error in protobuf cell message: "+cell.error)
-            last = cell.last
-            cells << cell
-        }
-        if (DEBUG){println('proto cells = ' + cells)}
-        def footer = ObservationsProto.Footer.parseDelimitedFrom(s_in)
-        if(footer.error) throw new RuntimeException("Error in protobuf footer message: "+footer.error)
-        if (DEBUG){println('proto footer = ' + footer)}
-
-        return new ObservationsMessageProto(header, cells, footer)
     }
 
     /**

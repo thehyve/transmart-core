@@ -144,7 +144,7 @@ environments {
             url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'"
             username = 'sa'
             password = ''
-            dbCreate = 'update'
+            dbCreate = 'create-drop'
             logSql = false
             formatSql = true
         }
