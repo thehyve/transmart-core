@@ -18,6 +18,7 @@ dependencies {
     compile project(':transmart-java')
     compile project(':search-domain')
     compile project(':biomart-domain')
+    compile project(':transmart-legacy-db')
 
 
     console "org.grails:grails-console"
