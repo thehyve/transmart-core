@@ -2,14 +2,12 @@ package org.transmartproject.app
 
 import annotation.AmTagItem
 import annotation.AmTagTemplate
-import com.recomdata.transmart.data.export.ExportMetadataService
-import fm.FmFolder
-import fm.FmFolderAssociation
 import grails.converters.JSON
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AuthUser
+import org.transmartproject.browse.fm.FmFolder
+import org.transmartproject.browse.fm.FmFolderAssociation
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
@@ -31,12 +29,12 @@ class OntologyController {
     def amTagTemplateService
     def amTagItemService
     ConceptsResource conceptsResourceService
+    def exportMetadataService
     OntologyTermTagsResource ontologyTermTagsResourceService
-    HighDimensionResource highDimensionResourceService
-    ExportMetadataService exportMetadataService
-    
+
     @Resource
     User currentUserBean
+    HighDimensionResource highDimensionResourceService
 
     def showOntTagFilter = {
         def tagtypesc = []
@@ -115,22 +113,22 @@ class OntologyController {
         //ontology term tags
         def tagsMap = ontologyTermTagsResourceService.getTags([ term ] as Set, false)
         model.tags = tagsMap?.get(term)
-    
+
         //data type info of all descendants
         def dataTypeInfo = exportMetadataService.getHighDimMetaData(term)
         model.dataTypes = dataTypeInfo.dataTypes
-    
+
         //study info
-        model.studyId = term.study.id
-        model.studyName = term.name
-    
+        model.studyId = term.study.id;
+        model.studyName = term.name;
+
         //user
-        model.userId = springSecurityService.principal.id
-        model.userName = springSecurityService.principal.username
-    
+        model.userId = springSecurityService.principal.id;
+        model.userName = springSecurityService.principal.username;
+
         //access
         model.hasAccess = currentUserBean.canPerform(BUILD_COHORT, term.study)
-    
+
         render template: 'showDefinition', model: model
     }
 
