@@ -50,4 +50,3 @@ class AmTagAssociation implements Serializable {
 }
 
 
-	

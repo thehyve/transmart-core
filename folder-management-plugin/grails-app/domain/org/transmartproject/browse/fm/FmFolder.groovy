@@ -1,4 +1,4 @@
-package fm
+package org.transmartproject.browse.fm
 
 import com.recomdata.util.FolderType
 
@@ -23,7 +23,7 @@ class FmFolder implements Buildable {
     static transients = ['uniqueId', 'pluralFolderTypeName']
 
     static mapping = {
-        table 'fm_folder'
+        table schema: 'fmapp'
         version false
         sort "folderName"
         id column: 'folder_id', generator: 'sequence', params: [sequence: 'seq_fm_id']
@@ -35,7 +35,7 @@ class FmFolder implements Buildable {
         folderFullName(nullable: true, maxSize: 1000)
         folderType(blank: false, maxSize: 100)
         folderTag(nullable: true, maxSize: 50)
-        description(blank: false, maxSize: 2000)
+        description(nullable: true, maxSize: 2000)
         parent(nullable: true)
     }
 
