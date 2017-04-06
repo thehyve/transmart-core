@@ -1,31 +1,17 @@
-package fm
+package org.transmartproject.browse.fm
 
 import annotation.AmTagAssociation
 import annotation.AmTagTemplate
 import annotation.AmTagValue
+import i2b2.OntNode
 import org.transmart.biomart.BioAssayPlatform
 import org.transmart.biomart.BioData
 import org.transmart.biomart.ConceptCode
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.SearchKeyword
 
-import fm.FmFile
-import fm.FmFolder
-import fm.FmFolderAssociation
-import org.transmart.mongo.MongoUtils;
-
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-
-import com.mongodb.Mongo
-import com.mongodb.DB
-import com.mongodb.MongoClient;
-import com.mongodb.gridfs.GridFS;
-import com.mongodb.gridfs.GridFSDBFile;
-
-import groovyx.net.http.ContentType;
-import groovyx.net.http.HTTPBuilder;
-import groovyx.net.http.Method;
 
 class FileExportController {
 
@@ -96,14 +82,11 @@ class FileExportController {
         def errorResponse = []
         def filestorePath = grailsApplication.config.com.recomdata.FmFolderService.filestoreDirectory
 
-        def useMongo = grailsApplication.config.org.transmart.mongoFiles.enableMongo
-
-        def exportList
         def metadataExported = new HashSet();
         try {
 
             //Final export list comes from selected checkboxes
-            exportList = params.id.split(",")
+            def exportList = params.id.split(",")
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream()
             def zipStream = new ZipOutputStream(baos)
@@ -112,7 +95,7 @@ class FileExportController {
 
             for (f in exportList) {
                 FmFile fmFile = FmFile.get(f)
-                def fileLocation = filestorePath + File.separator + fmFile.filestoreLocation + File.separator + fmFile.filestoreName
+                def fileLocation = filestorePath + "/" + fmFile.filestoreLocation + "/" + fmFile.filestoreName
                 File file = new File(fileLocation)
                 if (file.exists()) {
 
@@ -129,52 +112,7 @@ class FileExportController {
                     //Lose the first separator character, this would cause a blank folder name in the zip
                     def fileEntry = new ZipEntry(dirName + "/" + fmFolderService.safeFileName(exportName))
                     zipStream.putNextEntry(fileEntry)
-                    if(!useMongo){
-                        if (file.exists()) {
-                            file.withInputStream({ is -> zipStream << is })
-                        } else {
-                            def errorMessage = "File not found for export: " + fileLocation
-                            log.error errorMessage
-                            errorResponse += errorMessage
-                        }
-                    } else{
-                        if(grailsApplication.config.org.transmart.mongoFiles.useDriver){
-                            MongoClient mongo = new MongoClient(grailsApplication.config.org.transmart.mongoFiles.dbServer, grailsApplication.config.org.transmart.mongoFiles.dbPort)
-                            DB db = mongo.getDB( grailsApplication.config.org.transmart.mongoFiles.dbName)
-                            GridFS gfs = new GridFS(db)
-                            GridFSDBFile gfsFile = gfs.findOne(fmFile.filestoreName)
-                            if(gfsFile==null){
-                                def errorMessage = "File not found for export: " + fileLocation
-                                log.error errorMessage
-                                errorResponse += errorMessage
-                            }else{
-                                zipStream << gfsFile.getInputStream()
-                            }
-                            mongo.close()
-                        }else{
-                            def apiURL = grailsApplication.config.org.transmart.mongoFiles.apiURL
-                            def apiKey = grailsApplication.config.org.transmart.mongoFiles.apiKey
-                            def http = new HTTPBuilder(apiURL+fmFile.filestoreName+"/fsfile")
-                            http.request( Method.GET, ContentType.BINARY) { req ->
-                                headers.'apikey' = MongoUtils.hash(apiKey)
-                                response.success = { resp, binary ->
-                                    assert resp.statusLine.statusCode == 200
-                                    def inputStream = binary
-                                    byte[] dataBlock = new byte[1024];
-                                    int count = inputStream.read(dataBlock, 0, 1024);
-                                    while (count != -1) {
-                                        zipStream.write(dataBlock, 0, count);
-                                        count = inputStream.read(dataBlock, 0, 1024);
-                                    }
-                                }
-                                response.failure = { resp ->
-                                    def errorMessage = "File not found for export: " + fmFile.filestoreName
-                                    log.error("Problem during connection to API: "+resp.status)
-                                    render(contentType: "text/plain", text: "Error writing ZIP: File not found")
-                                }
-                            }
-                        }
-                    }
+                    file.withInputStream({ is -> zipStream << is })
                     zipStream.closeEntry()
 
                     //For manifest files, add this file to a map, keyed by folder names.
@@ -186,7 +124,7 @@ class FileExportController {
                     manifestList.push(fmFile)
                     manifestMap.put(dirName, manifestList)
 
-                    //for each folder of the hierarchy of the file path, add file with metadata
+                    //for each folder of the hieararchy of the file path, add file with metadata
                     def path = fmFile.folder.folderFullName
                     if (metadataExported.add(path)) exportMetadata(path, zipStream);
 
@@ -370,7 +308,14 @@ class FileExportController {
 
     def exportStudyFiles = {
         def ids = []
-        def folder = fmFolderService.getFolderByBioDataObject(Experiment.findByAccession(params.accession))
+
+        Experiment experiment;
+
+        OntNode ont = OntNode.findByName(params.accession)
+        if (ont != null)
+            experiment = Experiment.findByAccession(ont.sourcesystemcd)
+
+        def folder = fmFolderService.getFolderByBioDataObject(experiment)
 
         def files = folder.fmFiles
         for (file in files) {

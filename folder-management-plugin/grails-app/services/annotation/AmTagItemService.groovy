@@ -1,6 +1,6 @@
 package annotation
 
-import fm.FmFolder
+import org.transmartproject.browse.fm.FmFolder
 
 class AmTagItemService {
 
@@ -66,8 +66,8 @@ class AmTagItemService {
 
         if (key) {
             amTagItems = AmTagItem.findAll(
-                "from AmTagItem ati where ati.amTagTemplate.id = :templateId and ati.editable = '1' order by ati.displayOrder",
-                [templateId: key])
+                    "from AmTagItem ati where ati.amTagTemplate.id = :templateId and ati.editable = '1' order by ati.displayOrder",
+                    [templateId: key])
 
             log.info "amTagItems = ${amTagItems} for key = ${key}"
         } else {

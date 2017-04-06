@@ -46,8 +46,8 @@ jQuery(document).ready(function() {
 	}).data("uiAutocomplete")._renderItem = function( ul, item ) {
 		
 		var resulta = '<a><span class="category-' + item.category.toLowerCase() + '">' + item.category + '&gt;</span>&nbsp;<b>' + item.label + '</b>&nbsp;';
-		if (item.synonyms != null) {
-			resulta += (item.synonyms + '</a>');
+if (item.synonyms != null) {
+resulta += (item.synonyms + '</a>');
 		}
 		else {
 			resulta += '</a>';
@@ -78,8 +78,8 @@ jQuery(document).ready(function() {
 <%-- Tag box (visual display of tags) --%>
 <div id="${fieldName}-tags" class="tagBox" name="${fieldName}">
 	<g:each in="${values}" var="value">
-	<span class="tag" id="${fieldName}-tag-${value.uniqueId}" name="${value.uniqueId}">${value.displayValue}</span>
-		</g:each>
+		<span class="tag" id="${fieldName}-tag-${value.uniqueId}" name="${value.uniqueId}">${value.displayValue}</span>
+	</g:each>
 </div>
 
 <%-- Hidden select field, keeps actual selected values --%>

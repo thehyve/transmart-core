@@ -1,9 +1,7 @@
-package fm
+package org.transmartproject.browse.fm
 
 import grails.util.Holders
-import groovy.transform.EqualsAndHashCode
 
-@EqualsAndHashCode
 class FmFolderAssociation implements Serializable {
 
     static transients = ['bioObject']
@@ -13,7 +11,7 @@ class FmFolderAssociation implements Serializable {
     FmFolder fmFolder
 
     static mapping = {
-        table 'fm_folder_association'
+        table schema: 'fmapp'
         version false
         cache true
         sort "objectUid"
@@ -56,8 +54,8 @@ class FmFolderAssociation implements Serializable {
 
         String domainClassName = this.objectType //conf.rememberMe.persistentToken.domainClassName ?: ''
 
- 	if (domainClassName == 'bio.Experiment' ) domainClassName='org.transmart.biomart.Experiment'       
- 		
+        if (domainClassName == 'bio.Experiment' ) domainClassName='org.transmart.biomart.Experiment'
+
         def clazz = Holders.grailsApplication.getClassForName(domainClassName)
         if (!clazz) {
             log.error "Persistent token class not found: '${domainClassName}'"
