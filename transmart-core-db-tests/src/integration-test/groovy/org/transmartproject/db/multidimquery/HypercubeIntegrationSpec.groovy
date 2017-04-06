@@ -81,8 +81,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def expectedPatients = clinicalData.longitudinalClinicalFacts*.patient as Set
         def expectedVisits = clinicalData.longitudinalClinicalFacts*.trialVisit as Set
 
-        def trialVisitIdx = hypercube.getIndexGetter(TRIAL_VISIT)
-        def dimensionsIdx = [PATIENT, TRIAL_VISIT, CONCEPT].collect { hypercube.getIndexGetter(it) }
+        def denseDims = [PATIENT, TRIAL_VISIT, CONCEPT]
 
         expect:
 
@@ -90,12 +89,15 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         result == expected
 
         concepts.size() == expectedConcepts.size()
+        hypercube.maximumIndex(CONCEPT) == concepts.size() -1
         concepts == expectedConcepts
 
         patients.size() == expectedPatients.size()
+        hypercube.maximumIndex(PATIENT) == patients.size() -1
         patients == expectedPatients
 
         trialVisits.size() == expectedVisits.size()
+        hypercube.maximumIndex(TRIAL_VISIT) == trialVisits.size() -1
         trialVisits == expectedVisits
 
         for (int i = 0; i < resultObs.size(); i++) {
@@ -110,9 +112,8 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         }
 
         for(tvObs in resultObs.collate(2)) {
-            assert trialVisitIdx(tvObs[0]) == trialVisitIdx(tvObs[1])
-            assert dimensionsIdx.collect {it(tvObs[0])} == dimensionsIdx.collect {it(tvObs[0])}
-            assert dimensionsIdx.collect {it(tvObs[0])} != dimensionsIdx.collect {it(tvObs[1])}
+            assert tvObs[0].getDimElementIndex(TRIAL_VISIT) == tvObs[1].getDimElementIndex(TRIAL_VISIT)
+            assert denseDims.collect {tvObs[0].getDimElementIndex(it)} != denseDims.collect {tvObs[1].getDimElementIndex(it)}
         }
     }
 
@@ -143,24 +144,19 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def expectedDosages = clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}*.numberValue as Set
         expectedDosages << null // a missing dose
 
-        def staticDimIdxes = [CONCEPT, STUDY].collect {hypercube.getIndexGetter(it)}
-        def sameIndexes = [PATIENT, CONCEPT, STUDY].collect {hypercube.getIndexGetter(it)}
-        def tissueTypeIdx = hypercube.getIndexGetter(clinicalData.tissueTypeDimension)
-
-        when:
-        hypercube.getIndexGetter(TRIAL_VISIT)
-
-        then:
-        thrown(IllegalArgumentException)
+        def staticDims = [CONCEPT, STUDY]
+        def sameIndexes = [PATIENT, CONCEPT, STUDY]
 
         expect:
         hypercube.dimensions.size() == clinicalData.sampleStudy.dimensions.size()
         resultValues == expectedValues
 
         concepts.size() == expectedConcepts.size()
+        hypercube.maximumIndex(CONCEPT) == concepts.size() -1
         concepts == expectedConcepts
 
         patients.size() == expectedPatients.size()
+        hypercube.maximumIndex(PATIENT) == patients.size() -1
         patients == expectedPatients
 
         tissueTypes.size() == expectedTissues.size()
@@ -179,20 +175,23 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
             assert resultObs[i][doseDim] ==
                     clinicalData.sampleClinicalFacts.findAll{it.modifierCd == doseDim.modifierCode}[i]?.numberValue
 
-            assert staticDimIdxes.collect{it(resultObs[i])} ==
-                    staticDimIdxes.collect {it(resultObs[i == resultObs.size()-1 ? i : i+1])}
+            assert staticDims.collect{resultObs[i].getDimElementIndex(it)} ==
+                    staticDims.collect {resultObs[i == resultObs.size()-1 ? i : i+1].getDimElementIndex(it)}
         }
 
         // The observations with the samples for the same patient grouped together
         for(samples in resultObs.collate(2)) {
-            assert sameIndexes.collect {it(samples[0])} == sameIndexes.collect {it(samples[1])}
-            assert tissueTypeIdx(samples[0]) != tissueTypeIdx(samples[1])
+            assert sameIndexes.collect {samples[0].getDimElementIndex(it)} ==
+                    sameIndexes.collect {samples[1].getDimElementIndex(it)}
+            assert samples[0].getDimElementIndex(ttDim) !=
+                    samples[1].getDimElementIndex(ttDim)
         }
 
         // The observations for the same sample type
         def connective_tissue_samples = resultObs[(0..<resultObs.size()).step(2)]
         for(i in connective_tissue_samples.indices[0..-2]) {
-            assert tissueTypeIdx(connective_tissue_samples[i]) == tissueTypeIdx(connective_tissue_samples[i+1])
+            assert connective_tissue_samples[i][ttDim] ==
+                    connective_tissue_samples[i+1][ttDim]
         }
     }
 
@@ -228,9 +227,11 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         resultValues == expectedValues
 
         concepts.size() == expectedConcepts.size()
+        hypercube.maximumIndex(CONCEPT) == concepts.size() -1
         concepts == expectedConcepts
 
         tissueTypes.size() == expectedTissues.size()
+        hypercube.maximumIndex(ttDim) == tissueTypes.size() -1
         tissueTypes == expectedTissues
 
         expectedDosages == resultObs*.getAt(doseDim) as Set
@@ -270,12 +271,15 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         result == expected
 
         concepts.size() == expectedConcepts.size()
+        hypercube.maximumIndex(CONCEPT) == concepts.size() -1
         concepts == expectedConcepts
 
         patients.size() == expectedPatients.size()
+        hypercube.maximumIndex(PATIENT) == patients.size() -1
         patients == expectedPatients
 
         visits.size() == expectedVisits.size()
+        hypercube.maximumIndex(VISIT) == visits.size() -1
         visits == expectedVisits
 
         for (int i = 0; i < resultObs.size(); i++) {
@@ -298,7 +302,7 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         def concepts = hypercube.dimensionElements(CONCEPT) as Set
         def patients = hypercube.dimensionElements(PATIENT) as Set
         def trialVisits = hypercube.dimensionElements(TRIAL_VISIT) as Set
-        def visit = hypercube.dimensionElements(VISIT) as Set
+        def visits = hypercube.dimensionElements(VISIT) as Set
 
         // inlined dimensions
         def startTime = resultObs*.getAt(START_TIME) as Set
@@ -325,16 +329,20 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         result == expected
 
         concepts.size() == expectedConcepts.size()
+        hypercube.maximumIndex(CONCEPT) == concepts.size() -1
         concepts == expectedConcepts
 
         patients.size() == expectedPatients.size()
+        hypercube.maximumIndex(PATIENT) == patients.size() -1
         patients == expectedPatients
 
         trialVisits.size() == expectedTrialVisits.size()
+        hypercube.maximumIndex(TRIAL_VISIT) == trialVisits.size() -1
         trialVisits == expectedTrialVisits
 
-        visit.size() == expectedVisits.size()
-        visit == expectedVisits
+        visits.size() == expectedVisits.size()
+        hypercube.maximumIndex(VISIT) == visits.size() -1
+        visits == expectedVisits
 
         startTime.size() == expectedStartTime.size()
         startTime == expectedStartTime

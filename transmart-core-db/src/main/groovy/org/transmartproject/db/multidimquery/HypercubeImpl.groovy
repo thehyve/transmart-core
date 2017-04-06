@@ -188,7 +188,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
     int maximumIndex(Dimension dim) {
         checkIsDense(dim)
         def keys = dimensionElementKeys[dim]
-        if(keys == null) checkDimension(dim)
+        if(null == keys) checkDimension(dim)
         return keys.size() - 1
     }
 
