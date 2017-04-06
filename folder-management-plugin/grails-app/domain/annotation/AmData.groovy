@@ -7,7 +7,7 @@ class AmData {
     String amDataType
 
     static mapping = {
-        table 'AM_DATA_UID'
+        table schema: 'amapp', name: 'am_data_uid'
         version false
         id column: 'AM_DATA_ID', generator: 'assigned'
     }

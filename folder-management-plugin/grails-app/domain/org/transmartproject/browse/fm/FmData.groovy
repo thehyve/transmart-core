@@ -1,4 +1,4 @@
-package fm
+package org.transmartproject.browse.fm
 
 class FmData {
 
@@ -7,7 +7,7 @@ class FmData {
     String fmDataType
 
     static mapping = {
-        table 'FM_DATA_UID'
+        table schema: 'fmapp', name: 'fm_data_uid'
         version false
         id column: 'FM_DATA_ID', generator: 'assigned'
     }

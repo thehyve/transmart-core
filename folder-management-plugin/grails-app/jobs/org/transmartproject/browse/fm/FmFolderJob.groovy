@@ -1,4 +1,4 @@
-package fm
+package org.transmartproject.browse.fm
 
 import grails.util.Holders
 
@@ -10,7 +10,7 @@ class FmFolderJob {
         if(!Holders.config.org.tarnsmartproject.mongoFiles.enableMongo){
             def startDelay = Holders.config.com.recomdata.FmFolderJob.startDelayMs
             def cronExpression = Holders.config.com.recomdata.FmFolderJob.cronExpression
-    
+
             if (startDelay instanceof String) {
                 try {
                     startDelay = Integer.parseInt(startDelay)
