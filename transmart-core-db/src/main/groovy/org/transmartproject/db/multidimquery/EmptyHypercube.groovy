@@ -16,19 +16,27 @@ class EmptyHypercube implements Hypercube {
     final boolean AutoloadDimensions = false
     final ImmutableMap sorting = ImmutableMap.of()
 
+    private static final dimError(Dimension dim) {
+        throw new InvalidArgumentsException("Dimension $dim is not part of this result")
+    }
+
     void loadDimensions() {}
     ImmutableList<Object> dimensionElements(Dimension dim){
-        throw new InvalidArgumentsException("Dimension $dim is not part of this result")
+        dimError(dim)
     }
 
     ImmutableList<Dimension> getDimensions() { ImmutableList.of() }
 
     Object dimensionElement(Dimension dim, Integer idx) {
-        throw new InvalidArgumentsException("Dimension $dim is not part of this result")
+        dimError(dim)
     }
 
     Object dimensionElementKey(Dimension dim, Integer idx) {
-        throw new InvalidArgumentsException("Dimension $dim is not part of this result")
+        dimError(dim)
+    }
+
+    int maximumIndex(Dimension dim) {
+        dimError(dim)
     }
 
     void close(){}
