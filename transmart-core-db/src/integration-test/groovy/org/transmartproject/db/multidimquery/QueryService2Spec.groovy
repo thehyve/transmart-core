@@ -54,7 +54,7 @@ class QueryService2Spec extends Specification {
                 hypercube.dimensionElements(projectionDim).size()
         hypercube.dimensionElements(biomarkerDim).size() == 3
         hypercube.dimensionElements(assayDim).size() == 6
-        hypercube.dimensionElements(projectionDim).size() == 10
+        hypercube.dimensionElements(projectionDim).size() == 4
     }
 
     void 'get hd data for selected patients'() {
@@ -81,7 +81,7 @@ class QueryService2Spec extends Specification {
                 hypercube.dimensionElements(projectionDim).size()
         hypercube.dimensionElements(biomarkerDim).size() == 3
         hypercube.dimensionElements(assayDim).size() == 2
-        hypercube.dimensionElements(projectionDim).size() == 10
+        hypercube.dimensionElements(projectionDim).size() == 4
     }
 
     void 'get hd data for selected biomarkers'() {
@@ -103,7 +103,7 @@ class QueryService2Spec extends Specification {
                 hypercube.dimensionElements(projectionDim).size()
         hypercube.dimensionElements(biomarkerDim).size() == 2
         hypercube.dimensionElements(assayDim).size() == 6
-        hypercube.dimensionElements(projectionDim).size() == 10
+        hypercube.dimensionElements(projectionDim).size() == 4
     }
 
     void 'get hd data for selected trial visit dimension'() {
@@ -128,7 +128,7 @@ class QueryService2Spec extends Specification {
         then:
         hypercube.dimensionElements(biomarkerDim).size() == 3
         hypercube.dimensionElements(assayDim).size() == 4
-        hypercube.dimensionElements(projectionDim).size() == 10
+        hypercube.dimensionElements(projectionDim).size() == 4
 
         when:
         trialVisitConstraint.value = 'Week 1'
@@ -139,7 +139,7 @@ class QueryService2Spec extends Specification {
         then:
 
         hypercube.dimensionElements(assayDim).size() == 1
-        def patient = hypercube.dimensionElement(patientDim, 0)
+        def patient = hypercube.dimensionElement(assayDim, 0).patient
         patient.id == -601
         patient.age == 26
 
@@ -330,7 +330,7 @@ class QueryService2Spec extends Specification {
                 hypercube.dimensionElements(projectionDim).size()
         hypercube.dimensionElements(biomarkerDim).size() == 1
         hypercube.dimensionElements(assayDim).size() == 1
-        hypercube.dimensionElements(projectionDim).size() == 13
+        hypercube.dimensionElements(projectionDim).size() == 4
     }
 
     void 'get transcript data for selected genes'() {
@@ -352,6 +352,6 @@ class QueryService2Spec extends Specification {
                 hypercube.dimensionElements(projectionDim).size()
         hypercube.dimensionElements(biomarkerDim).size() == 1
         hypercube.dimensionElements(assayDim).size() == 3
-        hypercube.dimensionElements(projectionDim).size() == 13
+        hypercube.dimensionElements(projectionDim).size() == 4
     }
 }
