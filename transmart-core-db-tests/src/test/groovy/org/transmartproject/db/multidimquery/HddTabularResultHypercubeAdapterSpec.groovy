@@ -25,12 +25,11 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
     List<Patient> patients
     List<Assay> assays
     List<String> biomarkers
-    List values = []
+    List<List> values = []
     List getCubeValues() {
-        values.collect {
-            if(it instanceof Double) return it
-            if(it instanceof Map) return it.values()
-            throw new RuntimeException()
+        if(values[0][0] instanceof Double) return values.flatten()
+        if(values[0][0] instanceof Map) return values.collect {
+            it*.values()*.asList().transpose().flatten()
         }.flatten()
     }
 
@@ -45,7 +44,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
          }] as Iterator
     }
 
-    private def val(Iterator v) {def next = v.next(); values << next; next}
+    private List val(List vs) { def nexts = vs*.next(); values << nexts; nexts }
 
     void setupData(values) {
 
@@ -53,7 +52,10 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
             [getId: {id as Long}] as Patient
         }
         assays = [[-55, -56, -57], patients].transpose().collect { code, patient ->
-            [getSampleCode: {code as String}, getLabel: {code as String}, getPatient: {patient}] as AssayColumn
+            [getId: {code as long},
+             getSampleCode: {code as String},
+             getLabel: {code as String},
+             getPatient: {patient}] as AssayColumn
         }
 
         biomarkers = "marker1 marker2 marker3 marker4".split()
@@ -64,7 +66,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
             new BioMockRow<Double>(
                     bioMarker: "bio"+it,
                     label: it,
-                    cells: [val(v), val(v), val(v)],
+                    cells: val([v, v, v]),
                     columns: assays,
             )
         }
@@ -73,7 +75,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
                 indicesList: assays,
                 rowsList: rows
         )
-         // Our TabularResult is now a table with 3 columns and 4 rows (so 3 assays/patients and 4 biomarkers)
+        // Our TabularResult is now a table with 3 columns and 4 rows (so 3 assays and 4 biomarkers)
         nAssays = 3
         nBioMarkers = 4
     }
@@ -107,26 +109,14 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         HddTabularResultHypercubeAdapter cube = new HddTabularResultHypercubeAdapter(mockTabular, projection)
         List<HypercubeValue> values = cube.toList()
 
-        def biomarkerIdx = cube.getIndexGetter(BIOMARKER)
-        def assayIdx = cube.getIndexGetter(ASSAY)
-        def patientIdx = cube.getIndexGetter(PATIENT)
-
-        when:
-        cube.getIndexGetter(PROJECTION)
-
-        then:
-        thrown(IllegalArgumentException)
-
         expect:
         values*.value == this.cubeValues
-        cube.dimensions as List == [BIOMARKER, ASSAY, PATIENT]
-        (cube.dimensionElements(PATIENT) as ArrayList).sort {-it.id} == patients
+        cube.dimensions as List == [BIOMARKER, ASSAY]
         (0..2).each {
             assert cube.dimensionElement(ASSAY, it) == assays[it]
         }
-        (0..2).collect {cube.dimensionElementKey(PATIENT, it)} as Set == patients*.id as Set
         (0..2).each {
-            assert cube.dimensionElementKey(ASSAY, it) == assays[it].sampleCode
+            assert cube.dimensionElementKey(ASSAY, it) == assays[it].id
         }
         cube.dimensionsPreloadable == false
         cube.dimensionsPreloaded == false
@@ -137,7 +127,6 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
 
         (0..<nBioMarkers).each { int row ->
             (0..<nAssays).each { int col ->
-                assert values[row*nAssays+col][PATIENT] == patients[col]
                 assert values[row*nAssays+col][ASSAY] == assays[col]
                 assert values[row*nAssays+col][BIOMARKER].label == biomarkers[row]
             }
@@ -145,14 +134,15 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
 
         (0..<nBioMarkers).each { int row ->
             (0..<nAssays-1).each { int col ->
-                assert biomarkerIdx(values[row*nAssays+col]) == biomarkerIdx(values[row*nAssays+col+1])
+                assert values[row*nAssays+col].getDimElementIndex(BIOMARKER) ==
+                        values[row*nAssays+col+1].getDimElementIndex(BIOMARKER)
             }
         }
 
         (0..<nBioMarkers-1).each { int row ->
             (0..<nAssays).each { int col ->
-                assert assayIdx(values[row*nAssays+col]) == assayIdx(values[(row+1)*nAssays+col])
-                assert patientIdx(values[row*nAssays+col]) == patientIdx(values[(row+1)*nAssays+col])
+                assert values[row*nAssays+col].getDimElementIndex(ASSAY) ==
+                        values[(row+1)*nAssays+col].getDimElementIndex(ASSAY)
             }
         }
 
@@ -196,16 +186,14 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         expect:
 
         values*.value == this.cubeValues
-        cube.dimensions as List == [BIOMARKER, ASSAY, PATIENT, PROJECTION]
-        (cube.dimensionElements(patientDim) as ArrayList).sort {-it.id} == patients
+        cube.dimensions as List == [BIOMARKER, ASSAY, PROJECTION]
         cube.dimensionElements(projectionDim) == projectionKeys
         (0..2).each {
             assert cube.dimensionElement(assayDim, it) == assays[it]
             assert cube.dimensionElement(projectionDim, it) == projectionKeys[it]
         }
-        (0..2).collect {cube.dimensionElementKey(patientDim, it)} as Set == patients*.id as Set
         (0..2).each {
-            assert cube.dimensionElementKey(assayDim, it) == assays[it].sampleCode
+            assert cube.dimensionElementKey(assayDim, it) == assays[it].id
             assert cube.dimensionElementKey(projectionDim, it) == projectionKeys[it]
         }
         cube.dimensionsPreloadable == false
@@ -216,13 +204,12 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         }
 
         (0..2).each {
-            assert values[it*projectionKeys.size()][patientDim] == patients[it]
-            assert values[it*projectionKeys.size()][assayDim] == assays[it]
+            assert values[it][assayDim] == assays[it]
             assert values[it][biomarkerDim].label == biomarkers[0]
-            assert values[it][projectionDim] == projectionKeys[it]
+            assert values[it*projectionKeys.size()][projectionDim] == projectionKeys[it]
 
             // this one is a bit brittle, but the iteration order of the map values is fixed.
-            assert values[it].getDimElementIndex(projectionDim) == it
+            assert values[it*projectionKeys.size()].getDimElementIndex(projectionDim) == it
         }
 
         values[5].availableDimensions == cube.dimensions
