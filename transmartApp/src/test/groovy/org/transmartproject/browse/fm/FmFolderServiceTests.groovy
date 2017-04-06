@@ -1,4 +1,4 @@
-package fm
+package org.transmartproject.browse.fm
 
 import grails.test.mixin.TestFor
 import grails.test.mixin.TestMixin
