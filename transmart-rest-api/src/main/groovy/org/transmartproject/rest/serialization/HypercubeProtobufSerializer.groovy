@@ -498,20 +498,20 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
      */
     Dimension findPackableDimension(Collection<Dimension> sortedDims, Collection<Dimension> indexedDims) {
         // The requirement is that the data as retrieved from core-api is grouped in such a way that all values that
-        // have the same indexed dimension coordinates are grouped together
+        // have the same indexed dimension coordinates are grouped together, except for the dimension we are packing on.
 
-        if(!indexedDims.every { it in sortedDims }) return null
+        def indexGroupingDims = sortedDims.takeWhile { it.density.isDense }
 
-        // If there is sorting on a non-indexed dimension, that
-
-        boolean sparseDimensionSeen = false
-        Dimension lastIndexedDim = null
-        for(dim in sortedDims) {
-            if(dim.density.isDense && sparseDimensionSeen) return null
-            if(dim.density.isSparse) sparseDimensionSeen = true
-            if(dim.density.isDense) lastIndexedDim = dim
+        def nonSortedIndexedDim = indexedDims - indexGroupingDims
+        if(nonSortedIndexedDim.size() == 1 && nonSortedIndexedDim[0].packable.isPackable()) {
+            return nonSortedIndexedDim[0]
         }
-        return lastIndexedDim.packable.packable ? lastIndexedDim : null
+
+        if(nonSortedIndexedDim.size() == 0 && indexGroupingDims[-1].packable.isPackable()) {
+            return indexGroupingDims[-1]
+        }
+
+        return null
     }
 
     void init(Map args, Hypercube cube, OutputStream out) {

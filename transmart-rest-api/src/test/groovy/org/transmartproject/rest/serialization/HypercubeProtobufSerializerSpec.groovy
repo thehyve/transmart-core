@@ -152,6 +152,14 @@ class HypercubeProtobufSerializerSpec extends Specification {
         then:
         serializer.packingEnabled
         serializer.packedDimension == patientDim
+
+        when:
+        serializer = makeSerializer(new MockHypercube(dimensions: [visitDim, conceptDim, patientDim],
+                sorting: [visitDim, conceptDim]))
+
+        then:
+        serializer.packingEnabled
+        serializer.packedDimension == patientDim
     }
 
     void 'test with non packable dimension as last sorted dimension'() {
@@ -166,11 +174,11 @@ class HypercubeProtobufSerializerSpec extends Specification {
 
     void 'test with inline dimension in between indexed dimensions in sorting order'() {
         when:
-        def serializer = makeSerializer(new MockHypercube(dimensions: [conceptDim, dateDim, patientDim]))
+        def serializer = makeSerializer(new MockHypercube(dimensions: [conceptDim, dateDim, visitDim, patientDim]))
 
         then:
         !serializer.packingEnabled
-        serializer.indexedDims == [conceptDim, patientDim]
+        serializer.indexedDims == [conceptDim, visitDim, patientDim]
         serializer.inlineDims == [dateDim]
     }
 
@@ -539,48 +547,48 @@ class HypercubeProtobufSerializerSpec extends Specification {
         groupedObs == groups.collectNested { it.val }
     }
 
-    void 'test moveNullPackedDimensionToFront'() {
-        when:
-
-        def observations = [
-                [patient: patients[0], value: 1.2, ],
-                [patient: patients[1], value: 1.5, ],
-                [patient: patients[2], value: 2.2, ],
-                [patient: patients[0], value: "FOO", ],
-                [patient: patients[1], value: null, ],
-                [patient: patients[2], value: "BAZ"],
-        ]
-        def nullObs = [
-                [patient: null, value: "QUUX"],
-                [patient: null, value: "QUUX2"],
-                [patient: null, value: "QUUX3"],
-        ]
-
-        def test = { obs ->
-            def serializer = makeSerializer(new MockHypercube(values: obs, dimensions: allDims))
-            def packer = serializer.packedCellBuilder
-            def cube = serializer.cube
-            def group = obs.collect { new MockValue(it, cube) }
-            def pair = packer.splitNullPackedDim(group)
-            def nulls = pair.aValue
-            def nulldGroup = pair.bValue
-            assert nulls.every { it[serializer.packedDimension] == null }
-            assert nulldGroup.every { it[serializer.packedDimension] != null }
-            assert group as Set == nulldGroup + nulls as Set
-            return true
-        }
-
-        then:
-        // nulls are only allowed at the beginning or the end of the list of observations
-        test(observations + nullObs[0..0])
-        test(observations + nullObs)
-        test(nullObs[0..0] + observations)
-        test(nullObs + observations)
-        test(nullObs)
-        test(observations)
-        test(nullObs[0..1] + observations + nullObs[2..2])
-        test([])
-    }
+//    void 'test moveNullPackedDimensionToFront'() {
+//        when:
+//
+//        def observations = [
+//                [patient: patients[0], value: 1.2, ],
+//                [patient: patients[1], value: 1.5, ],
+//                [patient: patients[2], value: 2.2, ],
+//                [patient: patients[0], value: "FOO", ],
+//                [patient: patients[1], value: null, ],
+//                [patient: patients[2], value: "BAZ"],
+//        ]
+//        def nullObs = [
+//                [patient: null, value: "QUUX"],
+//                [patient: null, value: "QUUX2"],
+//                [patient: null, value: "QUUX3"],
+//        ]
+//
+//        def test = { obs ->
+//            def serializer = makeSerializer(new MockHypercube(values: obs, dimensions: allDims))
+//            def packer = serializer.packedCellBuilder
+//            def cube = serializer.cube
+//            def group = obs.collect { new MockValue(it, cube) }
+//            def pair = packer.splitNullPackedDim(group)
+//            def nulls = pair.aValue
+//            def nulldGroup = pair.bValue
+//            assert nulls.every { it[serializer.packedDimension] == null }
+//            assert nulldGroup.every { it[serializer.packedDimension] != null }
+//            assert group as Set == nulldGroup + nulls as Set
+//            return true
+//        }
+//
+//        then:
+//        // nulls are only allowed at the beginning or the end of the list of observations
+//        test(observations + nullObs[0..0])
+//        test(observations + nullObs)
+//        test(nullObs[0..0] + observations)
+//        test(nullObs + observations)
+//        test(nullObs)
+//        test(observations)
+//        test(nullObs[0..1] + observations + nullObs[2..2])
+//        test([])
+//    }
 
     void 'test groupSamples'() {
         when:
