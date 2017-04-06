@@ -1,11 +1,13 @@
 /* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.rest.serialization
 
+import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.PeekingIterator
 import grails.util.Pair
 import groovy.transform.CompileStatic
+import groovy.transform.InheritConstructors
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.multidimquery.IdentityProperty
 import org.transmartproject.core.multidimquery.Dimension
@@ -197,6 +199,9 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         private PackedCell.Builder builder = PackedCell.newBuilder()
         private Class valueType = null
         private int valueIndex = 0
+        private int maxPackIndex = -1
+
+        static final Class SubListType = [].subList(0,0).class
 
         private boolean sameIndices(HypercubeValue val, ArrayList<Integer> indices) {
             for (int i = 0; i < indices.size(); i++) {
@@ -264,11 +269,9 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
             putIndexedDims(prototype)
 
-            // split the group list by values that do not have an element for the packed dimension.
-            //def splitGroup = splitNullPackedDim(group)
-
-            // The values are grouped by their packed dimension element, but still in one list. To ease further
-            // processing transform this into a list of lists, one for each
+            // group the values by their packed dimension. There is no requirement that the values in the group have
+            // any kind of order at this point, but grouping will be more efficient if values with the same packed
+            // dimension element are adjacent.
             List<List<HypercubeValue>> groupedSamples = groupSamples(group)
 
             putValues(groupedSamples)
@@ -283,76 +286,63 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         /**
          * Group a list of HypercubeValues into samples. For each packed dimension element, there is a list with
          * values for it. The first sublist contains the values that have null for the packed dimension element.
-         * @param values The list of HypercubeValues, with the values with a null packed dimension element in front.
+         *
+         * This method does a kind of radix sort. We know the maximum packed dimension element index, so we can place
+         * each value in the correct group at once. If all values with the same packed dimension element are adjacent
+         * we use a sublist instead of copying them to a new array list.
+         *
+         * @param values The list of HypercubeValues
          * @return a list of lists of HypercubeValues
          */
         private List<List<HypercubeValue>> groupSamples(List<HypercubeValue> values) {
+            def numGroups = cube.maximumIndex(packedDimension) + 2
+            ArrayList<List<HypercubeValue>> groups = new ArrayList(numGroups)
+            for(i in 1..numGroups) groups.add(null)
 
-            def splitGroup = splitNullPackedDim(values)
-            List<List<HypercubeValue>> groupedValues = [splitGroup.aValue]
-            values = splitGroup.bValue
+            int maxIdx = -1
+            int lastIdx = -1
+            int groupSize = 0
+            for(int i = 0; i<values.size(); i++) {
+                HypercubeValue hv = values.get(i)
+                Integer packIdx = hv.getDimElementIndex(packedDimension)
+                int idx = packIdx == null ? 0 : packIdx + 1
+                maxIdx = Integer.max(maxIdx, idx)
 
-            // We assume that the values that do not have an element for the packed dimension have already been split
-            // off into nullValues, so getDimElementIndex(packedDimension) will not return null.
-            int currentPackIndex = 0
-            int startIdx = 0
-            for(int i=0; i<values.size(); i++) {
-                int hvPackIndex = values[i].getDimElementIndex(packedDimension)
-                while(currentPackIndex != hvPackIndex) {
-                    assert currentPackIndex < hvPackIndex, "Data is not properly sorted to use for packed protobuf output"
-                    groupedValues << values.subList(startIdx, i)
-                    startIdx = i
-                    currentPackIndex++
+                if(i == 0 || idx == lastIdx) {
+                    groupSize++
+                } else {
+                    /* `group` is either null (if not yet set), an ArrayList.SubList, or an ArrayList. If all values
+                     * in the group so far are contiguous in `values`, we use a sublist to limit memory usage and
+                     * garbage creation. If the values are not contiguous we copy them to a new array list.
+                     */
+                    def group = groups.get(lastIdx)
+                    if(group == null) {
+                        group = values.subList(i-groupSize, i)
+                        groups.set(lastIdx, group)
+                    } else {
+                        // There is no api-guaranteed type to indicate a sublist, but this is unlikely to change.
+                        if(SubListType.isInstance(group)) {
+                            def oldGroup = group
+                            group = []
+                            for(v in oldGroup) group.add(v)
+                            groups.set(lastIdx, group)
+                        }
+                        assert group instanceof ArrayList
+                        for(int j=i-groupSize; j<i; j++) group.add(values[j])
+                    }
+                    groupSize = 1
                 }
+                lastIdx == idx
             }
-            groupedValues << values.subList(startIdx, values.size())
-
-            return groupedValues
-        }
-
-        /**
-         * Splits the values that do not have an element for the packed dimension off into a separate list, and
-         * returns the two lists in a pair (nullPackedDim, nonNullPackedDim).
-         *
-         * The assumption is that values with a null packed dim element are already clustered at the front or at the
-         * back, the way an SQL database would sort those values depending on whether "NULLS FIRST" or "NULLS LAST" was
-         * specified in the sort clause of the SQL query.
-         *
-         * @return a pair of (null element values, non-null element values) for null or non-null of the packed
-         * dimension element
-         */
-        private Pair<List<HypercubeValue>, List<HypercubeValue>> splitNullPackedDim(List<HypercubeValue> group) {
-            int endNulls = group.size()  // the number of values with a null packed dim element at the end of the list
-            for(int i=group.size()-1; i>=0; i--) {
-                if (group[i].getDimElementIndex(packedDimension) != null) {
-                    endNulls = group.size()-1 - i
-                    break
-                }
+            // Truncate list so we don't send more groups than needed. The Protobuf format supports this.
+            while(groups.size() > maxIdx+1) groups.remove(groups.size()-1)
+            // Replace any remaining nulls with empty lists for easier further processing.
+            // Using an empty sublist ensures that there are only two types of lists in `groups`, which means the JVM
+            // can inline methods on them.
+            for(int i=0; i<groups.size(); i++) {
+                if(groups.get(i) == null) groups.set(i, values.subList(0,0))
             }
-
-            if(endNulls == group.size()) return new Pair(group, [])  // all are null
-
-            int frontNulls = group.size()  // the number of values with a null packed dim element at the front of the list
-            for(int i=0; i<group.size(); i++) {
-                if (group[i].getDimElementIndex(packedDimension) != null) {
-                    frontNulls = i
-                    break
-                }
-            }
-
-            if(frontNulls == 0 && endNulls == 0) return new Pair([], group)
-            else if(endNulls == 0) return new Pair(group.subList(0, frontNulls), group.subList(frontNulls, group.size()))
-            else if(frontNulls == 0) return new Pair(
-                        group.subList(group.size() - endNulls, group.size()),
-                        group.subList(0, group.size() - endNulls))
-            else {
-                // Unlikely case, if the input is sorted by the database we expect nulls to be at the front or at the
-                // back, but we will support this anyway. Nulls are gathered in a new list.
-                ArrayList<HypercubeValue> nulls = new ArrayList(frontNulls+endNulls)
-                nulls.addAll(group.subList(0, frontNulls))
-                nulls.addAll(group.subList(group.size()-endNulls, group.size()))
-                return new Pair(nulls, group.subList(frontNulls, group.size()-endNulls))
-            }
+            return groups
         }
 
         private void putIndexedDims(HypercubeValue prototype) {
