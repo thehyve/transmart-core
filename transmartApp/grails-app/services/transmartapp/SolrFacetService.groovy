@@ -1,7 +1,7 @@
 package transmartapp
 
-import fm.FmFolder
-import fm.FmFolderAssociation
+import org.transmartproject.browse.fm.FmFolder
+import org.transmartproject.browse.fm.FmFolderAssociation
 import grails.util.Holders
 import groovy.util.slurpersupport.NoChildren
 import groovy.util.slurpersupport.NodeChild
@@ -9,8 +9,8 @@ import groovy.xml.StreamingMarkupBuilder
 import org.json.JSONObject
 import org.transmart.biomart.BioMarker
 import org.transmart.biomart.BioMarkerExpAnalysisMV
-import org.transmartproject.db.support.InQuery
 
+@Deprecated // TO DELETE
 class SolrFacetService {
 
     def ontologyService
@@ -19,6 +19,7 @@ class SolrFacetService {
     boolean transactional = true
     def searchLog = [] //Search log for debug only! Will be shared across all sessions
 
+    @Deprecated // TO DELETE
     def getCombinedResults(categoryList, page, globalOperator, passedInSearchLog) {
 
         String solrRequestUrl = createSOLRQueryPath()
@@ -26,7 +27,7 @@ class SolrFacetService {
         def searchResultIds = []
         searchLog = passedInSearchLog
 
-        //boolean to see if it is the first category. It is used for the search with AND operator: 
+        //boolean to see if it is the first category. It is used for the search with AND operator:
         def firstCategory = true
 
         //For each category (except Datanode), construct a SOLR query
@@ -161,6 +162,7 @@ class SolrFacetService {
 
     }
 
+    @Deprecated // TO DELETE
     def getAnalysesForGenes(termList, operator, convertToNodes) {
         //We get a list of genes here - slash-delimited for OR.
         //For each set of terms, create a list then check against materialized view.
@@ -173,8 +175,9 @@ class SolrFacetService {
             for (uid in geneUids) {
                 bioMarkers.push(BioMarker.findByUniqueId(uid))
             }
-
-            def result = InQuery.addIn(BioMarkerExpAnalysisMV.createCriteria(), 'marker', bioMarkers).list()
+            def result = BioMarkerExpAnalysisMV.createCriteria().list {
+                'in'('marker', bioMarkers)
+            }
 
             searchLog += "Found " + result.size() + " analysis matches"
 
@@ -241,6 +244,7 @@ class SolrFacetService {
         }
     }
 
+    @Deprecated // TO DELETE
     def hierarchicalIntersect(searchResults, categoryResults) {
 
         def newSearchResults = []
@@ -289,6 +293,7 @@ class SolrFacetService {
     }
 
 
+    @Deprecated // TO DELETE
     def getNodesByAccession(accessions) {
         if (!accessions) {
             return []
@@ -303,6 +308,7 @@ class SolrFacetService {
         }
     }
 
+    @Deprecated // TO DELETE
     def getAccessions(xml) {
         searchLog += "Getting accessions from SOLR search results"
         def result = new StreamingMarkupBuilder().bind {
@@ -345,6 +351,7 @@ class SolrFacetService {
         return accessions
     }
 
+    @Deprecated // TO DELETE
     def getFolderList(xml) {
 
         //retrieve all folderUIDs from the returned data
@@ -389,6 +396,7 @@ class SolrFacetService {
     /**
      * Create a query string for the category in the form of (<cat1>:"term1" OR <cat1>:"term2")
      */
+    @Deprecated // TO DELETE
     def createCategoryQueryString = { category, termList, operator ->
 
         // create a query for the category in the form of (<cat1>:"term1" OR <cat1>:"term2")
@@ -444,6 +452,7 @@ class SolrFacetService {
         return categoryQuery
     }
 
+    @Deprecated // TO DELETE
     def cleanForSOLR(t) {
         return t.replace("&", "%26").replace("(", "\\(").replace(")", "\\)");
     }
@@ -451,6 +460,7 @@ class SolrFacetService {
     /**
      * Create a query string for the category in the form of (<cat1>:"term1" OR <cat1>:"term2")
      */
+    @Deprecated // TO DELETE
     def getDataNodeSearchTerms = { queryParams ->
 
         def datanodeterms = []
@@ -476,6 +486,7 @@ class SolrFacetService {
      *   are not being filtered on
      * It will be of form facet.field=<cat1>&facet.field=<cat2>
      */
+    @Deprecated // TO DELETE
     def createSOLRFacetedFieldsString = { facetFieldsParams ->
         def facetedFields = ""
         // loop through each regular query parameter
@@ -508,6 +519,7 @@ class SolrFacetService {
      * Each category query gets tagged in fq clauses {!tag=c1}, and then the category query is excluded
      *   for determining the facet counts (!ex=c1) in facet.field clauses
      */
+    @Deprecated // TO DELETE
     def createSOLRFacetedQueryString = { facetQueryParams ->
         def facetedQuery = ""
         // loop through each regular query parameter
@@ -548,6 +560,7 @@ class SolrFacetService {
      * Create the SOLR query string for the nonfaceted fields (i.e. those that are not in tree)
      * It will be of form ((<cat1>:"term1" OR <cat1>:"term2") AND ( (<cat2>:"term3") ) AND () .. )
      */
+    @Deprecated // TO DELETE
     public String createSOLRNonfacetedQueryString(List queryParams) {
         def nonfacetedQuery = ""
         // loop through each regular query parameter
@@ -586,6 +599,7 @@ class SolrFacetService {
      * Create the base URL for the SOLR request
      * @return string containing the base URL for the SOLR query
      */
+    @Deprecated // TO DELETE
     def createSOLRQueryPath = {
 
         String solrScheme = Holders.config.com.rwg.solr.scheme
@@ -596,6 +610,7 @@ class SolrFacetService {
         return solrRequestUrl
     }
 
+    @Deprecated // TO DELETE
     def createSOLRUpdatePath = {
 
         String solrScheme = Holders.config.com.rwg.solr.scheme
@@ -614,6 +629,7 @@ class SolrFacetService {
      * @param maxRows - max number of result rows to return (default to 0
      * @return string containing the SOLR query string
      */
+    @Deprecated // TO DELETE
     def createSOLRQueryString = {
         nonfacetedQueryString, facetedQueryString, facetedFieldsString, maxRows = 1000, facetFlag = false ->
             def solrQuery = /${nonfacetedQueryString}&facet=${facetFlag}&rows=${maxRows}/
@@ -634,6 +650,7 @@ class SolrFacetService {
      * @param solrQueryParams - the query string for the faceted search, to be passed into the data for the POST request
      * @return JSONObject containing the facet counts
      */
+    @Deprecated // TO DELETE
     def executeSOLRFacetedQuery = { solrRequestUrl, solrQueryParams, returnAnalysisIds ->
 
         log.debug(solrQueryParams)
@@ -671,6 +688,7 @@ class SolrFacetService {
         }
     }
 
+    @Deprecated // TO DELETE
     def reindexFolder = { folderUid, folderType = "" ->
 
         def solrRequestUrl = createSOLRUpdatePath()
@@ -700,6 +718,7 @@ class SolrFacetService {
 
     }
 
+    @Deprecated // TO DELETE
     public Map getSearchHighlight(FmFolder folder, categoryList) {
         String hlTitle
         String hlDescription
