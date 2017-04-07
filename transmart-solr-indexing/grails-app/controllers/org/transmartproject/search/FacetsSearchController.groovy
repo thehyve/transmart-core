@@ -30,7 +30,6 @@ import static org.transmartproject.search.indexing.FacetsIndexingService.*
 class FacetsSearchController {
 
     static scope = 'singleton'
-    static responseFormats = ['json']
 
     private static final Pattern KEY_CODE_PATTERN = Pattern.compile('(?<=\\A\\\\\\\\)[^\\\\]+')
 
@@ -149,6 +148,8 @@ class FacetsSearchController {
                 }
             }.flatten()
         }
+
+        log.info("MAX_RESULTS = $MAX_RESULTS")
 
         // build query
         def allFields = facetsQueryingService.allDisplaySettings.keySet()
@@ -368,7 +369,7 @@ class GetFacetsCommand implements Validateable {
     }
 }
 
-class SearchTerm implements Validateable{
+class SearchTerm implements Validateable {
     String literalTerm
     String luceneTerm
 }
