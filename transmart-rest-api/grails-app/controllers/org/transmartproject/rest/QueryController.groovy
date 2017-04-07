@@ -45,7 +45,7 @@ class QueryController extends AbstractQueryController {
      *
      *
      * For high dimensional data:
-     * <code>/v2/high_dim?type=${type}&constraint=${assays}&biomarker_constraint=${biomarker}&projection=${projection}</code>
+     * <code>/v2/observations?type=${type}&constraint=${assays}&biomarker_constraint=${biomarker}&projection=${projection}</code>
      *
      * The type must be the data type name of a high dimension type, or 'autodetect'. The latter will automatically
      * try to detect the datatype based on the assay constraint. If there are multiple possible types an error is
@@ -60,18 +60,19 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def observations() {
-        checkParams(params, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
+        def args = getGetOrPostParams()
+        checkParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
 
-        if (params.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
+        if (args.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
 
-        if (params.type == 'clinical') {
-            clinicalObservations(params.constraint)
+        if (args.type == 'clinical') {
+            clinicalObservations(args.constraint)
         } else {
-            if(params.assay_constraint) {
+            if(args.assay_constraint) {
                 response.sendError(422, "Parameter 'assay_constraint' is no longer used, use 'constraint' instead")
                 return
             }
-            highdimObservations(params.type, params.constraint, params.biomarker_constraint, params.projection)
+            highdimObservations(args.type, args.constraint, args.biomarker_constraint, args.projection)
         }
     }
 
@@ -120,9 +121,10 @@ class QueryController extends AbstractQueryController {
      * @return a the number of observations that satisfy the constraint.
      */
     def count() {
-        checkParams(params, ['constraint'])
+        def args = getGetOrPostParams()
+        checkParams(args, ['constraint'])
 
-        Constraint constraint = bindConstraint(params.constraint)
+        Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
             return
         }
@@ -149,16 +151,17 @@ class QueryController extends AbstractQueryController {
      * @return a map with the aggregate type as key and the result as value.
      */
     def aggregate() {
-        checkParams(params, ['constraint', 'type'])
+        def args = getGetOrPostParams()
+        checkParams(args, ['constraint', 'type'])
 
-        if (!params.type) {
+        if (!args.type) {
             throw new InvalidArgumentsException("Type parameter is missing.")
         }
-        Constraint constraint = bindConstraint(params.constraint)
+        Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
             return
         }
-        def aggregateType = AggregateType.forName(params.type as String)
+        def aggregateType = AggregateType.forName(args.type as String)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def aggregatedValue = multiDimService.aggregate(aggregateType, constraint, user)
         def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
@@ -176,14 +179,14 @@ class QueryController extends AbstractQueryController {
      *
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
-    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, String projection) {
+    private def highdimObservations(String type, assay_constraint, biomarker_constraint, projection) {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        MultiDimConstraint assayConstraint = parseConstraint(URLDecoder.decode(assay_constraint, 'UTF-8'))
+        Constraint assayConstraint = getConstraintFromStringOrJson(assay_constraint)
 
-        MultiDimConstraint biomarkerConstraint = biomarker_constraint ?
-                (MultiDimConstraint) parseConstraint(URLDecoder.decode(biomarker_constraint, 'UTF-8')) : new BiomarkerConstraint()
+        BiomarkerConstraint biomarkerConstraint = biomarker_constraint ?
+                (BiomarkerConstraint) getConstraintFromStringOrJson(biomarker_constraint) : new BiomarkerConstraint()
 
         Format format = contentFormat
         OutputStream out = getLazyOutputStream(format)

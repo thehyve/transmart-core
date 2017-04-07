@@ -674,6 +674,57 @@
             }
           }
         }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/x-protobuf"
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "body",
+            "description": "see GET parameters",
+            "type": "string"
+          },
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "body",
+            "description": "see GET parameters",
+            "type": "string"
+          },
+          {
+            "name": "biomarker_constraint",
+            "required": false,
+            "in": "body",
+            "description": "see GET parameters",
+            "type": "string"
+          },
+          {
+            "name": "projection",
+            "required": false,
+            "in": "body",
+            "description": "see GET parameters",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.\n",
+            "schema": {
+              "$ref": "#/definitions/observations"
+            }
+          }
+        }
       }
     },
     "/v2/observations/aggregate": {
@@ -695,6 +746,51 @@
             "required": true,
             "in": "query",
             "description": "min, max, average",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "return the result in a json object. Example: `{min: 56}`.",
+            "schema": {
+              "type": "object",
+              "description": "only the value of the requested aggregate type will be present.",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                },
+                "average": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "body",
+            "description": "see GET parameters",
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "required": true,
+            "in": "body",
+            "description": "see GET parameters",
             "type": "string"
           }
         ],
@@ -748,11 +844,42 @@
             }
           }
         }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "body",
+            "description": "see GET parameters",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return the result as a json object. Example: `{count: 56}`.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/v2/patients": {
       "get": {
-        "description": "Gets all patients that have an observation that satisfy the given constaint. Only patients the calling user has access to are returned.\n",
+        "description": "Gets all patients that have an observation that satisfy the given constaint. Only patients that the calling user has access to are returned.\n",
         "tags": [
           "v2"
         ],
@@ -762,6 +889,40 @@
             "required": true,
             "in": "query",
             "description": "json that specifies the constraint. Example: `{\"type\":\"study_name\",\"studyId\":\"EHR\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "patients": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/patient"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "body",
+            "description": "see GET parameters",
             "type": "string"
           }
         ],

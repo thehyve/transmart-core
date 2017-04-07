@@ -84,7 +84,7 @@ class QueryControllerSpec extends MarshallerSpec {
 
         then:
         response.statusCode.value() == 400
-        result.message == 'Cannot parse constraint parameter.'
+        result.message == "Cannot parse constraint parameter: $constraintJSON"
     }
 
     void 'test getSupportedFields'() {

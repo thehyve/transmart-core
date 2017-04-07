@@ -29,10 +29,8 @@ class PatientsSpec extends RESTSpec {
     @RequiresStudy(CLINICAL_TRIAL_ID)
     def "get patients based on observations"() {
         given: "study CLINICAL_TRIAL is loaded"
-        def request = [
-                path      : PATH_PATIENTS,
-                acceptType: contentTypeForJSON,
-                query     : toQuery([
+        def params = [
+                constraint: toJSON([
                         type    : Combination,
                         operator: AND,
                         args    : [
@@ -41,13 +39,22 @@ class PatientsSpec extends RESTSpec {
                         ]
                 ])
         ]
+        def request = [
+                path      : PATH_PATIENTS,
+                acceptType: contentTypeForJSON,
+        ]
 
         when: "I get all patients from that study with a heart rate above 80"
-        def responseData = get(request)
+        def responseData = getOrPostRequest(method, request, params)
 
         then: "2 patients are returned"
         assert responseData.patients.size() == 2
         that responseData.patients, everyItem(hasKey('id'))
+
+        where:
+        method | _
+        "POST" | _
+        "GET"  | _
     }
 
     /**

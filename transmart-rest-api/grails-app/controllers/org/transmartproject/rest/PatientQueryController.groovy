@@ -32,9 +32,10 @@ class PatientQueryController extends AbstractQueryController {
      * which there are observations that satisfy the constraint.
      */
     def listPatients(@RequestParam('api_version') String apiVersion) {
-        checkParams(params, ['constraint'])
+        def args = getGetOrPostParams()
+        checkParams(args, ['constraint'])
 
-        Constraint constraint = bindConstraint(params.constraint)
+        Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
             return
         }
@@ -133,12 +134,13 @@ class PatientQueryController extends AbstractQueryController {
             throw new InvalidRequestException("Content type should be " +
                     "${MimeType.JSON.name}; got ${mimeType}.")
         }
-        def body = request.reader.lines().iterator().join('')
-        log.debug "BODY: ${body}"
-        if (body.empty) {
-            throw new InvalidRequestException('No constraint found in request body.')
-        }
-        Constraint constraint = parseConstraint(body)
+
+        def bodyJson = request.JSON
+        log.debug "body JSON: $bodyJson"
+
+        // FIXME: we now expect a plain constraint in the body, this should be wrapped in a {"constraint": ...} wrapper
+        // for consistency with other calls
+        Constraint constraint = getConstraintFromStringOrJson(bodyJson)
         if (constraint == null) {
             return null
         }
