@@ -5,9 +5,8 @@ import com.google.common.collect.HashMultimap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Iterators
 import com.google.common.collect.Multimap
-import net.sf.ehcache.Ehcache
-import net.sf.ehcache.loader.CacheLoader
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
 import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptFullName
@@ -37,8 +36,8 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
     @Autowired
     private CacheManager cacheManager
 
-    private Ehcache getEhcache() {
-        cacheManager.getCache(FOLDER_CONCEPT_MAPPINGS_CACHE).nativeCache
+    private Cache getCache() {
+        cacheManager.getCache(FOLDER_CONCEPT_MAPPINGS_CACHE)
     }
 
     @Autowired
@@ -65,7 +64,7 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
             @Override
             protected FacetsDocId computeNext() {
                 if (lastQueryNames) {
-                    return new FacetsDocId(CONCEPT_DOC_TYPE, lastQueryNames.pop().getFullName() )
+                    return new FacetsDocId(CONCEPT_DOC_TYPE, lastQueryNames.pop().getFullName())
                 }
                 if (toProcess.empty) {
                     return endOfData()
@@ -79,7 +78,7 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
 
     @Override
     Set<FacetsDocument> collectDocumentsWithIds(Set<FacetsDocId> docIds) {
-        docIds.findAll { it.type == CONCEPT_DOC_TYPE }. collect { docId ->
+        docIds.findAll { it.type == CONCEPT_DOC_TYPE }.collect { docId ->
             ConceptFullName fullName = new ConceptFullName(docId.id)
             def builder = FacetsDocument.newFieldValuesBuilder()
 
@@ -97,12 +96,14 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
     }
 
     private Map<String /* full name */, OntologyTerm> getAllCategories() {
-        ehcache.getWithLoader(ALL_CATEGORIES_KEY, [
-                load: { key ->
-                    conceptsResource.allCategories.collectEntries {
-                        [it.fullName, it]
-                    }
-                }] as CacheLoader, null).objectValue
+        Map<String, OntologyTerm> result = cache.get(ALL_CATEGORIES_KEY, Map)
+        if (result == null) {
+            result = conceptsResource.allCategories.collectEntries {
+                [it.fullName, it]
+            }
+            cache.put(ALL_CATEGORIES_KEY, result)
+        }
+        result
     }
 
     private List<OntologyTermTag> getTagsForFullName(ConceptFullName conceptFullName) {
@@ -124,19 +125,20 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
     }
 
     private Multimap<String, OntologyTermTag> getAllTagsUnderCategory(OntologyTerm category) {
-        ehcache.getWithLoader(UNMANAGED_TAGS_CACHE_KEY_PREFIX + category.fullName, [
-                load: { dummy ->
-                    def res = HashMultimap.create()
-                    ontologyTermTagsResource.getTags(ImmutableSet.of(category), true)
-//						.each { e -> e.value.each { res.put(e.key.fullName, it) } }
-						.each {
-							e -> e.value.each {
-								//res.put(e.key.fullName, it)
-								res.put(it.ontologyTermFullName, it)
-								}
-							}
-                    res
-                }] as CacheLoader, null).objectValue
+        String key = UNMANAGED_TAGS_CACHE_KEY_PREFIX + category.fullName
+        Multimap<String, OntologyTermTag> result = cache.get(key, Multimap)
+        if (result == null) {
+            result = HashMultimap.create()
+            ontologyTermTagsResource
+                    .getTags(ImmutableSet.of(category), true)
+                    .each { e ->
+                e.value.each {
+                    result.put(it.ontologyTermFullName, it)
+                }
+            }
+            cache.put(key, result)
+        }
+        result
     }
 
     @Override

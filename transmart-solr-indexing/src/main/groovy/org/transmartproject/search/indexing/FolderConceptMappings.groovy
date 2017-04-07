@@ -1,8 +1,7 @@
 package org.transmartproject.search.indexing
 
-import net.sf.ehcache.Ehcache
-import net.sf.ehcache.loader.CacheLoader
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.Cache
 import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.search.browse.FolderStudyMappingView
@@ -17,26 +16,30 @@ class FolderConceptMappings {
     @Autowired
     private CacheManager cacheManager
 
-    private Ehcache getEhcache() {
-        cacheManager.getCache(FOLDER_CONCEPT_MAPPINGS_CACHE).nativeCache
+    private Cache getCache() {
+        cacheManager.getCache(FOLDER_CONCEPT_MAPPINGS_CACHE)
     }
 
     private Map<ConceptFullName, Long /* folder id */>  getRootMappings() {
-        ehcache.getWithLoader(ROOT_MAPPINGS_KEY, [
-                load: { key ->
-                    FolderStudyMappingView.findAllByRoot(true).collectEntries {
-                        [new ConceptFullName(it.conceptPath), it.folderId]
-                    }
-                }] as CacheLoader, null).objectValue
+        Map<ConceptFullName, Long> result = cache.get(ROOT_MAPPINGS_KEY, Map)
+        if (result == null) {
+            result = FolderStudyMappingView.findAllByRoot(true).collectEntries {
+                [new ConceptFullName(it.conceptPath), it.folderId]
+            }
+            cache.put(ROOT_MAPPINGS_KEY, result)
+        }
+        result
     }
 
     private Map<Long, ConceptFullName>  getAllMappings() {
-        ehcache.getWithLoader(ALL_MAPPINGS_KEY, [
-                load: { key ->
-                    FolderStudyMappingView.all.collectEntries {
-                        [it.folderId, new ConceptFullName(it.conceptPath)]
-                    }
-                }] as CacheLoader, null).objectValue
+        Map<Long, ConceptFullName> result = cache.get(ALL_MAPPINGS_KEY, Map)
+        if (result == null) {
+            result = FolderStudyMappingView.all.collectEntries {
+                [it.folderId, new ConceptFullName(it.conceptPath)]
+            }
+            cache.put(ALL_MAPPINGS_KEY, result)
+        }
+        result
     }
 
     Long getFolderId(ConceptFullName path) {
