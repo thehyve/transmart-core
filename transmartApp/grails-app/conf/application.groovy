@@ -27,7 +27,6 @@ if (!Environment.isWarDeployed() && Environment.isWithinShell()) {
 org.transmart.originalConfigBinding = getBinding()
 
 org.transmartproject.app.oauthEnabled = true
-org.transmartproject.app.gwavaEnabled = false
 org.transmartproject.app.transmartURL = "http://localhost:${System.getProperty('server.port', '8080')}"
 
 
@@ -240,12 +239,6 @@ grails { plugin { springsecurity {
                 [pattern: '/oauth/token.dispatch', access: ["isFullyAuthenticated() and (request.getMethod().equals('GET') or request.getMethod().equals('POST'))"]],
         ]
 
-        // This looks dangerous and it possibly is (would need to check), but
-        // reflects the instructions I got from the developer.
-        def gwavaMappings = [
-                [pattern: '/gwasWeb/**', access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
-        ]
-
         interceptUrlMap = [
                 [pattern: '/login/**',                   access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
                 [pattern: '/js/**',                      access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
@@ -267,10 +260,11 @@ grails { plugin { springsecurity {
                 [pattern: '/authUserSecureAccess/**',    access: ['ROLE_ADMIN']],
                 [pattern: '/secureObjectPath/**',        access: ['ROLE_ADMIN']],
                 [pattern: '/userGroup/**',               access: ['ROLE_ADMIN']],
+                //TODO This looks dangerous. It opens acess to the gwas data for everybody.
+                [pattern: '/gwasWeb/**',                 access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
                 [pattern: '/secureObjectAccess/**',      access: ['ROLE_ADMIN']]
         ] +
                 (org.transmartproject.app.oauthEnabled ?  oauthEndpoints : []) +
-                (org.transmartproject.app.gwavaEnabled ?  gwavaMappings : []) +
                 [
                         [pattern: '/**',                         access: ['IS_AUTHENTICATED_REMEMBERED']], // must be last
                 ]
