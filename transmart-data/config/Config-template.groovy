@@ -66,6 +66,9 @@ ui {
  * the transmart-data checkout. That file will be appended to this one whenever
  * the Config.groovy target is run */
 
+//A string specifying the server URL portion of absolute links, including server name e.g. grails.serverURL="http://my.transmart.com".
+grails.serverURL = org.transmartproject.app.transmartURL - ~'\\/$'
+
 environments { production {
     if (org.transmartproject.app.transmartURL.startsWith('http://localhost:')) {
         println "[WARN] transmartURL not overridden. Some settings (e.g. help page) may be wrong"
