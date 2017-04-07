@@ -34,7 +34,7 @@ interface MultiDimensionalDataResource {
 
     List<Patient> listPatients(MultiDimConstraint constraint, User user)
 
-    QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user)
+    QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) 
 
     QueryResult findPatientSet(Long patientSetId, User user)
 
@@ -51,4 +51,6 @@ interface MultiDimensionalDataResource {
             String type)
 
     Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user)
+
+    def getPatientSetRequestConstraintsAndApiVersion(long id)
 }

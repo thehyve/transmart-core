@@ -33,6 +33,8 @@ class QtQueryMaster {
     String   generatedSql
     String   requestXml
     String   i2b2RequestXml
+    String   requestConstraints
+    String   apiVersion
 
     static hasMany = [queryInstances: QtQueryInstance]
 
@@ -46,20 +48,23 @@ class QtQueryMaster {
         generatedSql   type:   'text'
         requestXml     type:   'text'
         i2b2RequestXml column: 'I2B2_REQUEST_XML', type: 'text'
+        requestConstraints type:   'text'
         version false
     }
 
     static constraints = {
-        name           maxSize:  250
-        userId         maxSize:  50
-        groupId        maxSize:  50
-        masterTypeCd   nullable: true, maxSize: 2000
-        pluginId       nullable: true
-        deleteDate     nullable: true
-        deleteFlag     nullable: true, maxSize: 3
-        generatedSql   nullable: true
-        requestXml     nullable: true
-        i2b2RequestXml nullable: true
+        name                maxSize:  250
+        userId              maxSize:  50
+        groupId             maxSize:  50
+        masterTypeCd        nullable: true, maxSize: 2000
+        pluginId            nullable: true
+        deleteDate          nullable: true
+        deleteFlag          nullable: true, maxSize: 3
+        generatedSql        nullable: true
+        requestXml          nullable: true
+        i2b2RequestXml      nullable: true
+        requestConstraints  nullable: true
+        apiVersion nullable: true
     }
 
     @Override

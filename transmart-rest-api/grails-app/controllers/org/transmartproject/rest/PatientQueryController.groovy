@@ -99,10 +99,12 @@ class PatientQueryController extends AbstractQueryController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
         QueryResult patientSet = multiDimService.findPatientSet(id, user)
+        def (constraints, constraintsApiVersion) = multiDimService.getPatientSetRequestConstraintsAndApiVersion(patientSet.id)
 
         render new QueryResultWrapper(
-                apiVersion: apiVersion,
-                queryResult: patientSet
+                apiVersion: constraintsApiVersion,
+                queryResult: patientSet,
+                requestConstraints: constraints
         ) as JSON
     }
 
@@ -112,7 +114,7 @@ class PatientQueryController extends AbstractQueryController {
      *
      * Creates a patient set ({@link org.transmartproject.core.querytool.QueryResult}) based the {@link Constraint} parameter <code>constraint</code>.
      *
-     * @return a map with the query result id, description, size and status.
+     * @return a map with the query result id, description, size, status, constraints and api version.
      */
     def createPatientSet(
             @RequestParam('api_version') String apiVersion,
@@ -148,13 +150,16 @@ class PatientQueryController extends AbstractQueryController {
         checkParams(params, ['name', 'constraint'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        
+        String currentVersion = versionController.currentVersion(apiVersion)
 
-        QueryResult patientSet = multiDimService.createPatientSet(name, constraint, user)
+        QueryResult patientSet = multiDimService.createPatientSet(name, constraint, user, bodyJson, currentVersion)
 
         response.status = 201
         render new QueryResultWrapper(
                 apiVersion: apiVersion,
-                queryResult: patientSet
+                queryResult: patientSet,
+                requestConstraints: bodyJson
         ) as JSON
     }
 

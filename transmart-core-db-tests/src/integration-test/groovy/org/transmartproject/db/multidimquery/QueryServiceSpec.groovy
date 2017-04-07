@@ -1,5 +1,7 @@
 package org.transmartproject.db.multidimquery
 
+import grails.converters.JSON
+import groovy.json.JsonBuilder
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
@@ -149,7 +151,7 @@ class QueryServiceSpec extends TransmartSpecification {
     void "test patient query and patient set creation"() {
         setupHypercubeData()
 
-        Constraint constraint = ConstraintFactory.create([
+        def constraintMap = [
                 type    : 'and',
                 args    : [
                 [
@@ -163,7 +165,10 @@ class QueryServiceSpec extends TransmartSpecification {
                     study:  hypercubeTestData.clinicalData.longitudinalStudy
                 ]
             ]
-        ])
+        ]
+        Constraint constraint = ConstraintFactory.create(constraintMap)
+        String constraintText = new JsonBuilder(constraintMap).toString()
+        String apiVersion = "2.1-dev"
 
         when: "I query for all observations and patients for a constraint"
         def observations = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
@@ -177,8 +182,11 @@ class QueryServiceSpec extends TransmartSpecification {
         observations*.getAt(DimensionImpl.PATIENT) as Set == patients as Set
 
         when: "I build a patient set based on the constraint"
-        def patientSet = multiDimService.createPatientSet("Test set", constraint, accessLevelTestData.users[0])
-
+        def patientSet = multiDimService.createPatientSet("Test set",
+                                                       constraint,
+                                                       accessLevelTestData.users[0],
+                                                       constraintText,
+                                                       apiVersion)
         then: "I get a patient set id"
         patientSet != null
         patientSet.id != null
@@ -191,6 +199,15 @@ class QueryServiceSpec extends TransmartSpecification {
 
         then: "I get the same set of patient as before"
         patients as Set == patients2 as Set
+
+        when: "I query for patients based on saved constraints"
+        def (savedPatientSetConstraintJSON, constraintApiVersion) = multiDimService.getPatientSetRequestConstraintsAndApiVersion(patientSet.id)
+        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(savedPatientSetConstraintJSON))
+        def patients3 = multiDimService.listPatients(savedPatientSetConstraint, accessLevelTestData.users[0])
+
+        then: "I get the same set of patient as before"
+        patients as Set == patients3 as Set
+        constraintApiVersion == apiVersion
     }
 
     void "test for max, min, average aggregate"() {
