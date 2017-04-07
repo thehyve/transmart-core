@@ -28,7 +28,7 @@ dependencies {
 
     // plugin specific deps
     testCompile group: 'org.grails', name: 'grails-datastore-rest-client', version: '5.0.12.RELEASE'
-    compile "org.apache.solr:solr-solrj:6.2.0"
+    compile "org.apache.solr:solr-solrj:4.5.1"
     compile "org.springframework.boot:spring-boot-starter-cache"
     compile group: 'net.sf.ehcache', name: 'ehcache-core', version: '2.6.11'
     compile project(':biomart-domain')

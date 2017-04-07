@@ -22,8 +22,9 @@ import org.apache.http.params.HttpParams
 import org.apache.http.protocol.HttpContext
 import org.apache.http.protocol.HttpProcessor
 import org.apache.http.protocol.HttpRequestExecutor
-import org.apache.solr.client.solrj.SolrClient
-import org.apache.solr.client.solrj.impl.HttpSolrClient
+import org.apache.solr.client.solrj.SolrServer
+import org.apache.solr.client.solrj.impl.HttpSolrServer
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.grails.core.AbstractGrailsApplication
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,8 +43,8 @@ class SolrFacetsCore implements DisposableBean {
     @Autowired
     private AbstractGrailsApplication grailsApplication
 
-    @Delegate(interfaces=true)
-    private HttpSolrClient delegate
+    @Delegate(interfaces=false)
+    private HttpSolrServer delegate
 
     private Thread evictionThread
 
@@ -91,10 +92,10 @@ class SolrFacetsCore implements DisposableBean {
         params.setParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, true) // ! performance penalty
         params.setParameter(CoreConnectionPNames.SO_KEEPALIVE, true)
 
-        delegate = new HttpSolrClient(baseUrl, httpClient)
+        delegate = new HttpSolrServer(baseUrl, httpClient)
     }
 
-    SolrClient getSolrClient() {
+    SolrServer getSolrServer() {
         delegate
     }
 
