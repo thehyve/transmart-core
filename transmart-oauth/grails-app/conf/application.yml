@@ -103,7 +103,7 @@ grails:
             requestMap:
                 className: 'org.transmart.searchapp.Requestmap'
             successHandler:
-                defaultTargetUrl: ''
+                defaultTargetUrl: '/userLanding'
             logout:
                 afterLogoutUrl: '/login/forceAuth'
 

@@ -1,3 +1,7 @@
+%{--
+This file is a copy of transmartApp:login/auth.gsp. Logging to transmartApp without duplicating this code inside transmart-server is not working.
+This file is added only temporary and should be removed after adding a new UI
+ --}%
 <head>
     <meta name='layout' content='main'/>
     <title>Authentication Error in ${grailsApplication.config.com.recomdata.appTitle}</title>

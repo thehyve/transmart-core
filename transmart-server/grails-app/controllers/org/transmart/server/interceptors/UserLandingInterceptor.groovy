@@ -1,4 +1,4 @@
-package org.transmartproject.interceptors
+package org.transmart.server.interceptors
 
 import org.transmartproject.core.users.User
 
