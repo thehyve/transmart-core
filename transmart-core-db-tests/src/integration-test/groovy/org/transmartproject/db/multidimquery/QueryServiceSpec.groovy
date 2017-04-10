@@ -167,7 +167,7 @@ class QueryServiceSpec extends TransmartSpecification {
             ]
         ]
         Constraint constraint = ConstraintFactory.create(constraintMap)
-        String constraintText = new JsonBuilder(constraintMap).toString()
+        String constraintJson = constraintMap as JSON
         String apiVersion = "2.1-dev"
 
         when: "I query for all observations and patients for a constraint"
@@ -185,7 +185,7 @@ class QueryServiceSpec extends TransmartSpecification {
         def patientSet = multiDimService.createPatientSet("Test set",
                                                        constraint,
                                                        accessLevelTestData.users[0],
-                                                       constraintText,
+                                                       constraintJson.toString(),
                                                        apiVersion)
         then: "I get a patient set id"
         patientSet != null
