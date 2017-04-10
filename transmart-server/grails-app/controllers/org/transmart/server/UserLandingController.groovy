@@ -1,4 +1,4 @@
-package org.transmartproject.app
+package org.transmart.server
 
 import org.springframework.web.servlet.support.RequestContextUtils
 import org.transmart.searchapp.AccessLog

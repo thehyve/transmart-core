@@ -1,10 +1,21 @@
-import grails.plugin.springsecurity.oauth2.SpringSecurityOauth2BaseService
+package spring
+
+import org.transmart.oauth.CurrentUserBeanFactoryBean
+import org.transmart.oauth.CurrentUserBeanProxyFactory
 import org.transmart.oauth.authentication.AuthUserDetailsService
+import org.transmartproject.core.users.User
 
 beans = {
 
     //overrides bean implementing GrailsUserDetailsService
     userDetailsService(AuthUserDetailsService)
-    //needed for spring-google plugin
-    oAuth2BaseService(SpringSecurityOauth2BaseService)
+
+    currentUserBean(CurrentUserBeanProxyFactory)
+    "${CurrentUserBeanProxyFactory.SUB_BEAN_REQUEST}"(CurrentUserBeanFactoryBean) { bean ->
+        bean.scope = 'request'
+    }
+    "${CurrentUserBeanProxyFactory.SUB_BEAN_QUARTZ}"(User) { bean ->
+        // Spring never actually creates this bean
+        bean.scope = 'quartz'
+    }
 }
