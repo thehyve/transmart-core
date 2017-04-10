@@ -204,8 +204,8 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         // expect dimensions will only be loaded all at once once all values have been retrieved that doesn't seem
         // worth implementing.
         if(_dimensionsLoaded) return
-        dimensions.each {
-            if(it.density.isDense) dimensionElements(it)
+        for(dim in dimensions) {
+            if(dim.density.isDense) dimensionElements(dim)
         }
         _dimensionsLoaded = true
     }
