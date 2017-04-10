@@ -40,6 +40,7 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource.RequestConstraintsAndVersion
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
@@ -525,10 +526,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         queryResult
     }
     
-    def getPatientSetRequestConstraintsAndApiVersion(long id) {
+    RequestConstraintsAndVersion getPatientSetRequestConstraintsAndApiVersion(long id) {
         QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findById(id)
         def queryMaster = qtQueryResultInstance.queryInstance.queryMaster
-        [queryMaster.requestConstraints, queryMaster.apiVersion]
+        new RequestConstraintsAndVersion(queryMaster.requestConstraints, queryMaster.apiVersion)
     }
     
     @Override Long patientCount(MultiDimConstraint constraint, User user) {

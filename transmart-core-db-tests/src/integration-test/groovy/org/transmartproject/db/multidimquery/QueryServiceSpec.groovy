@@ -168,7 +168,7 @@ class QueryServiceSpec extends TransmartSpecification {
         ]
         Constraint constraint = ConstraintFactory.create(constraintMap)
         String constraintJson = constraintMap as JSON
-        String apiVersion = "2.1-dev"
+        String apiVersion = "2.1-tests"
 
         when: "I query for all observations and patients for a constraint"
         def observations = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
@@ -201,13 +201,13 @@ class QueryServiceSpec extends TransmartSpecification {
         patients as Set == patients2 as Set
 
         when: "I query for patients based on saved constraints"
-        def (savedPatientSetConstraintJSON, constraintApiVersion) = multiDimService.getPatientSetRequestConstraintsAndApiVersion(patientSet.id)
-        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(savedPatientSetConstraintJSON))
+        def constraintAndVersion = multiDimService.getPatientSetRequestConstraintsAndApiVersion(patientSet.id)
+        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(constraintAndVersion.constraint))
         def patients3 = multiDimService.listPatients(savedPatientSetConstraint, accessLevelTestData.users[0])
 
         then: "I get the same set of patient as before"
         patients as Set == patients3 as Set
-        constraintApiVersion == apiVersion
+        constraintAndVersion.version == apiVersion
     }
 
     void "test for max, min, average aggregate"() {

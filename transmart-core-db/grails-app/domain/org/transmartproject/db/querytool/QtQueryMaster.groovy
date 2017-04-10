@@ -64,7 +64,7 @@ class QtQueryMaster {
         requestXml          nullable: true
         i2b2RequestXml      nullable: true
         requestConstraints  nullable: true
-        apiVersion nullable: true
+        apiVersion          nullable: true
     }
 
     @Override
