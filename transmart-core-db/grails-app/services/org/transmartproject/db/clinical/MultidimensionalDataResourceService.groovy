@@ -660,8 +660,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     @CompileStatic @Override
     Hypercube highDimension(
             MultiDimConstraint assayConstraint_,
-            MultiDimConstraint biomarkerConstraint_ = new BiomarkerConstraint(),
-            String projectionName = Projection.ALL_DATA_PROJECTION,
+            MultiDimConstraint biomarkerConstraint_ , // default: null
+            String projectionName, // default: Projection.ALL_DATA_PROJECTION
             User user,
             String type) {
         projectionName = projectionName ?: Projection.ALL_DATA_PROJECTION

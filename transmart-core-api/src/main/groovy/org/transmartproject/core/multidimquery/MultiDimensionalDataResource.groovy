@@ -3,11 +3,12 @@
 package org.transmartproject.core.multidimquery
 
 import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.User
 
-interface MultiDimensionalDataResource {
+abstract trait MultiDimensionalDataResource {
 
     /**
      * @param accessibleStudies: The studies the current user has access to.
@@ -24,31 +25,31 @@ interface MultiDimensionalDataResource {
      *
      * @return a Hypercube result
      */
-    Hypercube retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies)
+    abstract Hypercube retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies)
 
-    Dimension getDimension(String name)
+    abstract Dimension getDimension(String name)
 
 
-    Long count(MultiDimConstraint constraint, User user)
-    Long cachedCount(MultiDimConstraint constraint, User user)
+    abstract Long count(MultiDimConstraint constraint, User user)
+    abstract Long cachedCount(MultiDimConstraint constraint, User user)
 
-    List<Patient> listPatients(MultiDimConstraint constraint, User user)
+    abstract List<Patient> listPatients(MultiDimConstraint constraint, User user)
 
-    QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user)
+    abstract QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user)
 
-    QueryResult findPatientSet(Long patientSetId, User user)
+    abstract QueryResult findPatientSet(Long patientSetId, User user)
 
-    Long patientCount(MultiDimConstraint constraint, User user)
-    Long cachedPatientCount(MultiDimConstraint constraint, User user)
+    abstract Long patientCount(MultiDimConstraint constraint, User user)
+    abstract Long cachedPatientCount(MultiDimConstraint constraint, User user)
 
-    Number aggregate(AggregateType type, MultiDimConstraint constraint, User user)
+    abstract Number aggregate(AggregateType type, MultiDimConstraint constraint, User user)
 
-    Hypercube highDimension(
+    abstract Hypercube highDimension(
             MultiDimConstraint assayConstraint_,
-            MultiDimConstraint biomarkerConstraint,
-            String projectionName,
+            MultiDimConstraint biomarkerConstraint = null,
+            String projectionName = Projection.ALL_DATA_PROJECTION,
             User user,
             String type)
 
-    Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user)
+    abstract Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user)
 }
