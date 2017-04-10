@@ -159,7 +159,7 @@ class PatientQueryController extends AbstractQueryController {
 
         // This converts bodyJson back to string, but the request doesn't save the body, it only provides an
         // inputstream.
-        QueryResult patientSet = multiDimService.createPatientSet(name, constraint, user, bodyJson, currentVersion)
+        QueryResult patientSet = multiDimService.createPatientSet(name, constraint, user, bodyJson.toString(), currentVersion)
 
         response.status = 201
         render new QueryResultWrapper(

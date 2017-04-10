@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
 import grails.plugin.cache.Cacheable
 import grails.util.Holders
-import groovy.json.JsonBuilder
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException

@@ -1,7 +1,6 @@
 package org.transmartproject.db.multidimquery
 
 import grails.converters.JSON
-import groovy.json.JsonBuilder
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,7 +13,6 @@ import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.AccessLevelTestData
-import spock.lang.Ignore
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
@@ -202,7 +200,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when: "I query for patients based on saved constraints"
         def constraintAndVersion = multiDimService.getPatientSetRequestConstraintsAndApiVersion(patientSet.id)
-        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(constraintAndVersion.constraint))
+        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(constraintAndVersion.constraints) as Map)
         def patients3 = multiDimService.listPatients(savedPatientSetConstraint, accessLevelTestData.users[0])
 
         then: "I get the same set of patient as before"
