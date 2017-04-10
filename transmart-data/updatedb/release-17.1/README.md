@@ -6,6 +6,7 @@ Overview
 
 ## Database structure changes
 
+
 ### New HD data type. RNA-Seq Transcript Level
 
 | Script                           | Description                  |
@@ -44,6 +45,13 @@ See script's comments for more details.
 There is data migration scripts that is not included into the automatic migration.
 It's `oracle/merge_concepts.sql`. It merges several terms you specify in the script into one.
 You might consider to run it manually.
+
+### Storing patient set query inside qt_query_master table.
+
+| Script                           | Description                  |
+|----------------------------------|------------------------------|
+| `qt_query_master.sql` 	   | Add REQUEST_CONSTRAINTS and API_VERSION columns |
+
 
 How to apply all changes
 ------------------------

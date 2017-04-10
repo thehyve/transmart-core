@@ -4,6 +4,7 @@ package org.transmartproject.rest
 
 import grails.converters.JSON
 import grails.web.mime.MimeType
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.dataquery.Patient
@@ -19,6 +20,9 @@ import org.transmartproject.rest.marshallers.PatientWrapper
 import org.transmartproject.rest.marshallers.QueryResultWrapper
 
 class PatientQueryController extends AbstractQueryController {
+
+    @Autowired
+    VersionController versionController
 
     static responseFormats = ['json', 'hal']
 
@@ -99,10 +103,12 @@ class PatientQueryController extends AbstractQueryController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
         QueryResult patientSet = multiDimService.findPatientSet(id, user)
+        def constraintsAndVersion = multiDimService.getPatientSetRequestConstraintsAndApiVersion(patientSet.id)
 
         render new QueryResultWrapper(
-                apiVersion: apiVersion,
-                queryResult: patientSet
+                apiVersion: constraintsAndVersion.constraints,
+                queryResult: patientSet,
+                requestConstraints: constraintsAndVersion.version
         ) as JSON
     }
 
@@ -112,7 +118,7 @@ class PatientQueryController extends AbstractQueryController {
      *
      * Creates a patient set ({@link org.transmartproject.core.querytool.QueryResult}) based the {@link Constraint} parameter <code>constraint</code>.
      *
-     * @return a map with the query result id, description, size and status.
+     * @return a map with the query result id, description, size, status, constraints and api version.
      */
     def createPatientSet(
             @RequestParam('api_version') String apiVersion,
@@ -148,13 +154,18 @@ class PatientQueryController extends AbstractQueryController {
         checkParams(params, ['name', 'constraint'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        
+        String currentVersion = versionController.currentVersion(apiVersion)
 
-        QueryResult patientSet = multiDimService.createPatientSet(name, constraint, user)
+        // This converts bodyJson back to string, but the request doesn't save the body, it only provides an
+        // inputstream.
+        QueryResult patientSet = multiDimService.createPatientSet(name, constraint, user, bodyJson.toString(), currentVersion)
 
         response.status = 201
         render new QueryResultWrapper(
                 apiVersion: apiVersion,
-                queryResult: patientSet
+                queryResult: patientSet,
+                requestConstraints: bodyJson
         ) as JSON
     }
 

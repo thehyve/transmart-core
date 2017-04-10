@@ -39,6 +39,7 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource.RequestConstraintsAndVersion
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
@@ -437,7 +438,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param query
      * @param user
      */
-    @Override QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user) {
+    @Override QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) {
         List patients = listPatients(constraint, user)
 
         // 1. Populate qt_query_master
@@ -448,7 +449,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 createDate     : new Date(),
                 generatedSql   : null,
                 requestXml     : "",
+                requestConstraints  : constraintText,
                 i2b2RequestXml : null,
+                apiVersion          : apiVersion
         )
 
         // 2. Populate qt_query_instance
@@ -521,7 +524,13 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
         queryResult
     }
-
+    
+    RequestConstraintsAndVersion getPatientSetRequestConstraintsAndApiVersion(long id) {
+        QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findById(id)
+        def queryMaster = qtQueryResultInstance.queryInstance.queryMaster
+        new RequestConstraintsAndVersion(queryMaster.requestConstraints, queryMaster.apiVersion)
+    }
+    
     @Override Long patientCount(MultiDimConstraint constraint, User user) {
         checkAccess(constraint, user)
         QueryBuilder builder = new HibernateCriteriaQueryBuilder(
