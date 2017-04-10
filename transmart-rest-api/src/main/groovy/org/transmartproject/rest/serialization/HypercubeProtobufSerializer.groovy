@@ -304,7 +304,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             int lastIdx = -1
             int groupSize = 0
             for(int i = 0; i<values.size(); i++) {
-                HypercubeValue hv = values.get(i)
+                HypercubeValue hv = values[i]
                 Integer packIdx = hv.getDimElementIndex(packedDimension)
                 int idx = packIdx == null ? 0 : packIdx + 1
                 maxIdx = Integer.max(maxIdx, idx)
@@ -325,7 +325,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             // Using an empty sublist ensures that there are only two types of lists in `groups`, which means the JVM
             // can inline methods on them.
             for(int i=0; i<groups.size(); i++) {
-                if(groups.get(i) == null) groups.set(i, values.subList(0,0))
+                if(groups[i] == null) groups.set(i, values.subList(0,0))
             }
             return groups
         }
@@ -335,7 +335,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
              * in the group so far are contiguous in `values`, we use a sublist to limit memory usage and
              * garbage creation. If the values are not contiguous we copy them to a new array list.
              */
-            def group = groups.get(index)
+            def group = groups[index]
             if(group == null) {
                 group = values.subList(groupStart, groupEnd)
                 groups.set(index, group)
