@@ -28,8 +28,8 @@ class QueryResultSerializationHelper extends AbstractHalOrJsonSerializationHelpe
             }
         }
         if(object.requestConstraints) {
-            map.put('requestConstraints', object.requestConstraints) as Map<String, String>
-            map.put('apiVersion', object.apiVersion) as Map<String, String>
+            map.requestConstraints = object.requestConstraints
+            map.apiVersion = object.apiVersion
         }
         map
     }

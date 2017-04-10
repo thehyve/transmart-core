@@ -4,6 +4,7 @@ package org.transmartproject.rest
 
 import grails.converters.JSON
 import grails.web.mime.MimeType
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.dataquery.Patient
@@ -19,6 +20,9 @@ import org.transmartproject.rest.marshallers.PatientWrapper
 import org.transmartproject.rest.marshallers.QueryResultWrapper
 
 class PatientQueryController extends AbstractQueryController {
+
+    @Autowired
+    VersionController versionController
 
     static responseFormats = ['json', 'hal']
 
@@ -153,6 +157,8 @@ class PatientQueryController extends AbstractQueryController {
         
         String currentVersion = versionController.currentVersion(apiVersion)
 
+        // This converts bodyJson back to string, but the request doesn't save the body, it only provides an
+        // inputstream.
         QueryResult patientSet = multiDimService.createPatientSet(name, constraint, user, bodyJson, currentVersion)
 
         response.status = 201

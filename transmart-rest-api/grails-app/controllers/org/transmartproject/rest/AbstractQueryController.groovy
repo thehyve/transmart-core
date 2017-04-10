@@ -27,9 +27,6 @@ abstract class AbstractQueryController implements Controller {
     @Autowired
     MultidimensionalDataService multidimensionalDataService
     
-    @Autowired
-    VersionController versionController
-
     def conceptsResourceService
 
     static def globalParams = [
