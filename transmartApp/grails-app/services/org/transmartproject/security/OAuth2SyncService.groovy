@@ -1,7 +1,6 @@
 package org.transmartproject.security
 
 import groovy.util.logging.Slf4j
-import org.transmart.oauth2.Client
 
 /**
  * Synchronize OAuth2 client configuration.
@@ -62,7 +61,7 @@ class OAuth2SyncService {
                     /* Workaround to bug https://github.com/grails/grails-core/issues/10451 due to which event handlers such as beforeInsert()/beforeUpdate() are
                      * not called on domain objects of non-default datastores. Remove this workaround if the bug has
                      * been solved in a grails update, and remove the corresponding exception code in
-                     * org.transmart.oauth2.Client.
+                     * org.transmart.oauth.Client.
                      */
                     client.encodeClientSecret()
                 }
