@@ -120,20 +120,6 @@ org.transmart.security.ldap.inheritPassword = true
 
 grails { plugin { springsecurity {
 
-    oauth2 {
-        active =true
-        providers {
-            google {
-                api_key= '926735483521-6qp4cuc6rcr6p1qujtnri6v63iql440o.apps.googleusercontent.com'  //needed
-                api_secret= 'VJyrDQ8w3v_gQ28BHavHDIb7'    //needed
-                successUri= "/auth/token"    //optional
-                failureUri= "/oauth2/google/failure"    //optional
-                callback= "/oauth2/google/callback"     //optional
-                scopes= "https://www.googleapis.com/auth/userinfo.email"    //optional, see https://developers.google.com/identity/protocols/googlescopes#monitoringv3
-            }
-        }
-    }
-
     // customized user GORM class
     userLookup.userDomainClassName = 'org.transmart.searchapp.AuthUser'
     // customized password field
@@ -307,5 +293,3 @@ environments {
     }
 }
 
-// Added by the Spring Security OAuth2 Google Plugin:
-grails.plugin.springsecurity.oauth2.domainClass = 'org.transmart.oauth2.AccessToken'
