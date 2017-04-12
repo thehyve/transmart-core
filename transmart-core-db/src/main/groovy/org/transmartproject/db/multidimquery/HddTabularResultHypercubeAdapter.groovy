@@ -146,8 +146,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
 
             if(projectionFields == null) {
 
-                // assays.size() compiles to GroovyDefaultMethods.size(Iterable) on Groovy 2.4.7 :(
-                for(int i = 0; i < ((List)assays).size(); i++) {
+                for(i in assays.indices) {
                     Assay assay = assays[i]
                     def value = row[i]
 
@@ -176,8 +175,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                     _projectionFields.add(field)
                     int projectionIndex = _projectionFields.indexOf(field)
 
-                    // assays.size() compiles to GroovyDefaultMethods.size(Iterable) on Groovy 2.4.7 :(
-                    for(int i = 0; i < ((List)assays).size(); i++) {
+                    for(i in assays.indices) {
                         def value = row[i]?.getAt(field)
                         if(value == null) continue
 

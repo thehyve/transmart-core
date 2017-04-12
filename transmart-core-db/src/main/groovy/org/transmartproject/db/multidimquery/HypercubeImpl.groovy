@@ -274,7 +274,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
             ProjectionMap groupLeader = iter.next()
             Map<String,ProjectionMap> group = [((String)groupLeader[modifierCodeField]): groupLeader]
             Object[] groupKey = new Object[primaryKey.size()]
-            for(int i=0; i<primaryKey.size(); i++) {
+            for(i in primaryKey.indices) {
                 groupKey[i] = groupLeader[primaryKey[i]]
             }
 
@@ -287,7 +287,7 @@ class HypercubeImpl extends AbstractOneTimeCallIterable<HypercubeValueImpl> impl
         }
 
         private boolean belongsToCurrentGroup(Object[] groupKey, ProjectionMap result) {
-            for(int i=0; i<primaryKey.size(); i++) {
+            for(i in primaryKey.indices) {
                 if(groupKey[i] != result[primaryKey[i]]) {
                     return false
                 }
@@ -384,11 +384,7 @@ class ProjectionMap extends AbstractMap<String,Object> {
     @Override List<Object> values() { ImmutableList.copyOf(tuple) }
 
     HashMap<String,Object> toMutable() {
-        HashMap<String,Object> map = new HashMap()
-        for(entry in mapping.entrySet()) {
-            map[entry.key] = tuple[entry.value]
-        }
-        map
+        return new HashMap(this)
     }
 
     class Entries extends AbstractSet<Map.Entry<String,Object>> {
