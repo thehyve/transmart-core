@@ -2,7 +2,6 @@ package org.transmart.server
 
 import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration
-import grails.transaction.Transactional
 import groovy.util.logging.Slf4j
 import org.grails.config.NavigableMap
 import org.grails.config.NavigableMapPropertySource
@@ -17,6 +16,7 @@ class Application extends GrailsAutoConfiguration implements EnvironmentAware {
     static void main(String[] args) {
         GrailsApp.run(Application, args)
     }
+
     @Override
     void setEnvironment(Environment environment) {
         if (grails.util.Environment.current == grails.util.Environment.TEST) {
