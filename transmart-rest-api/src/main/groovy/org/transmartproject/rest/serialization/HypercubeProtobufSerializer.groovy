@@ -136,7 +136,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         boolean empty = true
         boolean elementsPresent = false
 
-        for(int i=0; i<dimElements.size(); i++) {
+        for(i in dimElements.indices) {
             if(dimElements[i] == null) {
                 builder.addAbsentElementIndices(i+1)
             } else {
@@ -149,7 +149,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                     ? ImmutableList.of(new IdentityProperty(null, dim.elementType))
                     : dim.elementFields.values().asList())
 
-            for(int i=0; i<properties.size(); i++) {
+            for(i in properties.indices) {
                 def fieldColumn = buildElementFields(properties[i], dimElements)
                 if(fieldColumn == null) {
                     builder.addAbsentFieldColumnIndices(i+1)
@@ -177,7 +177,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         Type type = Type.get(prop.type)
 
         boolean allEmpty = true
-        for(int i=0; i<dimElements.size(); i++) {
+        for(i in dimElements.indices) {
             def element = dimElements[i]
             if(element == null) continue
             def field = prop.get(element)
@@ -296,41 +296,49 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
          * @return a list of lists of HypercubeValues
          */
         private List<List<HypercubeValue>> groupSamples(List<HypercubeValue> values) {
-            def numGroups = cube.maximumIndex(packedDimension) + 2
+            def numGroups = cube.maximumIndex(packedDimension) + 2  // +1 for nulls, +1 to convert from index to count
             ArrayList<List<HypercubeValue>> groups = new ArrayList(numGroups)
             for(i in 1..numGroups) groups.add(null)
 
             int maxIdx = -1
-            int lastIdx = -1
+            int prevIdx = -1
             int groupSize = 0
-            for(int i = 0; i<values.size(); i++) {
+            for(i in values.indices) {
                 HypercubeValue hv = values[i]
                 Integer packIdx = hv.getDimElementIndex(packedDimension)
                 int idx = packIdx == null ? 0 : packIdx + 1
                 maxIdx = Integer.max(maxIdx, idx)
 
-                if(i == 0 || idx == lastIdx) {
+                if(i == 0 || idx == prevIdx) {
                     groupSize++
                 } else {
-                    addGroup(groups, values, lastIdx, i-groupSize, i)
+                    addGroup(groups, values, prevIdx, i-groupSize, i)
                     groupSize = 1
                 }
-                lastIdx = idx
+                prevIdx = idx
             }
-            if(groupSize > 0) addGroup(groups, values, lastIdx, values.size()-groupSize, values.size())
+            if(groupSize > 0) addGroup(groups, values, prevIdx, values.size()-groupSize, values.size())
 
             // Truncate list so we don't send more groups than needed. The Protobuf format supports this.
             while(groups.size() > maxIdx+1) groups.remove(groups.size()-1)
             // Replace any remaining nulls with empty lists for easier further processing.
             // Using an empty sublist ensures that there are only two types of lists in `groups`, which means the JVM
             // can inline methods on them.
-            for(int i=0; i<groups.size(); i++) {
-                if(groups[i] == null) groups.set(i, values.subList(0,0))
+            for(i in groups.indices) {
+                if(groups[i] == null) groups[i] = values.subList(0,0)
             }
             return groups
         }
 
-        private addGroup(List<List> groups, List<HypercubeValue> values, int index, int groupStart, int groupEnd) {
+        /**
+         * @param groups the list of groups that will be added to. This is mutated
+         * @param values the hypercube values
+         * @param index The index in `groups` to add the values to
+         * @param groupStart The start index in `values` (inclusive)
+         * @param groupEnd The end index in `values` (exclusive)
+         */
+        private void addGroup(List<List<HypercubeValue>> groups, List<HypercubeValue> values,
+                              int index, int groupStart, int groupEnd) {
             /* `group` is either null (if not yet set), an ArrayList.SubList, or an ArrayList. If all values
              * in the group so far are contiguous in `values`, we use a sublist to limit memory usage and
              * garbage creation. If the values are not contiguous we copy them to a new array list.
@@ -338,17 +346,15 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             def group = groups[index]
             if(group == null) {
                 group = values.subList(groupStart, groupEnd)
-                groups.set(index, group)
+                groups[index] = group
             } else {
                 // There is no api-guaranteed type to indicate a sublist, but this is unlikely to change.
                 if(SubListType.isInstance(group)) {
-                    def oldGroup = group
-                    group = []
-                    for(v in oldGroup) group.add(v)
-                    groups.set(index, group)
+                    group = new ArrayList(group)
+                    groups[index] = group
                 }
                 assert group instanceof ArrayList
-                for(int j=groupStart; j<groupEnd; j++) group.add(values[j])
+                group.addAll(values.subList(groupStart, groupEnd))
             }
         }
 
@@ -474,7 +480,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             for(group in values) {
                 if(group.empty) continue
                 def groupElement = group[0][dim]
-                // Note: dynamic call to .equals!
+                // Note: dynamic call to .equals
                 if(allEqual && firstElement != groupElement) allEqual = false
                 if(group.size() == 1) continue
 
