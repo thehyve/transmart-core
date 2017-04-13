@@ -3,7 +3,6 @@ package transmart.oauth
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugins.*
 import org.springframework.beans.factory.config.MapFactoryBean
-import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider
 import org.springframework.security.web.DefaultRedirectStrategy
 import org.springframework.security.web.access.AccessDeniedHandlerImpl
@@ -62,8 +61,6 @@ Brief summary/description of the plugin.
         { ->
             xmlns context: "http://www.springframework.org/schema/context"
             xmlns aop: "http://www.springframework.org/schema/aop"
-
-            sessionRegistry(SessionRegistryImpl)
 
             redirectStrategy(DefaultRedirectStrategy)
             accessDeniedHandler(AccessDeniedHandlerImpl) {
