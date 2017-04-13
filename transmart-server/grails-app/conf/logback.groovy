@@ -54,7 +54,7 @@ if (productionMode && logDirectory) {
  * Configuration for writing audit metrics.
  * This needs to be placed in the out-of-tree Config.groovy, as the log4j config there will override this.
  * (and don't forget to 'import org.apache.log4j.DailyRollingFileAppender',
- * 'import org.transmart.logging.ChildProcessAppender' and 'import org.transmart.logging.JsonLayout'.)
+ * 'import org.transmart.server.logging.ChildProcessAppender' and 'import org.transmart.server.logging.JsonLayout'.)
  */
 /*
 
