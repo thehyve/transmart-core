@@ -34,6 +34,8 @@ class HypercubeProtobufSerializerSpec extends Specification {
     final dateDim = new SparseDim('date', type: Date)
     final visitDim = new DenseDim('visit', type: Integer, serializable: true)
 
+    final anotherDim = new DenseDim('anotherDim', type: Integer, serializable: true)
+
     List<Map> getPatients() { [
             [id: 10, trialId: "patient_10"],
             [id: 11, trialId: "patient_11"],
@@ -547,78 +549,56 @@ class HypercubeProtobufSerializerSpec extends Specification {
         groupedObs == groups.collectNested { it.val }
     }
 
-//    void 'test moveNullPackedDimensionToFront'() {
-//        when:
-//
-//        def observations = [
-//                [patient: patients[0], value: 1.2, ],
-//                [patient: patients[1], value: 1.5, ],
-//                [patient: patients[2], value: 2.2, ],
-//                [patient: patients[0], value: "FOO", ],
-//                [patient: patients[1], value: null, ],
-//                [patient: patients[2], value: "BAZ"],
-//        ]
-//        def nullObs = [
-//                [patient: null, value: "QUUX"],
-//                [patient: null, value: "QUUX2"],
-//                [patient: null, value: "QUUX3"],
-//        ]
-//
-//        def test = { obs ->
-//            def serializer = makeSerializer(new MockHypercube(values: obs, dimensions: allDims))
-//            def packer = serializer.packedCellBuilder
-//            def cube = serializer.cube
-//            def group = obs.collect { new MockValue(it, cube) }
-//            def pair = packer.splitNullPackedDim(group)
-//            def nulls = pair.aValue
-//            def nulldGroup = pair.bValue
-//            assert nulls.every { it[serializer.packedDimension] == null }
-//            assert nulldGroup.every { it[serializer.packedDimension] != null }
-//            assert group as Set == nulldGroup + nulls as Set
-//            return true
-//        }
-//
-//        then:
-//        // nulls are only allowed at the beginning or the end of the list of observations
-//        test(observations + nullObs[0..0])
-//        test(observations + nullObs)
-//        test(nullObs[0..0] + observations)
-//        test(nullObs + observations)
-//        test(nullObs)
-//        test(observations)
-//        test(nullObs[0..1] + observations + nullObs[2..2])
-//        test([])
-//    }
-
     void 'test groupSamples'() {
         when:
-        def (serializer, PackedCellBuilder packer) = defaultPackedSerializer
-        def iterator = serializer.iterator
-        def groups = iterateWhile({iterator.hasNext()}) { packer.nextGroup() }*.aValue
-        def nullSampleGroup = groups[1]
-        def multiSampleGroup = groups[2]
+        def group = { List vals ->
+            def values = (1..vals.max()).collect { [value: it, anotherDim: 1, visit: it] }
+            values += [vals.indices, vals].transpose().collect { ind, patientId ->
+                [value: ind, anotherDim: 2, visit: patientId ]}
+            def cube = new MockHypercube(dimensions: [anotherDim, visitDim], values: values)
+            def serializer = makeSerializer(cube)
+            assert serializer.packedDimension == visitDim
+            serializer.packedCellBuilder.nextGroup()
+            def hValues = serializer.packedCellBuilder.nextGroup().aValue
+            List<List<MockValue>> groups = serializer.packedCellBuilder.groupSamples(hValues)
+            return groups.collect { it*.getAt(visitDim) }
+        }
 
-        //packer.groupSamples(nullSampleGroup)
+        def values = [
+                [null, null], [1,1],[2,2],[3,3],[4,4],[5,5]
+        ]
+        def groups = group(values.flatten())
 
         then:
-        1
-        //thrown(AssertionError)
+        groups == values
 
-//        when:
-//        groups.each { packer.moveNullPackedDimensionToFront(it) }
-//        packer.groupSamples(nullSampleGroup) // does not throw now
-//
-//        then:
-//        for(i in [0,1,3]) {
-//            assert packer.groupSamples(groups[i]) == [[]] + groups[i].collect {[it]}
-//        }
-//
-//        packer.groupSamples(groups[2]).each { group ->
-//            assert (group.collect { it[patientDim] } as Set).size() == 1
-//        }
+        when:
+        def nonnulls = [[1,1], [2], [3], [4,4,4,4]]
+        groups = group([null, null] + nonnulls.flatten() + [null])
 
+        then:
+        groups[0] == [null]*3
+        groups[1..4] == nonnulls
 
+        when:
+        groups = group(nonnulls.flatten())
 
+        then:
+        groups[0] == []
+        groups[1..4] == nonnulls
+
+        when:
+        values = [null, 1,2,3,4]
+        groups = group(values * 3)
+
+        then:
+        groups == values.collect { [it]*3 }
+
+        when:
+        groups = group([5])
+
+        then:
+        groups == [[], [], [], [], [], [5]]
     }
 }
 
