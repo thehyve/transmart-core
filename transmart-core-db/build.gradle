@@ -30,3 +30,8 @@ dependencies {
 assets {
     packagePlugin = true
 }
+
+test.testLogging.exceptionFormat = 'full'
+
+// Uncomment to show standard out/error output
+//test.testLogging.showStandardStreams = true
