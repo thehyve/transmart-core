@@ -51,9 +51,7 @@ class AuditLogService {
             .create()
 
     @Lazy
-    volatile boolean enabled = {
-        log.traceEnabled
-    }()
+    volatile boolean enabled = log.traceEnabled
 
     def report(Map<String, Object> params = [:], String event, HttpServletRequest request) {
         User user = (User) params.user
