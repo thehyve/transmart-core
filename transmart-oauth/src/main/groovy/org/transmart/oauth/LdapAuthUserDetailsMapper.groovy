@@ -2,7 +2,6 @@ package org.transmart.oauth
 
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.ldap.core.DirContextAdapter
 import org.springframework.ldap.core.DirContextOperations
 import org.springframework.security.core.GrantedAuthority
@@ -16,8 +15,7 @@ import org.transmart.searchapp.Role
 import org.transmart.oauth.authentication.AuthUserDetailsService
 
 public class LdapAuthUserDetailsMapper implements UserDetailsContextMapper {
-    @Autowired
-    AuthUserDetailsService userDetailsService
+
     def springSecurityService
     def bruteForceLoginLockService
 

@@ -40,7 +40,7 @@ class BruteForceLoginLockService {
      */
     def failLogin(String login) {
         def numberOfAttempts = failedAttempts.get(login)
-        BruteForceLoginLockService.log.debug "fail login ${login} previous number for failedAttempts $numberOfAttempts"
+        log.debug "fail login ${login} previous number for failedAttempts $numberOfAttempts"
         failedAttempts.put(login, numberOfAttempts + 1)
     }
 
