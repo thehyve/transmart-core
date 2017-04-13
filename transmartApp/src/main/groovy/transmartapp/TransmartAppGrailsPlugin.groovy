@@ -2,24 +2,18 @@ package transmartapp
 
 import com.google.common.collect.ImmutableMap
 import com.recomdata.extensions.ExtensionsRegistry
-import grails.plugins.*
+import grails.plugins.Plugin
 import org.grails.spring.DefaultBeanConfiguration
 import org.springframework.beans.factory.config.CustomScopeConfigurer
 import org.springframework.security.core.session.SessionRegistryImpl
-import org.springframework.security.web.DefaultRedirectStrategy
-import org.springframework.security.web.access.AccessDeniedHandlerImpl
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy
 import org.springframework.security.web.session.ConcurrentSessionFilter
 import org.springframework.transaction.interceptor.TransactionInterceptor
 import org.springframework.web.util.IntrospectorCleanupListener
-import org.transmart.oauth.CurrentUserBeanFactoryBean
-import org.transmart.oauth.CurrentUserBeanProxyFactory
 import org.transmart.authorization.QueriesResourceAuthorizationDecorator
 import org.transmart.marshallers.MarshallerRegistrarService
 import org.transmart.oauth.authentication.AuthUserDetailsService
 import org.transmart.spring.QuartzSpringScope
-import org.transmartproject.core.users.User
 import org.transmartproject.export.HighDimExporter
 
 class TransmartAppGrailsPlugin extends Plugin {
@@ -100,15 +94,6 @@ Brief summary/description of the plugin.
                 context.'include-filter'(
                         type: 'assignable',
                         expression: HighDimExporter.canonicalName)
-            }
-
-            redirectStrategy(DefaultRedirectStrategy)
-
-            accessDeniedHandler(AccessDeniedHandlerImpl) {
-                errorPage = '/login'
-            }
-            failureHandler(SimpleUrlAuthenticationFailureHandler) {
-                defaultFailureUrl = '/login'
             }
 
             transactionInterceptor(TransactionInterceptor) {
