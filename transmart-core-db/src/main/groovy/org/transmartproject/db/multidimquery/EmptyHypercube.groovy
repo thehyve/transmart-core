@@ -36,7 +36,7 @@ class EmptyHypercube implements Hypercube {
         dimError(dim)
     }
 
-    int maximumIndex(Dimension dim) {
+    int numElementsSeen(Dimension dim) {
         dimError(dim)
     }
 

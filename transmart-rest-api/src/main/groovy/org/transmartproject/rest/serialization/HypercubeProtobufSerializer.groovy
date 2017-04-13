@@ -2,13 +2,11 @@
 
 package org.transmartproject.rest.serialization
 
-import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.PeekingIterator
 import grails.util.Pair
 import groovy.transform.CompileStatic
-import groovy.transform.InheritConstructors
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.multidimquery.IdentityProperty
 import org.transmartproject.core.multidimquery.Dimension
@@ -299,7 +297,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
          * @return a list of lists of HypercubeValues
          */
         private List<List<HypercubeValue>> groupSamples(List<HypercubeValue> values) {
-            def numGroups = cube.maximumIndex(packedDimension) + 2  // +1 for nulls, +1 to convert from index to count
+            def numGroups = cube.numElementsSeen(packedDimension) + 1  // +1 for nulls
             ArrayList<List<HypercubeValue>> groups = new ArrayList(numGroups)
             for(i in 1..numGroups) groups.add(null)
 

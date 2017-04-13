@@ -100,10 +100,10 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         else throw new RuntimeException("unexpected element type ${elem.class}. Expected a String, BioMarker or Assay")
     }
 
-    int maximumIndex(Dimension dim) {
-        if(dim.is(biomarkerDim)) return biomarkers.size() -1
-        if(dim.is(assayDim)) return assays.size() -1
-        if(dim.is(projectionDim) && projectionFields != null) return projectionFields.size() -1
+    int numElementsSeen(Dimension dim) {
+        if(dim.is(biomarkerDim)) return biomarkers.size()
+        if(dim.is(assayDim)) return assays.size()
+        if(dim.is(projectionDim) && projectionFields != null) return projectionFields.size()
         TabularResultAdapterValue.dimError(dim)
     }
 

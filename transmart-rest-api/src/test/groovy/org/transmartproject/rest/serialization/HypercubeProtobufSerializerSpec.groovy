@@ -756,9 +756,9 @@ class MockHypercube implements Hypercube {
 
     Object dimensionElementKey(Dimension dim, Integer idx) { throw new NotImplementedException() }
 
-    int maximumIndex(Dimension dim) {
+    int numElementsSeen(Dimension dim) {
         assert dim.density.isDense
-        dimIndexes[dim].size() -1
+        dimIndexes[dim].size()
     }
 
     final boolean dimensionsPreloadable = true

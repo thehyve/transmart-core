@@ -93,16 +93,14 @@ interface Hypercube extends IterableResult<HypercubeValue> {
     Object dimensionElementKey(Dimension dim, Integer idx)
 
     /**
-     * Return the largest index value that is currently used for this index. This maximum will increase if new
+     * Returns the number of elements seen so far for this dimension. This number will increase if new
      * elements for this dimension are encountered while streaming results, unless the dimensions are preloaded. In
-     * that case the maximum index will be fixed.
-     *
-     * If no indexes have been assigned for this dimension, returns -1.
+     * that case the number of elements will be fixed.
      *
      * @param dim the dimension to check for. Must be a dense dimension.
-     * @return the largest index value currently assigned, or -1 if no indexes have been assigned yet
+     * @return the number of elements seen for this dimension
      */
-    int maximumIndex(Dimension dim)
+    int numElementsSeen(Dimension dim)
 
     /**
      * Returns true if dimensions can be preloaded.

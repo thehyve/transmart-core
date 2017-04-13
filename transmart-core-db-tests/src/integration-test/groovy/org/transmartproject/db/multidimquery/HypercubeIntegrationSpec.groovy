@@ -5,7 +5,6 @@ import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
@@ -89,15 +88,15 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         result == expected
 
         concepts.size() == expectedConcepts.size()
-        hypercube.maximumIndex(CONCEPT) == concepts.size() -1
+        hypercube.numElementsSeen(CONCEPT) == concepts.size()
         concepts == expectedConcepts
 
         patients.size() == expectedPatients.size()
-        hypercube.maximumIndex(PATIENT) == patients.size() -1
+        hypercube.numElementsSeen(PATIENT) == patients.size()
         patients == expectedPatients
 
         trialVisits.size() == expectedVisits.size()
-        hypercube.maximumIndex(TRIAL_VISIT) == trialVisits.size() -1
+        hypercube.numElementsSeen(TRIAL_VISIT) == trialVisits.size()
         trialVisits == expectedVisits
 
         for (int i = 0; i < resultObs.size(); i++) {
@@ -152,11 +151,11 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         resultValues == expectedValues
 
         concepts.size() == expectedConcepts.size()
-        hypercube.maximumIndex(CONCEPT) == concepts.size() -1
+        hypercube.numElementsSeen(CONCEPT) == concepts.size()
         concepts == expectedConcepts
 
         patients.size() == expectedPatients.size()
-        hypercube.maximumIndex(PATIENT) == patients.size() -1
+        hypercube.numElementsSeen(PATIENT) == patients.size()
         patients == expectedPatients
 
         tissueTypes.size() == expectedTissues.size()
@@ -227,11 +226,11 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         resultValues == expectedValues
 
         concepts.size() == expectedConcepts.size()
-        hypercube.maximumIndex(CONCEPT) == concepts.size() -1
+        hypercube.numElementsSeen(CONCEPT) == concepts.size()
         concepts == expectedConcepts
 
         tissueTypes.size() == expectedTissues.size()
-        hypercube.maximumIndex(ttDim) == tissueTypes.size() -1
+        hypercube.numElementsSeen(ttDim) == tissueTypes.size()
         tissueTypes == expectedTissues
 
         expectedDosages == resultObs*.getAt(doseDim) as Set
@@ -271,15 +270,15 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         result == expected
 
         concepts.size() == expectedConcepts.size()
-        hypercube.maximumIndex(CONCEPT) == concepts.size() -1
+        hypercube.numElementsSeen(CONCEPT) == concepts.size()
         concepts == expectedConcepts
 
         patients.size() == expectedPatients.size()
-        hypercube.maximumIndex(PATIENT) == patients.size() -1
+        hypercube.numElementsSeen(PATIENT) == patients.size()
         patients == expectedPatients
 
         visits.size() == expectedVisits.size()
-        hypercube.maximumIndex(VISIT) == visits.size() -1
+        hypercube.numElementsSeen(VISIT) == visits.size()
         visits == expectedVisits
 
         for (int i = 0; i < resultObs.size(); i++) {
@@ -329,19 +328,19 @@ class HypercubeIntegrationSpec extends TransmartSpecification {
         result == expected
 
         concepts.size() == expectedConcepts.size()
-        hypercube.maximumIndex(CONCEPT) == concepts.size() -1
+        hypercube.numElementsSeen(CONCEPT) == concepts.size()
         concepts == expectedConcepts
 
         patients.size() == expectedPatients.size()
-        hypercube.maximumIndex(PATIENT) == patients.size() -1
+        hypercube.numElementsSeen(PATIENT) == patients.size()
         patients == expectedPatients
 
         trialVisits.size() == expectedTrialVisits.size()
-        hypercube.maximumIndex(TRIAL_VISIT) == trialVisits.size() -1
+        hypercube.numElementsSeen(TRIAL_VISIT) == trialVisits.size()
         trialVisits == expectedTrialVisits
 
         visits.size() == expectedVisits.size()
-        hypercube.maximumIndex(VISIT) == visits.size() -1
+        hypercube.numElementsSeen(VISIT) == visits.size()
         visits == expectedVisits
 
         startTime.size() == expectedStartTime.size()
