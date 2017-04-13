@@ -11,9 +11,9 @@ option java_outer_classname = "ObservationsProto";
 // protoc --java_out=src/main/groovy/ src/protobuf/v2/observations.proto
 
 // A full hypercube is a series of messages, each prefixed by its length in the protobuf varint encoding. A hypercube
-// starts with a header, then one or more observations or one or more packedObservations (depending on if there is a
-// dimension marked 'packed'), and then one footer. If the `last` field in Header, Cell or PackedCell is true no more
-// cells will follow and the next message is the Footer.
+// starts with a header, then one or more cells or one or more packedCells (depending on if there is a dimension marked
+// 'packed'), and then one footer. If the `last` field in Header, Cell or PackedCell is true no more cells will follow
+// and the next message is the Footer.
 
 // If an unexpected error occurs on the server while streaming a hypercube, an Error message can be sent instead of any
 // of the other root message types. To a parser this will look like the expected root message type with only its `error`
@@ -101,6 +101,11 @@ message Cell {
     // see Header.error
     string error = 99;
 }
+
+// The number of observations encoded in a PackedCell is limited, (specified in
+// org.transmartproject.rest.serialization.HypercubeProtobufSerializer.MAXIMUM_PACKED_VALUES). If more than this
+// maximum number of observations are eligible to be packed in a single PackedCell, multiple PackedCells with the same
+// indexed dimensions may be sent.
 
 message PackedCell {
     // same as in observation

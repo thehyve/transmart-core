@@ -25,6 +25,7 @@ import static org.transmartproject.rest.hypercubeProto.ObservationsProto.*
 @Slf4j
 @CompileStatic
 class HypercubeProtobufSerializer extends HypercubeSerializer {
+    static final int MAXIMUM_PACKED_VALUES = 2**16 as int
 
     protected Hypercube cube
     protected Dimension packedDimension
@@ -230,7 +231,8 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             def groupIndices = indices(prototype)
             group.add(prototype)
 
-            while (iterator.hasNext() && sameIndices(iterator.peek(), groupIndices)) {
+            int groupSize = 1
+            while (groupSize < MAXIMUM_PACKED_VALUES && iterator.hasNext() && sameIndices(iterator.peek(), groupIndices)) {
                 Class valueType = iterator.peek().value?.class
                 if (!compatibleValueType(valueType, groupValueType)) {
                     log.warn("Observations with incompatible value types found for the same concept or projection. " +
@@ -239,6 +241,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                     break
                 }
                 group.add(iterator.next())
+                groupSize++
             }
 
             if(groupValueType.get() == null) return null
