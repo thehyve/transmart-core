@@ -1,4 +1,4 @@
-package org.transmart
+package org.transmart.oauth
 
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
