@@ -50,7 +50,7 @@ class BruteForceLoginLockService {
      */
     def loginSuccess(String login) {
         if (!isLocked(login)) {
-            BruteForceLoginLockService.log.debug "successfull login for ${login}"
+            log.debug "successfull login for ${login}"
             failedAttempts.invalidate(login)
         }
     }
