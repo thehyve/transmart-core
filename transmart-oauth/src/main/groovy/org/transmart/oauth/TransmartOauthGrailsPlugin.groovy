@@ -115,6 +115,22 @@ Brief summary/description of the plugin.
                 }
             }
 
+            if (grailsApplication.config.org.transmart.security.samlEnabled) {
+                importBeans('classpath:/spring/spring-security-saml.xml')
+                // Provider of default SAML Context. Moved to groovy to allow choose implementation
+                if (grailsApplication.config.org.transmart.security.saml.lb.serverName) {
+                    contextProvider(org.springframework.security.saml.context.SAMLContextProviderLB) {
+                        scheme = grailsApplication.config.org.transmart.security.saml.lb.scheme
+                        serverName = grailsApplication.config.org.transmart.security.saml.lb.serverName
+                        serverPort = grailsApplication.config.org.transmart.security.saml.lb.serverPort
+                        includeServerPortInRequestURL = grailsApplication.config.org.transmart.security.saml.lb.includeServerPortInRequestURL
+                        contextPath = grailsApplication.config.org.transmart.security.saml.lb.contextPath
+                    }
+                } else {
+                    contextProvider(org.springframework.security.saml.context.SAMLContextProviderImpl)
+                }
+            }
+
             bruteForceLoginLockService = ref('bruteForceLoginLockService')
             bruteForceLoginLockService(BruteForceLoginLockService) {
                 allowedNumberOfAttempts = grailsApplication.config.bruteForceLoginLock.allowedNumberOfAttempts

@@ -22,6 +22,13 @@ class BootStrap {
     def init = { servletContext ->
         securityContextPersistenceFilter.forceEagerSessionCreation = true
 
+        if (grailsApplication.config.org.transmart.security.samlEnabled) {
+            SpringSecurityUtils.clientRegisterFilter(
+                    'metadataGeneratorFilter', SecurityFilterPosition.FIRST)
+            SpringSecurityUtils.clientRegisterFilter(
+                    'samlFilter', SecurityFilterPosition.BASIC_AUTH_FILTER)
+        }
+
         if (!grailsApplication.config.org.transmart.configFine.is(true)) {
             logger.error("Something wrong happened parsing the externalized " +
                     "Config.groovy, because we could not find the " +
