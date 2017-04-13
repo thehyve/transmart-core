@@ -17,7 +17,7 @@
  * Transmart.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmart.audit
+package org.transmart.server
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -25,7 +25,6 @@ import grails.core.GrailsApplication
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import javax.servlet.http.HttpServletRequest
-import org.apache.log4j.Level
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.provider.OAuth2Authentication

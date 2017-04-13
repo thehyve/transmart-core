@@ -2,7 +2,6 @@ package org.transmartproject.interceptors
 
 import grails.artefact.Interceptor
 import grails.converters.JSON
-import org.transmart.audit.AuditLogService
 import org.transmart.audit.StudyIdService
 import org.transmartproject.core.log.AccessLogEntryResource
 import org.transmartproject.core.users.User
@@ -11,7 +10,7 @@ import org.transmartproject.core.users.User
 class DataExportInterceptor implements Interceptor {
 
     AccessLogEntryResource accessLogService
-    AuditLogService auditLogService
+    def auditLogService
     StudyIdService studyIdService
     User currentUserBean
 

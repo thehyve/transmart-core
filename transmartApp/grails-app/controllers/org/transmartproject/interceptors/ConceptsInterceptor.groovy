@@ -1,12 +1,11 @@
 package org.transmartproject.interceptors
 
-import org.transmart.audit.AuditLogService
 import org.transmartproject.core.users.User
 
 
 class ConceptsInterceptor {
 
-    AuditLogService auditLogService
+    def auditLogService
     def studyIdService
     User currentUserBean
 
