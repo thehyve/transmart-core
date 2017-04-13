@@ -17,14 +17,14 @@
  * Transmart.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmart.logging
+package org.transmart.server.logging
 
 import org.apache.log4j.Level
 import org.apache.log4j.spi.LoggingEvent
 import org.apache.log4j.Category
 import org.junit.Rule
-import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import spock.lang.Specification
 
 import java.nio.charset.StandardCharsets
 
@@ -35,12 +35,12 @@ import static org.hamcrest.Matchers.*
 
 import static ChildProcessAppender.ChildFailedException
 
-class ChildProcessAppenderTests {
-
+class ChildProcessAppenderTests extends Specification {
+   
     @Rule
-    public TemporaryFolder temp = new TemporaryFolder()
-
-    static String TESTSTRING = "hello world! testing org.transmart.logging.ChildProcessAppender\n"
+    TemporaryFolder temp = new TemporaryFolder()
+    
+    static String TESTSTRING = "hello world! testing org.transmart.server.logging.ChildProcessAppender\n"
 
     static sh(cmd) { return ['sh', '-c', cmd] }
     // escape shell strings, based on http://stackoverflow.com/a/1250279/264177
@@ -50,30 +50,40 @@ class ChildProcessAppenderTests {
         a.input.close()
         a.process.waitFor()
     }
-
-    @Test
+    
     void testLoggingEvent() {
+        setup:
         File output = temp.newFile('output')
         def p = new ChildProcessAppender(command: sh("cat >"+path(output)))
         LoggingEvent e = new LoggingEvent("", new Category('debug'), Level.DEBUG, [foo: 'bar', baz: 'quux'], null)
+        
+        when:
         p.doAppend(e)
         p.close()
         waitForChild(p)
-        assertThat readFileToString(output), is('{"foo":"bar","baz":"quux"}\n')
+        
+        then:
+        readFileToString(output) == '{"foo":"bar","baz":"quux"}\n'
     }
 
-    @Test
     void testOutput() {
+        setup:
         File output = temp.newFile('output')
         def p = new ChildProcessAppender(command: sh("cat > "+path(output)))
+        
+        when:
         p.write(TESTSTRING)
         waitForChild(p)
-        assertThat readFileToString(output), is(TESTSTRING)
+        
+        then:
+        readFileToString(output) == TESTSTRING
     }
-
-    @Test(expected=ChildFailedException.class)
+    
     void testFail() {
+        setup:
         def p = new ChildProcessAppender(command: ["false"], restartLimit: 3, throwOnFailure: true)
+       
+        when:
         p.write(TESTSTRING)
         waitForChild(p)
         p.write(TESTSTRING)
@@ -82,18 +92,20 @@ class ChildProcessAppenderTests {
         waitForChild(p)
         p.write(TESTSTRING)
         waitForChild(p)
-        // unreachable
-        assert false
+        
+        then:
+        thrown ChildFailedException
     }
 
-    @Test
     void testRestart() {
         do_testRestart(3, 15)
     }
-
-    @Test(expected=ChildFailedException.class)
+    
     void testRestartLimit() {
+        when:
         do_testRestart(5, 3)
+        then:
+        thrown ChildFailedException
     }
 
     void do_testRestart(int restarts, int limit) {

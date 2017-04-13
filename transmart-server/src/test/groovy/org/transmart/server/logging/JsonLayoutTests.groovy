@@ -17,31 +17,29 @@
  * Transmart.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmart.logging
+package org.transmart.server.logging
 
 import groovy.json.JsonSlurper
 import org.apache.log4j.Category
 import org.apache.log4j.Level
 import org.apache.log4j.spi.LoggingEvent
-import org.gmock.WithGMock
-import org.junit.Test
+import spock.lang.Specification
+
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*
 
-class JsonLayoutTests {
+class JsonLayoutTests extends Specification {
 
     static LoggingEvent makeEvent(msg) {
         new LoggingEvent("", new Category('debug'), Level.DEBUG, msg, null)
     }
 
-    @Test
     void testSingleLine() {
         def j = new JsonLayout(singleLine: true, conversionPattern: "%m%n")
         assertThat j.format(makeEvent([1,2,3])), is('[1,2,3]\n')
         assertThat j.format(makeEvent([foo: 'bar', baz: 42, qux: null])), is ('{"foo":"bar","baz":42,"qux":null}\n')
     }
 
-    @Test
     void testMultiLine() {
         def j = new JsonLayout(conversionPattern: '%m')
         def obj = [1,2,3]
@@ -50,7 +48,6 @@ class JsonLayoutTests {
         assertThat new JsonSlurper().parseText(j.format(makeEvent(obj2))), is(obj2)
     }
 
-    @Test
     void testDate() {
         def d = new Date(1454412462729)
         def j = new JsonLayout(conversionPattern: '%m')

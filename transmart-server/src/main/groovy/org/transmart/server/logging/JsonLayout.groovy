@@ -17,17 +17,17 @@
  * Transmart.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmart.logging
+package org.transmart.server.logging
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import org.apache.log4j.EnhancedPatternLayout
+import org.apache.log4j.PatternLayout
 import org.apache.log4j.spi.LoggingEvent
 
 @CompileStatic
-class JsonLayout extends EnhancedPatternLayout {
+class JsonLayout extends PatternLayout {
 
     boolean singleLine = false
     String dateFormat = "yyyy-MM-dd HH:mm:ss.SSSX"

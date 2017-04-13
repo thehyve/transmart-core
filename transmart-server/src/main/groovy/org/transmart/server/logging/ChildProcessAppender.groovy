@@ -17,7 +17,7 @@
  * Transmart.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.transmart.logging
+package org.transmart.server.logging
 
 import com.google.common.base.Charsets
 import groovy.transform.CompileStatic
@@ -26,7 +26,7 @@ import groovy.util.logging.Slf4j
 import org.apache.log4j.AppenderSkeleton
 import org.apache.log4j.spi.LoggingEvent
 import org.apache.log4j.helpers.LogLog
-import org.transmart.logging.JsonLayout
+import org.transmart.server.logging.JsonLayout
 
 import static java.lang.ProcessBuilder.Redirect.*
 
