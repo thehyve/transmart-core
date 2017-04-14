@@ -996,33 +996,31 @@ var spec = {
           "200": {
             "description": "an object with the created patient_set or error.\n",
             "schema": {
-              "type": "object",
-              "properties": {
-                "description": {
-                  "type": "string"
-                },
-                "errorMessage": {
-                  "type": "string"
-                },
-                "id": {
-                  "type": "integer"
-                },
-                "setSize": {
-                  "type": "integer"
-                },
-                "status": {
-                  "type": "string"
-                },
-                "username": {
-                  "type": "string"
-                },
-                "requestConstraints": {
-                  "type": "string"
-                },
-                "apiVersion": {
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/patient_set"
+            }
+          }
+        }
+      }
+    },
+    "/v2/patient_sets/{resultInstanceId}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "resultInstanceId",
+            "in": "path",
+            "description": "ID of the patient set, called resultInstance ID because internally it refers to the result of a query\n",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns one patient_set.\n",
+            "schema": {
+              "$ref": "#/definitions/patient_set"
             }
           }
         }
@@ -1970,6 +1968,35 @@ var spec = {
           "type": "string"
         },
         "trial": {
+          "type": "string"
+        }
+      }
+    },
+    "patient_set": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "setSize": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "requestConstraints": {
+          "type": "string"
+        },
+        "apiVersion": {
           "type": "string"
         }
       }
