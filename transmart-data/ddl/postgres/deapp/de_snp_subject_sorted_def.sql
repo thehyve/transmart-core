@@ -7,7 +7,8 @@ CREATE TABLE de_snp_subject_sorted_def (
     patient_position integer,
     patient_num bigint,
     subject_id character varying(255),
-    bio_assay_platform_id bigint
+    bio_assay_platform_id bigint,
+    assay_id bigint
 );
 
 --
