@@ -171,6 +171,7 @@ class SnpLzTestDataSinglePlatform {
                     patient: assay.patient,
                     bioAssayPlatform: bioAssayPlatform,
                     subjectId: assay.sampleCode,
+                    assayId: null
             )
             s.id = --id
             s

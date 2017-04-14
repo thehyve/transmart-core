@@ -26,6 +26,7 @@ class SnpSubjectSortedDef {
     String trialName
     Integer patientPosition
     String subjectId
+    String assayId
 
     static belongsTo = [
             patient: PatientDimension,
@@ -46,5 +47,6 @@ class SnpSubjectSortedDef {
         patient             nullable:  true
         bioAssayPlatform    nullable:  true
         subjectId           nullable:  true
+        assayId             nullable:  true
     }
 }
