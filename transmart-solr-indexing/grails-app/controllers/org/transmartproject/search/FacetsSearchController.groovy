@@ -3,11 +3,12 @@ package org.transmartproject.search
 import grails.converters.JSON
 import grails.util.Holders
 import grails.validation.Validateable
+import groovy.util.logging.Slf4j
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.SolrException
-import org.grails.databinding.BindUsing
+import grails.databinding.BindUsing
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.Cacheable
 import org.transmart.biomart.BioMarker
@@ -27,6 +28,7 @@ import java.util.regex.Pattern
 
 import static org.transmartproject.search.indexing.FacetsIndexingService.*
 
+@Slf4j
 class FacetsSearchController {
 
     static scope = 'singleton'
@@ -338,33 +340,48 @@ class AutoCompleteCommand implements Validateable {
 
 class FieldTerms implements Validateable {
     String operator
-    List<SearchTerm> searchTerms = []
+    //List<SearchTerm> searchTerms = []
 
     static constraints = {
         operator inList: ['OR', 'AND']
     }
 }
 
+@Slf4j
 class GetFacetsCommand implements Validateable {
     String requiredField
     String operator
+
+    @BindUsing({ obj, source ->
+        source['fieldTerms'].collectEntries {k ,v ->
+            [k, new FieldTerms([operator:v])]
+        }
+    })
+    Map<String, FieldTerms> fieldTerms
+
+/*
     @BindUsing({ obj, source ->
         source['fieldTerms'].collectEntries { k, v ->
             [k, new FieldTerms(v).with { ft ->
+
                 ft.searchTerms = ft.searchTerms.collect {
                     new SearchTerm(it)
                 }
                 ft
             }]
         }
-    })
-    Map<String, FieldTerms> fieldTerms
+    })*/
+//    Map<String, FieldTerms> fieldTerms
+
+
 
     static constraints = {
         operator inList: ['OR', 'AND']
+        /*
         fieldTerms validator: { val, obj ->
+            log.warn("Now at validator : ${val}".toString())
             val.values().every { it.validate() }
-        }
+        }*/
     }
 }
 
