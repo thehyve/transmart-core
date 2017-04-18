@@ -42,7 +42,7 @@ interface MultiDimensionalDataResource {
     Long patientCount(MultiDimConstraint constraint, User user)
     Long cachedPatientCount(MultiDimConstraint constraint, User user)
 
-    Number aggregate(AggregateType type, MultiDimConstraint constraint, User user)
+    def aggregate(AggregateType type, MultiDimConstraint constraint, User user)
 
     Hypercube highDimension(
             MultiDimConstraint assayConstraint_,

@@ -342,32 +342,62 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    private Number getAggregate(AggregateType aggregateType, DetachedCriteria criteria) {
-        switch (aggregateType) {
-            case AggregateType.MIN:
-                criteria = criteria.setProjection(Projections.min('numberValue'))
-                break
-            case AggregateType.AVERAGE:
-                criteria = criteria.setProjection(Projections.avg('numberValue'))
-                break
-            case AggregateType.MAX:
-                criteria = criteria.setProjection(Projections.max('numberValue'))
-                break
+    private HibernateCriteriaQueryBuilder getCheckedQueryBuilder(User user) {
+        new HibernateCriteriaQueryBuilder(
+                studies: (Collection) accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+        )
+    }
+
+    Class aggregateReturnType(AggregateType at) {
+        switch (at) {
+            case AggregateType.NONE:
+                throw new IllegalArgumentException("AggregateType.NONE does not have a return type")
             case AggregateType.COUNT:
-                criteria = criteria.setProjection(Projections.rowCount())
-                break
+                return Long
+            case AggregateType.VALUES:
+                return List
             default:
-                throw new QueryBuilderException("Query type not supported: ${aggregateType}")
+                return Number
         }
-        aggregateType == AggregateType.COUNT ? (Long) get(criteria) : (Number) get(criteria)
+    }
+
+    private static org.hibernate.criterion.Projection projectionForAggregate(AggregateType at) {
+        switch (at) {
+            case AggregateType.MIN:
+                return Projections.min('numberValue')
+            case AggregateType.AVERAGE:
+                return Projections.avg('numberValue')
+            case AggregateType.MAX:
+                return Projections.max('numberValue')
+            case AggregateType.COUNT:
+                return Projections.rowCount()
+            case AggregateType.VALUES:
+                return Projections.distinct(Projections.property('textValue'))
+            default:
+                throw new QueryBuilderException("Query type not supported: ${at}")
+        }
+    }
+
+    private getAggregate(AggregateType aggregateType, DetachedCriteria criteria) {
+        criteria = criteria.setProjection(projectionForAggregate(aggregateType))
+        Class rt = aggregateReturnType(aggregateType)
+        if(List.isAssignableFrom(rt)) {
+            return getList(criteria)
+        } else {
+            return get(criteria).asType(rt)
+        }
     }
 
     private Object get(DetachedCriteria criteria) {
-        criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult()
+        getExecutableCriteria(criteria).uniqueResult()
     }
 
     private List getList(DetachedCriteria criteria) {
-        criteria.getExecutableCriteria(sessionFactory.currentSession).list()
+        getExecutableCriteria(criteria).list()
+    }
+
+    private Criteria getExecutableCriteria(DetachedCriteria criteria) {
+        criteria.getExecutableCriteria(sessionFactory.currentSession).setCacheable(true)
     }
 
     /**
@@ -377,8 +407,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @return true iff an observation fact is found that satisfies <code>constraint</code>.
      */
     private boolean exists(HibernateCriteriaQueryBuilder builder, Constraint constraint) {
-        DetachedCriteria criteria = builder.buildCriteria(constraint)
-        (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
+        def crit = getExecutableCriteria(builder.buildCriteria(constraint))
+        crit.maxResults = 1
+        return crit.uniqueResult()
     }
 
     /**
@@ -592,11 +623,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @description Function for getting a aggregate value of a single field.
      * The allowed queryTypes are MIN, MAX and AVERAGE.
      * The responsibility for checking the queryType is allocated to the controller.
-     * Only allowed for numerical values and so checks if this is the case
      * @param query
      * @param user
      */
-    @Override Number aggregate(AggregateType type, MultiDimConstraint constraint, User user) {
+    @Override def aggregate(AggregateType type, MultiDimConstraint constraint, User user) {
         checkAccess(constraint, user)
         if (type == AggregateType.NONE) {
             throw new InvalidQueryException("Aggregate requires a valid aggregate type.")
