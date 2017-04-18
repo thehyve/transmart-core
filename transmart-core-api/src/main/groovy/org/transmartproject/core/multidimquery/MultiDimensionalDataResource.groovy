@@ -53,7 +53,7 @@ interface MultiDimensionalDataResource {
 
     Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user)
 
-    RequestConstraintsAndVersion getPatientSetRequestConstraintsAndApiVersion(long id)
+    RequestConstraintAndVersion getPatientSetConstraint(long id)
 
-    @Immutable class RequestConstraintsAndVersion { String constraints; String version }
+    @Immutable class RequestConstraintAndVersion { String constraint; String version }
 }

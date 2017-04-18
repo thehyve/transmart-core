@@ -15,6 +15,7 @@ enum AggregateType {
     MAX,
     AVERAGE,
     COUNT,
+    VALUES,
     NONE
 
     private static final Map<String, AggregateType> mapping = values().collectEntries {
@@ -23,12 +24,10 @@ enum AggregateType {
 
     public static AggregateType forName(String name) {
         name = name.toLowerCase()
-        if (mapping.containsKey(name)) {
-            return mapping[name]
-        } else {
+        return mapping[name] ?: {
             // TODO(jan): Should this be an exception?
             log.error "Unknown aggregate type: ${name}"
             return NONE
-        }
+        }()
     }
 }

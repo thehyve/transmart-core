@@ -112,6 +112,7 @@ class ObservationFact implements Serializable {
         VisitDimension.get(new VisitDimension(patient: patient, encounterNum: encounterNum))
     }
 
+    @CompileStatic
     def getValue() {
         observationFactValue(valueType, textValue, numberValue)
     }
@@ -122,8 +123,13 @@ class ObservationFact implements Serializable {
     static final def observationFactValue(String valueType, String textValue, BigDecimal numberValue) {
         switch(valueType) {
             case TYPE_TEXT:
+                if(textValue == null) throw new DataInconsistencyException("textValue is NULL for observation with text type")
                 return textValue
             case TYPE_NUMBER:
+                if(numberValue == null) throw new DataInconsistencyException("numberValue is NULL for observation " +
+                        "with numeric type")
+                if(textValue != 'E') throw new DataInconsistencyException("textValue is not set to 'E' for " +
+                        "observation with numeric type")
                 return numberValue
             default:
                 throw new DataInconsistencyException("Unsupported database value: ObservationFact.valueType " +
