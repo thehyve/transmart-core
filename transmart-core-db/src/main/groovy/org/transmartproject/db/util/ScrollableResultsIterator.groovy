@@ -23,9 +23,9 @@ class ScrollableResultsIterator<T> implements Iterator<T>, Closeable {
     boolean hasNext() {
         if (hasNext == null) {
             hasNext = scrollableResults.next()
-        } else {
-            hasNext
+            if(!hasNext) close()
         }
+        hasNext
     }
 
     @Override
@@ -45,7 +45,7 @@ class ScrollableResultsIterator<T> implements Iterator<T>, Closeable {
 
     @Override
     void close() throws IOException {
-        this.scrollableResults.close()
+        if(!closed) this.scrollableResults.close()
         closed = true
     }
 

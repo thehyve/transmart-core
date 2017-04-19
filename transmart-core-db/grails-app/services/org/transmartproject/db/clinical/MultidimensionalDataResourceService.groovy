@@ -93,8 +93,10 @@ import org.transmartproject.db.querytool.QtQueryInstance
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.util.GormWorkarounds
+import org.transmartproject.db.util.ScrollableResultsIterator
 
 import org.transmartproject.db.user.User as DbUser
+import org.transmartproject.db.util.ScrollableResultsWrappingIterable
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
@@ -421,6 +423,11 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         getExecutableCriteria(criteria).list()
     }
 
+    private Iterable getIterable(DetachedCriteria criteria) {
+        def scrollableResult = getExecutableCriteria(criteria).scroll(ScrollMode.FORWARD_ONLY)
+        new ScrollableResultsWrappingIterable(scrollableResult)
+    }
+
     private Criteria getExecutableCriteria(DetachedCriteria criteria) {
         criteria.getExecutableCriteria(sessionFactory.currentSession).setCacheable(true)
     }
@@ -735,12 +742,14 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 new AndConstraint(args: [textTypeConstraint, textValueNotNullConstraint])
         ]))
 
-        def invalidObservations = getList(builder.buildCriteria(
+        def invalidObservations = getIterable(builder.buildCriteria(
                 new AndConstraint(args: [(Constraint) constraint, invalidObservationConstraint])))
 
-        for(ObservationFact o in invalidObservations) {
-            // Retrieving the value will throw an exception
-            o.value
+        invalidObservations.withCloseable {
+            for(ObservationFact o in invalidObservations) {
+                // Retrieving the value will throw an exception
+                o.value
+            }
         }
     }
 
