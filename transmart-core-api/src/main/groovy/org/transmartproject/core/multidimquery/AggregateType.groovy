@@ -15,8 +15,7 @@ enum AggregateType {
     MAX,
     AVERAGE,
     COUNT,
-    VALUES,
-    NONE
+    VALUES
 
     private static final Map<String, AggregateType> mapping = values().collectEntries {
         [(it.name().toLowerCase()): it]
@@ -29,9 +28,8 @@ enum AggregateType {
     public static AggregateType forName(String name) {
         name = name.toLowerCase()
         return mapping[name] ?: {
-            // TODO(jan): Should this be an exception?
-            log.error "Unknown aggregate type: ${name}"
-            return NONE
+            throw new IllegalArgumentException("Unknown aggregate type: $name")
+            null as AggregateType // because Groovy wants a return type
         }()
     }
 }

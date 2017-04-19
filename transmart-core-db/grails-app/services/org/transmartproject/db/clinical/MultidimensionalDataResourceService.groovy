@@ -354,8 +354,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     Class aggregateReturnType(AggregateType at) {
         switch (at) {
-            case AggregateType.NONE:
-                throw new IllegalArgumentException("AggregateType.NONE does not have a return type")
             case AggregateType.COUNT:
                 return Long
             case AggregateType.VALUES:
@@ -369,8 +367,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         switch (at) {
             case AggregateType.VALUES:
                 return ObservationFact.TYPE_TEXT
-            case AggregateType.NONE:
-                throw new QueryBuilderException("Query type not supported: ${at}")
             default:
                 return ObservationFact.TYPE_NUMBER
         }

@@ -168,7 +168,12 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        def aggregateTypes = type.collect { AggregateType.forName(it as String) }
+        def aggregateTypes
+        try {
+            aggregateTypes = type.collect { AggregateType.forName(it as String) }
+        } catch (IllegalArgumentException e) {
+            throw new InvalidQueryException(e)
+        }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         Map aggregateValues = multiDimService.aggregate(aggregateTypes, constraint, user)
         render aggregateValues as JSON
