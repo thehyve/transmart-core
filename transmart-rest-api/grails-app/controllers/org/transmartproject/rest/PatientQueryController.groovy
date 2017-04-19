@@ -163,7 +163,7 @@ class PatientQueryController extends AbstractQueryController {
 
         response.status = 201
         render new QueryResultWrapper(
-                apiVersion: apiVersion,
+                apiVersion: currentVersion,
                 queryResult: patientSet,
                 requestConstraints: bodyJson
         ) as JSON
