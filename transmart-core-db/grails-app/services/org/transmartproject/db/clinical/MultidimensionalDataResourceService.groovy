@@ -367,6 +367,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         switch (at) {
             case AggregateType.VALUES:
                 return ObservationFact.TYPE_TEXT
+            case AggregateType.COUNT:
+                return null
             default:
                 return ObservationFact.TYPE_NUMBER
         }
@@ -648,16 +650,17 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def builder = getCheckedQueryBuilder(user)
 
         def fieldTypes = types.collect { aggregateFieldType(it) }.unique()
-        if(fieldTypes.size() > 1) throw new InvalidQueryException("aggregate queries on numeric and textual values " +
-                "can not be combined in a single call")
+        if(fieldTypes.findAll().size() > 1) throw new InvalidQueryException(
+                "aggregate queries on numeric and textual values can not be combined in a single call")
 
         if(fieldTypes.size() == 0) return [:]
 
-        def typedConstraint = new AndConstraint(args: [constraint, new FieldConstraint(
-                operator: Operator.EQUALS,
-                field: valueTypeField,
-                value: fieldTypes[0],
-        )])
+        def typedConstraint = fieldTypes.size() != 1 ? constraint :
+                new AndConstraint(args: [constraint, new FieldConstraint(
+                    operator: Operator.EQUALS,
+                    field: valueTypeField,
+                    value: fieldTypes[0],
+                )])
 
         // get aggregate value
         DetachedCriteria queryCriteria = builder.buildCriteria(typedConstraint)
@@ -691,7 +694,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             throw new InvalidQueryException("No observations found for query")
         }
 
-        at.collect {aggregateFieldType(it)}.unique().each {
+        at.collect {aggregateFieldType(it)}.unique().findAll().each {
             def wrongValueTypeConstraint = new FieldConstraint(
                     operator: Operator.NOT_EQUALS,
                     field: valueTypeField,

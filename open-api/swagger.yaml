@@ -753,7 +753,7 @@ paths:
   /v2/observations/aggregate:
     get:
       description: |
-        Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', and
+        Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'count', and
         'values'. The first three require numeric variables, the last one categorical variables.
       tags:
         - v2
@@ -767,8 +767,8 @@ paths:
           required: true
           in: query
           description: |
-            'min', 'max', 'average', or 'values'. This parameter can be specified multiple times to retrieve multiple
-             aggregates at once. The 'values' aggregate cannot be combined with the numeric aggregate types.
+            'min', 'max', 'average', 'count', or 'values'. This parameter can be specified multiple times to retrieve
+            multiple aggregates at once. The 'values' aggregate cannot be combined with the numeric aggregate types.
           type: string
       responses:
         200:
