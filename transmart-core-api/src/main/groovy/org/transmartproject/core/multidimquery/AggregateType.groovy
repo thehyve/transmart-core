@@ -22,6 +22,10 @@ enum AggregateType {
         [(it.name().toLowerCase()): it]
     }
 
+    public String toString() {
+        name().toLowerCase()
+    }
+
     public static AggregateType forName(String name) {
         name = name.toLowerCase()
         return mapping[name] ?: {

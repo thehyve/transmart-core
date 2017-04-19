@@ -42,7 +42,15 @@ interface MultiDimensionalDataResource {
     Long patientCount(MultiDimConstraint constraint, User user)
     Long cachedPatientCount(MultiDimConstraint constraint, User user)
 
-    def aggregate(AggregateType type, MultiDimConstraint constraint, User user)
+    /**
+     * Retrieve aggregate information
+     *
+     * @param types the list of aggregates you want
+     * @param constraint specifies which observations you want to aggregate
+     * @param user The user whose access rights to consider
+     * @return a map of aggregates. The keys are the names of the aggregates.
+     */
+    Map aggregate(List<AggregateType> types, MultiDimConstraint constraint, User user)
 
     Hypercube highDimension(
             MultiDimConstraint assayConstraint_,

@@ -49,7 +49,8 @@ class MultidimensionalDataService {
      * @param hypercube the hypercube to serialise.
      * @param format the output format. Supports JSON and PROTOBUF.
      * @param out the stream to serialise to.
-     */@CompileStatic
+     */
+    @CompileStatic
     private void serialise(Hypercube hypercube, Format format, OutputStream out) {
         HypercubeSerializer serializer
         switch (format) {

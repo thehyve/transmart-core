@@ -22,6 +22,7 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
+import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -392,13 +393,25 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    private getAggregate(AggregateType aggregateType, DetachedCriteria criteria) {
-        criteria = criteria.setProjection(projectionForAggregate(aggregateType))
-        Class rt = aggregateReturnType(aggregateType)
-        if(List.isAssignableFrom(rt)) {
-            return getList(criteria)
+    private Map getAggregate(List<AggregateType> aggregateTypes, DetachedCriteria criteria) {
+        List<Class> rts = aggregateTypes.collect { aggregateReturnType(it) }
+
+        if(rts.any { List.isAssignableFrom(it) }) {
+            if (rts.size() != 1) throw new InvalidQueryException("aggregates that return a list of values cannot be " +
+                    "combined with other aggregates in the same call")
+
+            criteria = criteria.setProjection(projectionForAggregate(aggregateTypes[0]))
+            def res = getList(criteria)
+            return [(aggregateTypes[0].toString()): res]
+
         } else {
-            return get(criteria).asType(rt)
+            def projections = Projections.projectionList()
+            aggregateTypes.each {
+                projections.add(projectionForAggregate(it), it.toString())
+            }
+            criteria = criteria.setProjection(projections).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+            def rv = get(criteria)
+            return rv
         }
     }
 
@@ -632,21 +645,31 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param query
      * @param user
      */
-    @Override def aggregate(AggregateType type, MultiDimConstraint constraint, User user) {
+    @Override Map aggregate(List<AggregateType> types, MultiDimConstraint constraint_, User user) {
+        def constraint = (Constraint) constraint_
         checkAccess(constraint, user)
-        if (type == AggregateType.NONE) {
-            throw new InvalidQueryException("Aggregate requires a valid aggregate type.")
-        }
 
-        QueryBuilder builder = getCheckedQueryBuilder(user)
+        def builder = getCheckedQueryBuilder(user)
+
+        def fieldTypes = types.collect { aggregateFieldType(it) }.unique()
+        if(fieldTypes.size() > 1) throw new InvalidQueryException("aggregate queries on numeric and textual values " +
+                "can not be combined in a single call")
+
+        if(fieldTypes.size() == 0) return [:]
+
+        def typedConstraint = new AndConstraint(args: [constraint, new FieldConstraint(
+                operator: Operator.EQUALS,
+                field: valueTypeField,
+                value: fieldTypes[0],
+        )])
 
         // get aggregate value
-        DetachedCriteria queryCriteria = builder.buildCriteria((Constraint) constraint)
-        def result = getAggregate(type, queryCriteria)
+        DetachedCriteria queryCriteria = builder.buildCriteria(typedConstraint)
+        def result = getAggregate(types, queryCriteria)
 
-        if (result == null || (result instanceof List && ((List) result).empty)) {
-            // No result found, do some diagnosis to discover why not so we can return a useful error message
-            diagnoseEmptyAggregate(type, constraint, builder)
+        if (result == null || result.values().any {it == null || (it instanceof List && ((List) it).empty)}) {
+            // results not found, do some diagnosis to discover why not so we can return a useful error message
+            diagnoseEmptyAggregate(types, constraint, builder)
 
             // If diagnoseEmptyAggregate didn't throw any kind of exception, nothing left to do but to return the
             // (empty) result
@@ -655,7 +678,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         return result
     }
 
-    private void diagnoseEmptyAggregate(AggregateType at, MultiDimConstraint constraint, QueryBuilder builder) {
+    private void diagnoseEmptyAggregate(List<AggregateType> at, Constraint constraint,
+                                        HibernateCriteriaQueryBuilder builder) {
 
         // Find the concept
         List<ConceptConstraint> conceptConstraintList = findConceptConstraints(constraint)
@@ -671,14 +695,15 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             throw new InvalidQueryException("No observations found for query")
         }
 
-
-        def wrongValueTypeConstraint = new FieldConstraint(
-                operator: Operator.NOT_EQUALS,
-                field: valueTypeField,
-                value: aggregateFieldType(at),
-        )
-        if(exists(builder, new AndConstraint(args: [(Constraint) constraint, wrongValueTypeConstraint]))) {
-            throw new InvalidQueryException('One of the concepts/observations has the wrong type for this aggregation')
+        at.collect {aggregateFieldType(it)}.unique().each {
+            def wrongValueTypeConstraint = new FieldConstraint(
+                    operator: Operator.NOT_EQUALS,
+                    field: valueTypeField,
+                    value: it,
+            )
+            if(exists(builder, new AndConstraint(args: [(Constraint) constraint, wrongValueTypeConstraint]))) {
+                throw new InvalidQueryException('One of the concepts/observations has the wrong type for this aggregation')
+            }
         }
 
         // check if the concept is truly numerical (all textValue are E and all numberValue have a value) or textual

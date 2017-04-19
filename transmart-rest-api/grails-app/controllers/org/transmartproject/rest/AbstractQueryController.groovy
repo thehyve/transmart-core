@@ -108,9 +108,13 @@ abstract class AbstractQueryController implements Controller {
             return request.JSON as Map
         }
         return params.collectEntries { String k, v ->
-            if (!globalParams.contains(k))
-                [k, URLDecoder.decode(v, 'UTF-8')]
-            else [:]
+            if (!globalParams.contains(k)) {
+                if(v instanceof Object[] || v instanceof List) {
+                    [k, v.collect { URLDecoder.decode(it, 'UTF-8') }]
+                } else {
+                    [k, URLDecoder.decode(v, 'UTF-8')]
+                }
+            } else [:]
         }
     }
 }

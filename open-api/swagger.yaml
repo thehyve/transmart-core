@@ -753,7 +753,8 @@ paths:
   /v2/observations/aggregate:
     get:
       description: |
-        Calculates and returns an aggregate value.
+        Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', and
+        'values'. The first three require numeric variables, the last one categorical variables.
       tags:
         - v2
       parameters:
@@ -765,7 +766,9 @@ paths:
         - name: type
           required: true
           in: query
-          description: 'min, max, average'
+          description: |
+            'min', 'max', 'average', or 'values'. This parameter can be specified multiple times to retrieve multiple
+             aggregates at once. The 'values' aggregate cannot be combined with the numeric aggregate types.
           type: string
       responses:
         200:
@@ -780,6 +783,11 @@ paths:
                 type: number
               average:
                 type: number
+              values:
+                type: array
+                items:
+                  type: string
+                description: A list of the distinct values for categorical variables
     post:
       description: |
         Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -796,7 +804,7 @@ paths:
         - name: type
           required: true
           in: body
-          description: see GET parameters
+          description: see GET parameters. Can be either a string or an array of strings.
           type: string
       responses:
         200:

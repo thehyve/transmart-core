@@ -83,7 +83,7 @@ class QueryServiceSpec extends TransmartSpecification {
         }
 
         ObservationFact observationFact = clinicalTestdata.createObservationFact(
-                conceptDimension, patientDimension, clinicalTestdata.DUMMY_ENCOUNTER_ID, -1
+                conceptDimension, patientDimension, clinicalTestdata.DUMMY_ENCOUNTER_ID, obs.value
         )
 
         observationFact
@@ -228,22 +228,30 @@ class QueryServiceSpec extends TransmartSpecification {
         def query = createQueryForConcept(observationFact)
 
         when:
-        def result = multiDimService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
+        def result = multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
 
         then:
-        result == 50
+        result.max == 50
 
         when:
-        result = multiDimService.aggregate(AggregateType.MIN, query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate([AggregateType.MIN], query, accessLevelTestData.users[0])
 
         then:
-        result == 10
+        result.min == 10
 
         when:
-        result = multiDimService.aggregate(AggregateType.AVERAGE, query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate([AggregateType.AVERAGE], query, accessLevelTestData.users[0])
 
         then:
-        result == 30 //(10+50) / 2
+        result.average == 30 //(10+50) / 2
+
+        when:
+        result = multiDimService.aggregate([AggregateType.MIN, AggregateType.MAX, AggregateType.AVERAGE], query,
+                accessLevelTestData.users[0])
+        then:
+        result.min == 10
+        result.max == 50
+        result.average == 30
     }
 
     void "test for values aggregate"() {
@@ -264,10 +272,10 @@ class QueryServiceSpec extends TransmartSpecification {
         def query = createQueryForConcept(facts[0])
 
         when:
-        def result = multiDimService.aggregate(AggregateType.VALUES, query, accessLevelTestData.users[0])
+        def result = multiDimService.aggregate([AggregateType.VALUES], query, accessLevelTestData.users[0])
 
         then:
-        [fact.textValue, "hello", "you", "there"] as Set == result as Set
+        [fact.textValue, "hello", "you", "there"] as Set == result.values as Set
     }
 
     void "test observation count and patient count"() {
@@ -314,7 +322,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         Constraint query = createQueryForConcept(observationFact)
-        multiDimService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
+        multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
 
         then:
         thrown(DataInconsistencyException)
@@ -332,7 +340,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         Constraint query = createQueryForConcept(observationFact)
-        multiDimService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
+        multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
 
         then:
         thrown(DataInconsistencyException)
