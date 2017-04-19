@@ -14,7 +14,6 @@ import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.AccessLevelTestData
-import spock.lang.Ignore
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
@@ -337,57 +336,6 @@ class QueryServiceSpec extends TransmartSpecification {
 
         then:
         thrown(DataInconsistencyException)
-    }
-
-    @Ignore("Aggregates are now not limited to a single concept, any constraint is supported (though not all will make sense")
-    void "test correct conceptConstraint checker in aggregate function"() {
-        setup:
-        setupData()
-
-        def user = accessLevelTestData.users[0]
-        def fact = testData.clinicalData.facts.find { it.valueType == 'N' }
-        def conceptDimension = testData.conceptData.conceptDimensions.find { it.conceptCode == fact.conceptCode }
-
-        when:
-        def constraint = new TrueConstraint()
-        multiDimService.aggregate(AggregateType.MAX, constraint, user)
-
-        then:
-        thrown(InvalidQueryException)
-
-        when:
-        constraint = new Combination(
-                operator: Operator.AND,
-                args: [
-                        new TrueConstraint(),
-                        new ConceptConstraint(
-                                path: conceptDimension.conceptPath
-                        ),
-                        new Combination(
-                                operator: Operator.AND,
-                                args: [
-                                        new ConceptConstraint(
-                                                path: conceptDimension.conceptPath
-                                        ),
-                                        new TrueConstraint()
-                                ]
-                        )
-                ]
-        )
-
-        multiDimService.aggregate(AggregateType.MAX, constraint, user)
-
-        then:
-        thrown(InvalidQueryException)
-
-        when:
-        def firstConceptConstraint = constraint.args.find { it.class == ConceptConstraint }
-        constraint.args = constraint.args - firstConceptConstraint
-        def result = multiDimService.aggregate(AggregateType.MAX, constraint, user)
-
-        then:
-        result == 10
-
     }
 
 }
