@@ -119,6 +119,12 @@ class ObservationFact implements Serializable {
 
     // Separate static method so this can also be called from code that accesses the database without converting to
     // domain classes
+    //
+    // The hypercube core-db code could in principle handle null values without much trouble. The tabular core-db
+    // does not distinguish between null values and absent values (it will insert nulls when expected values are
+    // missing). Therefore the HddTabularResultHypercubeAdapter tabular-to-hypercube converter treats nulls as absent
+    // values. Also Kettle does not support loading null values. As far as I know null values are not used in the
+    // wild, so it is better to not allow them in the transmart code and fail early if a null value is found.
     @CompileStatic
     static final def observationFactValue(String valueType, String textValue, BigDecimal numberValue) {
         switch(valueType) {
