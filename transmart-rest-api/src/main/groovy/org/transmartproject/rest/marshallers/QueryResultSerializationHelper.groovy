@@ -27,8 +27,8 @@ class QueryResultSerializationHelper extends AbstractHalOrJsonSerializationHelpe
                 new PatientWrapper(apiVersion: object.apiVersion, patient: it)
             }
         }
-        if(object.requestConstraints) {
-            map.requestConstraints = object.requestConstraints
+        if(object.requestConstraint) {
+            map.requestConstraints = object.requestConstraint
             map.apiVersion = object.apiVersion
         }
         map

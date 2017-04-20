@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.multidimquery.AggregateType
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.TestData
@@ -65,10 +66,13 @@ class QueryServiceSpec extends TransmartSpecification {
         new ConceptConstraint(path: conceptDimension.conceptPath)
     }
 
-    ObservationFact createFactForExistingConcept() {
+    ObservationFact findObservation(String type='N') {
+        testData.clinicalData.facts.find { it.valueType == type }
+    }
+
+    ObservationFact createObservationWithSameConcept(ObservationFact obs = findObservation()) {
         def clinicalTestdata = testData.clinicalData
-        def fact = clinicalTestdata.facts.find { it.valueType == 'N' }
-        def conceptDimension = testData.conceptData.conceptDimensions.find { it.conceptCode == fact.conceptCode }
+        def conceptDimension = testData.conceptData.conceptDimensions.find { it.conceptCode == obs.conceptCode }
         def patientsWithConcept = clinicalTestdata.facts.collect {
             if (it.conceptCode == conceptDimension.conceptCode) {
                 it.patient
@@ -79,10 +83,15 @@ class QueryServiceSpec extends TransmartSpecification {
         }
 
         ObservationFact observationFact = clinicalTestdata.createObservationFact(
-                conceptDimension, patientDimension, clinicalTestdata.DUMMY_ENCOUNTER_ID, -1
+                conceptDimension, patientDimension, clinicalTestdata.DUMMY_ENCOUNTER_ID, obs.value
         )
 
         observationFact
+    }
+
+    ConceptDimension createNewConcept(String templateConceptCode) {
+        def c = ConceptDimension.findByConceptCode(templateConceptCode)
+        new ConceptDimension(conceptPath: c.conceptPath+"2", conceptCode: c.conceptCode+"2")
     }
 
     void "test query for all observations"() {
@@ -199,8 +208,8 @@ class QueryServiceSpec extends TransmartSpecification {
         patients as Set == patients2 as Set
 
         when: "I query for patients based on saved constraints"
-        def constraintAndVersion = multiDimService.getPatientSetRequestConstraintsAndApiVersion(patientSet.id)
-        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(constraintAndVersion.constraints) as Map)
+        def constraintAndVersion = multiDimService.getPatientSetConstraint(patientSet.id)
+        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(constraintAndVersion.constraint) as Map)
         def patients3 = multiDimService.listPatients(savedPatientSetConstraint, accessLevelTestData.users[0])
 
         then: "I get the same set of patient as before"
@@ -211,7 +220,7 @@ class QueryServiceSpec extends TransmartSpecification {
     void "test for max, min, average aggregate"() {
         setupData()
 
-        ObservationFact observationFact = createFactForExistingConcept()
+        ObservationFact observationFact = createObservationWithSameConcept()
         observationFact.numberValue = 50
         testData.clinicalData.facts << observationFact
 
@@ -219,27 +228,59 @@ class QueryServiceSpec extends TransmartSpecification {
         def query = createQueryForConcept(observationFact)
 
         when:
-        def result = multiDimService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
+        def result = multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
 
         then:
-        result == 50
+        result.max == 50
 
         when:
-        result = multiDimService.aggregate(AggregateType.MIN, query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate([AggregateType.MIN], query, accessLevelTestData.users[0])
 
         then:
-        result == 10
+        result.min == 10
 
         when:
-        result = multiDimService.aggregate(AggregateType.AVERAGE, query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate([AggregateType.AVERAGE], query, accessLevelTestData.users[0])
 
         then:
-        result == 30 //(10+50) / 2
+        result.average == 30 //(10+50) / 2
+
+        when:
+        result = multiDimService.aggregate([AggregateType.MIN, AggregateType.MAX, AggregateType.AVERAGE], query,
+                accessLevelTestData.users[0])
+        then:
+        result.min == 10
+        result.max == 50
+        result.average == 30
+    }
+
+    void "test for values aggregate"() {
+        setupData()
+
+        def fact = findObservation('T')
+        int instanceId = fact.instanceNum
+        def facts = (1..3).collect {createObservationWithSameConcept(fact)}
+        facts[0].textValue = "hello"
+        facts[0].instanceNum = ++instanceId
+        facts[1].textValue = "you"
+        facts[1].instanceNum = ++instanceId
+        facts[2].textValue = "there"
+        facts[2].instanceNum = ++instanceId
+        testData.clinicalData.facts += facts
+
+        facts*.save()
+        def query = createQueryForConcept(facts[0])
+
+        when:
+        def result = multiDimService.aggregate([AggregateType.VALUES], query, accessLevelTestData.users[0])
+
+        then:
+        [fact.textValue, "hello", "you", "there"] as Set == result.values as Set
     }
 
     void "test observation count and patient count"() {
         setupData()
-        ObservationFact of1 = createFactForExistingConcept()
+        ObservationFact of1 = createObservationWithSameConcept()
         of1.numberValue = 50
         testData.clinicalData.facts << of1
         testData.saveAll()
@@ -254,7 +295,7 @@ class QueryServiceSpec extends TransmartSpecification {
         patientCount1 == 2L
 
         when:
-        ObservationFact of2 = createFactForExistingConcept()
+        ObservationFact of2 = createObservationWithSameConcept()
         of2.numberValue = 51
         of2.patient = of1.patient
         testData.clinicalData.facts << of2
@@ -270,88 +311,39 @@ class QueryServiceSpec extends TransmartSpecification {
     void "test for check if aggregate returns error when any numerical value is null"() {
         setupData()
 
-        def observationFact = createFactForExistingConcept()
+        def observationFact = createObservationWithSameConcept()
+        def newConcept = createNewConcept(observationFact.conceptCode).save()
 
         observationFact.numberValue = null
         observationFact.textValue = 'E'
         observationFact.valueType = 'N'
-        testData.clinicalData.facts << observationFact
-        testData.saveAll()
+        observationFact.conceptCode = newConcept.conceptCode
+        testData.clinicalData.facts << observationFact.save()
 
         when:
         Constraint query = createQueryForConcept(observationFact)
-        multiDimService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
+        multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
 
         then:
-        thrown(InvalidQueryException)
-
+        thrown(DataInconsistencyException)
     }
 
-    void "test for check if aggregate returns error when any textValue is other then E"() {
+    void "test for check if aggregate returns error when the textValue is other then E and no numeric value"() {
         setupData()
 
-        def observationFact = createFactForExistingConcept()
+        def observationFact = createObservationWithSameConcept()
+        def newConcept = createNewConcept(observationFact.conceptCode).save()
         observationFact.textValue = 'GT'
-        observationFact.numberValue = 60
-        testData.clinicalData.facts << observationFact
-        testData.saveAll()
+        observationFact.numberValue = null
+        observationFact.conceptCode = newConcept.conceptCode
+        testData.clinicalData.facts << observationFact.save()
 
         when:
         Constraint query = createQueryForConcept(observationFact)
-        multiDimService.aggregate(AggregateType.MAX, query, accessLevelTestData.users[0])
+        multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
 
         then:
-        thrown(InvalidQueryException)
-    }
-
-    void "test correct conceptConstraint checker in aggregate function"() {
-        setup:
-        setupData()
-
-        def user = accessLevelTestData.users[0]
-        def fact = testData.clinicalData.facts.find { it.valueType == 'N' }
-        def conceptDimension = testData.conceptData.conceptDimensions.find { it.conceptCode == fact.conceptCode }
-
-        when:
-        def constraint = new TrueConstraint()
-        multiDimService.aggregate(AggregateType.MAX, constraint, user)
-
-        then:
-        thrown(InvalidQueryException)
-
-        when:
-        constraint = new Combination(
-                operator: Operator.AND,
-                args: [
-                        new TrueConstraint(),
-                        new ConceptConstraint(
-                                path: conceptDimension.conceptPath
-                        ),
-                        new Combination(
-                                operator: Operator.AND,
-                                args: [
-                                        new ConceptConstraint(
-                                                path: conceptDimension.conceptPath
-                                        ),
-                                        new TrueConstraint()
-                                ]
-                        )
-                ]
-        )
-
-        multiDimService.aggregate(AggregateType.MAX, constraint, user)
-
-        then:
-        thrown(InvalidQueryException)
-
-        when:
-        def firstConceptConstraint = constraint.args.find { it.class == ConceptConstraint }
-        constraint.args = constraint.args - firstConceptConstraint
-        def result = multiDimService.aggregate(AggregateType.MAX, constraint, user)
-
-        then:
-        result == 10
-
+        thrown(DataInconsistencyException)
     }
 
 }

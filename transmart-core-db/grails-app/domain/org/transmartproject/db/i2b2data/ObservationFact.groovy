@@ -112,18 +112,30 @@ class ObservationFact implements Serializable {
         VisitDimension.get(new VisitDimension(patient: patient, encounterNum: encounterNum))
     }
 
+    @CompileStatic
     def getValue() {
         observationFactValue(valueType, textValue, numberValue)
     }
 
     // Separate static method so this can also be called from code that accesses the database without converting to
     // domain classes
+    //
+    // The hypercube core-db code could in principle handle null values without much trouble. The tabular core-db
+    // does not distinguish between null values and absent values (it will insert nulls when expected values are
+    // missing). Therefore the HddTabularResultHypercubeAdapter tabular-to-hypercube converter treats nulls as absent
+    // values. Also Kettle does not support loading null values. As far as I know null values are not used in the
+    // wild, so it is better to not allow them in the transmart code and fail early if a null value is found.
     @CompileStatic
     static final def observationFactValue(String valueType, String textValue, BigDecimal numberValue) {
         switch(valueType) {
             case TYPE_TEXT:
+                if(textValue == null) throw new DataInconsistencyException("textValue is NULL for observation with text type")
                 return textValue
             case TYPE_NUMBER:
+                if(numberValue == null) throw new DataInconsistencyException("numberValue is NULL for observation " +
+                        "with numeric type")
+                if(textValue != 'E') throw new DataInconsistencyException("textValue is not set to 'E' for " +
+                        "observation with numeric type")
                 return numberValue
             default:
                 throw new DataInconsistencyException("Unsupported database value: ObservationFact.valueType " +

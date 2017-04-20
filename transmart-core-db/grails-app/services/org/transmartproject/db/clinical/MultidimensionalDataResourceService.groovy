@@ -10,6 +10,7 @@ import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
+import org.hibernate.Criteria
 import org.hibernate.ScrollMode
 import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
@@ -21,6 +22,7 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
+import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -39,7 +41,7 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.multidimquery.MultiDimensionalDataResource.RequestConstraintsAndVersion
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource.RequestConstraintAndVersion
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
@@ -59,6 +61,7 @@ import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
 import org.transmartproject.db.multidimquery.HypercubeImpl
 import org.transmartproject.db.multidimquery.ProjectionDimension
 import org.transmartproject.core.multidimquery.AggregateType
+import org.transmartproject.db.multidimquery.query.AndConstraint
 import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
@@ -74,6 +77,7 @@ import org.transmartproject.db.multidimquery.query.ModifierConstraint
 import org.transmartproject.db.multidimquery.query.Negation
 import org.transmartproject.db.multidimquery.query.NullConstraint
 import org.transmartproject.db.multidimquery.query.Operator
+import org.transmartproject.db.multidimquery.query.OrConstraint
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.multidimquery.query.QueryBuilder
 import org.transmartproject.db.multidimquery.query.QueryBuilderException
@@ -89,8 +93,10 @@ import org.transmartproject.db.querytool.QtQueryInstance
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.util.GormWorkarounds
+import org.transmartproject.db.util.ScrollableResultsIterator
 
 import org.transmartproject.db.user.User as DbUser
+import org.transmartproject.db.util.ScrollableResultsWrappingIterable
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
@@ -280,8 +286,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     private void checkAccess(MultiDimConstraint constraint, User user) throws AccessDeniedException {
-        assert 'user is required', user
-        assert 'constraint is required', constraint
+        assert user, 'user is required'
+        assert constraint, 'constraint is required'
 
         if (constraint instanceof TrueConstraint
                 || constraint instanceof ModifierConstraint
@@ -342,32 +348,88 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    private Number getAggregate(AggregateType aggregateType, DetachedCriteria criteria) {
-        switch (aggregateType) {
-            case AggregateType.MIN:
-                criteria = criteria.setProjection(Projections.min('numberValue'))
-                break
-            case AggregateType.AVERAGE:
-                criteria = criteria.setProjection(Projections.avg('numberValue'))
-                break
-            case AggregateType.MAX:
-                criteria = criteria.setProjection(Projections.max('numberValue'))
-                break
+    private HibernateCriteriaQueryBuilder getCheckedQueryBuilder(User user) {
+        new HibernateCriteriaQueryBuilder(
+                studies: (Collection) accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+        )
+    }
+
+    Class aggregateReturnType(AggregateType at) {
+        switch (at) {
             case AggregateType.COUNT:
-                criteria = criteria.setProjection(Projections.rowCount())
-                break
+                return Long
+            case AggregateType.VALUES:
+                return List
             default:
-                throw new QueryBuilderException("Query type not supported: ${aggregateType}")
+                return Number
         }
-        aggregateType == AggregateType.COUNT ? (Long) get(criteria) : (Number) get(criteria)
+    }
+
+    private String aggregateFieldType(AggregateType at) {
+        switch (at) {
+            case AggregateType.VALUES:
+                return ObservationFact.TYPE_TEXT
+            case AggregateType.COUNT:
+                return null
+            default:
+                return ObservationFact.TYPE_NUMBER
+        }
+    }
+
+    private static org.hibernate.criterion.Projection projectionForAggregate(AggregateType at) {
+        switch (at) {
+            case AggregateType.MIN:
+                return Projections.min('numberValue')
+            case AggregateType.AVERAGE:
+                return Projections.avg('numberValue')
+            case AggregateType.MAX:
+                return Projections.max('numberValue')
+            case AggregateType.COUNT:
+                return Projections.rowCount()
+            case AggregateType.VALUES:
+                return Projections.distinct(Projections.property('textValue'))
+            default:
+                throw new QueryBuilderException("Query type not supported: ${at}")
+        }
+    }
+
+    private Map getAggregate(List<AggregateType> aggregateTypes, DetachedCriteria criteria) {
+        List<Class> rts = aggregateTypes.collect { aggregateReturnType(it) }
+
+        if(rts.any { List.isAssignableFrom(it) }) {
+            if (rts.size() != 1) throw new InvalidQueryException("aggregates that return a list of values cannot be " +
+                    "combined with other aggregates in the same call")
+
+            criteria = criteria.setProjection(projectionForAggregate(aggregateTypes[0]))
+            def res = getList(criteria)
+            return [(aggregateTypes[0].toString()): res]
+
+        } else {
+            def projections = Projections.projectionList()
+            aggregateTypes.each {
+                projections.add(projectionForAggregate(it), it.toString())
+            }
+            criteria = criteria.setProjection(projections).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+            def rv = get(criteria)
+            return rv
+        }
     }
 
     private Object get(DetachedCriteria criteria) {
-        criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult()
+        getExecutableCriteria(criteria).uniqueResult()
     }
 
     private List getList(DetachedCriteria criteria) {
-        criteria.getExecutableCriteria(sessionFactory.currentSession).list()
+        getExecutableCriteria(criteria).list()
+    }
+
+    private Iterable getIterable(DetachedCriteria criteria) {
+        def scrollableResult = getExecutableCriteria(criteria).scroll(ScrollMode.FORWARD_ONLY)
+        new ScrollableResultsWrappingIterable(scrollableResult)
+    }
+
+    private Criteria getExecutableCriteria(DetachedCriteria criteria) {
+        criteria.getExecutableCriteria(sessionFactory.currentSession).setCacheable(true)
     }
 
     /**
@@ -377,8 +439,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @return true iff an observation fact is found that satisfies <code>constraint</code>.
      */
     private boolean exists(HibernateCriteriaQueryBuilder builder, Constraint constraint) {
-        DetachedCriteria criteria = builder.buildCriteria(constraint)
-        (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
+        def crit = getExecutableCriteria(builder.buildCriteria(constraint))
+        crit.maxResults = 1
+        return crit.uniqueResult()
     }
 
     /**
@@ -389,9 +452,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     private List<ObservationFact> highDimObservationList(Constraint constraint, User user, Criterion modifier = null) {
         checkAccess(constraint, user)
         log.info "Studies: ${accessControlChecks.getDimensionStudiesForUser((DbUser) user)*.studyId}"
-        def builder = new HibernateCriteriaQueryBuilder(
-                studies: accessControlChecks.getDimensionStudiesForUser((DbUser) user)
-        )
+        def builder = getCheckedQueryBuilder(user)
         DetachedCriteria criteria = modifier ? builder.buildCriteria(constraint, modifier)
                 : builder.buildCriteria(constraint)
         getList(criteria)
@@ -399,10 +460,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     @Override Long count(MultiDimConstraint constraint, User user) {
         checkAccess(constraint, user)
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: accessControlChecks.getDimensionStudiesForUser((DbUser) user)
-        )
-        (Long) get(builder.buildCriteria(constraint).setProjection(Projections.rowCount()))
+        QueryBuilder builder = getCheckedQueryBuilder(user)
+        (Long) get(builder.buildCriteria((Constraint) constraint).setProjection(Projections.rowCount()))
     }
 
     @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
@@ -418,9 +477,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      */
     @Override List<Patient> listPatients(MultiDimConstraint constraint, User user) {
         checkAccess(constraint, user)
-        def builder = new HibernateCriteriaQueryBuilder(
-                studies: accessControlChecks.getDimensionStudiesForUser((DbUser) user)
-        )
+        def builder = getCheckedQueryBuilder(user)
         DetachedCriteria constraintCriteria = builder.buildCriteria((Constraint) constraint)
         DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
         DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
@@ -525,18 +582,16 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         queryResult
     }
     
-    RequestConstraintsAndVersion getPatientSetRequestConstraintsAndApiVersion(long id) {
+    @Override RequestConstraintAndVersion getPatientSetConstraint(long id) {
         QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findById(id)
         def queryMaster = qtQueryResultInstance.queryInstance.queryMaster
-        new RequestConstraintsAndVersion(queryMaster.requestConstraints, queryMaster.apiVersion)
+        new RequestConstraintAndVersion(queryMaster.requestConstraints, queryMaster.apiVersion)
     }
     
     @Override Long patientCount(MultiDimConstraint constraint, User user) {
         checkAccess(constraint, user)
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: accessControlChecks.getDimensionStudiesForUser((DbUser) user)
-        )
-        DetachedCriteria constraintCriteria = builder.buildCriteria(constraint)
+        QueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria constraintCriteria = builder.buildCriteria((Constraint) constraint)
         DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
         DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
         patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
@@ -592,69 +647,110 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @description Function for getting a aggregate value of a single field.
      * The allowed queryTypes are MIN, MAX and AVERAGE.
      * The responsibility for checking the queryType is allocated to the controller.
-     * Only allowed for numerical values and so checks if this is the case
      * @param query
      * @param user
      */
-    @Override Number aggregate(AggregateType type, MultiDimConstraint constraint, User user) {
+    @Override Map aggregate(List<AggregateType> types, MultiDimConstraint constraint_, User user) {
+        def constraint = (Constraint) constraint_
         checkAccess(constraint, user)
-        if (type == AggregateType.NONE) {
-            throw new InvalidQueryException("Aggregate requires a valid aggregate type.")
+
+        def builder = getCheckedQueryBuilder(user)
+
+        def fieldTypes = types.collect { aggregateFieldType(it) }.unique()
+        if(fieldTypes.findAll().size() > 1) throw new InvalidQueryException(
+                "aggregate queries on numeric and textual values can not be combined in a single call")
+
+        if(fieldTypes.size() == 0) return [:]
+
+        def typedConstraint = fieldTypes.size() != 1 ? constraint :
+                new AndConstraint(args: [constraint, new FieldConstraint(
+                    operator: Operator.EQUALS,
+                    field: valueTypeField,
+                    value: fieldTypes[0],
+                )])
+
+        // get aggregate value
+        DetachedCriteria queryCriteria = builder.buildCriteria(typedConstraint)
+        def result = getAggregate(types, queryCriteria)
+
+        if (result == null || result.values().any {it == null || (it instanceof List && ((List) it).empty)}) {
+            // results not found, do some diagnosis to discover why not so we can return a useful error message
+            diagnoseEmptyAggregate(types, constraint, builder)
+
+            // If diagnoseEmptyAggregate didn't throw any kind of exception, nothing left to do but to return the
+            // (empty) result
         }
 
-        QueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: (Collection) accessControlChecks.getDimensionStudiesForUser((DbUser) user)
-        )
+        return result
+    }
+
+    private void diagnoseEmptyAggregate(List<AggregateType> at, Constraint constraint,
+                                        HibernateCriteriaQueryBuilder builder) {
+
+        // Find the concept
         List<ConceptConstraint> conceptConstraintList = findConceptConstraints(constraint)
-        if (conceptConstraintList.size() == 0) throw new InvalidQueryException('Aggregate requires exactly one ' +
-                'concept constraint, found none.')
-        if (conceptConstraintList.size() > 1) throw new InvalidQueryException("Aggregate requires exactly one concept" +
-                " constraint, found ${conceptConstraintList.size()}.")
-        def conceptConstraint = conceptConstraintList[0]
 
         // check if the concept exists
-        def concept = ConceptDimension.findByConceptPath(conceptConstraint.path)
-        if (concept == null) {
-            throw new InvalidQueryException("Concept path not found. Supplied path is: ${conceptConstraint.path}")
+        def foundConceptPaths = ConceptDimension.getAll(conceptConstraintList*.path)*.conceptPath as Set
+        def nonexistantConstraints = conceptConstraintList.findAll { !(it.path in foundConceptPaths) }
+        if (nonexistantConstraints) {
+            throw new InvalidQueryException("Concept path(s) not found. Supplied path(s): " + nonexistantConstraints*.path.join(', '))
         }
         // check if there are any observations for the concept
-        if (!exists(builder, conceptConstraint)) {
-            throw new InvalidQueryException("No observations found for concept path: ${conceptConstraint.path}")
+        if (!exists(builder, constraint)) {
+            throw new InvalidQueryException("No observations found for query")
         }
 
-        // check if the concept is truly numerical (all textValue are E and all numberValue have a value)
-        // all(A) and all(B) <=> not(any(not A) or any(not B))
-        def valueTypeNotNumericConstraint = new FieldConstraint(
-                operator: Operator.NOT_EQUALS,
+        at.collect {aggregateFieldType(it)}.unique().findAll().each {
+            def wrongValueTypeConstraint = new FieldConstraint(
+                    operator: Operator.NOT_EQUALS,
+                    field: valueTypeField,
+                    value: it,
+            )
+            if(exists(builder, new AndConstraint(args: [(Constraint) constraint, wrongValueTypeConstraint]))) {
+                throw new InvalidQueryException('One of the concepts/observations has the wrong type for this aggregation')
+            }
+        }
+
+        // check if the concept is truly numerical (all textValue are E and all numberValue have a value) or textual
+
+        def textTypeConstraint = new FieldConstraint(
+                operator: Operator.EQUALS,
                 field: valueTypeField,
-                value: ObservationFact.TYPE_NUMBER
+                value: ObservationFact.TYPE_TEXT,
         )
-        def textValueNotEConstraint = new FieldConstraint(
-                operator: Operator.NOT_EQUALS,
+
+        def numberTypeConstraint = new FieldConstraint(
+                operator: Operator.EQUALS,
+                field: valueTypeField,
+                value: ObservationFact.TYPE_NUMBER,
+        )
+
+        def textValueEConstraint = new FieldConstraint(
+                operator: Operator.EQUALS,
                 field: textValueField,
                 value: "E"
         )
-        def numberValueNullConstraint = new NullConstraint(
-                field: numberValueField
-        )
-        def notNumericalCombination = new Combination(
-                operator: Operator.OR,
-                args: [valueTypeNotNumericConstraint, textValueNotEConstraint, numberValueNullConstraint]
-        )
-        def conceptNotNumericalCombination = new Combination(
-                operator: Operator.AND,
-                args: [conceptConstraint, notNumericalCombination]
-        )
 
-        if (exists(builder, conceptNotNumericalCombination)) {
-            def message = 'One of the observationFacts had either an empty numerical value or a ' +
-                    'textValue with something else then \'E\''
-            throw new InvalidQueryException(message)
+        // Transmart currently does not allow null values in the ObservationFacts, but it could be extended to allow
+        // that.
+        def numberValueNotNullConstraint = new Negation(arg: new NullConstraint(field: numberValueField))
+        def textValueNotNullConstraint = new Negation(arg: new NullConstraint(field: textValueField))
+
+        def invalidObservationConstraint = new Negation(arg: new OrConstraint(args: [
+                new AndConstraint(args: [numberTypeConstraint, textValueEConstraint, numberValueNotNullConstraint]),
+                new AndConstraint(args: [textTypeConstraint, textValueNotNullConstraint])
+        ]))
+
+        def invalidObservations = getIterable(builder.buildCriteria(
+                new AndConstraint(args: [(Constraint) constraint, invalidObservationConstraint])))
+
+        invalidObservations.withCloseable {
+            for(ObservationFact o in invalidObservations) {
+                // Retrieving the value will throw an exception
+                o.value
+            }
         }
-
-        // get aggregate value
-        DetachedCriteria queryCriteria = builder.buildCriteria((Constraint) constraint)
-        return getAggregate(type, queryCriteria)
     }
 
     @CompileStatic @Override

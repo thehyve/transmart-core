@@ -66,6 +66,7 @@ class VersionController {
                 features: [
                         'versioning',
                         'and-or-constraints',
+                        'values_aggregate',
                 ]
             ]
     ])

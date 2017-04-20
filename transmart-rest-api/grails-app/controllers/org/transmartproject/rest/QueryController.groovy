@@ -153,19 +153,30 @@ class QueryController extends AbstractQueryController {
     def aggregate() {
         def args = getGetOrPostParams()
         checkParams(args, ['constraint', 'type'])
+        def type = args.type
 
-        if (!args.type) {
+        if (!type) {
             throw new InvalidArgumentsException("Type parameter is missing.")
+        }
+        if (!(type instanceof String || type instanceof List)) throw new InvalidArgumentsException(
+                "invalid type parameter (not a string or a list of strings)")
+
+        if (type instanceof String) {
+            type = [type]
         }
         Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
             return
         }
-        def aggregateType = AggregateType.forName(args.type as String)
+        def aggregateTypes
+        try {
+            aggregateTypes = type.collect { AggregateType.forName(it as String) }
+        } catch (IllegalArgumentException e) {
+            throw new InvalidQueryException(e)
+        }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def aggregatedValue = multiDimService.aggregate(aggregateType, constraint, user)
-        def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
-        render result as JSON
+        Map aggregateValues = multiDimService.aggregate(aggregateTypes, constraint, user)
+        render aggregateValues as JSON
     }
 
     /**
