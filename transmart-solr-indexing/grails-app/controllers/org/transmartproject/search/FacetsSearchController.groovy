@@ -86,7 +86,7 @@ class FacetsSearchController {
         } else {
             q.addFacetField(*allFacetFields)
         }
-        q.rows = 0
+        q.rows = 10
         q.facetLimit = 10
         q.facetMinCount = 1
         // we have to filter the results ourselves, as facetPrefix is case-sensitive
@@ -340,7 +340,7 @@ class AutoCompleteCommand implements Validateable {
 
 class FieldTerms implements Validateable {
     String operator
-    //List<SearchTerm> searchTerms = []
+    List<SearchTerm> searchTerms = []
 
     static constraints = {
         operator inList: ['OR', 'AND']
@@ -352,36 +352,29 @@ class GetFacetsCommand implements Validateable {
     String requiredField
     String operator
 
-    @BindUsing({ obj, source ->
-        source['fieldTerms'].collectEntries {k ,v ->
-            [k, new FieldTerms([operator:v])]
-        }
-    })
-    Map<String, FieldTerms> fieldTerms
 
-/*
     @BindUsing({ obj, source ->
         source['fieldTerms'].collectEntries { k, v ->
             [k, new FieldTerms(v).with { ft ->
 
-                ft.searchTerms = ft.searchTerms.collect {
+                searchTerms = ft.searchTerms.collect {
                     new SearchTerm(it)
                 }
                 ft
             }]
         }
-    })*/
-//    Map<String, FieldTerms> fieldTerms
+    })
+    Map<String, FieldTerms> fieldTerms
 
 
 
     static constraints = {
         operator inList: ['OR', 'AND']
-        /*
+
         fieldTerms validator: { val, obj ->
             log.warn("Now at validator : ${val}".toString())
             val.values().every { it.validate() }
-        }*/
+        }
     }
 }
 

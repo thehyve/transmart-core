@@ -12,7 +12,7 @@ window.rwgModel = {
         return this;
     },
     onWithEvent: function rwgModel_on() {
-        debugger;
+         
         this.jquery.on.apply(this.jquery, arguments);
         return this;
     },
@@ -202,7 +202,7 @@ window.rwgView = {
 
     init: function rwgView_init(config) {
         this.config = jQuery.extend(this.config, config);
-        debugger;
+         
         window.rwgModel.requiredField = this.config.requiredField;
 
         // find elements
@@ -552,10 +552,7 @@ window.rwgController = {
         if (this.flyingSearch) {
             this.flyingSearch.abort();
         }
-        //var data = jQuery.extend({ requiredField: requiredField }, searchSpecification);
-
-        //var data = {"requiredField":"CONCEPT_PATH","operator":"AND","fieldTerms":{"biospeciman_availability_s":{"operator":"OR","searchTerms":[{"literalTerm":"No BioBank Data"}]}}}
-        var data = {"requiredField":"CONCEPT_PATH","operator":"AND","fieldTerms":{"biospeciman_availability_s":{"operator":"OR"}}};
+        var data = jQuery.extend({ requiredField: requiredField }, searchSpecification);
 
         if (Object.keys(searchSpecification.fieldTerms).length == 0) {
             // nothing to search
@@ -570,9 +567,13 @@ window.rwgController = {
             return;
         }
 
-        debugger;
-        //this.flyingSearch = jQuery.post(window.searchURLs.getFacetResults, JSON.stringify(data), function(data) {}, 'json')
-        this.flyingSearch = jQuery.post(window.searchURLs.getFacetResults, data)
+        this.flyingSearch = jQuery.ajax({
+            type: 'POST',
+            url: window.searchURLs.getFacetResults,
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(data)
+        })
             .then(function getFacetResults_success(json) {
             rwgModel.returnedFolders = json['folderIds'];
             rwgModel.numberOfResults = json['numFound'];
