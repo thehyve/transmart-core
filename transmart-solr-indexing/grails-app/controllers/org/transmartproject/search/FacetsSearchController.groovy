@@ -7,7 +7,7 @@ import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.SolrException
-import org.grails.databinding.BindUsing
+import grails.databinding.BindUsing
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.Cacheable
 import org.transmart.biomart.BioMarker
@@ -83,7 +83,7 @@ class FacetsSearchController {
         } else {
             q.addFacetField(*allFacetFields)
         }
-        q.rows = 0
+        q.rows = 10
         q.facetLimit = 10
         q.facetMinCount = 1
         // we have to filter the results ourselves, as facetPrefix is case-sensitive
