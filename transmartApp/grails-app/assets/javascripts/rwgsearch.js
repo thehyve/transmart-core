@@ -12,7 +12,7 @@ window.rwgModel = {
         return this;
     },
     onWithEvent: function rwgModel_on() {
-        debugger;
+         
         this.jquery.on.apply(this.jquery, arguments);
         return this;
     },
@@ -202,6 +202,7 @@ window.rwgView = {
 
     init: function rwgView_init(config) {
         this.config = jQuery.extend(this.config, config);
+         
         window.rwgModel.requiredField = this.config.requiredField;
 
         // find elements
@@ -567,12 +568,13 @@ window.rwgController = {
         }
 
         this.flyingSearch = jQuery.ajax({
-            method: 'POST',
+            type: 'POST',
             url: window.searchURLs.getFacetResults,
             dataType: 'json',
-            contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify(data),
-        }).then(function getFacetResults_success(json) {
+            contentType: 'application/json',
+            data: JSON.stringify(data)
+        })
+            .then(function getFacetResults_success(json) {
             rwgModel.returnedFolders = json['folderIds'];
             rwgModel.numberOfResults = json['numFound'];
             rwgModel.returnedConcepts = json['conceptKeys'];
