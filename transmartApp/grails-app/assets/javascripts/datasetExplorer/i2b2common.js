@@ -2186,3 +2186,39 @@ function showCriteriaGroup(i)
     e.style.display="";
     if(i>3){Ext.get("subsetdivider").dom.rowSpan=i+1;}
 }
+
+function nodeType(method, object)
+{
+    if(method=='visualattributes_modifier')
+    {
+        if(object.indexOf('MODIFIER_LEAF') != -1)
+        {
+            return "LEAF"
+        }
+        else if(object.indexOf('MODIFIER_CONTAINER') != -1)
+        {
+            return "CONTAINER"
+        }
+        else
+        {
+            return ""
+        }
+    }
+
+    if(method=='iconCls_modifier')
+    {
+        if(object == 'modifiericon')
+        {
+            return "LEAF"
+        }
+        else if(object == 'modifierfoldericon')
+        {
+            return "CONTAINER"
+        }
+        else
+        {
+            return ""
+        }
+    }
+}
+
