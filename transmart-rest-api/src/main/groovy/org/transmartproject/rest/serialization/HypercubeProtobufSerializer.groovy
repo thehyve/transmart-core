@@ -219,42 +219,40 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         }
 
         /**
-         * Parse the next group from the values iterator.
-         * @return The group and its type. If only null values were seen before the iterator was exhausted, returns null
+         * Parse the next set of values to be packed from the values iterator. The iterator must not be empty.
+         * @return The pack and its type. The type may be null, the pack is nonempty.
          */
-        private Pair<ArrayList<HypercubeValue>, Class> nextGroup() {
-            ArrayList<HypercubeValue> group = []
+        private Pair<ArrayList<HypercubeValue>, Class> nextPack() {
             HypercubeValue prototype = iterator.next()
-            def groupValueType = new Reference<Class>(prototype.value?.class)
-            def groupIndices = indices(prototype)
-            group.add(prototype)
+            def packValueType = new Reference<Class>(prototype.value?.class)
+            def packIndices = indices(prototype)
+            def group = [prototype]
 
-            int groupSize = 1
-            while (groupSize < MAXIMUM_PACKED_VALUES && iterator.hasNext() && sameIndices(iterator.peek(), groupIndices)) {
+            int packSize = 1
+            while (packSize < MAXIMUM_PACKED_VALUES && iterator.hasNext() && sameIndices(iterator.peek(), packIndices)) {
                 Class valueType = iterator.peek().value?.class
-                if (!compatibleValueType(valueType, groupValueType)) {
+                if (!compatibleValueType(valueType, packValueType)) {
                     log.warn("Observations with incompatible value types found for the same concept or projection. " +
                             "Got ${valueType?.simpleName ?: "null"} while previous observation(s) had values of type " +
-                            "${groupValueType.get()?.simpleName ?: "null"}")
+                            "${packValueType.get()?.simpleName ?: "null"}")
                     break
                 }
                 group.add(iterator.next())
-                groupSize++
+                packSize++
             }
 
-            if(groupValueType.get() == null) return null
-            new Pair(group, groupValueType.get())
+            new Pair(group, packValueType.get())
         }
 
-        boolean compatibleValueType(Class type, Reference<Class> groupValueType) {
+        boolean compatibleValueType(Class type, Reference<Class> packValueType) {
             // The prototype may not have a value at all, and therefore a null value type. So we need to handle three cases:
             // null, String, or Number.
             if(type == null) return true
-            if (groupValueType.get() == null) {
-                groupValueType.set type
+            if (packValueType.get() == null) {
+                packValueType.set type
                 return true
             } else {
-                return groupValueType.get().is(type)
+                return packValueType.get().is(type)
             }
         }
 
@@ -263,18 +261,17 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             valueType = null
             valueIndex = 0
 
-            Pair<ArrayList<HypercubeValue>, Class> groupAndType = nextGroup()
-            if(groupAndType == null) return null
-            List<HypercubeValue> group = groupAndType.aValue
-            valueType = groupAndType.bValue
-            HypercubeValue prototype = group[0]
+            Pair<ArrayList<HypercubeValue>, Class> packAndType = nextPack()
+            List<HypercubeValue> pack = packAndType.aValue
+            valueType = packAndType.bValue
+            HypercubeValue prototype = pack[0]
 
             putIndexedDims(prototype)
 
             // group the values by their packed dimension. There is no requirement that the values in the group have
             // any kind of order at this point, but grouping will be more efficient if values with the same packed
             // dimension element are adjacent.
-            List<List<HypercubeValue>> groupedSamples = groupSamples(group)
+            List<List<HypercubeValue>> groupedSamples = groupSamples(pack)
 
             putValues(groupedSamples)
 
@@ -284,6 +281,9 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
 
             builder.build()
         }
+
+        // subList to help JVM inlining, in the common case where all groups are sublists.
+        private final List<HypercubeValue> emptyList = [].subList(0, 0)
 
         /**
          * Group a list of HypercubeValues into samples. For each packed dimension element, there is a list with
@@ -310,6 +310,9 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                 int idx = packIdx == null ? 0 : packIdx + 1
                 maxIdx = Integer.max(maxIdx, idx)
 
+                // Walk through the values. If this value's pack index is equal to the previous value's pack index,
+                // they belong to the same group, so continue. If the pack indices are different we are at the start
+                // of a new group, so add the previous group to the list of groups.
                 if(i == 0 || idx == prevIdx) {
                     groupSize++
                 } else {
@@ -326,7 +329,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             // Using an empty sublist ensures that there are only two types of lists in `groups`, which means the JVM
             // can inline methods on them.
             for(i in groups.indices) {
-                if(groups[i] == null) groups[i] = values.subList(0,0)
+                if(groups[i] == null) groups[i] = emptyList
             }
             return groups
         }
@@ -424,13 +427,12 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
         private void addValue(HypercubeValue value) {
             if(value.value == null) {
                 builder.addNullValueIndices(valueIndex+1)  // 1-based
-            }
-            valueIndex++
-            if (String.is(valueType)) {
+            } else if (String.is(valueType)) {
                 builder.addStringValues(value.value.toString())
             } else {
                 builder.addNumericValues(((Number) value.value).toDouble())
             }
+            valueIndex++
         }
 
         private void putInlineDims(List<List<HypercubeValue>> groups) {

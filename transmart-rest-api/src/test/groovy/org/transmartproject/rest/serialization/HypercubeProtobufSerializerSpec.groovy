@@ -525,16 +525,16 @@ class HypercubeProtobufSerializerSpec extends Specification {
         res
     }
 
-    void 'test nextGroup'() {
+    void 'test nextPack'() {
         when:
         def (serializer, PackedCellBuilder packer) = defaultPackedSerializer
         def iterator = serializer.iterator
-        def group_type = iterateWhile({iterator.hasNext()}) { packer.nextGroup() }
-        def groups = group_type*.aValue
+        def pack_type = iterateWhile({iterator.hasNext()}) { packer.nextPack() }
+        def packs = pack_type*.aValue
 
         then:
-        groups.size() == 4
-        group_type.each { pair ->
+        packs.size() == 4
+        pack_type.each { pair ->
             def group = pair.aValue, type = pair.bValue
             group.each {
                 assert it.value?.class in [type, null]
@@ -546,7 +546,20 @@ class HypercubeProtobufSerializerSpec extends Specification {
         def groupedObs = observations.groupBy { [it.visit, it.concept] }.values() as List
 
         then:
-        groupedObs == groups.collectNested { it.val }
+        groupedObs == packs.collectNested { it.val }
+
+        when: "Test nextPack when all values are null"
+        serializer = makeSerializer(new MockHypercube(dimensions: [visitDim], values:
+                (1..5).collect { [value: null, visit: it] }))
+        packer = serializer.packedCellBuilder
+        iterator = serializer.iterator()
+        pack_type = packer.nextPack()
+        def pack = pack_type.aValue
+        def type = pack_type.bValue
+
+        then:
+        pack*.value == [null]*5
+        type == null
     }
 
     void 'test groupSamples'() {
@@ -558,8 +571,8 @@ class HypercubeProtobufSerializerSpec extends Specification {
             def cube = new MockHypercube(dimensions: [anotherDim, visitDim], values: values)
             def serializer = makeSerializer(cube)
             assert serializer.packedDimension == visitDim
-            serializer.packedCellBuilder.nextGroup()
-            def hValues = serializer.packedCellBuilder.nextGroup().aValue
+            serializer.packedCellBuilder.nextPack()  // so the serializer knows which visits exist
+            def hValues = serializer.packedCellBuilder.nextPack().aValue
             List<List<MockValue>> groups = serializer.packedCellBuilder.groupSamples(hValues)
             return groups.collect { it*.getAt(visitDim) }
         }
