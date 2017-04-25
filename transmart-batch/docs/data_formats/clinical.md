@@ -33,7 +33,7 @@ column is located
 - `Control Vocab cd`  IGNORED skip if you don't need Concept Type Column
 - `Concept Type`  Use this concept type instead of inferring it from the first row
 
-Special values for Data Label (will not show up as variables in the tree):
+Special values for Data Label:
 - `SUBJ_ID` **Mandatory**. Used to indicate the column that contains the subject IDs. Use exactly once per data file.
 - `START_DATE` Observation level start date(s).
 - `END_DATE` Observation level end date(s).
