@@ -22,8 +22,9 @@ COLUMN_MAP_FILE format
 |Filename|Category Code|Column Number|Data Label|Data Label Source|Control Vocab Cd|Concept Type |
 |--------|-------------|-------------|----------|-----------------|----------------|-------------|
 |data.txt|folder       |1            |Weight    |                 |                |NUMERICAL    |
-Table, tab separated, txt file. It contains information about columns which are
-to be uploaded into tranSMART.
+
+Table, tab separated, txt file. It contains information about columns which are to be uploaded into tranSMART.
+
 - `Filename`  This column determines the file where
 column is located
 - `Category Code` Path which contains the file
