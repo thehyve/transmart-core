@@ -33,6 +33,10 @@ column is located
 - `Control Vocab cd`  IGNORED skip if you don't need Concept Type Column
 - `Concept Type`  Use this concept type instead of inferring it from the first row
 
+Special values for Data Label:
+- `SUBJ_ID` **Mandatory**. Used to indicate the column that contains the subject IDs. Use exactly once per data file.
+- `CATEGORICAL` for text
+
 Allowed values for Concept type:
 - `NUMERICAL` for numerical
 - `CATEGORICAL` for text
