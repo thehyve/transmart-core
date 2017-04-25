@@ -35,8 +35,11 @@ column is located
 
 Special values for Data Label:
 - `SUBJ_ID` **Mandatory**. Used to indicate the column that contains the subject IDs. Use exactly once per data file.
-- `CATEGORICAL` for text
+- `START_DATE` Observation level start date(s).
+- `END_DATE` Observation level end date(s).
+- `TRIAL_VISIT_LABEL` Name(s) of the trial visit(s) that observations belong to.
+- `INSTANCE_NUM` Integer column used to distinguish repeated observations (i.e. identical time series data).
 
 Allowed values for Concept type:
-- `NUMERICAL` for numerical
-- `CATEGORICAL` for text
+- `NUMERICAL` for numerical variables
+- `CATEGORICAL` for categorical (text) variables 
