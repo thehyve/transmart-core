@@ -3,7 +3,7 @@ Clinical Data
 
 Clinical data is meant for all kind of measurements not falling into other
 categories. It can be data from questionnaires, physical body measurements or
-socio-economic info about patient.
+socio-economic info about the patients.
 
 
 Parameters
