@@ -154,3 +154,59 @@ tr.even .pluginPropertiesBox {
     padding: 10px;
     background-color: #f3f3f3;
 }
+
+
+.adm-frm label {
+    display: inline-block;
+    width: 140px;
+    text-align: right;
+    vertical-align: top;
+}
+
+.checklist label {
+    text-align: left;
+}
+
+.adm-frm input[type=checkbox], .adm-frm input[type=text], .adm-view-val {
+    margin-left: 20px;
+}
+
+.adm-frm ol { display: inline-block;}
+
+.adm-frm input[type=checkbox] {
+    display: inline-block;
+    margin-left: 170px;
+    margin-bottom: 10px;
+    padding-left: 100px;
+}
+
+.adm-input-group {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.adm-toolbar-btm, .adm-list-toolbar{
+    margin-top: 25px;
+    text-align: right;
+}
+
+.configclient {
+    background-color: #edeef6; /* #fa4; */
+}
+
+table.list {
+    border-collapse: collapse;
+}
+
+table.list td, table.list th {
+    vertical-align: top;
+}
+
+table.list td {
+    padding: 5px;
+    border-bottom: 1px solid black;
+}
+
+.expired {
+    color: #ff3939;
+}
