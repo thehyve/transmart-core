@@ -20,10 +20,10 @@ class OauthAdminController {
     }
     
     def list = {
-        def clients = Client.findAll()
+        def clients = Client.withTransaction { Client.findAll() }
         def configClients = grailsApplication.config.grails.plugin.springsecurity.oauthProvider.clients
         Set configClientIds = configClients*.clientId
-        log.info configClientIds
+        log.info configClientIds.toString()
         
         render view: 'list', model: [clients: clients, configClientIds: configClientIds]
     }
@@ -37,7 +37,7 @@ class OauthAdminController {
     }
     
     private findClient(id) {
-        def client = Client.get(params.id)
+        def client = Client.withTransaction { Client.get(params.id) }
         if (!client) {
             flash.message = "Client application not found with id $params.id"
             redirect action: list
@@ -92,7 +92,7 @@ class OauthAdminController {
         }
         client.redirectUris = redirectUris
         
-        if (client.validate() && client.save(flush: true)) {
+        if (Client.withTransaction { client.validate() && client.save(flush: true) }) {
             log.debug 'client saved: ' + client.id
             redirect (action: 'view', id: client.id)
         } else {

@@ -1,12 +1,13 @@
 <html>
-<head>
-    <title><g:layoutTitle default=""/></title>
-    <asset:stylesheet src="admin"/>
-    <asset:javascript src="admin"/>
-    <g:setProvider library="jquery"/>
-    <asset:script>
 
-        Ext.BLANK_IMAGE_URL = "${resource(dir: 'js', file: 'ext/resources/images/default/s.gif')}";
+    <title><g:layoutTitle default=""/></title>
+    <asset:javascript src="jquery-plugin.js"/>
+    <asset:javascript src="session_timeout_nodep.js"/>
+    <asset:stylesheet src="admintab.css"/>
+    <asset:javascript src="admintab.min.js"/>
+    <asset:stylesheet src="admin"/>
+    <asset:script>
+    Ext.BLANK_IMAGE_URL = "${resource(dir:'images', file:'s.gif')}";
 
             // set ajax to 90*1000 milliseconds
             Ext.Ajax.timeout = 180000;
@@ -44,7 +45,7 @@
 
 <body>
 <div id="page">
-    <div id="header-div"><g:render template="/layouts/commonheader"/></div>
+    <div id="header-div"><g:render template="/layouts/commonheader" model="['app': 'admin']"/></div>
 
     <div style="float: right; width: 97%;"><g:layoutBody/></div>
 </div>

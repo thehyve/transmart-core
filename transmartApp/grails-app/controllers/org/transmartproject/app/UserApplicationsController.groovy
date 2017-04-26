@@ -16,7 +16,7 @@ class UserApplicationsController {
         def principal = springSecurityService.principal
         
         log.debug 'Fetching access tokens for ' + principal.username
-        def tokens = AccessToken.findAll { username == principal.username }
+        def tokens = AccessToken.withTransaction { AccessToken.findAll { username == principal.username }}
         def refreshTokenExpiration = [:]
         tokens.each {
             def t = tokenStore.readAccessToken(it.value)
@@ -35,7 +35,7 @@ class UserApplicationsController {
     
     def revoke = {
         def principal = springSecurityService.principal
-        def token = AccessToken.find { id == params.id }
+        def token = AccessToken.withTransaction { AccessToken.find { id == params.id } }
         if (token.username == principal.username) {
             removeTokens(token)
         }
@@ -45,7 +45,7 @@ class UserApplicationsController {
     
     def revokeAll = {
         def principal = springSecurityService.principal
-        def tokens = AccessToken.findAll { username == principal.username }
+        def tokens = AccessToken.withTransaction { AccessToken.findAll { username == principal.username } }
         tokens.each { token ->
             removeTokens(token)
         }
