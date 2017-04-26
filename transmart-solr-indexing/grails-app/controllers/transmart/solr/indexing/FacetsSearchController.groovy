@@ -1,7 +1,6 @@
-package org.transmartproject.search
+package transmart.solr.indexing
 
 import grails.converters.JSON
-import grails.util.Holders
 import grails.validation.Validateable
 import groovy.util.logging.Slf4j
 import org.apache.solr.client.solrj.SolrQuery
