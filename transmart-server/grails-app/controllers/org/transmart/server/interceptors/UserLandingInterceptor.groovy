@@ -1,13 +1,18 @@
 package org.transmart.server.interceptors
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.audit.AuditLogger
 import org.transmartproject.core.users.User
 
 
 class UserLandingInterceptor {
-    def auditLogService
-    User currentUserBean
-    UserLandingInterceptor(){
 
+    @Autowired(required = false)
+    AuditLogger auditLogService
+    @Autowired
+    User currentUserBean
+
+    UserLandingInterceptor(){
         match(controller: 'userLanding').excludes(action: 'checkHeartBeat')
     }
 

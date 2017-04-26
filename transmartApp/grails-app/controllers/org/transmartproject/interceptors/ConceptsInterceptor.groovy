@@ -1,12 +1,18 @@
 package org.transmartproject.interceptors
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmart.audit.StudyIdService
+import org.transmartproject.core.audit.AuditLogger
 import org.transmartproject.core.users.User
 
 
 class ConceptsInterceptor {
-
-    def auditLogService
-    def studyIdService
+    
+    @Autowired(required = false)
+    AuditLogger auditLogService
+    @Autowired
+    StudyIdService studyIdService
+    @Autowired
     User currentUserBean
 
     ConceptsInterceptor(){
