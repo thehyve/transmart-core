@@ -24,6 +24,8 @@ import com.google.gson.GsonBuilder
 import grails.core.GrailsApplication
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.transmartproject.core.audit.AuditLogger
+
 import javax.servlet.http.HttpServletRequest
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
@@ -36,7 +38,7 @@ import org.transmartproject.core.users.User
  */
 @CompileStatic
 @Slf4j
-class AuditLogService {
+class AuditLogService implements AuditLogger {
 
     GrailsApplication grailsApplication
 
@@ -53,6 +55,7 @@ class AuditLogService {
     @Lazy
     volatile boolean enabled = log.traceEnabled
 
+    @Override
     def report(Map<String, Object> params = [:], String event, HttpServletRequest request) {
         User user = (User) params.user
 
