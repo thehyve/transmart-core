@@ -729,7 +729,7 @@
     },
     "/v2/observations/aggregate": {
       "get": {
-        "description": "Calculates and returns an aggregate value.\n",
+        "description": "Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'count', and\n'values'. The first three require numeric variables, the last one categorical variables.\n",
         "tags": [
           "v2"
         ],
@@ -745,7 +745,7 @@
             "name": "type",
             "required": true,
             "in": "query",
-            "description": "min, max, average",
+            "description": "'min', 'max', 'average', 'count', or 'values'. This parameter can be specified multiple times to retrieve\nmultiple aggregates at once. The 'values' aggregate cannot be combined with the numeric aggregate types.\n",
             "type": "string"
           }
         ],
@@ -764,6 +764,13 @@
                 },
                 "average": {
                   "type": "number"
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "A list of the distinct values for categorical variables"
                 }
               }
             }
@@ -790,7 +797,7 @@
             "name": "type",
             "required": true,
             "in": "body",
-            "description": "see GET parameters",
+            "description": "see GET parameters. Can be either a string or an array of strings.",
             "type": "string"
           }
         ],
