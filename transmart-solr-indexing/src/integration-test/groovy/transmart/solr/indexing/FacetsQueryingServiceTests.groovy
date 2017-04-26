@@ -1,8 +1,7 @@
-package org.transmartproject.search.indexing
+package transmart.solr.indexing
 
 import grails.test.mixin.TestMixin
 import grails.util.Holders
-import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test

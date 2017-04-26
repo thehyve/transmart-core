@@ -1,17 +1,15 @@
-package org.transmartproject.search.indexing
+package transmart.solr.indexing
 
 import com.google.common.collect.Sets
 import grails.test.mixin.TestMixin
+import org.hamcrest.Matchers
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 import org.transmartproject.search.indexing.modules.*
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.*
-import static org.transmartproject.search.indexing.FacetsDocumentMatcher.documentWithFields
 import static org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
-import static org.transmartproject.search.indexing.modules.FilesIndexingModule.FILE_DOC_TYPE
 
 @TestMixin(RuleBasedIntegrationTestMixin)
 class BrowseIndexingModulesTests {
@@ -40,8 +38,8 @@ class BrowseIndexingModulesTests {
                 .collectDocumentsWithIds(Sets.newHashSet(browseAssaysIndexingModule.fetchAllIds(FOLDER_DOC_TYPE)))
 
         assert docs.size() == 1
-        assertThat docs, contains(
-                documentWithFields('FOLDER:1992449',
+        assertThat docs, Matchers.contains(
+                FacetsDocumentMatcher.documentWithFields('FOLDER:1992449',
                         ['title_t', 'GSE8581 Assay'],
                         ['description_t', 'GSE8581 Assay'],
                         ['measurement_type_s', 'Transcription Profiling'],
@@ -64,20 +62,20 @@ class BrowseIndexingModulesTests {
         assert docs.size() == 3
         docs.sort(true)
 
-        assertThat docs, contains(
-                documentWithFields('FOLDER:1992457',
+        assertThat docs, Matchers.contains(
+                FacetsDocumentMatcher.documentWithFields('FOLDER:1992457',
                         ['title_t', 'Raw data'],
                         ['description_t', 'Raw'],
                         ['file_type_s', 'ETL files'],
                         ['TEXT', 'ETL files'],
                 ),
-                documentWithFields('FOLDER:1992458',
+                FacetsDocumentMatcher.documentWithFields('FOLDER:1992458',
                         ['title_t', 'Data'],
                         ['description_t', 'Data'],
                         ['file_type_s', 'ETL files'],
                         ['TEXT', 'ETL files'],
                 ),
-                documentWithFields('FOLDER:1992458',
+                FacetsDocumentMatcher.documentWithFields('FOLDER:1992458',
                         ['title_t', 'Test folder'],
                         ['description_t', 'yes'],
                         ['file_type_s', 'Report'],
@@ -89,7 +87,7 @@ class BrowseIndexingModulesTests {
     @Test
     void testOneStudy() {
         def doc = browseStudiesIndexingModule.collectDocumentsWithIds([new FacetsDocId('FOLDER:1992454')] as Set)
-        assertThat doc.first(), is(documentWithFields('FOLDER:1992454',
+        assertThat doc.first(), Matchers.is(FacetsDocumentMatcher.documentWithFields('FOLDER:1992454',
                 ['title_t'          , 'Cell-line']                           ,
                 ['description_t'    , 'Cell-line']                           ,
                 ['design_s'         , 'Observational']                       ,
@@ -115,7 +113,7 @@ class BrowseIndexingModulesTests {
     @Test
     void testOneProgram() {
         def doc = browseProgramsIndexingModule.collectDocumentsWithIds([new FacetsDocId('FOLDER:1992447')] as Set)
-        assertThat doc.first(), is(documentWithFields('FOLDER:1992447',
+        assertThat doc.first(), Matchers.is(FacetsDocumentMatcher.documentWithFields('FOLDER:1992447',
                 ['title_t'             , 'Public Studies'],
                 ['description_t'       , 'Public Studies'],
                 ['disease_s'           , 'Ego']           ,
@@ -127,7 +125,7 @@ class BrowseIndexingModulesTests {
     @Test
     void testTagsForOneFolder() {
         def doc = browseTagsIndexingModule.collectDocumentsWithIds([new FacetsDocId('FOLDER:1992450')] as Set)
-        assertThat doc.first(), is(documentWithFields('FOLDER:1992450',
+        assertThat doc.first(), Matchers.is(FacetsDocumentMatcher.documentWithFields('FOLDER:1992450',
                 ['tag_study_link_t', 'RA_BADOT_GSE15602'],
                 ['tag_number_of_followed_subjects_i', 100L],
                 ['tag_study_date_t', '1-1-2000'],

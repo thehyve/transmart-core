@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing
+package transmart.solr.indexing
 
 import grails.util.Holders
 import groovy.util.logging.Log4j

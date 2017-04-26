@@ -35,12 +35,10 @@ dataSources {
         formatSql = true
     }*/
     dataSource {
-        driverClassName = 'oracle.jdbc.driver.OracleDriver'//'org.postgresql.Driver'//'oracle.jdbc.driver.OracleDriver
-        url             = 'jdbc:oracle:thin:@ec2-54-93-196-236.eu-central-1.compute.amazonaws.com:1522:ORCL'// 'jdbc:postgresql://localhost:5432/transmart'//'jdbc:oracle:thin:@ec2-54-93-196-236.eu-central-1.compute.amazonaws.com:1522:ORCL'
-        dialect         = 'org.hibernate.dialect.Oracle10gDialect'//'org.hibernate.dialect.PostgreSQLDialect' //'org.hibernate.dialect.Oracle10gDialect'
-        validationQuery = "select 1 from dual"
+        driverClassName = 'oracle.jdbc.driver.OracleDriver'
+        url             = 'jdbc:oracle:thin:@dev5.thehyve.net:47526:ORCL'
         username        = 'biomart_user'
-        password        = '4l6D1Ur7qaHD'//'biomart_user'
+        password        = 'biomart_user'
         dbCreate        = 'none'
     }
 }

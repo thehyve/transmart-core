@@ -1,9 +1,8 @@
-package org.transmartproject.search.indexing
+package transmart.solr.indexing
 
 import com.google.common.collect.ImmutableMultimap
 import grails.test.mixin.TestMixin
 import org.apache.solr.client.solrj.SolrQuery
-import org.apache.solr.common.SolrInputDocument
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -13,7 +12,6 @@ import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_NAME_CONCEPT_PATH
 import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_NAME_FOLDER_ID
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_NAME_ID
 
 @TestMixin(RuleBasedIntegrationTestMixin)
 class FacetsIndexingServiceTests {

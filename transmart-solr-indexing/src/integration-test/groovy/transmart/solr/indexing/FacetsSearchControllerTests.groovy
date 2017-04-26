@@ -1,11 +1,11 @@
-package org.transmartproject.search
+package transmart.solr.indexing
 
 import grails.test.mixin.TestMixin
 import grails.util.Holders
 import org.junit.Before
 import org.junit.BeforeClass
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
-import org.transmartproject.search.indexing.FacetsIndexingService
+import transmart.solr.indexing.FacetsIndexingService
 
 @TestMixin(RuleBasedIntegrationTestMixin)
 class FacetsSearchControllerTests {

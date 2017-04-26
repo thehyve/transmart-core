@@ -1,8 +1,7 @@
-package org.transmartproject.search.indexing
+package transmart.solr.indexing
 
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
-import groovy.transform.CompileStatic
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.StringDescription
