@@ -1,6 +1,5 @@
-package org.transmartproject.search.indexing
+package transmart.solr.indexing
 
-import groovy.transform.Immutable
 import org.springframework.core.Ordered
 
 /**

@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing
+package transmart.solr.indexing
 
 interface FacetsIndexingModule {
 

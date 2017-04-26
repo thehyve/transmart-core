@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing
+package transmart.solr.indexing
 
 import org.springframework.beans.factory.annotation.Autowired
 

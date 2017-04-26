@@ -1,4 +1,4 @@
-package org.transmartproject.search
+package transmart.solr.indexing
 
 class UrlMappings {
 

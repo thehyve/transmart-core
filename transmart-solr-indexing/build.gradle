@@ -1,8 +1,34 @@
-//apply plugin:"org.grails.grails-gsp"
-//apply plugin:"asset-pipeline"
+buildscript {
+    repositories {
+        mavenLocal()
+        maven { url "https://repo.grails.org/grails/core" }
+    }
+    dependencies {
+        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.8.2"
+    }
+}
 
-configurations {
-    compile.exclude(group:"org.springframework.security")
+version "0.1"
+group "transmart.solr.indexing"
+
+apply plugin:"eclipse"
+apply plugin:"idea"
+apply plugin:"org.grails.grails-plugin"
+apply plugin:"org.grails.grails-plugin-publish"
+apply plugin:"org.grails.grails-gsp"
+apply plugin:"asset-pipeline"
+
+repositories {
+    mavenLocal()
+    maven { url "https://repo.grails.org/grails/core" }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.grails:grails-bom:$grailsVersion"
+    }
+    applyMavenExclusions false
 }
 
 dependencies {
@@ -15,29 +41,43 @@ dependencies {
     compile "org.grails:grails-web-boot"
     compile "org.grails.plugins:cache"
     compile "org.grails.plugins:scaffolding"
-    compile "org.grails:grails-core"
     console "org.grails:grails-console"
     profile "org.grails.profiles:web-plugin"
     provided "org.grails:grails-plugin-services"
     provided "org.grails:grails-plugin-domain-class"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.11.6"
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 
-    // plugin specific deps
-    testCompile group: 'org.grails', name: 'grails-datastore-rest-client', version: '5.0.12.RELEASE'
+    //added
     compile "org.apache.solr:solr-solrj:4.5.1"
-    compile "org.springframework.boot:spring-boot-starter-cache"
-    compile group: 'net.sf.ehcache', name: 'ehcache-core', version: '2.6.11'
-    compile project(':biomart-domain')
     compile project(':transmart-core-db')
+    compile project(':biomart-domain')
     compile project(':folder-management-plugin')
-    provided "org.grails:grails-plugin-validation"
-    // gradle sub-projects
-    //testRuntime project(':transmart-core-db-tests')
+
 }
+
+bootRun {
+    jvmArgs = ['-Dspring.output.ansi.enabled=always']
+}// enable if you wish to package this plugin as a standalone application
+bootRepackage.enabled = false
+grailsPublish {
+    // TODO: Provide values here
+    user = 'user'
+    key = 'key'
+    githubSlug = 'foo/bar'
+    license {
+        name = 'Apache-2.0'
+    }
+    title = "My Plugin"
+    desc = "Full plugin description"
+    developers = [johndoe:"John Doe"]
+    portalUser = ""
+    portalPassword = ""    
+}
+
 
 assets {
     packagePlugin = true

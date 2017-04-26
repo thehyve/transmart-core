@@ -1,13 +1,12 @@
-package org.transmartproject.search.indexing.modules
+package transmart.solr.indexing.modules
 
 import org.springframework.stereotype.Component
-import org.transmartproject.search.browse.BrowseFoldersView
-import org.transmartproject.search.indexing.FacetsDocument
-import org.transmartproject.search.indexing.FacetsFieldImpl
-import org.transmartproject.search.indexing.FacetsIndexingService
+import transmart.solr.indexing.BrowseFoldersView
+import transmart.solr.indexing.FacetsDocument
+import transmart.solr.indexing.FacetsFieldImpl
 
-import static org.transmartproject.search.indexing.FacetsFieldImpl.create as createFF
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_SUBTYPE
+import static transmart.solr.indexing.FacetsFieldImpl.create as createFF
+import static transmart.solr.indexing.FacetsIndexingService.FIELD_SUBTYPE
 
 /**
  * Indexes fodler by looking at the view biomart_user.browse_folders_view

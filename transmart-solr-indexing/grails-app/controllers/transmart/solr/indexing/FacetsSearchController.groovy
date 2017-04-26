@@ -18,14 +18,11 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.search.indexing.FacetsIndexingService
-import org.transmartproject.search.indexing.FacetsQueryingService
-import org.transmartproject.search.indexing.TermCount
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-import static org.transmartproject.search.indexing.FacetsIndexingService.*
+import static FacetsIndexingService.*
 
 @Slf4j
 class FacetsSearchController {

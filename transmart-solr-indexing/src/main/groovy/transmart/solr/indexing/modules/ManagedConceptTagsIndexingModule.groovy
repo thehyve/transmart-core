@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing.modules
+package transmart.solr.indexing.modules
 
 import com.google.common.collect.BiMap
 import com.google.common.collect.ImmutableBiMap
@@ -8,13 +8,11 @@ import org.hibernate.SQLQuery
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import org.transmartproject.search.browse.FolderStudyMappingView
-import org.transmartproject.search.indexing.*
+import transmart.solr.indexing.*
 
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_CONCEPT_PATH
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
-import static org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
-import static org.transmartproject.search.indexing.modules.ConceptNamesIndexingModule.CONCEPT_DOC_TYPE
+import static transmart.solr.indexing.FacetsIndexingService.FIELD_CONCEPT_PATH
+import static transmart.solr.indexing.FacetsIndexingService.FIELD_FOLDER_ID
+import static transmart.solr.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
 
 @Log4j
 @Component
@@ -25,7 +23,7 @@ class ManagedConceptTagsIndexingModule implements FacetsIndexingModule {
 
     final String name = 'managed_concept_tags'
 
-    final Set<String> supportedDocumentTypes = ImmutableSet.of(FOLDER_DOC_TYPE, CONCEPT_DOC_TYPE)
+    final Set<String> supportedDocumentTypes = ImmutableSet.of(FOLDER_DOC_TYPE, ConceptNamesIndexingModule.CONCEPT_DOC_TYPE)
 
     private final static BiMap<String, FacetsFieldType> DB_FIELD_TYPE_MAPPING =
             ImmutableBiMap.of('ANALYZED_STRING',     FacetsFieldType.TEXT,
@@ -63,7 +61,7 @@ class ManagedConceptTagsIndexingModule implements FacetsIndexingModule {
             q += ' AND folder_id IS NULL'
             query = sessionFactory.currentSession.createSQLQuery q
             query.list().collect {
-                new FacetsDocId(CONCEPT_DOC_TYPE, it[0])
+                new FacetsDocId(ConceptNamesIndexingModule.CONCEPT_DOC_TYPE, it[0])
             }.iterator()
         }
     }
@@ -92,7 +90,7 @@ class ManagedConceptTagsIndexingModule implements FacetsIndexingModule {
                     .collect { rowsToDocument it.value } as Set
         }
 
-        def conceptDocs = docIds.findAll { it.type == CONCEPT_DOC_TYPE }
+        def conceptDocs = docIds.findAll { it.type == ConceptNamesIndexingModule.CONCEPT_DOC_TYPE }
         if (conceptDocs) {
             def qConcepts = q + ' where folder_id is null and path in (:paths)'
             SQLQuery query = sessionFactory.currentSession.createSQLQuery qConcepts
@@ -132,7 +130,7 @@ class ManagedConceptTagsIndexingModule implements FacetsIndexingModule {
         if (folderId) {
             facetsDocId = new FacetsDocId(FOLDER_DOC_TYPE, folderId as String)
         } else {
-            facetsDocId = new FacetsDocId(CONCEPT_DOC_TYPE, conceptPath)
+            facetsDocId = new FacetsDocId(ConceptNamesIndexingModule.CONCEPT_DOC_TYPE, conceptPath)
         }
         new FacetsDocument(
                 facetsDocId: facetsDocId,

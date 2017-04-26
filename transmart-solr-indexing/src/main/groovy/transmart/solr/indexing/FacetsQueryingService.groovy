@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing
+package transmart.solr.indexing
 
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Sets
@@ -13,10 +13,10 @@ import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
 import org.springframework.core.Ordered
 import org.springframework.stereotype.Component
-import org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule
+import transmart.solr.indexing.modules.AbstractFacetsIndexingFolderModule
 
 import static org.apache.solr.client.solrj.response.LukeResponse.FieldInfo.parseFlags
-import static org.transmartproject.search.indexing.FacetsFieldImpl.getDefaultDisplayName
+import static FacetsFieldImpl.getDefaultDisplayName
 
 @Component
 @Log4j

@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing.modules
+package transmart.solr.indexing.modules
 
 import com.google.common.collect.ImmutableSet
 import org.springframework.beans.factory.annotation.Autowired
@@ -8,14 +8,17 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.search.browse.FolderStudyMappingView
-import org.transmartproject.search.indexing.*
+import transmart.solr.indexing.FacetsDocId
+import transmart.solr.indexing.FacetsDocument
+import transmart.solr.indexing.FacetsFieldDisplaySettings
+import transmart.solr.indexing.FacetsFieldImpl
+import transmart.solr.indexing.FacetsIndexingModule
+import transmart.solr.indexing.FolderStudyMappingView
 
-import static org.transmartproject.search.indexing.FacetsFieldImpl.create as createFF
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_CONCEPT_PATH
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
-import static org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
-import static org.transmartproject.search.indexing.modules.ConceptNamesIndexingModule.CONCEPT_DOC_TYPE
+import static transmart.solr.indexing.FacetsFieldImpl.create as createFF
+import static transmart.solr.indexing.FacetsIndexingService.FIELD_CONCEPT_PATH
+import static transmart.solr.indexing.FacetsIndexingService.FIELD_FOLDER_ID
+import static transmart.solr.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
 
 /**
  * Indexes data types under FOLDER: (if there is a folder link to the study)
@@ -26,7 +29,7 @@ class DataTypesIndexingModule implements FacetsIndexingModule {
 
     final String name = 'data_types'
 
-    final Set<String> supportedDocumentTypes = ImmutableSet.of(FOLDER_DOC_TYPE, CONCEPT_DOC_TYPE)
+    final Set<String> supportedDocumentTypes = ImmutableSet.of(FOLDER_DOC_TYPE, ConceptNamesIndexingModule.CONCEPT_DOC_TYPE)
 
     private static final FacetsFieldImpl FIELD_DATA_TYPE = createFF 'data_type_s'
 
@@ -44,11 +47,11 @@ class DataTypesIndexingModule implements FacetsIndexingModule {
             linked*.folderId.collect {
                 new FacetsDocId(FOLDER_DOC_TYPE, it as String)
             }.iterator()
-        } else if (type == CONCEPT_DOC_TYPE) {
+        } else if (type == ConceptNamesIndexingModule.CONCEPT_DOC_TYPE) {
             studyResource.studySet*.ontologyTerm*.fullName.findAll {
                 !(it in linked*.conceptPath)
             }.collect {
-                new FacetsDocId(CONCEPT_DOC_TYPE, it)
+                new FacetsDocId(ConceptNamesIndexingModule.CONCEPT_DOC_TYPE, it)
             }.iterator()
         } else {
             Collections.emptyIterator()

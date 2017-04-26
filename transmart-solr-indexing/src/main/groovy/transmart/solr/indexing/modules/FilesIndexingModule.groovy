@@ -1,18 +1,15 @@
-package org.transmartproject.search.indexing.modules
+package transmart.solr.indexing.modules
 
 import com.google.common.collect.ImmutableSet
 import org.transmartproject.browse.fm.FmFile
 import grails.util.Holders
 import groovy.util.logging.Log4j
 import org.springframework.stereotype.Component
-import org.transmartproject.search.indexing.FacetsDocId
-import org.transmartproject.search.indexing.FacetsDocument
-import org.transmartproject.search.indexing.FacetsFieldDisplaySettings
-import org.transmartproject.search.indexing.FacetsFieldImpl
-import org.transmartproject.search.indexing.FacetsIndexingModule
+import transmart.solr.indexing.*
+import transmart.solr.indexing.FacetsIndexingModule
 
-import static org.transmartproject.search.indexing.FacetsFieldImpl.create as createFF
-import static org.transmartproject.search.indexing.FacetsIndexingService.FIELD_FOLDER_ID
+import static transmart.solr.indexing.FacetsFieldImpl.create as createFF
+import static transmart.solr.indexing.FacetsIndexingService.FIELD_FOLDER_ID
 
 /**
  * Indexes file contents.

@@ -1,10 +1,9 @@
-package org.transmartproject.search.indexing
+package transmart.solr.indexing
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.Cache
 import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptFullName
-import org.transmartproject.search.browse.FolderStudyMappingView
 import org.springframework.cache.CacheManager
 
 @Component

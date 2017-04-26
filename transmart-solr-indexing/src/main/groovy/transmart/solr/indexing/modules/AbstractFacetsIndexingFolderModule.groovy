@@ -1,9 +1,17 @@
-package transmart.solr.indexing
+package transmart.solr.indexing.modules
 
 import com.google.common.base.Objects
 import com.google.common.collect.ImmutableSet
 import groovy.util.logging.Log4j
 import org.springframework.beans.factory.annotation.Autowired
+import transmart.solr.indexing.BioDataValuesView
+import transmart.solr.indexing.FacetsDocId
+import transmart.solr.indexing.FacetsDocument
+import transmart.solr.indexing.FacetsFieldDisplaySettings
+import transmart.solr.indexing.FacetsFieldImpl
+import transmart.solr.indexing.FacetsIndexingModule
+import transmart.solr.indexing.FacetsIndexingService
+import transmart.solr.indexing.FolderConceptMappings
 
 import static FacetsFieldImpl.create
 import static FacetsIndexingService.FIELD_CONCEPT_PATH

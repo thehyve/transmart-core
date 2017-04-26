@@ -1,4 +1,4 @@
-package org.transmartproject.search.indexing.modules
+package transmart.solr.indexing.modules
 
 import com.google.common.collect.AbstractIterator
 import com.google.common.collect.HashMultimap
@@ -11,14 +11,13 @@ import org.springframework.cache.CacheManager
 import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.core.ontology.*
-import org.transmartproject.search.indexing.*
-import org.transmartproject.search.indexing.FacetsDocId
-import org.transmartproject.search.indexing.FacetsDocument
-import org.transmartproject.search.indexing.FacetsFieldDisplaySettings
-import org.transmartproject.search.indexing.FacetsIndexingModule
-import org.transmartproject.search.indexing.FolderConceptMappings
+import transmart.solr.indexing.FacetsDocId
+import transmart.solr.indexing.FacetsDocument
+import transmart.solr.indexing.FacetsFieldDisplaySettings
+import transmart.solr.indexing.FacetsIndexingModule
+import transmart.solr.indexing.FolderConceptMappings
 
-import static org.transmartproject.search.indexing.FacetsIndexingService.*
+import static transmart.solr.indexing.FacetsIndexingService.*
 
 @Component
 class ConceptNamesIndexingModule implements FacetsIndexingModule {
