@@ -613,6 +613,97 @@ class HypercubeProtobufSerializerSpec extends Specification {
         then:
         groups == [[], [], [], [], [], [5]]
     }
+
+    void 'test firstNestedElement'() {
+        when:
+        def (serializer, PackedCellBuilder packer) = defaultPackedSerializer
+
+        then:
+        packer.firstNestedElement([[1]]) == 1
+        packer.firstNestedElement([[], [], [], ['a', 'b', 'c']]) == 'a'
+        packer.firstNestedElement([['a', 'b'], [], [3]]) == 'a'
+    }
+
+    void 'test getMode'() {
+        when:
+        def (serializer, PackedCellBuilder packer) = defaultPackedSerializer
+        def values = { List<List<Integer>> vals ->
+            vals.collectNested {
+                new MockValue([int: it, value: 42], serializer.cube)
+            }
+        }
+
+        then:
+        packer.getMode(values([[1,1,1], [1,1,1], [], [1]]), intDim) == packer.PERPACK
+        packer.getMode(values([[1]]), intDim) == packer.PERPACK
+        packer.getMode(values([[], [], [1]]), intDim) == packer.PERPACK
+        packer.getMode(values([[1,1,1], [2], [2,2,2]]), intDim) == packer.PERPACKELEMENT
+        packer.getMode(values([[1,1,1], [], [1], [5], [1, 1]]), intDim) == packer.PERPACKELEMENT
+        packer.getMode(values([[1,2]]), intDim) == packer.PEROBSERVATION
+        packer.getMode(values([[], [1], [1, 1], [1, 1, 1, 2], [1, 1, 1], []]), intDim) == packer.PEROBSERVATION
+        packer.getMode(values([[1, 1], [3, 4, 5, 1, 2], [1, 2, 1], [40]]), intDim) == packer.PEROBSERVATION
+    }
+
+    void 'test inlineDimension'() {
+        when:
+        def (serializer, PackedCellBuilder packer) = defaultPackedSerializer
+        double currval = 1.5
+        def values = { List<List<Integer>> vals ->
+            vals.collectNested {
+                new MockValue([int: it, value: currval++], serializer.cube)
+            }
+        }
+
+        def dimElements = packer.inlineDimension(values([[1]]), intDim)
+
+        then:
+        dimElements.name == ''
+        dimElements.scopeCase == ObservationsProto.DimensionElements.ScopeCase.PERPACKEDCELL
+        dimElements.fieldsCount == 1
+        dimElements.fieldsList[0].intValueList == [1]
+        dimElements.absentFieldColumnIndicesCount == 0
+        dimElements.absentElementIndicesList == []
+        dimElements.empty == false
+
+        when:
+        dimElements = packer.inlineDimension(values([[null], [1, 2], [3, 4]]), intDim)
+
+        then:
+        dimElements.name == ''
+        dimElements.scopeCase == ObservationsProto.DimensionElements.ScopeCase.PERSAMPLE
+        dimElements.fieldsCount == 1
+        dimElements.fieldsList[0].intValueList == [1, 2, 3, 4]
+        dimElements.absentFieldColumnIndicesCount == 0
+        dimElements.absentElementIndicesList == [1]
+        dimElements.empty == false
+
+        when:
+        dimElements = packer.inlineDimension(values([[1], [2, 2]]), intDim)
+
+        then:
+        dimElements.name == ''
+        dimElements.scopeCase == ObservationsProto.DimensionElements.ScopeCase.SCOPE_NOT_SET
+        dimElements.fieldsCount == 1
+        dimElements.fieldsList[0].intValueList == [1, 2]
+        dimElements.absentFieldColumnIndicesCount == 0
+        dimElements.absentElementIndicesList == []
+        dimElements.empty == false
+    }
+
+    void 'test equal'() {
+        expect:
+        HypercubeProtobufSerializer.equal(null, null)
+        !HypercubeProtobufSerializer.equal(null, 0)
+        HypercubeProtobufSerializer.equal(2, 2)
+        !HypercubeProtobufSerializer.equal(2, "2")
+        !HypercubeProtobufSerializer.equal(4, null)
+        HypercubeProtobufSerializer.equal("a", "a")
+    }
+
+    void 'test addValue'() {
+
+    }
+
 }
 
 

@@ -441,6 +441,15 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             }
         }
 
+        /**
+         * Modes indicating how inline dimensions should be serialised.
+         * PERPACK: All dimension elements for an inline dimension are the same within this pack, so only serialise
+         * it once.
+         * PERPACKELEMENT: One dimension element for each element of the packed dimension.
+         * PEROBSERVATION: Serialise all dimension elements individually
+         *
+         * These correspond to the three states for DimensionElements.scope in observations.proto
+         */
         static final byte PERPACK = 0
         static final byte PERPACKELEMENT = 1
         static final byte PEROBSERVATION = 2
@@ -467,8 +476,6 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
                 builder.setPerSample(true)
             } else throw new AssertionError((Object) "unreachable")
 
-            builder.setName(dim.name)
-
             return builder
         }
 
@@ -483,17 +490,22 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             for(group in values) {
                 if(group.empty) continue
                 def groupElement = group[0][dim]
-                // Note: dynamic call to .equals
-                if(allEqual && firstElement != groupElement) allEqual = false
+                if(allEqual && !equal(firstElement, groupElement)) allEqual = false
                 if(group.size() == 1) continue
 
                 for(hv in group.subList(1, group.size())) {
-                    if(!groupElement.equals(hv[dim])) return PEROBSERVATION
+                    if(!equal(groupElement, hv[dim])) return PEROBSERVATION
                 }
             }
 
             return allEqual ? PERPACK : PERPACKELEMENT
         }
+    }
+
+    // This avoids a dynamic call to .equals compared to `==`
+    static boolean equal(x, y) {
+        if(x == null) return y == null
+        return x.equals(y)
     }
 
 
