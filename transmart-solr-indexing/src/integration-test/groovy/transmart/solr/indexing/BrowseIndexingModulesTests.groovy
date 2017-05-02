@@ -5,13 +5,11 @@ import grails.test.mixin.TestMixin
 import org.hamcrest.Matchers
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
-import org.transmartproject.search.indexing.modules.*
+import transmart.solr.indexing.modules.*
 
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
+import static transmart.solr.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
 
-@TestMixin(RuleBasedIntegrationTestMixin)
 class BrowseIndexingModulesTests {
 
     @Autowired
