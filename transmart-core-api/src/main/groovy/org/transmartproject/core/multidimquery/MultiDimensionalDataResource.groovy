@@ -35,6 +35,8 @@ interface MultiDimensionalDataResource {
 
     List<Patient> listPatients(MultiDimConstraint constraint, User user)
 
+    List<Object> listDimensionElements(String dimensionName, User user)
+
     QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) 
 
     QueryResult findPatientSet(Long patientSetId, User user)

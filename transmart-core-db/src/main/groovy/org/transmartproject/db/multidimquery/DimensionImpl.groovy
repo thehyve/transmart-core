@@ -30,6 +30,8 @@ import org.transmartproject.db.i2b2data.PatientDimension as I2B2PatientDimension
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.support.InQuery
 
+import javax.transaction.NotSupportedException
+
 import static org.transmartproject.core.multidimquery.Dimension.*
 import static org.transmartproject.core.multidimquery.Dimension.Size.*
 import static org.transmartproject.core.multidimquery.Dimension.Density.*
@@ -116,8 +118,8 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
     @Override abstract String getName()
 
-    @Override IterableResult<ELT> getElements(Collection<Study> studies) {
-        throw new NotImplementedException()
+    @Override List<ELT> listElements(Collection<Study> studies) {
+        throw new InvalidArgumentsException("Dimension not supported.")
     }
 
     protected <T> T getKey(Map map, String alias) {
@@ -190,6 +192,12 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static List<ELT> resolveWithInQuery(BuildableCriteria criteria, List<ELKey> elementKeys, String property = 'id') {
         List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, property, elementKeys).list()
         sort(res, elementKeys, property)
+        res
+    }
+
+    static List<ELT> resolveWithStudyInQuery(BuildableCriteria criteria, Collection<Study> studies, String property = 'id') {
+        List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, 'study', studies).list()
+        sort(res, res.collect{ t-> t[property]} as List<ELKey>, property)
         res
     }
 
@@ -505,7 +513,9 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
         resolveWithInQuery(TrialVisit.createCriteria(), elementKeys)
     }
 
-
+    @Override List<TrialVisit> listElements(Collection<Study> studies) {
+        resolveWithStudyInQuery(TrialVisit.createCriteria(), studies)
+    }
 }
 
 @CompileStatic @InheritConstructors
