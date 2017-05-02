@@ -479,7 +479,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
             return builder
         }
 
-        private <T> T firstNestedElement(List<List<T>> lists) {
+        static final <T> T firstNestedElement(List<List<T>> lists) {
             for(list in lists) { for(elem in list) { return elem } }
         }
 
@@ -503,7 +503,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     }
 
     // This avoids a dynamic call to .equals compared to `==`
-    static boolean equal(x, y) {
+    static final boolean equal(x, y) {
         if(x == null) return y == null
         return x.equals(y)
     }

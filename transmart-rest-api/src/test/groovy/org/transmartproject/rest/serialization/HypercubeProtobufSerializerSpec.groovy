@@ -17,6 +17,7 @@ import org.transmartproject.core.multidimquery.dimensions.Order
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer.PackedCellBuilder
+import org.transmartproject.rest.serialization.HypercubeProtobufSerializer as HPS
 import spock.lang.Specification
 
 import static org.transmartproject.rest.hypercubeProto.ObservationsProto.Type.DOUBLE
@@ -562,7 +563,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
         type == null
     }
 
-    void 'test groupSamples'() {
+    void 'test groupSamples'() { // also tests addGroup
         when:
         def group = { List vals ->
             def values = (1..vals.max()).collect { [value: it, anotherDim: 1, visit: it] }
@@ -646,7 +647,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
 
     void 'test inlineDimension'() {
         when:
-        def (serializer, PackedCellBuilder packer) = defaultPackedSerializer
+        def (HPS serializer, PackedCellBuilder packer) = defaultPackedSerializer
         double currval = 1.5
         def values = { List<List<Integer>> vals ->
             vals.collectNested {
@@ -701,6 +702,142 @@ class HypercubeProtobufSerializerSpec extends Specification {
     }
 
     void 'test addValue'() {
+        when:
+        HPS serializer
+        PackedCellBuilder packer
+        def addValues = { List vals ->
+            (serializer, packer) = defaultPackedSerializer
+            packer.valueType = vals.find().class
+            vals.each { packer.addValue(new MockValue([value: it], (MockHypercube) serializer.cube)) }
+        }
+
+        addValues([1,2,3,4,5])
+
+        then:
+        packer.builder.numericValuesList == [1,2,3,4,5]
+        packer.builder.stringValuesList == []
+        packer.builder.nullValueIndicesList == []
+
+        when:
+        addValues(["a", "b", "c", "d"])
+
+        then:
+        packer.builder.stringValuesList == ["a", "b", "c", "d"]
+        packer.builder.numericValuesList == []
+        packer.builder.nullValueIndicesList == []
+
+        when:
+        addValues([null, 1, 2, null, 3, 4, null])
+
+        then:
+        packer.builder.numericValuesList == [1,2,3,4]
+        packer.builder.stringValuesList == []
+        packer.builder.nullValueIndicesList == [1,4,7]
+
+        when:
+        addValues(["a", null, null, null])
+
+        then:
+        packer.builder.stringValuesList == ["a"]
+        packer.builder.numericValuesList == []
+        packer.builder.nullValueIndicesList == [2,3,4]
+    }
+
+    void 'test putValues'() {
+        when:
+        HPS serializer
+        PackedCellBuilder packer
+        def type = { List<List> lists -> for(list in lists) { for(elem in list) { if(elem != null) return elem.class }}}
+        def putValues = { List<List> vals ->
+            (serializer, packer) = defaultPackedSerializer
+            packer.valueType = type(vals)
+            packer.putValues(vals.collectNested { new MockValue([value: it], (MockHypercube) serializer.cube) })
+        }
+
+        putValues([[], [1, 2, 3], [4, 5, 6]])
+
+        then:
+        packer.builder.stringValuesList == []
+        packer.builder.numericValuesList == [1,2,3,4,5,6]
+        packer.builder.nullElementCount == 0
+        packer.builder.nullValueIndicesList == []
+        packer.builder.sampleCountsList == [3, 3]
+        packer.builder.absentValuesList == []
+
+        when:
+        putValues([['a', 'b'], ['c', 'd'], [], ['e']])
+
+        then:
+        packer.builder.stringValuesList == ['a', 'b', 'c', 'd', 'e']
+        packer.builder.numericValuesList == []
+        packer.builder.nullElementCount == 2
+        packer.builder.nullValueIndicesList == []
+        packer.builder.sampleCountsList == [2,0,1]
+        packer.builder.absentValuesList == []
+
+        when:
+        putValues([[], [1], [2], [3], [4]])
+
+        then:
+        packer.builder.stringValuesList == []
+        packer.builder.numericValuesList == [1,2,3,4]
+        packer.builder.nullElementCount == 0
+        packer.builder.nullValueIndicesList == []
+        packer.builder.sampleCountsList == []
+        packer.builder.absentValuesList == []
+
+        when:
+        putValues([[null], [null], [null], [null], [4]])
+
+        then:
+        packer.builder.stringValuesList == []
+        packer.builder.numericValuesList == [4]
+        packer.builder.nullElementCount == 1
+        packer.builder.nullValueIndicesList == [1,2,3,4]
+        packer.builder.sampleCountsList == []
+        packer.builder.absentValuesList == []
+
+        when:
+        putValues([[null], [null], [null], [null], [4]])
+
+        then:
+        packer.builder.stringValuesList == []
+        packer.builder.numericValuesList == [4]
+        packer.builder.nullElementCount == 1
+        packer.builder.nullValueIndicesList == [1,2,3,4]
+        packer.builder.sampleCountsList == []
+        packer.builder.absentValuesList == []
+
+        when:
+        putValues([[null], [null, null], [], [null], ['a']])
+
+        then:
+        packer.builder.stringValuesList == ['a']
+        packer.builder.numericValuesList == []
+        packer.builder.nullElementCount == 1
+        packer.builder.nullValueIndicesList == [1,2,3,4]
+        packer.builder.sampleCountsList == [2, 0, 1, 1]
+        packer.builder.absentValuesList == []
+
+        when:
+        putValues([[], [], [], [], [], ['a']])
+
+        then:
+        packer.builder.stringValuesList == ['a']
+        packer.builder.numericValuesList == []
+        packer.builder.nullElementCount == 0
+        packer.builder.nullValueIndicesList == []
+        packer.builder.sampleCountsList == []
+        packer.builder.absentValuesList == [1,2,3,4]
+    }
+
+    void 'test createPackedCell'() {
+        when:
+        def (HPS serializer, PackedCellBuilder packer) = defaultPackedSerializer
+        def cell = serializer.createPackedCell()
+
+        then:
+        true
 
     }
 
