@@ -52,6 +52,7 @@ import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.i2b2data.ConceptDimension
+import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.AssayDimension
 import org.transmartproject.db.multidimquery.BioMarkerDimension
@@ -467,6 +468,39 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
     Long cachedCount(MultiDimConstraint constraint, User user) {
         count(constraint, user)
+    }
+
+    /**
+     * @description Function for getting a list of dimension elements.
+     * @param dimensionName
+     * @param user
+     * @param constraint
+     */
+    @Override
+    List<Object> listDimensionElements(String dimensionName, User user, MultiDimConstraint constraint = null) {
+        if (constraint) {
+            if (dimensionName == PatientDimension.name) {
+                listPatients(constraint, user)
+            } else throw new NotImplementedException()
+        } else {
+            DimensionImpl dimension = getBuiltinDimension(dimensionName)
+            if (!dimension) throw new InvalidArgumentsException("Invalid dimension name: $dimensionName")
+
+            List<MDStudy> studies = accessControlChecks.getDimensionStudiesForUser(user)
+            List elements = dimension.listElements(studies)
+            List resultList = []
+
+            elements.collect { elem ->
+                def elemFieldsMap = [:]
+                elem.properties.each {
+                    if (it.key in dimension.elemFields)
+                        elemFieldsMap.put(it.key, it.value)
+                }
+                elemFieldsMap.put('study', elem.study.id)
+                resultList.add(elemFieldsMap)
+            }
+            resultList
+        }
     }
 
     /**

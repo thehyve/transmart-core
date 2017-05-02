@@ -12,9 +12,7 @@ import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
 import org.grails.datastore.mapping.query.api.BuildableCriteria
 import org.hibernate.SessionFactory
-import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.core.IterableResult
-import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -25,7 +23,6 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.TrialVisit
-import org.hibernate.Criteria
 import org.transmartproject.db.i2b2data.ConceptDimension as I2b2ConceptDimensions
 import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
 import org.transmartproject.db.i2b2data.Study as I2B2Study
@@ -115,6 +112,10 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         throw new NotImplementedException()
     }
 
+    @Override List<Object> listElements(List<Study> studies) {
+        throw new NotImplementedException()
+    }
+
     protected <T> T getKey(Map map, String alias) {
         def res = map.getOrDefault(alias, this)
         if(res.is(this)) throw new IllegalArgumentException("Resultmap $map does not contain key $alias")
@@ -183,6 +184,12 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static List<ELT> resolveWithInQuery(BuildableCriteria criteria, List<ELKey> elementKeys, String property = 'id') {
         List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, property, elementKeys).list()
         sort(res, elementKeys, property)
+        res
+    }
+
+    static List<ELT> resolveWithStudyInQuery(BuildableCriteria criteria, List<Study> studies, String property = 'id') {
+        List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, 'study', studies).list()
+        sort(res, res.collect{ t-> t[property]} as List<ELKey>, property)
         res
     }
 
@@ -470,7 +477,9 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
         resolveWithInQuery(TrialVisit.createCriteria(), elementKeys)
     }
 
-
+    @Override List<TrialVisit> listElements(List<Study> studies) {
+        resolveWithStudyInQuery(TrialVisit.createCriteria(), studies)
+    }
 }
 
 @CompileStatic @InheritConstructors
