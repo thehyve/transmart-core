@@ -1,36 +1,22 @@
 Trial visit mapping (not yet implemented)
 -----------------------------
 
-The trial visit mapping file is used to map the values present in the `TRIAL_VISIT_LABEL` variable of your clinical data file(s) and the `TIME_POINT` variable in subject-sample mapping file(s)(subject-sample-mapping.md).
+The trial visit mapping file is used to map the trial visit labels to their corresponding time unit and its value. Trial visit labels can be present in the `TRIAL_VISIT_LABEL` variable of your clinical data file(s) and the `TIME_POINT` variable in [subject-sample mapping file(s)](subject-sample-mapping.md).
 
 TRIAL_VISIT_MAP_FILE format
 ------------
-The parameters file should be named `tags.params` and contains:
-
-#####Tags tsv input file format.
 
 |Label          |Unit     |     Value    |
 |---------------|---------|--------------|
 |Baseline       |Days     |3             |
 |Week1          |Days     |7             |
 
-Columns map onto these db columns of i2b2metadata.i2b2_tags table:
-concept_key=path, tag_title=tag_type, tag_description=tag index=tags_idx
+Table, tab separated, txt file. It contains information about concepts and the ontology tree that are uploaded to TranSMART. The first two columns refer to columns in the column mapping file. The rows were these columns are not empty, are used for associating observations with concept codes. The others are only used to build the tree.
 
-Header names are not strict, but header has to be present because first line is always skipped.
-Order of columns is important.
-
-- concept_key - relative concept path pointing to a node the tag is associated with. Use `\` to denote study node.
-    e.g. `\Cell-line\Biomarker Data\Cell-line proteomics\LFQ-1\`
-    NOTE: It should exactly correspond to path of the node. Otherwise it would be uploaded, but never appears on the tree.
-    There is no referential consistency between tags table and i2b2 yet.
-
-- tag_title - title of the tag. e.g. `ORGANISM`.
-    TranSMART tries to find user-friendly title by searching using title as key in `messsage.properties` file first.
-    It shows title as is if it fails to find it in properties file.
-
-- tag_description - text that appears next to title on popup. e.g. `Homo Sapiens`
-- index - detects position of tags on popup relatively to others. A higher position in tags with lower number.
+Description of the columns:
+- `Label`  The category name used in the column mapping file.
+- `Unit`  The variable name used in the column mapping file.
+- `Value`  Concept code to be used to classify observations.
 
 #####Tags upload.
 
