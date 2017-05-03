@@ -4,6 +4,7 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.CellOrBuilder
 import org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElementOrBuilder
+import org.transmartproject.rest.hypercubeProto.ObservationsProto.DimensionElements.ScopeCase
 
 /**
  * Static helper methods to decode hypercube protobuf messages into a more idiomatic representation. These functions
@@ -17,16 +18,17 @@ class DeserializationHelper {
      * in the protobuf serialization).
      * @param elements
      * @param absentIndices
-     * @return the elements with absents represented as nulls
+     * @param defaultValue (default null) the value to use for absents
+     * @return the elements with absents represented as nulls (or defaultValue's)
      */
-    static <T> List<T> handleAbsents(List<T> elements, List<Integer> absentIndices) {
+    static <T> List<T> handleAbsents(List<T> elements, List<Integer> absentIndices, defaultValue=null) {
         // absentIndices is 1-based
         int elemIdx = 0
         int absentIdx = 0
         List result = []
         for(i in 0..<(elements.size() + absentIndices.size())) {
             if((absentIndices[absentIdx] ?: 0) - 1 == i) {
-                result << null
+                result << defaultValue
                 absentIdx++
             } else {
                 result << elements.get(elemIdx++)
@@ -80,7 +82,8 @@ class DeserializationHelper {
      */
     static List parseFieldColumn(ObservationsProto.DimensionElementFieldColumnOrBuilder column,
                                  List<Integer> additionalAbsents = []) {
-        def values = column.stringValueList ?: column.doubleValueList ?: column.intValueList ?: column.timestampValueList
+        def values = column.stringValueList ?: column.doubleValueList ?: column.intValueList ?:
+                column.timestampValueList.collect { new Date(it) }
 
         assert [column.stringValueCount, column.intValueCount, column.doubleValueCount, column.timestampValueCount]
                 .collect { it == 0 ? 0 : 1 }.sum() == 1
@@ -97,12 +100,11 @@ class DeserializationHelper {
      * Parses a DimensionElements into a list of properties
      *
      * @param dimElems a protobuf DimensionElements object (or builder)
-     * @param propertiesOrType A collection of {@Link org.transmartproject.core.multidimquery.Property}s, or of objects
-     * that have a 'name': String and 'type': Class property. Alternatively, a single type. In that case
-     * DimensionElements must have a single column, the values of which are returned as a list.
-     * @return A list of elements, with each element as a map of propertyName: value pairs. If the DimensionElements
-     * is empty we don't know how many elements it represents, so this returns null. If `properties` is not specified
-     * the return value is a list of plain elements.
+     * @param propertyNames A collection of Strings representing the property names that each element has. Must be
+     * set for elements that are composite, must not be set for elements that are not composite.
+     * @return A list of elements, with each element as a map of propertyName: value pairs for composite elements
+     * (`propertyNames` must be set), or just a list of elements for non-composite serializable elements (in which
+     * case `propertyNames` must not be set).
      */
     static List parseDimensionElements(ObservationsProto.DimensionElementsOrBuilder dimElems, Collection<String> propertyNames=null) {
         List<List> columns = []
@@ -155,16 +157,90 @@ class DeserializationHelper {
         }
     }
 
-    static List indexedDims(CellOrBuilder cell, Collection<List> indexedDms) {
+    static List indexedDims(/*PackedCellOrCellOrBuilder*/ cell, Collection<List> indexedDms) {
         def indexes = cell.dimensionIndexesList.collect { it == 0l ? null : it-1 as Integer }
         [indexes, indexedDms as List].transpose().collect { Integer idx, List elems -> idx != null ? elems[idx] : null }
     }
 
-    static Map decodeCell(ObservationsProto.CellOrBuilder cell, Map<Dimension, List> indexedDms, List<Dimension> inlineDms) {
+    static Map decodeCell(CellOrBuilder cell, Map<Dimension, List> indexedDms, List<Dimension> inlineDms) {
         def elem = [inlineDms*.name, inlineDims(cell, inlineDms)].transpose().collectEntries()
         elem += [indexedDms.keySet()*.name, indexedDims(cell, indexedDms.values())].transpose().collectEntries()
         elem.value = cellValue(cell)
         elem
+    }
+
+    // This flag indicates which encodings of inline dimensions have been seen, to ensure that all code paths have
+    // been properly tested.
+    public static int inlineDimEncodingsSeen = 0
+    static List<Map> decodePackedCell(ObservationsProto.PackedCellOrBuilder packedCell, Dimension packedDim,
+                                      Map<Dimension,List> indexedDms, List<Dimension> inlineDms) {
+
+        def indexedDims = [indexedDms.keySet()*.name, indexedDims(packedCell, indexedDms.values())].transpose().collectEntries()
+
+        def values = handleAbsents(packedCell.numericValuesList ?: packedCell.stringValuesList, packedCell.nullValueIndicesList)
+        def nullElementValues = values[0..<packedCell.nullElementCount]
+        def nonNullElementValues = values[packedCell.nullElementCount..<values.size()]
+        List<List> groupedValues = [nullElementValues]
+        if(packedCell.sampleCountsCount > 0) {
+            def iter = nonNullElementValues.iterator()
+            packedCell.sampleCountsList.each {
+                groupedValues << getItems(iter, it)
+            }
+            assert !iter.hasNext()
+        } else {
+            groupedValues += handleAbsents(nonNullElementValues.collect { [it] }, packedCell.absentValuesList, [].asImmutable())
+        }
+
+        // values as map and set indexed dimensions
+        List<List<Map>> valueMaps = groupedValues.collectNested { [value: it] + indexedDims }
+
+        // Set packed dimension
+        [[null] + indexedDms[packedDim], valueMaps].transpose().each { packElem, List<Map> vals ->
+            vals.each { it[packedDim.name] = packElem }
+        }
+
+        // set inline dimensions
+        assert inlineDms.size() == packedCell.inlineDimensionsCount
+        for(i in inlineDms.indices) {
+            Dimension dim = inlineDms[i]
+            def propertyNames = dim.elementsSerializable ? [dim.name] : dim.elementFields.keySet()
+
+            def dimElementsProto = packedCell.inlineDimensionsList[i]
+            List<Map> dimElements = parseDimensionElements(dimElementsProto, propertyNames)
+
+            if(dimElementsProto.perPackedCell) {
+                assert dimElements.size() == 1
+                for(l in valueMaps) for(m in l) {
+                    m.putAll dimElements[0]
+                }
+                inlineDimEncodingsSeen |= 1
+            } else if(dimElementsProto.scopeCase == ScopeCase.SCOPE_NOT_SET) {
+                def nonEmptyMaps = valueMaps.findAll()
+                assert dimElements.size() == nonEmptyMaps.size()
+
+                [dimElements, nonEmptyMaps].transpose().each { Map elem, List<Map> vals ->
+                    for(m in vals) m.putAll elem
+                }
+                inlineDimEncodingsSeen |= 2
+            } else if(dimElementsProto.perSample) {
+                assert dimElements.size() == valueMaps.sum { it.size() }
+
+                [dimElements, valueMaps.flatten()].transpose().each { Map elem, Map value ->
+                    value.putAll elem
+                }
+                inlineDimEncodingsSeen |= 4
+            } else assert false, "invalid scope"
+        }
+
+        (List<Map>) valueMaps.flatten()
+    }
+
+    static final List getItems(Iterator iter, int count) {
+        def res = []
+        while(count--) {
+            res << iter.next()
+        }
+        res
     }
 
 }

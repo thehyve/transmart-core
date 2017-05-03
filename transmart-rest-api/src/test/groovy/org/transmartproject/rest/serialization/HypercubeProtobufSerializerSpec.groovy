@@ -52,6 +52,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
             // skipped: [visit: 0, patient: patients[1], concept: concepts[0], value: 1.5, date: new Date(110000)],
             [visit: 0, patient: patients[2], concept: concepts[0], value: 2.2, date: new Date(120000)],
             [visit: 0, patient: patients[0], concept: concepts[1], value: "FOO", date: new Date(105000)],
+            [visit: 0, patient: patients[0], concept: concepts[1], value: "FOO2", date: new Date(106000)],
             [visit: 0, patient: patients[1], concept: concepts[1], value: null, date: new Date(115000)],
             [visit: 0, patient: patients[2], concept: concepts[1], value: "BAZ", date: null],
 
@@ -63,8 +64,8 @@ class HypercubeProtobufSerializerSpec extends Specification {
             [visit: 1, patient: patients[2], concept: concepts[0], value: 1.5, date: new Date(220000)],
             [visit: 1, patient: patients[2], concept: concepts[0], value: 1.7, date: new Date(220000)],
             [visit: 1, patient: patients[0], concept: concepts[1], value: null, date: new Date(205000)],
-            [visit: 1, patient: patients[1], concept: concepts[1], value: "BAR", date: new Date(215000)],
-            [visit: 1, patient: patients[2], concept: concepts[1], value: null, date: null],
+            [visit: 1, patient: patients[1], concept: concepts[1], value: "BAR", date: new Date(205000)],
+            [visit: 1, patient: patients[2], concept: concepts[1], value: null, date: new Date(205000)],
     ] }
 
     List<List<Map>> getGroupedObservations() {
@@ -307,7 +308,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
 
     void 'test createCell'() {
         when:
-        def serializer = makeSerializer(new MockHypercube(dimensions: allDims, values: observations), pack: false)
+        HPS serializer = makeSerializer(new MockHypercube(dimensions: allDims, values: observations), pack: false)
         def cells = serializer.iterator.collect { serializer.createCell(it) }
         def cube = serializer.cube
         def decodedCells = cells.collect { decodeCell(it, cube.dimIndexes, inlineDims) }
@@ -384,7 +385,7 @@ class HypercubeProtobufSerializerSpec extends Specification {
         column = mkcolumn()
 
         then:
-        parseFieldColumn(column) == elements.collect { it.time }
+        parseFieldColumn(column) == elements
 
 
         // null cases: both when the element is null and when only the property is null
@@ -834,11 +835,14 @@ class HypercubeProtobufSerializerSpec extends Specification {
     void 'test createPackedCell'() {
         when:
         def (HPS serializer, PackedCellBuilder packer) = defaultPackedSerializer
-        def cell = serializer.createPackedCell()
+        def cells = iterateWhile({serializer.iterator.hasNext()}) { serializer.createPackedCell() }
+        DeserializationHelper.inlineDimEncodingsSeen = 0
 
         then:
-        true
-
+        cells.collectMany {
+            decodePackedCell(it, serializer.packedDimension, serializer.cube.dimIndexes, inlineDims)
+        } as Set == observations as Set
+        DeserializationHelper.inlineDimEncodingsSeen == 7
     }
 
 }
