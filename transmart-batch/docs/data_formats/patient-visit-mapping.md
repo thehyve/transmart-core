@@ -1,17 +1,17 @@
-Trial visit mapping (not yet implemented)
+Patient visit mapping (not yet implemented)
 -----------------------------
 
-The trial visit mapping file is used to map the trial visit labels to their corresponding time unit and its value. Trial visit labels can be present in the `TRIAL_VISIT_LABEL` variable of your clinical data file(s) and the `TIME_POINT` variable in [subject-sample mapping file(s)](subject-sample-mapping.md). Although not mandatory for incorporating trial visit data in your study, only in this file can the time unit and value be specified.
+The patient visit mapping file is used to provide a start and end date for each patient visit specified in your clinical data file(s). Patient visits can be present in the `PATIENT_VISIT` variable of your clinical data file(s) or [subject-sample mapping file(s)](subject-sample-mapping.md).
 
-TRIAL_VISIT_MAP_FILE format
+PATIENT_VISIT_MAP_FILE format
 ------------
-|Label          |Unit     |     Value    |
-|---------------|---------|--------------|
-|Baseline       |Days     |3             |
-|Week1          |Days     |7             |
-|Week2          |Days     |7             |
+|Subject ID     |Patient visit |Start date    |End date|
+|---------------|--------------|--------------|
+|subject1       |1             |3             |
+|subject1       |2             |7             |
+|subject2       |1             |7             |
 
-Table, tab separated, txt file. Labels specified in this file that do not occur in any clinical data/subject-sample mapping file will be ignored.
+Table, tab separated, txt file. Start and end date can be provided (e.g. 2002-08-23 11:39:00)
 
 Description of the columns:
 - `Label` **Mandatory.** The trial visit label used in clinical data file/subject-sample mapping. Must be unique.
