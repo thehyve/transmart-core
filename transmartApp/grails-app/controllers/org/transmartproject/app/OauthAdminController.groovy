@@ -1,31 +1,34 @@
 package org.transmartproject.app
 
 import grails.core.GrailsApplication
+import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.oauth2.provider.token.TokenStore
 import org.transmart.oauth2.Client
 
-
+@Transactional
 class OauthAdminController {
     
     @Autowired
     private TokenStore tokenStore
-    
     def springSecurityService
     
     GrailsApplication grailsApplication
-    
+
     def index = {
-        redirect action: list, params: params
+        redirect action: 'list', params: params
     }
     
     def list = {
-        def clients = Client.withTransaction { Client.findAll() }
-        def configClients = grailsApplication.config.grails.plugin.springsecurity.oauthProvider.clients
-        Set configClientIds = configClients*.clientId
-        log.info configClientIds.toString()
-        
-        render view: 'list', model: [clients: clients, configClientIds: configClientIds]
+            // fetchMode: eager added to avoid org.hibernate.LazyInitializationException for Client objects,
+            // causing error, when processing GroovyPageView: "failed to lazily initialize a collection of role xxx."
+            def clients = Client.findAll([fetch: [redirectUris: 'eager', authorizedGrantTypes: 'eager']])
+
+            def configClients = grailsApplication.config.grails.plugin.springsecurity.oauthProvider.clients
+            Set configClientIds = configClients*.clientId
+            log.info configClientIds.toString()
+
+            render view: 'list', model: [clients: clients, configClientIds: configClientIds]
     }
     
     def create = {
@@ -37,10 +40,12 @@ class OauthAdminController {
     }
     
     private findClient(id) {
-        def client = Client.withTransaction { Client.get(params.id) }
+        // fetchMode: eager added to avoid org.hibernate.LazyInitializationException for Client objects,
+        // causing error, when processing GroovyPageView: "failed to lazily initialize a collection of role xxx."
+        def client = Client.findById(params.id, [fetch: [redirectUris: 'eager', authorizedGrantTypes: 'eager']])
         if (!client) {
             flash.message = "Client application not found with id $params.id"
-            redirect action: list
+            redirect action: 'list'
             return
         }
         client
@@ -92,7 +97,7 @@ class OauthAdminController {
         }
         client.redirectUris = redirectUris
         
-        if (Client.withTransaction { client.validate() && client.save(flush: true) }) {
+        if (client.validate() && client.save(flush: true)) {
             log.debug 'client saved: ' + client.id
             redirect (action: 'view', id: client.id)
         } else {
@@ -122,6 +127,6 @@ class OauthAdminController {
         def clientId = client.clientId
         client.delete()
         flash.message = "Client application $clientId deleted."
-        redirect action: list
+        redirect action: 'list'
     }
 }

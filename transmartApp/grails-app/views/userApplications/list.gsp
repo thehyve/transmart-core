@@ -25,7 +25,7 @@
         </p>
 
         <div class="adm-list-toolbar">
-            <g:remoteLink before="return confirm('Are you sure you want to revoke all access tokens?');" action="revokeAll">Revoke all</g:remoteLink>
+            <g:link before="return confirm('Are you sure you want to revoke all access tokens?');" action="revokeAll">Revoke all</g:link>
         </div>
 
         <table class="list">
@@ -57,8 +57,8 @@
                     %{--<td>${token.username}</td>--}%
                     %{--<td>${token.tokenType}</td>--}%
                     <td>
-                        <g:remoteLink before="return confirm('Are you sure you want to revoke the access token?');"
-                                      action="revoke" id="${token.id}">Revoke</g:remoteLink>
+                        <g:link before="return confirm('Are you sure you want to revoke the access token?');"
+                                      action="revoke" id="${token.id}">Revoke</g:link>
                     </td>
                 </tr>
             </g:each>

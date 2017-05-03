@@ -1,10 +1,11 @@
 package org.transmartproject.app
 
+import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.oauth2.provider.token.TokenStore
 import org.transmart.oauth2.AccessToken
 
-
+@Transactional
 class UserApplicationsController {
     
     @Autowired
@@ -16,7 +17,7 @@ class UserApplicationsController {
         def principal = springSecurityService.principal
         
         log.debug 'Fetching access tokens for ' + principal.username
-        def tokens = AccessToken.withTransaction { AccessToken.findAll { username == principal.username }}
+        def tokens = AccessToken.findAll { username == principal.username }
         def refreshTokenExpiration = [:]
         tokens.each {
             def t = tokenStore.readAccessToken(it.value)
@@ -35,7 +36,7 @@ class UserApplicationsController {
     
     def revoke = {
         def principal = springSecurityService.principal
-        def token = AccessToken.withTransaction { AccessToken.find { id == params.id } }
+        def token = AccessToken.find { id == params.id }
         if (token.username == principal.username) {
             removeTokens(token)
         }
@@ -45,7 +46,7 @@ class UserApplicationsController {
     
     def revokeAll = {
         def principal = springSecurityService.principal
-        def tokens = AccessToken.withTransaction { AccessToken.findAll { username == principal.username } }
+        def tokens = AccessToken.findAll { username == principal.username }
         tokens.each { token ->
             removeTokens(token)
         }
