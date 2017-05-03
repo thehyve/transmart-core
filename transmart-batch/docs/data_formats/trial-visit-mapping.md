@@ -1,18 +1,18 @@
-Upload Data Set Explorer Tags
+Trial visit mapping (not yet implemented)
 -----------------------------
 
-Tags appear on popup when you doing right click on node in data set explorer tree.
+The trial visit mapping file is used to map the values present in the `TRIAL_VISIT_LABEL` variable of your clinical data file(s) and the `TIME_POINT` variable in subject-sample mapping file(s)(subject-sample-mapping.md).
 
-Parameters
+TRIAL_VISIT_MAP_FILE format
 ------------
 The parameters file should be named `tags.params` and contains:
-- `TAGS_FILE` **Mandatory**. Points to the tags file. See below for format.
 
 #####Tags tsv input file format.
 
-|concept_key|tag_title|tag_description|index|
-|-----------|---------|---------------|-----|
-|\          |ORGANISM |Homo Sapiens   |2    |
+|Label          |Unit     |     Value    |
+|---------------|---------|--------------|
+|Baseline       |Days     |3             |
+|Week1          |Days     |7             |
 
 Columns map onto these db columns of i2b2metadata.i2b2_tags table:
 concept_key=path, tag_title=tag_type, tag_description=tag index=tags_idx
