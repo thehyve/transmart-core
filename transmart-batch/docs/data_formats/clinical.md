@@ -10,11 +10,13 @@ Parameters
 ------------
 - `COLUMN_MAP_FILE` **Mandatory**. Points to the column file. See below for format.
 - `WORD_MAP_FILE` Points to the file with dictionary to be used.
-- `XTRIAL_FILE` Points to [the cross study concepts file](xtrial.md).
-- `TAGS_FILE` Points to [the concepts tags file](tags.md).
-- `ONTOLOGY_MAP_FILE` Points to [the ontology mapping file](ontology-mapping.md).
+- `XTRIAL_FILE` Points to the [cross study concepts file](xtrial.md).
+- `TAGS_FILE` Points to the [concepts tags file](tags.md).
+- `ONTOLOGY_MAP_FILE` Points to the [ontology mapping file](ontology-mapping.md).
+- `TRIAL_VISIT_MAP_FILE` **Not yet implemented.** Points to the [trial visit mapping file](trial-visit-mapping.md).
+- `PATIENT_VISIT_MAP_FILE` **Not yet implemented.** Points to the [patient visit mapping file](patient-visit-mapping.md).
 
-You could also use [the study-specific parameters](study-params.md).
+You could also use the [study-specific parameters](study-params.md).
 
 COLUMN_MAP_FILE format
 ------------
