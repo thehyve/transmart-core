@@ -5,7 +5,6 @@ The trial visit mapping file is used to map the trial visit labels to their corr
 
 TRIAL_VISIT_MAP_FILE format
 ------------
-
 |Label          |Unit     |     Value    |
 |---------------|---------|--------------|
 |Baseline       |Days     |3             |
@@ -16,28 +15,16 @@ Table, tab separated, txt file. Labels specified in this file that do not occur 
 
 Description of the columns:
 - `Label` **Mandatory.** The trial visit label used in clinical data file/subject-sample mapping. Must be unique.
-- `Unit` **Mandatory if Value is provided** The time unit of the trial visit label.
-- `Value` The value of the time unit provided in the Unit column.
+- `Unit` **Mandatory if Value is provided.** The time unit of the trial visit label.
+- `Value` **Mandatory if Unit is provided.**The value of the time unit provided in the Unit column.
 
-#####Tags upload.
+Trial visit mapping upload
+------------
+The trial visit mapping is uploaded as part of a clinical data upload:
 
-You have two ways to upload tags:
-
-- As part of clinical data upload.
-
-    * Place tags file into `clinical` folder.
-    * Specify tags file inside `clinical` folder with `TAGS_FILE` variable inside `clinical.params` file.
+    * Place trial visit mapping file into `clinical` folder.
+    * Specify trial visit mapping file inside `clinical` folder with the `TRIAL_VISIT_MAP_FILE` parameter in the `clinical.params` file.
     * Run usual clinical data upload.
 
-- As separate tags data type upload.
-
-    * Place tags file into `tags` folder.
-    * You must specify tags file inside `tags` folder with `TAGS_FILE` variable inside `tags.params` file only if you
-    have several files inside `tags` folder.
-    * Run
-
-        ./transmart-batch-capsule.jar -p /path/to/STUDY_NAME/tags.params
-
-#####Tags deletion.
-Is not implemented in transmart-batch.
-You could delete tags with following sql: `delete from i2b2metadata.i2b2_tags where path like '<path>' and tag_type='<title>'`
+##### Tags deletion
+Is not currently implemented in transmart-batch. However, you can replace a label's unit and value by making the changes in your trial visit mapping file and reupload the clinical data.
