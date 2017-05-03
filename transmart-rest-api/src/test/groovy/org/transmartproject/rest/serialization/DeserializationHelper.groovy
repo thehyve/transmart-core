@@ -157,12 +157,25 @@ class DeserializationHelper {
         }
     }
 
+    /**
+     * @param cell can be either a Cell or a PackedCell or a builder of either
+     * @param indexedDms a list/collection of elements for each indexed dimension. The order must match the order
+     * used in the cell
+     */
     static List indexedDims(/*PackedCellOrCellOrBuilder*/ cell, Collection<List> indexedDms) {
         def indexes = cell.dimensionIndexesList.collect { it == 0l ? null : it-1 as Integer }
         [indexes, indexedDms as List].transpose().collect { Integer idx, List elems -> idx != null ? elems[idx] : null }
     }
 
-    static Map decodeCell(CellOrBuilder cell, Map<Dimension, List> indexedDms, List<Dimension> inlineDms) {
+    /**
+     * Decode a protobuf cell into a map that contains the value and the elements for each dimension
+     * @param cell the protobuf cell
+     * @param indexedDms An ordered map from indexed dimensions to the list of elements for that dimension. The
+     * ordering must match the order used in the cell!
+     * @param inlineDms A list of inline dimensions, matching the order used in the cell
+     * @return the decoded value
+     */
+    static Map decodeCell(CellOrBuilder cell, /*Ordered*/Map<Dimension, List> indexedDms, List<Dimension> inlineDms) {
         def elem = [inlineDms*.name, inlineDims(cell, inlineDms)].transpose().collectEntries()
         elem += [indexedDms.keySet()*.name, indexedDims(cell, indexedDms.values())].transpose().collectEntries()
         elem.value = cellValue(cell)
@@ -172,8 +185,17 @@ class DeserializationHelper {
     // This flag indicates which encodings of inline dimensions have been seen, to ensure that all code paths have
     // been properly tested.
     public static int inlineDimEncodingsSeen = 0
+    /**
+     * @param packedCell The protobuf packed cell
+     * @param packedDim the dimension on which it is packed
+     * @param indexedDms This needs to be an ordered map, with the same order as the indexed dimensions in the cell!
+     * A map from indexed dimensions to the list of elements for that dimension. Must also include the packed dimension.
+     * @param inlineDms The list of inline dimensions, in the same order as that the cell uses
+     * @return a list of values, where each value is a map that contains the actual value and the elements for all
+     * dimensions
+     */
     static List<Map> decodePackedCell(ObservationsProto.PackedCellOrBuilder packedCell, Dimension packedDim,
-                                      Map<Dimension,List> indexedDms, List<Dimension> inlineDms) {
+                                      /*Ordered*/Map<Dimension,List> indexedDms, List<Dimension> inlineDms) {
 
         def indexedDims = [indexedDms.keySet()*.name, indexedDims(packedCell, indexedDms.values())].transpose().collectEntries()
 
@@ -235,6 +257,9 @@ class DeserializationHelper {
         (List<Map>) valueMaps.flatten()
     }
 
+    /**
+     * Get `count` items from `iter` in a list
+     */
     static final List getItems(Iterator iter, int count) {
         def res = []
         while(count--) {

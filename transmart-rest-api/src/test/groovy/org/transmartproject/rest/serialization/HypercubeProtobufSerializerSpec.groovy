@@ -72,22 +72,6 @@ class HypercubeProtobufSerializerSpec extends Specification {
         observations.groupBy { [it.visit, it.concept] }.values().asList()
     }
 
-    def groupsWithNulls = ImmutableList.of(1)
-    def groupsWithMissing = ImmutableList.of(0)
-    def groupsWithMulti = ImmutableList.of(20)
-
-//    def immutate(collection) {
-//        if(!(collection instanceof Collection)) return collection
-//        assert collection instanceof List || collection instanceof Map
-//        if(collection instanceof List) {
-//            ImmutableList.copyOf( collection.collect { immutate(it) })
-//        } else if(collection instanceof Map) {
-//            ImmutableMap.copyOf( collection.collectEntries { k, v ->
-//                [immutate(k), immutate(v)]
-//            })
-//        }
-//    }
-
     // scalar test dimensions
     final stringDim = new SparseDim('string', type: String)
     final doubleDim = new SparseDim('double', type: Double)
@@ -868,7 +852,6 @@ class MockDimension implements Dimension {
         elementsSerializable = args.serializable != null ? args.serializable : density.isSparse
 
         elementType = args.type
-        //fields = args.fields ?: null
 
         elementFields = args.fields?.collectEntries { nme, type ->
             [nme, new DefaultProperty(nme, nme, type)]}
@@ -895,27 +878,10 @@ class MockDimension implements Dimension {
 
     Class<? extends Serializable> elementType = null
 
-//    List<String> fields
     Map elementFields
     ImmutableMap<String, Property> getElementFields() {
-//        if(elementFields)
-            return elementFields == null ? null : ImmutableMap.copyOf(elementFields)
-//
-//        List<String> fieldNames = fields ?: values.find().metaClass.properties*.name
-//        ImmutableMap.copyOf(fieldNames.collectEntries {
-//            new Property() {
-//                String getName() { it }
-//                Class type = findPropertyType(it)
-//                def get(element) { element[name] }
-//            }
-//        })
+        return elementFields == null ? null : ImmutableMap.copyOf(elementFields)
     }
-
-//    private Class findPropertyType(String name) {
-//        values.find {it[name] != null}[name].class
-//    }
-//
-//    List values = null
 
     def asSerializable(element) {
         if(elementsSerializable) return element
@@ -929,8 +895,6 @@ class MockHypercube implements Hypercube {
         dimensions = args.dimensions ?: []
 
         def mapValues = args.values ?: []
-
-        //for(d in dimensions) if(d instanceof MockDimension) d.values = values
 
         for(dim in dimensions) {
             if(dim.density.isDense) {
