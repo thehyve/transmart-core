@@ -39,6 +39,7 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
+@Ignore("SNP development has lower priority")
 class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
 
     /* scale of the zscore column is 5, so this is the max rounding error */
