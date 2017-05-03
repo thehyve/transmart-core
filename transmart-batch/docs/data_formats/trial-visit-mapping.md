@@ -20,11 +20,10 @@ Description of the columns:
 
 Trial visit mapping upload
 ------------
-- The trial visit mapping is uploaded as part of a clinical data upload:
-
-    * Place trial visit mapping file into `clinical` folder.
-    * Specify trial visit mapping file inside `clinical` folder with the `TRIAL_VISIT_MAP_FILE` parameter in the `clinical.params` file.
-    * Run usual clinical data upload.
+The trial visit mapping is uploaded as part of a clinical data upload:
+- Place trial visit mapping file into `clinical` folder.
+- Specify trial visit mapping file inside `clinical` folder with the `TRIAL_VISIT_MAP_FILE` parameter in the `clinical.params` file.
+- Run usual clinical data upload.
 
 ##### Tags deletion
 Is not currently implemented in transmart-batch. However, you can replace a label's unit and value by making the changes in your trial visit mapping file and reupload the clinical data.
