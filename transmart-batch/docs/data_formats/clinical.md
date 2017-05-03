@@ -16,7 +16,6 @@ Parameters
 - `TRIAL_VISIT_MAP_FILE` **Not yet implemented.** Points to the [trial visit mapping file](trial-visit-mapping.md).
 - `PATIENT_VISIT_MAP_FILE` **Not yet implemented.** Points to the [patient visit mapping file](patient-visit-mapping.md).
 
-You could also use the [study-specific parameters](study-params.md).
 
 COLUMN_MAP_FILE format
 ------------
