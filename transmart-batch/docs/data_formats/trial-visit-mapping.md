@@ -1,7 +1,7 @@
 Trial visit mapping (not yet implemented)
 -----------------------------
 
-The trial visit mapping file is used to map the trial visit labels to their corresponding time unit and its value. Trial visit labels can be present in the `TRIAL_VISIT_LABEL` variable of your clinical data file(s) and the `TIME_POINT` variable in [subject-sample mapping file(s)](subject-sample-mapping.md).
+The trial visit mapping file is used to map the trial visit labels to their corresponding time unit and its value. Trial visit labels can be present in the `TRIAL_VISIT_LABEL` variable of your clinical data file(s) and the `TIME_POINT` variable in [subject-sample mapping file(s)](subject-sample-mapping.md). Although not mandatory for incorporating trial visit data in your study, only in this file can the time unit and value be specified.
 
 TRIAL_VISIT_MAP_FILE format
 ------------
@@ -10,13 +10,14 @@ TRIAL_VISIT_MAP_FILE format
 |---------------|---------|--------------|
 |Baseline       |Days     |3             |
 |Week1          |Days     |7             |
+|Week2          |Days     |7             |
 
-Table, tab separated, txt file. It contains information about concepts and the ontology tree that are uploaded to TranSMART. The first two columns refer to columns in the column mapping file. The rows were these columns are not empty, are used for associating observations with concept codes. The others are only used to build the tree.
+Table, tab separated, txt file. Labels specified in this file that do not occur in any clinical data/subject-sample mapping file will be ignored.
 
 Description of the columns:
-- `Label`  The category name used in the column mapping file.
-- `Unit`  The variable name used in the column mapping file.
-- `Value`  Concept code to be used to classify observations.
+- `Label` **Mandatory.** The trial visit label used in clinical data file/subject-sample mapping. Must be unique.
+- `Unit` **Mandatory if Value is provided** The time unit of the trial visit label.
+- `Value` The value of the time unit provided in the Unit column.
 
 #####Tags upload.
 
