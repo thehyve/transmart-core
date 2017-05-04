@@ -1,28 +1,21 @@
 Annotations (common)
 ====================
 
-"Annotations" is a general term for platforms (e.g. mRNA platforms) and other
-ancillary data that needs to be loaded before the experiment data for a certain
-high dimensional type. The annotation is generally not specific to a certain
-dataset, and can be shared between two or more similar datasets.
-
-For historical reasons, parameter files named `annotation.params` refer to mRNA
-platforms. But you should prefer to use the `mrna_annotation.params` name for new files instead.
+"Annotations" is a general term for platforms (e.g. mRNA platforms) and other ancillary data that needs to be loaded before the experiment data of a high-dimensional data type. The annotation doesn't have to be specific to one dataset; it can be shared between two or more similar data sets that derive from the same platform.
 
 Parameters
 ----------
 
-- `PLATFORM` **Mandatory**. The identifier for the annotation. The name is
-  perhaps too specific. It should generally correspond to the name of the parent
-  directory of the parameters file. However, unlike `STUDY_ID`, it is not
-  inferred.
-- `TITLE` **Mandatory**. A human readable title for the annotation.
-- `ANNOTATIONS_FILE` **Mandatory**. Either a full path to a TSV file or the name
-  of TSV file under a directory that is a sibling of the parameters file and has
-  the same name as the parameters file, minus its extension.
-- `ORGANISM` _Default: Homo Sapiens_. The scientific name of the species the annotation is associated
-  with.
-- `GENOME_RELEASE` **Mandatory** if platform contains chromosomal region information. The genome build if applicable (e.g. `hg19`).
+- `PLATFORM` **(Mandatory)** The identifier of the annotation used. Preferably a GPL ID.
+- `TITLE` **(Mandatory)** A human readable title for the annotation.
+- `ANNOTATIONS_FILE` **(Mandatory)** The name of the file containing the annotation data. If the annotation data file is not in the same folder as the annotation parameters file, a full path to the annotation data file may be provided.
+- `ORGANISM` _Default: Homo sapiens_. The scientific name of the species the platform is associated with.
+- `GENOME_RELEASE` **(Mandatory if platform contains chromosomal region information)** The genome build used for the platform (e.g. `hg19`).
+
+
+**Note:** For historical reasons, parameter files named `annotation.params` refer to mRNA
+platforms. The recommended name for new mRNA platform parameter files is `mrna_annotation.params`.
+
 
 <!-- vim: tw=80 et ft=markdown spell:
 -->
