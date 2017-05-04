@@ -1350,6 +1350,23 @@ paths:
       responses:
         204:
           description: 'returns null'
+  /v2/dimension/{$dimensionName}:
+    get:
+      description: |
+        Gets one patient object.
+      tags:
+        - v2
+      parameters:
+        - name: $dimensionName
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: |
+            Returns list of all elements from the given dimension that user has access to.
+          schema:
+            $ref: '#/definitions/dimensionElements'
 
 definitions:
   version:
@@ -1741,3 +1758,14 @@ definitions:
   dimensionValue:
     type: object
     description: 'The structure of this value is described in the header. The order of the dimensionValues is determined by the order of the dimensionDeclaration in the header.'
+
+  dimensionElements:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+      elements:
+        description: 'List of dimension elements with properties specific to a given dimension.'
+        type: array
+        items:
+          type: object
