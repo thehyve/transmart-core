@@ -1,18 +1,13 @@
 package org.transmartfoundation.status
 
 import grails.util.Holders
-
-import java.util.Date
-import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.client.CloseableHttpClient
-import org.apache.http.impl.client.DefaultHttpClient
-import org.apache.solr.common.SolrDocumentList
-import org.apache.solr.common.params.SolrParams
-import org.apache.solr.common.util.NamedList
-import org.apache.solr.client.solrj.SolrServer
+import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.HttpSolrServer
 import org.apache.solr.client.solrj.response.QueryResponse
+import org.apache.solr.common.params.SolrParams
+import org.apache.solr.common.util.NamedList
 
 class SolrStatusService {
 
