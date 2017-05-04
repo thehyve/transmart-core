@@ -15,16 +15,16 @@ Table, tab separated, txt file. Start and end date should be provided in YYYY-MM
 
 Description of the columns:
 - `Subject ID` **Mandatory.** The subject ID as they are defined in the `SUBJ_ID` variable of your clinical data file(s).
-- `Patient visit` **Mandatory.** Any integer value that discerns a subject's patient visits from one another. S
-- `Start date` The value of the time unit provided in the Unit column.
-- `End date` The value of the time unit provided in the Unit column.
+- `Patient visit` **Mandatory.** Any integer value that discerns a subject's patient visits from one another.
+- `Start date` The date(time) value of the start of the patient visit.
+- `End date` The date(time) value of the end of the patient visit.
 
-Trial visit mapping upload
+Patient visit mapping upload
 ------------
-The trial visit mapping is uploaded as part of a clinical data upload:
-- Place trial visit mapping file into `clinical` folder.
-- Specify trial visit mapping file inside `clinical` folder with the `TRIAL_VISIT_MAP_FILE` parameter in the `clinical.params` file.
+The patient visit mapping is uploaded as part of a clinical data upload:
+- Place patient visit mapping file into `clinical` folder.
+- Specify patient visit mapping file inside `clinical` folder with the `PATIENT_VISIT_MAP_FILE` parameter in the `clinical.params` file.
 - Run usual clinical data upload.
 
-#### Trial visit mapping deletion
-Is not currently implemented in transmart-batch. However, you can replace a label's unit and value by making the changes in your trial visit mapping file and reupload the clinical data.
+#### Patient visit mapping deletion
+Is not currently implemented in transmart-batch. However, you can replace a subject's patient visit start and end date by making the changes in your patient visit mapping file and reupload the clinical data.
