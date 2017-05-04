@@ -14,9 +14,9 @@ TRIAL_VISIT_MAP_FILE format
 Table, tab separated, txt file. Labels specified in this file that do not occur in any clinical data/subject-sample mapping file will be ignored.
 
 Description of the columns:
-- `Label` **Mandatory.** The trial visit label used in clinical data file/subject-sample mapping. Must be unique.
-- `Unit` **Mandatory if Value is provided.** The time unit of the trial visit label.
-- `Value` **Mandatory if Unit is provided.** The value of the time unit provided in the Unit column.
+- `Label` **(Mandatory)** The trial visit label used in clinical data file/subject-sample mapping. Must be unique.
+- `Unit` **(Mandatory if Value is provided)** The time unit of the trial visit label.
+- `Value` **(Mandatory if Unit is provided)** The value of the time unit provided in the Unit column.
 
 Trial visit mapping upload
 ------------
