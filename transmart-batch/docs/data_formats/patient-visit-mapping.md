@@ -5,18 +5,19 @@ The patient visit mapping file is used to provide a start and end date for each 
 
 PATIENT_VISIT_MAP_FILE format
 ------------
-|Subject ID     |Patient visit |Start date    |End date|
-|---------------|--------------|--------------|
-|subject1       |1             |3             |
-|subject1       |2             |7             |
-|subject2       |1             |7             |
+|Subject ID     |Patient visit |Start date    |End date   |
+|---------------|--------------|--------------|-----------|
+|subject1       |1             |2016-08-23    |2016-08-24 |
+|subject1       |2             |2016-11-03    |           |
+|subject2       |1             |2016-07-19    |2016-07-21 |
 
-Table, tab separated, txt file. Start and end date can be provided (e.g. 2002-08-23 11:39:00)
+Table, tab separated, txt file. Start and end date should be provided in YYYY-MM-DD format and may be acompanied by the time of day in HH:MM:SS format (e.g. 2016-08-23 11:39:00).
 
 Description of the columns:
-- `Label` **Mandatory.** The trial visit label used in clinical data file/subject-sample mapping. Must be unique.
-- `Unit` **Mandatory if Value is provided.** The time unit of the trial visit label.
-- `Value` **Mandatory if Unit is provided.** The value of the time unit provided in the Unit column.
+- `Subject ID` **Mandatory.** The subject ID as they are defined in the `SUBJ_ID` variable of your clinical data file(s).
+- `Patient visit` **Mandatory.** Any integer value that discerns a subject's patient visits from one another. S
+- `Start date` The value of the time unit provided in the Unit column.
+- `End date` The value of the time unit provided in the Unit column.
 
 Trial visit mapping upload
 ------------
