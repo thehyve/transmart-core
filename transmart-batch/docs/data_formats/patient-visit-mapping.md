@@ -15,7 +15,7 @@ Table, tab separated, txt file. Start and end date should be provided in YYYY-MM
 
 Description of the columns:
 - `Subject ID` **Mandatory.** The subject ID as they are defined in the `SUBJ_ID` variable of your clinical data file(s).
-- `Patient visit` **Mandatory.** Any integer value that discerns a subject's patient visits from one another.
+- `Patient visit` **Mandatory.** Any integer value that discerns a subject's patient visits from one another. Has to match with the patient visit integers used in your `PATIENT_VISIT` variable of either clinical data file(s) or subject-sample mapping.
 - `Start date` The date(time) value of the start of the patient visit.
 - `End date` The date(time) value of the end of the patient visit.
 
