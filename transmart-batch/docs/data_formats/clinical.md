@@ -8,13 +8,13 @@ socio-economic info about the patients.
 
 Parameters
 ------------
-- `COLUMN_MAP_FILE` **Mandatory**. Points to the column file. See below for format.
+- `COLUMN_MAP_FILE` **(Mandatory)** Points to the column file. See below for format.
 - `WORD_MAP_FILE` Points to the file with dictionary to be used.
 - `XTRIAL_FILE` Points to the [cross study concepts file](xtrial.md).
 - `TAGS_FILE` Points to the [concepts tags file](tags.md).
 - `ONTOLOGY_MAP_FILE` Points to the [ontology mapping file](ontology-mapping.md).
-- `TRIAL_VISIT_MAP_FILE` **Not yet implemented.** Points to the [trial visit mapping file](trial-visit-mapping.md).
-- `PATIENT_VISIT_MAP_FILE` **Not yet implemented.** Points to the [patient visit mapping file](patient-visit-mapping.md).
+- `TRIAL_VISIT_MAP_FILE` **(Not yet implemented)** Points to the [trial visit mapping file](trial-visit-mapping.md).
+- `PATIENT_VISIT_MAP_FILE` **(Not yet implemented)** Points to the [patient visit mapping file](patient-visit-mapping.md).
 
 
 COLUMN_MAP_FILE format
@@ -36,7 +36,7 @@ column is located
 - `Concept Type`  Use this concept type instead of inferring it from the first row
 
 Reserved keywords for Data Label:
-- `SUBJ_ID` **Mandatory.** Used to indicate the column that contains the subject IDs. Use exactly once per data file.
+- `SUBJ_ID` **(Mandatory)** Used to indicate the column that contains the subject IDs. Use exactly once per data file.
 - `START_DATE` Observation level start date(s).
 - `END_DATE` Observation level end date(s).
 - `TRIAL_VISIT_LABEL` Name(s) of the trial visit(s) that observations belong to.
@@ -46,7 +46,7 @@ Reserved keywords for Data Label:
 - `SITE_ID` Only used as Category Code placeholders (max. 1 per Filename). See [templates](templates.md) documentation.
 - `\` Only used for variables containing placeholders in their Category Code. See [templates](templates.md) documentation.
 - `OMIT` Used to indicate this variable should not be uploaded to tranSMART.
-- `PATIENT_VISIT` **Not yet implemented.** Integer variable used to link a subject's observations to a patient visit.
+- `PATIENT_VISIT` **(Not yet implemented)** Integer variable used to link a subject's observations to a patient visit.
 
 Allowed values for Concept type:
 - `NUMERICAL` for numerical variables
