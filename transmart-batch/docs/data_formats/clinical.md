@@ -26,8 +26,7 @@ COLUMN_MAP_FILE format
 
 Table, tab separated, txt file. It contains information about columns which are to be uploaded into tranSMART.
 
-- `Filename`  This column determines the file where
-column is located
+- `Filename`  The name of the file that contains the variable being described
 - `Category Code` Path which contains the file
 - `Column Number` Index of the column from the data file, starting at 1
 - `Data Label`  Label visible inside tranSMART after upload
