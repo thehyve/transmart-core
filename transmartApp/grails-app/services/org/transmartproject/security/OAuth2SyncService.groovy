@@ -16,6 +16,8 @@ class OAuth2SyncService {
     def grailsApplication
 
     void syncOAuth2Clients() {
+    
+        // Fetch client configurations from application config
         def clients = grailsApplication.config.grails.plugin.springsecurity.oauthProvider.clients
 
         if (clients == false) {
@@ -28,11 +30,13 @@ class OAuth2SyncService {
                 log.error("Client data without clientId: $m")
                 return
             }
-
+    
+            // Fetch client configuration from datasource, or create new instance
             def client = Client.findByClientId(m['clientId'])
             if (client == null) {
                 client = new Client()
             }
+            // Copy values from application config to the datasource 
             def dirty = false
             m.each { String prop, def value ->
                 if (Client.hasProperty(prop)) {
@@ -74,18 +78,18 @@ class OAuth2SyncService {
                 client.save(flush: true)
             }
         }
-
+        
+        // All client IDs of clients in the application config.
         def allClientIds = clients.collect { Map m -> m['clientId'] }.findAll()
-
+        
+        // Delete clients not in the application config from the datasource.
         int n = 0
-        n = Client.where {
-            ne 'clientId', '__BOGUS' // hack to avoid empty WHERE clause
-            if (allClientIds) {
-                not {
-                    'in' 'clientId', allClientIds
-                }
-            }
-        }.deleteAll()
+        Client.findAll { not { 'in' 'clientId', allClientIds } }.each { c ->
+            // Do we have to clear the collections on Client before?
+            log.info 'Deleting client ${c.clientId}'
+            c.delete()
+            n++
+        }
 
         if (n != 0) {
             log.warn("Deleted $n OAuth2 clients")

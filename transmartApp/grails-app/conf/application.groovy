@@ -255,6 +255,7 @@ grails { plugin { springsecurity {
                 [pattern: '/requestmap/**',              access: ['ROLE_ADMIN']],
                 [pattern: '/role/**',                    access: ['ROLE_ADMIN']],
                 [pattern: '/authUser/**',                access: ['ROLE_ADMIN']],
+                [pattern: '/oauthAdmin/**',              access: ['ROLE_ADMIN']],
                 [pattern: '/secureObject/**',            access: ['ROLE_ADMIN']],
                 [pattern: '/accessLog/**',               access: ['ROLE_ADMIN']],
                 [pattern: '/authUserSecureAccess/**',    access: ['ROLE_ADMIN']],
