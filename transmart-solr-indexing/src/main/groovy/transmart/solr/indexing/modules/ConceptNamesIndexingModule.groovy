@@ -15,6 +15,7 @@ import transmart.solr.indexing.FacetsDocId
 import transmart.solr.indexing.FacetsDocument
 import transmart.solr.indexing.FacetsFieldDisplaySettings
 import transmart.solr.indexing.FacetsIndexingModule
+import transmart.solr.indexing.FacetsIndexingService
 import transmart.solr.indexing.FolderConceptMappings
 
 import static transmart.solr.indexing.FacetsIndexingService.*

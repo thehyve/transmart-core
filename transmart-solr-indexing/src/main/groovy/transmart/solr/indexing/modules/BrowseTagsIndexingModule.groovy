@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component
 import transmart.solr.indexing.FacetsDocId
 import transmart.solr.indexing.FacetsDocument
 import transmart.solr.indexing.FacetsFieldDisplaySettings
+import transmart.solr.indexing.FacetsFieldImpl
+import transmart.solr.indexing.FacetsFieldType
 import transmart.solr.indexing.FacetsIndexingModule
 import transmart.solr.indexing.SimpleFacetsFieldDisplaySettings
 

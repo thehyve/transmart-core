@@ -23,31 +23,18 @@ hibernate {
     cache.region.factory_class = 'org.hibernate.cache.SingletonEhCacheRegionFactory' // Hibernate 4
     singleSession = true // configure OSIV singleSession mode
 }
-dataSources {
-    /*dataSource {
-        driverClassName = 'org.postgresql.Driver'
-        url = 'jdbc:postgresql://localhost:6009/transmart'
-        username = 'biomart_user'
-        password = 'biomart_user'
-        dbCreate = 'none'
-        dialect = 'org.hibernate.dialect.PostgreSQLDialect'
-        logSql = true
-        formatSql = true
-    }*/
-    dataSource {
-        driverClassName = 'oracle.jdbc.driver.OracleDriver'
-        url             = 'jdbc:oracle:thin:@dev5.thehyve.net:47526:ORCL'
-        username        = 'biomart_user'
-        password        = 'biomart_user'
-        dbCreate        = 'none'
-    }
-}
+
 
 // environment specific settings
 environments {
     development {
         dataSources {
             dataSource {
+                driverClassName = 'oracle.jdbc.driver.OracleDriver'
+                url             = 'jdbc:oracle:thin:@dev5.thehyve.net:47526:ORCL'
+                username        = 'biomart_user'
+                password        = 'biomart_user'
+                dbCreate        = 'none'
                 logSql = true
                 formatSql = true
                 properties {
@@ -61,13 +48,12 @@ environments {
     }
     test {
         dataSource {
-            driverClassName = 'org.postgresql.Driver'
-            url = 'jdbc:postgresql://localhost:6000/transmart'
-            username = 'biomart_user'
-            password = 'biomart_user'
-            dbCreate = 'none'
-            dialect = 'org.hibernate.dialect.PostgreSQLDialect'
-            logSql = true
+            driverClassName = 'org.h2.Driver'
+            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'"
+            username = 'sa'
+            password = ''
+            dbCreate = 'create'
+            logSql = false
             formatSql = true
         }
     }

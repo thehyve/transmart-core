@@ -10,7 +10,7 @@ import transmart.solr.indexing.modules.*
 import static org.hamcrest.MatcherAssert.assertThat
 import static transmart.solr.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
 
-class BrowseIndexingModulesTests {
+class BrowseIndexingModulesSpec {
 
     @Autowired
     BrowseAssaysIndexingModule browseAssaysIndexingModule
