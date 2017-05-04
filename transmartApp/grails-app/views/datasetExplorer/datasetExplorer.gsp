@@ -122,6 +122,20 @@
 
 <body>
 
+<script>
+
+    window.rwgSearchConfig = {
+        requiredField: 'CONCEPT_PATH',
+        onConceptsListChanges: function() {
+            var args = arguments;
+            var that = this;
+            Ext.onReady(function() {
+                window.datasetExplorer_conceptsListChanges.apply(that, args);
+            });
+        }
+    };
+</script>
+
 <div id="header-div"><g:render template="/layouts/commonheader" model="['app': 'datasetExplorer']"/></div>
 <div id="main"></div>
 
