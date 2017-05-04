@@ -1,7 +1,7 @@
 Word mapping
 ================
 
-The word mapping is an optional part of the clinical data upload process. It can be used in case a codebook already exists, or simply to change data labels without editing the source data. Through the word mapping it is possible to assign a different value to a categorical variable for upload to tranSMART. The name of this file must be specified at the `WORD_MAP_FILE` parameter of your [clinical params file](clinical.md).
+The word mapping is an optional part of the clinical data upload process. It can be used in case a codebook already exists, or simply to modify data values without touching the source data. Through the word mapping it is possible to assign a different value to a categorical variable for upload to tranSMART. The name of your word mapping file must be specified at the `WORD_MAP_FILE` parameter of your [clinical params file](clinical.md).
 
 WORD_MAP_FILE format
 ------------
