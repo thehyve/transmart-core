@@ -1,33 +1,21 @@
-Clinical Data
+Word mapping
 ================
 
-Clinical data is meant for all kind of measurements not falling into other
-categories. It can be data from questionnaires, physical body measurements or
-socio-economic info about the patients.
+The word mapping is an optional part of the clinical data upload process. It can be used in case a codebook already exists, or simply to change data labels without editing the source data. Through the word mapping it is possible to assign a different value to a categorical variable for upload to tranSMART. The name of this file must be specified at the `WORD_MAP_FILE` parameter of your [clinical params file](clinical.md).
 
-
-Parameters
-------------
-- `COLUMN_MAP_FILE` **(Mandatory)** Points to the column file. See below for format.
-- `WORD_MAP_FILE` Points to the file with dictionary to be used.
-- `XTRIAL_FILE` Points to the [cross study concepts file](xtrial.md).
-- `TAGS_FILE` Points to the [concepts tags file](tags.md).
-- `ONTOLOGY_MAP_FILE` Points to the [ontology mapping file](ontology-mapping.md).
-- `TRIAL_VISIT_MAP_FILE` **(Not yet implemented)** Points to the [trial visit mapping file](trial-visit-mapping.md).
-- `PATIENT_VISIT_MAP_FILE` **(Not yet implemented)** Points to the [patient visit mapping file](patient-visit-mapping.md).
-
-
-COLUMN_MAP_FILE format
+WORD_MAP_FILE format
 ------------
 
-|Filename|Category Code|Column Number|Data Label|Data Label Source|Control Vocab Cd|Concept Type |
-|--------|-------------|-------------|----------|-----------------|----------------|-------------|
-|data.txt|folder       |1            |Weight    |                 |                |NUMERICAL    |
+|Filename|Column Number|Original value|New value |
+|--------|-------------|--------------|----------|
+|data.txt|5            |m             |Male      |
+|data.txt|5            |f             |Female    |
+|data.txt|12           |0             |No        |
+|data.txt|5            |1             |Yes       |
 
 Table, tab separated, txt file. It contains information about columns which are to be uploaded into tranSMART.
 
-- `Filename`  This column determines the file where
-column is located
+- `Filename`  This column determines the file where column is located
 - `Category Code` Path which contains the file
 - `Column Number` Index of the column from the data file, starting at 1
 - `Data Label`  Label visible inside tranSMART after upload
