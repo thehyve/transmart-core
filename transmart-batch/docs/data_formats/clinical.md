@@ -32,8 +32,8 @@ Table, tab separated, txt file. It contains information about columns which are 
 - `Column Number` Index of the column from the data file, starting at 1.
 - `Data Label`  Variable label visible in tranSMART after upload (the leaf node).
 - `Data Label Source` works for template column only (has `\` in data label column). Refers to the data label column where to get data for dynamic concept path generation. See [templates](templates.md) documentation for more details.
-- `Control Vocab cd`  IGNORED skip if you don't need Concept Type Column.
-- `Concept Type`  Use this concept type instead of inferring it from the first row.
+- `Control Vocab cd`  **(IGNORED)** Skip if you don't need Concept Type Column.
+- `Concept Type`  Use concept type to manually define the type of variable, instead of inferring it from the first row of the data.
 
 Reserved keywords for Data Label:
 - `SUBJ_ID` **(Mandatory)** Used to indicate the column that contains the subject IDs. Use exactly once per data file.
@@ -49,5 +49,5 @@ Reserved keywords for Data Label:
 - `PATIENT_VISIT` **(Not yet implemented)** Integer variable used to link a subject's observations to a patient visit.
 
 Allowed values for Concept type:
-- `NUMERICAL` for numerical variables
-- `CATEGORICAL` for categorical (text) variables 
+- `NUMERICAL` for numerical variables.
+- `CATEGORICAL` for categorical (text) variables.
