@@ -8,7 +8,7 @@ socio-economic info about the patients.
 
 Parameters
 ------------
-The parameters file should be named `clinical.params` may contain:
+The parameters file should be named `clinical.params` and may contain:
 - `COLUMN_MAP_FILE` **(Mandatory)** Points to the column file. See below for format.
 - `WORD_MAP_FILE` Points to the file with dictionary to be used.
 - `XTRIAL_FILE` Points to the [cross study concepts file](xtrial.md).
