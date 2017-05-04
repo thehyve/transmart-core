@@ -26,13 +26,13 @@ COLUMN_MAP_FILE format
 
 Table, tab separated, txt file. It contains information about columns which are to be uploaded into tranSMART.
 
-- `Filename`  The name of the file that contains the variable being described
-- `Category Code` Path which contains the file
-- `Column Number` Index of the column from the data file, starting at 1
-- `Data Label`  Label visible inside tranSMART after upload
+- `Filename`  The name of the file that contains the variable being mapped.
+- `Category Code` The concept path of the node to be created. The `Category Code` therefore determines the tree structure of your study. Nodes of the path should be separated by a `+`.
+- `Column Number` Index of the column from the data file, starting at 1.
+- `Data Label`  Variable label visible in tranSMART after upload (the leaf node).
 - `Data Label Source` works for template column only (has `\` in data label column). Refers to the data label column where to get data for dynamic concept path generation. See [templates](templates.md) documentation for more details.
-- `Control Vocab cd`  IGNORED skip if you don't need Concept Type Column
-- `Concept Type`  Use this concept type instead of inferring it from the first row
+- `Control Vocab cd`  IGNORED skip if you don't need Concept Type Column.
+- `Concept Type`  Use this concept type instead of inferring it from the first row.
 
 Reserved keywords for Data Label:
 - `SUBJ_ID` **(Mandatory)** Used to indicate the column that contains the subject IDs. Use exactly once per data file.
