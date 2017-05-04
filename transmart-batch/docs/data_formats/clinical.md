@@ -36,7 +36,7 @@ column is located
 - `Concept Type`  Use this concept type instead of inferring it from the first row
 
 Reserved keywords for Data Label:
-- `SUBJ_ID` **Mandatory**. Used to indicate the column that contains the subject IDs. Use exactly once per data file.
+- `SUBJ_ID` **Mandatory.** Used to indicate the column that contains the subject IDs. Use exactly once per data file.
 - `START_DATE` Observation level start date(s).
 - `END_DATE` Observation level end date(s).
 - `TRIAL_VISIT_LABEL` Name(s) of the trial visit(s) that observations belong to.
@@ -46,6 +46,7 @@ Reserved keywords for Data Label:
 - `SITE_ID` Only used as Category Code placeholders (max. 1 per Filename). See [templates](templates.md) documentation.
 - `\` Only used for variables containing placeholders in their Category Code. See [templates](templates.md) documentation.
 - `OMIT` Used to indicate this variable should not be uploaded to tranSMART.
+- `PATIENT_VISIT` **Not yet implemented.** Integer variable used to link a subject's observations to a patient visit.
 
 Allowed values for Concept type:
 - `NUMERICAL` for numerical variables
