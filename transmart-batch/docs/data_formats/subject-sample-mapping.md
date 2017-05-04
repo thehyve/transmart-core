@@ -17,7 +17,7 @@ Currently the first row is skipped. It must be present, otherwise the first assa
 - `SAMPLE_TYPE` Study context dependent indicator of the type of sample. Usually a genetic or phenotypic sample state. May be used as a placeholder to replace `SAMPLETYPE` in the `CATEGORY_CD`.
 - `TISSUE_TYPE` The type of tissue or part of the body from which the sample originates. May be used as a placeholder to replace `TISSUETYPE` and `ATTR1` (legacy) in the `CATEGORY_CD`.
 - `TIME_POINT` Timepoint indicator at which the sample was isolated. May be used as a placeholder to replace `TIMEPOINT` and `ATTR2` (legacy) in the `CATEGORY_CD`.
-- `CATGEORY_CD` The concept path of the node to be created. Components of the path are separated by a `+`. It may include several placeholders (see the descriptions of the other columns). In principle it can differ among the several assays, but that code path has never been tested.
+- `CATGEORY_CD` **Mandatory.** The concept path of the node to be created. Components of the path are separated by a `+`. It may include several placeholders (see the descriptions of the other columns). In principle it can differ among the several assays, but that code path has never been tested.
 - `SOURCE_CD` **Deprecated.** Column must be present, but will be ignored.
 - `PATIENT_VISIT` **Not yet implemented.** Integer variable used to indicate this sample was collected during a patient visit provided in [patient visit mapping file](patient-visit-mapping.md).
 - `<MODIFIER>` **Not yet implemented.** Additional columns may be added for each modifier you would like to use. The column name should be named `CATMOD:` (for categorical modifiers) or `NUMMOD:` (for numerical modifiers) followed by the name of the modifier (e.g. )
