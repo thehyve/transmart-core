@@ -8,10 +8,11 @@ socio-economic info about the patients.
 
 Parameters
 ------------
+The parameters file should be named clinical.params may contain:
 - `COLUMN_MAP_FILE` **(Mandatory)** Points to the column file. See below for format.
 - `WORD_MAP_FILE` Points to the file with dictionary to be used.
 - `XTRIAL_FILE` Points to the [cross study concepts file](xtrial.md).
-- `TAGS_FILE` Points to the [concepts tags file](tags.md).
+- `TAGS_FILE` Points to the [concepts tags file](tags.md). Alternatively this may be specified in your tags
 - `ONTOLOGY_MAP_FILE` Points to the [ontology mapping file](ontology-mapping.md).
 - `TRIAL_VISIT_MAP_FILE` **(Not yet implemented)** Points to the [trial visit mapping file](trial-visit-mapping.md).
 - `PATIENT_VISIT_MAP_FILE` **(Not yet implemented)** Points to the [patient visit mapping file](patient-visit-mapping.md).
