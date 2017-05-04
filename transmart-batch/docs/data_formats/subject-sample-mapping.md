@@ -13,11 +13,9 @@ Currently the first row is skipped. It must be present, otherwise the first assa
 - `SITE_ID` **Deprecated.**
 - `SUBJECT_ID` **Mandatory.** The subject id. Must match the one provided in the clinical data file(s).
 - `SAMPLE_CD` **Mandatory.** The name of the assay (here synonymous with "sample").
-- `PLATFORM` **Mandatory.** GPL ID of the corresponding platform. Platform must have already been loaded; must be the same for all rows. The value will be uppercased. Can be used as placeholder to replace `PLATFORM` in the `CATEGORY_CD`.
-- `SAMPLE_TYPE` The type of sample Can be used to fill `sample_type` in `de_subject_sample_mapping`. It will also be used to replace
-   the placeholder `SAMPLETYPE`in `CATEGORY_CD`.
-- `TISSUE_TYPE` will be used to fill `tissue_type`. It will also be used to
-  replace the placeholder `TISSUETYPE` and `ATTR1` (legacy) in `CATEGORY_CD`.
+- `PLATFORM` **Mandatory.** GPL ID of the corresponding platform. Platform must have already been loaded; must be the same for all rows. The value will be uppercased. May be used as placeholder to replace `PLATFORM` in the `CATEGORY_CD`.
+- `SAMPLE_TYPE` Study context dependent indicator of the type of sample. Usually a genetic or phenotypic sample state. May be used as a placeholder to replace `SAMPLETYPE` in the `CATEGORY_CD`.
+- `TISSUE_TYPE` The type of tissue or part of the body from which the sample originates. May be used as a placeholder to replace `TISSUETYPE` and `ATTR1` (legacy) in the `CATEGORY_CD`.
 - `TIME_POINT`  will be used to fill `timepoint`. It will be used to
   replace the `TIMEPOINT` and `ATTR2` (legacy) placeholder in `CATEGORY_CD`. Optional.
 - `CATGEORY_CD` will be used to form the concept path for the node to be
@@ -26,3 +24,4 @@ Currently the first row is skipped. It must be present, otherwise the first assa
   differ among the several assays, but that code path has never been tested.
 - `SOURCE_CD` is ignored (must be present as a last column).
 - `PATIENT_VISIT` **Not yet implemented.** Integer variable used to indicate this sample was collected during a patient visit provided in [patient visit mapping file](patient-visit-mapping.md).
+- `<MODIFIER>` **Not yet implemented.** Additional columns may be added for each modifier you would like to use. The column name should be named `CATMOD:` (for categorical modifiers) or `NUMMOD:` (for numerical modifiers) followed by the name of the modifier (e.g. )
