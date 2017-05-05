@@ -8,7 +8,8 @@ Parameters
 The parameters file should be named `tags.params` and contains:
 - `TAGS_FILE` **(Mandatory)** The name of the file that contains the tags. See below for format.
 
-##### Tags tsv input file format.
+TAGS_FILE format
+------------
 
 |Concept path|Tag title|Tag description|Index|
 |------------|---------|---------------|-----|
@@ -26,7 +27,8 @@ Table, tab separated, txt file. Header must be present, but is not interpreted (
 
 - `Index` **(Mandatory)** Integer that determines the position of the tag in the pop-up relative to the other tags. The `Index` itself is not shown in the pop-up, but all tags of a node are sorted in ascending order based on their index.
 
-##### Tags upload.
+Tags upload.
+------------
 
 There are two ways to upload tags:
 
@@ -44,6 +46,6 @@ There are two ways to upload tags:
     * Specify tags file inside `clinical` folder with `TAGS_FILE` variable in `clinical.params` file.
     * Run usual clinical data upload.
 
-##### Tags deletion.
+#### Tags deletion
 Is not currently implemented in transmart-batch.
 You can delete tags with following sql: `delete from i2b2metadata.i2b2_tags where path like '<path>' and tag_type='<title>'`
