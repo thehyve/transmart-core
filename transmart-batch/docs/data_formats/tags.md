@@ -32,7 +32,7 @@ Tags upload.
 
 There are two ways to upload tags:
 
-- As separate tags data type upload (recommended).
+- As separate tags data type upload (recommended)
 
     * Place tags file into `tags` folder.
     * You must specify tags file inside `tags` folder with `TAGS_FILE` parameter in `tags.params` file.
@@ -40,7 +40,7 @@ There are two ways to upload tags:
 
         ./transmart-batch-capsule.jar -p /path/to/STUDY_NAME/tags/tags.params
         
-- As part of clinical data upload.
+- As part of the clinical data upload
 
     * Place tags file into `clinical` folder.
     * Specify tags file inside `clinical` folder with `TAGS_FILE` variable in `clinical.params` file.
