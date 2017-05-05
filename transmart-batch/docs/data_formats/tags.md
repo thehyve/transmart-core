@@ -47,5 +47,5 @@ There are two ways to upload tags:
     * Run usual clinical data upload.
 
 #### Tags deletion
-Is not currently implemented in transmart-batch. If only the `Tag description` has changed but not the path or `Tag title`, a reupload will suffice.
-You can delete tags with following sql: `delete from i2b2metadata.i2b2_tags where path like '<path>' and tag_type='<title>'`
+Is not currently implemented in transmart-batch. If only the `Tag description` or `Index` needs to change, but not the `Concept path` or `Tag title`, a reupload will suffice.
+Otherwise you can delete tags with following sql: `delete from i2b2metadata.i2b2_tags where path like '<path>' and tag_type='<title>'`
