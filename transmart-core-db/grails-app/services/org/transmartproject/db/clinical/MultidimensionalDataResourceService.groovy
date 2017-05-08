@@ -494,7 +494,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 if (it.key in dimension.elemFields)
                     elemFieldsMap.put(it.key, it.value)
             }
-            elemFieldsMap.put('study', elem.study.id)
+            elemFieldsMap.put('study', elem.study.studyId)
             resultList.add(elemFieldsMap)
         }
         resultList
