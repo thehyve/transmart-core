@@ -6,10 +6,12 @@ import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.DataInconsistencyException
+import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.AggregateType
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
@@ -432,4 +434,35 @@ class QueryServiceSpec extends TransmartSpecification {
         result*.value.sort() == expectedObservations*.value.sort()
     }
 
+    void "test query for dimension elements"() {
+        setupData()
+
+        when: "Dimension name is 'trial visit'"
+        String dimensionName = DimensionImpl.TRIAL_VISIT.name
+        def expectedResult = testData.clinicalData.facts*.trialVisit as Set<TrialVisit>
+        def result = multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[0])
+
+        then: "TrialVisit dimension elements are returned"
+        result.size() == expectedResult.size()
+        (result[0] as TrialVisit).relTime == expectedResult[0].relTime
+        (result[0] as TrialVisit).relTimeLabel == expectedResult[0].relTimeLabel
+        (result[0] as TrialVisit).relTimeUnit == expectedResult[0].relTimeUnit
+        (result[0]as TrialVisit).study == expectedResult[0].study 
+
+        when: "Dimension name is incorrect"
+        dimensionName = 'incorrect name'
+        multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[0])
+
+        then: "InvalidArgumentsException is thrown"
+        def e = thrown(InvalidArgumentsException)
+        e.message == "Invalid dimension name: $dimensionName"
+    
+        when: "Dimension with given name does not support listing elements"
+        dimensionName = DimensionImpl.START_TIME.name
+        multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[0])
+    
+        then: "InvalidArgumentsException is thrown"
+        e = thrown(InvalidArgumentsException)
+        e.message == "Dimension not supported."
+    }
 }
