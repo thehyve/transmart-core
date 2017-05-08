@@ -12,9 +12,7 @@ import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
 import org.grails.datastore.mapping.query.api.BuildableCriteria
 import org.hibernate.SessionFactory
-import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.core.IterableResult
-import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -25,12 +23,13 @@ import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.TrialVisit
-import org.hibernate.Criteria
 import org.transmartproject.db.i2b2data.ConceptDimension as I2b2ConceptDimensions
 import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
 import org.transmartproject.db.i2b2data.Study as I2B2Study
 import org.transmartproject.db.i2b2data.PatientDimension as I2B2PatientDimension
 import org.transmartproject.db.support.InQuery
+
+import javax.transaction.NotSupportedException
 
 import static org.transmartproject.core.multidimquery.Dimension.*
 import static org.transmartproject.core.multidimquery.Dimension.Size.*
@@ -111,8 +110,8 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
     @Override abstract String getName()
 
-    @Override IterableResult<ELT> getElements(Collection<Study> studies) {
-        throw new NotImplementedException()
+    @Override List<ELT> listElements(Collection<Study> studies) {
+        throw new InvalidArgumentsException("Dimension not supported.")
     }
 
     protected <T> T getKey(Map map, String alias) {
@@ -183,6 +182,12 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static List<ELT> resolveWithInQuery(BuildableCriteria criteria, List<ELKey> elementKeys, String property = 'id') {
         List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, property, elementKeys).list()
         sort(res, elementKeys, property)
+        res
+    }
+
+    static List<ELT> resolveWithStudyInQuery(BuildableCriteria criteria, Collection<Study> studies, String property = 'id') {
+        List res = InQuery.addIn(criteria as HibernateCriteriaBuilder, 'study', studies).list()
+        sort(res, res.collect{ t-> t[property]} as List<ELKey>, property)
         res
     }
 
@@ -470,7 +475,9 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
         resolveWithInQuery(TrialVisit.createCriteria(), elementKeys)
     }
 
-
+    @Override List<TrialVisit> listElements(Collection<Study> studies) {
+        resolveWithStudyInQuery(TrialVisit.createCriteria(), studies)
+    }
 }
 
 @CompileStatic @InheritConstructors
