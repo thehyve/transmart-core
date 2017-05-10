@@ -14,6 +14,7 @@ import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.querytool.QtPatientSetCollection
@@ -59,6 +60,13 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         studies
     }
 
+    HibernateCriteriaQueryBuilder subQueryBuilder() {
+        new HibernateCriteriaQueryBuilder(
+                aliasSuffixes: aliasSuffixes,
+                studies: studies
+        )
+    }
+
     /**
      * Gets an alias for a property name.
      * Within the query builder, a property always gets the same alias.
@@ -72,10 +80,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         if (alias != null) {
             return alias
         }
-        Integer suffix = aliasSuffixes[propertyName]
-        if (suffix == null) {
-            suffix = 0
-        }
+        int suffix = aliasSuffixes[propertyName] ?: 0
         aliasSuffixes[propertyName] = suffix + 1
         alias = "${propertyName}_${suffix}"
         aliases[propertyName] = alias
@@ -153,11 +158,11 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         if (!constraint.valueType.supportsValue(constraint.value)) {
             throw new QueryBuilderException("Value of class ${constraint.value?.class?.simpleName} not supported for value type '${constraint.valueType}'.")
         }
-        List<Constraint> conjuncts = [
+
+        Constraint conjunction = new AndConstraint(args: [
                 new FieldConstraint(field: valueTypeField, operator: Operator.EQUALS, value: valueTypeCode),
                 new FieldConstraint(field: valueField, operator: constraint.operator, value: constraint.value)
-        ]
-        Constraint conjunction = new Combination(operator: Operator.AND, args: conjuncts)
+        ])
         build(conjunction)
     }
 
@@ -195,10 +200,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             // match all records with the modifier
             valueConstraint = new TrueConstraint()
         }
-        QueryBuilder subQueryBuilder = new HibernateCriteriaQueryBuilder(
-                aliasSuffixes: aliasSuffixes,
-                studies: studies
-        )
+        QueryBuilder subQueryBuilder = subQueryBuilder()
         DetachedCriteria subQuery = subQueryBuilder.buildCriteria(valueConstraint, modifierCriterion)
                 .add(Restrictions.eqProperty('encounterNum',    "${observationFactAlias}.encounterNum"))
                 .add(Restrictions.eqProperty('patient',         "${observationFactAlias}.patient"))
@@ -430,6 +432,12 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         else {
             throw new QueryBuilderException("Constraint value not specified: ${constraint.class}")
         }
+    }
+
+    Criterion build(PatientSelectionConstraint constraint) {
+        def subQuery = subQueryBuilder().buildCriteria(constraint.constraint)
+        subQuery.projection = Projections.property('patient')
+        return Subqueries.propertyIn('patient', subQuery)
     }
 
     Criterion build(ConceptConstraint constraint){

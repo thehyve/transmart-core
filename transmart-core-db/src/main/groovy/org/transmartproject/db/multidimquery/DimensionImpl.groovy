@@ -12,6 +12,7 @@ import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
 import org.grails.datastore.mapping.query.api.BuildableCriteria
 import org.hibernate.SessionFactory
+import org.hibernate.criterion.Projections
 import org.hibernate.engine.spi.SessionImplementor
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient

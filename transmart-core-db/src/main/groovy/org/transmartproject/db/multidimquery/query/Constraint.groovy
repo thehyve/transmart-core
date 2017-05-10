@@ -281,6 +281,12 @@ class FieldConstraint extends Constraint {
     Object value
 
     static constraints = {
+        field validator: { val, obj, Errors errors ->
+            // FIXME: For some reason this validator is not called :(
+            if(val == null) errors.rejectValue('field',
+                    'org.transmartproject.query.invalid.value.null.message',
+                    'field is not set')
+        }
         value validator: { Object val, obj, Errors errors ->
             if (obj.field) {
                 if (obj.operator in [Operator.IN, Operator.BETWEEN]) {
@@ -578,6 +584,24 @@ class TemporalConstraint extends Constraint {
     }
 }
 
+@Canonical
+class PatientSelectionConstraint extends SubSelectionConstraint {
+    static String constraintName = 'patient_selection'
+}
+
+abstract class SubSelectionConstraint extends Constraint {
+
+    @BindUsing({ obj, source ->
+        ConstraintFactory.create(source['constraint'])
+    })
+    Constraint constraint
+
+    static constraints = {
+        constraint nullable: false
+    }
+}
+
+
 /**
  * A Constraint factory that creates {@link Constraint} objects from a map using
  * the Grails data binder.
@@ -618,7 +642,8 @@ class ConstraintFactory {
             ConceptConstraint,
             StudyNameConstraint,
             StudyObjectConstraint,
-            NullConstraint
+            NullConstraint,
+            PatientSelectionConstraint,
         ].collectEntries { Class type ->
             [(type.constraintName): type]
         } as Map<String, Class>
