@@ -35,13 +35,13 @@ interface MultiDimensionalDataResource {
 
     List<Patient> listPatients(MultiDimConstraint constraint, User user)
 
-    List<Object> listDimensionElements(String dimensionName, User user)
+    List<Object> listDimensionElements(String dimensionName, User user, MultiDimConstraint constraint)
 
     QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) 
 
     QueryResult findPatientSet(Long patientSetId, User user)
 
-    Long patientCount(MultiDimConstraint constraint, User user)
+    Long countPatients(MultiDimConstraint constraint, User user)
     Long cachedPatientCount(MultiDimConstraint constraint, User user)
 
     /**

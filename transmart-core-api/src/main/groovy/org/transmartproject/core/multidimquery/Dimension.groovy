@@ -49,8 +49,6 @@ interface Dimension {
 
     Packable getPackable()
 
-    List<Object> listElements(Collection<Study> studies)
-
     List resolveElements(List elementKeys)
 
     def resolveElement(elementKey)

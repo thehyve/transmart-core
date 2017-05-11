@@ -619,6 +619,27 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         result.add(criterion)
         result
     }
+    
+    /**
+     *
+     * @return
+     */
+    DetachedCriteria buildCriteria(Criterion modifierCriterion = defaultModifierCriterion) {
+        aliases = [:]
+        def result = builder()
+        def trialVisitAlias = getAlias('trialVisit')
+        def criterion = Restrictions.and(
+                Restrictions.in("${trialVisitAlias}.study", getStudies()),
+                modifierCriterion
+        )
+        aliases.each { property, alias ->
+            if (property != 'observation_fact') {
+                result.createAlias(property, alias)
+            }
+        }
+        result.add(criterion)
+        result
+    }
 
     /**
      * Apply constraints to criteria

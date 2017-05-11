@@ -296,7 +296,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         def count1 = multiDimService.count(query, accessLevelTestData.users[0])
-        def patientCount1 = multiDimService.patientCount(query, accessLevelTestData.users[0])
+        def patientCount1 = multiDimService.countPatients(query, accessLevelTestData.users[0])
 
         then:
         count1 == 2L
@@ -309,7 +309,7 @@ class QueryServiceSpec extends TransmartSpecification {
         testData.clinicalData.facts << of2
         testData.saveAll()
         def count2 = multiDimService.count(query, accessLevelTestData.users[0])
-        def patientCount2 = multiDimService.patientCount(query, accessLevelTestData.users[0])
+        def patientCount2 = multiDimService.countPatients(query, accessLevelTestData.users[0])
 
         then:
         count2 == count1 + 1
@@ -435,31 +435,36 @@ class QueryServiceSpec extends TransmartSpecification {
     }
 
     void "test query for dimension elements"() {
-        setupData()
+        setupHypercubeData()
 
         when: "Dimension name is 'trial visit'"
         String dimensionName = DimensionImpl.TRIAL_VISIT.name
-        def expectedResult = testData.clinicalData.facts*.trialVisit as Set<TrialVisit>
-        def result = multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[0])
+        Constraint constraint = new StudyNameConstraint(studyId: hypercubeTestData.clinicalData.multidimsStudy.studyId )
+        def expectedResult = hypercubeTestData.clinicalData.multidimsStudy.trialVisits as Set<TrialVisit>
+        def result = multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[1], constraint)
 
         then: "TrialVisit dimension elements are returned"
         result.size() == expectedResult.size()
-        (result[0] as TrialVisit).relTime == expectedResult[0].relTime
-        (result[0] as TrialVisit).relTimeLabel == expectedResult[0].relTimeLabel
-        (result[0] as TrialVisit).relTimeUnit == expectedResult[0].relTimeUnit
-        (result[0]as TrialVisit).study == expectedResult[0].study 
+        expectedResult.every { expected ->
+            result.any {
+                it.id == expected.id &&
+                it.relTime == expected.relTime &&
+                it.relTimeLabel == expected.relTimeLabel &&
+                it.relTimeUnit == expected.relTimeUnit
+            }
+        }
 
         when: "Dimension name is incorrect"
         dimensionName = 'incorrect name'
-        multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[0])
+        multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[1], null)
 
         then: "InvalidArgumentsException is thrown"
         def e = thrown(InvalidArgumentsException)
-        e.message == "Invalid dimension name: $dimensionName"
+        e.message == "dimension $dimensionName is not a valid dimension or dimension name"
     
         when: "Dimension with given name does not support listing elements"
         dimensionName = DimensionImpl.START_TIME.name
-        multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[0])
+        multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[1], null)
     
         then: "InvalidArgumentsException is thrown"
         e = thrown(InvalidArgumentsException)

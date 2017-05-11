@@ -3,7 +3,6 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableMap
-import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
@@ -12,7 +11,10 @@ import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
 import org.grails.datastore.mapping.query.api.BuildableCriteria
 import org.hibernate.SessionFactory
-import org.transmartproject.core.IterableResult
+import org.hibernate.criterion.DetachedCriteria
+import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Subqueries
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -28,9 +30,8 @@ import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
 import org.transmartproject.db.i2b2data.Study as I2B2Study
 import org.transmartproject.db.i2b2data.PatientDimension as I2B2PatientDimension
 import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 import org.transmartproject.db.support.InQuery
-
-import javax.transaction.NotSupportedException
 
 import static org.transmartproject.core.multidimquery.Dimension.*
 import static org.transmartproject.core.multidimquery.Dimension.Size.*
@@ -115,13 +116,18 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         this.density = density
         this.packable = packable
     }
-
+    
+    enum SelectType {
+        ELEMENTS,
+        COUNT,
+    }
+    
     @Override abstract String getName()
 
-    @Override List<ELT> listElements(Collection<Study> studies) {
+    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
         throw new InvalidArgumentsException("Dimension not supported.")
     }
-
+    
     protected <T> T getKey(Map map, String alias) {
         def res = map.getOrDefault(alias, this)
         if(res.is(this)) throw new IllegalArgumentException("Resultmap $map does not contain key $alias")
@@ -455,6 +461,17 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
             assert result && false, "$name already used as an alias or as a different modifier"
         }
     }
+    
+    @Override
+    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
+        criteria.setProjection(Projections.property(modifierCodeField))
+        def dimensionCriteria = DetachedCriteria.forClass(ModifierDimensionCoreDb, 'modifierDimension')
+        dimensionCriteria.add(Subqueries.propertyIn('code', criteria))
+        if (args.type == SelectType.COUNT) {
+            dimensionCriteria.setProjection(Projections.countDistinct(name))
+        }
+        dimensionCriteria
+    }
 }
 
 @CompileStatic @InheritConstructors
@@ -479,6 +496,17 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
     @CompileDynamic
     @Override List<I2B2PatientDimension> doResolveElements(List<Long> elementKeys) {
         resolveWithInQuery(I2B2PatientDimension.createCriteria(), elementKeys)
+    }
+    
+    @Override
+    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
+        criteria.setProjection(Projections.property('patient'))
+        def dimensionCriteria = DetachedCriteria.forClass(I2B2PatientDimension, 'patient')
+        dimensionCriteria.add(Subqueries.propertyIn('id', criteria))
+        if (args.type == SelectType.COUNT) {
+            dimensionCriteria.setProjection(Projections.countDistinct('id'))
+        }
+        dimensionCriteria
     }
 }
 
@@ -507,14 +535,22 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
     String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
-
+    
     @CompileDynamic
-    @Override List<TrialVisit> doResolveElements(List<Long> elementKeys) {
+    @Override
+    List<TrialVisit> doResolveElements(List<Long> elementKeys) {
         resolveWithInQuery(TrialVisit.createCriteria(), elementKeys)
     }
-
-    @Override List<TrialVisit> listElements(Collection<Study> studies) {
-        resolveWithStudyInQuery(TrialVisit.createCriteria(), studies)
+    
+    @Override
+    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
+        criteria.setProjection(Projections.property('trialVisit'))
+        def dimensionCriteria = DetachedCriteria.forClass(TrialVisit, 'trialVisit')
+        dimensionCriteria.add(Subqueries.propertyIn('id', criteria))
+        if (args.type == SelectType.COUNT) {
+            dimensionCriteria.setProjection(Projections.countDistinct('trialVisit'))
+        }
+        dimensionCriteria
     }
 }
 
@@ -611,7 +647,24 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
             }
         }
     }
-
+    
+    @Override
+    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
+        def projection = criteria.projection = Projections.projectionList()
+        ['encounterNum', 'patient'].each {
+            projection.add(Projections.property(it))
+        }
+        def dimensionCriteria = DetachedCriteria.forClass(I2b2VisitDimension, 'visit')
+        dimensionCriteria.add(Subqueries.propertiesIn(['encounterNum', 'patient'] as String[], criteria))
+        if (args.type == SelectType.COUNT) {
+            def countProjection = dimensionCriteria.projection = Projections.projectionList()
+            ['encounterNum', 'patient'].each {
+                countProjection.add(Projections.countDistinct(it))
+            }
+        }
+        dimensionCriteria
+    }
+    
     // The same as @Immutable, but @Immutable generates some rather dynamic/inefficient constructors and a toString()
     // I don't quite like
     @EqualsAndHashCode
