@@ -21,6 +21,7 @@ buildscript {
 }
 
 apply plugin: 'idea'
+apply plugin: 'maven-publish'
 
 ext {
     transmartVersion = '17.1-SNAPSHOT'
@@ -69,5 +70,20 @@ subprojects { project ->
             }
             applyMavenExclusions false
         }
+
+        if (!(project.name =~ /^(transmartApp|mock-ontology-server)$/)) {
+            grailsPublish {
+                websiteUrl = 'http://transmartfoundation.org/'
+                license {
+                    name = 'GPL-3.0'
+                }
+                issueTrackerUrl = 'https://github.com/thehyve/transmart-core/issues'
+                vcsUrl = 'https://github.com/thehyve/transmart-core'
+                title = project.name
+                desc = project.description
+                developers = [johndoe: "John Doe"]
+            }
+        }
+
     }
 }

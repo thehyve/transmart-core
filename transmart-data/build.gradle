@@ -1,3 +1,6 @@
+apply plugin: 'distribution'
+apply plugin: 'maven-publish'
+
 project.ext {
     environment = [PATH: '/bin/:/usr/bin/:/usr/local/bin/']
 }
@@ -97,4 +100,46 @@ task dataloadingTest << {
 }
 dataloadingTest.dependsOn 'checkDependencies'
 
+// from https://medium.com/@ungesehn/use-gitignore-for-gradle-task-excludes-e5d011e99f71
+def gitignoreToList(File f) {
+    def ignores = []
+
+    f.eachLine { line ->
+        //ignore comments and empty lines
+        if (!line.startsWith('#') && !line.isEmpty()) {
+            ignores.add(line)
+        }
+    }
+    return ignores
+}
+
+distZip.enabled = false
+
+distributions {
+    main {
+        contents {
+            exclude 'lib/schemaSpy_*.jar'
+            from '.'
+            include 'config/**', 'data/**', 'ddl/**','env/**', 'lib/**', 'R/**', 'samples/**', 'solr/**',
+                    'test_data/**', 'updatedb/**',
+                    'LICENSE', 'Makefile', 'makefile.inc', 'README.md', 'vars.sample', 'VERSION'
+        }
+    }
+}
+
+task createVersionFile << {
+    def file = new File("$projectDir/VERSION")
+    file.createNewFile()
+    file.text = "${version}"
+}
+distTar.dependsOn 'createVersionFile'
+
 defaultTasks 'createVars'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact distTar // Publish the output of the distTar task
+        }
+    }
+}

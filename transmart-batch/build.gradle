@@ -7,7 +7,7 @@ apply plugin: 'groovy'
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'codenarc'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 compileGroovy {
     options.incremental = true
@@ -172,23 +172,6 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.12'
 }
 
-def getPomConfiguration() {
-    return {
-        name 'transmart-batch'
-        packaging 'jar'
-        description 'tranSMART pipeline alternative to Kettle + stored procedures, using Spring Batch.'
-        inceptionYear '2014'
-        url 'https://github.com/thehyve/transmart-batch'
-        licenses {
-            license {
-                name 'The Apache Software License, Version 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                distribution 'repo'
-            }
-        }
-    }
-}
-
 codenarc {
     configFile = new File("${project.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
 
@@ -211,26 +194,10 @@ task setupSchema(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-artifacts {
-    shadowJar
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            def credentials = [
-                // put these in ~/.gradle/gradle.properties
-                userName: project.ext.properties['mavenTheHyveUser'] ?: '',
-                password: project.ext.properties['mavenTheHyvePassword'] ?: '',
-            ]
-
-            repository(url: 'https://repo.thehyve.nl/content/repositories/releases/') {
-                authentication(credentials)
-            }
-            snapshotRepository(url: 'https://repo.thehyve.nl/content/repositories/snapshots/') {
-                authentication(credentials)
-            }
-            pom.project pomConfiguration
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact shadowJar
         }
     }
 }

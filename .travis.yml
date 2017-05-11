@@ -12,6 +12,7 @@ env:
   - TERM=dumb; DIR=transmart-rest-api; TEST=check
   - TERM=dumb; DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST="-Dgrails.env=test_postgresql check"
   - TERM=dumb; DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=shadowJar; TEST="test functionalTest"
+  - TERM=dumb; DIR=.; TEST=":transmart-core-api:publishToMavenLocal :transmart-data:publishToMavenLocal :transmart-batch:publishToMavenLocal :transmartApp:publishToMavenLocal"
 
 addons:
   postgres: 9.4
@@ -61,7 +62,7 @@ script:
 
 after_success:
   - echo "Writing summary..."
-  - html2text $DIR/build/reports/tests/index.html
+  - ([ -d "$DIR/build/reports/tests" ]) && html2text $DIR/build/reports/tests/index.html
 
 after_failure:
   - echo "Writing reports..."
