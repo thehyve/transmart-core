@@ -2,6 +2,7 @@ package org.transmartproject.app
 
 import annotation.AmTagItem
 import annotation.AmTagTemplate
+import com.recomdata.transmart.data.export.ExportMetadataService
 import fm.FmFolder
 import fm.FmFolderAssociation
 import grails.converters.JSON
@@ -14,8 +15,12 @@ import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.users.User
+
+import javax.annotation.Resource
 
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL
+import static org.transmartproject.core.users.ProtectedOperation.WellKnownOperations.BUILD_COHORT
 
 class OntologyController {
 
@@ -28,6 +33,10 @@ class OntologyController {
     ConceptsResource conceptsResourceService
     OntologyTermTagsResource ontologyTermTagsResourceService
     HighDimensionResource highDimensionResourceService
+    ExportMetadataService exportMetadataService
+    
+    @Resource
+    User currentUserBean
 
     def showOntTagFilter = {
         def tagtypesc = []
@@ -106,7 +115,22 @@ class OntologyController {
         //ontology term tags
         def tagsMap = ontologyTermTagsResourceService.getTags([ term ] as Set, false)
         model.tags = tagsMap?.get(term)
-
+    
+        //data type info of all descendants
+        def dataTypeInfo = exportMetadataService.getHighDimMetaData(term)
+        model.dataTypes = dataTypeInfo.dataTypes
+    
+        //study info
+        model.studyId = term.study.id
+        model.studyName = term.name
+    
+        //user
+        model.userId = springSecurityService.principal.id
+        model.userName = springSecurityService.principal.username
+    
+        //access
+        model.hasAccess = currentUserBean.canPerform(BUILD_COHORT, term.study)
+    
         render template: 'showDefinition', model: model
     }
 
