@@ -11,76 +11,13 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.dataquery.highdim.AssayColumnImpl
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
-import org.transmartproject.db.multidimquery.ModifierDimension
+import org.transmartproject.db.multidimquery.I2b2Dimension
 
-import static org.transmartproject.db.multidimquery.query.DimensionFetchType.*
+import static org.transmartproject.db.multidimquery.DimensionImpl.ImplementationType.*
 
-/**
- * Metadata about the fetching method for the dimension.
- * The dimension may be represented by a dimension table (<code>TABLE</code>),
- * a column in the {@link org.transmartproject.db.i2b2data.ObservationFact} table (<code>COLUMN</code>) or as
- * a modifier, which means that the data is stored in another, related, row
- * in the {@link org.transmartproject.db.i2b2data.ObservationFact} table (<code>MODIFIER</code>).
- */
-enum DimensionFetchType {
-    TABLE,
-    COLUMN,
-    VALUE,
-    MODIFIER,
-    STUDY,
-    VISIT,
-    BIOMARKER,
-    ASSAY
-}
-
-
-//Note: information that is not specific to the constraint building and query code should live in the Dimension objects
-enum ConstraintDimension {
-    Patient(DimensionImpl.PATIENT,         TABLE,  'patient'),
-    Concept(DimensionImpl.CONCEPT,         COLUMN, 'conceptCode'),
-    Visit(DimensionImpl.VISIT,             VISIT,  ''),
-    TrialVisit(DimensionImpl.TRIAL_VISIT,  TABLE,  'trialVisit'),
-    Study(DimensionImpl.STUDY,             STUDY,  ''),
-    Location(DimensionImpl.LOCATION,       COLUMN, 'locationCd'),
-    Provider(DimensionImpl.PROVIDER,       COLUMN, 'providerId'),
-    StartTime(DimensionImpl.START_TIME,    COLUMN, 'startDate'),
-    EndTime(DimensionImpl.END_TIME,        COLUMN, 'endDate'),
-    BioMarker(DimensionImpl.BIOMARKER,     BIOMARKER, ''),
-    Assay(DimensionImpl.ASSAY,             ASSAY,  ''),
-
-    // these are pseudo dimensions
-    Modifier('modifier',                        MODIFIER, ''),
-    Value('value',                              VALUE,  '')
-
-    ConstraintDimension(Dimension dimension, DimensionFetchType type, String fieldName) {
-        this(dimension.name, type, fieldName, dimension)
-    }
-
-    ConstraintDimension(String name, DimensionFetchType type, String fieldName, Dimension dimension=null) {
-        this.dimension = dimension
-        this.name = name
-        this.type = type
-        this.fieldName = fieldName
-    }
-
-    final Dimension dimension
-    final String name
-    final DimensionFetchType type
-    final String fieldName;
-
-    static private Map<String, ConstraintDimension> nameMap = values().collectEntries { [it.name, it] }
-    static ConstraintDimension forName(String name) { nameMap[name] }
-
-    static ConstraintDimension forDimension(Dimension dimension) {
-        if(dimension instanceof ModifierDimension) {
-            return Modifier
-        } else {
-            return nameMap[dimension.name]
-        }
-    }
-}
 
 /**
  * Contains database mapping metadata for the dimensions.
@@ -92,20 +29,18 @@ class DimensionMetadata {
 
     static final Mapping observationFactMapping = GrailsDomainBinder.getMapping(ObservationFact)
 
-    protected static final Map<ConstraintDimension, DimensionMetadata> dimensionMetadataMap =
-            ConstraintDimension.values().collectEntries { [it, new DimensionMetadata(it)] }
+    protected static final Map<Dimension, DimensionMetadata> dimensionMetadataMap = DimensionDescription.allDimensions.
+            collectEntries([((Dimension) DimensionImpl.VALUE): new DimensionMetadata(DimensionImpl.VALUE)]) {
+                [it, new DimensionMetadata(it)]
+            }
 
     static final DimensionMetadata forDimensionName(String dimensionName) {
-        def dim = ConstraintDimension.forName(dimensionName)
-        if (dim == null) throw new QueryBuilderException("ConstraintDimension not found: ${dimensionName}")
-        dimensionMetadataMap[dim]
+        def dim = DimensionImpl.fromNameOrNull(dimensionName)
+        if (dim == null) throw new QueryBuilderException("Dimension not found: ${dimensionName}")
+        forDimension(dim)
     }
 
     static final DimensionMetadata forDimension(Dimension dimension) {
-        forDimension(ConstraintDimension.forDimension(dimension))
-    }
-
-    static final DimensionMetadata forDimension(ConstraintDimension dimension) {
         dimensionMetadataMap[dimension]
     }
 
@@ -123,11 +58,17 @@ class DimensionMetadata {
             (it.type in [COLUMN, TABLE, VISIT]) ? it.fields : [] as List<Field> }
     }
 
-    DimensionFetchType type
-    ConstraintDimension dimension
+    DimensionImpl.ImplementationType getType() { dimension.implementationType }
+    DimensionImpl dimension
     Class domainClass
-    String fieldName
-    String columnName
+    String getFieldName() {
+        if(!(dimension instanceof I2b2Dimension)) return ''
+        def colName = ((I2b2Dimension) dimension).columnName
+        if(colName.endsWith('.id')) {
+            colName = colName[0..<-3]
+        }
+        colName
+    }
     protected Mapping dimensionMapping
     List<Field> fields = []
     Map<String, Class> fieldTypes = [:]
@@ -151,17 +92,12 @@ class DimensionMetadata {
         new Field(dimension: this.dimension, type: type, fieldName: field.name)
     }
 
-    DimensionMetadata(ConstraintDimension dim) {
-        this.dimension = dim
-        this.type = dim.type
-        this.fieldName = dim.fieldName
+    DimensionMetadata(Dimension dim) {
+        this.dimension = (DimensionImpl) dim
 
         log.info "Registering dimension ${dim.name}..."
-        if (!fieldName.empty) {
-            this.columnName = observationFactMapping.columns[fieldName]?.column
-        }
 
-        if (type == DimensionFetchType.TABLE) {
+        if (type == TABLE) {
             def field = ObservationFact.declaredFields.find { !it.synthetic && it.name == fieldName }
             if (field == null) {
                 throw new QueryBuilderException("No field with name ${fieldName} found in ${ObservationFact.simpleName}")
@@ -170,33 +106,33 @@ class DimensionMetadata {
                 this.dimensionMapping = GrailsDomainBinder.getMapping(domainClass)
                 this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
             }
-        } else if (type == DimensionFetchType.STUDY) {
+        } else if (type == STUDY) {
             this.domainClass = Study
             this.dimensionMapping = GrailsDomainBinder.getMapping(Study)
             this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
-        } else if (type == DimensionFetchType.VISIT) {
-            this.domainClass = org.transmartproject.db.i2b2data.VisitDimension.class
+        } else if (type == VISIT) {
+            this.domainClass = org.transmartproject.db.i2b2data.VisitDimension
             this.dimensionMapping = GrailsDomainBinder.getMapping(org.transmartproject.db.i2b2data.VisitDimension)
             this.fields = dimensionMapping.columns.keySet().collect { getMappedField(it) }
-        } else if (type == DimensionFetchType.BIOMARKER) {
-            this.domainClass = HddTabularResultHypercubeAdapter.BioMarkerAdapter.class
+        } else if (type == BIOMARKER) {
+            this.domainClass = HddTabularResultHypercubeAdapter.BioMarkerAdapter
             this.fields = domainClass.declaredFields.findAll { !it.synthetic }*.name.collect { getMappedField(it) }
-        } else if (type == DimensionFetchType.ASSAY) {
-            this.domainClass = AssayColumnImpl.class
+        } else if (type == ASSAY) {
+            this.domainClass = AssayColumnImpl
             this.fields = domainClass.declaredFields.findAll { !it.synthetic }*.name.collect { getMappedField(it) }
         } else {
-            this.domainClass = ObservationFact.class
+            this.domainClass = ObservationFact
             this.dimensionMapping = observationFactMapping
             switch (type) {
-                case DimensionFetchType.MODIFIER:
+                case MODIFIER:
                     this.fields << getMappedField('modifierCd')
                     //fallthrough
-                case DimensionFetchType.VALUE:
+                case VALUE:
                     this.fields << getMappedField('valueType')
                     this.fields << getMappedField('textValue')
                     this.fields << getMappedField('numberValue')
                     break
-                case DimensionFetchType.COLUMN:
+                case COLUMN:
                     this.fields << getMappedField(fieldName)
                     break
                 default:

@@ -12,7 +12,7 @@ import org.springframework.validation.Errors
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.multidimquery.DimensionImpl
 
 /**
  * The data type of a field.
@@ -175,8 +175,8 @@ enum Operator {
  */
 @Canonical
 class Field implements Validateable {
-    @BindUsing({ obj, source -> ConstraintDimension.valueOf(source['dimension'])})
-    ConstraintDimension dimension
+    @BindUsing({ obj, source -> DimensionImpl.fromNameOrNull(source['dimension'])})
+    DimensionImpl dimension
     @BindUsing({ obj, source -> Type.forName(source['type']) })
     Type type = Type.NONE
     String fieldName
@@ -596,7 +596,7 @@ class SubSelectionConstraint extends Constraint {
     Constraint constraint
 
     @BindUsing({ obj, source ->
-        DimensionDescription.findByName(source['dimension'])?.dimension
+        DimensionImpl.fromNameOrNull(source['dimension'])
     })
     Dimension dimension
 

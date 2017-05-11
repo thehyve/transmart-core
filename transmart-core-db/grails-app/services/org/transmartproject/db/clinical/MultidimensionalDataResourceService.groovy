@@ -66,7 +66,6 @@ import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
 import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintDimension
 import org.transmartproject.db.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.FieldConstraint
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
@@ -270,10 +269,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
 
 
-    private final Field valueTypeField = new Field(dimension: ConstraintDimension.Value, fieldName: 'valueType', type: Type.STRING)
-    private final Field textValueField = new Field(dimension: ConstraintDimension.Value, fieldName: 'textValue', type: Type.STRING)
-    private final Field numberValueField =
-            new Field(dimension: ConstraintDimension.Value, fieldName: 'numberValue', type: Type.NUMERIC)
+    private final Field valueTypeField = new Field(dimension: VALUE, fieldName: 'valueType', type: Type.STRING)
+    private final Field textValueField = new Field(dimension: VALUE, fieldName: 'textValue', type: Type.STRING)
+    private final Field numberValueField = new Field(dimension: VALUE, fieldName: 'numberValue', type: Type.NUMERIC)
 
     @Lazy
     private Criterion defaultHDModifierCriterion = Restrictions.in('modifierCd',
@@ -313,11 +311,11 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 }
             }
         } else if (constraint instanceof FieldConstraint) {
-            if (constraint.field.dimension == ConstraintDimension.Concept) {
+            if (constraint.field.dimension == CONCEPT) {
                 throw new AccessDeniedException("Access denied. Concept dimension not allowed in field constraints. Use a ConceptConstraint instead.")
-            } else if (constraint.field.dimension == ConstraintDimension.Study) {
+            } else if (constraint.field.dimension == STUDY) {
                 throw new AccessDeniedException("Access denied. Study dimension not allowed in field constraints. Use a StudyConstraint instead.")
-            } else if (constraint.field.dimension == ConstraintDimension.TrialVisit) {
+            } else if (constraint.field.dimension == TRIAL_VISIT) {
                 if (constraint.field.fieldName == 'study') {
                     throw new AccessDeniedException("Access denied. Field 'study' of trial visit dimension not allowed in field constraints. Use a StudyConstraint instead.")
                 }

@@ -26,7 +26,7 @@ import org.transmartproject.db.user.User
 import spock.lang.Specification
 import java.text.SimpleDateFormat
 
-import static org.transmartproject.db.multidimquery.query.ConstraintDimension.*
+import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 @Rollback
 @Integration
@@ -111,7 +111,7 @@ class QueryService2Spec extends Specification {
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
         def trialVisitConstraint = new FieldConstraint(
                 field: new Field(
-                        dimension: TrialVisit,
+                        dimension: TRIAL_VISIT,
                         fieldName: 'relTimeLabel',
                         type: 'STRING'
                 ),
@@ -151,7 +151,7 @@ class QueryService2Spec extends Specification {
         SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         def startDateTimeConstraint = new TimeConstraint(
                 field: new Field(
-                        dimension: StartTime,
+                        dimension: START_TIME,
                         fieldName: 'startDate',
                         type: 'DATE'
                 ),
@@ -161,7 +161,7 @@ class QueryService2Spec extends Specification {
 
         def endDateTimeConstraint = new TimeConstraint(
                 field: new Field(
-                        dimension: EndTime,
+                        dimension: END_TIME,
                         fieldName: 'endDate',
                         type: 'DATE'
                 ),
@@ -197,7 +197,7 @@ class QueryService2Spec extends Specification {
                 operator: Operator.AFTER,
                 value: minDate,
                 field: new Field(
-                        dimension: Visit,
+                        dimension: VISIT,
                         fieldName: 'startDate',
                         type: 'DATE'
                 )
@@ -228,7 +228,7 @@ class QueryService2Spec extends Specification {
                 operator: Operator.AFTER,
                 value: sdf.parse('2016-05-05 10:00:00'),
                 field: new Field(
-                        dimension: Visit,
+                        dimension: VISIT,
                         fieldName: 'endDate',
                         type: 'DATE'
                 )
@@ -284,7 +284,7 @@ class QueryService2Spec extends Specification {
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\')
         def endDateTimeConstraint = new TimeConstraint(
                 field: new Field(
-                        dimension: EndTime,
+                        dimension: END_TIME,
                         fieldName: 'endDate',
                         type: 'DATE'
                 ),
