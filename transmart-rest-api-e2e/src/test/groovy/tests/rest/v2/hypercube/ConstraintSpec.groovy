@@ -3,6 +3,7 @@
 package tests.rest.v2.hypercube
 
 import base.RESTSpec
+import spock.lang.Ignore
 import spock.lang.Requires
 
 import static base.ContentTypeFor.contentTypeForJSON
@@ -406,6 +407,37 @@ class ConstraintSpec extends RESTSpec {
             conceptCodes.add(selector.select(it, "concept", "conceptCode", 'String'))
         }
         assert conceptCodes.containsAll(['CV:DEM:SEX:M', 'CV:DEM:SEX:F', 'CV:DEM:RACE', 'CV:DEM:AGE'])
+
+        where:
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
+        contentTypeForProtobuf | protobufSelector
+    }
+
+    @Ignore("I haven't tried running this yet")
+    def "PatientSelection.class"() {
+        def request = [
+                path      : PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query     : toQuery([
+                        type : 'patient_selection',
+                        constraint: [type    : FieldConstraint,
+                                     field   : [dimension: 'patient',
+                                                fieldName: 'age',
+                                                type     : NUMERIC],
+                                     operator: EQUALS,
+                                     value   : 30],
+                ])
+        ]
+
+        when:
+        def responseData = get(request)
+        def selector = newSelector(responseData)
+
+        then:
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "patient", "age", 'Int') == 30
+        }
 
         where:
         acceptType             | newSelector

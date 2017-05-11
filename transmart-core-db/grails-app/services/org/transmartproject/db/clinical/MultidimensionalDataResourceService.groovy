@@ -83,6 +83,7 @@ import org.transmartproject.db.multidimquery.query.QueryBuilder
 import org.transmartproject.db.multidimquery.query.QueryBuilderException
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.db.multidimquery.query.TemporalConstraint
 import org.transmartproject.db.multidimquery.query.TimeConstraint
 import org.transmartproject.db.multidimquery.query.TrueConstraint
@@ -93,7 +94,6 @@ import org.transmartproject.db.querytool.QtQueryInstance
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.util.GormWorkarounds
-import org.transmartproject.db.util.ScrollableResultsIterator
 
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.ScrollableResultsWrappingIterable
@@ -189,7 +189,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             })
 
         } else {
-            validDimensions = ImmutableSet.copyOf DimensionDescription.all*.dimension.findAll{
+            validDimensions = ImmutableSet.copyOf DimensionDescription.allDimensions.findAll{
                 !(it.class in notImplementedDimensions)
             }
         }
@@ -301,6 +301,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             constraint.args.each { checkAccess(it, user) }
         } else if (constraint instanceof TemporalConstraint) {
             checkAccess(constraint.eventConstraint, user)
+        } else if (constraint instanceof SubSelectionConstraint) {
+            checkAccess(constraint.constraint, user)
         } else if (constraint instanceof BioMarkerDimension) {
             throw new InvalidQueryException("Not supported yet: ${constraint?.class?.simpleName}.")
         } else if (constraint instanceof PatientSetConstraint) {

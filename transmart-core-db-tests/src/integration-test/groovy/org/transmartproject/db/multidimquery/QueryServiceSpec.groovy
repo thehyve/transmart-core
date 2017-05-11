@@ -346,4 +346,32 @@ class QueryServiceSpec extends TransmartSpecification {
         thrown(DataInconsistencyException)
     }
 
+    void "test_patient_selection_constraint"() {
+        setupHypercubeData()
+
+        def testObservation = hypercubeTestData.clinicalData.longitudinalClinicalFacts[-1]
+        Constraint constraint = new AndConstraint(args: [
+                new StudyObjectConstraint(study: hypercubeTestData.clinicalData.longitudinalStudy),
+                new SubSelectionConstraint(
+                        dimension: DimensionImpl.PATIENT,
+                        constraint: new ValueConstraint(
+                                valueType: "STRING",
+                                operator: Operator.EQUALS,
+                                value: testObservation.textValue
+                        )
+                )
+        ])
+
+        when:
+        def result = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
+        def expectedObservations = hypercubeTestData.clinicalData.longitudinalClinicalFacts.findAll {
+            it.patient == testObservation.patient
+        }
+
+        then:
+        result.size() == expectedObservations.size()
+        result.every { it[DimensionImpl.PATIENT] == testObservation.patient }
+        result*.value.sort() == expectedObservations*.value.sort()
+    }
+
 }

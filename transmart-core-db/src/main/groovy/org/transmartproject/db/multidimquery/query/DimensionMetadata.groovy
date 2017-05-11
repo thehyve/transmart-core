@@ -7,11 +7,13 @@ import org.grails.orm.hibernate.cfg.GrailsDomainBinder
 import org.grails.orm.hibernate.cfg.Mapping
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.dataquery.highdim.AssayColumnImpl
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
+import org.transmartproject.db.multidimquery.ModifierDimension
 
 import static org.transmartproject.db.multidimquery.query.DimensionFetchType.*
 
@@ -36,34 +38,48 @@ enum DimensionFetchType {
 
 //Note: information that is not specific to the constraint building and query code should live in the Dimension objects
 enum ConstraintDimension {
-    Patient(DimensionImpl.PATIENT.name,         TABLE,  'patient'),
-    Concept(DimensionImpl.CONCEPT.name,         COLUMN, 'conceptCode'),
-    Visit(DimensionImpl.VISIT.name,             VISIT,  ''),
-    TrialVisit(DimensionImpl.TRIAL_VISIT.name,  TABLE,  'trialVisit'),
-    Study(DimensionImpl.STUDY.name,             STUDY,  ''),
-    Location(DimensionImpl.LOCATION.name,       COLUMN, 'locationCd'),
-    Provider(DimensionImpl.PROVIDER.name,       COLUMN, 'providerId'),
-    StartTime(DimensionImpl.START_TIME.name,    COLUMN, 'startDate'),
-    EndTime(DimensionImpl.END_TIME.name,        COLUMN, 'endDate'),
-    BioMarker(DimensionImpl.BIOMARKER.name,     BIOMARKER, ''),
-    Assay(DimensionImpl.ASSAY.name,             ASSAY,  ''),
+    Patient(DimensionImpl.PATIENT,         TABLE,  'patient'),
+    Concept(DimensionImpl.CONCEPT,         COLUMN, 'conceptCode'),
+    Visit(DimensionImpl.VISIT,             VISIT,  ''),
+    TrialVisit(DimensionImpl.TRIAL_VISIT,  TABLE,  'trialVisit'),
+    Study(DimensionImpl.STUDY,             STUDY,  ''),
+    Location(DimensionImpl.LOCATION,       COLUMN, 'locationCd'),
+    Provider(DimensionImpl.PROVIDER,       COLUMN, 'providerId'),
+    StartTime(DimensionImpl.START_TIME,    COLUMN, 'startDate'),
+    EndTime(DimensionImpl.END_TIME,        COLUMN, 'endDate'),
+    BioMarker(DimensionImpl.BIOMARKER,     BIOMARKER, ''),
+    Assay(DimensionImpl.ASSAY,             ASSAY,  ''),
 
     // these are pseudo dimensions
     Modifier('modifier',                        MODIFIER, ''),
     Value('value',                              VALUE,  '')
 
-    ConstraintDimension(String name, DimensionFetchType type, String fieldName) {
+    ConstraintDimension(Dimension dimension, DimensionFetchType type, String fieldName) {
+        this(dimension.name, type, fieldName, dimension)
+    }
+
+    ConstraintDimension(String name, DimensionFetchType type, String fieldName, Dimension dimension=null) {
+        this.dimension = dimension
         this.name = name
         this.type = type
         this.fieldName = fieldName
     }
 
+    final Dimension dimension
     final String name
     final DimensionFetchType type
     final String fieldName;
 
     static private Map<String, ConstraintDimension> nameMap = values().collectEntries { [it.name, it] }
     static ConstraintDimension forName(String name) { nameMap[name] }
+
+    static ConstraintDimension forDimension(Dimension dimension) {
+        if(dimension instanceof ModifierDimension) {
+            return Modifier
+        } else {
+            return nameMap[dimension.name]
+        }
+    }
 }
 
 /**
@@ -83,6 +99,10 @@ class DimensionMetadata {
         def dim = ConstraintDimension.forName(dimensionName)
         if (dim == null) throw new QueryBuilderException("ConstraintDimension not found: ${dimensionName}")
         dimensionMetadataMap[dim]
+    }
+
+    static final DimensionMetadata forDimension(Dimension dimension) {
+        forDimension(ConstraintDimension.forDimension(dimension))
     }
 
     static final DimensionMetadata forDimension(ConstraintDimension dimension) {

@@ -100,6 +100,6 @@ class DimensionDescription {
      * @return a list of all dimensions
      */
     static List<Dimension> getAllDimensions() {
-        findAll { name != LEGACY_MARKER }*.dimension
+        findAll { name != DimensionDescription.LEGACY_MARKER }*.dimension
     }
 }

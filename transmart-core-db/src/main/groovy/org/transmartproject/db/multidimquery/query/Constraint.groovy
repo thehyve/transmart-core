@@ -8,10 +8,12 @@ import grails.web.databinding.DataBinder
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.apache.commons.lang.NotImplementedException
 import org.springframework.validation.Errors
+import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.metadata.DimensionDescription
+
 /**
  * The data type of a field.
  */
@@ -281,6 +283,12 @@ class FieldConstraint extends Constraint {
     Object value
 
     static constraints = {
+        field validator: { val, obj, Errors errors ->
+            // FIXME: For some reason this validator is not called :(
+            if(val == null) errors.rejectValue('field',
+                    'org.transmartproject.query.invalid.value.null.message',
+                    'field is not set')
+        }
         value validator: { Object val, obj, Errors errors ->
             if (obj.field) {
                 if (obj.operator in [Operator.IN, Operator.BETWEEN]) {
@@ -578,6 +586,27 @@ class TemporalConstraint extends Constraint {
     }
 }
 
+@Canonical
+class SubSelectionConstraint extends Constraint {
+    static String constraintName = 'subselection'
+
+    @BindUsing({ obj, source ->
+        ConstraintFactory.create(source['constraint'])
+    })
+    Constraint constraint
+
+    @BindUsing({ obj, source ->
+        DimensionDescription.findByName(source['dimension'])?.dimension
+    })
+    Dimension dimension
+
+    static constraints = {
+        constraint  nullable: false
+        dimension   nullable: false, validator: { it != null }
+    }
+}
+
+
 /**
  * A Constraint factory that creates {@link Constraint} objects from a map using
  * the Grails data binder.
@@ -618,7 +647,8 @@ class ConstraintFactory {
             ConceptConstraint,
             StudyNameConstraint,
             StudyObjectConstraint,
-            NullConstraint
+            NullConstraint,
+            SubSelectionConstraint,
         ].collectEntries { Class type ->
             [(type.constraintName): type]
         } as Map<String, Class>
