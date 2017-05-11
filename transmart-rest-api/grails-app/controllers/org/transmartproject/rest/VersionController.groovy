@@ -67,6 +67,7 @@ class VersionController {
                         'versioning',
                         'and-or-constraints',
                         'values_aggregate',
+                        'inline-selections',
                 ]
             ]
     ])
