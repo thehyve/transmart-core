@@ -14,7 +14,6 @@ import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.querytool.QtPatientSetCollection
@@ -434,10 +433,34 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         }
     }
 
-    Criterion build(PatientSelectionConstraint constraint) {
+    Criterion build(SubSelectionConstraint constraint) {
+        def constraintDim = forDimension(constraint.dimension)
         def subQuery = subQueryBuilder().buildCriteria(constraint.constraint)
-        subQuery.projection = Projections.property('patient')
-        return Subqueries.propertyIn('patient', subQuery)
+        String fieldName
+
+        switch(constraintDim.type) {
+            case DimensionFetchType.TABLE:
+            case DimensionFetchType.COLUMN:
+                fieldName = constraintDim.fieldName
+                break
+            case DimensionFetchType.STUDY:
+                fieldName = 'trialVisit.study'
+                break
+            case DimensionFetchType.VISIT:
+                def projection = subQuery.projection = Projections.projectionList()
+                ['visitNum', 'patient'].each {
+                    projection.add(Projections.property(it)) }
+                return Subqueries.propertiesIn(['visitNum', 'patient'] as String[], subQuery)
+            case DimensionFetchType.MODIFIER:
+                throw new QueryBuilderException("${constraint.constraintName} constraints for modifier dimensions are" +
+                        " not implemented")
+            default:
+                throw new QueryBuilderException("Dimension ${constraint.dimension.name} is not supported in " +
+                        "${SubSelectionConstraint.constraintName} constraints")
+        }
+
+        subQuery.projection = Projections.property(fieldName)
+        return Subqueries.propertyIn(fieldName, subQuery)
     }
 
     Criterion build(ConceptConstraint constraint){

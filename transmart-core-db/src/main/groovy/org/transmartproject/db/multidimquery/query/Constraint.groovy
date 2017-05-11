@@ -8,10 +8,12 @@ import grails.web.databinding.DataBinder
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.apache.commons.lang.NotImplementedException
 import org.springframework.validation.Errors
+import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.metadata.DimensionDescription
+
 /**
  * The data type of a field.
  */
@@ -585,19 +587,22 @@ class TemporalConstraint extends Constraint {
 }
 
 @Canonical
-class PatientSelectionConstraint extends SubSelectionConstraint {
-    static String constraintName = 'patient_selection'
-}
-
-abstract class SubSelectionConstraint extends Constraint {
+class SubSelectionConstraint extends Constraint {
+    static String constraintName = 'subselection'
 
     @BindUsing({ obj, source ->
         ConstraintFactory.create(source['constraint'])
     })
     Constraint constraint
 
+    @BindUsing({ obj, source ->
+        DimensionDescription.find(source['dimension'])?.dimension
+    })
+    Dimension dimension
+
     static constraints = {
-        constraint nullable: false
+        constraint  nullable: false
+        dimension   nullable: false, validator: { it != null }
     }
 }
 
@@ -643,7 +648,7 @@ class ConstraintFactory {
             StudyNameConstraint,
             StudyObjectConstraint,
             NullConstraint,
-            PatientSelectionConstraint,
+            SubSelectionConstraint,
         ].collectEntries { Class type ->
             [(type.constraintName): type]
         } as Map<String, Class>

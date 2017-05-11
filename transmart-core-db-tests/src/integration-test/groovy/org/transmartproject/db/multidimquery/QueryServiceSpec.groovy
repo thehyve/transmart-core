@@ -352,7 +352,8 @@ class QueryServiceSpec extends TransmartSpecification {
         def testObservation = hypercubeTestData.clinicalData.longitudinalClinicalFacts[-1]
         Constraint constraint = new AndConstraint(args: [
                 new StudyObjectConstraint(study: hypercubeTestData.clinicalData.longitudinalStudy),
-                new PatientSelectionConstraint(
+                new SubSelectionConstraint(
+                        dimension: DimensionImpl.PATIENT,
                         constraint: new ValueConstraint(
                                 valueType: "STRING",
                                 operator: Operator.EQUALS,

@@ -78,7 +78,6 @@ import org.transmartproject.db.multidimquery.query.Negation
 import org.transmartproject.db.multidimquery.query.NullConstraint
 import org.transmartproject.db.multidimquery.query.Operator
 import org.transmartproject.db.multidimquery.query.OrConstraint
-import org.transmartproject.db.multidimquery.query.PatientSelectionConstraint
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.multidimquery.query.QueryBuilder
 import org.transmartproject.db.multidimquery.query.QueryBuilderException
@@ -95,7 +94,6 @@ import org.transmartproject.db.querytool.QtQueryInstance
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.util.GormWorkarounds
-import org.transmartproject.db.util.ScrollableResultsIterator
 
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.ScrollableResultsWrappingIterable
