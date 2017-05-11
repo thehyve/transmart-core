@@ -596,7 +596,7 @@ class SubSelectionConstraint extends Constraint {
     Constraint constraint
 
     @BindUsing({ obj, source ->
-        DimensionDescription.find(source['dimension'])?.dimension
+        DimensionDescription.findByName(source['dimension'])?.dimension
     })
     Dimension dimension
 
