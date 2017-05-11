@@ -128,6 +128,30 @@ info:
         "patientIds": [-62, -63]
     }
     ```
+
+    ## SubSelection
+    Create a subselection of patients, visits, or another dimension element, and then select all observations for these dimension elements.
+
+    Example: Select all observations for patients who have a certain diagnosis.
+    ```json
+    {
+        "type": "subselection",
+        "dimension": "patient",
+        "constraint": {
+            "type": "and",
+            "args": [{
+                    "type": "concept",
+                    "path": "\\Public Studies\\EHR\\Diagnosis\\",
+                    "conceptCode": "DIAG"
+                }, {
+                    "type": "value",
+                    "valueType": "STRING",
+                    "operator": "=",
+                    "value": "My eye hurts"
+                }]
+        }
+    }
+    ```
     
     ## Temporal
     Evaluate if an observation happened before or after an event. It needs an `operator` and an `event`. Any constraint can be used as an event. Most likely a combination.
