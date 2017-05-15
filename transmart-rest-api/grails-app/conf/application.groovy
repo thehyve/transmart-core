@@ -142,6 +142,7 @@ environments {
         dataSource {
             driverClassName = 'org.h2.Driver'
             url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'"
+            dialect = 'org.hibernate.dialect.H2Dialect'
             username = 'sa'
             password = ''
             dbCreate = 'update'

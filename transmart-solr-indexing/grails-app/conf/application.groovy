@@ -4,7 +4,7 @@ com.rwg.solr.host   = 'localhost:8983'
 com.rwg.solr.facets.path = 'solr/facets/'
 com.recomdata.FmFolderService.filestoreDirectory = (new File(System.getenv('HOME'), '.grails/transmart-filestore')).absolutePath
 
-grails.codegen.defaultPackage = "org.transmartproject.search"
+grails.codegen.defaultPackage = "org.transmartproject.solr"
 grails{
     cache {
         order = 2000 // higher than default (1000) and plugins, usually 1500
@@ -50,6 +50,7 @@ environments {
         dataSource {
             driverClassName = 'org.h2.Driver'
             url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'"
+            dialect = 'org.hibernate.dialect.H2Dialect'
             username = 'sa'
             password = ''
             dbCreate = 'create'
@@ -113,7 +114,7 @@ grails.json.legacy.builder = false
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
 // packages to include in Spring bean scanning
-grails.spring.bean.packages = ["transmartproject.search"]
+//grails.spring.bean.packages = ["org.transmartproject.solr"]
 // whether to disable processing of multi part requests
 grails.web.disable.multipart = true
 
