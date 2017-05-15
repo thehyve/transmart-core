@@ -221,7 +221,8 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         STUDY,
         VISIT,
         BIOMARKER,
-        ASSAY
+        ASSAY,
+        PROJECTION,
     }
 }
 
@@ -365,7 +366,7 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
         throw new NotImplementedException()
     }
 
-    @Override ImplementationType getImplementationType() { null }
+    @Override abstract ImplementationType getImplementationType()
 }
 
 
@@ -634,6 +635,7 @@ class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeEl
         new PropertyImpl('platform', null, String) {
             def get(element) { ((Assay) element).platform?.id } },
     ]
+    ImplementationType implementationType = ImplementationType.ASSAY
     String name = 'assay'
 }
 
@@ -649,12 +651,14 @@ class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapt
         CompositeElemDim<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> {
     Class elemType = HddTabularResultHypercubeAdapter.BioMarkerAdapter
     List elemFields = ['label', 'biomarker']
+    ImplementationType implementationType = ImplementationType.BIOMARKER
     String name = 'biomarker'
 }
 
 @CompileStatic @InheritConstructors
 class ProjectionDimension extends HighDimDimension<String,String> implements SerializableElemDim<String> {
     Class elemType = String
+    ImplementationType implementationType = ImplementationType.PROJECTION
     String name = 'projection'
 }
 

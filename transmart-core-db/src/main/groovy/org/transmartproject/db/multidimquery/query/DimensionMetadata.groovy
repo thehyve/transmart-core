@@ -62,7 +62,7 @@ class DimensionMetadata {
     DimensionImpl dimension
     Class domainClass
     String getFieldName() {
-        if(!(dimension instanceof I2b2Dimension)) return ''
+        if(!(dimension instanceof I2b2Dimension)) return null
         def colName = ((I2b2Dimension) dimension).columnName
         if(colName.endsWith('.id')) {
             colName = colName[0..<-3]
@@ -120,6 +120,8 @@ class DimensionMetadata {
         } else if (type == ASSAY) {
             this.domainClass = AssayColumnImpl
             this.fields = domainClass.declaredFields.findAll { !it.synthetic }*.name.collect { getMappedField(it) }
+        } else if (type == PROJECTION) {
+            this.domainClass = Object
         } else {
             this.domainClass = ObservationFact
             this.dimensionMapping = observationFactMapping
