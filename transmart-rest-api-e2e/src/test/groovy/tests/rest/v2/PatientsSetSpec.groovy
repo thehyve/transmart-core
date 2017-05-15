@@ -140,7 +140,6 @@ class PatientsSetSpec extends RESTSpec {
      *  when: "When I use a patient set that contains patients that I do not have access to"
      *  then: "I get a access error"
      */
-    //TODO: A cleaner error would be nice
     @RequiresStudy([SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
     def "using patient by user without access"() {
         given: "Studies with shared concepts is loaded and I have access to some"
@@ -152,7 +151,8 @@ class PatientsSetSpec extends RESTSpec {
                 body      : toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
                 statusCode: 201
         ]
-        def setID = post(request)
+        def response = post(request)
+        int setID = response.id
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
 
         when: "When I use a patient set that contains patients that I do not have access to"
@@ -160,13 +160,12 @@ class PatientsSetSpec extends RESTSpec {
                 path      : PATH_PATIENTS,
                 acceptType: contentTypeForJSON,
                 query     : toQuery([type: PatientSetConstraint, patientSetId: setID]),
-                statusCode: 400
+                statusCode: 403
         ])
 
         then: "I get a access error"
-        assert responseData.httpStatus == 400
-//        assert responseData.httpStatus == 403
-//        assert responseData.type == 'AccessDeniedException'
-//        assert responseData.message == "Access denied to patient set or patient set does not exist: ${setID.id}"
+        assert responseData.httpStatus == 403
+        assert responseData.type == 'AccessDeniedException'
+        assert responseData.message == "Access denied to patient set or patient set does not exist: ${setID}"
     }
 }
