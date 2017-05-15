@@ -37,6 +37,7 @@ class MrnaDataRowConverter {
 
         [
                 trial_name   : studyId,
+                trial_source : studyId,
                 probeset_id  : annotationEntityMap[value.annotation], // validated before
                 assay_id     : assayId,
                 patient_id   : value.patient.code,
