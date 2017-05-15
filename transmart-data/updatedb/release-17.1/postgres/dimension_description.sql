@@ -20,6 +20,8 @@ ALTER TABLE ONLY i2b2metadata.dimension_description ALTER COLUMN id SET DEFAULT 
 ALTER TABLE ONLY i2b2metadata.dimension_description
     ADD CONSTRAINT dimension_description_pkey PRIMARY KEY (id);
 
+CREATE UNIQUE INDEX dimension_description_unique_name ON i2b2metadata.dimension_description USING btree (name);
+
 ALTER SEQUENCE i2b2metadata.dimension_description_id_seq OWNED BY i2b2metadata.dimension_description.id;
 
 GRANT SELECT ON TABLE i2b2metadata.dimension_description TO biomart_user;

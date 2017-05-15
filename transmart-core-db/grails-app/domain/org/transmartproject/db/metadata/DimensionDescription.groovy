@@ -38,8 +38,9 @@ class DimensionDescription {
     }
 
     static mapping = {
-        table schema: 'i2b2metadata'
-        version       false
+        table   schema: 'i2b2metadata'
+        version false
+        name    unique: true
 
         size    column: 'size_cd'
     }
