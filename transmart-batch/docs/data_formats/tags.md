@@ -25,7 +25,7 @@ Table, tab separated, txt file. Header must be present, but is not interpreted (
 
 - `Tag description` **(Mandatory)** Text that appears next to the tag title on pop-up (e.g. `Homo sapiens`)
 
-- `Index` **(Mandatory)** Integer that determines the position of the tag in the pop-up relative to the other tags. The `Index` itself is not shown in the pop-up, but all tags of a node are sorted in ascending order based on their index.
+- `Index` **(Mandatory)** Integer that determines the position of the tag in the pop-up relative to the other tags. The `Index` itself is not shown in the pop-up, but all tags of a node are sorted in ascending order based on their index value.
 
 Tags upload.
 ------------
