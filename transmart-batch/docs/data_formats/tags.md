@@ -19,7 +19,7 @@ Table, tab separated, txt file. Header must be present, but is not interpreted (
 
 - `Concept path` **(Mandatory)** Relative concept path pointing to a node the tag is associated with. Path nodes should be separated by a `\` and do not include the top node (study name). Use `\` to denote study node.
     e.g. `\Biomarker Data\Cell-line proteomics\LFQ-1`
-    NOTE: It should exactly correspond to the path of the node. Otherwise it will be uploaded, but never appears on the tree.
+    NOTE: It should exactly correspond to the path of the node. Otherwise it will be uploaded, but not appear on the tree.
 
 - `Tag title` **(Mandatory)** Title of the tag (e.g. `ORGANISM`).
 
