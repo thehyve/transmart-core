@@ -444,14 +444,14 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             case DimensionImpl.ImplementationType.COLUMN:
                 fieldName = constraintDim.fieldName
                 break
-            case DimensionImpl.ImplementationType.STUDY:
-                fieldName = 'trialVisit.study'
-                break
             case DimensionImpl.ImplementationType.VISIT:
                 def projection = subQuery.projection = Projections.projectionList()
-                ['visitNum', 'patient'].each {
+                ['encounterNum', 'patient'].each {
                     projection.add(Projections.property(it)) }
-                return Subqueries.propertiesIn(['visitNum', 'patient'] as String[], subQuery)
+                return Subqueries.propertiesIn(['encounterNum', 'patient'] as String[], subQuery)
+            case DimensionImpl.ImplementationType.STUDY:
+                throw new QueryBuilderException("${constraint.constraintName} constraints for the study dimension are" +
+                        " not implemented")
             case DimensionImpl.ImplementationType.MODIFIER:
                 throw new QueryBuilderException("${constraint.constraintName} constraints for modifier dimensions are" +
                         " not implemented")

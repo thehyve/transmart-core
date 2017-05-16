@@ -14,6 +14,7 @@ import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.user.AccessLevelTestData
+import spock.lang.Ignore
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
@@ -371,6 +372,35 @@ class QueryServiceSpec extends TransmartSpecification {
         then:
         result.size() == expectedObservations.size()
         result.every { it[DimensionImpl.PATIENT] == testObservation.patient }
+        result*.value.sort() == expectedObservations*.value.sort()
+    }
+
+    @Ignore("H2 does not support tuple comparisons with IN, which is used for subselections on visits, so this functionality will only work with Postgres or Oracle (Error: Subquery is not a single column query)")
+    void "test_visit_selection_constraint"() {
+        setupHypercubeData()
+
+        def testObservation = hypercubeTestData.clinicalData.ehrClinicalFacts[0]
+        Constraint constraint = new AndConstraint(args: [
+                new StudyObjectConstraint(study: hypercubeTestData.clinicalData.ehrStudy),
+                new SubSelectionConstraint(
+                        dimension: DimensionImpl.VISIT,
+                        constraint: new ValueConstraint(
+                                valueType: "NUMERIC",
+                                operator: Operator.EQUALS,
+                                value: testObservation.numberValue
+                        )
+                )
+        ])
+
+        when:
+        def result = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
+        def expectedObservations = hypercubeTestData.clinicalData.ehrClinicalFacts.findAll {
+            it.visit == testObservation.visit
+        }
+
+        then:
+        result.size() == expectedObservations.size()
+        result.every { it[DimensionImpl.VISIT] == testObservation.visit }
         result*.value.sort() == expectedObservations*.value.sort()
     }
 
