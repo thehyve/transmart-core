@@ -67,6 +67,12 @@ task downloadTransmartETL << {
 downloadTransmartETL.onlyIf { !file(etl_target).exists() }
 downloadTransmartETL.dependsOn 'checkDependencies'
 
+
+task downloadR << {
+    make('-C R sources')
+}
+distTar.dependsOn 'downloadR'
+
 task setupPostgres << {
     sudo_make('-C env /var/lib/postgresql/tablespaces')
     make('postgres')
@@ -84,6 +90,7 @@ task setupOracle << {
 task setupSolr << {
     make('-C solr solr_home')
 }
+distTar.dependsOn 'setupSolr'
 
 task startSolr << {
     make('-C solr start_solr')
@@ -118,7 +125,7 @@ distZip.enabled = false
 distributions {
     main {
         contents {
-            exclude 'lib/schemaSpy_*.jar'
+            exclude 'lib/schemaSpy_*.jar', 'solr/solr-*/**'
             from '.'
             include 'config/**', 'data/**', 'ddl/**','env/**', 'lib/**', 'R/**', 'samples/**', 'solr/**',
                     'test_data/**', 'updatedb/**',
