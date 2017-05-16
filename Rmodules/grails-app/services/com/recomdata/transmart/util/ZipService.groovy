@@ -20,15 +20,15 @@
 
 package com.recomdata.transmart.util
 
+import grails.transaction.Transactional
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang.StringUtils
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
+@Transactional
 class ZipService {
-
-    boolean transactional = true
 
     private static final int BUFFER_SIZE = 250 * 1024;
 

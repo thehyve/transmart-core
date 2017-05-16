@@ -21,13 +21,13 @@
 package com.recomdata.grails.plugin.gwas
 
 import au.com.bytecode.opencsv.CSVWriter
+import grails.transaction.Transactional
 import org.transmart.searchapp.SecureObject;
 import org.transmart.searchapp.AuthUserSecureAccess;
 import org.transmart.searchapp.AuthUser;
 
+@Transactional
 class GwasWebService {
-
-    boolean transactional = true
 
     def dataSource
 

@@ -15,7 +15,6 @@ import java.util.regex.Pattern
  * @version $Revision: 10098 $
  */
 class JubilantResNetService {
-    boolean transactional = false  // No need for this to be part of a transaction
 
     def searchFilter            // Passed from the JubilantController
     def misses = [] as Set        // Set that contains the proteins that could not be found

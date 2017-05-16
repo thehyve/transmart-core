@@ -1,10 +1,10 @@
 package bio
 
+import grails.transaction.Transactional
 import org.transmart.biomart.BioData
 
+@Transactional
 class BioDataService {
-
-    boolean transactional = true
 
     def getBioDataObject(String uid) {
         def bioDataObject

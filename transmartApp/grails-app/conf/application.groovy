@@ -169,8 +169,6 @@ com.recomdata.skipdisclaimer = true
 
 grails.spring.bean.packages = []
 
-grails.spring.transactionManagement.proxies = true
-
 org.transmart.security.spnegoEnabled = false
 org.transmart.security.sniValidation = true
 org.transmart.security.sslValidation = true

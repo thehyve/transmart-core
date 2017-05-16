@@ -10,8 +10,6 @@ class PluginService {
 
     def grailsApplication
 
-    boolean transactional = false
-
     /**
      * Deprecated, will be removed once the registerPlugin and registerPluginModule methods are in-place
      *

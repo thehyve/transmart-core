@@ -4,10 +4,10 @@ import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
+import grails.transaction.Transactional
 
+@Transactional
 class MetacoreEnrichmentService {
-
-    boolean transactional = true
 
 	def springSecurityService
 	def grailsApplication

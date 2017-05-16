@@ -38,8 +38,6 @@ import org.transmartproject.rest.ontology.OntologyTermCategory
 
 class StudyLoadingService {
 
-    static transactional = false
-
     static scope = 'request'
 
     public static final String STUDY_ID_PARAM = 'studyId'

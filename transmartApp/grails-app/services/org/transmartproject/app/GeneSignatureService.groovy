@@ -21,6 +21,7 @@ package org.transmartproject.app
 
 import com.recomdata.genesignature.FileSchemaException
 import com.recomdata.search.query.Query
+import grails.transaction.Transactional
 import org.hibernate.type.LongType
 import org.springframework.web.multipart.MultipartFile
 import org.transmart.biomart.BioAssayDataAnnotation
@@ -39,15 +40,13 @@ import static org.transmartproject.db.support.DatabasePortabilityService.Databas
  * @author $Author: mmcduffie $
  * @version $Revision: 9178 $
  */
+@Transactional
 public class GeneSignatureService {
 
     // fold change metric codes
     static def METRIC_CODE_TRINARY = "TRINARY"
     static def METRIC_CODE_ACTUAL = "ACTUAL"
     static def METRIC_CODE_GENE_LIST = "NOT_USED"
-
-    // probably not needed but makes all methods transactional
-    static transactional = true
 
     // service injections
     def searchKeywordService

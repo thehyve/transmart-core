@@ -1,6 +1,7 @@
 package com.recomdata.transmart.data.export
 
 import com.recomdata.transmart.data.export.util.FileWriterUtil
+import grails.transaction.Transactional
 import org.transmart.biomart.ClinicalTrial
 import org.transmart.biomart.Compound
 import org.transmart.biomart.Experiment
@@ -8,9 +9,8 @@ import org.transmart.biomart.Taxonomy
 
 import static org.transmart.authorization.QueriesResourceAuthorizationDecorator.checkQueryResultAccess
 
+@Transactional
 class MetadataService {
-
-    boolean transactional = true
 
     def dataSource
     def springSecurityService
