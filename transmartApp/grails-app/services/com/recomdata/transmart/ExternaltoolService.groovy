@@ -1,8 +1,9 @@
 package com.recomdata.transmart
 
-class ExternaltoolService {
+import grails.transaction.Transactional
 
-    boolean transactional = true
+@Transactional
+class ExternaltoolService {
 
     def serviceMethod() {
 

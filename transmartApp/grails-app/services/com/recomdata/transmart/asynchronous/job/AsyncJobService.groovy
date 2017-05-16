@@ -11,9 +11,8 @@ import org.quartz.Scheduler
 import org.springframework.transaction.annotation.Propagation
 import org.transmartproject.core.users.User
 
+@Transactional
 class AsyncJobService {
-
-    boolean transactional = true
 
     Scheduler quartzScheduler
     def springSecurityService

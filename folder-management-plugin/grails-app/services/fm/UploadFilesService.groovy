@@ -1,5 +1,6 @@
 package fm
 
+import grails.transaction.Transactional
 import org.springframework.web.multipart.MultipartFile
 
 import com.mongodb.DB
@@ -15,9 +16,9 @@ import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.entity.mime.HttpMultipartMode
 import org.apache.http.entity.mime.content.InputStreamBody
 
+@Transactional
 class UploadFilesService {
 
-    boolean transactional = true
     def config = Holders.config
     def filestoreDirectory = config.com.recomdata.FmFolderService.filestoreDirectory
     def fmFolderService

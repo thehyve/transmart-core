@@ -1,6 +1,7 @@
 package com.recomdata.transmart.data.export
 
 import com.recomdata.transmart.data.export.util.FileWriterUtil
+import grails.transaction.Transactional
 import grails.util.Holders
 import org.apache.commons.lang.StringUtils
 import org.rosuda.REngine.REXP
@@ -11,11 +12,11 @@ import java.sql.ResultSetMetaData
 
 import static org.transmart.authorization.QueriesResourceAuthorizationDecorator.checkQueryResultAccess
 
+@Transactional
 class GeneExpressionDataService {
 
     private String valueDelimiter = "\t";
     private int flushInterval = 5000;
-    boolean transactional = true
 
     def dataSource
     def i2b2HelperService

@@ -2,6 +2,7 @@ package fm
 
 import annotation.*
 import com.recomdata.util.FolderType
+import grails.transaction.Transactional
 import org.transmart.mongo.MongoUtils
 
 import grails.util.Holders
@@ -32,12 +33,11 @@ import com.mongodb.MongoClient;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile
 
+@Transactional
 class FmFolderService {
 
     final private static DEFAULT_FILE_TYPES =
             'xml,json,csv,pdf,doc,docx,ppt,pptx,xls,xlsx,odt,odp,ods,ott,otp,ots,rtf,htm,html,txt,log'
-
-    static transactional = true
 
     def getConfig() {
         Holders.grailsApplication.config

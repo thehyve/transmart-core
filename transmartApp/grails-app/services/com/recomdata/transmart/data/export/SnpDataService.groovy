@@ -16,8 +16,6 @@ import static org.transmart.authorization.QueriesResourceAuthorizationDecorator.
 
 class SnpDataService {
 
-    boolean transactional = false
-
     def dataSource
     def i2b2HelperService
     def springSecurityService

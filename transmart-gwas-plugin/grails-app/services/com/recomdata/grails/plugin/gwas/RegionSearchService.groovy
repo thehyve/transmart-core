@@ -20,11 +20,12 @@
 
 package com.recomdata.grails.plugin.gwas
 
+
 import de.DeSNPInfo;
+import grails.transaction.Transactional
 
+@Transactional
 class RegionSearchService {
-
-    boolean transactional = true
 
     def dataSource
     def grailsApplication

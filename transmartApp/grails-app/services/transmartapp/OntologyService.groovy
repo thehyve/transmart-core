@@ -1,11 +1,11 @@
 package transmartapp
 
 import grails.converters.JSON
+import grails.transaction.Transactional
 import org.transmart.searchapp.AuthUser
 
+@Transactional
 class OntologyService {
-
-    boolean transactional = true
 
     def i2b2HelperService
     def springSecurityService

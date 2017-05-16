@@ -1,8 +1,9 @@
 package annotation
 
-class AmTagTemplateService {
+import grails.transaction.Transactional
 
-    boolean transactional = true
+@Transactional
+class AmTagTemplateService {
 
     def serviceMethod() {
 
