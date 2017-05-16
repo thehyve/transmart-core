@@ -1,12 +1,12 @@
 package org.transmartproject.app
 
+import grails.transaction.Transactional
 import groovyx.net.http.HTTPBuilder
 import org.jfree.util.Log
 
+@Transactional
 class SolrService {
     def grailsApplication
-
-    boolean transactional = true
 
     /**
      * This method will run a faceted search on the term provided and return a hashmap with hashmap[term]=facet_count

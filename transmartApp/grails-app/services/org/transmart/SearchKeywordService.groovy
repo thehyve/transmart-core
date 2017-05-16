@@ -1,5 +1,6 @@
 package org.transmart
 
+import grails.transaction.Transactional
 import org.transmart.biomart.BioAssayPlatform
 import org.transmart.biomart.BioDataExternalCode
 import org.transmart.biomart.ConceptCode
@@ -13,12 +14,10 @@ import org.transmart.searchapp.SearchKeywordTerm
  * $Revision: 9178 $
  *
  */
+@Transactional
 public class SearchKeywordService {
 
     def springSecurityService
-
-    // probably not needed but makes all methods transactional
-    static transactional = true
 
     //Hard-coded list of items that we consider filter categories... configure in Config/database?
     def filtercats = [

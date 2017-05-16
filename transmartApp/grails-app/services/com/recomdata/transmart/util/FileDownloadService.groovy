@@ -1,5 +1,6 @@
 package com.recomdata.transmart.util
 
+import grails.transaction.Transactional
 import org.apache.commons.lang.StringUtils
 
 import java.nio.channels.Channels
@@ -8,9 +9,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
+@Transactional
 class FileDownloadService {
-
-    boolean transactional = true
 
     def getFilename(String fileURIStr) {
         URI fileURI = new URI(fileURIStr);

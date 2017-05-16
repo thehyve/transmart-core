@@ -8,8 +8,6 @@ import org.transmartproject.export.HighDimExporter
 //TODO Remove duplicated code for both subset. Make code more generic for any number of subsets
 class ExportMetadataService {
 
-    static transactional = false
-
     def dataCountService
     def highDimensionResourceService
     def highDimExporterRegistry
