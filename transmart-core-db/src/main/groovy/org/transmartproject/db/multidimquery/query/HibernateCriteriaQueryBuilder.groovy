@@ -15,6 +15,7 @@ import org.hibernate.internal.CriteriaImpl
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.querytool.QtPatientSetCollection
@@ -76,13 +77,14 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @return an alias as String.
      */
     String getAlias(String propertyName) {
+        assert !propertyName.contains("__")
         String alias = aliases[propertyName]
         if (alias != null) {
             return alias
         }
         int suffix = aliasSuffixes[propertyName] ?: 0
         aliasSuffixes[propertyName] = suffix + 1
-        alias = "${propertyName}_${suffix}"
+        alias = "${propertyName.replace('.', '__')}_${suffix}"
         aliases[propertyName] = alias
         alias
     }
@@ -436,32 +438,55 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
 
     Criterion build(SubSelectionConstraint constraint) {
         def constraintDim = DimensionMetadata.forDimension(constraint.dimension)
-        def subQuery = subQueryBuilder().buildCriteria(constraint.constraint)
-        String fieldName
 
         switch(constraintDim.type) {
             case DimensionImpl.ImplementationType.TABLE:
             case DimensionImpl.ImplementationType.COLUMN:
-                fieldName = constraintDim.fieldName
-                break
+                def subQuery = subQueryBuilder().buildCriteria(constraint.constraint)
+                String fieldName = constraintDim.fieldName
+                subQuery.projection = Projections.property(fieldName)
+                return Subqueries.propertyIn(fieldName, subQuery)
             case DimensionImpl.ImplementationType.VISIT:
+                def subQuery = subQueryBuilder().buildCriteria(constraint.constraint)
                 def projection = subQuery.projection = Projections.projectionList()
                 ['encounterNum', 'patient'].each {
                     projection.add(Projections.property(it)) }
                 return Subqueries.propertiesIn(['encounterNum', 'patient'] as String[], subQuery)
             case DimensionImpl.ImplementationType.STUDY:
-                throw new QueryBuilderException("${constraint.constraintName} constraints for the study dimension are" +
-                        " not implemented")
+                // What we actually want is something like
+                //
+                // def subquery = subQueryBuilder().buildCriteria(constraint.constraint)
+                // subquery.projection = Projections.property('trialVisit.study')
+                // return Subqueries.propertyIn('trialVisit.study', subquery)
+                //
+                // but the criterion api doesn't like 'trialVisit.study' as an identifier. I couldn't get it to work
+                // with joins, so now using a bunch of subqueries
+
+                // select trial visits from subselection observations
+                def subQuery0 = subQueryBuilder().buildCriteria(constraint.constraint)
+                subQuery0.projection = Projections.property('trialVisit')
+
+                // select studies from trial visits
+                def subQuery1 = DetachedCriteria.forClass(TrialVisit).setProjection(Projections.property('study'))
+                subQuery1.add(Subqueries.propertyIn('id', subQuery0))
+
+                // select trial visits from studies
+                def subQuery2 = DetachedCriteria.forClass(TrialVisit)
+                subQuery2.projection = Projections.property('id')
+                subQuery2.add(Subqueries.propertyIn('study', subQuery1))
+
+                // limit to the last set of trial visits
+                return Subqueries.propertyIn('trialVisit', subQuery2)
+
+//                return Subqueries.propertyIn(getAlias('trialVisit')+".study", subQuery)
+//                throw new QueryBuilderException("${constraint.constraintName} constraints for the study dimension are" +
+//                        " not implemented")
             case DimensionImpl.ImplementationType.MODIFIER:
                 throw new QueryBuilderException("${constraint.constraintName} constraints for modifier dimensions are" +
                         " not implemented")
-            default:
-                throw new QueryBuilderException("Dimension ${constraint.dimension.name} is not supported in " +
-                        "${SubSelectionConstraint.constraintName} constraints")
         }
-
-        subQuery.projection = Projections.property(fieldName)
-        return Subqueries.propertyIn(fieldName, subQuery)
+        throw new QueryBuilderException("Dimension ${constraint.dimension.name} is not supported in " +
+                "${SubSelectionConstraint.constraintName} constraints")
     }
 
     Criterion build(ConceptConstraint constraint){

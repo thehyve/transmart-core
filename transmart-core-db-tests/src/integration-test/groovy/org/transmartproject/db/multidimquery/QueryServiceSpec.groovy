@@ -3,16 +3,17 @@ package org.transmartproject.db.multidimquery
 import grails.converters.JSON
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.multidimquery.AggregateType
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
-import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.AccessLevelTestData
 import spock.lang.Ignore
 
@@ -24,6 +25,9 @@ class QueryServiceSpec extends TransmartSpecification {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
+
+    @Autowired
+    SessionFactory sessionFactory
 
     TestData testData
     AccessLevelTestData accessLevelTestData
@@ -57,6 +61,7 @@ class QueryServiceSpec extends TransmartSpecification {
         save accessLevelTestData.users
         accessLevelTestData.users[0].addToRoles(accessLevelTestData.roles.find { it.authority == 'ROLE_ADMIN' })
         accessLevelTestData.users[1].addToGroups(accessLevelTestData.groups.find { it.category == 'group_-201' })
+        sessionFactory.currentSession.flush()
     }
 
     Constraint createQueryForConcept(ObservationFact observationFact) {
@@ -372,6 +377,29 @@ class QueryServiceSpec extends TransmartSpecification {
         then:
         result.size() == expectedObservations.size()
         result.every { it[DimensionImpl.PATIENT] == testObservation.patient }
+        result*.value.sort() == expectedObservations*.value.sort()
+    }
+
+    void "test_study_selection_constraint"() {
+        setupHypercubeData()
+
+        def testObservation = hypercubeTestData.clinicalData.longitudinalClinicalFacts[-1]
+        Constraint constraint = new SubSelectionConstraint(
+                dimension: DimensionImpl.STUDY,
+                constraint: new ValueConstraint(
+                        valueType: "STRING",
+                        operator: Operator.EQUALS,
+                        value: testObservation.textValue
+                )
+        )
+
+        when:
+        def result = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
+        def expectedObservations = hypercubeTestData.clinicalData.longitudinalClinicalFacts
+
+        then:
+        result.size() == expectedObservations.size()
+        result.every { it[DimensionImpl.STUDY] == testObservation.trialVisit.study }
         result*.value.sort() == expectedObservations*.value.sort()
     }
 
