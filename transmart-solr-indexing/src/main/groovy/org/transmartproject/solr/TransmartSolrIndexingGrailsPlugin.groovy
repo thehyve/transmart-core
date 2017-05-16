@@ -44,7 +44,7 @@ Brief summary/description of the plugin.
     Closure doWithSpring() { {->
         xmlns context:"http://www.springframework.org/schema/context"
 
-        def pckg = 'transmart.solr.indexing'
+        def pckg = 'org.transmartproject.solr'
         println "Wiring custom beans from package: $pckg"
         context.'component-scan'('base-package': pckg) {
             context.'include-filter'(
