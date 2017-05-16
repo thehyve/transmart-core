@@ -14,9 +14,6 @@
     <g:if test="${tags}">
         <g:render template="showTags" model="tags"/>
     </g:if>
-<%--    <g:if test="${browseStudyInfo}">--%>
-<%--        <g:render template="showBrowseStudyInfo" model="browseStudyInfo"/>--%>
-<%--    </g:if>--%>
     <g:if test="${dataTypes}">
         <g:render template="showDataTypes" model="dataTypes"/>
     </g:if>
