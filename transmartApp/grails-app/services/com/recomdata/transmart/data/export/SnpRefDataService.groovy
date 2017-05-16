@@ -4,8 +4,6 @@ import de.DeSNPInfo;
 
 class SnpRefDataService {
 
-    boolean transactional = false
-
     def Collection<String> findRsIdByGeneNames(Collection geneNames) {
         return DeSNPInfo.executeQuery("SELECT distinct rsId FROM DeSNPInfo s WHERE s.geneName IN (:gn)", [gn: geneNames]);
 

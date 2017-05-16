@@ -15,8 +15,6 @@ class DataCountService {
 
     def dataSource
 
-    static transactional = false
-
     @Autowired
     QueriesResource queriesResource
 

@@ -4,9 +4,10 @@ import groovyx.net.http.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import org.apache.http.auth.*
+import grails.transaction.Transactional
 
+@Transactional
 class HttpBuilderService {
-	boolean transactional = true
 	
 	def getInstance(uri) {
 		def site = new HTTPBuilder(uri)

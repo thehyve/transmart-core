@@ -1,12 +1,12 @@
 package com.recomdata.asynchronous
 
 import com.recomdata.transmart.domain.i2b2.AsyncJob
+import grails.transaction.Transactional
 import groovy.time.TimeCategory
 import groovy.time.TimeDuration
 
+@Transactional
 class JobStatusService {
-
-    boolean transactional = true
 
     def jobResultsService
 

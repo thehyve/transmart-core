@@ -30,8 +30,6 @@ package com.recomdata.asynchronous
  */
 class JobResultsService {
 
-    boolean transactional = false
-
     @Delegate Map jobResults = [:].asSynchronized()
 
     boolean isJobCancelled(String jobName) {

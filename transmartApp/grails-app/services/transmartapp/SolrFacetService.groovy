@@ -2,6 +2,7 @@ package transmartapp
 
 import fm.FmFolder
 import fm.FmFolderAssociation
+import grails.transaction.Transactional
 import grails.util.Holders
 import groovy.util.slurpersupport.NoChildren
 import groovy.util.slurpersupport.NodeChild
@@ -11,12 +12,12 @@ import org.transmart.biomart.BioMarker
 import org.transmart.biomart.BioMarkerExpAnalysisMV
 import org.transmartproject.db.support.InQuery
 
+@Transactional
 class SolrFacetService {
 
     def ontologyService
     def fmFolderService
 
-    boolean transactional = true
     def searchLog = [] //Search log for debug only! Will be shared across all sessions
 
     def getCombinedResults(categoryList, page, globalOperator, passedInSearchLog) {

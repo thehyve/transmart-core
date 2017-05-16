@@ -49,7 +49,6 @@ class I2b2HelperService {
             "Sex", "Race", "Age", "Samples", "Trial"
     ]
 
-    boolean transactional = false;
     def sessionFactory
     def dataSource
     def conceptService
