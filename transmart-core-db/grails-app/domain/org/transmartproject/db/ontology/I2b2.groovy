@@ -83,10 +83,7 @@ class I2b2 extends AbstractI2b2Metadata implements Serializable {
      */
     @Deprecated
     String getStudyId() {
-        def matcher = cComment =~ /(?<=^trial:).+/
-        if (matcher.find()) {
-            matcher.group 0
-        }
+        sourcesystemCd
     }
 
     @Override

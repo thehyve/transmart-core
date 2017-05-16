@@ -7,7 +7,7 @@ import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.SolrException
-import org.grails.databinding.BindUsing
+import grails.databinding.BindUsing
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.Cacheable
 import org.transmart.biomart.BioMarker
@@ -30,7 +30,6 @@ import static org.transmartproject.search.indexing.FacetsIndexingService.*
 class FacetsSearchController {
 
     static scope = 'singleton'
-    static responseFormats = ['json']
 
     private static final Pattern KEY_CODE_PATTERN = Pattern.compile('(?<=\\A\\\\\\\\)[^\\\\]+')
 
@@ -84,7 +83,7 @@ class FacetsSearchController {
         } else {
             q.addFacetField(*allFacetFields)
         }
-        q.rows = 0
+        q.rows = 10
         q.facetLimit = 10
         q.facetMinCount = 1
         // we have to filter the results ourselves, as facetPrefix is case-sensitive
@@ -149,6 +148,8 @@ class FacetsSearchController {
                 }
             }.flatten()
         }
+
+        log.info("MAX_RESULTS = $MAX_RESULTS")
 
         // build query
         def allFields = facetsQueryingService.allDisplaySettings.keySet()
@@ -368,7 +369,7 @@ class GetFacetsCommand implements Validateable {
     }
 }
 
-class SearchTerm implements Validateable{
+class SearchTerm implements Validateable {
     String literalTerm
     String luceneTerm
 }

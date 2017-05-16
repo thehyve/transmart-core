@@ -3,21 +3,16 @@ package org.transmartproject.search.indexing
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Sets
 import groovy.util.logging.Log4j
-import net.sf.ehcache.CacheException
-import net.sf.ehcache.Ehcache
-import net.sf.ehcache.Status
-import net.sf.ehcache.loader.CacheLoader
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.request.LukeRequest
 import org.apache.solr.client.solrj.response.LukeResponse
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.luke.FieldFlag
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
 import org.springframework.core.Ordered
 import org.springframework.stereotype.Component
-import org.transmartproject.core.concept.ConceptFullName
-import org.transmartproject.search.browse.FolderStudyMappingView
 import org.transmartproject.search.indexing.modules.AbstractFacetsIndexingFolderModule
 
 import static org.apache.solr.client.solrj.response.LukeResponse.FieldInfo.parseFlags
@@ -41,8 +36,8 @@ class FacetsQueryingService {
     @Autowired
     private CacheManager cacheManager
 
-    private Ehcache getEhcache() {
-        cacheManager.getCache(FACETS_QUERYING_SERVICE_CACHE).nativeCache
+    private Cache getCache() {
+        cacheManager.getCache(FACETS_QUERYING_SERVICE_CACHE)
     }
 
     private static final Set<String> BLACKLISTED_FIELD_NAMES =
@@ -56,21 +51,27 @@ class FacetsQueryingService {
             )
 
     void clearCaches() {
-        ehcache.removeAll()
+        cache.clear()
     }
 
     LinkedHashMap<String, SortedSet<TermCount>> getTopTerms(String requiredField) {
-        ehcache.getWithLoader(TOP_TERMS_CACHE_KEY_PREFIX + '_' + requiredField, [
-                load: { key ->
-                    fetchTopTerms(requiredField)
-                }] as CacheLoader, null).objectValue
+        String key = TOP_TERMS_CACHE_KEY_PREFIX + '_' + requiredField
+        LinkedHashMap<String, SortedSet<TermCount>> result = cache.get(key, LinkedHashMap)
+        if (result == null) {
+            result = fetchTopTerms(requiredField)
+            cache.put(key, result)
+        }
+        result
     }
 
     LinkedHashMap<String, FacetsFieldDisplaySettings> getAllDisplaySettings() {
-        ehcache.getWithLoader(ALL_DISPLAY_SETTINGS_CACHE_KEY, [
-                load: { key ->
-                    fetchAllDisplaySettings()
-                }] as CacheLoader, null).objectValue
+        LinkedHashMap<String, FacetsFieldDisplaySettings> result = cache
+                .get(ALL_DISPLAY_SETTINGS_CACHE_KEY, LinkedHashMap)
+        if (result == null) {
+            result = fetchAllDisplaySettings()
+            cache.put(ALL_DISPLAY_SETTINGS_CACHE_KEY, result)
+        }
+        result
     }
 
     List<String> getAllFacetFields() {

@@ -25,6 +25,7 @@ import org.apache.http.protocol.HttpRequestExecutor
 import org.apache.solr.client.solrj.SolrServer
 import org.apache.solr.client.solrj.impl.HttpSolrServer
 import org.codehaus.groovy.grails.commons.GrailsApplication
+import org.grails.core.AbstractGrailsApplication
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -40,7 +41,7 @@ class SolrFacetsCore implements DisposableBean {
     public static final int TIMEOUT_IN_SECONDS = 25
 
     @Autowired
-    private GrailsApplication grailsApplication
+    private AbstractGrailsApplication grailsApplication
 
     @Delegate(interfaces=false)
     private HttpSolrServer delegate
