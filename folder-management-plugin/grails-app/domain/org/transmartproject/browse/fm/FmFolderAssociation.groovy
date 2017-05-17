@@ -54,7 +54,7 @@ class FmFolderAssociation implements Serializable {
 
         String domainClassName = this.objectType //conf.rememberMe.persistentToken.domainClassName ?: ''
 
-        if (domainClassName == 'bio.Experiment' ) domainClassName='org.transmart.biomart.Experiment'
+        if (domainClassName == 'bio.Experiment' ) {domainClassName='org.transmart.biomart.Experiment'}
 
         def clazz = Holders.grailsApplication.getClassForName(domainClassName)
         if (!clazz) {

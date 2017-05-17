@@ -312,9 +312,9 @@ class FileExportController {
         Experiment experiment;
 
         OntNode ont = OntNode.findByName(params.accession)
-        if (ont != null)
+        if (ont != null) {
             experiment = Experiment.findByAccession(ont.sourcesystemcd)
-
+        }
         def folder = fmFolderService.getFolderByBioDataObject(experiment)
 
         def files = folder.fmFiles

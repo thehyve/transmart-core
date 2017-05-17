@@ -169,20 +169,6 @@ class TestSetupSpec extends Specification {
 
         then:
         assert docs.size() == 1
-//        assertThat docs, Matchers.contains(
-//                FacetsDocumentMatcher.documentWithFields('FOLDER:1992449',
-//                        ['title_t', 'GSE8581 Assay'],
-//                        ['description_t', 'GSE8581 Assay'],
-//                        ['measurement_type_s', 'Transcription Profiling'],
-//                        ['platform_s', 'Agilent-011521 Human 1A Microarray G4110A  (Feature Number version)'],
-//                        ['vendor_s', 'Agilent Technologies'],
-//                        ['technology_s', 'DNA Microarray'],
-//                        ['gene_s', 'TP53'],
-//                        ['TEXT', 'tumor protein p53'],
-//                        ['mirna_s', 'TP53'],
-//                        ['biomarker_type_s', 'DNA'],
-//                        ['TEXT', 'DNA'],
-//                ))
     }
 
     private int countDocuments(obj) {

@@ -84,7 +84,8 @@ class UploadFilesService {
             }
 
             if(Holders.config.fr.sanofi.mongoFiles.useDriver){
-                MongoClient mongo = new MongoClient(Holders.config.fr.sanofi.mongoFiles.dbServer, Holders.config.fr.sanofi.mongoFiles.dbPort)
+                MongoClient mongo = new MongoClient(Holders.config.fr.sanofi.mongoFiles.dbServer,
+                                                    Holders.config.fr.sanofi.mongoFiles.dbPort)
                 DB db = mongo.getDB( Holders.config.fr.sanofi.mongoFiles.dbName)
                 GridFS gfs = new GridFS(db)
                 GridFSInputFile file=gfs.createFile(fileToUpload.inputStream, fmFile.filestoreName)
@@ -94,7 +95,7 @@ class UploadFilesService {
                 fmFolderService.indexFile(fmFile);
                 log.info("File successfully loaded: "+fmFile.id)
                 return "File successfully loaded"
-            }else{
+            } else {
                 def apiURL = Holders.config.fr.sanofi.mongoFiles.apiURL
                 def apiKey = Holders.config.fr.sanofi.mongoFiles.apiKey
                 def http = new HTTPBuilder( apiURL+"insert/"+fmFile.filestoreName )
