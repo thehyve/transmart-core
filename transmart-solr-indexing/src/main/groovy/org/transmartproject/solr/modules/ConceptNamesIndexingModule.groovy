@@ -19,6 +19,10 @@ import org.transmartproject.solr.FacetsIndexingService
 import org.transmartproject.solr.FolderConceptMappings
 
 import static org.transmartproject.solr.FacetsFieldImpl.create
+import static org.transmartproject.solr.FacetsIndexingService.FIELD_NAME_CONCEPT_PATH
+import static org.transmartproject.solr.FacetsIndexingService.FIELD_FOLDER_ID
+import static org.transmartproject.solr.FacetsIndexingService.FIELD_CONCEPT_PATH
+
 
 @Component
 class ConceptNamesIndexingModule implements FacetsIndexingModule {
@@ -59,12 +63,20 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
         toProcess += allCategories.values()
 
         new AbstractIterator<FacetsDocId>() {
+
+            void setLastQueryNames(List<String> lastQueryNames) {
+                this.lastQueryNames = lastQueryNames
+            }
+
             private List<String> lastQueryNames
 
+            //FIXME
             @Override
             protected FacetsDocId computeNext() {
                 if (lastQueryNames) {
-                    return new FacetsDocId(CONCEPT_DOC_TYPE, lastQueryNames.pop())
+                    if (lastQueryNames.last().class.name != "org.transmartproject.db.ontology.AcrossTrialsOntologyTerm") {
+                        return new FacetsDocId(CONCEPT_DOC_TYPE, lastQueryNames.pop())
+                    }
                 }
                 if (toProcess.empty) {
                     return endOfData()
