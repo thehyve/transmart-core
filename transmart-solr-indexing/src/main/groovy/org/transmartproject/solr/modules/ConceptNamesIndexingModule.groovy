@@ -70,13 +70,10 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
 
             private List<String> lastQueryNames
 
-            //FIXME
             @Override
             protected FacetsDocId computeNext() {
                 if (lastQueryNames) {
-                    if (lastQueryNames.last().class.name != "org.transmartproject.db.ontology.AcrossTrialsOntologyTerm") {
-                        return new FacetsDocId(CONCEPT_DOC_TYPE, lastQueryNames.pop())
-                    }
+                    return new FacetsDocId(CONCEPT_DOC_TYPE, lastQueryNames.pop())
                 }
                 if (toProcess.empty) {
                     return endOfData()
