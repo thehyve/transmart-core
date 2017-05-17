@@ -17,6 +17,7 @@
 package com.recomdata.transmart.data.association.asynchronous
 
 import com.recomdata.transmart.util.RUtil
+import grails.transaction.Transactional
 import grails.util.Holders
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.StringUtils
@@ -29,9 +30,9 @@ import org.rosuda.REngine.Rserve.RserveException
 
 import java.lang.reflect.UndeclaredThrowableException
 
+@Transactional
 class RModulesJobService implements Job {
 
-    static transactional = true
 	static scope = 'request'
 
     def grailsApplication = Holders.grailsApplication

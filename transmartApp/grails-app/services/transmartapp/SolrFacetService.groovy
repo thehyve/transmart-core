@@ -3,6 +3,7 @@ package transmartapp
 import org.transmartproject.browse.fm.FmFolder
 import org.transmartproject.browse.fm.FmFolderAssociation
 import grails.util.Holders
+import grails.transaction.Transactional
 import groovy.util.slurpersupport.NoChildren
 import groovy.util.slurpersupport.NodeChild
 import groovy.xml.StreamingMarkupBuilder
@@ -10,13 +11,13 @@ import org.json.JSONObject
 import org.transmart.biomart.BioMarker
 import org.transmart.biomart.BioMarkerExpAnalysisMV
 
+@Transactional
 @Deprecated // TO DELETE
 class SolrFacetService {
 
     def ontologyService
     def fmFolderService
 
-    boolean transactional = true
     def searchLog = [] //Search log for debug only! Will be shared across all sessions
 
     @Deprecated // TO DELETE

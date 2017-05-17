@@ -2,6 +2,7 @@ package org.transmartproject.browse.fm
 
 import annotation.*
 import com.recomdata.util.FolderType
+import grails.transaction.Transactional
 import grails.util.Holders
 import grails.validation.ValidationException
 import org.apache.commons.io.FileUtils
@@ -11,18 +12,27 @@ import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AccessLog
 import org.transmart.searchapp.AuthUser
 
+@Transactional
 class FmFolderService {
 
     final private static DEFAULT_FILE_TYPES =
             'xml,json,csv,pdf,doc,docx,ppt,pptx,xls,xlsx,odt,odp,ods,ott,otp,ots,rtf,htm,html,txt,log'
 
-    static transactional = true
-
-    def config = Holders.config
-    def importDirectory = config.com.recomdata.FmFolderService.importDirectory
-    def filestoreDirectory = config.com.recomdata.FmFolderService.filestoreDirectory
-    def fileTypes = config.com.recomdata.FmFolderService.fileTypes ?: DEFAULT_FILE_TYPES
-    String solrBaseUrl = config.com.recomdata.solr.baseURL
+    def getConfig() {
+        Holders.grailsApplication.config
+    }
+    def getImportDirectory() {
+        config.com.recomdata.FmFolderService.importDirectory
+    }
+    def getFilestoreDirectory() {
+        config.com.recomdata.FmFolderService.filestoreDirectory
+    }
+    def getFileTypes() {
+        config.com.recomdata.FmFolderService.fileTypes ?: DEFAULT_FILE_TYPES
+    }
+    String getSolrBaseUrl() {
+        config.com.recomdata.solr.baseURL
+    }
     def amTagItemService
     def springSecurityService
     def i2b2HelperService

@@ -1,10 +1,10 @@
 package annotation
 
 import org.transmartproject.browse.fm.FmFolder
+import grails.transaction.Transactional
 
+@Transactional
 class AmTagItemService {
-
-    boolean transactional = true
 
     def serviceMethod() {
 

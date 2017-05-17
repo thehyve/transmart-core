@@ -99,7 +99,6 @@ class ExportMetadataService {
     def getHighDimMetaData(OntologyTerm term) {
 
         // Retrieve all descendant terms that have the HIGH_DIMENSIONAL attribute
-        // def terms = term.getAllDescendants() + term
         def terms = term.getHDforAllDescendants() + term
         def highDimTerms = terms.findAll { it.visualAttributes.contains(HIGH_DIMENSIONAL) }
 

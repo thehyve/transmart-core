@@ -49,7 +49,6 @@ class I2b2HelperService {
             "Sex", "Race", "Age", "Samples", "Trial"
     ]
 
-    boolean transactional = false;
     def sessionFactory
     def dataSource
     def conceptService
@@ -536,7 +535,7 @@ class I2b2HelperService {
         ], { row ->
             log.trace("inrow of intersection")
             i = row.patcount;
-            log.trace(row.patcount);
+            log.trace(row.patcount.toString());
         })
         return i;
     }

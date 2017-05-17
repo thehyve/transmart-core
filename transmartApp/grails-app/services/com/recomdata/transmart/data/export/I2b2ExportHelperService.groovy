@@ -4,7 +4,6 @@ import static org.transmart.authorization.QueriesResourceAuthorizationDecorator.
 
 class I2b2ExportHelperService {
 
-    static transactional = false
     def dataSource;
 
 

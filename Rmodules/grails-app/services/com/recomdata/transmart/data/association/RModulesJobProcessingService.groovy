@@ -1,5 +1,6 @@
 package com.recomdata.transmart.data.association
 
+import grails.transaction.Transactional
 import grails.util.Holders
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
@@ -10,8 +11,9 @@ import org.rosuda.Rserve.*
  * This class contains methods for interacting with the R environment.
  *  
 */
+@Transactional
 class RModulesJobProcessingService {
-	static transactional = true
+
 	static scope = 'request'
 	
 	def grailsApplication

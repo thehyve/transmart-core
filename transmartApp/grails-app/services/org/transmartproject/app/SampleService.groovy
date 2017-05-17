@@ -1,13 +1,14 @@
 package org.transmartproject.app
 
+import grails.transaction.Transactional
+
+@Transactional
 class SampleService {
 
     def dataSource
     def i2b2HelperService
     def grailsApplication
     def solrService
-
-    boolean transactional = true
 
     //Populate the QT_PATIENT_SAMPLE_COLLECTION table based on a result_instance_id.
     public void generateSampleCollection(String result_instance_id) {
