@@ -414,13 +414,14 @@ class ConstraintSpec extends RESTSpec {
         contentTypeForProtobuf | protobufSelector
     }
 
-    @Ignore("I haven't tried running this yet")
-    def "PatientSelection.class"() {
+    def "SubSelectionConstraint.class"() {
+        when:
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query     : toQuery([
-                        type : 'patient_selection',
+                        type : SubSelectionConstraint,
+                        dimension: 'patient',
                         constraint: [type    : FieldConstraint,
                                      field   : [dimension: 'patient',
                                                 fieldName: 'age',
@@ -430,7 +431,6 @@ class ConstraintSpec extends RESTSpec {
                 ])
         ]
 
-        when:
         def responseData = get(request)
         def selector = newSelector(responseData)
 
@@ -438,6 +438,38 @@ class ConstraintSpec extends RESTSpec {
         (0..<selector.cellCount).each {
             assert selector.select(it, "patient", "age", 'Int') == 30
         }
+
+        when:
+        request = [
+                path      : PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query     : toQuery([
+                    type : SubSelectionConstraint,
+                    dimension: 'visit',
+                    constraint: [type: 'and',
+                        args: [[
+                                type    : ValueConstraint,
+                                valueType: NUMERIC,
+                                operator: EQUALS,
+                                value   : 59.0,
+                            ], [
+                                type: StudyNameConstraint,
+                                studyId: "EHR",
+                            ]
+                        ]
+                    ]
+                ])
+        ]
+
+        responseData = get(request)
+        selector = newSelector(responseData)
+        def visits = (0..<selector.cellCount).collect { selector.select(it, "visit", "encounterNum", "Double") } as Set
+
+        then:
+        selector.cellCount == 2
+        // ensure we are also finding other cells than the value we specified in the constraint
+        (0..<selector.cellCount).collect { selector.select(it) }.any { it != 59.0 }
+        visits.size() == 1
 
         where:
         acceptType             | newSelector
