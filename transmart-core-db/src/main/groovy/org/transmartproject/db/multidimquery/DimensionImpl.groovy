@@ -677,17 +677,17 @@ class ValueDimension extends DimensionImpl implements SerializableElemDim {
     }
 
     @Override @CompileDynamic def selectIDs(Query query) {
-        query.criteria.with {
-            // The main reason to use this projections block is that it clears all the default projections that
-            // select all fields.
-            projections {
-                // NUM_FIXED_PROJECTIONS must match the number of projections defined here
-                property 'valueType', 'valueType'
-                property 'textValue', 'textValue'
-                property 'numberValue', 'numberValue'
-            }
-        }
-
+        // Should do something like this, but a.t.m. this is done in MultidimensionalDataResourceService.retrieveData
+        //query.criteria.with {
+        //    // The main reason to use this projections block is that it clears all the default projections that
+        //    // select all fields.
+        //    projections {
+        //        // NUM_FIXED_PROJECTIONS must match the number of projections defined here
+        //        property 'valueType', 'valueType'
+        //        property 'textValue', 'textValue'
+        //        property 'numberValue', 'numberValue'
+        //    }
+        //}
     }
 
 }
