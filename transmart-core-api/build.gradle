@@ -1,5 +1,4 @@
 apply plugin: 'groovy'
-apply plugin: 'maven-publish'
 
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.4.7'
@@ -11,7 +10,7 @@ dependencies {
 
     compile 'org.slf4j:slf4j-api:1.7.23'
 
-    compile 'com.google.guava:guava:18.0'
+    compile "com.google.guava:guava:$guavaVersion"
 }
 
 publishing {
