@@ -107,8 +107,8 @@ abstract class AbstractAcrossTrialsOntologyTerm
 	}
 
 	@Override
-	List<OntologyTerm> getAllDescendantsForFacets() {
-		getAllDescendants()
+	List<String> getAllDescendantsForFacets() {
+		getAllDescendants()*.fullName
 	}
 
     private List<OntologyTerm> getDescendants(boolean allDescendants,

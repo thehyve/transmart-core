@@ -1,5 +1,8 @@
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 import grails.util.BuildSettings
 import grails.util.Environment
+import org.apache.log4j.ConsoleAppender
+import org.apache.log4j.FileAppender
 
 // See http://logback.qos.ch/manual/groovy.html for details on configuration
 appender('STDOUT', ConsoleAppender) {

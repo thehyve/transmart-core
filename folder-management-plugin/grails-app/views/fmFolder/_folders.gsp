@@ -1,7 +1,7 @@
 <%@ page import="com.recomdata.util.*" %>
 <%
 	def ontologyService = grailsApplication.classLoader.loadClass('transmartapp.OntologyService').newInstance()
-	def fmFolderService = grailsApplication.classLoader.loadClass('fm.FmFolderService').newInstance()
+	def fmFolderService = grailsApplication.classLoader.loadClass('org.transmartproject.browse.fm.FmFolderService').newInstance()
 %>
 
 <g:set var="ontologyService" bean="ontologyService"/>
@@ -9,6 +9,14 @@
 <g:set var="ts" value="${Calendar.instance.time.time}"/>
 <g:set var="folders" value="${folderContentsAccessLevelMap?.keySet()}"/>
 <g:set var="restrictedAccessMessage" value="Access to this node has been restricted. Please contact your administrator for access." />
+<g:if test="${!!folderSearchString}">
+	<g:set var="passAlongSearchFolder"
+		   value="&folderSearch=${URLEncoder.encode(folderSearchString, 'UTF-8')}&uniqueLeaves=${URLEncoder.encode(uniqueLeavesString, 'UTF-8')}" />
+</g:if>
+<g:else>
+	<g:set var="passAlongSearchFolder" value="" />
+</g:else>
+
 <script type="text/javascript">
     var resultNumber = ${raw(resultNumber?.toString()?.replaceAll('\n', '') ?: '{}')};
 </script>
@@ -30,7 +38,7 @@
 						<span>
 							<g:if test="${folder.hasChildren()}">
 								<g:set var="toggleJsFunc" value="${folderAccessLevel == 'LOCKED' ? "alert('$restrictedAccessMessage')"
-										: "toggleDetailDiv('${folder.id}', folderContentsURL + '?id=${folder.id}&auto=false', false, false, true);"}" />
+										: "toggleDetailDiv('${folder.id}', folderContentsURL + '?id=${folder.id}&auto=false${passAlongSearchFolder}', false, false, true);"}" />
 
 								<a id="toggleDetail_${folder.id}" href="#"
 								   onclick="${toggleJsFunc}">
@@ -67,14 +75,14 @@
 					<g:if test="${folderSearchString?.indexOf(folder.folderFullName) > -1}">
 					<%-- Auto-expand this folder as long as it isn't a unique leaf. --%>
 						<g:if test="${(uniqueLeavesString?.indexOf(folder.folderFullName + ',') == -1 && !nodesToClose.grep(folder.uniqueId))}">
-							<script>toggleDetailDiv('${folder.id}', folderContentsURL + '?id=${folder.id}&auto=true');</script>
+							<script>toggleDetailDiv('${folder.id}', folderContentsURL + '?id=${folder.id}&auto=true${passAlongSearchFolder}');</script>
 						</g:if>
 						<g:elseif test="${nodesToExpand.grep(folder.uniqueId)}">
-							<script>toggleDetailDiv('${folder.id}', folderContentsURL + '?id=${folder.id}&auto=true', true, false);</script>
+							<script>toggleDetailDiv('${folder.id}', folderContentsURL + '?id=${folder.id}&auto=true${passAlongSearchFolder}', true, false);</script>
 						</g:elseif>
 					</g:if>
 					<g:elseif test="${nodesToExpand.grep(folder.uniqueId)}">
-						<script>toggleDetailDiv('${folder.id}', folderContentsURL + '?id=${folder.id}&auto=true', true, false);</script>
+						<script>toggleDetailDiv('${folder.id}', folderContentsURL + '?id=${folder.id}&auto=true${passAlongSearchFolder}', true, false);</script>
 					</g:elseif>
 
 					<g:if test="${displayMetadata == (folder.uniqueId)}">

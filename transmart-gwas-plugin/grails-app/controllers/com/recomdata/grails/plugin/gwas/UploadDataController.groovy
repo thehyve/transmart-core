@@ -1,7 +1,6 @@
 package com.recomdata.grails.plugin.gwas
 
 import com.recomdata.upload.DataUploadResult
-import fm.FmFile
 import grails.converters.JSON
 
 /*************************************************************************
@@ -25,6 +24,7 @@ import grails.converters.JSON
 import grails.util.Holders
 import org.transmart.biomart.*
 import org.transmart.searchapp.AccessLog
+import org.transmartproject.browse.fm.FmFile
 
 import java.text.SimpleDateFormat
 

@@ -1,7 +1,4 @@
 buildscript {
-    ext {
-        grailsVersion = project.grailsVersion
-    }
     repositories {
         mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
@@ -12,7 +9,7 @@ buildscript {
     }
 }
 
-version "17.1"
+version "0.1"
 group "transmart.solr.indexing"
 
 apply plugin:"eclipse"
@@ -22,16 +19,9 @@ apply plugin:"org.grails.grails-plugin-publish"
 apply plugin:"org.grails.grails-gsp"
 apply plugin:"asset-pipeline"
 
-ext {
-    grailsVersion = project.grailsVersion
-    gradleWrapperVersion = project.gradleWrapperVersion
-}
-
 repositories {
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
-    maven { url 'https://repo.transmartfoundation.org/content/repositories/public/' }
-    maven { url 'https://repo.thehyve.nl/content/groups/public/' }
 }
 
 dependencyManagement {
@@ -39,10 +29,6 @@ dependencyManagement {
         mavenBom "org.grails:grails-bom:$grailsVersion"
     }
     applyMavenExclusions false
-}
-
-configurations {
-    compile.exclude(group:"org.springframework.security")
 }
 
 dependencies {
@@ -59,24 +45,26 @@ dependencies {
     profile "org.grails.profiles:web-plugin"
     provided "org.grails:grails-plugin-services"
     provided "org.grails:grails-plugin-domain-class"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.11.6"
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 
-    // plugin specific deps
-    testCompile group: 'org.grails', name: 'grails-datastore-rest-client', version: '5.0.12.RELEASE'
+    //added
     compile "org.apache.solr:solr-solrj:4.5.1"
-    compile "org.springframework.boot:spring-boot-starter-cache"
-    compile group: 'net.sf.ehcache', name: 'ehcache-core', version: '2.6.11'
-    compile project(':biomart-domain')
     compile project(':transmart-core-db')
+    compile project(':biomart-domain')
     compile project(':folder-management-plugin')
-    provided "org.grails:grails-plugin-validation"
-    // gradle sub-projects
-    //testRuntime project(':transmart-core-db-tests')
+    compile project(':transmart-core-db-tests')
+
+
 }
+
+bootRun {
+    jvmArgs = ['-Dspring.output.ansi.enabled=always']
+}// enable if you wish to package this plugin as a standalone application
+bootRepackage.enabled = false
 grailsPublish {
     // TODO: Provide values here
     user = 'user'
@@ -89,8 +77,9 @@ grailsPublish {
     desc = "Full plugin description"
     developers = [johndoe:"John Doe"]
     portalUser = ""
-    portalPassword = ""
+    portalPassword = ""    
 }
+
 
 assets {
     packagePlugin = true
