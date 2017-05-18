@@ -47,13 +47,15 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
         jobs.get(JOB_NAME)
                 .start(stepOf(this.&getGatherCurrentTreeNodesTasklet))
                 .next(stepOf(this.&getValidateTopNodePreexistenceTasklet))
-                .next(tagsLoadStep(null, null))
+                .next(fetchTagTypeOptionsStep())
+                .next(tagsLoadStep(null, null, null))
                 .build()
     }
 
     @Bean
     Step tagsLoadStep(TagValidator tagValidator,
-                      TagConceptExistenceValidator tagConceptExistenceValidator) {
+                      TagConceptExistenceValidator tagConceptExistenceValidator,
+                      TagOptionValidator tagOptionValidator) {
         TaskletStep s = steps.get('tagsLoadStep')
                 .chunk(CHUNK_SIZE)
                 .reader(tagReader())
@@ -61,6 +63,7 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
                         new ValidatingItemProcessor(adaptValidator(tagValidator)),
                         duplicationDetectionProcessor(),
                         new ValidatingItemProcessor(tagConceptExistenceValidator),
+                        new ValidatingItemProcessor(tagOptionValidator),
                 ))
                 .writer(tagTsvWriter())
                 .faultTolerant()
@@ -75,6 +78,24 @@ class TagsLoadJobConfiguration extends AbstractJobConfiguration {
 
         s.streams = duplicationDetectionProcessor()
         s
+    }
+
+    @Bean
+    @JobScope
+    FetchTagTypeOptionsTasklet fetchTagTypeOptionsTasklet() {
+        new FetchTagTypeOptionsTasklet()
+    }
+
+    @Bean
+    @JobScope
+    Step fetchTagTypeOptionsStep() {
+        allowStartStepOf('fetchTagTypeOptionsStep', fetchTagTypeOptionsTasklet())
+    }
+
+    @Bean
+    @JobScope
+    TagTypeOptionsMap tagTypeOptionsMap() {
+        new TagTypeOptionsMap()
     }
 
     @Bean

@@ -4,7 +4,8 @@ ORACLE_MACHINE=oracle-travis.thehyve.net
 
 function prepare_transmart_data {
   source ~/ts-travis/init.sh
-  (set +e; checkout_project_branch_with_fallback transmart/transmart-data master ~/transmart-data)
+  (set +e; maybe_checkout_project_branch $(travis_get_owner)/transmart-data ~/transmart-data ||
+        checkout_project_branch_with_fallback transmart/transmart-data master ~/transmart-data)
   if [[ $? -ne 0 ]]; then
     echo 'Could not checkout transmart-data' >&2
     return 1

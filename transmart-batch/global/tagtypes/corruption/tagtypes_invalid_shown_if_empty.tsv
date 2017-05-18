@@ -1,0 +1,3 @@
+node_type	title	solr_field_name	value_type	shown_if_empty	values	index
+STUDY	Test tag	test_tag	NON_ANALYZED_STRING	Y	Test option 1,Test option 2,Test option 3	1
+STUDY	Programming language	programming_language	NON_ANALYZED_STRING	OK	Java,C,R,Python,Javascript,Pascal,Haskell	2
