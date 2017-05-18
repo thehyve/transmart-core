@@ -129,11 +129,9 @@
         onConceptsListChanges: function() {
             var args = arguments;
             var that = this;
-            debugger;
             Ext.onReady(function() {
                 window.datasetExplorer_conceptsListChanges.apply(that, args);
             });
-            debugger;
         }
     };
 </script>

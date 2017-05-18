@@ -89,7 +89,7 @@ class ChartController {
         log.trace("access:" + (access as JSON));
         log.trace("counts = " + (counts as JSON))
 
-        def obj = [counts: counts, accesslevels: access, test1: "works"]
+        def obj = [counts: counts, accesslevels: access]
         render obj as JSON
     }
 
