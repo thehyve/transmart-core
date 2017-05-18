@@ -1,28 +1,8 @@
-/*************************************************************************
- * tranSMART - translational medicine data mart
- *
- * Copyright 2008-2012 Janssen Research & Development, LLC.
- *
- * This product includes software developed at Janssen Research & Development, LLC.
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
- * as published by the Free Software  * Foundation, either version 3 of the License, or (at your option) any later version, along with the following terms:
- * 1.	You may convey a work based on this program in accordance with section 5, provided that you retain the above notices.
- * 2.	You may convey verbatim copies of this program code as you receive it, in any medium, provided that you retain the above notices.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS    * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- ******************************************************************/
-
-
 STATE = {
     Dragging: false,
     Target: null,
     QueryRequestCounter: 0
-}
+};
 
 // list of supported platform
 // TODO : future refactoring should retrieve these values from gpl definitions in the database
@@ -56,7 +36,7 @@ function toggleRBMDisplayElements (ele, eleGpl, eleTissue, eleRbmpanel, platform
         ele.dom.style.display='';
         eleGpl.dom.style.display='';
         eleTissue.dom.style.display='';
-        eleRbmpanel.dom.style.display='none'
+		eleRbmpanel.dom.style.display='none';
     } else {
         ele.dom.style.display='none';
         eleGpl.dom.style.display='none';
@@ -65,7 +45,7 @@ function toggleRBMDisplayElements (ele, eleGpl, eleTissue, eleRbmpanel, platform
     }
 }
 
-function Concept(name, key, level, tooltip, tablename, dimcode, comment, normalunits, oktousevalues, value, nodeType, visualattributes)
+function Concept(name, key, level, tooltip, tablename, dimcode, comment, normalunits, oktousevalues, value, nodeType, visualattributes, applied_path, modifiedNode)
 {
     this.name=name;
     this.key=key;
@@ -77,49 +57,51 @@ function Concept(name, key, level, tooltip, tablename, dimcode, comment, normalu
     this.normalunits=normalunits;
     this.oktousevalues=oktousevalues;
     this.value=value;
-    this.nodeType = nodeType
+	this.nodeType = nodeType;
     this.visualattributes = visualattributes;
+	this.applied_path    = applied_path || '@';
+	this.modifiedNode    = modifiedNode;
 }
 
 function Value(mode, operator, highlowselect, lowvalue, highvalue, units)
 {
     if (typeof(mode) == undefined || mode == null) {
-        this.mode = "novalue"
+		this.mode = "novalue";
     } //default to novalue
     else {
         this.mode = mode;
     }
 
     if (typeof(operator) == undefined || operator == null) {
-        this.operator = "LT"
+		this.operator = "LT";
     }
     else {
         this.operator = operator;
     }
 
     if (typeof(highlowselect) == undefined || highlowselect == null) {
-        this.highlowselect = "N"
+		this.highlowselect = "N";
     }
     else {
         this.highlowselect = highlowselect;
     }
 
     if (typeof(lowvalue) == undefined || lowvalue == null) {
-        this.lowvalue = ""
+		this.lowvalue = "";
     }
     else {
         this.lowvalue = lowvalue;
     }
 
     if (typeof(highvalue) == undefined || highvalue == null) {
-        this.highvalue = ""
+		this.highvalue = "";
     }
     else {
         this.highvalue = highvalue;
     }
 
     if (typeof(units) == undefined || units == null) {
-        this.units = ""
+		this.units = "";
     }
     else {
         this.units = units;
@@ -130,7 +112,7 @@ function convertNodeToConcept(node)
 {
     var value=new Value();
     var level=node.attributes.level;
-    var name=node.text;
+	var name = jQuery('<span>' + node.text + '</span>').find("em").remove().end().html().trim();
     var key=node.id;
     var tooltip=node.attributes.qtip;
     var tablename=node.attributes.tablename;
@@ -139,15 +121,21 @@ function convertNodeToConcept(node)
     var normalunits=node.attributes.normalunits;
     var oktousevalues=node.attributes.oktousevalues;
     var visualattributes=node.attributes.visualattributes;
+	var applied_path = node.attributes.applied_path;
 
     //Each node has a type (Categorical, Continuous, High Dimensional Data) that we need to populate. For now we will use the icon class.
-    var nodeType = node.attributes.iconCls
+	var nodeType = node.attributes.iconCls;
+	var modifiedNode = {};
 
+	modifiedNode.path = node.attributes.modifiedNodePath;
+	modifiedNode.id = node.attributes.modifiedNodeId;
+	modifiedNode.level = node.attributes.modifiedNodeLevel;
 
-    if(oktousevalues=="Y"){value.mode="novalue";} //default to novalue
+	if(oktousevalues === "Y") {
+		value.mode="novalue";
+	}
 
-    var myConcept=new Concept(name, key, level, tooltip, tablename, dimcode, comment, normalunits, oktousevalues, value, nodeType, visualattributes);
-    return myConcept;
+	return new Concept(name, key, level, tooltip, tablename, dimcode, comment, normalunits, oktousevalues, value, nodeType, visualattributes, applied_path, modifiedNode);
 }
 function createPanelItemNew(panel, concept)
 {
@@ -170,17 +158,11 @@ function createPanelItemNew(panel, concept)
     li.setAttribute('oktousevalues',concept.oktousevalues);
     li.setAttribute('setnodetype',concept.nodeType);
     li.setAttribute('visualattributes',concept.visualattributes);
-    li.className="conceptUnselected";
-
-    //Create a shortname
-    var splits=concept.key.split("\\");
-    var shortname="";
-    if(splits.length>1)
-    {
-        shortname="...\\"+splits[splits.length-2]+"\\"+splits[splits.length-1];
-    }
-    else shortname=splits[splits.length-1];
-    li.setAttribute('conceptshortname',shortname);
+	li.setAttribute('applied_path',concept.applied_path);
+	li.setAttribute('modifiedNodePath',concept.modifiedNode.path);
+	li.setAttribute('modifiedNodeId',concept.modifiedNode.id);
+	li.setAttribute('modifiedNodeLevel',concept.modifiedNode.level);
+	li.className="panelBoxListItem x-tree-node-collapsed";
 
     //Create a setvalue description
     var valuetext="";
@@ -193,9 +175,56 @@ function createPanelItemNew(panel, concept)
     {
         li.setAttribute('conceptsetvaluetext','');
     }
+
+	//Find out the icon (this is a copy&paste from getTreeFromJSON
+	var iconCls = false
+
+	if (concept.oktousevalues != "N") {
+		iconCls = "valueicon";
+	}
+	if (concept.visualattributes.indexOf('LEAF') != -1 ||
+		concept.visualattributes.indexOf('MULTIPLE') != -1) {
+		if (concept.oktousevalues == "N")
+			iconCls = concept.nodeType ? concept.nodeType : 'alphaicon';
+		// Yet another hack to get icon working seemlessly
+		li.className += " x-tree-node-leaf"
+	}
+	if (concept.visualattributes.indexOf('HIGH_DIMENSIONAL') != -1) {
+		iconCls = 'hleaficon';
+	}
+	if (concept.visualattributes.indexOf('EDITABLE') != -1) {
+		iconCls = 'eleaficon';
+	}
+	if (concept.visualattributes.indexOf('PROGRAM') != '-1') {
+		iconCls = "programicon";
+	}
+	if (concept.visualattributes.indexOf('STUDY') != '-1') {
+		iconCls = "studyicon";
+	}
+
+	if(concept.visualattributes.indexOf('MODIFIER_LEAF') != -1)
+	{
+		iconCls            = "modifiericon";
+		li.setAttribute('ismodifier',"Y");
+
+		shortname = createShortNameFromPath(concept.modifiedNode.id);
+
+		shortname += " [" + concept.name + "]"
+	}
+	else
+	{
+		shortname = concept.name;
+	}
+	li.setAttribute('conceptshortname',shortname);
+
     //Create the node
-    var text=document.createTextNode(shortname+" "+valuetext); //used to be name
-    li.appendChild(text);
+	var iconElem=document.createElement('span');
+	var textElem=document.createElement('span');
+	iconElem.className = "x-tree-node-icon " + (iconCls ? iconCls : '');
+	textElem.appendChild(document.createTextNode(shortname+" "+valuetext)); //used to be name
+	textElem.className = "concept-text";
+	li.appendChild(iconElem);
+	li.appendChild(textElem);
     panel.appendChild(li);
     Ext.get(li).addListener('click',conceptClick);
     Ext.get(li).addListener('contextmenu',conceptRightClick);
@@ -203,18 +232,14 @@ function createPanelItemNew(panel, concept)
     li.concept=concept;
     //return the node
 
-    // Invalidate only when something dropped to the subset panel
-    if (panel.id.indexOf("queryCriteriaDiv") > -1) {
-        var subset=getSubsetFromPanel(panel);
-        invalidateSubset(subset);
-    }
+	invalidateSubset(jQuery('#' + panel.id).attr('subset'));
 
     return li;
 }
 
 function getSubsetFromPanel(panel)
 {
-    return panel.id.substr(16,1);
+	return jQuery('#' + panel.id).closest(".panelModel").attr('subset');
 }
 
 function createPanelItem(subset,panelNumber, level, name, key, tooltip, tablename, dimcode, comment, normalunits, oktousevalues,
@@ -327,18 +352,18 @@ function getSetValueText(mode, operator, highlowselect, highvalue, lowvalue, uni
         }
         else
         {
-            text=text+"between "+lowvalue+" and "+highvalue
+			text=text+" BETWEEN "+lowvalue+" AND "+highvalue
         }
     }
     else if(mode=='highlow')
     {
-        text=text+"High/Low-"+highlowselecttext;
+		text=text+" "+highlowselecttext;
     }
     else
     {
         text="";
     }
-    return text;
+	return text.trim().length > 0 ? '<em> ' + text + '</em>' : '';
 }
 
 
@@ -1018,7 +1043,7 @@ function createPlatformSearchBox(subsetId, applyToDivIdx){
         if (!((!GLOBAL.CurrentPlatforms[0]) || (!GLOBAL.CurrentPlatforms[1]) || (GLOBAL.CurrentPlatforms[0]==GLOBAL.CurrentPlatforms[1]))){
             alert('Platforms do not match');
         }
-    }
+	};
     GLOBAL.CurrentPlatforms[subsetId-1]=GLOBAL.DefaultCohortInfo.defaultPlatforms[subsetId-1];
     createGenericSearchBox(applyToDivIdPrefix, subsetId, applyToDivIdx, ds, resultTpl, 200, 'remote', onSelectFn, 'platform', GLOBAL.DefaultCohortInfo.defaultPlatformLabels[subsetId-1]);
 }
@@ -1105,7 +1130,7 @@ function createOnMultiSelectFn(subsetId, applyToDivIdPrefix, applyToDivIdx, glob
         globalArray[subsetId-1]=completeSelection;
 
         clearSelectionsOnSelect(fields, globalValues, subsetId, applyToDivIdx);
-    }
+	};
     return onSelectFn;
 }
 
@@ -1899,6 +1924,9 @@ function getTreeNodeFromJsonNode(concept)
     var sourcesystemcdnode  =   null;
     var sourcesystemcd      =   null;
     var access 				=   null;//added
+    var applied_path        =    '@';
+    var modifierId            =    null;
+    var constraint_data_type =    null;
 
 
     level				= concept.level;
@@ -1925,8 +1953,6 @@ function getTreeNodeFromJsonNode(concept)
     var cls		=	null;
     var tcls 	=	null;
 
-
-
     if (oktousevalues != "N") {
         iconCls="valueicon";
     }
@@ -1935,6 +1961,8 @@ function getTreeNodeFromJsonNode(concept)
     if (visualattributes.indexOf('LEAF') != -1 ||
         visualattributes.indexOf('MULTIPLE') != -1) {
         leaf = true;
+		if (oktousevalues == "N")
+			iconCls="alphaicon";
 		/* otherwise false; see init */
     }
     if (visualattributes.indexOf('CONTAINER') != -1) {
@@ -1953,8 +1981,30 @@ function getTreeNodeFromJsonNode(concept)
     if (visualattributes.indexOf('PROGRAM') != '-1') {
         iconCls="programicon";
     }
-	/* if (visualattributes.indexOf('STUDY') != '-1'){
-	 iconCls = "studyicon";*/
+	if (visualattributes.indexOf('STUDY') != '-1'){
+	 iconCls = "studyicon";
+    }
+
+    if(visualattributes.indexOf('MODIFIER_LEAF') != -1)
+    {
+        leaf            = true;
+        iconCls            = "modifiericon";
+        applied_path     = concept.applied_path;
+        modifierId         = concept.key;
+    }
+    else if(visualattributes.indexOf('MODIFIER_CONTAINER') != -1)
+    {
+        leaf            = false;
+        draggable        = false;
+        iconCls            = "modifierfoldericon";
+        applied_path     = concept.applied_path;
+        modifierId         = concept.key;
+    }
+
+    if(oktousevalues != "N" && !leaf)
+    {
+        iconCls="foldernumericicon";
+    }
 
 
 //    if (visualattributes.indexOf('STUDY') != '-1' && level == '1'){
@@ -2021,7 +2071,9 @@ function getTreeNodeFromJsonNode(concept)
         oktousevalues: oktousevalues,
         expanded: expand,
         visualattributes : visualattributes,
-        //access: access  //access added
+		applied_path: applied_path,
+		modifierId: modifierId,
+		constraint_data_type : constraint_data_type
     });
     newnode.addListener('contextmenu',ontologyRightClick);
     return newnode;
