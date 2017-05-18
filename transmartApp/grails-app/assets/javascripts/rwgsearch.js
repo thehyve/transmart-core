@@ -7,6 +7,7 @@ window.rwgModel = {
         this.jquery.on(eventName, function() {
 			/* don't call callback with event object as first argument */
             Array.prototype.shift.apply(arguments);
+            console.log(func);
             func.apply(this, arguments);
         });
         return this;
@@ -240,15 +241,19 @@ window.rwgView = {
     },
 
     bindToModel: function rwgView_bindToModel() {
-        rwgModel.on('current_category',     this.currentCategoryChanges.bind(this));
-        rwgModel.on('search_categories',    this.searchCategoriesChange.bind(this));
-        rwgModel.on('current_filters',      this.currentFilterResultsChange.bind(this));
+        rwgModel.on('current_category', this.currentCategoryChanges.bind(this));
+        rwgModel.on('search_categories', this.searchCategoriesChange.bind(this));
+        rwgModel.on('current_filters', this.currentFilterResultsChange.bind(this));
         rwgModel.on('search_specification', this.searchSpecificationChanges.bind(this));
         rwgModel.on('search_specification', this.selectedFiltersChange.bind(this));
-        rwgModel.on('search_specification', function(data) { rwgController.performSearch(data, rwgModel.requiredField); });
-        rwgModel.on('concepts_list',        function(data) { this.config.onConceptsListChanges.call(this, data, rwgModel.numberOfResults); }.bind(this));
-        rwgModel.on('folders_list',         this.config.onFoldersListChanges.bind(this));
-        rwgModel.on('search_error',         this.searchError.bind(this));
+        rwgModel.on('search_specification', function (data) {
+            rwgController.performSearch(data, rwgModel.requiredField);
+        });
+        rwgModel.on('concepts_list', function (data) {
+            this.config.onConceptsListChanges.call(this, data, rwgModel.numberOfResults);
+        }.bind(this));
+        rwgModel.on('folders_list', this.config.onFoldersListChanges.bind(this));
+        rwgModel.on('search_error', this.searchError.bind(this));
     },
     bindUIEvents: function rwgView_bindUIEvents() {
         this.activeSearchBindEvents();
@@ -330,7 +335,6 @@ window.rwgView = {
     currentFilterResultsChange: function rwgView_currentFilterResultsChange(currentResults) {
         function addField(fieldData) {
             var category = fieldData.category;
-            var choices = fieldData.choices;
             var choices = fieldData.choices;
             var titleDiv = jQuery('<div>')
                 .addClass('filtertitle')

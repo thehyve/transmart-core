@@ -11,21 +11,17 @@
 <asset:link rel="icon" href='searchtool.ico' type="image/x-ico" />
 
     <asset:javascript src="jquery-plugin.js"/>
-    %{--<r:require module="browseTab" />--}%
+
     <tmpl:/RWG/urls/>
 
 <script type="text/javascript" charset="utf-8">
-        var mouse_inside_options_div = false;
-        window.rwgSearchConfig = {
-            requiredField: 'FOLDER_ID',
-            onFoldersListChanges: function() { window.rwg_onFoldersListChanges.apply(this, arguments); },
-        };
-    %{--var sessionSearch = "${rwgSearchFilter}";--}%
-    %{--var sessionOperators = "${rwgSearchOperators}";--}%
-    %{--var sessionSearchCategory = "${rwgSearchCategory}";--}%
-    %{--var searchPage = "RWG";--}%
+    var mouse_inside_options_div = false;
+    var sessionSearch = "${rwgSearchFilter}";
+    var sessionOperators = "${rwgSearchOperators}";
+    var sessionSearchCategory = "${rwgSearchCategory}";
+    var searchPage = "RWG";
 
-    %{--var $j = window.$j = jQuery.noConflict();--}%
+    var $j = window.$j = jQuery.noConflict();
 
         jQuery(document).ready(function () {
 
@@ -60,12 +56,16 @@
             });
 
             jQuery("#editMetadataOverlay").on('click', '#cancelmetadatabutton', function () {
-                if (!confirm('Are you sure you want to cancel your changes?')) {return false;}
+            if (!confirm('Are you sure you want to cancel your changes?')) {
+                return false;
+            }
                 jQuery('#editMetadataOverlay').fadeOut();
             });
 
             jQuery("#editMetadataOverlay").on('click', '#savemetadatabutton', function () {
-                if (jQuery(this).hasClass('buttonloading')) {return false; }
+            if (jQuery(this).hasClass('buttonloading')) {
+                return false;
+            }
 
             var serializedForm = jQuery('#editMetadataForm').serialize();
                 jQuery('#savemetadatabutton').addClass('buttonloading').html("&nbsp;");
@@ -92,7 +92,9 @@
             });
 
             jQuery("#createAssayOverlay").on('click', '#cancelassaybutton', function () {
-                if (!confirm('Are you sure you want to cancel your changes?')) {return false;}
+            if (!confirm('Are you sure you want to cancel your changes?')) {
+                return false;
+            }
                 jQuery('#createAssayOverlay').fadeOut();
             });
 
@@ -123,7 +125,9 @@
 
 
             jQuery("#createFolderOverlay").on('click', '#cancelfolderbutton', function () {
-                if (!confirm('Are you sure you want to cancel your changes?')) {return false;}
+            if (!confirm('Are you sure you want to cancel your changes?')) {
+                return false;
+            }
                 jQuery('#createFolderOverlay').fadeOut();
             });
 
@@ -154,7 +158,9 @@
 
 
             jQuery("#createStudyOverlay").on('click', '#cancelstudybutton', function () {
-                if (!confirm('Are you sure you want to cancel your changes?')) {return false;}
+            if (!confirm('Are you sure you want to cancel your changes?')) {
+                return false;
+            }
                 jQuery('#createStudyOverlay').fadeOut();
             });
 
@@ -184,7 +190,9 @@
             });
 
             jQuery("#createProgramOverlay").on('click', '#cancelprogrambutton', function () {
-                if (!confirm('Are you sure you want to cancel your changes?')) {return false;}
+            if (!confirm('Are you sure you want to cancel your changes?')) {
+                return false;
+            }
                 jQuery('#createProgramOverlay').fadeOut();
             });
 
@@ -214,7 +222,9 @@
             });
 
             jQuery("#createAnalysisOverlay").on('click', '#cancelanalysisbutton', function () {
-                if (!confirm('Are you sure you want to cancel your changes?')) {return false;}
+            if (!confirm('Are you sure you want to cancel your changes?')) {
+                return false;
+            }
                 jQuery('#createAnalysisOverlay').fadeOut();
             });
 
@@ -245,12 +255,11 @@
                 });
             });
 
-            resizeAccordion();
-
             jQuery('#sidebar').resizable({
                 handles: 'e',
+                width: 320,
                 maxWidth: 800,
-            minWidth: 280,
+                minWidth: 280,
                 resize: function (event, ui) {
                     var currentWidth = ui.size.width;
 
@@ -271,7 +280,6 @@
                 }
             });
 
-//            var xpos = jQuery('#menuLinks').offset()['right'];
         jQuery('#sidebar').trigger("resize");
 
         });
@@ -298,7 +306,6 @@
                 jQuery('#main').width("100%");
             }
 
-
             jQuery('#box-search').width(jQuery('#program-explorer').width());
         }
 
@@ -313,14 +320,12 @@
             }
         }
 
-        function dataTableWrapper (containerId, tableId, title, sort, pageSize)
-        {
+    function dataTableWrapper(containerId, tableId, title, sort, pageSize) {
 
             var data;
             var gridPanelHeaderTips;
 
-            function setupWrapper()
-            {
+        function setupWrapper() {
                 var gridContainer = $j('#' + containerId);
                 gridContainer.html('<table id=\'' + tableId + '\'></table></div>');
             }
@@ -361,7 +366,9 @@
                     }
                 };
 
-                data.fnInitComplete = function() {this.fnAdjustColumnSizing();};
+            data.fnInitComplete = function () {
+                this.fnAdjustColumnSizing();
+            };
 
                 $j('#' + tableId).dataTable(data);
 
@@ -376,8 +383,7 @@
             };
 
 
-            function setupGridData(data, sort, pageSize)
-            {
+        function setupGridData(data, sort, pageSize) {
                 data.bAutoWidth = true;
                 data.bScrollAutoCss = true;
 //                    data.sScrollY = 400;
@@ -418,8 +424,7 @@
 <body>
 
 <div id="header-div" class="header-div">
-    <g:render template="/layouts/commonheader" model="['app':'datasetExplorer', 'utilitiesMenu':'true']" />
-    %{--<g:render template="/layouts/commonheader" model="['app': 'rwg', 'utilitiesMenu': 'true']"/>--}%
+    <g:render template="/layouts/commonheader" model="['app': 'rwg', 'utilitiesMenu': 'true']"/>
 </div>
 
 <div id="sidebar" style="width:320px; border-right:5px solid;border-color:#EDEEF6">
@@ -473,6 +478,7 @@
 <tmpl:createFolderOverlay/>
 <tmpl:createStudyOverlay/>
 <tmpl:createProgramOverlay/>
+<g:render template="/uploadFiles/uploadFilesOverlay" plugin="folderManagement"/>
 <div id="divBrowsePopups" style="width:800px; display: none;">
 
 </div>
@@ -531,6 +537,5 @@
 <!--  Used to measure the width of a text element (in svg plots) -->
 <span id="ruler" style="visibility: hidden; white-space: nowrap;"></span>
 <div id="testTextHeightDiv"></div>
-%{--<r:layoutResources/><%-- XXX: Use template --%>--}%
 </body>
 </html>
