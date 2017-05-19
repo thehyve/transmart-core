@@ -7,7 +7,6 @@ window.rwgModel = {
         this.jquery.on(eventName, function() {
 			/* don't call callback with event object as first argument */
             Array.prototype.shift.apply(arguments);
-            console.log(func);
             func.apply(this, arguments);
         });
         return this;
