@@ -1,7 +1,7 @@
 Clinical Data File
 ================
 
-The clinical data file contains the low-dimensional observations of each patient. The file name and columns are referenced from the [column mapping file](column-mapping.md). At least one clinical data file is needed for upload to tranSMART.
+The clinical data file contains the low-dimensional observations of each patient. The file name and columns are referenced from the [column mapping file](column-mapping.md). At least one clinical data file is needed for upload to tranSMART. Each data file must contain a column with the patient identifiers.
 
 File format
 ------------
