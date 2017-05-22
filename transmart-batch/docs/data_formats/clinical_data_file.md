@@ -6,7 +6,7 @@ The clinical data file contains the low-dimensional observations of each patient
 File format
 ------------
 
-The basic structure of a clinical data file is patients on the rows and variables on the columns. In case the patient-variable combinations are all unique there will be no more than one row for each patient:
+The basic structure of a clinical data file is patients on the rows and variables on the columns. In case the patient-variable combinations are all unique there will be no more than one row for each patient.
 
 | Subject_id | Gender | Treatment arm |
 |----------|--------|---------------|
@@ -48,6 +48,13 @@ Observations derived from electronic health records can be uploaded as part of a
 | patient2   | 2             |        |               |      | 69         | 142      |
 
 ### Replicate observations
+By default, tranSMART expects unique combinations of subject ID, patient visit, trial visit, observation start date and variable. In case there are repeated measurements (i.e. not distinguishable by aforementioned aspects) that you wish to upload, this has to be made explicit by using the `instance number` column (see also [column mapping file](column-mapping.md)).
+
+| Subject_id | Start date | Instance num | Gender | Treatment arm | Heart rate | Hb level |
+|------------|------------|--------------|--------|---------------|------------|----------|
+| patient1   |            |              | Male   | A             |            |          |
+| patient1   | 2009-01-13 | 1            |        |               | 91         | 142      |
+| patient1   | 2009-01-13 | 2            |        |               |            | 140      |
 
 
 **Note:** In the examples above, each variation on the basic structure of clinical data files is shown separately for clarity reasons. However, none of them are mutually exclusive. In principle, a patient's observation value can be parth of both a trial visit and a patient visit while having its own observation start and end date.
