@@ -72,6 +72,7 @@ class TreeService {
                         currentNode,
                         children
                 )
+                node.conceptPath = getConceptPath(node.tableName, node.dimensionCode)
                 node.dimension = getDimension(node.tableName, currentNode.code)
                 node.children.each { child ->
                     child.parent = node
@@ -112,6 +113,10 @@ class TreeService {
         return 'UNKNOWN'
     }
 
+    static String getConceptPath(String table, String code){
+        return table == 'concept_dimension' ? code : null
+    }
+    
     /**
      * Adds observation counts and patient counts to leaf nodes.
      */
