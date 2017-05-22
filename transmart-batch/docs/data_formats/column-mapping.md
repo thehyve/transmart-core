@@ -35,5 +35,8 @@ Reserved keywords for Data Label:
 - `PATIENT_VISIT` **(Not yet implemented)** Integer variable used to link a subject's observations to a patient visit.
 
 Allowed values for Concept type:
-- `NUMERICAL` for numerical variables.
-- `CATEGORICAL` for categorical (text) variables.
+- `NUMERICAL` For numerical variables.
+- `CATEGORICAL` For categorical (text) variables.
+- `NUM_MOD` **(Not yet implemented)** For numerical custom modifier columns.
+- `CAT_MOD` **(Not yet implemented)** For categorical (text) custom modifier columns.
+
