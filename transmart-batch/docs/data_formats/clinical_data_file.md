@@ -16,7 +16,7 @@ The basic structure of a clinical data file is patients on the rows and variable
 ### Observation dates
 When observations are linked to a specific date or time, the `start date` and optionally `end date` columns can be added. All observations present in a row with an observation date will be linked to that absolute point in time. Therefore one patient can have data spanning multiple rows:
 
-| Subjects | Start date | End date   | Gender | Treatment arm | BMI  |
+| Subject_id | Start date | End date   | Gender | Treatment arm | BMI  |
 |----------|------------|------------|--------|---------------|------|
 | patient1 |            |            | Male   | A             |      |
 | patient1 | 2016-03-18 | 2016-03-18 |        |               | 22.7 |
@@ -24,9 +24,9 @@ When observations are linked to a specific date or time, the `start date` and op
 | patient2 | 2016-03-24 | 2016-03-24 |        |               | 20.9 |
 
 ### Trial visits
-When one or multiple observations where acquired as part of a clinical trial they can be mapped by using a `Trial visit label` column.
+When one or multiple observations where acquired as part of a clinical trial, they can be mapped as such by adding a `Trial visit label` column. All observations in that row will be uploaded as part of the trial visit. The time unit and value of each trial visit can be provided in the [trial visit mapping file](trial-visit-mapping.md).
 
-| Subjects | Trial visit label | Gender | Treatment arm | BMI  | Heart rate |
+| Subject_id | Trial visit label | Gender | Treatment arm | BMI  | Heart rate |
 |----------|-------------------|--------|---------------|------|------------|
 | patient1 |                   | Male   | A             |      |            |
 | patient1 | Baseline          |        |               | 22.7 | 87         |
@@ -38,5 +38,4 @@ When one or multiple observations where acquired as part of a clinical trial the
 
 ### Patient visits (not yet implemented)
 
-**Note:** In the examples above, 
-In principle a patient's observation value can be parth of both a trial visit and a patient visit while having its own observation start and end date.
+**Note:** In the examples above, each variation on the basic structure of clinical data files is shown separately for clarity reasons. However, none of them are mutually exclusive. In principle, a patient's observation value can be parth of both a trial visit and a patient visit while having its own observation start and end date.
