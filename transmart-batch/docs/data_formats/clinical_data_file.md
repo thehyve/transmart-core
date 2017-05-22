@@ -56,5 +56,14 @@ By default, tranSMART expects unique combinations of subject ID, patient visit, 
 | patient1   | 2009-01-13 | 1            |        |               | 91         | 142      |
 | patient1   | 2009-01-13 | 2            |        |               |            | 140      |
 
+### Custom modifiers (not yet implemented)
+Apart from the above mentioned methods of providing additional context to observation values, it is also possible to add your own modifier values to observations. This can be done by adding a column for each variable that requires modification. To which variable the modifier values should be applied is defined in your [column mapping file](column-mapping.md). In the example below, the *_Fasting (h)_* column would act as a modifier for the *_Hb level_* variable.
 
-**Note:** In the examples above, each variation on the basic structure of clinical data files is shown separately for clarity reasons. However, none of them are mutually exclusive. In principle, a patient's observation value can be parth of both a trial visit and a patient visit while having its own observation start and end date.
+| Subject_id | Instance num | Gender | Treatment arm | Hb level | Fasting (h) |
+|------------|--------------|--------|---------------|----------|-------------|
+| patient1   |              | Male   | A             |          |             |
+| patient1   | 1            |        |               | 142      | 3           |
+| patient1   | 2            |        |               | 140      | 24          |
+
+
+**Note:** In the examples above, each variation on the basic structure of clinical data files is shown separately for clarity reasons. However, none of them are mutually exclusive. In principle, a patient's observation value can be part of both a trial visit and patient visit, while having its own observation start and end date and any nubmer of custom modifiers.
