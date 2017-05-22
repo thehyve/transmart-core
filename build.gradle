@@ -36,6 +36,10 @@ ext {
     assetPipelineVersion = '2.11.6'
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = gradleWrapperVersion
+}
+
 version = transmartVersion
 group = 'org.transmartproject'
 
