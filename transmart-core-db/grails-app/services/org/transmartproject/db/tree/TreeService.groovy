@@ -103,13 +103,7 @@ class TreeService {
             case 'patient_dimension':
                 return DimensionImpl.PATIENT.name
             case 'modifier_dimension':
-                def dimension = DimensionDescription.createCriteria().list {
-                    eq('modifierCode', modifierCode)
-                } as List<DimensionDescription>
-                if (dimension.size() > 0) {
-                    return dimension.first().name
-                }
-                break
+                return DimensionDescription.findByModifierCode(modifierCode)?.name
             case 'trial_visit_dimension':
                 return DimensionImpl.TRIAL_VISIT.name
             case 'study':
