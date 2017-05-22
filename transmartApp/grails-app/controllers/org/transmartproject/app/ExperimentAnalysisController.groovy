@@ -147,7 +147,7 @@ class ExperimentAnalysisController {
 
     def expDetail = {
         log.info "** action: expDetail called!"
-        log.info params
+        log.info(params.toString())
         def expid = params.id
         def expaccession = params.accession
 
