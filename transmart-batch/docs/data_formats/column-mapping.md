@@ -17,8 +17,8 @@ Table, tab separated, txt file. The header is mandatory, but is not interpreted.
 - `Category Code` **(Mandatory if `data label` not in reserved keywords)** The concept path of the node to be created. The `Category Code` therefore determines the tree structure of your study. Nodes of the path should be separated by a `+`.
 - `Column Number` Index of the column from the data file, starting at 1.
 - `Data Label`  Variable label visible in tranSMART after upload (the leaf node).
-- `Data Label Source` works for template column only (has `\` in data label column). Refers to the data label column where to get data for dynamic concept path generation. See [templates](templates.md) documentation for more details.
-- `Control Vocab cd`  **(IGNORED)** Skip if you don't need Concept Type Column.
+- `Data Label Source` **Application 1:** In case of a modifier, use this field to provide the index number of the column to be modified. **Application 2:** In case of category code replacement, the data label source can used to refer to the column number that contains the variable names for dynamic concept path generation. See [templates](templates.md) documentation for more details.
+- `Control Vocab cd` **(Deprecated)** Will be ignored.
 - `Concept Type`  Use concept type to manually define the type of variable, instead of inferring it from the first row of the data.
 
 Reserved keywords for Data Label:
