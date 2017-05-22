@@ -1,7 +1,7 @@
 Column Mapping
 ================
 
-The column mapping file is mandatory part of uploading any study to tranSMART. It contains information on which columns from your [data file(s)](clinical_data_file.md) should be uploaded, what their variable names should be, and where they should end up in the study's tree structure. The name of your column mapping file has to be provided in your [clinical.params](clinical.md) file.
+The column mapping file is a mandatory part of uploading a study to tranSMART. It contains information on which columns from your [data file(s)](clinical_data_file.md) should be uploaded, what their variable names should be, and where they should end up in the study's tree structure. The name of your column mapping file has to be provided in your [clinical.params](clinical.md) file.
 
 
 COLUMN_MAP_FILE format
@@ -11,7 +11,7 @@ COLUMN_MAP_FILE format
 |--------|-------------|-------------|----------|-----------------|----------------|-------------|
 |data.txt|folder       |1            |Weight    |                 |                |NUMERICAL    |
 
-Table, tab separated, txt file.
+Table, tab separated, txt file. The header is mandatory, but is not interpreted.
 
 - `Filename` **(Mandatory)** The name of the data file that contains the variable to be mapped.
 - `Category Code` The concept path of the node to be created. The `Category Code` therefore determines the tree structure of your study. Nodes of the path should be separated by a `+`.
