@@ -73,6 +73,13 @@ task downloadR << {
 downloadR.dependsOn 'createVars'
 distTar.dependsOn 'downloadR'
 
+task generateRequiredFiles << {
+    make('-C data/common makefiles')
+    make('-C ddl/postgres/META default_permissions.tsv')
+    make('-C data/common/searchapp/plugin_modules_params ../plugin_module.tsv')
+}
+distTar.dependsOn 'generateRequiredFiles'
+
 task setupPostgres << {
     sudo_make('-C env /var/lib/postgresql/tablespaces')
     make('postgres')
