@@ -22,3 +22,21 @@ When observations are linked to a specific date or time, the `start date` and op
 | patient1 | 2016-03-18 | 2016-03-18 |        |               | 22.7 |
 | patient2 |            |            | Female | B             |      |
 | patient2 | 2016-03-24 | 2016-03-24 |        |               | 20.9 |
+
+### Trial visits
+When one or multiple observations where acquired as part of a clinical trial they can be mapped by using a `Trial visit label` column.
+
+| Subjects | Trial visit label | Gender | Treatment arm | BMI  | Heart rate |
+|----------|-------------------|--------|---------------|------|------------|
+| patient1 |                   | Male   | A             |      |            |
+| patient1 | Baseline          |        |               | 22.7 | 87         |
+| patient1 | Week 5            |        |               | 22.6 | 91         |
+| patient2 |                   | Female | B             |      |            |
+| patient2 | Baseline          |        |               | 20.9 | 82         |
+| patient2 | Week 5            |        |               | 20.5 | 82         |
+
+
+### Patient visits (not yet implemented)
+
+**Note:** In the examples above, 
+In principle a patient's observation value can be parth of both a trial visit and a patient visit while having its own observation start and end date.
