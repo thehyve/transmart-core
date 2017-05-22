@@ -70,6 +70,7 @@ downloadTransmartETL.dependsOn 'checkDependencies'
 task downloadR << {
     make('-C R sources')
 }
+downloadR.dependsOn 'createVars'
 distTar.dependsOn 'downloadR'
 
 task setupPostgres << {
