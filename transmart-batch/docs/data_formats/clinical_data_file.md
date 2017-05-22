@@ -37,5 +37,17 @@ When one or multiple observations where acquired as part of a clinical trial, th
 
 
 ### Patient visits (not yet implemented)
+Observations derived from electronic health records can be uploaded as part of a patient visit by adding the `Patient visit` column. All observations in that row will be uploaded as part of the patient visit. A patient visit's start and end date can be provided in the [patient visit mapping file](patient-visit-mapping.md).
+
+| Subject_id | Patient visit | Gender | Treatment arm | BMI  | Heart rate | Hb level |
+|------------|---------------|--------|---------------|------|------------|----------|
+| patient1   |               | Male   | A             |      |            |          |
+| patient1   | 1             |        |               | 22.6 | 91         |          |
+| patient2   |               | Female | B             |      |            |          |
+| patient2   | 1             |        |               | 20.9 | 82         |          |
+| patient2   | 2             |        |               |      | 69         | 142      |
+
+### Replicate observations
+
 
 **Note:** In the examples above, each variation on the basic structure of clinical data files is shown separately for clarity reasons. However, none of them are mutually exclusive. In principle, a patient's observation value can be parth of both a trial visit and a patient visit while having its own observation start and end date.
