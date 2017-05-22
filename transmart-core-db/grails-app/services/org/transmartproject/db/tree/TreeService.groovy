@@ -72,6 +72,7 @@ class TreeService {
                         currentNode,
                         children
                 )
+                node.conceptPath = getConceptPath(node.tableName, node.dimensionCode)
                 node.dimension = getDimension(node.tableName, currentNode.code)
                 node.children.each { child ->
                     child.parent = node
@@ -103,13 +104,7 @@ class TreeService {
             case 'patient_dimension':
                 return DimensionImpl.PATIENT.name
             case 'modifier_dimension':
-                def dimension = DimensionDescription.createCriteria().list {
-                    eq('modifierCode', modifierCode)
-                } as List<DimensionDescription>
-                if (dimension.size() > 0) {
-                    return dimension.first().name
-                }
-                break
+                return DimensionDescription.findByModifierCode(modifierCode)?.name
             case 'trial_visit_dimension':
                 return DimensionImpl.TRIAL_VISIT.name
             case 'study':
@@ -118,6 +113,10 @@ class TreeService {
         return 'UNKNOWN'
     }
 
+    static String getConceptPath(String table, String code){
+        return table == 'concept_dimension' ? code : null
+    }
+    
     /**
      * Adds observation counts and patient counts to leaf nodes.
      */

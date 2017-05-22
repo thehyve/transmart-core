@@ -43,6 +43,8 @@ class TreeNode {
     public EnumSet<OntologyTerm.VisualAttributes> visualAttributes
 
     public String dimension
+    
+    public String conceptPath
 
     TreeNode(I2b2Secure term, List<TreeNode> children) {
         this.delegate = term
