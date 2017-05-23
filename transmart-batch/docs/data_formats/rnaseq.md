@@ -17,9 +17,7 @@ Replace `<sample_code>` with an actual sample code (e.g. `CACO2`) as provided in
 
 | Column Name | Description |
 --------------|--------------
-| REGION_NAME | **(Mandatory)** The name of this region. Often it's a gene name. e.g. `WASH7P` |
+| REGION_NAME | **(Mandatory)** The name of this region. Mostly a gene symbol (e.g. `WASH7P`). |
 | `<sample_code>`.readcount | **(Mandatory)** Raw measurement value. |
 | `<sample_code>`.normalizedreadcount | Normalized readcount (e.g. RPKM). |
 | `<sample_code>`.zscore | Z-Score. |
-
-
