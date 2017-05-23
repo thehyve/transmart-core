@@ -13,7 +13,7 @@ convenient. You can still create an empty `backout.params` file and specify all
 the parameters on the command line. E.g.:
 
     touch /tmp/backout.params
-    ./transmart-batch-capsule.jar -p /tmp/backout.params -d STUDY_ID=GSE8581
+    ./transmart-batch-capsule.jar -p /tmp/backout.params -d STUDY_ID=GSE8581 SECURITY_REQUIRED=Y
 
 Available parameters
 --------------------
