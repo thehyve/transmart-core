@@ -14,7 +14,7 @@ The basic structure of a clinical data file is patients on the rows and variable
 | patient2 | Female | B             |
 
 ### Observation dates
-When observations are linked to a specific date or time, the `start date` and optionally `end date` columns can be added. All observations present in a row with an observation date will be linked to that absolute point in time. Therefore one patient can have data spanning multiple rows:
+When observations are linked to a specific date or time, the `start date` and optionally `end date` columns can be added. All observations present in a row with an observation date will be linked to that absolute point in time. Therefore one patient can have data spanning multiple rows.
 
 | Subject_id | Start date | End date   | Gender | Treatment arm | BMI  |
 |----------|------------|------------|--------|---------------|------|
