@@ -126,12 +126,18 @@
 
     window.rwgSearchConfig = {
         requiredField: 'CONCEPT_PATH',
-        onConceptsListChanges: function() {
+        onConceptsListChanges: function(data, number) {
             var args = arguments;
             var that = this;
             Ext.onReady(function() {
                 window.datasetExplorer_conceptsListChanges.apply(that, args);
             });
+            var noAnalyzeResultsDiv = jQuery('#noAnalyzeResults');
+            if (rwgModel.numberOfResults > 0) {
+                noAnalyzeResultsDiv.hide();
+            } else {
+                noAnalyzeResultsDiv.show();
+            }
         }
     };
 </script>

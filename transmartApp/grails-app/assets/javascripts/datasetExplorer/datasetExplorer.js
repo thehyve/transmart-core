@@ -1507,7 +1507,7 @@ function showProjectDialog(projects) {
 
 function projectDialogComplete() {
     jQuery('#box-search').prependTo(jQuery('#westPanel')).show();
-    jQuery('#node-search-message').prependTo(jQuery('#navigateTermsPanel .x-panel-body'));
+    jQuery('#noAnalyzeResults').prependTo(jQuery('#navigateTermsPanel .x-panel-body'));
 
 //    //Now that the ont tree has been set up, call the initial search
 //    showSearchResults();
@@ -1773,6 +1773,8 @@ function getSubCategories(ontresponse) {
     for (c = treeRoot.childNodes.length - 1; c >= 0; c--) {
         treeRoot.childNodes[c].remove();
     }
+
+    jQuery('#noAnalyzeResults').hide();
 
     for (var c = 0; c < ontRoots.length; c++) {
         var newnode = ontRoots[c];
@@ -3867,6 +3869,8 @@ function searchByTagComplete(response) {
         treeRoot.childNodes[c].remove();
     }
 
+    jQuery('#noAnalyzeResults').hide();
+
     //Clear path to expand and unique leaves
     GLOBAL.PathToExpand = '';
     GLOBAL.UniqueLeaves = '';
@@ -3891,6 +3895,7 @@ function searchByTagComplete(response) {
         }
 
         if (concepts.length == 0) {
+            jQuery('#noAnalyzeResults').show();
             Ext.getCmp('navigateTermsPanel').render();
             onWindowResize();
         }
