@@ -1614,19 +1614,43 @@ function setupOntTree(id_in, title_in) {
 
     ontTree.on('enddrag', function (panel, node, event) {
             Ext.ux.ManagedIFrame.Manager.hideShims()
+    });
 
-        }
-    );
+    ontTree.on('beforecollapsenode', function (node, deep, anim) {
+        Ext.Ajax.request({
+            url: removeNodeDseURL + "?node=" + encodeURIComponent(node.id),
+            method: 'POST',
+            success: function (result, request) {
+            },
+            failure: function (result, request) {
+                console.error(result);
+            },
+            timeout: '600000'
+        });
+    });
 
     var firstExpandProgram = [];
 
     ontTree.on('beforeexpandnode', function (node, deep, anim) {
-        if (GLOBAL.PathToExpand != undefined &&
-            GLOBAL.PathToExpand.indexOf(node.id) > -1 &&
-            node.parentNode.id == "treeRoot" && !contains(dseClosedNodes, node.id)) {
-            if (firstExpandProgram.indexOf(node.id) == -1) {
+        var expand = true;
+        if (GLOBAL.PathToExpand !== undefined && GLOBAL.PathToExpand.indexOf(node.id) > -1 && node.parentNode.id === "treeRoot" && !contains(dseClosedNodes, node.id)) {
+            if (firstExpandProgram.indexOf(node.id) === -1) {
                 firstExpandProgram.push(node.id);
+                expand = false;
             }
+        }
+
+        if (expand) {
+            Ext.Ajax.request({
+                url: addNodeDseURL + "?node=" + encodeURIComponent(node.id),
+                method: 'POST',
+                success: function (result, request) {
+                },
+                failure: function (result, request) {
+                    console.log(result);
+                },
+                timeout: '600000'
+            });
         }
     });
 

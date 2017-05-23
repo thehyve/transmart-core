@@ -145,6 +145,93 @@ class RWGController {
         def layout = formLayoutService.getLayout('file')
         render(template: '/fmFolder/fileMetadata', model: [layout: layout, file: FmFile.get(params.id)])
     }
+
+    def addOpenedNodeRWG = {
+        if (session['rwgOpenedNodes'] == null) {
+            session['rwgOpenedNodes'] = []
+        }
+        if (session['rwgClosedNodes'] == null) {
+            session['rwgClosedNodes'] = []
+        }
+        def openedNodes = session['rwgOpenedNodes']
+        def closedNodes = session['rwgClosedNodes']
+        def paramMap = params
+        if (closedNodes.grep(params.node)) {
+            closedNodes -= params.node
+        } else if (!openedNodes.grep(params.node)) {
+            openedNodes += params.node
+        }
+        session['rwgOpenedNodes'] = openedNodes
+        session['rwgClosedNodes'] = closedNodes
+        render(text: "OK")
+    }
+    def removeOpenedNodeRWG = {
+        if (session['rwgOpenedNodes'] == null) {
+            session['rwgOpenedNodes'] = []
+        }
+        if (session['rwgClosedNodes'] == null) {
+            session['rwgClosedNodes'] = []
+        }
+        def openedNodes = session['rwgOpenedNodes']
+        def closedNodes = session['rwgClosedNodes']
+        if (openedNodes.grep(params.node)) {
+            openedNodes -= params.node
+        } else {
+            if (!closedNodes.grep(params.node)) {
+                closedNodes += params.node
+            }
+        }
+        session['rwgOpenedNodes'] = openedNodes
+        session['rwgClosedNodes'] = closedNodes
+        render(text: "OK")
+    }
+    def resetOpenedNodes = {//used for RWG and DSE
+        session['rwgOpenedNodes'] = []
+        session['dseOpenedNodes'] = []
+        session['rwgClosedNodes'] = []
+        session['dseClosedNodes'] = []
+        render(text: "OK")
+    }
+
+    def addOpenedNodeDSE = {
+        if (session['dseOpenedNodes'] == null) {
+            session['dseOpenedNodes'] = []
+        }
+        if (session['dseClosedNodes'] == null) {
+            session['dseClosedNodes'] = []
+        }
+        def openedNodes = session['dseOpenedNodes']
+        def closedNodes = session['dseClosedNodes']
+        def paramMap = params
+        if (closedNodes.grep(params.node.replace("\\", "\\\\"))) {
+            closedNodes -= params.node.replace("\\", "\\\\")
+        } else if (!openedNodes.grep(params.node.replace("\\", "\\\\")) && params.node != "treeRoot") {
+            openedNodes += params.node.replace("\\", "\\\\")
+        }
+        session['dseOpenedNodes'] = openedNodes
+        session['dseClosedNodes'] = closedNodes
+        render(text: "OK")
+    }
+    def removeOpenedNodeDSE = {
+        if (session['dseOpenedNodes'] == null) {
+            session['dseOpenedNodes'] = []
+        }
+        if (session['dseClosedNodes'] == null) {
+            session['dseClosedNodes'] = []
+        }
+        def openedNodes = session['dseOpenedNodes']
+        def closedNodes = session['dseClosedNodes']
+        if (openedNodes.grep(params.node.replace("\\", "\\\\"))) {
+            openedNodes -= params.node.replace("\\", "\\\\")
+        } else {
+            if (!closedNodes.grep(params.node.replace("\\", "\\\\"))) {
+                closedNodes += params.node.replace("\\", "\\\\")
+            }
+        }
+        session['dseOpenedNodes'] = openedNodes
+        session['dseClosedNodes'] = closedNodes
+        render(text: "OK")
+    }
 }
 
 
