@@ -26,8 +26,11 @@
   		<!--  SVG Export -->
   		%{--<asset:javascript type="svgExport/rgbcolor.js"/>--}%
 
-        %{--<g:javascript library="prototype" /> --}%
-        
+        <g:javascript library="prototype" />
+		<script type="text/javascript">
+			var $j = jQuery.noConflict();
+		</script>
+
         <!-- Our JS -->        
        
         <asset:javascript src="/maintabpanel.js"/>
@@ -148,9 +151,94 @@
 	                        }
 	        });
 
-	        });	
+	        });
+
+			function dataTableWrapper(containerId, tableId, title, sort, pageSize) {
+
+				var data;
+				var gridPanelHeaderTips;
+
+				function setupWrapper() {
+					var gridContainer = $j('#' + containerId);
+					gridContainer.html('<table id=\'' + tableId + '\'></table></div>');
+				}
+
+				function overrideSort() {
+
+					$j.fn.dataTableExt.oSort['numeric-pre'] = function (a) {
+
+						var floatA = parseFloat(a);
+						var returnValue;
+
+						if (isNaN(floatA))
+							returnValue = Number.MAX_VALUE * -1;    //Emptys will go to top for -1, bottom for +1
+						else
+							returnValue = floatA;
+
+						return returnValue;
+					};
+
+				};
+
+				this.loadData = function (dataIn) {
+
+
+					setupWrapper();
+
+					data = dataIn;
+					setupGridData(data, sort, pageSize);
+
+					gridPanelHeaderTips = data.headerToolTips.slice(0);
+
+					//Add the callback for when the grid is redrawn
+					data.fnDrawCallback = function (oSettings) {
+
+						//Hide the pagination if both directions are disabled.
+						if (jQuery('#' + tableId + '_paginate .paginate_disabled_previous').size() > 0 && jQuery('#' + tableId + '_paginate .paginate_disabled_next').size() > 0) {
+							jQuery('#' + tableId + '_paginate').hide();
+						}
+					};
+
+					data.fnInitComplete = function () {
+						this.fnAdjustColumnSizing();
+					};
+
+					$j('#' + tableId).dataTable(data);
+
+					$j(window).bind('resize', function () {
+						if ($j('#' + tableId).dataTable().oSettings) {
+							$j('#' + tableId).dataTable().fnAdjustColumnSizing();
+						}
+					});
+
+					$j("#" + containerId + " div.gridTitle").html(data.iTitle);
+
+				};
+
+
+				function setupGridData(data, sort, pageSize) {
+					data.bAutoWidth = true;
+					data.bScrollAutoCss = true;
+//                    data.sScrollY = 400;
+					data.sScrollX = "100%";
+					data.bDestroy = true;
+					data.bProcessing = true;
+					data.bLengthChange = false;
+					data.bScrollCollapse = false;
+					data.iDisplayLength = 10;
+					if (pageSize != null && pageSize > 0) {
+						data.iDisplayLength = pageSize;
+					}
+					if (sort != null) {
+						data.aaSorting = sort;
+					}
+					data.sDom = '<"top"<"gridTitle">Rrt><"bottom"p>' //WHO DESIGNED THIS
+				}
+			}
             
         </script>
+
+
         
                 
         <script type="text/javascript">		
