@@ -478,9 +478,6 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
                 // limit to the last set of trial visits
                 return Subqueries.propertyIn('trialVisit', subQuery2)
 
-//                return Subqueries.propertyIn(getAlias('trialVisit')+".study", subQuery)
-//                throw new QueryBuilderException("${constraint.constraintName} constraints for the study dimension are" +
-//                        " not implemented")
             case DimensionImpl.ImplementationType.MODIFIER:
                 throw new QueryBuilderException("${constraint.constraintName} constraints for modifier dimensions are" +
                         " not implemented")
