@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.db.multidimquery.query.AndConstraint
 import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
@@ -18,6 +19,8 @@ import org.transmartproject.db.multidimquery.query.ModifierConstraint
 import org.transmartproject.db.multidimquery.query.Operator
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
+import org.transmartproject.db.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.db.multidimquery.query.TimeConstraint
 import org.transmartproject.db.multidimquery.query.Type
 import org.transmartproject.db.multidimquery.query.ValueConstraint
@@ -346,5 +349,34 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(BIOMARKER).size() == 1
         hypercube.dimensionElements(ASSAY).size() == 3
         hypercube.dimensionElements(PROJECTION).size() == 13
+    }
+
+    // This is basically a copy of QueryServiceSpec.test_visit_selection_constraint in transmart-core-db-tests.
+    // Since we cannot run that one due to limitations in the H2 database this version ensures that the functionality
+    // is still automatically tested.
+    void "test visit selection constraint"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        Constraint constraint = new SubSelectionConstraint(
+                dimension: VISIT,
+                constraint: new AndConstraint(args: [
+                        new ValueConstraint(
+                                valueType: "NUMERIC",
+                                operator: Operator.EQUALS,
+                                value: 59.0
+                        ),
+                        new StudyNameConstraint(studyId: "EHR")
+                ])
+        )
+
+        when:
+        def result = multiDimService.retrieveClinicalData(constraint, user).asList()
+        def visits = result.collect { it[VISIT] } as Set
+
+        then:
+        result.size() == 2
+        // ensure we are also finding other cells than the value we specified in the constraint
+        result.collect { it.value }.any { it != 59.0 }
+        visits.size() == 1
     }
 }
