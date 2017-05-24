@@ -80,7 +80,7 @@ abstract class AbstractQueryController implements Controller {
         try {
             return getConstraintFromStringOrJson(constraintParam)
         } catch (ConstraintBindingException e) {
-            if(e.errors?.fieldErrors?.any()) {
+            if(e.errors?.hasErrors()) {
 
                 // This representation is compatible with what is returned when an exception is not caught.
                 //
