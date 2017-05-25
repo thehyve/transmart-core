@@ -127,8 +127,6 @@ def gitignoreToList(File f) {
     return ignores
 }
 
-distZip.enabled = false
-
 distributions {
     main {
         contents {
@@ -139,7 +137,16 @@ distributions {
                     'LICENSE', 'Makefile', 'makefile.inc', 'README.md', 'vars.sample', 'VERSION'
         }
     }
+    solr {
+        contents {
+            from '.'
+            include 'solr/**', 'VERSION'
+        }
+    }
 }
+
+distZip.enabled = false
+solrDistZip.enabled = false
 
 task createVersionFile << {
     def file = new File("$projectDir/VERSION")
@@ -155,5 +162,10 @@ publishing {
         maven(MavenPublication) {
             artifact distTar // Publish the output of the distTar task
         }
+        solr(MavenPublication) {
+            artifactId 'transmart-data-solr'
+            artifact solrDistTar // Publish the output of the solrDistTar task
+        }
     }
 }
+
