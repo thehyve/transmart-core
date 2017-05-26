@@ -59,6 +59,7 @@ public interface constraints {
            TemporalConstraint = 'temporal',
            ConceptConstraint = 'concept',
            NullConstraint = 'null',
-           StudyNameConstraint = 'study_name'
+           StudyNameConstraint = 'study_name',
+           SubSelectionConstraint = 'subselection'
 }
 

@@ -15,12 +15,14 @@ import org.hibernate.internal.CriteriaImpl
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 import org.transmartproject.db.util.StringUtils
 
-import static ConstraintDimension.*
+import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 /**
  * QueryBuilder that produces a {@link DetachedCriteria} object representing
@@ -39,12 +41,12 @@ import static ConstraintDimension.*
 @Slf4j
 class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedCriteria> {
 
-    final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(Value)
+    final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(VALUE)
     final Field valueTypeField = valueMetadata.fields.find { it.fieldName == 'valueType' }
     final Field numberValueField = valueMetadata.fields.find { it.fieldName == 'numberValue' }
     final Field textValueField = valueMetadata.fields.find { it.fieldName == 'textValue' }
-    final Field patientIdField = new Field(dimension: Patient, fieldName: 'id', type: Type.ID)
-    final Field startTimeField = new Field(dimension: StartTime, fieldName: 'startDate', type: Type.DATE)
+    final Field patientIdField = new Field(dimension: PATIENT, fieldName: 'id', type: Type.ID)
+    final Field startTimeField = new Field(dimension: START_TIME, fieldName: 'startDate', type: Type.DATE)
 
     public static final Date EMPTY_DATE = Date.parse('yyyy-MM-dd HH:mm:ss', '0001-01-01 00:00:00')
 
@@ -75,13 +77,14 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @return an alias as String.
      */
     String getAlias(String propertyName) {
+        assert !propertyName.contains("__")
         String alias = aliases[propertyName]
         if (alias != null) {
             return alias
         }
         int suffix = aliasSuffixes[propertyName] ?: 0
         aliasSuffixes[propertyName] = suffix + 1
-        alias = "${propertyName}_${suffix}"
+        alias = "${propertyName.replace('.', '__')}_${suffix}"
         aliases[propertyName] = alias
         alias
     }
@@ -92,12 +95,12 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     String getFieldPropertyName(Field field) {
         def metadata = DimensionMetadata.forDimension(field.dimension)
         switch (metadata.type) {
-            case DimensionFetchType.COLUMN:
+            case DimensionImpl.ImplementationType.COLUMN:
                 return metadata.fieldName
-            case DimensionFetchType.MODIFIER:
-            case DimensionFetchType.VALUE:
+            case DimensionImpl.ImplementationType.MODIFIER:
+            case DimensionImpl.ImplementationType.VALUE:
                 return field.fieldName
-            case DimensionFetchType.VISIT:
+            case DimensionImpl.ImplementationType.VISIT:
                 throw new QueryBuilderException("Field '${field.fieldName}' of class ${metadata.domainClass.simpleName} is not directly accessible.")
             default:
                 break
@@ -359,7 +362,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             }
         }
         constraint.value = convertValue(constraint.field, constraint.value)
-        if (constraint.field.dimension == Visit) {
+        if (constraint.field.dimension == VISIT) {
             /**
              * special case that requires a subquery, because there is no proper
              * reference to the visit dimension in {@link ObservationFact}.
@@ -434,33 +437,53 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     }
 
     Criterion build(SubSelectionConstraint constraint) {
-        def constraintDim = forDimension(constraint.dimension)
-        def subQuery = subQueryBuilder().buildCriteria(constraint.constraint)
-        String fieldName
+        def constraintDim = DimensionMetadata.forDimension(constraint.dimension)
 
         switch(constraintDim.type) {
-            case DimensionFetchType.TABLE:
-            case DimensionFetchType.COLUMN:
-                fieldName = constraintDim.fieldName
-                break
-            case DimensionFetchType.STUDY:
-                fieldName = 'trialVisit.study'
-                break
-            case DimensionFetchType.VISIT:
+            case DimensionImpl.ImplementationType.TABLE:
+            case DimensionImpl.ImplementationType.COLUMN:
+                def subQuery = subQueryBuilder().buildCriteria(constraint.constraint)
+                String fieldName = constraintDim.fieldName
+                subQuery.projection = Projections.property(fieldName)
+                return Subqueries.propertyIn(fieldName, subQuery)
+            case DimensionImpl.ImplementationType.VISIT:
+                def subQuery = subQueryBuilder().buildCriteria(constraint.constraint)
                 def projection = subQuery.projection = Projections.projectionList()
-                ['visitNum', 'patient'].each {
+                ['encounterNum', 'patient'].each {
                     projection.add(Projections.property(it)) }
-                return Subqueries.propertiesIn(['visitNum', 'patient'] as String[], subQuery)
-            case DimensionFetchType.MODIFIER:
+                return Subqueries.propertiesIn(['encounterNum', 'patient'] as String[], subQuery)
+            case DimensionImpl.ImplementationType.STUDY:
+                // What we actually want is something like
+                //
+                // def subquery = subQueryBuilder().buildCriteria(constraint.constraint)
+                // subquery.projection = Projections.property('trialVisit.study')
+                // return Subqueries.propertyIn('trialVisit.study', subquery)
+                //
+                // but the criterion api doesn't like 'trialVisit.study' as an identifier. I couldn't get it to work
+                // with joins, so now using a bunch of subqueries
+
+                // select trial visits from subselection observations
+                def subQuery0 = subQueryBuilder().buildCriteria(constraint.constraint)
+                subQuery0.projection = Projections.property('trialVisit')
+
+                // select studies from trial visits
+                def subQuery1 = DetachedCriteria.forClass(TrialVisit).setProjection(Projections.property('study'))
+                subQuery1.add(Subqueries.propertyIn('id', subQuery0))
+
+                // select trial visits from studies
+                def subQuery2 = DetachedCriteria.forClass(TrialVisit)
+                subQuery2.projection = Projections.property('id')
+                subQuery2.add(Subqueries.propertyIn('study', subQuery1))
+
+                // limit to the last set of trial visits
+                return Subqueries.propertyIn('trialVisit', subQuery2)
+
+            case DimensionImpl.ImplementationType.MODIFIER:
                 throw new QueryBuilderException("${constraint.constraintName} constraints for modifier dimensions are" +
                         " not implemented")
-            default:
-                throw new QueryBuilderException("Dimension ${constraint.dimension.name} is not supported in " +
-                        "${SubSelectionConstraint.constraintName} constraints")
         }
-
-        subQuery.projection = Projections.property(fieldName)
-        return Subqueries.propertyIn(fieldName, subQuery)
+        throw new QueryBuilderException("Dimension ${constraint.dimension.name} is not supported in " +
+                "${SubSelectionConstraint.constraintName} constraints")
     }
 
     Criterion build(ConceptConstraint constraint){

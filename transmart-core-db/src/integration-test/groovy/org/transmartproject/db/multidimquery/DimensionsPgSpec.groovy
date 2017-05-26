@@ -9,7 +9,7 @@ import spock.lang.Specification
 
 @Rollback
 @Integration
-class DimensionsSpec extends Specification {
+class DimensionsPgSpec extends Specification {
 
     def 'studyDim.resolveElements guarantees order'() {
         expect:

@@ -27,6 +27,7 @@ import org.transmartproject.db.i2b2data.ConceptDimension as I2b2ConceptDimension
 import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
 import org.transmartproject.db.i2b2data.Study as I2B2Study
 import org.transmartproject.db.i2b2data.PatientDimension as I2B2PatientDimension
+import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.support.InQuery
 
 import static org.transmartproject.core.multidimquery.Dimension.*
@@ -74,6 +75,9 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static final AssayDimension ASSAY =            new AssayDimension(LARGE, DENSE, PACKABLE)
     static final ProjectionDimension PROJECTION =  new ProjectionDimension(SMALL, DENSE, NOT_PACKABLE)
 
+    // VALUE is a fake dimension that is used in e.g. the query builder. It does not have a corresponding DimensionDescription
+    static final ValueDimension VALUE =            new ValueDimension(LARGE, SPARSE, NOT_PACKABLE)
+
     // NB: This map only contains the builtin dimensions! To get a dimension that is not necessarily builtin
     // use DimensionDescription.findByName(name).dimension
     private static final ImmutableMap<String,DimensionImpl> builtinDimensions = ImmutableMap.copyOf([
@@ -99,6 +103,10 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
 
     static getBuiltinDimension(String name) { builtinDimensions.get(name) }
     static boolean isBuiltinDimension(String name) { builtinDimensions.containsKey(name) }
+    @CompileDynamic
+    static DimensionImpl fromNameOrNull(String name) { DimensionDescription.findByName(name)?.dimension }
+    @CompileDynamic
+    static DimensionImpl fromName(String name) { DimensionDescription.findByName(name).dimension }
 
     DimensionImpl(Size size, Density density, Packable packable) {
         this.size = size
@@ -155,6 +163,8 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         }
     )
 
+    abstract ImplementationType getImplementationType()
+
     @Override String toString() {
         this.class.simpleName
     }
@@ -195,6 +205,25 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
             }
         }
     }
+
+    /**
+     * Metadata about the fetching method for the dimension.
+     * The dimension may be represented by a dimension table (<code>TABLE</code>),
+     * a column in the {@link org.transmartproject.db.i2b2data.ObservationFact} table (<code>COLUMN</code>) or as
+     * a modifier, which means that the data is stored in another, related, row
+     * in the {@link org.transmartproject.db.i2b2data.ObservationFact} table (<code>MODIFIER</code>).
+     */
+    static enum ImplementationType {
+        TABLE,
+        COLUMN,
+        VALUE,
+        MODIFIER,
+        STUDY,
+        VISIT,
+        BIOMARKER,
+        ASSAY,
+        PROJECTION,
+    }
 }
 
 @CompileStatic @TupleConstructor
@@ -215,6 +244,7 @@ trait SerializableElemDim<ELTKey> {
     abstract Class getElemType()
 
     Class<? extends Serializable> getElementType() { getElemType() }
+    DimensionImpl.ImplementationType getImplementationType() { DimensionImpl.ImplementationType.COLUMN }
     List getElemFields() { null }
     ImmutableMap<String,Class> getElementFields() { null }
     PropertyImpl makeProperty(String field, String propertyname, Class type) {
@@ -241,6 +271,8 @@ trait CompositeElemDim<ELT,ELKey> {
     abstract Map<String,Property> getElementFields()
 
     Class<? extends Serializable> getElementType() { null }
+
+    DimensionImpl.ImplementationType getImplementationType() { DimensionImpl.ImplementationType.TABLE }
 
     PropertyImpl makeProperty(String field, String propertyname, Class type) {
         new PropertyImpl(field, propertyname, type)
@@ -333,12 +365,15 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
     @Override ELKey getElementKey(Map result) {
         throw new NotImplementedException()
     }
+
+    @Override abstract ImplementationType getImplementationType()
 }
 
 
 // ModifierDimension is currently only implemented for serializable types. If desired, the implementation could be
 // extended to also support modifiers that link to other tables, thus leading to modifier dimensions with compound
 // element types
+// See DimensionDescription for how the instances of modifier dimensions are stored in the database.
 @CompileStatic
 class ModifierDimension extends DimensionImpl<Object,Object> implements SerializableElemDim<Object> {
     private static Map<String,ModifierDimension> byName = [:]
@@ -381,6 +416,7 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
     final Class elemType
     final String name
     final String modifierCode
+    ImplementationType implementationType = ImplementationType.MODIFIER
 
     @CompileDynamic
     @Override def selectIDs(Query query) {
@@ -447,6 +483,8 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
     String alias = 'conceptCode'
     String columnName = 'conceptCode'
     String nullValue = '@'
+    // ObservationFact.conceptCode is a string, not an i2b2.ConceptDimension
+    ImplementationType implementationType = ImplementationType.COLUMN
 
     @CompileDynamic
     @Override List<I2b2ConceptDimensions> doResolveElements(List<String> elementKeys) {
@@ -477,6 +515,7 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
     String name = 'study'
     String alias = 'studyName'
     String getColumnName() {throw new UnsupportedOperationException()}
+    ImplementationType implementationType = ImplementationType.STUDY
 
     @CompileDynamic
     def selectIDs(Query query) {
@@ -530,6 +569,7 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
                                       "locationCd"]
     String name = 'visit'
     static String alias = 'encounterNum'
+    ImplementationType implementationType = ImplementationType.VISIT
 
     @Override def selectIDs(Query query) {
         query.criteria.with {
@@ -595,6 +635,7 @@ class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeEl
         new PropertyImpl('platform', null, String) {
             def get(element) { ((Assay) element).platform?.id } },
     ]
+    ImplementationType implementationType = ImplementationType.ASSAY
     String name = 'assay'
 }
 
@@ -610,11 +651,43 @@ class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapt
         CompositeElemDim<HddTabularResultHypercubeAdapter.BioMarkerAdapter,Object> {
     Class elemType = HddTabularResultHypercubeAdapter.BioMarkerAdapter
     List elemFields = ['label', 'biomarker']
+    ImplementationType implementationType = ImplementationType.BIOMARKER
     String name = 'biomarker'
 }
 
 @CompileStatic @InheritConstructors
 class ProjectionDimension extends HighDimDimension<String,String> implements SerializableElemDim<String> {
     Class elemType = String
+    ImplementationType implementationType = ImplementationType.PROJECTION
     String name = 'projection'
+}
+
+/**
+ * This is a fake dimension. It is only used in the query builder
+ */
+@CompileStatic @InheritConstructors
+class ValueDimension extends DimensionImpl implements SerializableElemDim {
+    String name = 'value'
+    Class elemType = Object
+    ImplementationType implementationType = ImplementationType.VALUE
+
+    def getElementKey(Map result) {
+        ObservationFact.observationFactValue(
+                (String) result.valueType, (String) result.textValue, (BigDecimal) result.numberValue)
+    }
+
+    @Override @CompileDynamic def selectIDs(Query query) {
+        // Should do something like this, but a.t.m. this is done in MultidimensionalDataResourceService.retrieveData
+        //query.criteria.with {
+        //    // The main reason to use this projections block is that it clears all the default projections that
+        //    // select all fields.
+        //    projections {
+        //        // NUM_FIXED_PROJECTIONS must match the number of projections defined here
+        //        property 'valueType', 'valueType'
+        //        property 'textValue', 'textValue'
+        //        property 'numberValue', 'numberValue'
+        //    }
+        //}
+    }
+
 }
