@@ -21,11 +21,9 @@ class DimensionSpec extends RESTSpec{
                 acceptType: contentTypeForJSON
         ])
         def elements = responseData.elements
-        def studyIds = elements*.study as List
         
         then: "the list of trial visits for unrestricted studies is returned"
-        assert !('SHARED_CONCEPTS_STUDY_C_PRIV' in studyIds)
-        assert !('SHARED_HD_CONCEPTS_STUDY_C_PR' in studyIds)
+        elements.size() == 19
     }
     
     @RequiresStudy([EHR_ID, EHR_HIGHDIM_ID, CLINICAL_TRIAL_ID, CATEGORICAL_VALUES_ID, TUMOR_NORMAL_SAMPLES_ID, SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
@@ -40,13 +38,8 @@ class DimensionSpec extends RESTSpec{
                 acceptType: contentTypeForJSON
         ])
         def elements = responseData.elements
-        def studyIds = elements*.study as List
-        
-        then: "the list of all trial visits is returned"
-        assert studyIds.containsAll(
-                'EHR', 'EHR_HIGHDIM', 'CLINICAL_TRIAL', 'CATEGORICAL_VALUES', 'TUMOR_NORMAL_SAMPLES',
-                'SHARED_CONCEPTS_STUDY_A', 'SHARED_CONCEPTS_STUDY_B', 'SHARED_CONCEPTS_STUDY_C_PRIV',
-                'SHARED_HD_CONCEPTS_STUDY_A', 'SHARED_HD_CONCEPTS_STUDY_B', 'SHARED_HD_CONCEPTS_STUDY_C_PR'
-        )
+                
+        then: "the list of trial visits for all studies is returned"
+        elements.size() == 21
     }
 }
