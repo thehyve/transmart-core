@@ -90,7 +90,7 @@ class SubsetController {
         }
 
         def result = [success: success]
-        log.trace(result as JSON)
+        log.trace((result as JSON).toString())
         render result as JSON
     }
 
