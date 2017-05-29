@@ -4,12 +4,14 @@ package org.transmartproject.rest
 
 import grails.artefact.Controller
 import grails.converters.JSON
+import groovy.json.JsonSlurper
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.ConstraintBindingException
 import org.transmartproject.db.multidimquery.query.ConstraintFactory
 import org.transmartproject.rest.misc.CurrentUser
 
@@ -75,25 +77,28 @@ abstract class AbstractQueryController implements Controller {
     }
 
     protected Constraint bindConstraint(constraintParam) {
-        Constraint constraint = getConstraintFromStringOrJson(constraintParam)
+        try {
+            return getConstraintFromStringOrJson(constraintParam)
+        } catch (ConstraintBindingException e) {
+            if(e.errors?.hasErrors()) {
 
-        // check for parse errors
-        if (constraint.hasErrors()) {
-            response.status = 400
-            if(constraint.errors.fieldErrors.any()){
-                throw new InvalidArgumentsException(constraint.errors.fieldErrors.first().defaultMessage)
+                // This representation is compatible with what is returned when an exception is not caught.
+                //
+                // I want to add properties to the `e.errors as JSON`, but getting at a map representation of e.errors
+                // is not so easy. This is an ugly workaround, but this only happens for error conditions.
+                Map error = new JsonSlurper().parseText((e.errors as JSON).toString())
+                error = [
+                        httpStatus: 400,
+                        message: e.message,
+                        type: e.class.simpleName,
+                ] + error
+
+                response.status = 400
+                render error as JSON
+                return null
             }
-            render constraint.errors as JSON
-            return null
+            throw e
         }
-        // check for validation errors
-        constraint.validate()
-        if (constraint.hasErrors()) {
-            response.status = 400
-            render constraint.errors as JSON
-            return null
-        }
-        return constraint
     }
 
     /**

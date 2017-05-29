@@ -27,4 +27,7 @@ assets {
     packagePlugin = true
 }
 
+// Force selected tests to always run, even if Gradle thinks they are up to date
+test.outputs.upToDateWhen {false}
+
 test.testLogging.exceptionFormat = 'full'
