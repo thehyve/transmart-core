@@ -258,6 +258,7 @@ grails { plugin { springsecurity {
                 [pattern: '/analysis/getTestFile',       access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
                 [pattern: '/open-api/**',                access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
                 [pattern: '/versions/**',                access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/v?/versions/**',             access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
                 [pattern: '/requestmap/**',              access: ['ROLE_ADMIN']],
                 [pattern: '/role/**',                    access: ['ROLE_ADMIN']],
                 [pattern: '/authUser/**',                access: ['ROLE_ADMIN']],
@@ -290,6 +291,8 @@ grails { plugin { springsecurity {
     if (org.transmartproject.app.oauthEnabled) {
         providerNames << 'clientCredentialsAuthenticationProvider'
 
+        // 'JOINED_FILTERS' are the globally configured filters,
+        // filters prefixed with '-' disable that filter for the selected path
         def securedResourcesFilters = [
                 'JOINED_FILTERS',
                 '-securityContextPersistenceFilter',
