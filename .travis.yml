@@ -1,3 +1,6 @@
+dist: trusty
+sudo: required
+
 language: groovy
 
 jdk:
@@ -29,10 +32,10 @@ before_install:
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 3375DA21
   - echo deb http://apt.thehyve.net/internal/ trusty main | sudo tee /etc/apt/sources.list.d/hyve_internal.list
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E5267A6C
-  - echo deb http://ppa.launchpad.net/ondrej/php/ubuntu precise main  | sudo tee /etc/apt/sources.list.d/ondrej_php.list
+  - echo deb http://ppa.launchpad.net/ondrej/php/ubuntu trusty main  | sudo tee /etc/apt/sources.list.d/ondrej_php.list
   - sudo apt-get -qq update
   - apt-cache search php
-  - sudo apt-get install -y tk-dev php5.6 html2text
+  - sudo apt-get install -y tk-dev php5.6-cli html2text
   - php --version
   - echo $DIR; cd $DIR
   - PWD=`pwd`
@@ -42,6 +45,7 @@ before_install:
 
 install:
   - echo $DIR; cd $DIR
+  - ls -l /home/travis/build/thehyve/transmart-core/transmart-data/ddl/postgres/ || true
   - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; gradle $INSTALL)
   - cd -
 
