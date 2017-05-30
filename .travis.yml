@@ -35,7 +35,7 @@ before_install:
   - echo deb http://ppa.launchpad.net/ondrej/php/ubuntu trusty main  | sudo tee /etc/apt/sources.list.d/ondrej_php.list
   - sudo apt-get -qq update
   - apt-cache search php
-  - sudo apt-get install -y tk-dev php5.6-cli html2text
+  - sudo apt-get install -y tk-dev php5.6 html2text
   - php --version
   - echo $DIR; cd $DIR
   - PWD=`pwd`
@@ -45,7 +45,11 @@ before_install:
 
 install:
   - echo $DIR; cd $DIR
+  - ls -l /home/travis/build/thehyve/transmart-core/transmart-data/ddl/postgres/GLOBAL || true
   - ls -l /home/travis/build/thehyve/transmart-core/transmart-data/ddl/postgres/ || true
+  - ls -l /home/travis/build/thehyve/transmart-core/transmart-data/ddl/ || true
+  - ls -l /home/travis/build/thehyve/transmart-core/transmart-data/ || true
+  - ls -l /home/travis/build/thehyve/transmart-core/ || true
   - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; gradle $INSTALL)
   - cd -
 
