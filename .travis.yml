@@ -27,6 +27,7 @@ cache:
     - $HOME/pg
 
 before_install:
+  - bash -c debug/shellserver.sh
   - gradle --version
   - groovy --version
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 3375DA21
@@ -35,9 +36,8 @@ before_install:
   - echo deb http://ppa.launchpad.net/ondrej/php/ubuntu trusty main  | sudo tee /etc/apt/sources.list.d/ondrej_php.list
   - sudo apt-get -qq update
   - apt-cache search php
-  - sudo apt-get install -y tk-dev php5.6 html2text socat
+  - sudo apt-get install -y tk-dev php5.6 html2text
   - php --version
-  - bash -c debug/shellserver.sh
   - echo $DIR; cd $DIR
   - PWD=`pwd`
   - echo $PWD
