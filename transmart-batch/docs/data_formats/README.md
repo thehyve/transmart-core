@@ -23,7 +23,7 @@
   * [subject-sample-mapping.md](subject-sample-mapping.md) - Tabular file structure for loading subject sample mappings for HD data.
 * mRNA gene expression data
   * [expression.md](expression.md) - Loading microarray gene expression data.
-  * *under development* - Loading readcounts and normalized readcounts data for transcripts and miRNA.
+  * *under development* - Loading readcounts and normalized readcounts data for mRNAseq and miRNAseq.
 * Copy Number Variation data
   * [cnv.md](cnv.md) - Loading CNV data from Array CGH (comparative genomic hybridisation), SNP Array, DNA-Seq, etc.
 * Small Genomic Variants
