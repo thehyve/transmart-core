@@ -22,7 +22,8 @@ Clinical data upload
 ------------
 Uploading the clinical data is usually the first procedure when uploading a study to tranSMART:
 - Place the `clinical.params` file into the `clinical` folder of your study, alongside all other low-dimensional files that should be part of this upload, as specified in your clinical parameters (see above).
-- Run the upload pipeline from your transmart-batch folder: `./transmart-batch.sh -p ./studies/GSE8581/clinical/clinical.params`
+- Run the upload pipeline from your transmart-batch folder:  
+`./transmart-batch.sh -p ./studies/GSE8581/clinical/clinical.params`
 
 #### Clinical data deletion
 Clinical data observations can be deleted by running the [backout.params](backout.md).
