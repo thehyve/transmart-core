@@ -1,4 +1,4 @@
-Here are command line arguments you could specify for transmart batch upload.
+Here are command line arguments you could specify for transmart-batch upload.
 
 | Argument | Description                                        | Example                               |
 |----------|----------------------------------------------------|---------------------------------------|
