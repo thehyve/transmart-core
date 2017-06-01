@@ -38,7 +38,7 @@ There are two ways to upload tags:
     * You must specify tags file inside `tags` folder with `TAGS_FILE` parameter in `tags.params` file.
     * Run
 
-        ./transmart-batch-capsule.jar -p /path/to/STUDY_NAME/tags/tags.params
+        ./transmart-batch.sh -p /path/to/STUDY_NAME/tags/tags.params
         
 - As part of the clinical data upload
 
