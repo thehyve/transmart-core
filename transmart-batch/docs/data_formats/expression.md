@@ -30,7 +30,7 @@ The annotation file must contain the following columns:
 
 This is the data file format:
 
-| ID_REF    | GSM210005 | GSM210006 | GSM210007 |
+| ID_REF      | GSM210005   | GSM210006   | GSM210007   |
 |-------------|-------------|-------------|-------------|
 | 1007\_s\_at | 0           | 179.15      |367.436      |
 
