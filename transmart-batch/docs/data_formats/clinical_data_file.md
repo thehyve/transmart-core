@@ -67,4 +67,4 @@ Apart from the above mentioned methods of providing additional context to observ
 
 ___
 
-**Note:** In the examples above, each variation on the basic structure of clinical data files is shown separately for clarity reasons. However, none of them are mutually exclusive. In principle, a patient's observation value can be part of both a trial visit and patient visit, while having its own observation start and end date and any nubmer of custom modifiers.
+**Note:** In the examples above, each variation on the basic structure of clinical data files is shown separately for clarity reasons. However, none of them are mutually exclusive. In principle, a patient's observation value can be part of both a trial visit and patient visit, while having its own observation start and end date and any number of custom modifiers.
