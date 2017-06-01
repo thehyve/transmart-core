@@ -11,8 +11,8 @@
   * [clinical.md](clinical.md) - Loading numerical and categorical low-dimensional data from clinical, non-high throughput molecular profiling, derived imaging data, biobanking data or links to source data per patient.
     * [word-mapping.md](word-mapping.md) - Redefine categorical values, without changing the source data.
     * [ontology-mapping.md](ontology-mapping.md) - Map variables to ontology codes to create standardized cross-study concepts.
-    * [trial-visit-mapping.md](trial-visit-mapping.md) **(Not yet implemented)** - Provide a time unit and value for your trial visit labels.
-    * [patient-visit-mapping.md](patient-visit-mapping.md) **(Not yet implemented)** - Provide start and end dates for your patient visits.
+    * [trial-visit-mapping.md](trial-visit-mapping.md) *not yet implemented* - Provide a time unit and value for your trial visit labels.
+    * [patient-visit-mapping.md](patient-visit-mapping.md) *not yet implemented* - Provide start and end dates for your patient visits.
     * [templates.md](templates.md) - Using templates in the clinical data paths.
     * [xtrial.md](xtrial.md) - Uploading across trial clinical data.
 
@@ -23,15 +23,14 @@
   * [subject-sample-mapping.md](subject-sample-mapping.md) - Tabular file structure for loading subject sample mappings for HD data.
 * mRNA gene expression data
   * [expression.md](expression.md) - Loading microarray gene expression data.
-  * *under development* - Loading readcounts and normalized readcounts data for mRNAseq and miRNAseq.
+  * [rnaseq.md](rnaseq.md) - Loading gene-level RNA-Seq data as read counts and normalized read counts.
+  * *under development* - Loading transcript-level RNA-Seq data as read counts and normalized read counts.
 * Copy Number Variation data
   * [cnv.md](cnv.md) - Loading CNV data from Array CGH (comparative genomic hybridisation), SNP Array, DNA-Seq, etc.
 * Small Genomic Variants
   * *not yet implemented* - Loading small genomic variants (SNP, indel in VCF format) from RNAseq or DNAseq.
 * Proteomics data
   * [proteomics.md](proteomics.md) - Loading protein mass spectrometry data as peptide or protein quantities.
-* RnaSeq data
-  * [rnaseq.md](rnaseq.md) - Loading gene region RNA-Seq data as read counts and normalized read counts.
 * Metabolomics data
   * [metabolomics.md](metabolomics.md) - Loading metabolite quantities.
 * GWAS data
