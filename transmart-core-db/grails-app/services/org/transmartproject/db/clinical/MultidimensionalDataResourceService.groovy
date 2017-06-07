@@ -582,6 +582,17 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         queryResult
     }
     
+    @Override List<QueryResult> findAllPatientSets(User user) {
+        List resultsWithUserAccess = []
+        List<QueryResult> queryResultList = QtQueryResultInstance.findAll()
+        if (queryResultList != null && !queryResultList.empty) {
+            resultsWithUserAccess = queryResultList.findAll {
+                user.canPerform(ProtectedOperation.WellKnownOperations.READ, it)
+            }
+        }
+        resultsWithUserAccess
+    }
+
     @Override RequestConstraintAndVersion getPatientSetConstraint(long id) {
         QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findById(id)
         def queryMaster = qtQueryResultInstance.queryInstance.queryMaster

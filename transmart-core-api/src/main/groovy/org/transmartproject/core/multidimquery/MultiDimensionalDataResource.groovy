@@ -39,6 +39,8 @@ interface MultiDimensionalDataResource {
 
     QueryResult findPatientSet(Long patientSetId, User user)
 
+    List<QueryResult> findAllPatientSets(User user)
+
     Long patientCount(MultiDimConstraint constraint, User user)
     Long cachedPatientCount(MultiDimConstraint constraint, User user)
 

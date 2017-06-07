@@ -113,6 +113,24 @@ class PatientQueryController extends AbstractQueryController {
     }
 
     /**
+     * Patient sets endpoint:
+     * <code>GET /v2/patient_sets</code>
+     *
+     * Finds all the patient sets that User has access to.
+     *
+     * @return a list of maps with the query result id, size and status.
+     */
+    def findAllPatientSets(
+            @RequestParam('api_version') String apiVersion) {
+        checkParams(params, [])
+
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        List <QueryResult> patientSets = multiDimService.findAllPatientSets(user)
+
+        respond wrapPatientSets(patientSets)
+    }
+
+    /**
      * Patient set creation endpoint:
      * <code>POST /v2/patient_sets?constraint=${constraint}&name=${name}</code>
      *
@@ -167,6 +185,21 @@ class PatientQueryController extends AbstractQueryController {
                 queryResult: patientSet,
                 requestConstraint: bodyJson
         ) as JSON
+    }
+
+    private def wrapPatientSets(Collection<QueryResult> source) {
+        new ContainerResponseWrapper(
+                key: 'patientSets',
+                container: source.collect {
+                    def constraint_version = multiDimService.getPatientSetConstraint(it.id)
+                    new QueryResultWrapper(
+                            apiVersion: constraint_version.version,
+                            queryResult: it,
+                            requestConstraint: constraint_version.constraint
+                    )
+                },
+                componentType: QueryResult,
+        )
     }
 
 }

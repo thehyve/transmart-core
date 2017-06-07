@@ -168,4 +168,25 @@ class PatientsSetSpec extends RESTSpec {
         assert responseData.type == 'AccessDeniedException'
         assert responseData.message == "Access denied to patient set or patient set does not exist: ${setID}"
     }
+
+    /**
+    *  when: "I try to fetch all patientSets"
+    *  then: "the list of all patientSets is returned"
+    */
+    def "get list of patientSets"() {
+        def request = [
+                path      : PATH_PATIENT_SET,
+                acceptType: contentTypeForJSON,
+                statusCode: 400
+        ]
+
+        when: "I try to fetch all patientSets"
+        def responseData = get(request)
+
+        then: "the list of all patientSets is returned"
+        assert responseData.patientSets != null
+        responseData.patientSets.each {
+            it.keySet().containsAll(['description', 'errorMessage', 'id', 'setSize', 'status', 'username'])
+        }
+    }
 }
