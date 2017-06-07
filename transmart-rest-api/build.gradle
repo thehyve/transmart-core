@@ -45,10 +45,6 @@ assets {
     packagePlugin = true
 }
 
-bootRun {
-    jvmArgs = ['-Xmx4096m']
-}
-
 test.testLogging.exceptionFormat = 'full'
 
 bootRun {

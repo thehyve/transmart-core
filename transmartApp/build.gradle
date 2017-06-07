@@ -162,6 +162,10 @@ test.testLogging.exceptionFormat = 'full'
 bootRun {
     jvmArgs = ['-Xmx4096m']
 
-    // Uncomment this to always run in debug mode on port 5006. Very useful in development.
-    //jvmArgs += ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006']
+    // In development mode, set the TRANSMART_DEBUG_PORT to a port number to enable debugging on that port
+    if(! (System.env.TRANSMART_DEBUG_PORT ?: '').empty) {
+        def port = System.env.TRANSMART_DEBUG_PORT
+        assert port.isInteger() && (port as int) in 0..<2**16, "TRANSMART_DEBUG_PORT environment variable is not a valid port number: '$port'"
+        jvmArgs += ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$port"]
+    }
 }
