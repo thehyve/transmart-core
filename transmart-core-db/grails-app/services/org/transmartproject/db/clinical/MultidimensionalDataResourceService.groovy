@@ -554,7 +554,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         // 7. Update result instance and query instance
         resultInstance.setSize = resultInstance.realSetSize = patients.size()
-        resultInstance.description = "Patient set for \"${name}\""
+        resultInstance.description = name
         resultInstance.endDate = new Date()
         resultInstance.statusTypeId = QueryStatus.FINISHED.id
 
