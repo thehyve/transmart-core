@@ -162,7 +162,7 @@ test.testLogging.exceptionFormat = 'full'
 bootRun {
     jvmArgs = ['-Xmx4096m']
 
-    // In development mode, set the TRANSMART_DEBUG_PORT to a port number to enable debugging on that port
+    // In development mode, set the TRANSMART_DEBUG_PORT environment variable to a port number to enable debugging on that port
     if(! (System.env.TRANSMART_DEBUG_PORT ?: '').empty) {
         def port = System.env.TRANSMART_DEBUG_PORT
         assert port.isInteger() && (port as int) in 0..<2**16, "TRANSMART_DEBUG_PORT environment variable is not a valid port number: '$port'"
