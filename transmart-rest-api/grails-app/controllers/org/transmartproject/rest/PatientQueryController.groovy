@@ -120,12 +120,12 @@ class PatientQueryController extends AbstractQueryController {
      *
      * @return a list of maps with the query result id, size and status.
      */
-    def findAllPatientSets(
+    def findPatientSets(
             @RequestParam('api_version') String apiVersion) {
         checkParams(params, [])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        List <QueryResult> patientSets = multiDimService.findAllPatientSets(user)
+        List <QueryResult> patientSets = multiDimService.findPatientSets(user)
 
         respond wrapPatientSets(patientSets)
     }

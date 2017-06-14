@@ -173,7 +173,25 @@ class PatientsSetSpec extends RESTSpec {
     *  when: "I try to fetch all patientSets"
     *  then: "the list of all patientSets is returned"
     */
+
+    @RequiresStudy(EHR_ID)
     def "get list of patientSets"() {
+        given: "at least one patient_set exists"
+        def createPatientSetRequest = [
+                path      : PATH_PATIENT_SET,
+                acceptType: contentTypeForJSON,
+                query     : [name: 'test_set'],
+                body      : toJSON([
+                        type    : Combination,
+                        operator: AND,
+                        args    : [
+                                [type: ConceptConstraint, path: "\\Public Studies\\EHR\\Demography\\Age\\"],
+                                [type: ValueConstraint, valueType: NUMERIC, operator: GREATER_THAN, value: 30]
+                        ]
+                ]),
+                statusCode: 201
+        ]
+        def newSet = post(createPatientSetRequest)
         def request = [
                 path      : PATH_PATIENT_SET,
                 acceptType: contentTypeForJSON,
@@ -184,7 +202,7 @@ class PatientsSetSpec extends RESTSpec {
         def responseData = get(request)
 
         then: "the list of all patientSets is returned"
-        assert responseData.patientSets != null
+        assert newSet in responseData.patientSets
         responseData.patientSets.each {
             it.keySet().containsAll(['description', 'errorMessage', 'id', 'setSize', 'status', 'username'])
         }
