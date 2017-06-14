@@ -14,7 +14,7 @@ class DataExportController {
     def exportMetadataService
     def springSecurityService
     User currentUserBean
-    def dataExportService
+    DataExportService dataExportService
 
     private static final String ROLE_ADMIN = 'ROLE_ADMIN'
 

@@ -36,10 +36,11 @@ class AsyncJob {
     String results
     String jobType
     String jobInputsJson
+    String userId
 
     static mapping = {
         id generator: 'sequence',
-                params:    [sequence: 'hibernate_sequence', schema: 'searchapp']
+                params: [sequence: 'hibernate_sequence', schema: 'searchapp']
         table 'I2B2DEMODATA.ASYNC_JOB'
         version false
         jobName column: 'JOB_NAME'
@@ -51,6 +52,7 @@ class AsyncJob {
         results column: 'JOB_RESULTS'
         jobType column: 'JOB_TYPE'
         jobInputsJson column: 'JOB_INPUTS_JSON'
+        userId column: 'USER_ID'
     }
 
     static constraints = {
@@ -63,6 +65,7 @@ class AsyncJob {
         results(nullable: true)
         jobType(nullable: true)
         jobInputsJson(nullable: true)
+        userId(nullable: true)
     }
 
     TimeDuration getRunTime() {

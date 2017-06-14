@@ -6,6 +6,7 @@ import groovy.transform.Immutable
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
 import org.transmartproject.core.users.User
 
 interface MultiDimensionalDataResource {
@@ -37,6 +38,7 @@ interface MultiDimensionalDataResource {
     QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) 
 
     QueryResult findPatientSet(Long patientSetId, User user)
+    QueryResult findPatientSet(Long patientSetId, User user, WellKnownOperations operation)
 
     Iterable<QueryResult> findPatientSets(User user)
 
@@ -61,6 +63,8 @@ interface MultiDimensionalDataResource {
             String type)
 
     Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user)
+
+    List retriveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user)
 
     RequestConstraintAndVersion getPatientSetConstraint(long id)
 

@@ -94,7 +94,7 @@ class QueryController extends AbstractQueryController {
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            multidimensionalDataService.writeClinical(format, constraint, user, out)
+            multidimensionalDataService.writeClinical([:], format, constraint, user, out)
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         } finally {

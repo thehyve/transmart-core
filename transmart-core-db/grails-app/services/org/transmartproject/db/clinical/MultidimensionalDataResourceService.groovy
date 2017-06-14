@@ -4,6 +4,7 @@ package org.transmartproject.db.clinical
 
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
+import com.sun.xml.internal.bind.v2.WellKnownNamespace
 import grails.orm.HibernateCriteriaBuilder
 import grails.plugin.cache.Cacheable
 import grails.util.Holders
@@ -47,6 +48,7 @@ import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
 import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
@@ -585,12 +587,12 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         resultInstance
     }
 
-    @Override QueryResult findPatientSet(Long patientSetId, User user) {
+    @Override QueryResult findPatientSet(Long patientSetId, User user, WellKnownOperations operation = WellKnownOperations.READ) {
         QueryResult queryResult = QtQueryResultInstance.findById(patientSetId)
         if (queryResult == null) {
             throw new NoSuchResourceException("Patient set not found with id ${patientSetId}.")
         }
-        if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+        if (!user.canPerform(operation, queryResult)) {
             throw new AccessDeniedException("Access denied to patient set with id ${patientSetId}.")
         }
         queryResult
@@ -837,6 +839,29 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def dataType = 'clinical'
         def accessibleStudies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
         retrieveData(dataType, accessibleStudies, constraint: constraint)
+    }
+
+    List retriveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user){
+
+        Constraint assayConstraint = (Constraint) assayConstraint_
+        List<ObservationFact> observations = highDimObservationList(assayConstraint, user, defaultHDModifierCriterion)
+
+        List assayIds = []
+        for(def o : observations) {
+            if(o.numberValue == null) throw new DataInconsistencyException("Observation row(s) found that miss the assayId")
+            assayIds.add(o.numberValue.toLong())
+        }
+
+        if (assayIds.empty){
+            return new EmptyHypercube()
+        }
+        List<AssayConstraint> oldAssayConstraints = [
+                highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+        ]
+        Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
+                highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
+
+        assaysByType.keySet()?.collect {it.dataTypeName}
     }
 }
 

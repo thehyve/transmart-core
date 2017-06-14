@@ -14,6 +14,7 @@ import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.TestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
+import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import spock.lang.Ignore
@@ -34,7 +35,9 @@ class ObservationsBuilderTests extends Specification {
     TestData testData
     ClinicalTestData clinicalData
     //Map<String, DimensionImpl> dims
-    
+
+    String tempDirectory = '/var/tmp/jobs/test'
+
     @Autowired
     MultidimensionalDataResourceService queryResource
 
@@ -173,10 +176,50 @@ class ObservationsBuilderTests extends Specification {
         footer != null
     }
 
+    public void testCSVSerialization() {
+        setupData()
+        def dataType = 'clinical'
+        def fileExtension = '.tsv'
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        def mockedCube = queryResource.retrieveData(dataType, [clinicalData.longitudinalStudy], constraint: constraint)
+        def builder = new HypercubeCSVSerializer()
+        File tempFile = new File(tempDirectory)
+        tempFile.mkdirs()
+
+        when:
+        builder.write([directory: tempFile, dataType: dataType], mockedCube, null)
+        File observations = new File(tempDirectory, "observations_$dataType$fileExtension")
+        File concept = new File(tempDirectory, "concept_$dataType$fileExtension")
+        File patient = new File(tempDirectory, "patient_$dataType$fileExtension")
+        File study = new File(tempDirectory, "study_$dataType$fileExtension")
+        File trial_visit = new File(tempDirectory, "trial_visit_$dataType$fileExtension")
+
+        then:
+        observations.exists()
+        observations.isFile()
+
+        concept.exists()
+        concept.isFile()
+
+        patient.exists()
+        patient.isFile()
+
+        study.exists()
+        study.isFile()
+
+        trial_visit.exists()
+        trial_visit.isFile()
+    }
+
     void setupData() {
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData
         testData.saveAll()
         //dims = DimensionImpl.dimensionsMap
+    }
+
+    def cleanup() {
+        def tempDir = new File(tempDirectory)
+        tempDir.deleteDir()
     }
 }
