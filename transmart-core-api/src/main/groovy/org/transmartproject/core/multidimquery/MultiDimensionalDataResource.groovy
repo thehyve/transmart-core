@@ -27,15 +27,12 @@ interface MultiDimensionalDataResource {
      */
     Hypercube retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies)
 
-    Dimension getDimension(String name)
-
-
     Long count(MultiDimConstraint constraint, User user)
     Long cachedCount(MultiDimConstraint constraint, User user)
 
     List<Patient> listPatients(MultiDimConstraint constraint, User user)
 
-    List<Object> listDimensionElements(String dimensionName, User user, MultiDimConstraint constraint)
+    Iterable listDimensionElements(Dimension dimension, User user, MultiDimConstraint constraint)
 
     QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) 
 

@@ -17,13 +17,12 @@ class DimensionSpec extends RESTSpec{
         when: "I try to fetch all trial visits"
         def dimensionName = "trial visit"
         def responseData = get([
-                path      : PATH_DIMENSION + "/$dimensionName",
+                path      : PATH_DIMENSION + "/$dimensionName/elements",
                 acceptType: contentTypeForJSON
         ])
-        def elements = responseData.elements
-        
+
         then: "the list of trial visits for unrestricted studies is returned"
-        elements.size() == 19
+        responseData.size() == 19
     }
     
     @RequiresStudy([EHR_ID, EHR_HIGHDIM_ID, CLINICAL_TRIAL_ID, CATEGORICAL_VALUES_ID, TUMOR_NORMAL_SAMPLES_ID, SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
@@ -34,12 +33,11 @@ class DimensionSpec extends RESTSpec{
         when: "I try to fetch all trial visits"
         def dimensionName = "trial visit"
         def responseData = get([
-                path      : PATH_DIMENSION + "/$dimensionName",
+                path      : PATH_DIMENSION + "/$dimensionName/elements",
                 acceptType: contentTypeForJSON
         ])
-        def elements = responseData.elements
-                
+
         then: "the list of trial visits for all studies is returned"
-        elements.size() == 21
+        responseData.size() == 21
     }
 }

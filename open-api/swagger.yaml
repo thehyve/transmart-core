@@ -1374,16 +1374,21 @@ paths:
       responses:
         204:
           description: 'returns null'
-  /v2/dimension/{$dimensionName}:
+  /v2/dimensions/{$dimensionName}/elements:
     get:
       description: |
-        Gets one patient object.
+        Gets all elements from a dimension of given name that satisfy the constaint if given.
       tags:
         - v2
       parameters:
         - name: $dimensionName
           in: path
           required: true
+          type: string
+        - name: constraint
+          required: false
+          in: query
+          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
           type: string
       responses:
         200:

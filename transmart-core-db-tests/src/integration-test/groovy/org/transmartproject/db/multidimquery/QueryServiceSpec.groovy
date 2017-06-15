@@ -438,10 +438,10 @@ class QueryServiceSpec extends TransmartSpecification {
         setupHypercubeData()
 
         when: "Dimension name is 'trial visit'"
-        String dimensionName = DimensionImpl.TRIAL_VISIT.name
+        DimensionImpl dimension = DimensionImpl.TRIAL_VISIT
         Constraint constraint = new StudyNameConstraint(studyId: hypercubeTestData.clinicalData.multidimsStudy.studyId )
         def expectedResult = hypercubeTestData.clinicalData.multidimsStudy.trialVisits as Set<TrialVisit>
-        def result = multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[1], constraint)
+        def result = multiDimService.listDimensionElements(dimension, accessLevelTestData.users[1], constraint)
 
         then: "TrialVisit dimension elements are returned"
         result.size() == expectedResult.size()

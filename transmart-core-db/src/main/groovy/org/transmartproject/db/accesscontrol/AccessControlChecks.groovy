@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.ontology.StudiesResource
@@ -277,6 +278,23 @@ class AccessControlChecks {
 
     private boolean exists(org.hibernate.criterion.DetachedCriteria criteria) {
         (criteria.getExecutableCriteria(sessionFactory.currentSession).setMaxResults(1).uniqueResult() != null)
+    }
+
+    void verifyDimensionsAccessible(Collection<Dimension> dimensions, User user) {
+        def inaccessibleDimensions = getInaccessibleDimensions(dimensions, user)
+        if (inaccessibleDimensions){
+            if (inaccessibleDimensions.size() == 1) {
+                throw new AccessDeniedException("Access denied to dimension: ${inaccessibleDimensions.first()}.")
+            } else {
+                throw new AccessDeniedException("Access denied to dimensions: ${inaccessibleDimensions.join(', ')}.")
+            }
+        }
+    }
+
+    private Collection<Dimension> getInaccessibleDimensions(Collection<Dimension> dimensions, User user) {
+        def studies = getDimensionStudiesForUser(user)
+        def validDimensions = studies*.dimensions?.flatten() as Set
+        dimensions - validDimensions
     }
 
     /**

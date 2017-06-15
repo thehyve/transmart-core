@@ -127,7 +127,7 @@ class RestApiUrlMappings {
             "/recommended_concepts/$conceptCode"(method: 'GET', controller: 'concept', action: 'showRecommended') {
                 apiVersion = 'v2'
             }
-            "/dimension/$dimensionName"(methos: 'GET', controller: 'dimension', action: 'list'){
+            "/dimension/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
                 apiVersion = 'v2'
             }
         }

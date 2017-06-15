@@ -12,6 +12,7 @@ import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
+import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
@@ -619,12 +620,14 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         result.add(criterion)
         result
     }
-    
+
     /**
+     * Builds a DetachedCriteria object representing the query for observation facts without additional constraints
      *
+     * @param constraint
      * @return
      */
-    DetachedCriteria buildCriteria(Criterion modifierCriterion = defaultModifierCriterion) {
+    DetachedCriteria buildCriteria(Criterion modifierCriterion) {
         aliases = [:]
         def result = builder()
         def trialVisitAlias = getAlias('trialVisit')
@@ -639,6 +642,21 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         }
         result.add(criterion)
         result
+    }
+
+    /**
+     * Builds a DetachedCriteria object representing the query for elements of specified dimension
+     *
+     * @param constraint
+     * @return
+     */
+    DetachedCriteria buildElementsCriteria(Map args, DimensionImpl dimension, MultiDimConstraint constraint) {
+        Criterion modifierCriteria = dimension.hasProperty('modifierCode') ?
+                Restrictions.eq('modifierCd', dimension.modifierCode) : defaultModifierCriterion
+        DetachedCriteria constraintCriteria = constraint ?
+                buildCriteria((Constraint) constraint, modifierCriteria) : buildCriteria(modifierCriteria)
+
+        dimension.selectDimensionElements(args, constraintCriteria)
     }
 
     /**

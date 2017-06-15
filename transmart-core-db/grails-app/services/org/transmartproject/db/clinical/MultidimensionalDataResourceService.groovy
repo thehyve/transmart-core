@@ -113,17 +113,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     @Autowired
     ConceptsResource conceptsResource
 
-    Dimension getDimension(String name) {
-        DimensionDescription.findByName(name).dimension
-    }
-    
-    DimensionImpl getDimensionForStudies(String dimensionName, Collection<MDStudy> studies) {
-        Set<DimensionImpl> validDimensions = ImmutableSet.copyOf((Set<DimensionImpl>) studies*.dimensions.flatten())
-        def dimension = validDimensions.find { it.name == dimensionName }
-        if (!dimension) throw new InvalidArgumentsException("dimension $dimensionName is not a valid dimension or dimension name")
-        dimension
-    }
-
     /**
      * @param accessibleStudies: The studies the current user has access to.
      * @param dataType: The string identifying the data type. "clinical" for clinical data, for high dimensional data
@@ -485,21 +474,15 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param constraint
      */
     @Override
-    List<Object> listDimensionElements(String dimensionName, User user, MultiDimConstraint constraint) {
+    Iterable listDimensionElements(Dimension dimension, User user, MultiDimConstraint constraint) {
         Collection<MDStudy> studies = accessControlChecks.getDimensionStudiesForUser(user)
-        DimensionImpl dimension = getDimensionForStudies(dimensionName, studies)
         Map args = [ type: SelectType.ELEMENTS ]
 
         HibernateCriteriaQueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: studies
         )
-        
-        Criterion modifierCriteria = dimension.hasProperty('modifierCode') ?
-                Restrictions.eq('modifierCd', dimension.modifierCode) : Restrictions.eq('modifierCd', '@')
-        DetachedCriteria constraintCriteria = constraint ?
-                builder.buildCriteria((Constraint) constraint, modifierCriteria) : builder.buildCriteria(modifierCriteria)
-        
-        DetachedCriteria dimensionCriteria = dimension.selectDimensionElements(args, constraintCriteria)
+        DetachedCriteria dimensionCriteria = builder.buildElementsCriteria(args, (DimensionImpl) dimension, constraint)
+
         List elements = getList(dimensionCriteria)
         elements.collect { dimension.asSerializable(it) }
     }
@@ -511,7 +494,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param user
      */
     @Override List<Patient> listPatients(MultiDimConstraint constraint, User user) {
-        DetachedCriteria patientCriteria = getPatientCriteria(constraint, user, [type: SelectType.ELEMENTS])
+        checkAccess(constraint, user)
+        def builder = getCheckedQueryBuilder(user)
+        DetachedCriteria patientCriteria = builder.buildElementsCriteria([type: SelectType.ELEMENTS], PATIENT, constraint)
         getList(patientCriteria)
     }
     
@@ -522,17 +507,12 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param user
      */
     @Override Long countPatients(MultiDimConstraint constraint, User user) {
-        DetachedCriteria patientCriteria = getPatientCriteria(constraint, user, [type: SelectType.COUNT])
-        (Long) get(patientCriteria)
-    }
-    
-    private DetachedCriteria getPatientCriteria(MultiDimConstraint constraint, User user, LinkedHashMap<String, SelectType> args) {
         checkAccess(constraint, user)
         def builder = getCheckedQueryBuilder(user)
-        DetachedCriteria constraintCriteria = builder.buildCriteria((Constraint) constraint)
-        PATIENT.selectDimensionElements(args, constraintCriteria)
+        DetachedCriteria patientCriteria = builder.buildElementsCriteria([type: SelectType.COUNT], PATIENT, constraint)
+        (Long) get(patientCriteria)
     }
-    
+
     /**
      * @description Function for creating a patient set consisting of patients for which there are observations
      * that are specified by <code>query</code>.
