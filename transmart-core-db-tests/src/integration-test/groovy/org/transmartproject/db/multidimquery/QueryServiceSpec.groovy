@@ -454,20 +454,12 @@ class QueryServiceSpec extends TransmartSpecification {
             }
         }
 
-        when: "Dimension name is incorrect"
-        dimensionName = 'incorrect name'
-        multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[1], null)
-
+        when: "Dimension with given name does not support listing elements"
+        dimension = DimensionImpl.START_TIME
+        multiDimService.listDimensionElements(dimension, accessLevelTestData.users[1], null)
+    
         then: "InvalidArgumentsException is thrown"
         def e = thrown(InvalidArgumentsException)
-        e.message == "dimension $dimensionName is not a valid dimension or dimension name"
-    
-        when: "Dimension with given name does not support listing elements"
-        dimensionName = DimensionImpl.START_TIME.name
-        multiDimService.listDimensionElements(dimensionName, accessLevelTestData.users[1], null)
-    
-        then: "InvalidArgumentsException is thrown"
-        e = thrown(InvalidArgumentsException)
-        e.message == "Dimension not supported."
+        e.message == "Selecting elements of $dimension.name dimension is not supported."
     }
 }

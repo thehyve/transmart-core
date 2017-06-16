@@ -40,4 +40,19 @@ class DimensionSpec extends RESTSpec{
         then: "the list of trial visits for all studies is returned"
         responseData.size() == 21
     }
+
+    def "Invalid dimension name"() {
+        when: "I try to fetch dimension with invaid name"
+        def dimensionName = "invalid name"
+        def responseData = get([
+                path      : PATH_DIMENSION + "/$dimensionName/elements",
+                acceptType: contentTypeForJSON,
+                statusCode: 400
+        ])
+
+        then: "Exception is thrown"
+        assert responseData.httpStatus == 400
+        assert responseData.type == 'InvalidArgumentsException'
+        assert responseData.message == "Dimension with a name '$dimensionName' is invalid."
+    }
 }

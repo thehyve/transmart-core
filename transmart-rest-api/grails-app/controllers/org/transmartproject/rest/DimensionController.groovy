@@ -32,7 +32,7 @@ class DimensionController extends AbstractQueryController {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def dimension = DimensionImpl.fromNameOrNull(dimensionName)
-        verifyDimension(Collections.singleton(dimension), dimensionName, user)
+        verifyDimension(dimension ? Collections.singleton(dimension) : null, dimensionName, user)
 
         Constraint constraint = Strings.isNullOrEmpty(params.constraint) ? null : bindConstraint(params.constraint)
 
@@ -41,10 +41,10 @@ class DimensionController extends AbstractQueryController {
     }
 
     private void verifyDimension(Collection<Dimension> dimensions, String dimensionName, user) {
-        if (dimensions.empty) {
-            throw new InvalidArgumentsException("Dimension with a name $dimensionName is invalid.")
+        if (dimensions == null) {
+            throw new InvalidArgumentsException("Dimension with a name '$dimensionName' is invalid.")
         } else if (dimensions.size() > 1) {
-            throw new InvalidArgumentsException("More than one dimension found with name $dimensionName.")
+            throw new InvalidArgumentsException("More than one dimension found with name '$dimensionName'.")
         }
         accessControlChecks.verifyDimensionsAccessible(dimensions, user)
     }
