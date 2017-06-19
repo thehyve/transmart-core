@@ -1,0 +1,4 @@
+
+testFun <- function() {
+    "test"
+}

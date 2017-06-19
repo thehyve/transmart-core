@@ -1,0 +1,54 @@
+.point {
+
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.square {
+
+}
+
+.tick line {
+    shape-rendering: crispEdges;
+    opacity: 0.2;
+}
+
+.pLine {
+    stroke: red;
+    stroke-width: 2px;
+    shape-rendering: crispEdges;
+}
+
+.pHandle {
+    cursor: ns-resize;
+    opacity: 0;
+}
+
+.logFCLine {
+    stroke: #0000FF;
+    stroke-width: 2px;
+    shape-rendering: crispEdges;
+}
+
+.logFCHandle {
+    cursor: ew-resize;
+    opacity: 0;
+}
+
+.axisText {
+    font-size: 14px;
+}
+
+.volcanoplot-table, .myth, .mytd {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.myth, .mytd {
+    padding: 5px;
+}

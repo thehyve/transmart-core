@@ -1,0 +1,28 @@
+<workflow-controls>
+    <div>
+        <label for="sr-lg-patient-range">No. of patients to show</label>
+        <input type="range" id="sr-lg-patient-range">
+    </div>
+    <div>
+        <input type="checkbox" id="sr-lg-legend-check">
+        <label for="sr-lg-legend-check">User weighted events</label>
+    </div>
+    <div>
+        <input type="checkbox" id="sr-lg-smooth-check">
+        <label for="sr-lg-smooth-check">Smooth Graph</label>
+    </div>
+    <div>
+        <input type="checkbox" id="sr-lg-evenly-check">
+        <label for="sr-lg-evenly-check">Evenly space timepoints</label>
+    </div>
+    <div>
+        <select id="sr-lg-numplottype-select">
+            <option value="meanWithSD">Mean with SD</option>
+            <option value="medianWithSD">Median with SD</option>
+            <option value="meanWithSEM">Mean with SEM</option>
+            <option value="medianWithSEM">Median with SEM</option>
+            <option value="noGrouping">Show individuals</option>
+        </select>
+    </div>
+</workflow-controls>
+<div id="visualisation"></div>

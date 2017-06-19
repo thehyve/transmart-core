@@ -1,0 +1,57 @@
+.point {
+    opacity: 0.8;
+    stroke: #FFFFFF;
+}
+
+.regressionLine {
+    stroke: #FFA500;
+    stroke-width: 3px;
+}
+
+.regressionLine:hover {
+    stroke: #FF0000;
+}
+
+.brush .extent {
+    fill: blue;
+    opacity: .125;
+    shape-rendering: crispEdges;
+}
+
+.bar rect {
+    fill: #FEEAAF;
+    stroke: #DEAC3A;
+    shape-rendering: crispEdges;
+}
+
+.bar text {
+    fill: #ffa500;
+    font-weight: bold;
+}
+
+.axis path, .axis line {
+    fill: none;
+    stroke: black;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+}
+
+.axis {
+    font-size: 10px;
+}
+
+.tick line {
+    shape-rendering: crispEdges;
+    opacity: 0.2;
+}
+
+.axisLabels {
+    text-anchor: middle;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.legend1 {
+    color: black;
+}
+

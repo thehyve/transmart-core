@@ -1,0 +1,42 @@
+<workflow-controls ng-show="showControls">
+    <div>
+        <input type="checkbox" id="sr-heatmap-animate-check" checked>
+        <label for="sr-heatmap-animate-check">Animate</label>
+    </div>
+    <div>
+        <div>
+            <input type="button" id="sr-heatmap-cutoff-btn" value="Apply Cutoff">
+            <input type="range" id="sr-heatmap-cutoff-range" min="0" step="1" value="0">
+        </div>
+        <label for="sr-heatmap-zoom-range">Zoom</label>
+        <input type="range" id="sr-heatmap-zoom-range" min="1" max="200" step="5" value="100">
+    </div>
+    <div>
+        <select id="sr-heatmap-cluster-select">
+            <option disabled selected value> -- select a clustering -- </option>
+            <option value="hclustEuclideanAverage">Hierarch.-Eucl.-Avg.</option>
+            <option value="hclustEuclideanComplete">Hierarch.-Eucl.-Complete</option>
+            <option value="hclustEuclideanSingle">Hierarch.-Eucl.-Single</option>
+            <option value="hclustManhattanAverage">Hierarch.-Manhat.-Avg.</option>
+            <option value="hclustManhattanComplete">Hierarch.-Manhat.-Complete</option>
+            <option value="hclustManhattanSingle">Hierarch.-Manhat.-Single</option>
+        </select><br/>
+        <div>
+            <input type="checkbox" id="sr-heatmap-row-check" checked>
+            <label for="sr-heatmap-row-check">Cluster Row</label>
+            <input type="checkbox" id="sr-heatmap-col-check" checked>
+            <label for="sr-heatmap-col-check">Cluster Col</label>
+        </div>
+    </div>
+    <div>
+        <select id="sr-heatmap-ranking-select">
+        </select><br/>
+        <select id="sr-heatmap-color-select">
+            <option value="redGreen" selected>Red to Green Schema</option>
+            <option value="redBlue">Red to Blue Schema</option>
+            <option value="blueScale">Blue Schema</option>
+            <option value="greenScale">Green Schema</option>
+        </select>
+    </div>
+</workflow-controls>
+<div id="visualisation"></div>

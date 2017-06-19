@@ -1,0 +1,252 @@
+/* override  jquery-ui stylings */
+
+#sr-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    opacity: 0.7;
+    background-color: white;
+    z-index: 99999;
+    text-align: center;
+    font-size: 50pt;
+    visibility: hidden;
+}
+
+.ui-tabs  {
+    font-size: .9em;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Heim analytical tools  */
+.heim-input-field {
+    margin-top: 10px;
+}
+
+/* SmartR legacies */
+
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Roboto'), local('Roboto-Regular'), url(http://fonts.gstatic.com/s/roboto/v15/oMMgfZMQthOryQo9n22dcuvvDin1pK8aKteLpeZ5c0A.woff2) format('woff2');
+}
+
+.heim-fetch-err{
+    color: red;
+}
+
+#smartRPanel text {
+    font-family: 'Roboto', sans-serif; !important;
+}
+
+/** **/
+.blink_me {
+	-webkit-animation-name: blinker;
+	-webkit-animation-duration: .1s;
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-iteration-count: infinite;
+
+	-moz-animation-name: blinker;
+	-moz-animation-duration: .1s;
+	-moz-animation-timing-function: linear;
+	-moz-animation-iteration-count: infinite;
+
+	animation-name: blinker;
+	animation-duration: .1s;
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+}
+@-moz-keyframes blinker {
+	0% { opacity: 1.0; }
+	50% { opacity: 0.0; }
+	100% { opacity: 1.0; }
+}
+@-webkit-keyframes blinker {
+	0% { opacity: 1.0; }
+	50% { opacity: 0.0; }
+	100% { opacity: 1.0; }
+}
+@keyframes blinker {
+	0% { opacity: 1.0; }
+	50% { opacity: 0.0; }
+	100% { opacity: 1.0; }
+}
+
+.sr-input-area {max-width: 1024px;  display: table; table-layout: fixed;}
+.heim-dropzone {display: table-cell; width: 400px; min-width: 200px;}
+.sr-drop-input {
+    height: 100px;
+    border: 1px solid;
+    margin-right: 5px;
+    padding: 2px;
+    border-radius: 5px;
+}
+.sr-drop-input-valid {
+    border-color: #00bb00;
+    box-shadow: 1px 1px 4px #aaffaa;
+}
+.sr-drop-input-invalid {
+    border-color: #dd0000;
+    box-shadow: 1px 1px 4px #ffaaaa;
+}
+.heim-action-button {padding: 5px;}
+div.sr-tab-status {
+    margin-bottom: 2em;
+}
+div.sr-status-progress {
+    color: darkgoldenrod;
+}
+div.sr-status-error {
+    color: red;
+}
+div.sr-status-and-output-container:before {
+    display: block;
+    content: "";
+    border-top: 1px dotted #8c8b8b;
+    margin: 2em 0 .5em 0;
+    clear: both;
+}
+div.sr-status-and-output-container:empty:before {
+    display: none;
+}
+.sr-output-container {padding-top: 20px; padding-bottom: 20px;}
+.sr-fetch-params-area {clear: both; margin-top: 20px;margin-bottom: 20px;}
+.sr-log-text {color: darkgreen}
+.sr-output-container img {border: 1px solid #ddd; margin-right: 3px;}
+/*.sr-summary-table {border: 1px solid #ddd; display: inline-block; width: 480px;}*/
+/*.sr-summary-table th {font-weight: bold; background-color: #DDD; text-align: center}*/
+/*.sr-summary-table th, .sr-summary-table td  {padding: 5px;}*/
+/*.sr-summary-table body {width: 100%; }*/
+/*.sr-summary-table tr th:nth-child(1){width: 30%;}*/
+/*.sr-summary-table tr th:nth-child(2){width: 20%;}*/
+/*.sr-summary-table tr th:nth-child(3){width: 20%;}*/
+/*.sr-summary-table tr td:nth-child(2){text-align: right;}*/
+/*.sr-summary-table tr td:nth-child(3){text-align: right;}*/
+.summary-stats-node { overflow: auto; }
+.summary-stats-node > img { float: left; }
+.summary-stats-node > table { margin-top: 57px; }
+.ui-icon-info {display: inline-block; }
+.sr-ui-tooltip {font-size: .85em; background: lightgoldenrodyellow !important;}
+
+#heim-input-list-identifiers ul {
+    margin-top: .8em;
+    display: table;
+}
+#heim-input-list-identifiers li {
+    display: table-row;
+}
+#heim-input-list-identifiers div, #heim-input-list-identifiers button {
+    display: table-cell;
+}
+#heim-input-list-identifiers div {
+    padding-right: 1em;
+}
+#heim-input-list-identifiers .identifier-name {
+    font-weight: bold;
+}
+#heim-input-list-identifiers .identifier-synonyms {
+    font-size: .9em;
+    color: gray;
+}
+
+/** jquery ui overrides **/
+.heim-tab.ui-state-default.ui-state-active {
+    background: white;
+}
+.heim-tab.ui-state-default.ui-state-active a {
+    color: black;  font-weight: bold;
+}
+.heim-tab.ui-state-default a:hover  {
+    color: #515BA2;
+}
+.heim-tab.ui-state-default {
+    background: #CCC;
+}
+.heim-tab.ui-state-default a {
+    color: black; font-weight: normal;
+}
+.sr-divider {border-top: 1px dotted #8c8b8b; margin-bottom: .5em; margin-top: 2em; clear:both;}
+.heim-input-field h3  {height: 1.7em; font-weight: 100;}
+.heim-input-field label  {display: inline-table;width: 15em;height: 1.7em;}
+.heim-input-field input[type='text']  {display: inline-table;width: 15em; height: 1.5em; padding: 2px;}
+.heim-radiogroup {padding: .5em; border-radius: .5em; background-color: #EEE; border:none; margin: .5em 0 0 .5em; }
+.heim-radiogroup label {display: inline; padding-left: 5px}
+.heim-radiogroup div {display: block; margin-bottom: .5em}
+.heim-input-field-sub {float:left;}
+.heim-input-field-sub h3 {text-decoration: underline; font-weight: 100;}
+.sr-warning-box {
+    margin: 15px;
+    padding: 15px;
+    color: red;
+    border: solid 2px red;
+    white-space: pre-wrap;
+}
+#sr-fetch-dialog {font-family: inherit;}
+.ui-dialog {z-index: 1000}
+
+.sr-summary-table {
+    background-color: gainsboro;
+    padding: 0;
+    margin-top: 25px
+}
+.sr-summary-table td, .sr-summary-table  th  {
+    padding: 1em;
+    background-color: white;
+    vertical-align: top;
+}
+.sr-summary-table th {
+    background-color: #efefef;;
+}
+
+.sr-instruction {
+    color:red;
+}
+
+.sr-contextmenu {
+    border-radius: 8px !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.sr-contextmenu:after {
+    color: rgba(0, 0, 0, 0.4) !important;
+}
+
+.sr-ctx-menu-btn {
+    min-width: 150px;
+    height: 30px;
+    margin: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 12px;
+    background-color: #FFFFFF;
+    color: #000000;
+    border: none;
+    text-align: center;
+    cursor: pointer;
+}
+
+.sr-ctx-menu-btn:hover {
+    color: #FFFFFF;
+    background-color: #326FCB;
+}
+
+.sr-workflow-controls {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.sr-workflow-controls-hider {
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    position: fixed;
+    right: 0;
+    z-index: 1;
+}
+

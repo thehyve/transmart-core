@@ -1,0 +1,11 @@
+<div id="heim-tabs" style="margin-top: 25px;">
+    <ul>
+        <li class="heim-tab" ng-repeat="tab in tabs">
+            <a href="#{{tab.id}}"
+               ng-style="{'color': tab.disabled ? 'grey' : 'black', 'pointer-events': tab.disabled ? 'none' : null}">
+                {{tab.name}}
+            </a>
+        </li>
+    </ul>
+    <ng-transclude-replace></ng-transclude-replace>
+</div>

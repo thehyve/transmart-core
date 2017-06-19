@@ -1,0 +1,191 @@
+#visualisation {
+    background: rgb(24, 24, 24);
+}
+
+/* all text elements */
+#visualisation text {
+    fill: rgb(145, 145, 145);
+}
+
+/* axis itself */
+.sr-lg-x-axis path {
+    fill: none;
+    stroke: none;
+}
+
+/* axis ticks */
+.sr-lg-x-axis line {
+    fill: none;
+    stroke: rgb(52, 52, 52);
+    stroke-width: 1px;
+}
+
+/* axis itself */
+.sr-lg-y-axis path {
+    fill: none;
+    stroke: none;
+}
+
+/* axis ticks */
+.sr-lg-y-axis line {
+    fill: none;
+    stroke: rgb(52, 52, 52);
+    stroke-width: 1px;
+}
+
+/* all boxes of cat plot */
+.sr-lg-cat-plot-box {
+    stroke-width: 2px;
+    stroke: rgb(24, 24, 24);
+}
+
+/* subset 1 boxes of cat plot */
+.sr-lg-cat-plot-box.subset-1 {
+    fill: rgba(94, 198, 216, 0.08);
+}
+
+.sr-lg-cat-plot-box.subset-1:hover {
+    fill: rgba(94, 198, 216, 1);
+}
+
+/* subset 2 boxes of cat plot */
+.sr-lg-cat-plot-box.subset-2 {
+    fill: rgba(217, 54, 51, 0.08);
+}
+.sr-lg-cat-plot-box.subset-2:hover {
+    fill: rgba(217, 54, 51, 1);
+}
+
+.sr-lg-cat-plot-sig-bar {
+    fill: #009e20;
+    shape-rendering: crispEdge;
+}
+
+/* icons of cat plot */
+.sr-lg-cat-icon {
+    stroke-width: 1px;
+    stroke: rgb(24, 24, 24);
+    shape-rendering: crispEdges;
+    cursor: pointer;
+}
+.sr-lg-cat-icon:hover {
+
+}
+/* special class for icon hl */
+.icon-highlight {
+}
+
+.sr-lg-cat-stat-icon {
+    stroke: none;
+    fill: white;
+}
+
+/* arrows for scrolling up and down */
+.sr-lg-shift-element {
+    fill: rgb(38, 38, 38);
+    stroke: rgb(67, 67, 67);
+}
+.sr-lg-shift-element:hover {
+    fill: rgb(45, 45, 45);
+    cursor: pointer;
+}
+
+/* all boxes for num plots */
+.sr-lg-num-plot>rect {
+    fill: none;
+    stroke: none;
+}
+
+/* legend rects for subset 1 */
+.sr-lg-num-legend.subset-1 {
+    fill: rgb(94, 198, 216);
+}
+
+/* legend rects for subset 1 */
+.sr-lg-num-legend.subset-2 {
+    fill: rgb(217, 54, 51);
+}
+
+/* boxplots */
+.sr-lg-boxplot rect {
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+}
+.sr-lg-boxplot.subset-1 rect {
+    stroke: none;
+    fill: rgb(94, 198, 216);
+}
+
+.sr-lg-boxplot.subset-2 rect {
+    stroke: none;
+    fill: rgb(217, 54, 51);
+}
+.sr-lg-boxplot rect:hover {
+    opacity: 0.5;
+}
+
+/* connection line between boxplots */
+.sr-lg-timeline {
+    fill: none;
+    stroke-width: 2px;
+}
+.sr-lg-timeline-highlight {
+    stroke: yellow !important;
+    stroke-width: 4px;
+}
+.sr-lg-timeline.subset-1 {
+    stroke: rgb(94, 198, 216);
+}
+.sr-lg-timeline.subset-2 {
+    stroke: rgb(217, 54, 51);
+}
+
+/* special hl class for all timeline objects */
+.timeline-lowlight {
+    opacity: 0.2;
+}
+
+.sr-lg-sd-line>text {
+}
+
+.sr-lg-sd-line>line {
+    fill: none;
+    stroke-width: 3px;
+}
+
+/* invisible axis box to catch mouse events */
+.sr-lg-time-element > rect {
+    opacity: 0;
+}
+.sr-lg-time-element > rect:hover {
+    cursor: move;
+}
+
+/* arrows that appear left and right when hovering over axis element */
+.sr-lg-time-element > polygon {
+    fill: rgba(94, 198, 216, 0.7);
+}
+
+/* control panel */
+.sr-workflow-controls>div {
+    float: right;
+    padding: 5px 15px 5px 15px;
+}
+
+.d3-tip {
+    background: rgba(145, 145, 145, 0.8) !important;
+    color: #000 !important;
+}
+
+.d3-tip:after {
+    color: rgba(145, 145, 145, 0.8) !important;
+}
+
+.sr-lg-legend-item {
+    cursor: ns-resize;
+}
+
+.sr-lg-legend-item>rect {
+    fill: white;
+    opacity: 0;
+}

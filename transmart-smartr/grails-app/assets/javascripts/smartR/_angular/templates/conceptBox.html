@@ -1,0 +1,14 @@
+<div class="heim-input-field heim-dropzone sr-hd-input">
+    <label style="display: inline;">{{label}} <i class="ui-icon ui-icon-info sr-tooltip-dialog" title="{{tooltip}}"> </i></label>
+    <br><br>
+    <span ng-show="instructionMinNodes" class="sr-instruction">Drag at least {{min}} node(s) into the box<br /></span>
+    <span ng-show="instructionMaxNodes" class="sr-instruction">Select at most {{max}} node(s)<br /></span>
+    <span ng-show="instructionNodeType" class="sr-instruction">Node(s) do not have the correct type<br /></span>
+    <span ng-show="instructionNodePlatform" class="sr-instruction">Nodes must have the same platform</span>
+    <div class="sr-drop-input" ng-class="{true:'sr-drop-input-valid', false:'sr-drop-input-invalid'}[conceptGroup.valid]"
+        style="overflow-y:auto">
+    </div>
+    <div style="margin-top: 10px; text-align: right;">
+        <input type="button" value="Clear Window" class="sr-drop-btn">
+    </div>
+</div>

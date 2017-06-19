@@ -1,0 +1,122 @@
+.square {
+}
+
+.square:hover {
+    opacity: 0.4;
+}
+
+.squareHighlighted {
+    opacity: 0.4;
+}
+
+.extraSquare {
+}
+
+.feature {
+}
+
+.featureSortText {
+}
+
+.selected {
+    opacity: 1;
+}
+
+.extraSquare:hover {
+    opacity: 0.4;
+}
+
+.bar {
+    shape-rendering: crispEdges;
+}
+
+.bar:hover {
+    opacity: 0.4;
+}
+
+.barHighlighted {
+    opacity: 0.4;
+}
+
+.cutoffHighlight {
+    opacity: 0.4;
+}
+
+.box {
+    fill-opacity: 0;
+    shape-rendering: crispEdges;
+}
+
+.box:hover {
+    cursor: pointer;
+    fill-opacity: 0.2;
+}
+
+.sortedBy {
+    stroke: red;
+}
+
+.rowname {
+    cursor: pointer;
+}
+
+.rowname:hover {
+    fill: blue;
+    text-decoration: underline;
+}
+
+.selectText {
+}
+
+.highlight {
+    font-weight: bold;
+    fill: red;
+}
+
+.node {
+    fill: white;
+    stroke: rgb(0, 126, 126);
+    stroke-width: 1.5px;
+}
+
+.node:hover {
+    cursor: pointer;
+    fill: rgb(0, 126, 126);
+}
+
+.link {
+    fill: none;
+    stroke: #FF8700;
+    stroke-width: 2px;
+}
+
+.sr-heatmap-table {
+    border-collapse: collapse;
+}
+
+.sr-heatmap-table th {
+    font-weight: bold;
+}
+
+.sr-heatmap-table tr {
+
+}
+
+.sr-heatmap-table td {
+    border: solid 1px black;
+    padding: 4px;
+}
+
+.sr-workflow-controls>div {
+    float: right;
+    padding: 5px 15px 5px 15px;
+}
+
+#sr-heatmap-cluster-select {
+    width: 100%;
+}
+
+#sr-heatmap-zoom-range {
+    float: right;
+}
+
