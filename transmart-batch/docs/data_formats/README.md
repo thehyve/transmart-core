@@ -14,7 +14,7 @@
     * [trial-visit-mapping.md](trial-visit-mapping.md) *not yet implemented* - Provide a time unit and value for your trial visit labels.
     * [patient-visit-mapping.md](patient-visit-mapping.md) *not yet implemented* - Provide start and end dates for your patient visits.
     * [templates.md](templates.md) - Using templates in the clinical data paths.
-    * [xtrial.md](xtrial.md) - Uploading across trial clinical data.
+    * [xtrial.md](xtrial.md) - Uploading across trial clinical data for pre-2017 versions of tranSMART.
 
 ## High-dimensional data
 * General high-dimensional data processing
