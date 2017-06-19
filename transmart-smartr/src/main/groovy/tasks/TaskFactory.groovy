@@ -1,10 +1,7 @@
-package heim.tasks
+package tasks
 
 import org.springframework.core.Ordered
 
-/**
- * Created by glopes on 09-10-2015.
- */
 interface TaskFactory extends Ordered {
 
     boolean handles(String taskName,

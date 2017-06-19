@@ -1,4 +1,4 @@
-package heim.tasks
+package tasks
 
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
@@ -6,10 +6,10 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import groovy.transform.ToString
 import groovy.util.logging.Log4j
-import heim.SmartRExecutorService
-import heim.session.SessionContext
-import heim.session.SessionService
-import heim.session.SmartRSessionScope
+import misc.SmartRExecutorService
+import session.SessionContext
+import session.SessionService
+import session.SmartRSessionScope
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -21,9 +21,6 @@ import java.util.concurrent.Callable
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ConcurrentHashMap
 
-/**
- * Created by glopes on 09-10-2015.
- */
 @Log4j
 @Component
 @SmartRSessionScope

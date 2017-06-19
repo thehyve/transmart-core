@@ -1,4 +1,4 @@
-package heim.rserve;
+package rserve;
 
 import org.apache.log4j.Logger;
 import org.rosuda.REngine.REXP;

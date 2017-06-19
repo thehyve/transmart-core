@@ -1,22 +1,19 @@
-package heim.tasks
+package tasks
 
-import heim.SmartRRuntimeConstants
-import heim.jobs.JobInstance
-import heim.rserve.GenericJavaObjectAsJsonRFunctionArg
-import heim.rserve.RFunctionArg
-import heim.rserve.RScriptsSynchronizer
-import heim.rserve.RServeSession
-import heim.session.SessionFiles
-import heim.session.SmartRSessionScope
+import misc.SmartRRuntimeConstants
+import jobs.JobInstance
+import rserve.GenericJavaObjectAsJsonRFunctionArg
+import rserve.RFunctionArg
+import rserve.RScriptsSynchronizer
+import rserve.RServeSession
+import session.SessionFiles
+import session.SmartRSessionScope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.Ordered
 import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
-/**
- * Created by glopes on 09-10-2015.
- */
 @Component
 @SmartRSessionScope
 class RScriptExecutionTaskFactory implements TaskFactory {

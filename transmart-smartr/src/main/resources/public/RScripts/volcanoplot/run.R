@@ -13,7 +13,7 @@ library(jsonlite)
 # setwd("/Users/serge/GitHub/SmartR")
 
 if (!exists("remoteScriptDir")) {  #  Needed for unit-tests
-  remoteScriptDir <- "web-app/HeimScripts"
+  remoteScriptDir <- "resources/public/RScripts"
 }
 
 ## Loading functions ##

@@ -1,10 +1,7 @@
-package heim.jobs
+package jobs
 
-import heim.tasks.Task
+import tasks.Task
 
-/**
- * Created by glopes on 13-10-2015.
- */
 interface JobInstance {
 
     String getWorkflow()

@@ -1,4 +1,4 @@
-package heim.session
+package session
 
 import groovy.util.logging.Log4j
 import org.springframework.beans.BeansException

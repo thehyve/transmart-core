@@ -1,5 +1,5 @@
 if (!exists("remoteScriptDir")) {  #  Needed for unit-tests
-  remoteScriptDir <- "web-app/HeimScripts/_core"
+  remoteScriptDir <- "resources/public/RScripts/_core"
 }
 
 inputUtils <- paste(remoteScriptDir, "/_core/input.R", sep="")

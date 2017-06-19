@@ -1,6 +1,6 @@
 // Copyright (C) 2016 ITTM S.A., Nils Christian <nils.christian@ittm-solutions.com>
 
-package smartR.plugin
+package smartR
 
 import grails.converters.JSON
 import com.google.gson.Gson

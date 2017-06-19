@@ -1,4 +1,4 @@
-package heim.rserve
+package rserve
 
 import grails.core.GrailsApplication
 import org.rosuda.REngine.Rserve.RConnection

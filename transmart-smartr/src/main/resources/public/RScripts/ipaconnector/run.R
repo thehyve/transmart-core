@@ -3,7 +3,7 @@ library(limma)
 library(jsonlite)
 
 if (!exists("remoteScriptDir")) {  #  Needed for unit-tests
-    remoteScriptDir <- "web-app/HeimScripts"
+    remoteScriptDir <- "resources/public/RScripts"
 }
 
 

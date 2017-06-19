@@ -1,19 +1,19 @@
-package heim.tasks
+package tasks
 
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import groovy.transform.TypeChecked
 import groovy.util.logging.Log4j
-import heim.SmartRRuntimeConstants
-import heim.rserve.RFunctionArg
-import heim.rserve.RScriptOutputManager
-import heim.rserve.RServeSession
-import heim.rserve.RUtil
-import heim.session.SessionFiles
+import misc.SmartRRuntimeConstants
+import rserve.RFunctionArg
+import rserve.RScriptOutputManager
+import rserve.RServeSession
+import rserve.RUtil
+import session.SessionFiles
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 
-import static heim.rserve.RUtil.runRCommand
+import static rserve.RUtil.runRCommand
 
 @Log4j
 @TypeChecked
@@ -41,7 +41,7 @@ class RScriptExecutionTask extends AbstractTask {
     }
 
     private void injectScriptDir(RConnection conn) {
-        def remoteScriptDir = fileToLoad.getParentFile().getParentFile()  // We need the HeimScripts root
+        def remoteScriptDir = fileToLoad.getParentFile().getParentFile()  // We need the RScripts root
         String path = RUtil.escapeRStringContent(remoteScriptDir.absolutePath)
         runRCommand(conn, "remoteScriptDir <- \"$path\"")
     }

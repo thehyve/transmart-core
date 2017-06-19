@@ -1,4 +1,4 @@
-package heim.session
+package session
 
 import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Table

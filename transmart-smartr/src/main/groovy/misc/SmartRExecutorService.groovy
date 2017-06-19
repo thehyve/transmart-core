@@ -1,4 +1,4 @@
-package heim
+package misc
 
 import com.google.common.util.concurrent.ListeningExecutorService
 import com.google.common.util.concurrent.MoreExecutors
@@ -12,9 +12,6 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
-/**
- * Created by glopes on 09-10-2015.
- */
 @Component
 @TypeChecked
 class SmartRExecutorService implements ListeningExecutorService,

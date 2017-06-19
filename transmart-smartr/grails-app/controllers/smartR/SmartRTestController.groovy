@@ -1,4 +1,4 @@
-package smartR.plugin.rest
+package smartR
 
 import grails.converters.JSON
 import grails.util.Environment

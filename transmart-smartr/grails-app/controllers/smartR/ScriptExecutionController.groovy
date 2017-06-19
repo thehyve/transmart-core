@@ -1,8 +1,8 @@
-package smartR.plugin.rest
+package smartR
 
 import grails.validation.Validateable
-import heim.session.SessionService
-import heim.tasks.TaskResult
+import session.SessionService
+import tasks.TaskResult
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 class ScriptExecutionController {
@@ -85,8 +85,7 @@ class ScriptExecutionController {
     }
 }
 
-@Validateable
-class StatusCommand {
+class StatusCommand implements Validateable {
     UUID sessionId
     UUID executionId
     boolean waitForCompletion
@@ -97,8 +96,7 @@ class StatusCommand {
     }
 }
 
-@Validateable
-class RunCommand {
+class RunCommand implements Validateable {
     UUID sessionId
     Map arguments = [:]
     String taskType
@@ -109,8 +107,7 @@ class RunCommand {
     }
 }
 
-@Validateable
-class DownloadCommand {
+class DownloadCommand implements Validateable {
     UUID sessionId
     UUID executionId
     String filename

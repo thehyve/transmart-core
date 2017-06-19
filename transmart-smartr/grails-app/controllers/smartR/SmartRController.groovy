@@ -1,7 +1,7 @@
-package smartR.plugin
+package smartR
 
 import grails.converters.JSON
-import heim.session.SessionService
+import session.SessionService
 import org.grails.web.json.JSONArray
 import org.grails.web.json.JSONObject
 import groovyx.net.http.HTTPBuilder

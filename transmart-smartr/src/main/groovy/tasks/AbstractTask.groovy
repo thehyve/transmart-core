@@ -1,10 +1,7 @@
-package heim.tasks
+package tasks
 
 import com.google.common.base.Objects
 
-/**
- * Created by glopes on 09-10-2015.
- */
 abstract class AbstractTask implements Task {
 
     final UUID uuid

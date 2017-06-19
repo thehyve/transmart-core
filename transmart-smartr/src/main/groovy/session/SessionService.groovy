@@ -1,13 +1,13 @@
-package heim.session
+package session
 
 import grails.util.Environment
 import groovy.util.logging.Log4j
-import heim.SmartRExecutorService
-import heim.SmartRRuntimeConstants
-import heim.jobs.JobInstance
-import heim.tasks.JobTasksService
-import heim.tasks.TaskResult
-import heim.tasks.TaskState
+import misc.SmartRExecutorService
+import misc.SmartRRuntimeConstants
+import jobs.JobInstance
+import tasks.JobTasksService
+import tasks.TaskResult
+import tasks.TaskState
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component

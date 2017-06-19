@@ -1,4 +1,4 @@
-package heim.tasks
+package tasks
 
 import com.google.common.collect.Lists
 import grails.util.Environment
@@ -9,9 +9,6 @@ import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.ontology.ConceptsResource
 
-/**
- * Created by glopes on 09-10-2015.
- */
 @Component
 class DataFetchTaskFactory implements TaskFactory, ApplicationContextAware {
 

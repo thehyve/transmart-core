@@ -1,11 +1,8 @@
-package heim.rserve
+package rserve
 
-import heim.SmartRRuntimeConstants
+import misc.SmartRRuntimeConstants
 import org.rosuda.REngine.Rserve.RConnection
 
-/**
- * Created by piotrzakrzewski on 08/10/15.
- */
 class RScriptOutputManager {
 
     private final RConnection conn

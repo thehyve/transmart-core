@@ -1,7 +1,7 @@
-package heim
+package misc
 
-import grails.util.Holders
 import grails.core.GrailsApplication
+import grails.util.Holders
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 

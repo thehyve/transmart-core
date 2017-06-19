@@ -1,6 +1,6 @@
-package smartR.plugin.rest
+package smartR
 
-import heim.session.SessionService
+import session.SessionService
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 class RSessionController {

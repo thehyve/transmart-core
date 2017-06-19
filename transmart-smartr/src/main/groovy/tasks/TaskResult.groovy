@@ -1,11 +1,8 @@
-package heim.tasks
+package tasks
 
 import com.google.common.collect.ImmutableMap
 import groovy.transform.ToString
 
-/**
- * Created by glopes on 09-10-2015.
- */
 @ToString(includePackage = false, includeNames = true)
 final class TaskResult {
     final boolean successful

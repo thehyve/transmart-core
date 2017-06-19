@@ -1,4 +1,4 @@
-package heim.session;
+package session;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;

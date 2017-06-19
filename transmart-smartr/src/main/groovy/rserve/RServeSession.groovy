@@ -1,7 +1,7 @@
-package heim.rserve
+package rserve
 
 import groovy.util.logging.Log4j
-import heim.session.SmartRSessionScope
+import session.SmartRSessionScope
 import grails.core.GrailsApplication
 import org.rosuda.REngine.Rserve.RConnection
 import org.springframework.beans.factory.DisposableBean

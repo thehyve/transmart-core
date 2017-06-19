@@ -1,8 +1,8 @@
-package heim.jobs
+package jobs
 
-import heim.session.SmartRSessionScopeInterfaced
-import heim.tasks.Task
-import heim.tasks.TaskFactory
+import session.SmartRSessionScopeInterfaced
+import tasks.Task
+import tasks.TaskFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.OrderComparator
@@ -11,9 +11,6 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 import javax.annotation.PostConstruct
 
-/**
- * Created by glopes on 09-10-2015.
- */
 @SmartRSessionScopeInterfaced
 @Component('jobInstance')
 class JobInstanceImpl implements JobInstance {

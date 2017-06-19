@@ -1,10 +1,7 @@
-package heim.rserve
+package rserve
 
 import groovy.json.JsonBuilder
 
-/**
- * Created by glopes on 09-10-2015.
- */
 class GenericJavaObjectAsJsonRFunctionArg implements RFunctionArg {
     String name
     Object object
