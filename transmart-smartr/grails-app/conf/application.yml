@@ -2,7 +2,7 @@
 grails:
     profile: web
     codegen:
-        defaultPackage: transmart.smartr
+        defaultPackage: smartR
     spring:
         transactionManagement:
             proxies: false
