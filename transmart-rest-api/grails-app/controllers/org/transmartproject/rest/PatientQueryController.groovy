@@ -125,7 +125,7 @@ class PatientQueryController extends AbstractQueryController {
         checkParams(params, [])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        List <QueryResult> patientSets = multiDimService.findPatientSets(user)
+        Iterable<QueryResult> patientSets = multiDimService.findPatientSets(user)
 
         respond wrapPatientSets(patientSets)
     }
@@ -187,7 +187,7 @@ class PatientQueryController extends AbstractQueryController {
         ) as JSON
     }
 
-    private def wrapPatientSets(Collection<QueryResult> source) {
+    private def wrapPatientSets(Iterable<QueryResult> source) {
         new ContainerResponseWrapper(
                 key: 'patientSets',
                 container: source.collect {
