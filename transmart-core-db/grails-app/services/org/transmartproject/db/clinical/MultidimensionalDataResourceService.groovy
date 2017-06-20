@@ -581,13 +581,26 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
         queryResult
     }
-    
+
+    @Override Iterable<QueryResult> findPatientSets(User user) {
+        if(((DbUser) user).admin){
+            return getIterable(DetachedCriteria.forClass(QtQueryResultInstance))
+        } else {
+            def queryCriteria = DetachedCriteria.forClass(QtQueryInstance, 'queryInstance')
+                    .add(Restrictions.eq('userId', user.username))
+                    .setProjection(Projections.property('id'))
+            def queryResultCriteria = DetachedCriteria.forClass(QtQueryResultInstance)
+                    .add(Subqueries.propertyIn('queryInstance', queryCriteria))
+            return getIterable(queryResultCriteria)
+        }
+    }
+
     @Override RequestConstraintAndVersion getPatientSetConstraint(long id) {
         QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findById(id)
         def queryMaster = qtQueryResultInstance.queryInstance.queryMaster
         new RequestConstraintAndVersion(queryMaster.requestConstraints, queryMaster.apiVersion)
     }
-    
+
     @Override Long patientCount(MultiDimConstraint constraint, User user) {
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)

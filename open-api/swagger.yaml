@@ -948,6 +948,15 @@ paths:
           schema:
             $ref: '#/definitions/patient'
   /v2/patient_sets:
+    get:
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            Gets all patient_sets accessible by the user.
+          schema:
+            $ref: '#/definitions/patient_set'
     post:
       description: |
         creates a patient set with all patients that have an observation that satisfies the constaint given in the body. The set will only have patients the calling user access to. The constraint used to create the set will be stored in a database.
