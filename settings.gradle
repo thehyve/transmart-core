@@ -6,4 +6,4 @@ include 'transmart-core-db', 'transmart-core-db-tests', 'transmart-core-api', 't
         'transmart-gwas-plugin',
         'transmart-rest-api-e2e',
         'ontology-service',
-        'transmart-smartr'
+        'Smartr'

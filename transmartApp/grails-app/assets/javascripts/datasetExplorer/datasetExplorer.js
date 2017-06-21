@@ -644,6 +644,45 @@ Ext.onReady(function () {
         resultsTabPanel.add(sampleExplorerPanel);
     }
 
+
+    window.smartRPanel = new Ext.Panel({
+        id: 'smartRPanel',
+        title: 'SmartR',
+        region: 'center',
+        split: true,
+        height: 90,
+        layout: 'fit',
+        collapsible: true,
+        autoScroll: true,
+        tbar: new Ext.Toolbar({
+            id: 'smartRToolbar',
+            title: 'R Scripts',
+            items: []
+        }),
+        listeners: {
+            render: function (panel) {
+                /**
+                 * WORKAROUND : code below is needed to reorder the javascript script load that're broken due to
+                 * ExtJS panel
+                 */
+                    // start workaround
+                var updater = panel.getUpdater();
+                updater.on('update', function() {
+                    var panelBody = jQuery(arguments[0].dom);
+                    var scripts = panelBody.children('script');
+                    scripts.remove(); // remove scripts from panel body
+                    panelBody.append(scripts); // re-append again
+                });
+                updater.update({
+                    url: pageInfo.basePath + '/smartr/index',
+                    method: 'POST',
+                    scripts: false });
+                // end workaround
+            }
+        }
+    });
+    resultsTabPanel.add(window.smartRPanel);
+
     function loadResources(resources, bootstrap) {
         var scripts = [];
         for (var i = 0, iLength = resources.length; i < iLength; i++) {

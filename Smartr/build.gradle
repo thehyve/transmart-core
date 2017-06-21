@@ -1,0 +1,27 @@
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-logging"
+    compile "org.springframework.boot:spring-boot-autoconfigure"
+    compile "org.grails:grails-core"
+    compile "org.springframework.boot:spring-boot-starter-actuator"
+    provided "org.springframework.boot:spring-boot-starter-tomcat"
+    compile "org.grails:grails-dependencies"
+    compile "org.grails:grails-web-boot"
+    compile "org.grails.plugins:cache"
+    compile "org.grails.plugins:scaffolding"
+    console "org.grails:grails-console"
+    profile "org.grails.profiles:web-plugin"
+    provided "org.grails:grails-plugin-services"
+    provided "org.grails:grails-plugin-domain-class"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
+    compile 'net.sf.opencsv:opencsv:2.3'
+    compile 'org.rosuda:Rserve:1.7.3'
+    compile 'org.mapdb:mapdb:0.9.10'
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile group: 'com.google.guava', name: 'guava', version: '16.0-dev-20140115-68c8348'
+    runtime 'org.javassist:javassist:3.16.1-GA'
+    compile project(':transmart-core-api')
+}
+
+assets {
+    packagePlugin = true
+}
