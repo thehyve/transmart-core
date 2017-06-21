@@ -14,6 +14,7 @@ import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.DataInconsistencyException
@@ -21,7 +22,6 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Property
 import org.transmartproject.core.ontology.MDStudy
-import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.TrialVisit
@@ -329,6 +329,8 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
     SessionFactory sessionFactory
     abstract String getAlias()
     abstract String getColumnName()
+    // The property in the dimension table on which observation_facts is to be joined
+    String getJoinProperty() { 'id' }
 
     @Override
     def selectIDs(Query query) {
@@ -340,6 +342,26 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
         assert result.getOrDefault('modifierCd', '@') == '@'
         getKey(result, alias)
     }
+
+    @Override
+    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
+        if (args.type == SelectType.COUNT) {
+            if(this instanceof I2b2NullablePKDimension) {
+                criteria.add(Restrictions.ne(columnName, ((I2b2NullablePKDimension) this).nullValue))
+            }
+            return criteria.setProjection(Projections.countDistinct(columnName))
+        }
+        if(this instanceof CompositeElemDim) {
+            criteria.setProjection(Projections.property(columnName))
+            def dimensionCriteria = DetachedCriteria.forClass(elemType)
+            dimensionCriteria.add(Subqueries.propertyIn(joinProperty, criteria))
+            dimensionCriteria
+        } else if(this instanceof SerializableElemDim) {
+            criteria.setProjection(Projections.distinct(Projections.property(columnName)))
+        }
+        throw new UnsupportedOperationException("Retrieving elements of the $name dimension is not supported.")
+    }
+
 }
 
 // Nullable primary key
@@ -369,6 +391,10 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
     }
 
     @Override abstract ImplementationType getImplementationType()
+
+    @Override DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
+        throw new InvalidArgumentsException("Retrieving elements of the $name dimension is not supported.")
+    }
 }
 
 
@@ -449,16 +475,10 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
             assert result && false, "$name already used as an alias or as a different modifier"
         }
     }
-    
-    @Override
+
     DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        criteria.setProjection(Projections.property(modifierCodeField))
-        def dimensionCriteria = DetachedCriteria.forClass(ModifierDimensionCoreDb, 'modifierDimension')
-        dimensionCriteria.add(Subqueries.propertyIn('code', criteria))
-        if (args.type == SelectType.COUNT) {
-            dimensionCriteria.setProjection(Projections.countDistinct(name))
-        }
-        dimensionCriteria
+        // todo: retrieve the values for this modifier
+        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
     }
 }
 
@@ -485,17 +505,6 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
     @Override List<I2B2PatientDimension> doResolveElements(List<Long> elementKeys) {
         resolveWithInQuery(I2B2PatientDimension.createCriteria(), elementKeys)
     }
-    
-    @Override
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        criteria.setProjection(Projections.property('patient'))
-        def dimensionCriteria = DetachedCriteria.forClass(I2B2PatientDimension, 'patient')
-        dimensionCriteria.add(Subqueries.propertyIn('id', criteria))
-        if (args.type == SelectType.COUNT) {
-            dimensionCriteria.setProjection(Projections.countDistinct('id'))
-        }
-        dimensionCriteria
-    }
 }
 
 @CompileStatic @InheritConstructors
@@ -503,6 +512,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
         CompositeElemDim<I2b2ConceptDimensions, String> {
     Class elemType = I2b2ConceptDimensions
     List elemFields = ["conceptPath", "conceptCode"]
+    String joinProperty = 'conceptCode'
     String name = 'concept'
     String alias = 'conceptCode'
     String columnName = 'conceptCode'
@@ -513,10 +523,6 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
     @CompileDynamic
     @Override List<I2b2ConceptDimensions> doResolveElements(List<String> elementKeys) {
         resolveWithInQuery(I2b2ConceptDimensions.createCriteria(), elementKeys, columnName)
-    }
-
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
     }
 }
 
@@ -532,17 +538,6 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
     @Override
     List<TrialVisit> doResolveElements(List<Long> elementKeys) {
         resolveWithInQuery(TrialVisit.createCriteria(), elementKeys)
-    }
-    
-    @Override
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        criteria.setProjection(Projections.property('trialVisit'))
-        def dimensionCriteria = DetachedCriteria.forClass(TrialVisit, 'trialVisit')
-        dimensionCriteria.add(Subqueries.propertyIn('id', criteria))
-        if (args.type == SelectType.COUNT) {
-            dimensionCriteria.setProjection(Projections.countDistinct('trialVisit'))
-        }
-        dimensionCriteria
     }
 }
 
@@ -570,7 +565,7 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
     }
 
     DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
+        throw new InvalidArgumentsException("Retrieving elements of the $name dimension is not supported.")
     }
 }
 
@@ -585,10 +580,6 @@ class StartTimeDimension extends I2b2NullablePKDimension<Date,Date> implements S
     String alias = 'startDate'
     String columnName = 'startDate'
     Date nullValue = EMPTY_DATE
-
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
-    }
 }
 
 @CompileStatic @InheritConstructors
@@ -597,10 +588,6 @@ class EndTimeDimension extends I2b2Dimension<Date,Date> implements SerializableE
     String name = 'end time'
     String alias = 'endDate'
     String columnName = 'endDate'
-
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
-    }
 }
 
 @CompileStatic @InheritConstructors
@@ -609,10 +596,6 @@ class LocationDimension extends I2b2Dimension<String,String> implements Serializ
     String name = 'location'
     String alias = 'location'
     String columnName = 'locationCd'
-
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
-    }
 }
 
 @CompileStatic @InheritConstructors
@@ -658,17 +641,15 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
     
     @Override
     DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
+        if (args.type == SelectType.COUNT) {
+            throw new InvalidArgumentsException("Counting is not implemented for the visit dimension")
+        }
         def projection = criteria.projection = Projections.projectionList()
         ['encounterNum', 'patient'].each {
             projection.add(Projections.property(it))
         }
         def dimensionCriteria = DetachedCriteria.forClass(I2b2VisitDimension, 'visit')
         dimensionCriteria.add(Subqueries.propertiesIn(['encounterNum', 'patient'] as String[], criteria))
-        if (args.type == SelectType.COUNT) {
-            def countProjection = dimensionCriteria.projection = Projections.projectionList()
-            countProjection.add(Projections.countDistinct('id'))
-
-        }
         dimensionCriteria
     }
     
@@ -694,10 +675,6 @@ class ProviderDimension extends I2b2NullablePKDimension<String,String> implement
     String alias = 'provider'
     String columnName = 'providerId'
     String nullValue = '@'
-
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
-    }
 }
 
 @CompileStatic @InheritConstructors
@@ -711,10 +688,6 @@ class AssayDimension extends HighDimDimension<Assay,Long> implements CompositeEl
     ]
     ImplementationType implementationType = ImplementationType.ASSAY
     String name = 'assay'
-
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
-    }
 }
 
 // TODO: Expose the other Assay properties as the proper dimensions. Their structure should as much as possible be
@@ -731,10 +704,6 @@ class BioMarkerDimension extends HighDimDimension<HddTabularResultHypercubeAdapt
     List elemFields = ['label', 'biomarker']
     ImplementationType implementationType = ImplementationType.BIOMARKER
     String name = 'biomarker'
-
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
-    }
 }
 
 @CompileStatic @InheritConstructors
@@ -742,10 +711,6 @@ class ProjectionDimension extends HighDimDimension<String,String> implements Ser
     Class elemType = String
     ImplementationType implementationType = ImplementationType.PROJECTION
     String name = 'projection'
-
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
-    }
 }
 
 /**
@@ -777,7 +742,7 @@ class ValueDimension extends DimensionImpl implements SerializableElemDim {
     }
 
     DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
+        throw new UnsupportedOperationException("Selecting elements of the $name dimension is not supported.")
     }
 
 }
