@@ -107,9 +107,7 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static getBuiltinDimension(String name) { builtinDimensions.get(name) }
     static boolean isBuiltinDimension(String name) { builtinDimensions.containsKey(name) }
     @CompileDynamic
-    static DimensionImpl fromNameOrNull(String name) { DimensionDescription.findByName(name)?.dimension }
-    @CompileDynamic
-    static DimensionImpl fromName(String name) { DimensionDescription.findByName(name).dimension }
+    static DimensionImpl fromName(String name) { DimensionDescription.findByName(name)?.dimension }
 
     DimensionImpl(Size size, Density density, Packable packable) {
         this.size = size

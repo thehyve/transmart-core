@@ -13,6 +13,7 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study

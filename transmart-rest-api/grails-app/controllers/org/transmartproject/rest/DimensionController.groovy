@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Dimension
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
-import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.user.User
 
@@ -17,6 +17,9 @@ class DimensionController extends AbstractQueryController {
 
     @Autowired
     AccessControlChecks accessControlChecks
+
+    @Autowired
+    MultiDimensionalDataResource multiDimensionalDataResource
     
     static responseFormats = ['json', 'hal']
     
@@ -35,12 +38,12 @@ class DimensionController extends AbstractQueryController {
 
         Constraint constraint = Strings.isNullOrEmpty(params.constraint) ? null : bindConstraint(params.constraint)
 
-        def results = multiDimService.listDimensionElements(dimension, user, constraint)
+        def results = multiDimService.getDimensionElements(dimension, user, constraint)
         render results as JSON
     }
 
     private Dimension getDimension(String dimensionName, User user) {
-        def dimension = DimensionImpl.fromNameOrNull(dimensionName)
+        def dimension = multiDimensionalDataResource.getDimension(dimensionName)
         // We need to return the same response for nonexisting dimensions and for inaccessible dimensions to prevent
         // an information leak. Users should not be able to find out if a certain (modifier-)dimension exists in a
         // study they don't have access to.

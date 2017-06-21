@@ -35,7 +35,7 @@ class DimensionMetadata {
             }
 
     static final DimensionMetadata forDimensionName(String dimensionName) {
-        def dim = DimensionImpl.fromNameOrNull(dimensionName)
+        def dim = DimensionImpl.fromName(dimensionName)
         if (dim == null) throw new QueryBuilderException("Dimension not found: ${dimensionName}")
         forDimension(dim)
     }

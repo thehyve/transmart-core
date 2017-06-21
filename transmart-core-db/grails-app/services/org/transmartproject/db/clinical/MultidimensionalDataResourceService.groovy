@@ -114,7 +114,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     ConceptsResource conceptsResource
 
     @Override Dimension getDimension(String name) {
-        DimensionDescription.findByName(name).dimension
+        DimensionDescription.findByName(name)?.dimension
     }
 
     /**
@@ -478,17 +478,16 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param constraint
      */
     @Override
-    Iterable listDimensionElements(Dimension dimension, User user, MultiDimConstraint constraint) {
-        Collection<MDStudy> studies = accessControlChecks.getDimensionStudiesForUser(user)
-        Map args = [ type: SelectType.ELEMENTS ]
+    Iterable getDimensionElements(Dimension dimension, User user, MultiDimConstraint constraint) {
+        Collection<MDStudy> studies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
 
         HibernateCriteriaQueryBuilder builder = new HibernateCriteriaQueryBuilder(
                 studies: studies
         )
-        DetachedCriteria dimensionCriteria = builder.buildElementsCriteria(args, (DimensionImpl) dimension, constraint)
+        DetachedCriteria dimensionCriteria = builder.buildElementsCriteria(
+                (DimensionImpl) dimension, constraint, type: SelectType.ELEMENTS)
 
-        List elements = getList(dimensionCriteria)
-        elements.collect { dimension.asSerializable(it) }
+        return getIterable(dimensionCriteria)
     }
     
     /**
