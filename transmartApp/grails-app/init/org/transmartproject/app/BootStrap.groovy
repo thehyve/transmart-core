@@ -139,7 +139,7 @@ class BootStrap {
 
             if (Environment.current == Environment.PRODUCTION) {
                 def targetDirectory = c.org.transmartproject.rmodules.deployment.rscripts as File
-                if (copyResources('WEB-INF/Rscripts', targetDirectory)) {
+                if (copyResources('WEB-INF/rmodules/Rscripts', targetDirectory)) {
                     rmoduleScriptDir = targetDirectory
                 }
             } else {

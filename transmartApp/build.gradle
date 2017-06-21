@@ -134,10 +134,10 @@ task installTransmartPlugins << {
 }
 
 war {
-    webInf {
+    webInf {  // Resources from plugins into WEB-INF dir.
         with copySpec({
             from '../Rmodules/src/main/resources/Rscripts'
-            into 'Rscripts'
+            into 'rmodules/Rscripts'
         })
         with copySpec({
             from 'src/main/resources/dataExportRScripts'
@@ -155,7 +155,11 @@ war {
             from '../Rmodules/src/main/resources/public'
             into 'classes/public'
         })
-    } //Rscripts from Rmodules into WEB-INF dir.
+        with copySpec({
+            from '../Smartr/src/main/resources/Rscripts'
+            into 'smartr/Rscripts'
+        })
+    }
 }
 
 test.testLogging.exceptionFormat = 'full'

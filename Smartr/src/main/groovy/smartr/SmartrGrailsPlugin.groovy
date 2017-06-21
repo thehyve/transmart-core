@@ -1,11 +1,18 @@
 package smartr
 
 import grails.plugins.Plugin
+import grails.util.Environment
 import org.springframework.stereotype.Component
 import groovy.util.logging.Slf4j
+import org.springframework.web.context.support.ServletContextResource
+import smartr.misc.SmartRRuntimeConstants
+import smartr.rserve.RScriptsSynchronizer
 
 @Slf4j
 class SmartrGrailsPlugin extends Plugin {
+
+    public static final String DEFAULT_REMOTE_RSCRIPTS_DIRECTORY = '/tmp/smart_r_scripts'
+    public static final String TRANSMART_EXTENSIONS_REGISTRY_BEAN_NAME = 'transmartExtensionsRegistry'
 
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "3.1.10 > *"
@@ -58,9 +65,106 @@ SmartR is a grails plugin seeking to improve the visual analytics of the tranSMA
         // TODO Implement registering dynamic methods to classes (optional)
     }
 
+    private boolean skipRScriptsTransfer(config) {
+        (!config.RModules.host ||
+                config.RModules.host in ['127.0.0.1', '::1', 'localhost']) &&
+                Environment.currentEnvironment == Environment.DEVELOPMENT &&
+                !config.smartR.alwaysCopyScripts
+    }
+
+    private boolean copyResources(String root, File targetDirectory) {
+        log.info "Copying resources from ${root} to ${targetDirectory.absolutePath} ..."
+        def ctx = grailsApplication.getMainContext()
+        def resources = ctx.getResources("${root}/**")
+        try {
+            if (!targetDirectory.exists()) {
+                log.debug "Creating directory ${targetDirectory.absolutePath}"
+                targetDirectory.mkdir()
+            }
+            for (res in resources) {
+                def resource = res as ServletContextResource
+                def targetPath = resource.path - root
+                def target = new File(targetDirectory, targetPath)
+                if (target.exists()) {
+                    log.debug "Path already exists: ${target.absolutePath}"
+                } else {
+                    if (targetPath.endsWith('/')) {
+                        log.debug "Creating directory ${target.absolutePath}"
+                        target.mkdir()
+                    } else {
+                        target.createNewFile()
+                        if (!target.canWrite()) {
+                            log.error("File ${target.absolutePath} not writeable.")
+                            return false
+                        } else {
+                            log.debug "Copying resource: ${resource.path} to ${target.absolutePath}"
+                            target.withOutputStream { out_s ->
+                                out_s << resource.inputStream
+                                out_s.flush()
+                            }
+                        }
+                    }
+                }
+            }
+        } catch(IOException e) {
+            log.error "Error while copying: ${e.message}"
+            return false
+        }
+        return true
+    }
+
     void doWithApplicationContext() {
-        // TODO Implement post initialization spring config (optional)
-        log.warn "SmartR started."
+        log.info "Initialising SmartR ..."
+
+        def config = grailsApplication.config
+        def ctx = grailsApplication.mainContext
+        SmartRRuntimeConstants constants = ctx.getBean(SmartRRuntimeConstants)
+
+        try { // find location of R scripts of SmartR
+
+            def smartrScriptDir
+            if (Environment.current == Environment.PRODUCTION) {
+                def targetDirectory = new File(System.getProperty("user.home"), '.grails/smartr-rscripts')
+                config.putIfAbsent('smartr.deployment.rscripts', targetDirectory)
+                log.warn "Target dir: ${targetDirectory}"
+                if (copyResources('WEB-INF/smartr/Rscripts', targetDirectory)) {
+                    smartrScriptDir = targetDirectory
+                }
+            } else {
+                smartrScriptDir = new File('../Smartr/src/main/resources/Rscripts')
+            }
+
+            if (!smartrScriptDir || !smartrScriptDir.isDirectory()) {
+                throw new RuntimeException('Could not determine proper for ' +
+                        'Rscript directory')
+            }
+
+            constants.pluginScriptDirectory = smartrScriptDir
+        } catch(Exception e) {
+            log.warn "No location found for constants.pluginScriptDirectory: ${e.message}"
+        }
+
+        if (!skipRScriptsTransfer(config)) {
+            def remoteScriptDirectory =  config.smartR.remoteScriptDirectory
+            if (!remoteScriptDirectory) {
+                remoteScriptDirectory = DEFAULT_REMOTE_RSCRIPTS_DIRECTORY
+            }
+            constants.remoteScriptDirectoryDir = remoteScriptDirectory
+            log.info("Location for R scripts in the Rserve server is ${constants.remoteScriptDirectoryDir}")
+
+            ctx.getBean(RScriptsSynchronizer).start()
+        } else {
+            log.info('Skipping copying of R script in development mode with local Rserve')
+            constants.remoteScriptDirectoryDir = constants.pluginScriptDirectory.absoluteFile
+            ctx.getBean(RScriptsSynchronizer).skip()
+        }
+
+        if (ctx.containsBean(TRANSMART_EXTENSIONS_REGISTRY_BEAN_NAME)) {
+            ctx.getBean(TRANSMART_EXTENSIONS_REGISTRY_BEAN_NAME)
+                    .registerAnalysisTabExtension('smartR', '/SmartR/loadScripts', 'addSmartRPanel')
+        }
+
+        log.info "SmartR initialised."
     }
 
     void onChange(Map<String, Object> event) {
