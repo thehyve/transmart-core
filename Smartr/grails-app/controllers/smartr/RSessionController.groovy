@@ -1,6 +1,6 @@
 package smartr
 
-import session.SessionService
+import smartr.session.SessionService
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 class RSessionController {

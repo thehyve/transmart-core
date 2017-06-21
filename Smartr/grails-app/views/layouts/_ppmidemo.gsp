@@ -104,11 +104,11 @@
             <p>Frequency:</p>
             <div>
                 <label for="sr-ppmi-global-maf">MAF (lower than)</label>
-                <input id="sr-ppmi-global-maf" type="number" min="0.1" max="1" step="0.05" ng-model="variantDB.misc.globalMAF" style="width: 40px;"/>
+                <input id="sr-ppmi-global-maf" type="number" min="0.1" max="1" step="0.05" ng-model="variantDB.smartr.misc.globalMAF" style="width: 40px;"/>
             </div>
             <div>
                 <label for="sr-ppmi-cohort-maf">Group AF (greater than)</label>
-                <input id="sr-ppmi-cohort-maf" type="number" min="0" max="1" step="0.05" ng-model="variantDB.misc.cohortMAF" style="width: 40px;"/>
+                <input id="sr-ppmi-cohort-maf" type="number" min="0" max="1" step="0.05" ng-model="variantDB.smartr.misc.cohortMAF" style="width: 40px;"/>
             </div>
         </div>
     </div>

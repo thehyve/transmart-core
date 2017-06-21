@@ -1,8 +1,8 @@
 package smartr
 
 import grails.validation.Validateable
-import session.SessionService
-import tasks.TaskResult
+import smartr.session.SessionService
+import smartr.tasks.TaskResult
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 
 class ScriptExecutionController {
