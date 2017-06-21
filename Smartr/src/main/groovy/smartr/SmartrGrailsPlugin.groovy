@@ -125,8 +125,8 @@ SmartR is a grails plugin seeking to improve the visual analytics of the tranSMA
             def smartrScriptDir
             if (Environment.current == Environment.PRODUCTION) {
                 def targetDirectory = new File(System.getProperty("user.home"), '.grails/smartr-rscripts')
-                config.putIfAbsent('smartr.deployment.rscripts', targetDirectory)
-                log.warn "Target dir: ${targetDirectory}"
+                // FIXME: should the path be configurable?
+                //targetDirectory = config.getOrDefault('smartr.deployment.rscripts', targetDirectory) as File
                 if (copyResources('WEB-INF/smartr/Rscripts', targetDirectory)) {
                     smartrScriptDir = targetDirectory
                 }

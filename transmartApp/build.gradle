@@ -5,7 +5,7 @@ dependencies {
 
     provided "org.springframework.boot:spring-boot-starter-tomcat"
 
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.11.6"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
     runtime 'org.postgresql:postgresql:9.3-1100-jdbc4'
     runtime 'com.oracle:ojdbc7:12.1.0.1'
     runtime 'org.javassist:javassist:3.16.1-GA'
