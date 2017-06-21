@@ -120,8 +120,6 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         COUNT,
     }
     
-    @Override abstract String getName()
-
     abstract DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria)
     
     protected <T> T getKey(Map map, String alias) {

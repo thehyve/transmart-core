@@ -38,7 +38,7 @@ class DimensionSpec extends RESTSpec{
         ])
 
         then: "the list of trial visits for all studies is returned"
-        responseData.size() == 21
+        responseData.elements.size() == 21
     }
 
     def "Invalid dimension name"() {

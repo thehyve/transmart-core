@@ -11,6 +11,8 @@ import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.user.User
+import org.transmartproject.rest.marshallers.ContainerResponseWrapper
+import org.transmartproject.rest.misc.DimensionElementSerializer
 
 @Slf4j
 class DimensionController extends AbstractQueryController {
@@ -39,7 +41,7 @@ class DimensionController extends AbstractQueryController {
         Constraint constraint = Strings.isNullOrEmpty(params.constraint) ? null : bindConstraint(params.constraint)
 
         def results = multiDimService.getDimensionElements(dimension, user, constraint)
-        render results as JSON
+        render wrapElements(dimension, results) as JSON
     }
 
     private Dimension getDimension(String dimensionName, User user) {
@@ -53,6 +55,14 @@ class DimensionController extends AbstractQueryController {
         }
 
         throw new NoSuchResourceException("Dimension '$dimensionName' is not valid or you don't have access")
+    }
+
+    private ContainerResponseWrapper wrapElements(Dimension dim, Iterable elements) {
+        def des = new DimensionElementSerializer(dim, elements.iterator())
+        new ContainerResponseWrapper(
+                container: des,
+                key: 'elements',
+                componentType: Object)
     }
 
 }
