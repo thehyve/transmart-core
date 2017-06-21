@@ -4,7 +4,7 @@ import session.SessionService
 
 class SmartrController {
 
-    static scope = 'smartR'
+    static scope = 'smartRSession'
 
     SessionService sessionService
 
