@@ -113,6 +113,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     @Autowired
     ConceptsResource conceptsResource
 
+    @Override Dimension getDimension(String name) {
+        DimensionDescription.findByName(name).dimension
+    }
+
     /**
      * @param accessibleStudies: The studies the current user has access to.
      * @param dataType: The string identifying the data type. "clinical" for clinical data, for high dimensional data

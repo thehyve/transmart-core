@@ -27,6 +27,8 @@ interface MultiDimensionalDataResource {
      */
     Hypercube retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies)
 
+    Dimension getDimension(String name)
+
     Long count(MultiDimConstraint constraint, User user)
     Long cachedCount(MultiDimConstraint constraint, User user)
 
