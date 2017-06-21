@@ -66,15 +66,15 @@ class Study implements MDStudy {
         version false
     }
 
-    String getName() {
+    @Override String getName() {
         studyId
     }
 
-    Collection<DimensionImpl> getDimensions() {
+    @Override List<DimensionImpl> getDimensions() {
         dimensionDescriptions*.dimension
     }
 
-    DimensionImpl getDimensionByName(String name) {
+    @Override DimensionImpl getDimensionByName(String name) {
         def dd = dimensionDescriptions.find {it.name == name}
         if(dd == null) throw new NoSuchElementException("This study does not have a $name dimension")
         dd.dimension

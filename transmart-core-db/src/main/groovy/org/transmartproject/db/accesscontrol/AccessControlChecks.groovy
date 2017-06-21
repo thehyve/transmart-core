@@ -291,10 +291,12 @@ class AccessControlChecks {
         }
     }
 
-    private Collection<Dimension> getInaccessibleDimensions(Collection<Dimension> dimensions, User user) {
+    Set<Dimension> getInaccessibleDimensions(Collection<Dimension> dimensions, User user) {
         def studies = getDimensionStudiesForUser(user)
         def validDimensions = studies*.dimensions?.flatten() as Set
-        dimensions - validDimensions
+        def result = new LinkedHashSet(dimensions)
+        result.removeAll validDimensions
+        result
     }
 
     /**
