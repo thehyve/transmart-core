@@ -13,7 +13,6 @@ import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.transmartproject.core.multidimquery.MultiDimConstraint
-import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
@@ -595,7 +594,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         throw new QueryBuilderException("Constraint type not supported: ${constraint.class}.")
     }
 
-    private final Criterion defaultModifierCriterion = Restrictions.eq('modifierCd', '@')
+    static final Criterion defaultModifierCriterion = Restrictions.eq('modifierCd', '@')
 
     /**
      * Builds a DetachedCriteria object representing the query for observation facts that satisfy
@@ -604,15 +603,15 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @param constraint
      * @return
      */
-    DetachedCriteria buildCriteria(Constraint constraint, Criterion modifierCriterion = defaultModifierCriterion) {
+    DetachedCriteria buildCriteria(Constraint constraint=null, Criterion modifierCriterion=defaultModifierCriterion) {
         aliases = [:]
         def result = builder()
         def trialVisitAlias = getAlias('trialVisit')
-        def criterion = Restrictions.and(
-                build(constraint),
-                Restrictions.in("${trialVisitAlias}.study", getStudies()),
-                modifierCriterion
-        )
+        List restrictions = [constraint ? build(constraint) : null,
+                            Restrictions.in("${trialVisitAlias}.study", getStudies()),
+                            modifierCriterion
+        ].findAll()
+        def criterion = Restrictions.and(*restrictions)
         aliases.each { property, alias ->
             if (property != 'observation_fact') {
                 result.createAlias(property, alias)
@@ -622,28 +621,28 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         result
     }
 
-    /**
-     * Builds a DetachedCriteria object representing the query for observation facts without additional constraints
-     *
-     * @param constraint
-     * @return
-     */
-    DetachedCriteria buildCriteria(Criterion modifierCriterion) {
-        aliases = [:]
-        def result = builder()
-        def trialVisitAlias = getAlias('trialVisit')
-        def criterion = Restrictions.and(
-                Restrictions.in("${trialVisitAlias}.study", getStudies()),
-                modifierCriterion
-        )
-        aliases.each { property, alias ->
-            if (property != 'observation_fact') {
-                result.createAlias(property, alias)
-            }
-        }
-        result.add(criterion)
-        result
-    }
+//    /**
+//     * Builds a DetachedCriteria object representing the query for observation facts without additional constraints
+//     *
+//     * @param constraint
+//     * @return
+//     */
+//    DetachedCriteria buildCriteria(Criterion modifierCriterion) {
+//        aliases = [:]
+//        def result = builder()
+//        def trialVisitAlias = getAlias('trialVisit')
+//        def criterion = Restrictions.and(
+//                Restrictions.in("${trialVisitAlias}.study", getStudies()),
+//                modifierCriterion
+//        )
+//        aliases.each { property, alias ->
+//            if (property != 'observation_fact') {
+//                result.createAlias(property, alias)
+//            }
+//        }
+//        result.add(criterion)
+//        result
+//    }
 
     /**
      * Builds a DetachedCriteria object representing the query for elements of specified dimension
@@ -651,13 +650,16 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * @param constraint
      * @return
      */
-    DetachedCriteria buildElementsCriteria(Map args, DimensionImpl dimension, MultiDimConstraint constraint) {
-        Criterion modifierCriteria = dimension.hasProperty('modifierCode') ?
-                Restrictions.eq('modifierCd', dimension.modifierCode) : defaultModifierCriterion
-        DetachedCriteria constraintCriteria = constraint ?
-                buildCriteria((Constraint) constraint, modifierCriteria) : buildCriteria(modifierCriteria)
+    DetachedCriteria buildElementsCriteria(DimensionImpl dimension, MultiDimConstraint constraint) {
+        DetachedCriteria constraintCriteria = buildCriteria((Constraint) constraint, null)
 
-        dimension.selectDimensionElements(args, constraintCriteria)
+        dimension.selectDimensionElements(constraintCriteria)
+    }
+
+    DetachedCriteria buildElementCountCriteria(DimensionImpl dimension, MultiDimConstraint constraint) {
+        DetachedCriteria constraintCriteria = buildCriteria((Constraint) constraint, null)
+
+        dimension.elementCount(constraintCriteria)
     }
 
     /**

@@ -3,6 +3,7 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableMap
+import grails.util.Holders
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
@@ -22,6 +23,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Property
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.TrialVisit
@@ -30,7 +32,7 @@ import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
 import org.transmartproject.db.i2b2data.Study as I2B2Study
 import org.transmartproject.db.i2b2data.PatientDimension as I2B2PatientDimension
 import org.transmartproject.db.metadata.DimensionDescription
-import org.transmartproject.db.ontology.ModifierDimensionCoreDb
+import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.InQuery
 
 import static org.transmartproject.core.multidimquery.Dimension.*
@@ -120,8 +122,10 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
         COUNT,
     }
     
-    abstract DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria)
-    
+    abstract DetachedCriteria selectDimensionElements(DetachedCriteria criteria)
+
+    abstract DetachedCriteria elementCount(DetachedCriteria criteria)
+
     protected <T> T getKey(Map map, String alias) {
         def res = map.getOrDefault(alias, this)
         if(res.is(this)) throw new IllegalArgumentException("Resultmap $map does not contain key $alias")
@@ -344,13 +348,8 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
     }
 
     @Override
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        if (args.type == SelectType.COUNT) {
-            if(this instanceof I2b2NullablePKDimension) {
-                criteria.add(Restrictions.ne(columnName, ((I2b2NullablePKDimension) this).nullValue))
-            }
-            return criteria.setProjection(Projections.countDistinct(columnName))
-        }
+    DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
+        criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
         if(this instanceof CompositeElemDim) {
             criteria.setProjection(Projections.property(columnName))
             def dimensionCriteria = DetachedCriteria.forClass(elemType)
@@ -359,7 +358,16 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
         } else if(this instanceof SerializableElemDim) {
             criteria.setProjection(Projections.distinct(Projections.property(columnName)))
         }
-        throw new UnsupportedOperationException("Retrieving elements of the $name dimension is not supported.")
+        assert this instanceof CompositeElemDim || this instanceof SerializableElemDim
+    }
+
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
+        if(this instanceof I2b2NullablePKDimension) {
+            criteria.add(Restrictions.ne(columnName, ((I2b2NullablePKDimension) this).nullValue))
+        }
+        criteria.setProjection(Projections.countDistinct(columnName))
     }
 
 }
@@ -392,8 +400,13 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
 
     @Override abstract ImplementationType getImplementationType()
 
-    @Override DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
+    @Override DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
         throw new InvalidArgumentsException("Retrieving elements of the $name dimension is not supported.")
+    }
+
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        throw new InvalidArgumentsException("Retrieving the element count of the $name dimension is not supported.")
     }
 }
 
@@ -476,9 +489,30 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
         }
     }
 
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        // todo: retrieve the values for this modifier
-        throw new InvalidArgumentsException("Selecting elements of $name dimension is not supported.")
+    DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
+        criteria.add(Restrictions.eq('modifierCd', modifierCode))
+        if(elemType == String) {
+            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
+            criteria.setProjection(Projections.distinct(Projections.property('textValue')))
+        } else {
+            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
+            criteria.setProjection(Projections.distinct(Projections.property('numberValue')))
+        }
+        criteria
+    }
+
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        criteria.add(Restrictions.eq('modifierCd', modifierCode))
+        if(elemType == String) {
+            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
+            criteria.setProjection(Projections.countDistinct('textValue'))
+        } else {
+            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
+            criteria.setProjection(Projections.countDistinct('numberValue'))
+        }
+
+        criteria
     }
 }
 
@@ -564,9 +598,14 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
         resolveWithInQuery(I2B2Study.createCriteria(), elementKeys)
     }
 
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
+    DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
         throw new InvalidArgumentsException("Retrieving elements of the $name dimension is not supported.")
     }
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        throw new InvalidArgumentsException("Retrieving the element count of the $name dimension is not supported.")
+    }
+
 }
 
 
@@ -640,10 +679,9 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
     }
     
     @Override
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
-        if (args.type == SelectType.COUNT) {
-            throw new InvalidArgumentsException("Counting is not implemented for the visit dimension")
-        }
+    DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
+        criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
+
         def projection = criteria.projection = Projections.projectionList()
         ['encounterNum', 'patient'].each {
             projection.add(Projections.property(it))
@@ -652,7 +690,12 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
         dimensionCriteria.add(Subqueries.propertiesIn(['encounterNum', 'patient'] as String[], criteria))
         dimensionCriteria
     }
-    
+
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        selectDimensionElements(criteria).setProjection(Projections.rowCount())
+    }
+
     // The same as @Immutable, but @Immutable generates some rather dynamic/inefficient constructors and a toString()
     // I don't quite like
     @EqualsAndHashCode
@@ -741,8 +784,13 @@ class ValueDimension extends DimensionImpl implements SerializableElemDim {
         //}
     }
 
-    DetachedCriteria selectDimensionElements(Map args, DetachedCriteria criteria) {
+    DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
         throw new UnsupportedOperationException("Selecting elements of the $name dimension is not supported.")
+    }
+
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        throw new UnsupportedOperationException("Retrieving the element count of the $name dimension is not supported.")
     }
 
 }

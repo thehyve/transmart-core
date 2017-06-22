@@ -441,7 +441,7 @@ class QueryServiceSpec extends TransmartSpecification {
         DimensionImpl dimension = DimensionImpl.TRIAL_VISIT
         Constraint constraint = new StudyNameConstraint(studyId: hypercubeTestData.clinicalData.multidimsStudy.studyId )
         def expectedResult = hypercubeTestData.clinicalData.multidimsStudy.trialVisits as Set<TrialVisit>
-        def result = multiDimService.getDimensionElements(dimension, accessLevelTestData.users[1], constraint).collect {
+        def result = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[1]).collect {
             dimension.asSerializable(it)
         }
 
@@ -458,7 +458,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when: "Dimension with given name does not support listing elements"
         dimension = DimensionImpl.START_TIME
-        multiDimService.getDimensionElements(dimension, accessLevelTestData.users[1], null)
+        multiDimService.getDimensionElements(dimension, null, accessLevelTestData.users[1])
     
         then: "InvalidArgumentsException is thrown"
         def e = thrown(InvalidArgumentsException)

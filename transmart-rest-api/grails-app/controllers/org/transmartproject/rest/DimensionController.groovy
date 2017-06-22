@@ -40,7 +40,7 @@ class DimensionController extends AbstractQueryController {
 
         Constraint constraint = Strings.isNullOrEmpty(params.constraint) ? null : bindConstraint(params.constraint)
 
-        def results = multiDimService.getDimensionElements(dimension, user, constraint)
+        def results = multiDimService.getDimensionElements(dimension, constraint, user)
         render wrapElements(dimension, results) as JSON
     }
 

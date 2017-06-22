@@ -55,7 +55,6 @@ import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.AssayDimension
 import org.transmartproject.db.multidimquery.BioMarkerDimension
 import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.DimensionImpl.SelectType
 import org.transmartproject.db.multidimquery.EmptyHypercube
 import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
 import org.transmartproject.db.multidimquery.HypercubeImpl
@@ -415,15 +414,15 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    private Object get(DetachedCriteria criteria) {
+    def get(DetachedCriteria criteria) {
         getExecutableCriteria(criteria).uniqueResult()
     }
 
-    private List getList(DetachedCriteria criteria) {
+    def List getList(DetachedCriteria criteria) {
         getExecutableCriteria(criteria).list()
     }
 
-    private Iterable getIterable(DetachedCriteria criteria) {
+    def Iterable getIterable(DetachedCriteria criteria) {
         def scrollableResult = getExecutableCriteria(criteria).scroll(ScrollMode.FORWARD_ONLY)
         new ScrollableResultsWrappingIterable(scrollableResult)
     }
@@ -478,14 +477,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param constraint
      */
     @Override
-    Iterable getDimensionElements(Dimension dimension, User user, MultiDimConstraint constraint) {
-        Collection<MDStudy> studies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
-
-        HibernateCriteriaQueryBuilder builder = new HibernateCriteriaQueryBuilder(
-                studies: studies
-        )
-        DetachedCriteria dimensionCriteria = builder.buildElementsCriteria(
-                (DimensionImpl) dimension, constraint, type: SelectType.ELEMENTS)
+    Iterable getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user) {
+        checkAccess(constraint, user)
+        HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria dimensionCriteria = builder.buildElementsCriteria((DimensionImpl) dimension, constraint)
 
         return getIterable(dimensionCriteria)
     }
@@ -497,10 +492,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param user
      */
     @Override List<Patient> listPatients(MultiDimConstraint constraint, User user) {
-        checkAccess(constraint, user)
-        def builder = getCheckedQueryBuilder(user)
-        DetachedCriteria patientCriteria = builder.buildElementsCriteria([type: SelectType.ELEMENTS], PATIENT, constraint)
-        getList(patientCriteria)
+        getDimensionElements(PATIENT, constraint, user) as List
     }
     
     /**
@@ -512,7 +504,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     @Override Long countPatients(MultiDimConstraint constraint, User user) {
         checkAccess(constraint, user)
         def builder = getCheckedQueryBuilder(user)
-        DetachedCriteria patientCriteria = builder.buildElementsCriteria([type: SelectType.COUNT], PATIENT, constraint)
+        DetachedCriteria patientCriteria = builder.buildElementCountCriteria(PATIENT, constraint)
         (Long) get(patientCriteria)
     }
 
@@ -527,7 +519,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param user
      */
     @Override QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) {
-        List patients = listPatients(constraint, user)
+        List patients = getDimensionElements(PATIENT, constraint, user) as List
 
         // 1. Populate qt_query_master
         def queryMaster = new QtQueryMaster(
