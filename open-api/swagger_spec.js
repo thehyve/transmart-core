@@ -23,7 +23,7 @@ var spec = {
     "oauth": {
       "type": "oauth2",
       "flow": "implicit",
-      "authorizationUrl": "/oauth/authorize?response_type=token&client_id={client_id}&redirect_uri={redirect}",
+      "authorizationUrl": "/oauth/authorize",
       "scopes": {
         "basic": "to be able to interact with transmart REST-API"
       }
