@@ -1634,6 +1634,247 @@
           }
         }
       }
+    },
+    "/v2/export/job": {
+      "post": {
+        "description": "Creates a new asynchronous data export job.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "jobName",
+            "required": false,
+            "in": "query",
+            "description": "Name of the export job (has to be unique). If it is not specified, a default name will be created.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "an object with the created export job or error.\n",
+            "schema": {
+              "$ref": "#/definitions/export_job"
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/{jobName}/run": {
+      "get": {
+        "description": "Runs the specified data export job asynchronously. Creates a hypercube for each element from {elements} with PatientSetsConstraint for given {ids}\nand serialises it to specified (fileFormat}. Output stream is saved as .zip file in `tempFolderDirectory`, specified in configuration file.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "jobName",
+            "required": true,
+            "in": "path",
+            "description": "name of the export job. The job has to have a status `Started`",
+            "type": "string"
+          },
+          {
+            "name": "setType",
+            "required": true,
+            "in": "query",
+            "description": "specifies the type of the set you want to retrieve. For patient_set specify `patient`, for observation_set specify `observation`",
+            "type": "string"
+          },
+          {
+            "name": "ids",
+            "required": true,
+            "in": "query",
+            "description": "set IDs of specified {setType}.",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "elements",
+            "required": true,
+            "in": "query",
+            "description": "list of json objects: {data_type, format} pairs.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "dataType": {
+                  "type": "string",
+                  "description": "type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types."
+                },
+                "format": {
+                  "type": "string",
+                  "description": "one of the supported file formats you want to export current data type to, e.g. `TSV`"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the first time at which the `Trigger` to run the export will be fired by the scheduler.\n",
+            "type": "object",
+            "properties": {
+              "jobName": {
+                "type": "string"
+              },
+              "scheduledTime": {
+                "type": "string",
+                "format": "datetime"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/{jobName}/download": {
+      "get": {
+        "description": "Gets zipped file with exported data, created by specified job.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "jobName",
+            "required": true,
+            "in": "path",
+            "description": "name of the export job. The job has to have a status `Completed`",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zip file stream with expoted data.\n",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/{jobName}/status": {
+      "get": {
+        "description": "Gets a status of specified data export job.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "jobName",
+            "required": true,
+            "in": "path",
+            "description": "Name of the export job.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return the result as a json object. Example: `{status: STARTED}`.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/jobs": {
+      "get": {
+        "description": "Gets all export jobs accessible by the user.\n",
+        "tags": [
+          "v2"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of export jobs\n",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/export_job"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/data_formats/{ids}": {
+      "get": {
+        "description": "Gets data formats for specified sets, including `clinical` type and high dimensional types.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "required": true,
+            "in": "path",
+            "description": "set IDs of specified {setType}.",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "setType",
+            "required": true,
+            "in": "query",
+            "description": "specifies the type of the set you want to retrieve. For patient_set specify `patient`, for observation_set specify `observation`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of known data formats for specified sets.\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dataFormats": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/supported_file_formats": {
+      "get": {
+        "description": "Gets supported export file formats.\n",
+        "tags": [
+          "v2"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of file formats that data can be exported to.\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "supportedFileFormats": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2226,6 +2467,43 @@
           "items": {
             "type": "object"
           }
+        }
+      }
+    },
+    "export_job": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "altViewerURL": {
+          "type": "string"
+        },
+        "jobName": {
+          "type": "string"
+        },
+        "jobStatus": {
+          "type": "string"
+        },
+        "jobStatusTime": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "jobType": {
+          "type": "string"
+        },
+        "lastRunOn": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "results": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "viewerURL": {
+          "type": "string"
         }
       }
     }
