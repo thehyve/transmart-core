@@ -7,6 +7,7 @@ import groovy.util.logging.Slf4j
 import org.apache.commons.lang.StringUtils
 import org.quartz.Job
 import org.quartz.JobExecutionContext
+import org.transmartproject.core.exceptions.UnexpectedResultException
 
 import java.util.zip.ZipOutputStream
 
@@ -36,6 +37,8 @@ class ExportJobExecutor implements Job {
             interceptor = Holders.applicationContext.persistenceInterceptor
             interceptor.init()
             zipData(jobDataMap)
+        } catch (UnexpectedResultException e) {
+            asyncJobService.updateStatus(jobDataMap.jobName, JobStatus.ERROR, null, e)
         } finally {
 //            // Thread will be reused, need to clear user in context
 //            quartzSpringScope.clear()
@@ -56,14 +59,14 @@ class ExportJobExecutor implements Job {
             asyncJobService.updateStatus(jobName, JobStatus.GATHERING_DATA)
             restDataExportService.exportData(jobDataMap, zipFile)
         }
-        catch (Exception e) {
-            log.error 'An exception occurred during data export job', e
-            asyncJobService.updateStatus(jobName, JobStatus.ERROR, null, e.message)
+        catch (all) {
+            log.error 'An exception occurred during data export job', all.message
+            throw new UnexpectedResultException("An exception occurred during data export job: $all.message")
         }
         finally {
             zipFile.close()
-            asyncJobService.updateStatus(jobName, JobStatus.COMPLETED, fileName)
         }
+        asyncJobService.updateStatus(jobName, JobStatus.COMPLETED, fileName)
     }
 
     private String getFilePath(String inputFileName) {

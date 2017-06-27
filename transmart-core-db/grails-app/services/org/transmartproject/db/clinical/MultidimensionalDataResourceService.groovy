@@ -853,7 +853,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
 
         if (assayIds.empty){
-            return new EmptyHypercube()
+            return null
         }
         List<AssayConstraint> oldAssayConstraints = [
                 highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)

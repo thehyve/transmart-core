@@ -108,16 +108,18 @@ class RestExportService {
     List getDataFormats(String setType, List<Long> setIds, User user) {
 
         // clinical data (always included)
-        def dataFormats = []
+        List<String> dataFormats = []
         dataFormats.add(clinicalDataType)
 
         // highDim data
         switch (setType) {
             case SupportedSetTypes.PATIENT.value:
-                dataFormats.addAll(restDataExportService.highDimDataTypesForPatientSets(setIds, user))
+                List highDimDataTypes = restDataExportService.highDimDataTypesForPatientSets(setIds, user)
+                if (highDimDataTypes) dataFormats.addAll(highDimDataTypes)
                 break
             case SupportedSetTypes.OBSERVATION.value:
-                dataFormats.addAll(restDataExportService.highDimDataTypesForObservationSets(setIds, user))
+                List highDimDataTypes = restDataExportService.highDimDataTypesForObservationSets(setIds, user)
+                if (highDimDataTypes) dataFormats.addAll(highDimDataTypes)
                 break
             default:
                 throw new NotSupportedException("Set type '$setType' not supported.")

@@ -60,7 +60,7 @@ class RestExportController {
      * @param setType - 'patient' or 'observation' set
      * @param jobName - name of previously created job with 'Started' status
      * @param ids - list of sets ids
-     * @param elements - list of pairs: {"dataType":${dataType}, "format":$(fileFormat}, JSON format
+     * @param elements - list of pairs: {dataType:${dataType}, format:$(fileFormat}, JSON format
      * @return The first time at which the <code>Trigger</code> to run the export will be fired
      *         by the scheduler
      */
@@ -75,10 +75,10 @@ class RestExportController {
         checkRightsToExport(ids, user, setType)
         checkJobAccess(jobName, user)
 
-        def result = restExportService.exportData(ids, setType, elements, user, jobName)
+        def scheduledTime = restExportService.exportData(ids, setType, elements, user, jobName)
 
-        response.setContentType("application/json")
-        response.outputStream << result.toString()
+        def result = [ jobName : jobName, scheduledTime : scheduledTime ]
+        render result as JSON
     }
 
     /**
@@ -138,7 +138,7 @@ class RestExportController {
     /**
      * Get available types of the data for specified set id,
      * `clinical` for clinical data and supported high dimensional data types.
-     * <code>/v2/export/data_formats/${ids}
+     * <code>/v2/export/data_formats/${ids}?setType=${setType}
      *
      * @param setType
      * @param ids
@@ -174,18 +174,18 @@ class RestExportController {
     private void checkRightsToExport(List<Long> resultSetIds, User user, String setType) {
         try {
             restExportService.isUserAllowedToExport(resultSetIds, user, setType)
-        } catch (AccessDeniedException e) {
+        } catch (UnsupportedOperationException e) {
             throw new AccessDeniedException("User ${user.username} has no EXPORT permission" +
                     " on one of the result sets: ${resultSetIds.join(', ')}")
         }
     }
     
     private checkJobAccess(String jobName, User user) {
-        if (user.isAdmin()) return
         String jobUsername = restExportService.jobUser(jobName)
-
         if (!jobUsername) throw new InvalidArgumentsException("Job with a name '$jobName' does not exists.")
-        if (jobUsername != user.username) {
+
+        if (user.isAdmin()) return
+        else if (jobUsername != user.username) {
             log.warn("Denying access to job $jobName because the " +
                     "corresponding username ($jobUsername) does not match " +
                     "that of the current user")
@@ -211,7 +211,7 @@ class RestExportController {
     }
 
     private void checkSetTypeSupported(String setType) {
-        if (!(setType.trim() in restExportService.supportedSetTypes)) {
+        if (!(setType?.trim() in restExportService.supportedSetTypes)) {
             throw new InvalidArgumentsException("Type not supported: $setType.")
         }
     }

@@ -46,6 +46,7 @@ class ExportAsyncJobService {
         newJob.jobType = jobType
         newJob.jobStatus = jobStatus.value
         newJob.jobName = jobName
+        newJob.userId = user.username
         newJob.save()
 
         if (!jobName?.trim()) {
