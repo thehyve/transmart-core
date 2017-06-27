@@ -19,6 +19,7 @@ import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
+import org.hibernate.criterion.Subqueries
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
@@ -577,7 +578,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         // 7. Update result instance and query instance
         resultInstance.setSize = resultInstance.realSetSize = patients.size()
-        resultInstance.description = "Patient set for \"${name}\""
+        resultInstance.description = name
         resultInstance.endDate = new Date()
         resultInstance.statusTypeId = QueryStatus.FINISHED.id
 
@@ -604,13 +605,26 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
         queryResult
     }
-    
+
+    @Override Iterable<QueryResult> findPatientSets(User user) {
+        if(((DbUser) user).admin){
+            return getIterable(DetachedCriteria.forClass(QtQueryResultInstance))
+        } else {
+            def queryCriteria = DetachedCriteria.forClass(QtQueryInstance, 'queryInstance')
+                    .add(Restrictions.eq('userId', user.username))
+                    .setProjection(Projections.property('id'))
+            def queryResultCriteria = DetachedCriteria.forClass(QtQueryResultInstance)
+                    .add(Subqueries.propertyIn('queryInstance', queryCriteria))
+            return getIterable(queryResultCriteria)
+        }
+    }
+
     @Override RequestConstraintAndVersion getPatientSetConstraint(long id) {
         QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findById(id)
         def queryMaster = qtQueryResultInstance.queryInstance.queryMaster
         new RequestConstraintAndVersion(queryMaster.requestConstraints, queryMaster.apiVersion)
     }
-    
+
     @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
     Long cachedPatientCount(MultiDimConstraint constraint, User user) {
         countPatients(constraint, user)

@@ -23,7 +23,7 @@ var spec = {
     "oauth": {
       "type": "oauth2",
       "flow": "implicit",
-      "authorizationUrl": "/oauth/authorize?response_type=token&client_id={client_id}&redirect_uri={redirect}",
+      "authorizationUrl": "/oauth/authorize",
       "scopes": {
         "basic": "to be able to interact with transmart REST-API"
       }
@@ -977,6 +977,19 @@ var spec = {
       }
     },
     "/v2/patient_sets": {
+      "get": {
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "Gets all patient_sets accessible by the user.\n",
+            "schema": {
+              "$ref": "#/definitions/patient_set"
+            }
+          }
+        }
+      },
       "post": {
         "description": "creates a patient set with all patients that have an observation that satisfies the constaint given in the body. The set will only have patients the calling user access to. The constraint used to create the set will be stored in a database.\n",
         "tags": [

@@ -29,7 +29,13 @@ import org.transmartproject.db.TransmartSpecification
 @Rollback
 class StudyImplSpec extends TransmartSpecification {
 
-    TabularStudyTestData studyTestData = new TabularStudyTestData()
+    // Making studyTestData @Lazy is a workaround to get this test to work on Travis Trusty environment. Probably it
+    // is some bug in (some versions of) grails, but this is difficult to pin down.
+    // Wrapping studyTestData in another class is because @Lazy doesn't work directly in Spock Specifications.
+    TabularStudyTestData getStudyTestData() { holder.data }
+    def holder = new Object() {
+        @Lazy def data = new TabularStudyTestData()
+    }
 
     StudiesResource studiesResourceService
 

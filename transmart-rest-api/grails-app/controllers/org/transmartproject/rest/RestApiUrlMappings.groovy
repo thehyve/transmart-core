@@ -35,6 +35,9 @@ class RestApiUrlMappings {
         "/versions/$id"(method: 'GET', controller: 'version', action: 'show')
 
         group "/v2", {
+            "/versions"(method: 'GET', controller: 'version', action: 'index')
+            "/versions/$id"(method: 'GET', controller: 'version', action: 'show')
+
             "/studies"(method: 'GET', controller: 'studyQuery', action: 'listStudies') {
                 apiVersion = 'v2'
             }
@@ -60,6 +63,9 @@ class RestApiUrlMappings {
                 apiVersion = 'v2'
             }
             "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
+                apiVersion = 'v2'
+            }
+            "/patient_sets"(method: 'GET', controller: 'patientQuery', action: 'findPatientSets') {
                 apiVersion = 'v2'
             }
             "/patient_sets"(method: 'POST', controller: 'patientQuery', action: 'createPatientSet') {
@@ -133,6 +139,8 @@ class RestApiUrlMappings {
         }
 
         group "/v1", {
+            "/versions"(method: 'GET', controller: 'version', action: 'index')
+            "/versions/$id"(method: 'GET', controller: 'version', action: 'show')
 
             '/studies'(controller: 'study', method: 'GET', resources: 'study', includes: ['index', 'show'])
 

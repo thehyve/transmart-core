@@ -312,6 +312,16 @@ grails { plugin { springsecurity {
                         authorizedGrantTypes: ['implicit', 'password'],
                         redirectUris: glowingBearRedirectUris,
                     ],
+                    [
+                        clientId: 'swagger',
+                        clientSecret: '',
+                        authorities: ['ROLE_CLIENT'],
+                        scopes: ['basic', 'vendorExtensions'],
+                        authorizedGrantTypes: ['implicit', 'password'],
+                        redirectUris: [
+                            (org.transmartproject.app.transmartURL - ~'\\/$') + '/open-api/o2c.html',
+                        ],
+                    ],
             ]
         }
     }

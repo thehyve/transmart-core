@@ -299,7 +299,7 @@ class FieldConstraint extends Constraint {
                                         'value',
                                         'org.transmartproject.query.invalid.value.operator.message',
                                         [it, obj.field.type, obj.operator] as String[],
-                                        'Value not compatible with type')
+                                        "Value '$it' not compatible with type $obj.field.type")
                             }
                         }
                     } else {
@@ -307,14 +307,14 @@ class FieldConstraint extends Constraint {
                                 'value',
                                 'org.transmartproject.query.value.not.collection.message',
                                 [obj.operator, val] as String[],
-                                'Collection expected')
+                                "Collection expected for operator [$obj.operator.symbol], got '$val'")
                     }
                 } else if (!obj.field.type.supportsValue(val)) {
                     errors.rejectValue(
                             'value',
                             'org.transmartproject.query.invalid.value.operator.message',
                             [val, obj.field.type, obj.operator] as String[],
-                            'Value not compatible with type')
+                            "Value '$val' not compatible with type $obj.field.type")
                 }
             } }
         operator validator: { Operator op, obj, Errors errors ->
@@ -322,7 +322,7 @@ class FieldConstraint extends Constraint {
                 errors.rejectValue(
                         'operator',
                         'org.transmartproject.query.invalid.operator.message', [op.symbol, obj.field.type] as String[],
-                        'Operator not valid for type')
+                        "Operator [$op.symbol] not valid for type $obj.field.type")
             } }
     }
 }
@@ -413,14 +413,14 @@ class ValueConstraint extends Constraint {
                         'value',
                         'org.transmartproject.query.invalid.value.message',
                         [val, obj.valueType] as String[],
-                        'Operator not valid for type')
+                        "Value [${val}] not valid for type ${obj.valueType}")
             } }
         operator validator: { Operator op, obj, Errors errors ->
             if (!op.supportsType(obj.valueType)) {
                 errors.rejectValue(
                         'operator',
                         'org.transmartproject.query.invalid.operator.message', [op.symbol, obj.valueType] as String[],
-                        'Value not compatible with type')
+                        "Operator [${op.symbol}] not valid for type ${obj.valueType}")
             } }
     }
 }
@@ -631,7 +631,7 @@ class ConstraintFactory {
 
     static final constraintDataBinder = new ConstraintDataBinder()
 
-    static final Map<String, Class> constraintClasses = [
+    static final Map<String, Class<? extends Constraint>> constraintClasses = [
             TrueConstraint,
             BiomarkerConstraint,
             ModifierConstraint,
@@ -670,11 +670,12 @@ class ConstraintFactory {
             throw new ConstraintBindingException("Constraint not supported: ${name}.")
         }
         log.info "Creating constraint of type ${type.simpleName}"
-        def result = type.newInstance()
+        Constraint result = type.newInstance()
         constraintDataBinder.bindData(result, values, [exclude: ['type', 'errors']])
-        if(result.errors?.hasErrors()) {
+        if(result.errors?.hasErrors() || !result.validate()) {
             throw new ConstraintBindingException(
-                    "${result.errors.errorCount} error(s): " + result.errors.allErrors*.defaultMessage.join('; '))
+                    "${result.errors.errorCount} error(s): " + result.errors.allErrors*.defaultMessage.join('; '),
+                    result.errors)
         }
         return result
     }
