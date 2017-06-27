@@ -457,11 +457,10 @@ class QueryServiceSpec extends TransmartSpecification {
         }
 
         when: "Dimension with given name does not support listing elements"
-        dimension = DimensionImpl.START_TIME
+        dimension = DimensionImpl.BIOMARKER
         multiDimService.getDimensionElements(dimension, null, accessLevelTestData.users[1])
     
         then: "InvalidArgumentsException is thrown"
-        def e = thrown(InvalidArgumentsException)
-        e.message == "Selecting elements of $dimension.name dimension is not supported."
+        thrown(InvalidArgumentsException)
     }
 }

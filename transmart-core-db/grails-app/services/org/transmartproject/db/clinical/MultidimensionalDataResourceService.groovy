@@ -24,6 +24,7 @@ import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
@@ -478,8 +479,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param constraint
      */
     @Override
-    Iterable getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user) {
-        checkAccess(constraint, user)
+    IterableResult getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user) {
+        if(constraint) checkAccess(constraint, user)
         HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user)
         DetachedCriteria dimensionCriteria = builder.buildElementsCriteria((DimensionImpl) dimension, constraint)
 
@@ -493,7 +494,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param user
      */
     @Override List<Patient> listPatients(MultiDimConstraint constraint, User user) {
-        getDimensionElements(PATIENT, constraint, user) as List
+        getDimensionElements(PATIENT, constraint, user).toList()
     }
     
     /**
@@ -520,7 +521,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param user
      */
     @Override QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) {
-        List patients = getDimensionElements(PATIENT, constraint, user) as List
+        List patients = getDimensionElements(PATIENT, constraint, user).toList()
 
         // 1. Populate qt_query_master
         def queryMaster = new QtQueryMaster(

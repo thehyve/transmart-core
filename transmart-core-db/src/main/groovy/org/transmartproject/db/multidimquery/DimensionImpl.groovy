@@ -354,11 +354,12 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
             criteria.setProjection(Projections.property(columnName))
             def dimensionCriteria = DetachedCriteria.forClass(elemType)
             dimensionCriteria.add(Subqueries.propertyIn(joinProperty, criteria))
-            dimensionCriteria
+            return dimensionCriteria
         } else if(this instanceof SerializableElemDim) {
-            criteria.setProjection(Projections.distinct(Projections.property(columnName)))
+            return criteria.setProjection(Projections.distinct(Projections.property(columnName)))
+        } else {
+            assert this instanceof CompositeElemDim || this instanceof SerializableElemDim
         }
-        assert this instanceof CompositeElemDim || this instanceof SerializableElemDim
     }
 
     @Override
@@ -367,7 +368,7 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
         if(this instanceof I2b2NullablePKDimension) {
             criteria.add(Restrictions.ne(columnName, ((I2b2NullablePKDimension) this).nullValue))
         }
-        criteria.setProjection(Projections.countDistinct(columnName))
+        return criteria.setProjection(Projections.countDistinct(columnName))
     }
 
 }
