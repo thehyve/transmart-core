@@ -424,7 +424,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         getExecutableCriteria(criteria).list()
     }
 
-    private Iterable getIterable(DetachedCriteria criteria) {
+    private IterableResult getIterable(DetachedCriteria criteria) {
         def scrollableResult = getExecutableCriteria(criteria).scroll(ScrollMode.FORWARD_ONLY)
         new ScrollableResultsWrappingIterable(scrollableResult)
     }
@@ -486,17 +486,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         return getIterable(dimensionCriteria)
     }
-    
-    /**
-     * @description Function for getting a list of patients for which there are observations
-     * that are specified by <code>query</code>.
-     * @param query
-     * @param user
-     */
-    @Override List<Patient> listPatients(MultiDimConstraint constraint, User user) {
-        getDimensionElements(PATIENT, constraint, user).toList()
-    }
-    
+
     /**
      * @description Function for getting a number of patients for which there are observations
      * that are specified by <code>query</code>.

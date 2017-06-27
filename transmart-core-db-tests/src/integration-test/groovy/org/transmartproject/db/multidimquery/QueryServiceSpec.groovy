@@ -187,7 +187,8 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when: "I query for all observations and patients for a constraint"
         def observations = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
-        def patients = multiDimService.listPatients(constraint, accessLevelTestData.users[0])
+        def patients = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
+                constraint, accessLevelTestData.users[0]).toList()
 
         then: "I get the expected number of observations and patients"
         observations.size() == hypercubeTestData.clinicalData.longitudinalClinicalFacts.size()
@@ -210,7 +211,8 @@ class QueryServiceSpec extends TransmartSpecification {
         Constraint patientSetConstraint = ConstraintFactory.create(
                 [ type: 'patient_set', patientSetId: patientSet.id ]
         )
-        def patients2 = multiDimService.listPatients(patientSetConstraint, accessLevelTestData.users[0])
+        def patients2 = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
+                patientSetConstraint, accessLevelTestData.users[0]).toList()
 
         then: "I get the same set of patient as before"
         patients as Set == patients2 as Set
@@ -218,7 +220,8 @@ class QueryServiceSpec extends TransmartSpecification {
         when: "I query for patients based on saved constraints"
         def constraintAndVersion = multiDimService.getPatientSetConstraint(patientSet.id)
         def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(constraintAndVersion.constraint) as Map)
-        def patients3 = multiDimService.listPatients(savedPatientSetConstraint, accessLevelTestData.users[0])
+        def patients3 = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
+                savedPatientSetConstraint, accessLevelTestData.users[0]).toList()
 
         then: "I get the same set of patient as before"
         patients as Set == patients3 as Set
