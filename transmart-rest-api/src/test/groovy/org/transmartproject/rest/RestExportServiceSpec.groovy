@@ -1,6 +1,7 @@
 package org.transmartproject.rest
 
 import grails.test.mixin.TestFor
+import org.transmartproject.rest.dataExport.RestExportService
 import spock.lang.Specification
 
 /**

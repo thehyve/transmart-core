@@ -1,4 +1,4 @@
-package org.transmartproject.rest
+package org.transmartproject.rest.dataExport
 
 import com.recomdata.transmart.domain.i2b2.AsyncJob
 import grails.transaction.Transactional

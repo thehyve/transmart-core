@@ -9,6 +9,7 @@ import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.user.User
+import org.transmartproject.rest.dataExport.RestExportService
 import org.transmartproject.rest.misc.CurrentUser
 import com.recomdata.transmart.domain.i2b2.AsyncJob
 
