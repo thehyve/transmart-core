@@ -283,11 +283,8 @@ class AccessControlChecks {
     void verifyDimensionsAccessible(Collection<Dimension> dimensions, User user) {
         def inaccessibleDimensions = getInaccessibleDimensions(dimensions, user)
         if (inaccessibleDimensions){
-            if (inaccessibleDimensions.size() == 1) {
-                throw new AccessDeniedException("Access denied to dimension: ${inaccessibleDimensions.first()}.")
-            } else {
-                throw new AccessDeniedException("Access denied to dimensions: ${inaccessibleDimensions.join(', ')}.")
-            }
+            throw new AccessDeniedException(
+                    "Access denied to ${inaccessibleDimensions.size()==1 ? 'dimension' : 'dimensions'}: ${inaccessibleDimensions.join(', ')}.")
         }
     }
 

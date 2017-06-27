@@ -599,11 +599,11 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
     }
 
     DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Retrieving elements of the $name dimension is not supported.")
+        throw new InvalidArgumentsException("Retrieving elements of the $name dimension is not implemented.")
     }
     @Override
     DetachedCriteria elementCount(DetachedCriteria criteria) {
-        throw new InvalidArgumentsException("Retrieving the element count of the $name dimension is not supported.")
+        throw new InvalidArgumentsException("Retrieving the element count of the $name dimension is not implemented.")
     }
 
 }
