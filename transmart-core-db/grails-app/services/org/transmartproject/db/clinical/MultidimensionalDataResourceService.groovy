@@ -414,15 +414,15 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    def get(DetachedCriteria criteria) {
+    private def get(DetachedCriteria criteria) {
         getExecutableCriteria(criteria).uniqueResult()
     }
 
-    def List getList(DetachedCriteria criteria) {
+    private List getList(DetachedCriteria criteria) {
         getExecutableCriteria(criteria).list()
     }
 
-    def Iterable getIterable(DetachedCriteria criteria) {
+    private Iterable getIterable(DetachedCriteria criteria) {
         def scrollableResult = getExecutableCriteria(criteria).scroll(ScrollMode.FORWARD_ONLY)
         new ScrollableResultsWrappingIterable(scrollableResult)
     }
