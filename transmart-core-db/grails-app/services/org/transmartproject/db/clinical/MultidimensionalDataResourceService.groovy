@@ -784,21 +784,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         BiomarkerConstraint biomarkerConstraint = (BiomarkerConstraint) biomarkerConstraint_
         checkAccess(assayConstraint, user)
 
-        List<ObservationFact> observations = highDimObservationList(assayConstraint, user,
-                type == 'autodetect' ? defaultHDModifierCriterion : HDModifierCriterionForType(type))
-
-        List assayIds = []
-        for(def o : observations) {
-            if(o.numberValue == null) throw new DataInconsistencyException("Observation row(s) found that miss the assayId")
-            assayIds.add(o.numberValue.toLong())
-        }
-
-        if (assayIds.empty){
+        List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, type)
+        if(oldAssayConstraints == null) {
             return new EmptyHypercube()
         }
-        List<AssayConstraint> oldAssayConstraints = [
-                highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
-        ]
 
         HighDimensionDataTypeResource typeResource
         if(type == 'autodetect') {
@@ -833,18 +822,23 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    @Override Hypercube retrieveClinicalData(MultiDimConstraint constraint_, User user) {
-        Constraint constraint = (Constraint) constraint_
-        checkAccess(constraint, user)
-        def dataType = 'clinical'
-        def accessibleStudies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
-        retrieveData(dataType, accessibleStudies, constraint: constraint)
-    }
-
-    List retriveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user){
+    @Override List retriveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user){
 
         Constraint assayConstraint = (Constraint) assayConstraint_
-        List<ObservationFact> observations = highDimObservationList(assayConstraint, user, defaultHDModifierCriterion)
+        List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')
+        if(oldAssayConstraints == null) {
+            return null
+        }
+
+        Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
+                highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
+
+        assaysByType.keySet()?.collect {it.dataTypeName}
+    }
+
+    private ArrayList<AssayConstraint> getOldAssayConstraint(Constraint assayConstraint, User user, String type) {
+        List<ObservationFact> observations = highDimObservationList(assayConstraint, user,
+                type == 'autodetect' ? defaultHDModifierCriterion : HDModifierCriterionForType(type))
 
         List assayIds = []
         for(def o : observations) {
@@ -855,14 +849,19 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         if (assayIds.empty){
             return null
         }
-        List<AssayConstraint> oldAssayConstraints = [
+        return [
                 highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
         ]
-        Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
-                highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
-
-        assaysByType.keySet()?.collect {it.dataTypeName}
     }
+
+    @Override Hypercube retrieveClinicalData(MultiDimConstraint constraint_, User user) {
+        Constraint constraint = (Constraint) constraint_
+        checkAccess(constraint, user)
+        def dataType = 'clinical'
+        def accessibleStudies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+        retrieveData(dataType, accessibleStudies, constraint: constraint)
+    }
+
 }
 
 @TupleConstructor
