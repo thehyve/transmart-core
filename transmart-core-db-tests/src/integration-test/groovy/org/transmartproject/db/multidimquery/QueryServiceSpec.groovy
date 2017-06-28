@@ -223,6 +223,48 @@ class QueryServiceSpec extends TransmartSpecification {
         constraintAndVersion.version == apiVersion
     }
 
+    void "test query for all patient sets"() {
+        setupHypercubeData()
+
+        def constraintMap = [
+                type    : 'and',
+                args    : [
+                        [
+                                type    : 'or',
+                                args    : [
+                                        [ type: 'concept', path: '\\foo\\concept 5\\' ],
+                                        [ type: 'concept', path: '\\foo\\concept 6\\' ]
+                                ]
+                        ], [
+                                type:   'study',
+                                study:  hypercubeTestData.clinicalData.longitudinalStudy
+                        ]
+                ]
+        ]
+        Constraint constraint = ConstraintFactory.create(constraintMap)
+        String constraintJson = constraintMap as JSON
+        String apiVersion = "2.1-tests"
+        def adminUser = accessLevelTestData.users[0]
+        def otherUser = accessLevelTestData.users[3]
+        def patientSet = multiDimService.createPatientSet("Test admin set ",
+                constraint,
+                adminUser,
+                constraintJson.toString(),
+                apiVersion)
+
+        when: "I query for all patient sets with admin user"
+        def adminPatientSetList = multiDimService.findPatientSets(adminUser)
+
+        then: "List of all patient_sets contains the newly created one for admin user"
+        assert adminPatientSetList.contains(patientSet)
+
+        when: "I query for all patient sets with a different user"
+        def otherUserPatientSetList = multiDimService.findPatientSets(otherUser)
+
+        then: "List of all patient_sets does NOT contain the newly created patient set"
+        assert !otherUserPatientSetList.contains(patientSet)
+    }
+
     void "test for max, min, average aggregate"() {
         setupData()
 
