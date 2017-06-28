@@ -22,7 +22,7 @@ class DimensionSpec extends RESTSpec{
         ])
 
         then: "the list of trial visits for unrestricted studies is returned"
-        responseData.size() == 19
+        responseData.elements.size() == 19
     }
     
     @RequiresStudy([EHR_ID, EHR_HIGHDIM_ID, CLINICAL_TRIAL_ID, CATEGORICAL_VALUES_ID, TUMOR_NORMAL_SAMPLES_ID, SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
@@ -47,12 +47,11 @@ class DimensionSpec extends RESTSpec{
         def responseData = get([
                 path      : PATH_DIMENSION + "/$dimensionName/elements",
                 acceptType: contentTypeForJSON,
-                statusCode: 400
+                statusCode: 404
         ])
 
         then: "Exception is thrown"
-        assert responseData.httpStatus == 400
-        assert responseData.type == 'InvalidArgumentsException'
-        assert responseData.message == "Dimension with a name '$dimensionName' is invalid."
+        assert responseData.httpStatus == 404
+        assert responseData.message == "Dimension '$dimensionName' is not valid or you don't have access"
     }
 }
