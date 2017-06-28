@@ -33,7 +33,7 @@ class Config {
     public static final String PATH_STORAGE = "v2/storage"
     public static final String PATH_FILES = "v2/files"
     public static final String PATH_ARVADOS_WORKFLOWS = "v2/arvados/workflows"
-    public static final String PATH_DIMENSION = "v2/dimension"
+    public static final String PATH_DIMENSION = "v2/dimensions"
 
     //study ids
     public static final String ORACLE_1000_PATIENT_ID = 'ORACLE_1000_PATIENT'

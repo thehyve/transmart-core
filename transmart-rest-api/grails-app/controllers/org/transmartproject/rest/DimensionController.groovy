@@ -27,7 +27,7 @@ class DimensionController extends AbstractQueryController {
     
     /**
      * Dimension endpoint:
-     * <code>GET /v2/dimension/${dimensionName}/elements</code>
+     * <code>GET /v2/dimensions/${dimensionName}/elements</code>
      *
      * @return a list of all dimension elements that user has access to.
      */
