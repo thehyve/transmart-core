@@ -4,7 +4,7 @@ apply plugin: 'java'
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.4.7'
     compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.6'
-    compile 'com.google.guava:guava:18.0'
+    compile "com.google.guava:guava:$guavaVersion"
     compile 'com.opencsv:opencsv:3.8'
     compile 'org.slf4j:slf4j-api:1.7.20'
 

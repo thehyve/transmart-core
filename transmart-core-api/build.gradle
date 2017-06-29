@@ -10,5 +10,13 @@ dependencies {
 
     compile 'org.slf4j:slf4j-api:1.7.23'
 
-    compile 'com.google.guava:guava:18.0'
+    compile "com.google.guava:guava:$guavaVersion"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
 }
