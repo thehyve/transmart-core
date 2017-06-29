@@ -113,8 +113,7 @@ class HibernateCriteriaQueryBuilderSpec extends TransmartSpecification {
 
         then:
         resultsForPatientSetId.size() == 2
-        (resultsForPatientSetId[0] as ObservationFact).patient.id == testData.clinicalData.patients[0].id
-        (resultsForPatientSetId[1] as ObservationFact).patient.id == testData.clinicalData.patients[1].id
+        resultsForPatientSetId*.patient*.id as Set == testData.clinicalData.patients[0..1]*.id as Set
     }
 
     void 'test CriteriaQueryBuilder with clinical data'() {

@@ -1603,6 +1603,37 @@ var spec = {
           }
         }
       }
+    },
+    "/v2/dimensions/{$dimensionName}/elements": {
+      "get": {
+        "description": "Gets all elements from a dimension of given name that satisfy the constaint if given.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "$dimensionName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "constraint",
+            "required": false,
+            "in": "query",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns list of all elements from the given dimension that user has access to.\n",
+            "schema": {
+              "$ref": "#/definitions/dimensionElements"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2182,6 +2213,21 @@ var spec = {
     "dimensionValue": {
       "type": "object",
       "description": "The structure of this value is described in the header. The order of the dimensionValues is determined by the order of the dimensionDeclaration in the header."
+    },
+    "dimensionElements": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string"
+        },
+        "elements": {
+          "description": "List of dimension elements with properties specific to a given dimension.",
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
     }
   }
 }

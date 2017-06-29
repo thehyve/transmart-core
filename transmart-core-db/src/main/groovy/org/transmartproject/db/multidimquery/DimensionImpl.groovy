@@ -3,7 +3,7 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableMap
-import grails.orm.HibernateCriteriaBuilder
+import grails.util.Holders
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
@@ -12,14 +12,18 @@ import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
 import org.grails.datastore.mapping.query.api.BuildableCriteria
 import org.hibernate.SessionFactory
-import org.transmartproject.core.IterableResult
+import org.hibernate.criterion.DetachedCriteria
+import grails.orm.HibernateCriteriaBuilder
+import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Restrictions
+import org.hibernate.criterion.Subqueries
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Property
 import org.transmartproject.core.ontology.MDStudy
-import org.transmartproject.core.ontology.Study
+import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.TrialVisit
@@ -28,6 +32,7 @@ import org.transmartproject.db.i2b2data.VisitDimension as I2b2VisitDimension
 import org.transmartproject.db.i2b2data.Study as I2B2Study
 import org.transmartproject.db.i2b2data.PatientDimension as I2B2PatientDimension
 import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.support.InQuery
 
 import static org.transmartproject.core.multidimquery.Dimension.*
@@ -104,21 +109,22 @@ abstract class DimensionImpl<ELT,ELKey> implements Dimension {
     static getBuiltinDimension(String name) { builtinDimensions.get(name) }
     static boolean isBuiltinDimension(String name) { builtinDimensions.containsKey(name) }
     @CompileDynamic
-    static DimensionImpl fromNameOrNull(String name) { DimensionDescription.findByName(name)?.dimension }
-    @CompileDynamic
-    static DimensionImpl fromName(String name) { DimensionDescription.findByName(name).dimension }
+    static DimensionImpl fromName(String name) { DimensionDescription.findByName(name)?.dimension }
 
     DimensionImpl(Size size, Density density, Packable packable) {
         this.size = size
         this.density = density
         this.packable = packable
     }
-
-    @Override abstract String getName()
-
-    @Override IterableResult<ELT> getElements(Collection<Study> studies) {
-        throw new NotImplementedException()
+    
+    enum SelectType {
+        ELEMENTS,
+        COUNT,
     }
+    
+    abstract DetachedCriteria selectDimensionElements(DetachedCriteria criteria)
+
+    abstract DetachedCriteria elementCount(DetachedCriteria criteria)
 
     protected <T> T getKey(Map map, String alias) {
         def res = map.getOrDefault(alias, this)
@@ -327,6 +333,8 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
     SessionFactory sessionFactory
     abstract String getAlias()
     abstract String getColumnName()
+    // The property in the dimension table on which observation_facts is to be joined
+    String getJoinProperty() { 'id' }
 
     @Override
     def selectIDs(Query query) {
@@ -338,6 +346,31 @@ abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
         assert result.getOrDefault('modifierCd', '@') == '@'
         getKey(result, alias)
     }
+
+    @Override
+    DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
+        criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
+        if(this instanceof CompositeElemDim) {
+            criteria.setProjection(Projections.property(columnName))
+            def dimensionCriteria = DetachedCriteria.forClass(elemType)
+            dimensionCriteria.add(Subqueries.propertyIn(joinProperty, criteria))
+            return dimensionCriteria
+        } else if(this instanceof SerializableElemDim) {
+            return criteria.setProjection(Projections.distinct(Projections.property(columnName)))
+        } else {
+            assert this instanceof CompositeElemDim || this instanceof SerializableElemDim
+        }
+    }
+
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
+        if(this instanceof I2b2NullablePKDimension) {
+            criteria.add(Restrictions.ne(columnName, ((I2b2NullablePKDimension) this).nullValue))
+        }
+        return criteria.setProjection(Projections.countDistinct(columnName))
+    }
+
 }
 
 // Nullable primary key
@@ -367,6 +400,15 @@ abstract class HighDimDimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
     }
 
     @Override abstract ImplementationType getImplementationType()
+
+    @Override DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
+        throw new InvalidArgumentsException("Retrieving elements of the $name dimension is not supported.")
+    }
+
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        throw new InvalidArgumentsException("Retrieving the element count of the $name dimension is not supported.")
+    }
 }
 
 
@@ -447,6 +489,32 @@ class ModifierDimension extends DimensionImpl<Object,Object> implements Serializ
             assert result && false, "$name already used as an alias or as a different modifier"
         }
     }
+
+    DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
+        criteria.add(Restrictions.eq('modifierCd', modifierCode))
+        if(elemType == String) {
+            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
+            criteria.setProjection(Projections.distinct(Projections.property('textValue')))
+        } else {
+            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
+            criteria.setProjection(Projections.distinct(Projections.property('numberValue')))
+        }
+        criteria
+    }
+
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        criteria.add(Restrictions.eq('modifierCd', modifierCode))
+        if(elemType == String) {
+            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
+            criteria.setProjection(Projections.countDistinct('textValue'))
+        } else {
+            criteria.add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
+            criteria.setProjection(Projections.countDistinct('numberValue'))
+        }
+
+        criteria
+    }
 }
 
 @CompileStatic @InheritConstructors
@@ -479,6 +547,7 @@ class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, St
         CompositeElemDim<I2b2ConceptDimensions, String> {
     Class elemType = I2b2ConceptDimensions
     List elemFields = ["conceptPath", "conceptCode"]
+    String joinProperty = 'conceptCode'
     String name = 'concept'
     String alias = 'conceptCode'
     String columnName = 'conceptCode'
@@ -499,13 +568,12 @@ class TrialVisitDimension extends I2b2Dimension<TrialVisit, Long> implements Com
     String name = 'trial visit'
     String alias = 'trialVisitId'
     String columnName = 'trialVisit.id'
-
+    
     @CompileDynamic
-    @Override List<TrialVisit> doResolveElements(List<Long> elementKeys) {
+    @Override
+    List<TrialVisit> doResolveElements(List<Long> elementKeys) {
         resolveWithInQuery(TrialVisit.createCriteria(), elementKeys)
     }
-
-
 }
 
 @CompileStatic @InheritConstructors
@@ -530,6 +598,15 @@ class StudyDimension extends I2b2Dimension<MDStudy, Long> implements CompositeEl
     @Override List<MDStudy> doResolveElements(List<Long> elementKeys) {
         resolveWithInQuery(I2B2Study.createCriteria(), elementKeys)
     }
+
+    DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
+        throw new InvalidArgumentsException("Retrieving elements of the $name dimension is not implemented.")
+    }
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        throw new InvalidArgumentsException("Retrieving the element count of the $name dimension is not implemented.")
+    }
+
 }
 
 
@@ -600,6 +677,24 @@ class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> impleme
                 }
             }
         }
+    }
+    
+    @Override
+    DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
+        criteria.add(HibernateCriteriaQueryBuilder.defaultModifierCriterion)
+
+        def projection = criteria.projection = Projections.projectionList()
+        ['encounterNum', 'patient'].each {
+            projection.add(Projections.property(it))
+        }
+        def dimensionCriteria = DetachedCriteria.forClass(I2b2VisitDimension, 'visit')
+        dimensionCriteria.add(Subqueries.propertiesIn(['encounterNum', 'patient'] as String[], criteria))
+        dimensionCriteria
+    }
+
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        selectDimensionElements(criteria).setProjection(Projections.rowCount())
     }
 
     // The same as @Immutable, but @Immutable generates some rather dynamic/inefficient constructors and a toString()
@@ -688,6 +783,15 @@ class ValueDimension extends DimensionImpl implements SerializableElemDim {
         //        property 'numberValue', 'numberValue'
         //    }
         //}
+    }
+
+    DetachedCriteria selectDimensionElements(DetachedCriteria criteria) {
+        throw new UnsupportedOperationException("Selecting elements of the $name dimension is not supported.")
+    }
+
+    @Override
+    DetachedCriteria elementCount(DetachedCriteria criteria) {
+        throw new UnsupportedOperationException("Retrieving the element count of the $name dimension is not supported.")
     }
 
 }
