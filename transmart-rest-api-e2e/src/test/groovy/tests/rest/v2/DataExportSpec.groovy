@@ -188,9 +188,12 @@ class DataExportSpec extends RESTSpec {
 
         when: "I check data_formats for created patient_set"
         def getDataFormatsResponse = get([
-                path : "$PATH_DATA_EXPORT/data_formats/$patientSetId",
+                path : "$PATH_DATA_EXPORT/data_formats",
                 acceptType: contentTypeForJSON,
-                query     : [setType: setType],
+                query     : [
+                        ids: patientSetId,
+                        setType: setType
+                ],
         ])
 
         then: "I get data formats for both clinical and highDim types"

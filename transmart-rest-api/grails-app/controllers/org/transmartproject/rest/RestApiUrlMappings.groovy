@@ -151,7 +151,7 @@ class RestApiUrlMappings {
             "/export/jobs"(method: 'GET', controller: 'restExport', action: 'listJobs') {
                 apiVersion = "v2"
             }
-            "/export/data_formats/$ids"(method: 'GET', controller: 'restExport', action: 'dataFormats') {
+            "/export/data_formats"(method: 'GET', controller: 'restExport', action: 'dataFormats') {
                 apiVersion = "v2"
             }
             "/export/supported_file_formats"(method: 'GET', controller: 'restExport', action: 'fileFormats') {

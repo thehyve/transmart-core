@@ -65,11 +65,12 @@ class RestExportController {
      * @return The first time at which the <code>Trigger</code> to run the export will be fired
      *         by the scheduler
      */
-    def run(@RequestParam(value='setType') String setType,
+    def run(@RequestParam('setType') String setType,
+            @RequestParam('ids') List<Long> ids,
             @PathVariable('jobName') String jobName) {
 
         checkParams(params, ['setType', 'jobName', 'ids', 'elements'])
-        List<Long> ids = parseIds(params)
+        ids = parseIds(params)
         List<Map> elements = parseElements(params)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkSetTypeSupported(setType)
@@ -139,16 +140,17 @@ class RestExportController {
     /**
      * Get available types of the data for specified set id,
      * `clinical` for clinical data and supported high dimensional data types.
-     * <code>/v2/export/data_formats/${ids}?setType=${setType}
+     * <code>/v2/export/data_formats?ids=${ids}?setType=${setType}
      *
      * @param setType
      * @param ids
      * @return data formats
      */
-    def dataFormats(@RequestParam('setType') String setType) {
+    def dataFormats(@RequestParam('setType') String setType,
+                    @RequestParam('ids') List<Long> ids) {
 
         checkParams(params, ['setType', 'ids'])
-        List<Long> ids = parseIds(params)
+        ids = parseIds(params)
         checkSetTypeSupported(setType)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 

@@ -1816,7 +1816,7 @@ var spec = {
           {
             "name": "ids",
             "required": true,
-            "in": "path",
+            "in": "query",
             "description": "set IDs of specified {setType}.",
             "type": "array",
             "items": {
