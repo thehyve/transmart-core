@@ -6,7 +6,6 @@ import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.DataInconsistencyException
-import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.AggregateType
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.TestData
@@ -299,7 +298,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         def count1 = multiDimService.count(query, accessLevelTestData.users[0])
-        def patientCount1 = multiDimService.countPatients(query, accessLevelTestData.users[0])
+        def patientCount1 = multiDimService.getDimensionElementsCount(DimensionImpl.PATIENT, query, accessLevelTestData.users[0])
 
         then:
         count1 == 2L
@@ -312,7 +311,7 @@ class QueryServiceSpec extends TransmartSpecification {
         testData.clinicalData.facts << of2
         testData.saveAll()
         def count2 = multiDimService.count(query, accessLevelTestData.users[0])
-        def patientCount2 = multiDimService.countPatients(query, accessLevelTestData.users[0])
+        def patientCount2 = multiDimService.getDimensionElementsCount(DimensionImpl.PATIENT, query, accessLevelTestData.users[0])
 
         then:
         count2 == count1 + 1
@@ -437,33 +436,4 @@ class QueryServiceSpec extends TransmartSpecification {
         result*.value.sort() == expectedObservations*.value.sort()
     }
 
-    void "test query for dimension elements"() {
-        setupHypercubeData()
-
-        when: "Dimension name is 'trial visit'"
-        DimensionImpl dimension = DimensionImpl.TRIAL_VISIT
-        Constraint constraint = new StudyNameConstraint(studyId: hypercubeTestData.clinicalData.multidimsStudy.studyId )
-        def expectedResult = hypercubeTestData.clinicalData.multidimsStudy.trialVisits as Set<TrialVisit>
-        def result = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[1]).collect {
-            dimension.asSerializable(it)
-        }
-
-        then: "TrialVisit dimension elements are returned"
-        result.size() == expectedResult.size()
-        expectedResult.every { expected ->
-            result.any {
-                it.id == expected.id &&
-                it.relTime == expected.relTime &&
-                it.relTimeLabel == expected.relTimeLabel &&
-                it.relTimeUnit == expected.relTimeUnit
-            }
-        }
-
-        when: "Dimension with given name does not support listing elements"
-        dimension = DimensionImpl.BIOMARKER
-        multiDimService.getDimensionElements(dimension, null, accessLevelTestData.users[1])
-    
-        then: "InvalidArgumentsException is thrown"
-        thrown(InvalidArgumentsException)
-    }
 }

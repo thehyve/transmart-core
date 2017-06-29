@@ -25,7 +25,6 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
-import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -488,16 +487,16 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     /**
-     * @description Function for getting a number of patients for which there are observations
+     * @description Function for getting a number of dimension elements for which there are observations
      * that are specified by <code>query</code>.
      * @param query
      * @param user
      */
-    @Override Long countPatients(MultiDimConstraint constraint, User user) {
-        checkAccess(constraint, user)
+    @Override Long getDimensionElementsCount(Dimension dimension, MultiDimConstraint constraint, User user) {
+        if(constraint) checkAccess(constraint, user)
         def builder = getCheckedQueryBuilder(user)
-        DetachedCriteria patientCriteria = builder.buildElementCountCriteria(PATIENT, constraint)
-        (Long) get(patientCriteria)
+        DetachedCriteria dimensionCriteria = builder.buildElementCountCriteria((DimensionImpl) dimension, constraint)
+        (Long) get(dimensionCriteria)
     }
 
     /**
@@ -618,7 +617,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
     Long cachedPatientCount(MultiDimConstraint constraint, User user) {
-        countPatients(constraint, user)
+        getDimensionElementsCount(DimensionImpl.PATIENT, constraint, user)
     }
 
     static List<StudyNameConstraint> findStudyNameConstraints(MultiDimConstraint constraint) {
