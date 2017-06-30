@@ -1434,7 +1434,7 @@ paths:
         - name: jobName
           required: true
           in: path
-          description: 'name of the export job. The job has to have a status `Started`'
+          description: 'name of the export job. The job has to have a status `Started`.'
           type: string
         - name: setType
           required: true
@@ -1442,28 +1442,24 @@ paths:
           description: 'specifies the type of the set you want to retrieve. For patient_set specify `patient`,
           for observation_set specify `observation`'
           type: string
-        - name: ids
+        - name: id
           required: true
           in: query
-          description: 'set IDs of specified {setType}.'
+          description: 'IDs of the set specified by `setType`. To specify more than one value, multiple parameter
+          instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532`.'
           type: array
+          collectionFormat: multi
           items:
             type: integer
         - name: elements
           required: true
           in: query
-          description: 'list of json objects: {data_type, format} pairs.'
-          type: array
-          items:
-            type: object
-            properties:
-              dataType:
-                type: string
-                description: 'type of the data you want to retrieve, either `clinical` for clinical data,
-                or one of the supported high dimensional data types.'
-              format:
-                type: string
-                description: 'one of the supported file formats you want to export current data type to, e.g. `TSV`'
+          description: 'json that specifies the list of pairs: [{dataType:${dataType}, format:$(fileFormat}],
+          where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,
+          or one of the supported high dimensional data types and `format` is one of the supported file formats
+          you want to export current data type to.
+          Example: `[{"dataType":clinical, "format":TSV},{"dataType":rnaseq_transcript, "format":TSV}]`.'
+          type: string
       responses:
         200:
           description:  |
@@ -1529,18 +1525,20 @@ paths:
             type: array
             items:
               $ref: '#/definitions/export_job'
-  /v2/export/data_formats/{ids}:
+  /v2/export/data_formats:
     get:
       description: |
         Gets data formats for specified sets, including `clinical` type and high dimensional types.
       tags:
         - v2
       parameters:
-        - name: ids
+        - name: id
           required: true
           in: query
-          description: 'set IDs of specified {setType}.'
+          description: 'IDs of the set specified by `setType`. To specify more than one value, multiple parameter
+          instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532`.'
           type: array
+          collectionFormat: multi
           items:
             type: integer
         - name: setType

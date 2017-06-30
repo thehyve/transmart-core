@@ -51,7 +51,7 @@ class RestExportController {
 
     /**
      * Run a data export job asynchronously:
-     * <code>/v2/export/${jobName}/run?setType=${setType}&ids=${ids}&elements=${elements}</code>
+     * <code>/v2/export/${jobName}/run?setType=${setType}&id=${id1}&...&id=${idx}&elements=${elements}</code>
      *
      * Creates a hypercube for each element from ${elements} with PatientSetsConstraint for given ${ids}
      * (see {@link org.transmartproject.db.dataquery.clinical.patientconstraints.PatientSetsConstraint})
@@ -60,24 +60,23 @@ class RestExportController {
      *
      * @param setType - 'patient' or 'observation' set
      * @param jobName - name of previously created job with 'Started' status
-     * @param ids - list of sets ids
+     * @param id - list of sets ids, multiple parameter instances format
      * @param elements - list of pairs: {dataType:${dataType}, format:$(fileFormat}, JSON format
      * @return The first time at which the <code>Trigger</code> to run the export will be fired
      *         by the scheduler
      */
     def run(@RequestParam('setType') String setType,
-            @RequestParam('ids') List<Long> ids,
             @PathVariable('jobName') String jobName) {
 
-        checkParams(params, ['setType', 'jobName', 'ids', 'elements'])
-        ids = parseIds(params)
+        checkParams(params, ['setType', 'jobName', 'id', 'elements'])
+        List<Long> id = parseId(params)
         List<Map> elements = parseElements(params)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkSetTypeSupported(setType)
-        checkRightsToExport(ids, user, setType)
+        checkRightsToExport(id, user, setType)
         checkJobAccess(jobName, user)
 
-        def scheduledTime = restExportService.exportData(ids, setType, elements, user, jobName)
+        def scheduledTime = restExportService.exportData(id, setType, elements, user, jobName)
 
         def result = [ jobName : jobName, scheduledTime : scheduledTime ]
         render result as JSON
@@ -140,21 +139,20 @@ class RestExportController {
     /**
      * Get available types of the data for specified set id,
      * `clinical` for clinical data and supported high dimensional data types.
-     * <code>/v2/export/data_formats?ids=${ids}?setType=${setType}
+     * <code>/v2/export/data_formats?id=${id1}&...&id=${idx}&setType=${setType}
      *
      * @param setType
-     * @param ids
+     * @param id - list of sets ids, multiple parameter instances format
      * @return data formats
      */
-    def dataFormats(@RequestParam('setType') String setType,
-                    @RequestParam('ids') List<Long> ids) {
+    def dataFormats(@RequestParam('setType') String setType) {
 
-        checkParams(params, ['setType', 'ids'])
-        ids = parseIds(params)
+        checkParams(params, ['setType', 'id'])
+        List<Long> id = parseId(params)
         checkSetTypeSupported(setType)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        def formats = restExportService.getDataFormats(setType, ids, user)
+        def formats = restExportService.getDataFormats(setType, id, user)
         def results = [dataFormats: formats]
         render results as JSON
     }
@@ -219,12 +217,12 @@ class RestExportController {
         }
     }
 
-    private static List<Long> parseIds(params) {
-        if (!params.ids){
-            throw new InvalidArgumentsException('Empty ids parameter.')
+    private static List<Long> parseId(params) {
+        if (!params.id){
+            throw new InvalidArgumentsException('Empty id parameter.')
         }
         try {
-            return params.getList('ids').collect { it as Long }
+            return params.getList('id').collect { it as Long }
         } catch (NumberFormatException e) {
             throw new InvalidArgumentsException('Id parameter should be a number.')
         }
