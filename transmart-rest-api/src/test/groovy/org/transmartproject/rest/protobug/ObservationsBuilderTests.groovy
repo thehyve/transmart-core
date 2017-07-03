@@ -2,6 +2,7 @@
 
 package org.transmartproject.rest.protobug
 
+import au.com.bytecode.opencsv.CSVReader
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.json.JsonSlurper
@@ -19,6 +20,8 @@ import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import spock.lang.Ignore
 import spock.lang.Specification
+
+import java.util.zip.ZipOutputStream
 
 import static spock.util.matcher.HamcrestSupport.that
 import static org.hamcrest.Matchers.*
@@ -183,32 +186,22 @@ class ObservationsBuilderTests extends Specification {
         Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
         def mockedCube = queryResource.retrieveData(dataType, [clinicalData.longitudinalStudy], constraint: constraint)
         def builder = new HypercubeCSVSerializer()
-        File tempFile = new File(tempDirectory)
-        tempFile.mkdirs()
 
         when:
-        builder.write([directory: tempFile, dataType: dataType], mockedCube, null)
-        File observations = new File(tempDirectory, "observations_$dataType$fileExtension")
-        File concept = new File(tempDirectory, "concept_$dataType$fileExtension")
-        File patient = new File(tempDirectory, "patient_$dataType$fileExtension")
-        File study = new File(tempDirectory, "study_$dataType$fileExtension")
-        File trial_visit = new File(tempDirectory, "trial_visit_$dataType$fileExtension")
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
+        ZipOutputStream out = new ZipOutputStream(byteArrayOutputStream)
+        builder.write([dataType : dataType], mockedCube, out)
+        out.close()
+        out.flush()
+        List expectedEntries = ["${dataType}_observations$fileExtension",
+                                "${dataType}_concept$fileExtension",
+                                "${dataType}_patient$fileExtension",
+                                "${dataType}_study$fileExtension",
+                                "${dataType}_trial_visit$fileExtension"]
 
         then:
-        observations.exists()
-        observations.isFile()
-
-        concept.exists()
-        concept.isFile()
-
-        patient.exists()
-        patient.isFile()
-
-        study.exists()
-        study.isFile()
-
-        trial_visit.exists()
-        trial_visit.isFile()
+        out.xentries != null
+        out.names.sort() == expectedEntries.sort()
     }
 
     void setupData() {
@@ -216,10 +209,5 @@ class ObservationsBuilderTests extends Specification {
         clinicalData = testData.clinicalData
         testData.saveAll()
         //dims = DimensionImpl.dimensionsMap
-    }
-
-    def cleanup() {
-        def tempDir = new File(tempDirectory)
-        tempDir.deleteDir()
     }
 }
