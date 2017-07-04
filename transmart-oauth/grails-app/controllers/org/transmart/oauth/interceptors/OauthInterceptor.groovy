@@ -14,7 +14,7 @@ class OauthInterceptor {
     User currentUserBean
 
     boolean before() {
-        auditLogService.report("OAuth authentication", request,
+        auditLogService?.report("OAuth authentication", request,
                 user: currentUserBean,
         )
         true
