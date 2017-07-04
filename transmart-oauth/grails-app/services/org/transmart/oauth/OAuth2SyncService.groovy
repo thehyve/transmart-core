@@ -58,7 +58,7 @@ class OAuth2SyncService {
                 dirty = true
 
                 if (prop == 'clientSecret') {
-                    /* Workaround to bug XXX due to which event handlers such as beforeInsert()/beforeUpdate() are
+                    /* Workaround to bug https://github.com/grails/grails-core/issues/10451 due to which event handlers such as beforeInsert()/beforeUpdate() are
                      * not called on domain objects of non-default datastores. Remove this workaround if the bug has
                      * been solved in a grails update, and remove the corresponding exception code in
                      * Client.
