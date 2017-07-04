@@ -139,13 +139,13 @@ class RestApiUrlMappings {
             "/export/job"(method: 'POST', controller: 'restExport', action: 'createJob') {
                 apiVersion = "v2"
             }
-            "/export/$jobName/run"(method: 'GET', controller: 'restExport', action: 'run') {
+            "/export/$jobId/run"(method: 'POST', controller: 'restExport', action: 'run') {
                 apiVersion = "v2"
             }
-            "/export/$jobName/download"(method: 'GET', controller: 'restExport', action: 'download') {
+            "/export/$jobId/download"(method: 'GET', controller: 'restExport', action: 'download') {
                 apiVersion = "v2"
             }
-            "/export/$jobName/status"(method: 'GET', controller: 'restExport', action: 'jobStatus') {
+            "/export/$jobId/status"(method: 'GET', controller: 'restExport', action: 'jobStatus') {
                 apiVersion = "v2"
             }
             "/export/jobs"(method: 'GET', controller: 'restExport', action: 'listJobs') {
@@ -154,7 +154,7 @@ class RestApiUrlMappings {
             "/export/data_formats"(method: 'GET', controller: 'restExport', action: 'dataFormats') {
                 apiVersion = "v2"
             }
-            "/export/supported_file_formats"(method: 'GET', controller: 'restExport', action: 'fileFormats') {
+            "/export/file_formats"(method: 'GET', controller: 'restExport', action: 'fileFormats') {
                 apiVersion = "v2"
             }
         }

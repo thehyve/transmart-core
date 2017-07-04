@@ -10,10 +10,6 @@ import org.quartz.TriggerBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.db.user.User
-import org.transmartproject.rest.dataExport.JobStatus
-import org.transmartproject.rest.dataExport.RestDataExportService
-import org.transmartproject.rest.dataExport.ExportAsyncJobService
-import org.transmartproject.rest.dataExport.ExportJobExecutor
 
 import javax.transaction.NotSupportedException
 
@@ -38,13 +34,13 @@ class RestExportService {
         String getKey() { name() }
     }
 
-    static enum SupportedSetTypes {
+    static enum SupportedTypesOfSet {
         OBSERVATION('observation'),
         PATIENT('patient')
 
         final String value
 
-        SupportedSetTypes(String value) { this.value = value }
+        SupportedTypesOfSet(String value) { this.value = value }
 
         String toString() { value }
 
@@ -52,7 +48,7 @@ class RestExportService {
     }
 
     static supportedFileFormats = FileFormat.values().collect { it.toString() }
-    static supportedSetTypes = SupportedSetTypes.values().collect { it.toString() }
+    static supportedTypesOfSet = SupportedTypesOfSet.values().collect { it.toString() }
 
     static final clinicalDataType = "clinical"
 
@@ -62,19 +58,19 @@ class RestExportService {
         newJob
     }
 
-    def exportData(List<Long> ids, String setType, List types, User user, String jobName) {
-        def job = exportAsyncJobService.getJobByName(jobName)
-        if (job.jobStatus != JobStatus.STARTED.value) {
-            throw new InvalidRequestException("Job with a name '$jobName' has invalid status. " +
-                    "Expected: $JobStatus.STARTED.value, actual: $job.jobStatus")
+    def exportData(List<Long> ids, String typeOfSet, List types, User user, Long jobId) {
+        def job = jobById(jobId)
+        if (job.jobStatus != JobStatus.CREATED.value) {
+            throw new InvalidRequestException("Job with id $jobId has invalid status. " +
+                    "Expected: $JobStatus.CREATED.value, actual: $job.jobStatus")
         }
 
-        def dataMap = createJobDataMap(ids, setType, types, user, jobName)
+        def dataMap = createJobDataMap(ids, typeOfSet, types, user, jobId, job.jobName)
         executeExportJob(dataMap)
     }
 
-    def downloadFile(String jobName) {
-        def job = exportAsyncJobService.getJobByName(jobName)
+    def downloadFile(Long jobId) {
+        def job = jobById(jobId)
         if(job.jobStatus != JobStatus.COMPLETED.value) {
             throw new InvalidRequestException("Job with a name is not completed. Current status: '$job.jobStatus'")
         }
@@ -87,72 +83,77 @@ class RestExportService {
         exportAsyncJobService.getJobList(user)
     }
 
-    Boolean isJobNameUnique(String name) {
-        exportAsyncJobService.getJobByName(name) == null
+    Boolean isJobNameUniqueForUser(String name, User user) {
+        jobByNameAndUser(name, user) == null
     }
 
-    def jobStatus(String jobName) {
-        exportAsyncJobService.checkJobStatus(jobName)
+    def jobByNameAndUser(String jobName, User user) {
+        exportAsyncJobService.getJobByNameAndUser(jobName, user)
     }
 
-    def jobUser(String name) {
-        exportAsyncJobService.getJobUser(name)
+    def jobById(Long id) {
+        exportAsyncJobService.getJobById(id)
     }
 
-    def isUserAllowedToExport(List<Long> resultSetIds, User user, String setType) {
-        if (setType == SupportedSetTypes.PATIENT.value) {
+    def jobUser(Long id) {
+        exportAsyncJobService.getJobUser(id)
+    }
+
+    def isUserAllowedToExport(List<Long> resultSetIds, User user, String typeOfSet) {
+        if (typeOfSet == SupportedTypesOfSet.PATIENT.value) {
             restDataExportService.patientSetsExportPermission(resultSetIds, user)
         }
     }
 
-    List getDataFormats(String setType, List<Long> setIds, User user) {
+    List getDataFormats(String typeOfSet, List<Long> setIds, User user) {
 
         // clinical data (always included)
         List<String> dataFormats = []
         dataFormats.add(clinicalDataType)
 
         // highDim data
-        switch (setType) {
-            case SupportedSetTypes.PATIENT.value:
+        switch (typeOfSet) {
+            case SupportedTypesOfSet.PATIENT.value:
                 List highDimDataTypes = restDataExportService.highDimDataTypesForPatientSets(setIds, user)
                 if (highDimDataTypes) dataFormats.addAll(highDimDataTypes)
                 break
-            case SupportedSetTypes.OBSERVATION.value:
+            case SupportedTypesOfSet.OBSERVATION.value:
                 List highDimDataTypes = restDataExportService.highDimDataTypesForObservationSets(setIds, user)
                 if (highDimDataTypes) dataFormats.addAll(highDimDataTypes)
                 break
             default:
-                throw new NotSupportedException("Set type '$setType' not supported.")
+                throw new NotSupportedException("Set type '$typeOfSet' not supported.")
         }
 
         dataFormats
     }
 
-    private def executeExportJob(Map dataMap) {
+    private AsyncJob executeExportJob(Map dataMap) {
 
         def jobDataMap = new JobDataMap(dataMap)
         JobDetail jobDetail = JobBuilder.newJob(ExportJobExecutor.class)
-                .withIdentity(dataMap.jobName, 'DataExport')
+                .withIdentity(dataMap.jobId.toString(), 'DataExport')
                 .setJobData(jobDataMap)
                 .build()
-
-        exportAsyncJobService.updateStatus(dataMap.jobName, JobStatus.TRIGGERING_JOB)
-
         def randomDelay = Math.random()*10 as int
         def startTime = new Date(new Date().time + randomDelay)
         def trigger = TriggerBuilder.newTrigger()
                 .startAt(startTime)
                 .withIdentity('DataExport')
                 .build()
+
+        def job = exportAsyncJobService.updateStatus(dataMap.jobId, JobStatus.STARTED)
         quartzScheduler.scheduleJob(jobDetail, trigger)
+        return job
     }
 
-    private static Map createJobDataMap(List<Long> ids, String setType, List types, User user, String jobName) {
+    private static Map createJobDataMap(List<Long> ids, String typeOfSet, List types, User user, Long jobId, String jobName) {
         [
                 user                 : user,
                 jobName              : jobName,
+                jobId                : jobId,
                 ids                  : ids,
-                setType              : setType,
+                typeOfSet            : typeOfSet,
                 dataTypeAndFormatList: types
         ]
     }

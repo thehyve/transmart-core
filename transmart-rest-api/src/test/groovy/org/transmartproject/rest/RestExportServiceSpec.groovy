@@ -9,10 +9,7 @@ import spock.lang.Specification
  */
 @TestFor(RestExportService)
 class RestExportServiceSpec extends Specification {
-//
-//    @Autowired
-//    RestDataExportService restDataExportService
-    
+
     def setup() {
     }
 

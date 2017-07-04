@@ -15,8 +15,6 @@ import static tests.rest.v2.constraints.ValueConstraint
 @Slf4j
 class DataExportSpec extends RESTSpec {
 
-    static final jobType = "DataExport"
-
     def "create a new dataExport job"() {
         def name = null
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
@@ -26,45 +24,93 @@ class DataExportSpec extends RESTSpec {
         ]
 
         when: "Export job name is NOT specified"
-        def responseData = post(request)
+        def response = post(request)
+        def responseData = response.exportJob
+        def id = responseData.id
 
         then: "A new job with default name is returned"
-        def id = responseData.id
-        assert responseData.jobName == "$DEFAULT_USERNAME-$jobType-$id"
-        assert responseData.jobStatus == "Started"
+        assert id != null
+        assert responseData.jobName == id.toString()
+        assert responseData.jobStatus == "Created"
         assert responseData.jobStatusTime != null
-        assert responseData.jobType == jobType
-        assert responseData.viewerURL == null
+        assert responseData.userId == DEFAULT_USERNAME
+        assert responseData.viewerUrl == null
 
         when: "Export job name is specified"
         name = 'test_job_name' + id
         request.path = "$PATH_DATA_EXPORT/job"
-        request.query = [jobName: name]
-        responseData = post(request)
+        request.query = [name: name]
+        response = post(request)
+        responseData = response.exportJob
 
         then: "A new job with specified name is returned "
+        assert responseData.id != null
         assert responseData.jobName == name
-        assert responseData.jobStatus == "Started"
+        assert responseData.jobStatus == "Created"
         assert responseData.jobStatusTime != null
-        assert responseData.jobType == jobType
-        assert responseData.viewerURL == null
+        assert responseData.userId == DEFAULT_USERNAME
+        assert responseData.viewerUrl == null
     }
 
+    @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
+    def "get data formats for patientSet"() {
+        given: "A patientset for TUMOR_NORMAL_SAMPLES study is created"
+        def request = [
+                path      : PATH_PATIENT_SET,
+                acceptType: contentTypeForJSON,
+                query     : [name: 'test_set'],
+                body      : toJSON([
+                        type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                        values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
+                ]),
+        ]
+        def typeOfSet = "patient"
+        def createPatientSetResponse = post(request)
+        def patientSetId = createPatientSetResponse.id
+
+        when: "I check data_formats for created patient_set"
+        def getDataFormatsResponse = get([
+                path : "$PATH_DATA_EXPORT/data_formats",
+                acceptType: contentTypeForJSON,
+                query     : [
+                        id       : patientSetId,
+                        typeOfSet: typeOfSet
+                ],
+        ])
+
+        then: "I get data formats for both clinical and highDim types"
+        assert getDataFormatsResponse != null
+        assert getDataFormatsResponse.dataFormats.containsAll(["clinical", "mrna"])
+    }
+
+    @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
     def "run data export without 'Export' permission"() {
         setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
+        def patientSetRequest = [
+                path      : PATH_PATIENT_SET,
+                acceptType: contentTypeForJSON,
+                query     : [name: 'export_test_set'],
+                body      : toJSON([
+                        type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                        values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
+                ]),
+        ]
+        def createPatientSetResponse = post(patientSetRequest)
+        def patientSetId = createPatientSetResponse.id
+
         def newJobRequest = [
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: contentTypeForJSON,
         ]
         def newJobResponse = post(newJobRequest)
-        def jobName = newJobResponse.jobName
+        def jobId = newJobResponse.exportJob.id
 
         when: "I run a newly created job asynchronously"
-        def responseData = get([
-                path : "$PATH_DATA_EXPORT/$jobName/run",
+        def responseData = post([
+                path : "$PATH_DATA_EXPORT/$jobId/run",
                 query: ([
-                        setType : 'patient',
-                        ids     : 28835,
+                        typeOfSet : 'patient',
+                        id      : patientSetId,
                         elements:
                                 toJSON([[
                                                   dataType: 'clinical',
@@ -82,22 +128,37 @@ class DataExportSpec extends RESTSpec {
         assert responseData.type == 'AccessDeniedException'
     }
 
+    @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
     def "run data export with 'Export' permission"() {
         setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
+
+        def patientSetRequest = [
+                path      : PATH_PATIENT_SET,
+                acceptType: contentTypeForJSON,
+                query     : [name: 'export_test_set'],
+                body      : toJSON([
+                        type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                        values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
+                ]),
+        ]
+        def createPatientSetResponse = post(patientSetRequest)
+        def patientSetId = createPatientSetResponse.id
+
         def newJobRequest = [
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: contentTypeForJSON,
         ]
         def newJobResponse = post(newJobRequest)
-        def jobName = newJobResponse.jobName
+        def jobId = newJobResponse.exportJob.id
+        def jobName = newJobResponse.exportJob.jobName
 
         when: "I run a newly created job asynchronously"
-        def runResponse = get([
-                path : "$PATH_DATA_EXPORT/$jobName/run",
+        def runResponse = post([
+                path : "$PATH_DATA_EXPORT/$jobId/run",
                 query: ([
-                        setType : 'patient',
-                        ids     : 28835,
-                        elements: toJSON([[
+                        typeOfSet: 'patient',
+                        id       : patientSetId,
+                        elements : toJSON([[
                                                   dataType: 'clinical',
                                                   format  : 'TSV'
                                           ],
@@ -109,36 +170,40 @@ class DataExportSpec extends RESTSpec {
                 acceptType: contentTypeForJSON,
         ])
 
-        then: "The time at which the export will be run by the scheduler is returned"
+        then: "Job instance with status: 'Started' is returned"
         assert runResponse != null
-        assert runResponse.jobName == jobName
-        assert runResponse.scheduledTime != null
+        assert runResponse.exportJob.id == jobId
+        assert runResponse.exportJob.jobStatus == 'Started'
+        assert runResponse.exportJob.jobStatusTime != null
+        assert runResponse.exportJob.userId == 'admin'
+        assert runResponse.viewerUrl == null
 
         when: "Check the status of the job"
+        String fileName = "$TEMP_DIRECTORY/$ADMIN_USERNAME/$jobName"+".zip"
         int maxAttemptNumber = 10 // max number of status check attempts
         def statusRequest = [
-                path      : "$PATH_DATA_EXPORT/$jobName/status",
+                path      : "$PATH_DATA_EXPORT/$jobId/status",
                 acceptType: contentTypeForJSON,
         ]
         def statusResponse = get(statusRequest)
 
         then: "Returned status is 'Completed'"
         assert statusResponse != null
-        def status = statusResponse.jobStatus
+        def status = statusResponse.exportJob.jobStatus
 
         // waiting for async process to end (increase number of attempts if needed)
         for (int attempNum = 0; status != 'Completed' && attempNum < maxAttemptNumber; attempNum++) {
             sleep(500)
             statusResponse = get(statusRequest)
-            status = statusResponse.jobStatus
+            status = statusResponse.exportJob.jobStatus
         }
 
         assert status == 'Completed'
+        assert statusResponse.exportJob.viewerUrl == fileName
 
         when: "Try to download the file"
-        String fileName = "$TEMP_DIRECTORY/$jobName"+".zip"
         def downloadRequest = [
-                path      : "$PATH_DATA_EXPORT/$jobName/download",
+                path      : "$PATH_DATA_EXPORT/$jobId/download",
                 acceptType: contentTypeForZip,
         ]
         def downloadResponse = get(downloadRequest)
@@ -167,45 +232,14 @@ class DataExportSpec extends RESTSpec {
 
         then: "The list of all data export job, including the newly created one is returned"
         assert getJobsResponse != null
-        assert createJobResponse in getJobsResponse
-    }
-
-    @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
-    def "get data formats for patientSet"() {
-        given: "A patientset for TUMOR_NORMAL_SAMPLES study is created"
-        def request = [
-                path      : PATH_PATIENT_SET,
-                acceptType: contentTypeForJSON,
-                query     : [name: 'test_set'],
-                body      : toJSON([
-                        type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
-                        values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
-                ]),
-        ]
-        def setType = "patient"
-        def createPatientSetResponse = post(request)
-        def patientSetId = createPatientSetResponse.id
-
-        when: "I check data_formats for created patient_set"
-        def getDataFormatsResponse = get([
-                path : "$PATH_DATA_EXPORT/data_formats",
-                acceptType: contentTypeForJSON,
-                query     : [
-                        ids: patientSetId,
-                        setType: setType
-                ],
-        ])
-
-        then: "I get data formats for both clinical and highDim types"
-        assert getDataFormatsResponse != null
-        assert getDataFormatsResponse.dataFormats.containsAll(["clinical", "mrna"])
+        assert createJobResponse.exportJob in getJobsResponse.exportJobs
     }
 
     def "get supported file formats"() {
         def supportedFormat = 'TSV'
 
         def request = [
-                path      : "$PATH_DATA_EXPORT/supported_file_formats",
+                path      : "$PATH_DATA_EXPORT/file_formats",
                 acceptType: contentTypeForJSON,
         ]
 
@@ -213,6 +247,6 @@ class DataExportSpec extends RESTSpec {
         def responseData = get(request)
 
         then: "I get a list of fields containing $supportedFormat format"
-        assert supportedFormat in responseData.supportedFileFormats
+        assert supportedFormat in responseData.fileFormats
     }
 }

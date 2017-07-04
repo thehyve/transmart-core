@@ -4,11 +4,10 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 
 @CompileStatic
-@Slf4j
 enum JobStatus {
-   
+
+    CREATED ("Created"),
     STARTED ("Started"),
-    TRIGGERING_JOB ("Triggering Data-Export Job"),
     GATHERING_DATA ("Gathering Data"),
     CANCELLED ("Cancelled"),
     COMPLETED ("Completed"),

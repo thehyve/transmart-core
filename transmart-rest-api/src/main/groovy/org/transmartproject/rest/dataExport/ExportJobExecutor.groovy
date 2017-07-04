@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.transmartproject.core.exceptions.UnexpectedResultException
+import org.transmartproject.core.users.User
 
 import java.util.zip.ZipOutputStream
 
@@ -26,7 +27,7 @@ class ExportJobExecutor implements Job {
     final String tempFolderDirectory = Holders.config.com.recomdata.plugins.tempFolderDirectory
 
     public void execute(JobExecutionContext jobExecutionContext) {
-        def userInContext = jobExecutionContext.jobDetail.jobDataMap['userInContext']
+//        def userInContext = jobExecutionContext.jobDetail.jobDataMap['userInContext']
         Map jobDataMap = jobExecutionContext.jobDetail.getJobDataMap()
 
 //        // put the user in context
@@ -38,7 +39,7 @@ class ExportJobExecutor implements Job {
             interceptor.init()
             zipData(jobDataMap)
         } catch (UnexpectedResultException e) {
-            asyncJobService.updateStatus(jobDataMap.jobName, JobStatus.ERROR, null, e)
+            asyncJobService.updateStatus(jobDataMap.jobId, JobStatus.ERROR, null, e.message)
         } finally {
 //            // Thread will be reused, need to clear user in context
 //            quartzSpringScope.clear()
@@ -50,13 +51,15 @@ class ExportJobExecutor implements Job {
 
     def zipData(Map jobDataMap) {
 
+        Long jobId = jobDataMap.jobId
         String jobName = jobDataMap.jobName
-        String filePath = getFilePath(jobName)
+        User user = jobDataMap.user
+        String filePath = getFilePath(jobName, user.username)
         String fileName = filePath + ".zip"
         ZipOutputStream zipFile = new ZipOutputStream(new FileOutputStream(fileName))
 
         try {
-            asyncJobService.updateStatus(jobName, JobStatus.GATHERING_DATA)
+            asyncJobService.updateStatus(jobId, JobStatus.GATHERING_DATA)
             restDataExportService.exportData(jobDataMap, zipFile)
         }
         catch (all) {
@@ -66,10 +69,10 @@ class ExportJobExecutor implements Job {
         finally {
             zipFile.close()
         }
-        asyncJobService.updateStatus(jobName, JobStatus.COMPLETED, fileName)
+        asyncJobService.updateStatus(jobId, JobStatus.COMPLETED, fileName)
     }
 
-    private String getFilePath(String inputFileName) {
+    private String getFilePath(String inputFileName, String userName) {
 
         String jobTmpDirectory = ''
         if (StringUtils.isEmpty(tempFolderDirectory)) {
@@ -77,8 +80,12 @@ class ExportJobExecutor implements Job {
         } else {
             jobTmpDirectory = tempFolderDirectory
         }
+        String userDirectory = jobTmpDirectory + File.separator + userName
+        File fileDirectory = new File(userDirectory)
 
-        jobTmpDirectory + File.separator + inputFileName
+        if(!fileDirectory.isDirectory()) fileDirectory.mkdirs()
+
+        userDirectory + File.separator + inputFileName
     }
 
     static InputStream getExportJobFileStream(String filePath) {

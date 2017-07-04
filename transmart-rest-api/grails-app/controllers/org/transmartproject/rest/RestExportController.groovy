@@ -10,6 +10,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.dataExport.RestExportService
+import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
 import com.recomdata.transmart.domain.i2b2.AsyncJob
 
@@ -31,75 +32,71 @@ class RestExportController {
 
     /**
      * Create a new asynchronous dataExport job:
-     * <code>/v2/export/job?jobName=${jobName}</code>
+     * <code>/v2/export/job?name=${name}</code>
      *
-     * If the ${jobName} is not specified, a default name will be created.
-     * ${jobName} = username-jobtype-ID
+     * If the ${name} is not specified, job id will be set as a default name.
      *
-     * @param jobName - optional
+     * @param name - optional
      * @return {@link AsyncJob} instance
      */
-    def createJob(@RequestParam('jobName') String jobName) {
-        checkParams(params, ['jobName'])
+    def createJob(@RequestParam('name') String name) {
+        checkParams(params, ['name'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        checkJobNameUnique(jobName)
+        checkJobNameUnique(name, user)
 
-        def instance = restExportService.createExportJob(user, jobName)
-        respond instance
+        def instance = restExportService.createExportJob(user, name)
+        respond wrapExportJob(instance)
     }
 
     /**
      * Run a data export job asynchronously:
-     * <code>/v2/export/${jobName}/run?setType=${setType}&id=${id1}&...&id=${idx}&elements=${elements}</code>
+     * <code>/v2/export/${jobId}/run?typeOfSet=${typeOfSet}&id=${id1}&...&id=${idx}&elements=${elements}</code>
      *
      * Creates a hypercube for each element from ${elements} with PatientSetsConstraint for given ${ids}
      * (see {@link org.transmartproject.db.dataquery.clinical.patientconstraints.PatientSetsConstraint})
      * and serialises it to specified $(fileFormat}.
      * Output stream is saved as .zip file in <code>tempFolderDirectory</code>, specified in configuration file.
      *
-     * @param setType - 'patient' or 'observation' set
-     * @param jobName - name of previously created job with 'Started' status
+     * @param typeOfSet - 'patient' or 'observation' set
+     * @param jobId - id of previously created job with status: 'Created'
      * @param id - list of sets ids, multiple parameter instances format
      * @param elements - list of pairs: {dataType:${dataType}, format:$(fileFormat}, JSON format
      * @return The first time at which the <code>Trigger</code> to run the export will be fired
      *         by the scheduler
      */
-    def run(@RequestParam('setType') String setType,
-            @PathVariable('jobName') String jobName) {
+    def run(@RequestParam('typeOfSet') String typeOfSet,
+            @PathVariable('jobId') Long jobId) {
 
-        checkParams(params, ['setType', 'jobName', 'id', 'elements'])
+        checkParams(params, ['typeOfSet', 'jobId', 'id', 'elements'])
         List<Long> id = parseId(params)
         List<Map> elements = parseElements(params)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        checkSetTypeSupported(setType)
-        checkRightsToExport(id, user, setType)
-        checkJobAccess(jobName, user)
+        checkTypeOfSetSupported(typeOfSet)
+        checkRightsToExport(id, user, typeOfSet)
+        checkJobAccess(jobId, user)
 
-        def scheduledTime = restExportService.exportData(id, setType, elements, user, jobName)
-
-        def result = [ jobName : jobName, scheduledTime : scheduledTime ]
-        render result as JSON
+        def job = restExportService.exportData(id, typeOfSet, elements, user, jobId)
+        respond wrapExportJob(job)
     }
 
     /**
      * Download saved .zip file with exported data:
-     * <code>/v2/export/${jobName}/download
+     * <code>/v2/export/${jobId}/download
      *
-     * @param jobName
+     * @param jobId
      * @return zipOutputStream
      */
-    def download(@PathVariable('jobName') String jobName) {
+    def download(@PathVariable('jobId') Long jobId) {
 
-        checkParams(params, ['jobName'])
+        checkParams(params, ['jobId'])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        checkJobAccess(jobName, user)
+        checkJobAccess(jobId, user)
 
-        def InputStream inputStream = restExportService.downloadFile(jobName)
+        def InputStream inputStream = restExportService.downloadFile(jobId)
 
-        def fileName = jobName + ".zip"
         response.setContentType 'application/zip'
-        response.setHeader "Content-disposition", "attachment;filename=${fileName}"
+        response.setHeader "Content-disposition", "attachment;"//filename=${inputStream.ass}"
         response.outputStream << inputStream
         response.outputStream.flush()
         inputStream.close()
@@ -108,19 +105,18 @@ class RestExportController {
 
     /**
      * Check a status of specified job:
-     * <code>/v2/export/${jobName}/status
+     * <code>/v2/export/${jobId}/status
      *
-     * @param jobName
+     * @param jobId
      * @return current status of the job
      */
-   def jobStatus(@PathVariable('jobName') String jobName) {
-       checkParams(params, ['jobName'])
-       def jobStatus = restExportService.jobStatus(jobName)
-       if (!jobStatus) {
-           throw new InvalidArgumentsException("Job with a name '$jobName' does not exist.")
+   def jobStatus(@PathVariable('jobId') Long jobId) {
+       checkParams(params, ['jobId'])
+       def job = restExportService.jobById(jobId)
+       if (!job) {
+           throw new InvalidArgumentsException("Job with id '$jobId' does not exist.")
        }
-       def results = [jobStatus: jobStatus]
-       render results as JSON
+       respond wrapExportJob(job)
    }
 
     /**
@@ -133,72 +129,72 @@ class RestExportController {
         checkParams(params, [])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def results = restExportService.listJobs(user)
-        render results as JSON
+        respond wrapExportJobs(results)
     }
 
     /**
      * Get available types of the data for specified set id,
      * `clinical` for clinical data and supported high dimensional data types.
-     * <code>/v2/export/data_formats?id=${id1}&...&id=${idx}&setType=${setType}
+     * <code>/v2/export/data_formats?id=${id1}&...&id=${idx}&typeOfSet=${typeOfSet}
      *
-     * @param setType
+     * @param typeOfSet
      * @param id - list of sets ids, multiple parameter instances format
      * @return data formats
      */
-    def dataFormats(@RequestParam('setType') String setType) {
+    def dataFormats(@RequestParam('typeOfSet') String typeOfSet) {
 
-        checkParams(params, ['setType', 'id'])
+        checkParams(params, ['typeOfSet', 'id'])
         List<Long> id = parseId(params)
-        checkSetTypeSupported(setType)
+        checkTypeOfSetSupported(typeOfSet)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        def formats = restExportService.getDataFormats(setType, id, user)
+        def formats = restExportService.getDataFormats(typeOfSet, id, user)
         def results = [dataFormats: formats]
         render results as JSON
     }
 
     /**
      * List supported file formats:
-     * <code>/v2/export/supported_file_formats
+     * <code>/v2/export/file_formats
      *
      * @return File format types
      */
     def fileFormats() {
         checkParams(params, [])
         def fileFormats = restExportService.supportedFileFormats
-        def results = [supportedFileFormats: fileFormats]
+        def results = [fileFormats: fileFormats]
         render results as JSON
     }
 
 
 
-    private void checkRightsToExport(List<Long> resultSetIds, User user, String setType) {
+    private void checkRightsToExport(List<Long> resultSetIds, User user, String typeOfSet) {
         try {
-            restExportService.isUserAllowedToExport(resultSetIds, user, setType)
+            restExportService.isUserAllowedToExport(resultSetIds, user, typeOfSet)
         } catch (UnsupportedOperationException e) {
             throw new AccessDeniedException("User ${user.username} has no EXPORT permission" +
                     " on one of the result sets: ${resultSetIds.join(', ')}")
         }
     }
     
-    private checkJobAccess(String jobName, User user) {
-        String jobUsername = restExportService.jobUser(jobName)
-        if (!jobUsername) throw new InvalidArgumentsException("Job with a name '$jobName' does not exists.")
+    private checkJobAccess(Long jobId, User user) {
+        String jobUsername = restExportService.jobUser(jobId)
+        if (!jobUsername) throw new InvalidArgumentsException("Job with id '$jobId' does not exists.")
 
         if (user.isAdmin()) return
         else if (jobUsername != user.username) {
-            log.warn("Denying access to job $jobName because the " +
+            log.warn("Denying access to job $jobId because the " +
                     "corresponding username ($jobUsername) does not match " +
                     "that of the current user")
-            throw new AccessDeniedException("Job $jobName was not started by " +
+            throw new AccessDeniedException("Job $jobId was not created by " +
                     "this user")
         }
     }
 
-    private void checkJobNameUnique(String jobName) {
+    private void checkJobNameUnique(String jobName, User user) {
         String name = jobName?.trim()
-        if(name && !restExportService.isJobNameUnique(name)) {
-            throw new InvalidArgumentsException("Given job name: '$name' already exists.")
+        if(name && !restExportService.isJobNameUniqueForUser(name, user)) {
+            throw new InvalidArgumentsException("Given job name: '$name' already exists for user '$user.")
         }
     }
 
@@ -211,9 +207,9 @@ class RestExportController {
         }
     }
 
-    private void checkSetTypeSupported(String setType) {
-        if (!(setType?.trim() in restExportService.supportedSetTypes)) {
-            throw new InvalidArgumentsException("Type not supported: $setType.")
+    private void checkTypeOfSetSupported(String typeOfSet) {
+        if (!(typeOfSet?.trim() in restExportService.supportedTypesOfSet)) {
+            throw new InvalidArgumentsException("Type of set not supported: $typeOfSet.")
         }
     }
 
@@ -237,5 +233,38 @@ class RestExportController {
         } catch (ConverterException c) {
             throw new InvalidArgumentsException("Cannot parse parameter: $params.elements")
         }
+    }
+
+    private static Map<String, Object> convertToMap(AsyncJob job) {
+        [
+                id           : job.id,
+                jobName      : job.jobName,
+                jobStatus    : job.jobStatus,
+                jobStatusTime: job.jobStatusTime,
+                userId       : job.userId,
+                viewerUrl    : job.viewerURL
+        ]
+    }
+
+    private static ContainerResponseWrapper wrapExportJob(AsyncJob source) {
+        Map<String, Object> serializedJob = convertToMap(source)
+
+        new ContainerResponseWrapper(
+                key: 'exportJob',
+                container: serializedJob,
+                componentType: Map,
+        )
+    }
+
+    private static ContainerResponseWrapper wrapExportJobs(List<AsyncJob> sources) {
+        List<Map<String, Object>> serializedJobs = sources.collect {
+            convertToMap(it)
+        }
+
+        new ContainerResponseWrapper(
+                key: 'exportJobs',
+                container: serializedJobs,
+                componentType: Map,
+        )
     }
 }
