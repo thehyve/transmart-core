@@ -46,9 +46,6 @@ class BootStrap {
 
         fixupConfig()
 
-//        // force marshaller registrar initialization
-//        grailsApplication.mainContext.getBean 'marshallerRegistrarService'
-
         if ('clientCredentialsAuthenticationProvider' in
                 grailsApplication.config.grails.plugin.springsecurity.providerNames) {
             OAuth2SyncService.syncOAuth2Clients()
