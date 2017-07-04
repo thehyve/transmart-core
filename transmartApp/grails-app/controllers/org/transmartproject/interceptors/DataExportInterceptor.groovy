@@ -2,17 +2,22 @@ package org.transmartproject.interceptors
 
 import grails.artefact.Interceptor
 import grails.converters.JSON
-import org.transmart.audit.AuditLogService
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmart.audit.StudyIdService
+import org.transmartproject.core.audit.AuditLogger
 import org.transmartproject.core.log.AccessLogEntryResource
 import org.transmartproject.core.users.User
 
 
 class DataExportInterceptor implements Interceptor {
 
+    @Autowired
     AccessLogEntryResource accessLogService
-    AuditLogService auditLogService
+    @Autowired(required=false)
+    AuditLogger auditLogService
+    @Autowired
     StudyIdService studyIdService
+    @Autowired
     User currentUserBean
 
     DataExportInterceptor(){

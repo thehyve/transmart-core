@@ -421,7 +421,7 @@ if (samlEnabled) {
             // Whether sessions should be invalidated after logout
             logout.invalidateHttpSession = "true"
             // Id of the spring security user service that should be called to fetch users.
-            saml.userService = "org.transmart.FederatedUserDetailsService"
+            saml.userService = "org.transmart.oauth.FederatedUserDetailsService"
         }
     } } }
 } else { // if (!samlEnabled)

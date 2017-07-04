@@ -23,8 +23,6 @@ dependencies {
     compile 'org.grails.plugins:spring-security-core:3.1.1'
     compile 'org.grails.plugins:spring-security-oauth2-provider:3.0.0-RC2'
 
-    /* for SAML authentication */
-    compile('org.springframework.security.extensions:spring-security-saml2-core:1.0.0.RELEASE')
     // spring security version should be in sync with that brought with
     // grails-spring-security-core
     runtime 'org.springframework.security:spring-security-config:3.2.3.RELEASE'
@@ -65,6 +63,7 @@ dependencies {
     compile project(':search-domain')
     compile project(':biomart-domain')
     compile project(':transmart-legacy-db')
+    compile project(':transmart-oauth')
 
     testCompile project(':transmart-core-db-tests')
     testCompile "org.grails:grails-plugin-testing"
