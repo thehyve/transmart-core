@@ -131,40 +131,6 @@ task installTransmartPlugins << {
 
 }
 
-war {
-    webInf {
-        with copySpec({
-            from '../Rmodules/src/main/resources/Rscripts'
-            into 'Rscripts'
-        })
-        with copySpec({
-            from 'src/main/resources/dataExportRScripts'
-            into 'dataExportRScripts'
-        })
-        with copySpec({
-            from '../open-api'
-            into 'classes/public/open-api'
-        })
-        with copySpec({
-            from 'src/main/resources/public'
-            into 'classes/public'
-        })
-        with copySpec({
-            from '../Rmodules/src/main/resources/public'
-            into 'classes/public'
-        })
-    } //Rscripts from Rmodules into WEB-INF dir.
-}
-
 test.testLogging.exceptionFormat = 'full'
 
-bootRun {
-    jvmArgs = ['-Xmx4096m']
 
-    // In development mode, set the TRANSMART_DEBUG_PORT environment variable to a port number to enable debugging on that port
-    if(! (System.env.TRANSMART_DEBUG_PORT ?: '').empty) {
-        def port = System.env.TRANSMART_DEBUG_PORT
-        assert port.isInteger() && (port as int) in 0..<2**16, "TRANSMART_DEBUG_PORT environment variable is not a valid port number: '$port'"
-        jvmArgs += ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$port"]
-    }
-}
