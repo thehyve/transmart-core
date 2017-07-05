@@ -1,7 +1,10 @@
 package transmart.oauth
 
+import grails.core.GrailsApplication
+import grails.plugin.springsecurity.SecurityFilterPosition
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugins.*
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.MapFactoryBean
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider
 import org.springframework.security.web.DefaultRedirectStrategy
@@ -56,6 +59,9 @@ Brief summary/description of the plugin.
 
     // Online location of the plugin's browseable source code.
 //    def scm = [ url: "http://svn.codehaus.org/grails-plugins/" ]
+
+    final static logger = LoggerFactory.getLogger(this)
+    GrailsApplication grailsApplication
 
     Closure doWithSpring() {
         { ->
@@ -167,7 +173,13 @@ Brief summary/description of the plugin.
     }
 
     void doWithApplicationContext() {
-        // TODO Implement post initialization spring config (optional)
+
+        if (grailsApplication.config.org.transmart.security.samlEnabled) {
+            SpringSecurityUtils.clientRegisterFilter(
+                    'metadataGeneratorFilter', SecurityFilterPosition.FIRST)
+            SpringSecurityUtils.clientRegisterFilter(
+                    'samlFilter', SecurityFilterPosition.BASIC_AUTH_FILTER)
+        }
     }
 
     void onChange(Map<String, Object> event) {

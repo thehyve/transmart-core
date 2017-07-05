@@ -17,8 +17,6 @@ class BootStrap {
 
     GrailsApplication grailsApplication
 
-    def OAuth2SyncService
-
     def init = { servletContext ->
         securityContextPersistenceFilter.forceEagerSessionCreation = true
 
@@ -38,11 +36,7 @@ class BootStrap {
         }
 
         fixupConfig()
-
-//        // force marshaller registrar initialization
-//        grailsApplication.mainContext.getBean 'marshallerRegistrarService'
-
-}
+    }
 
     private boolean copyResources(String root, File targetDirectory) {
         log.info "Copying resources from ${root} to ${targetDirectory.absolutePath} ..."

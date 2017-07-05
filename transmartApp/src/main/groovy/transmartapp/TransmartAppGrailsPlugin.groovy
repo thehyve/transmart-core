@@ -2,8 +2,12 @@ package transmartapp
 
 import com.google.common.collect.ImmutableMap
 import com.recomdata.extensions.ExtensionsRegistry
+import grails.core.GrailsApplication
+import grails.plugin.springsecurity.SecurityFilterPosition
+import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugins.Plugin
 import org.grails.spring.DefaultBeanConfiguration
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.CustomScopeConfigurer
 import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy
@@ -53,6 +57,10 @@ Brief summary/description of the plugin.
 
     // Online location of the plugin's browseable source code.
 //    def scm = [ url: "http://svn.codehaus.org/grails-plugins/" ]
+
+
+    final static logger = LoggerFactory.getLogger(this)
+    GrailsApplication grailsApplication
 
     Closure doWithSpring() {
         { ->
@@ -120,7 +128,11 @@ Brief summary/description of the plugin.
     }
 
     void doWithApplicationContext() {
-        // TODO Implement post initialization spring config (optional)
+
+        SpringSecurityUtils.clientRegisterFilter('concurrentSessionFilter', SecurityFilterPosition.CONCURRENT_SESSION_FILTER)
+
+        // force marshaller registrar initialization
+        grailsApplication.mainContext.getBean 'marshallerRegistrarService'
     }
 
     void onChange(Map<String, Object> event) {
