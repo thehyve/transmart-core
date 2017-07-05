@@ -28,6 +28,8 @@ class TransmartAppGrailsPlugin extends Plugin {
     def pluginExcludes = [
         "grails-app/views/error.gsp"
     ]
+    // to override login/auth.gsp and other GSP pages from Spring Security core
+    List loadAfter = ['springSecurityCore']
 
     // TODO Fill in these fields
     def title = "Transmart App" // Headline display name of the plugin
