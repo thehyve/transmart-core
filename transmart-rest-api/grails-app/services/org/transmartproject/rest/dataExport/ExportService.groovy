@@ -14,11 +14,11 @@ import org.transmartproject.db.user.User
 import javax.transaction.NotSupportedException
 
 @Transactional
-class RestExportService {
+class ExportService {
 
     Scheduler quartzScheduler
     @Autowired
-    RestDataExportService restDataExportService
+    DataExportService dataExportService
     @Autowired
     ExportAsyncJobService exportAsyncJobService
 
@@ -101,7 +101,7 @@ class RestExportService {
 
     def isUserAllowedToExport(List<Long> resultSetIds, User user, String typeOfSet) {
         if (typeOfSet == SupportedTypesOfSet.PATIENT.value) {
-            restDataExportService.patientSetsExportPermission(resultSetIds, user)
+            dataExportService.patientSetsExportPermission(resultSetIds, user)
         }
     }
 
@@ -114,11 +114,11 @@ class RestExportService {
         // highDim data
         switch (typeOfSet) {
             case SupportedTypesOfSet.PATIENT.value:
-                List highDimDataTypes = restDataExportService.highDimDataTypesForPatientSets(setIds, user)
+                List highDimDataTypes = dataExportService.highDimDataTypesForPatientSets(setIds, user)
                 if (highDimDataTypes) dataFormats.addAll(highDimDataTypes)
                 break
             case SupportedTypesOfSet.OBSERVATION.value:
-                List highDimDataTypes = restDataExportService.highDimDataTypesForObservationSets(setIds, user)
+                List highDimDataTypes = dataExportService.highDimDataTypesForObservationSets(setIds, user)
                 if (highDimDataTypes) dataFormats.addAll(highDimDataTypes)
                 break
             default:

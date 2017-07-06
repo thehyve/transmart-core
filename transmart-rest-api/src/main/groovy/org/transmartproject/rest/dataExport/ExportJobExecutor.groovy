@@ -20,7 +20,7 @@ class ExportJobExecutor implements Job {
 
     def ctx = Holders.grailsApplication.mainContext
 
-    RestDataExportService restDataExportService = ctx.restDataExportService
+    DataExportService dataExportService = ctx.dataExportService
     ExportAsyncJobService asyncJobService = ctx.exportAsyncJobService
 //    QuartzSpringScope quartzSpringScope = ctx.quartzSpringScope
 
@@ -60,7 +60,7 @@ class ExportJobExecutor implements Job {
 
         try {
             asyncJobService.updateStatus(jobId, JobStatus.GATHERING_DATA)
-            restDataExportService.exportData(jobDataMap, zipFile)
+            dataExportService.exportData(jobDataMap, zipFile)
         }
         catch (all) {
             log.error 'An exception occurred during data export job', all.message

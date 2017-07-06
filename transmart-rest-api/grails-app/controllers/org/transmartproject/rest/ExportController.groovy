@@ -10,14 +10,14 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb as AsyncJob
 import org.transmartproject.db.user.User
-import org.transmartproject.rest.dataExport.RestExportService
+import org.transmartproject.rest.dataExport.ExportService
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
 
-class RestExportController {
+class ExportController {
     
     @Autowired
-    RestExportService restExportService
+    ExportService exportService
     @Autowired
     CurrentUser currentUser
     @Autowired
@@ -45,7 +45,7 @@ class RestExportController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobNameUnique(name, user)
 
-        def instance = restExportService.createExportJob(user, name)
+        def instance = exportService.createExportJob(user, name)
         respond wrapExportJob(instance)
     }
 
@@ -76,7 +76,7 @@ class RestExportController {
         checkRightsToExport(id, user, typeOfSet)
         checkJobAccess(jobId, user)
 
-        def job = restExportService.exportData(id, typeOfSet, elements, user, jobId)
+        def job = exportService.exportData(id, typeOfSet, elements, user, jobId)
         respond wrapExportJob(job)
     }
 
@@ -93,7 +93,7 @@ class RestExportController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobAccess(jobId, user)
 
-        def InputStream inputStream = restExportService.downloadFile(jobId)
+        def InputStream inputStream = exportService.downloadFile(jobId)
 
         response.setContentType 'application/zip'
         response.setHeader "Content-disposition", "attachment;"//filename=${inputStream.ass}"
@@ -112,7 +112,7 @@ class RestExportController {
      */
    def jobStatus(@PathVariable('jobId') Long jobId) {
        checkParams(params, ['jobId'])
-       def job = restExportService.jobById(jobId)
+       def job = exportService.jobById(jobId)
        if (!job) {
            throw new InvalidArgumentsException("Job with id '$jobId' does not exist.")
        }
@@ -128,7 +128,7 @@ class RestExportController {
     def listJobs() {
         checkParams(params, [])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def results = restExportService.listJobs(user)
+        def results = exportService.listJobs(user)
         respond wrapExportJobs(results)
     }
 
@@ -148,7 +148,7 @@ class RestExportController {
         checkTypeOfSetSupported(typeOfSet)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        def formats = restExportService.getDataFormats(typeOfSet, id, user)
+        def formats = exportService.getDataFormats(typeOfSet, id, user)
         def results = [dataFormats: formats]
         render results as JSON
     }
@@ -161,7 +161,7 @@ class RestExportController {
      */
     def fileFormats() {
         checkParams(params, [])
-        def fileFormats = restExportService.supportedFileFormats
+        def fileFormats = exportService.supportedFileFormats
         def results = [fileFormats: fileFormats]
         render results as JSON
     }
@@ -170,7 +170,7 @@ class RestExportController {
 
     private void checkRightsToExport(List<Long> resultSetIds, User user, String typeOfSet) {
         try {
-            restExportService.isUserAllowedToExport(resultSetIds, user, typeOfSet)
+            exportService.isUserAllowedToExport(resultSetIds, user, typeOfSet)
         } catch (UnsupportedOperationException e) {
             throw new AccessDeniedException("User ${user.username} has no EXPORT permission" +
                     " on one of the result sets: ${resultSetIds.join(', ')}")
@@ -178,7 +178,7 @@ class RestExportController {
     }
     
     private checkJobAccess(Long jobId, User user) {
-        String jobUsername = restExportService.jobUser(jobId)
+        String jobUsername = exportService.jobUser(jobId)
         if (!jobUsername) throw new InvalidArgumentsException("Job with id '$jobId' does not exists.")
 
         if (user.isAdmin()) return
@@ -193,7 +193,7 @@ class RestExportController {
 
     private void checkJobNameUnique(String jobName, User user) {
         String name = jobName?.trim()
-        if(name && !restExportService.isJobNameUniqueForUser(name, user)) {
+        if(name && !exportService.isJobNameUniqueForUser(name, user)) {
             throw new InvalidArgumentsException("Given job name: '$name' already exists for user '$user.")
         }
     }
@@ -208,7 +208,7 @@ class RestExportController {
     }
 
     private void checkTypeOfSetSupported(String typeOfSet) {
-        if (!(typeOfSet?.trim() in restExportService.supportedTypesOfSet)) {
+        if (!(typeOfSet?.trim() in exportService.supportedTypesOfSet)) {
             throw new InvalidArgumentsException("Type of set not supported: $typeOfSet.")
         }
     }

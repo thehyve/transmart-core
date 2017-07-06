@@ -16,7 +16,7 @@ import java.util.zip.ZipOutputStream
 
 
 @Transactional
-class RestDataExportService {
+class DataExportService {
 
     MultidimensionalDataService multidimensionalDataService
 
