@@ -1,10 +1,10 @@
 package org.transmartproject.rest.dataExport
 
-import com.recomdata.transmart.domain.i2b2.AsyncJob
 import grails.transaction.Transactional
 import org.grails.web.json.JSONObject
 import org.quartz.JobKey
 import org.quartz.Scheduler
+import org.transmartproject.db.job.AsyncJobCoreDb as AsyncJob
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
 import org.transmartproject.db.user.User
 

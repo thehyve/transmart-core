@@ -1,6 +1,5 @@
 package org.transmartproject.rest.dataExport
 
-import com.recomdata.transmart.domain.i2b2.AsyncJob
 import grails.transaction.Transactional
 import org.quartz.JobBuilder
 import org.quartz.JobDataMap
@@ -9,6 +8,7 @@ import org.quartz.Scheduler
 import org.quartz.TriggerBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.db.job.AsyncJobCoreDb as AsyncJob
 import org.transmartproject.db.user.User
 
 import javax.transaction.NotSupportedException
