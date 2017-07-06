@@ -210,6 +210,7 @@ class DataExportSpec extends RESTSpec {
 
         then: "ZipStream is returned"
         assert downloadResponse != null
+        assert downloadResponse.eofWatcher.wrappedEntity.contentType.value == contentTypeForZip
         assert new File(fileName).isFile()
 
         cleanup: "Remove created file"
