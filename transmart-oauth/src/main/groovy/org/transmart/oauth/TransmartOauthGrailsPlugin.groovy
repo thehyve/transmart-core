@@ -49,8 +49,6 @@ OAuth plugin for Transmart
     def scm = [url: "https://github.com/thehyve/transmart-core"]
     def documentation = "https://github.com/thehyve/transmart-core"
 
-    def profiles = ['web']
-
     final static logger = LoggerFactory.getLogger(this)
     GrailsApplication grailsApplication
 

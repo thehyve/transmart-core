@@ -14,7 +14,6 @@ dependencies {
     compile "org.hibernate:hibernate-ehcache:5.1.2.Final"
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
     runtime "com.h2database:h2"
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails.plugins:geb"
@@ -39,8 +38,7 @@ dependencies {
 }
 
 assets {
-    minifyJs = true
-    minifyCss = true
+    packagePlugin = true
 }
 
 bootRun {

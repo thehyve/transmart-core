@@ -12,7 +12,6 @@ dependencies {
     profile "org.grails.profiles:web-plugin"
     provided "org.grails:grails-plugin-services"
     provided "org.grails:grails-plugin-domain-class"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
@@ -26,4 +25,8 @@ dependencies {
     compile('org.springframework.security.extensions:spring-security-saml2-core:1.0.0.RELEASE')
     
     compile project(':search-domain')
+}
+
+assets {
+    packagePlugin = true
 }
