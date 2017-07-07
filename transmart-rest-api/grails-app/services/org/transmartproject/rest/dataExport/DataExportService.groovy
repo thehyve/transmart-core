@@ -1,6 +1,8 @@
 package org.transmartproject.rest.dataExport
 
 import grails.transaction.Transactional
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.core.users.ProtectedOperation
@@ -14,10 +16,11 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import java.util.zip.ZipOutputStream
 
-
 @Transactional
+@Component("restDataExportService")
 class DataExportService {
 
+    @Autowired
     MultidimensionalDataService multidimensionalDataService
 
     private static Constraint patientSetConstraint(List<Long> ids) {

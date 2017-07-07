@@ -7,6 +7,7 @@ import org.quartz.JobDetail
 import org.quartz.Scheduler
 import org.quartz.TriggerBuilder
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.db.job.AsyncJobCoreDb as AsyncJob
 import org.transmartproject.db.user.User
@@ -14,11 +15,13 @@ import org.transmartproject.db.user.User
 import javax.transaction.NotSupportedException
 
 @Transactional
+@Component("restExportService")
 class ExportService {
 
+    @Autowired
     Scheduler quartzScheduler
     @Autowired
-    DataExportService dataExportService
+    DataExportService restDataExportService
     @Autowired
     ExportAsyncJobService exportAsyncJobService
 
@@ -101,7 +104,7 @@ class ExportService {
 
     def isUserAllowedToExport(List<Long> resultSetIds, User user, String typeOfSet) {
         if (typeOfSet == SupportedTypesOfSet.PATIENT.value) {
-            dataExportService.patientSetsExportPermission(resultSetIds, user)
+            restDataExportService.patientSetsExportPermission(resultSetIds, user)
         }
     }
 
@@ -114,11 +117,11 @@ class ExportService {
         // highDim data
         switch (typeOfSet) {
             case SupportedTypesOfSet.PATIENT.value:
-                List highDimDataTypes = dataExportService.highDimDataTypesForPatientSets(setIds, user)
+                List highDimDataTypes = restDataExportService.highDimDataTypesForPatientSets(setIds, user)
                 if (highDimDataTypes) dataFormats.addAll(highDimDataTypes)
                 break
             case SupportedTypesOfSet.OBSERVATION.value:
-                List highDimDataTypes = dataExportService.highDimDataTypesForObservationSets(setIds, user)
+                List highDimDataTypes = restDataExportService.highDimDataTypesForObservationSets(setIds, user)
                 if (highDimDataTypes) dataFormats.addAll(highDimDataTypes)
                 break
             default:

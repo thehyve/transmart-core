@@ -20,7 +20,7 @@ class ExportJobExecutor implements Job {
 
     def ctx = Holders.grailsApplication.mainContext
 
-    DataExportService dataExportService = ctx.dataExportService
+    DataExportService dataExportService = ctx.restDataExportService
     ExportAsyncJobService asyncJobService = ctx.exportAsyncJobService
 //    QuartzSpringScope quartzSpringScope = ctx.quartzSpringScope
 
