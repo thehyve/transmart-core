@@ -1,3 +1,17 @@
+/**
+ * Running externalized configuration
+ * Assuming the following configuration files
+ * - in the executing user's home at ~/.grails/<app_name>Config/[application.groovy|Config.groovy|DataSource.groovy]
+ * - config location set path by system variable '<APP_NAME>_CONFIG_LOCATION'
+ * - dataSource location set path by system environment variable '<APP_NAME>_DATASOURCE_LOCATION'
+ */
+
+/* For some reason, the externalized config files are run with a different
+ * binding. None of the variables appName, userHome, appVersion, grailsHome
+ * are available; the binding will actually be the root config object.
+ * So store the current binding in the config object so the externalized
+ * config has access to the variables mentioned.
+ */
 org.transmart.originalConfigBinding = getBinding()
 
 org.transmartproject.app.oauthEnabled = true
@@ -55,7 +69,38 @@ org.transmartproject.i2b2.user_id = 'i2b2'
 org.transmartproject.i2b2.group_id = 'Demo'
 //**************************
 
+/* {{{ TRANSMARTAPP PLUGIN SPECIFIC CONFIGURATION */
+// Remaining settings are a part of transmart-server configuration
+
+com.recomdata.search.autocomplete.max = 20
+// default paging size
+com.recomdata.search.paginate.max = 20
+com.recomdata.search.paginate.maxsteps = 5
 com.recomdata.admin.paginate.max = 20
+
+//**************************
+//This is the login information for the different i2b2 projects.
+//SUBJECT Data.
+com.recomdata.i2b2.subject.domain = 'i2b2demo'
+com.recomdata.i2b2.subject.projectid = 'i2b2demo'
+com.recomdata.i2b2.subject.username = 'Demo'
+com.recomdata.i2b2.subject.password = 'demouser'
+
+//SAMPLE Data.
+com.recomdata.i2b2.sample.domain = 'i2b2demo'
+com.recomdata.i2b2.sample.projectid = 'i2b2demo'
+com.recomdata.i2b2.sample.username = 'sample'
+com.recomdata.i2b2.sample.password = 'manager'
+
+//**************************
+
+// max genes to display after disease search
+com.recomdata.search.gene.max = 250;
+
+// set schema names for I2B2HelperService
+com.recomdata.i2b2helper.i2b2hive = "i2b2hive"
+com.recomdata.i2b2helper.i2b2metadata = "i2b2metadata"
+com.recomdata.i2b2helper.i2b2demodata = "i2b2demodata"
 
 com.recomdata.transmart.data.export.max.export.jobs.loaded = 20
 
@@ -74,6 +119,39 @@ com.recomdata.transmart.data.export.ftp.serverport = ''
 com.recomdata.transmart.data.export.ftp.username = ''
 com.recomdata.transmart.data.export.ftp.password = ''
 com.recomdata.transmart.data.export.ftp.remote.path = ''
+
+// Control which gene/pathway search is used in Dataset Explorer
+// A value of "native" forces Dataset Explorer's native algorithm.
+// Abscence of this property or any other value forces the use of the Search Algorithm
+//com.recomdata.search.genepathway="native"
+
+// The tags in the Concept to indicate Progression-free Survival and Censor flags, used by Survival Analysis
+com.recomdata.analysis.survival.survivalDataList = [
+        '(PFS)',
+        '(OS)',
+        '(TTT)',
+        '(DURTFI)'
+];
+com.recomdata.analysis.survival.censorFlagList = [
+        '(PFSCENS)',
+        '(OSCENS)',
+        '(TTTCENS)',
+        '(DURTFICS)'
+];
+
+com.recomdata.analysis.genepattern.file.dir = "data"; // Relative to the app root "web-app" - deprecated - replaced with data.file.dir
+
+com.recomdata.analysis.data.file.dir = "data"; // Relative to the app root "web-app"
+
+// Disclaimer
+StringBuilder disclaimer = new StringBuilder()
+disclaimer.append("<p></p>")
+com.recomdata.disclaimer = disclaimer.toString()
+
+// customization views
+//com.recomdata.view.studyview='_clinicaltrialdetail'
+
+/* }}} */
 
 // Directories to write R scripts to for use by RServe. Resources are copied at startup.
 org.transmartproject.rmodules.deployment.rscripts = new File(System.getProperty("user.home"), '.grails/transmart-rscripts')
@@ -236,7 +314,8 @@ grails { plugin { springsecurity {
 /* }}} */
 
 
-// DATASOURCES
+/* {{{ DATASOURCES configuration */
+// OAuth2 dataSource settings are a part of transmart-oauth config
 
 dataSources {
     oauth2 {
@@ -290,4 +369,4 @@ environments {
         }
     }
 }
-
+/* }}} */
