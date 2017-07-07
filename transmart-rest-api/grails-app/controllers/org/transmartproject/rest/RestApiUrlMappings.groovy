@@ -65,6 +65,9 @@ class RestApiUrlMappings {
             "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
                 apiVersion = 'v2'
             }
+            "/patient_sets"(method: 'GET', controller: 'patientQuery', action: 'findPatientSets') {
+                apiVersion = 'v2'
+            }
             "/patient_sets"(method: 'POST', controller: 'patientQuery', action: 'createPatientSet') {
                 apiVersion = 'v2'
             }
@@ -128,6 +131,9 @@ class RestApiUrlMappings {
                 apiVersion = "v2"
             }
             "/recommended_concepts/$conceptCode"(method: 'GET', controller: 'concept', action: 'showRecommended') {
+                apiVersion = 'v2'
+            }
+            "/dimensions/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
                 apiVersion = 'v2'
             }
         }

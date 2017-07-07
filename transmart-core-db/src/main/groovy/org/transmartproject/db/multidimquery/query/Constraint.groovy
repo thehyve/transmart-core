@@ -175,7 +175,7 @@ enum Operator {
  */
 @Canonical
 class Field implements Validateable {
-    @BindUsing({ obj, source -> DimensionImpl.fromNameOrNull(source['dimension'])})
+    @BindUsing({ obj, source -> DimensionImpl.fromName(source['dimension'])})
     DimensionImpl dimension
     @BindUsing({ obj, source -> Type.forName(source['type']) })
     Type type = Type.NONE
@@ -596,7 +596,7 @@ class SubSelectionConstraint extends Constraint {
     Constraint constraint
 
     @BindUsing({ obj, source ->
-        DimensionImpl.fromNameOrNull(source['dimension'])
+        DimensionImpl.fromName(source['dimension'])
     })
     Dimension dimension
 

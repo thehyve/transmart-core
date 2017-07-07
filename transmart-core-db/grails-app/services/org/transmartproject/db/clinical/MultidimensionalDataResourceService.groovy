@@ -24,7 +24,7 @@ import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -113,8 +113,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     @Autowired
     ConceptsResource conceptsResource
 
-    Dimension getDimension(String name) {
-        DimensionDescription.findByName(name).dimension
+    @Override Dimension getDimension(String name) {
+        DimensionDescription.findByName(name)?.dimension
     }
 
     /**
@@ -415,7 +415,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    private Object get(DetachedCriteria criteria) {
+    private def get(DetachedCriteria criteria) {
         getExecutableCriteria(criteria).uniqueResult()
     }
 
@@ -423,7 +423,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         getExecutableCriteria(criteria).list()
     }
 
-    private Iterable getIterable(DetachedCriteria criteria) {
+    private IterableResult getIterable(DetachedCriteria criteria) {
         def scrollableResult = getExecutableCriteria(criteria).scroll(ScrollMode.FORWARD_ONLY)
         new ScrollableResultsWrappingIterable(scrollableResult)
     }
@@ -470,19 +470,33 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     /**
-     * @description Function for getting a list of patients for which there are observations
+     * @description Function for getting a list of elements of a specified dimension
+     * that are meeting a specified criteria and the user has access to.
+     *
+     * @param dimensionName
+     * @param user
+     * @param constraint
+     */
+    @Override
+    IterableResult getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user) {
+        if(constraint) checkAccess(constraint, user)
+        HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria dimensionCriteria = builder.buildElementsCriteria((DimensionImpl) dimension, constraint)
+
+        return getIterable(dimensionCriteria)
+    }
+
+    /**
+     * @description Function for getting a number of dimension elements for which there are observations
      * that are specified by <code>query</code>.
      * @param query
      * @param user
      */
-    @Override List<Patient> listPatients(MultiDimConstraint constraint, User user) {
-        checkAccess(constraint, user)
+    @Override Long getDimensionElementsCount(Dimension dimension, MultiDimConstraint constraint, User user) {
+        if(constraint) checkAccess(constraint, user)
         def builder = getCheckedQueryBuilder(user)
-        DetachedCriteria constraintCriteria = builder.buildCriteria((Constraint) constraint)
-        DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
-        DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
-        patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
-        getList(patientCriteria)
+        DetachedCriteria dimensionCriteria = builder.buildElementCountCriteria((DimensionImpl) dimension, constraint)
+        (Long) get(dimensionCriteria)
     }
 
     /**
@@ -496,7 +510,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param user
      */
     @Override QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) {
-        List patients = listPatients(constraint, user)
+        List patients = getDimensionElements(PATIENT, constraint, user).toList()
 
         // 1. Populate qt_query_master
         def queryMaster = new QtQueryMaster(
@@ -581,26 +595,29 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
         queryResult
     }
-    
+
+    @Override Iterable<QueryResult> findPatientSets(User user) {
+        if(((DbUser) user).admin){
+            return getIterable(DetachedCriteria.forClass(QtQueryResultInstance))
+        } else {
+            def queryCriteria = DetachedCriteria.forClass(QtQueryInstance, 'queryInstance')
+                    .add(Restrictions.eq('userId', user.username))
+                    .setProjection(Projections.property('id'))
+            def queryResultCriteria = DetachedCriteria.forClass(QtQueryResultInstance)
+                    .add(Subqueries.propertyIn('queryInstance', queryCriteria))
+            return getIterable(queryResultCriteria)
+        }
+    }
+
     @Override RequestConstraintAndVersion getPatientSetConstraint(long id) {
         QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findById(id)
         def queryMaster = qtQueryResultInstance.queryInstance.queryMaster
         new RequestConstraintAndVersion(queryMaster.requestConstraints, queryMaster.apiVersion)
     }
-    
-    @Override Long patientCount(MultiDimConstraint constraint, User user) {
-        checkAccess(constraint, user)
-        QueryBuilder builder = getCheckedQueryBuilder(user)
-        DetachedCriteria constraintCriteria = builder.buildCriteria((Constraint) constraint)
-        DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
-        DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
-        patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
-        (Long) get(patientCriteria.setProjection(Projections.rowCount()))
-    }
 
     @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
     Long cachedPatientCount(MultiDimConstraint constraint, User user) {
-        patientCount(constraint, user)
+        getDimensionElementsCount(DimensionImpl.PATIENT, constraint, user)
     }
 
     static List<StudyNameConstraint> findStudyNameConstraints(MultiDimConstraint constraint) {
@@ -828,3 +845,4 @@ class Query {
     HibernateCriteriaBuilder criteria
     Map params
 }
+

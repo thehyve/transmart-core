@@ -4,7 +4,7 @@ import grails.converters.JSON
 import grails.test.mixin.TestMixin
 import grails.test.mixin.services.ServiceUnitTestMixin
 import grails.test.mixin.web.ControllerUnitTestMixin
-import org.transmart.authorization.CurrentUserBeanProxyFactory
+import org.transmart.oauth.CurrentUserBeanProxyFactory
 import spock.lang.Specification
 
 /**
