@@ -1,16 +1,12 @@
 package org.transmart.server
 
-class UrlMappings {
+class ServerUrlMappings {
 
     static mappings = {
         "/$controller/$action?/$id?(.$format)?"{
             constraints {}
         }
-
-        "/"(controller: 'auth', action: 'index')
-        "500"(view: '/error')
+        "/"(redirect: "/userLanding")
         "/open-api"(redirect: "/open-api/index.html")
-
-
     }
 }

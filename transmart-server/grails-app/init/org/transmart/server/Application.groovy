@@ -43,7 +43,7 @@ class Application extends GrailsAutoConfiguration implements EnvironmentAware {
     private static addToEnvironmentAsFirstSource(Environment environment, String groovyConfigFilePath) {
         def file = new File(groovyConfigFilePath)
         if (!file.exists()) {
-            log.error("Configuration file ${groovyConfigFilePath} does not exist.")
+            log.warn("Configuration file ${groovyConfigFilePath} does not exist.")
             return
         }
 

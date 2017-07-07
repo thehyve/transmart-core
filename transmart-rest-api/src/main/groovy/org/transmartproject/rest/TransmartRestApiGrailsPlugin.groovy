@@ -36,27 +36,28 @@ import org.transmartproject.rest.misc.HandleAllExceptionsBeanFactoryPostProcesso
 
 class TransmartRestApiGrailsPlugin extends Plugin {
     def grailsVersion = "3.1.10 > *"
+
     def title = "Transmart Rest Api Plugin"
     def author = "Transmart Foundation"
     def authorEmail = "admin@transmartproject.org"
     def description = '''\
-        Plugin adds rest api to transmart applicaion
-    '''
+REST API for Transmart
+'''
 
-    def loadAfter = ['restResponder']
+    def license = "GPL3"
 
-    def documentation = "https://wiki.thehyve.nl/"
-
-    def organization = [name: "The Hyve", url: "http://www.thehyve.nl/"]
-
+    def organization = [name: "The Hyve", url: "http://www.thehyve.nl"]
+    // For a complete overview of developers, see contributors.md.
     def developers = [
-            [name: "Ruslan Forostianov", email: "ruslan@thehyve.nl"],
-            [name: "Jan Kanis", email: "jan@thehyve.nl"],
+        [name: "Ruslan Forostianov", email: "ruslan@thehyve.nl"],
+        [name: "Jan Kanis", email: "jan@thehyve.nl"],
     ]
 
+    def scm = [url: "https://github.com/thehyve/transmart-core"]
+    def documentation = "https://github.com/thehyve/transmart-core"
     def issueManagement = [system: "JIRA", url: "https://jira.thehyve.nl/browse/CHERKASY"]
 
-    def scm = [url: "https://fisheye.ctmmtrait.nl/browse/transmart_rest_api"]
+    def loadAfter = ['restResponder']
 
     @Override
     Closure doWithSpring() {{ ->
