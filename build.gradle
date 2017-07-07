@@ -86,7 +86,7 @@ subprojects { project ->
             applyMavenExclusions false
         }
 
-        if (!(project.name =~ /^(transmartApp|mock-ontology-server)$/)) {
+        if (!(project.name =~ /^(transmart-server|transmartApp|mock-ontology-server)$/)) {
             grailsPublish {
                 websiteUrl = 'http://transmartfoundation.org/'
                 license {
@@ -101,7 +101,7 @@ subprojects { project ->
         }
 
     }
-    if (project.name =~ /^(transmartApp|transmart-core-api|transmart-data|transmart-batch)$/) {
+    if (project.name =~ /^(transmart-server|transmart-core-api|transmart-data|transmart-batch)$/) {
         apply plugin: 'net.linguica.maven-settings'
         apply plugin: 'maven-publish'
         publishing {

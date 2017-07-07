@@ -45,13 +45,13 @@ The application expects configuration in `~/.grails/transmartConfig`. Check [tra
 
 Deployment artefacts are published to [the Nexus repository of The Hyve](https://repo.thehyve.nl/).
 
-### Fetch and run `transmartApp`: 
+### Fetch and run `transmart-server`: 
 ```bash
 # Fetch artefacts using Maven 
-mvn dependency:get -Dartifact=org.transmartproject:transmartApp:17.1-SNAPSHOT:war -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/,https://repo.grails.org/grails/core
-mvn dependency:copy -Dartifact=org.transmartproject:transmartApp:17.1-SNAPSHOT:war -DoutputDirectory=.
+mvn dependency:get -Dartifact=org.transmartproject:transmart-server:17.1-SNAPSHOT:war -DremoteRepositories=https://repo.thehyve.nl/content/repositories/snapshots/,https://repo.grails.org/grails/core
+mvn dependency:copy -Dartifact=org.transmartproject:transmart-server:17.1-SNAPSHOT:war -DoutputDirectory=.
 # Start the web application
-java -jar transmartApp-17.1-SNAPSHOT.war
+java -jar transmart-server-17.1-SNAPSHOT.war
 ```
 
 ### Fetch `transmart-data`, configure, start services
