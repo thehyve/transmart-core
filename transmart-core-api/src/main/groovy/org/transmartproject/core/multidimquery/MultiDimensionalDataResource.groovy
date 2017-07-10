@@ -64,7 +64,7 @@ interface MultiDimensionalDataResource {
 
     Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user)
 
-    List retriveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user)
+    List<String> retriveHighDimDataTypes(MultiDimConstraint assayConstraint, User user)
 
     RequestConstraintAndVersion getPatientSetConstraint(long id)
 
