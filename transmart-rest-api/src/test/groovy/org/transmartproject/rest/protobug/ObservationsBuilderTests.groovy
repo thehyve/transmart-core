@@ -2,7 +2,6 @@
 
 package org.transmartproject.rest.protobug
 
-import au.com.bytecode.opencsv.CSVReader
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.json.JsonSlurper

@@ -18,7 +18,7 @@ import javax.transaction.NotSupportedException
 @Component("restExportService")
 class ExportService {
 
-    @Autowired
+    @Autowired(required = false)
     Scheduler quartzScheduler
     @Autowired
     DataExportService restDataExportService
@@ -133,6 +133,7 @@ class ExportService {
 
     private AsyncJob executeExportJob(Map dataMap) {
 
+        def job
         def jobDataMap = new JobDataMap(dataMap)
         JobDetail jobDetail = JobBuilder.newJob(ExportJobExecutor.class)
                 .withIdentity(dataMap.jobId.toString(), 'DataExport')
@@ -145,8 +146,14 @@ class ExportService {
                 .withIdentity('DataExport')
                 .build()
 
-        def job = exportAsyncJobService.updateStatus(dataMap.jobId, JobStatus.STARTED)
-        quartzScheduler.scheduleJob(jobDetail, trigger)
+        if(!quartzScheduler) {
+            job = exportAsyncJobService.updateStatus(dataMap.jobId, JobStatus.ERROR, null,
+                    "No qualifying bean found for dependency 'org.quartz.Scheduler'")
+        } else {
+            job = exportAsyncJobService.updateStatus(dataMap.jobId, JobStatus.STARTED)
+            quartzScheduler.scheduleJob(jobDetail, trigger)
+        }
+
         return job
     }
 
