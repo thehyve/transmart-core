@@ -20,7 +20,7 @@ class ExportJobExecutor implements Job {
 
     def ctx = Holders.grailsApplication.mainContext
 
-    DataExportService dataExportService = ctx.restDataExportService
+    ExportService exportService = ctx.restExportService
     ExportAsyncJobService asyncJobService = ctx.exportAsyncJobService
 
     final String tempFolderDirectory = Holders.config.com.recomdata.plugins.tempFolderDirectory
@@ -53,7 +53,7 @@ class ExportJobExecutor implements Job {
 
         try {
             asyncJobService.updateStatus(jobId, JobStatus.GATHERING_DATA)
-            dataExportService.exportData(jobDataMap, zipFile)
+            exportService.exportData(jobDataMap, zipFile)
         }
         catch (all) {
             log.error 'An exception occurred during data export job', all.message

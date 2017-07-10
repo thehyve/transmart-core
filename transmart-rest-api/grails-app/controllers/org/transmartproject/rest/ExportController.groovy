@@ -10,6 +10,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.db.user.User
+import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
@@ -18,6 +19,8 @@ class ExportController {
 
     @Autowired
     ExportService restExportService
+    @Autowired
+    ExportAsyncJobService exportAsyncJobService
     @Autowired
     CurrentUser currentUser
     @Autowired
@@ -45,7 +48,7 @@ class ExportController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobNameUnique(name, user)
 
-        def instance = restExportService.createExportJob(user, name)
+        def instance = exportAsyncJobService.createNewJob(user, name)
         respond wrapExportJob(instance)
     }
 
@@ -76,7 +79,8 @@ class ExportController {
         checkRightsToExport(id, user, typeOfSet)
         checkJobAccess(jobId, user)
 
-        def job = restExportService.exportData(id, typeOfSet, elements, user, jobId)
+        def job = exportAsyncJobService.exportData(id, typeOfSet, elements, user, jobId)
+
         respond wrapExportJob(job)
     }
 
@@ -93,7 +97,8 @@ class ExportController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobAccess(jobId, user)
 
-        def InputStream inputStream = restExportService.downloadFile(jobId)
+        def job = exportAsyncJobService.getJobById(jobId)
+        def InputStream inputStream = restExportService.downloadFile(job)
 
         response.setContentType 'application/zip'
         response.setHeader "Content-disposition", "attachment;"//filename=${inputStream.ass}"
@@ -112,7 +117,7 @@ class ExportController {
      */
    def jobStatus(@PathVariable('jobId') Long jobId) {
        checkParams(params, ['jobId'])
-       def job = restExportService.jobById(jobId)
+       def job = exportAsyncJobService.getJobById(jobId)
        if (!job) {
            throw new InvalidArgumentsException("Job with id '$jobId' does not exist.")
        }
@@ -128,7 +133,7 @@ class ExportController {
     def listJobs() {
         checkParams(params, [])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def results = restExportService.listJobs(user)
+        def results = exportAsyncJobService.getJobList(user)
         respond wrapExportJobs(results)
     }
 
@@ -178,7 +183,7 @@ class ExportController {
     }
     
     private checkJobAccess(Long jobId, User user) {
-        String jobUsername = restExportService.jobUser(jobId)
+        String jobUsername = exportAsyncJobService.getJobUser(jobId)
         if (!jobUsername) throw new InvalidArgumentsException("Job with id '$jobId' does not exists.")
 
         if (user.isAdmin()) return
@@ -193,7 +198,7 @@ class ExportController {
 
     private void checkJobNameUnique(String jobName, User user) {
         String name = jobName?.trim()
-        if(name && !restExportService.isJobNameUniqueForUser(name, user)) {
+        if(name && !exportAsyncJobService.isJobNameUniqueForUser(name, user)) {
             throw new InvalidArgumentsException("Given job name: '$name' already exists for user '$user.")
         }
     }

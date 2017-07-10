@@ -1,29 +1,28 @@
 package org.transmartproject.rest.dataExport
 
 import grails.transaction.Transactional
-import org.quartz.JobBuilder
-import org.quartz.JobDataMap
-import org.quartz.JobDetail
-import org.quartz.Scheduler
-import org.quartz.TriggerBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.InvalidRequestException
+import org.transmartproject.core.exceptions.LegacyStudyException
+import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.db.job.AsyncJobCoreDb
+import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.OrConstraint
+import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.user.User
+import org.transmartproject.rest.MultidimensionalDataService
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import javax.transaction.NotSupportedException
+import java.util.zip.ZipOutputStream
 
 @Transactional
 @Component("restExportService")
 class ExportService {
 
-    @Autowired(required = false)
-    Scheduler quartzScheduler
     @Autowired
-    DataExportService restDataExportService
-    @Autowired
-    ExportAsyncJobService exportAsyncJobService
+    MultidimensionalDataService multidimensionalDataService
 
     static enum FileFormat {
         TSV('TSV'), // TODO add support for other file formats
@@ -55,56 +54,13 @@ class ExportService {
 
     static final clinicalDataType = "clinical"
 
-    AsyncJobCoreDb createExportJob(User user, String name) {
-        AsyncJobCoreDb newJob = exportAsyncJobService.createNewJob(user, name)
-        log.debug("Sending ${newJob.jobName} back to the client")
-        newJob
-    }
-
-    def exportData(List<Long> ids, String typeOfSet, List types, User user, Long jobId) {
-        def job = jobById(jobId)
-        if (job.jobStatus != JobStatus.CREATED.value) {
-            throw new InvalidRequestException("Job with id $jobId has invalid status. " +
-                    "Expected: $JobStatus.CREATED.value, actual: $job.jobStatus")
-        }
-
-        def dataMap = createJobDataMap(ids, typeOfSet, types, user, jobId, job.jobName)
-        executeExportJob(dataMap)
-    }
-
-    def downloadFile(Long jobId) {
-        def job = jobById(jobId)
-        if(job.jobStatus != JobStatus.COMPLETED.value) {
-            throw new InvalidRequestException("Job with a name is not completed. Current status: '$job.jobStatus'")
-        }
-
-        def exportJobExecutor = new ExportJobExecutor()
-        return exportJobExecutor.getExportJobFileStream(job.viewerURL)
-    }
-
-    def listJobs(User user) {
-        exportAsyncJobService.getJobList(user)
-    }
-
-    Boolean isJobNameUniqueForUser(String name, User user) {
-        jobByNameAndUser(name, user) == null
-    }
-
-    def jobByNameAndUser(String jobName, User user) {
-        exportAsyncJobService.getJobByNameAndUser(jobName, user)
-    }
-
-    def jobById(Long id) {
-        exportAsyncJobService.getJobById(id)
-    }
-
-    def jobUser(Long id) {
-        exportAsyncJobService.getJobUser(id)
+    private static Constraint patientSetConstraint(List<Long> ids) {
+        new OrConstraint(args:  ids.collect { new PatientSetConstraint(patientSetId: it) } )
     }
 
     def isUserAllowedToExport(List<Long> resultSetIds, User user, String typeOfSet) {
         if (typeOfSet == SupportedTypesOfSet.PATIENT.value) {
-            restDataExportService.patientSetsExportPermission(resultSetIds, user)
+            patientSetsExportPermission(resultSetIds, user)
         }
     }
 
@@ -117,11 +73,11 @@ class ExportService {
         // highDim data
         switch (typeOfSet) {
             case SupportedTypesOfSet.PATIENT.value:
-                List highDimDataTypes = restDataExportService.highDimDataTypesForPatientSets(setIds, user)
+                List highDimDataTypes = highDimDataTypesForPatientSets(setIds, user)
                 if (highDimDataTypes) dataFormats.addAll(highDimDataTypes)
                 break
             case SupportedTypesOfSet.OBSERVATION.value:
-                List highDimDataTypes = restDataExportService.highDimDataTypesForObservationSets(setIds, user)
+                List highDimDataTypes = highDimDataTypesForObservationSets(setIds, user)
                 if (highDimDataTypes) dataFormats.addAll(highDimDataTypes)
                 break
             default:
@@ -131,40 +87,62 @@ class ExportService {
         dataFormats
     }
 
-    private AsyncJobCoreDb executeExportJob(Map dataMap) {
-
-        def job
-        def jobDataMap = new JobDataMap(dataMap)
-        JobDetail jobDetail = JobBuilder.newJob(ExportJobExecutor.class)
-                .withIdentity(dataMap.jobId.toString(), 'DataExport')
-                .setJobData(jobDataMap)
-                .build()
-        def randomDelay = Math.random()*10 as int
-        def startTime = new Date(new Date().time + randomDelay)
-        def trigger = TriggerBuilder.newTrigger()
-                .startAt(startTime)
-                .withIdentity('DataExport')
-                .build()
-
-        if(!quartzScheduler) {
-            job = exportAsyncJobService.updateStatus(dataMap.jobId, JobStatus.ERROR, null,
-                    "No qualifying bean found for dependency 'org.quartz.Scheduler'")
-        } else {
-            job = exportAsyncJobService.updateStatus(dataMap.jobId, JobStatus.STARTED)
-            quartzScheduler.scheduleJob(jobDetail, trigger)
-        }
-
-        return job
+    List highDimDataTypesForPatientSets(List<Long> patientSetIds, org.transmartproject.core.users.User user) {
+        def constraint = patientSetConstraint(patientSetIds)
+        highDimDataTypes(constraint, user)
     }
 
-    private static Map createJobDataMap(List<Long> ids, String typeOfSet, List types, User user, Long jobId, String jobName) {
-        [
-                user                 : user,
-                jobName              : jobName,
-                jobId                : jobId,
-                ids                  : ids,
-                typeOfSet            : typeOfSet,
-                dataTypeAndFormatList: types
-        ]
+    List highDimDataTypesForObservationSets(List patientSetIds, org.transmartproject.core.users.User user) {
+        //TODO saving observationSets is not supported yet
+        throw new NotImplementedException()
+    }
+
+    private List highDimDataTypes(Constraint constraint, org.transmartproject.core.users.User user) {
+        multidimensionalDataService.multiDimService.retriveHighDimDataTypes(constraint, user)
+    }
+
+    List patientSetsExportPermission(List<Long> ids, org.transmartproject.core.users.User user){
+        ids.collect { setId ->
+            multidimensionalDataService.multiDimService.findPatientSet(setId, user, ProtectedOperation.WellKnownOperations.EXPORT)
+        }
+    }
+
+    def downloadFile(AsyncJobCoreDb job) {
+        if(job.jobStatus != JobStatus.COMPLETED.value) {
+            throw new InvalidRequestException("Job with a name is not completed. Current status: '$job.jobStatus'")
+        }
+
+        def exportJobExecutor = new ExportJobExecutor()
+        return exportJobExecutor.getExportJobFileStream(job.viewerURL)
+    }
+
+    def exportData(Map jobDataMap, ZipOutputStream output) {
+
+        List<Map> dataTypeAndFormatList = jobDataMap.dataTypeAndFormatList.flatten()
+        org.transmartproject.core.users.User user = jobDataMap.user
+        Constraint constraint = patientSetConstraint(jobDataMap.ids)
+
+        dataTypeAndFormatList.each { typeFormatPair ->
+            MultidimensionalDataService.Format outFormat = MultidimensionalDataService.Format[typeFormatPair.format]
+            String dataType = typeFormatPair.dataType
+
+            if (dataType == 'clinical') {
+                try {
+                    multidimensionalDataService.writeClinical([dataType : dataType], outFormat, constraint, user, output)
+                } catch (LegacyStudyException e) {
+                    throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
+                }
+            } else {
+                if (dataType in highDimDataTypes(constraint, user)) {
+                    try {
+                        multidimensionalDataService.writeHighdim(outFormat, dataType, constraint, null, null, user, output)
+                    } catch (LegacyStudyException e) {
+                        throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
+                    }
+                } else {
+                    throw new InvalidRequestException("Format '$dataType' is not supported")
+                }
+            }
+        }
     }
 }
