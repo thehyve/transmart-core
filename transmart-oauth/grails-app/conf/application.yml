@@ -81,37 +81,6 @@ endpoints:
         unique-names: true
 
 ---
-grails:
-    plugin:
-        springsecurity:
-            useSecurityEventListener: true
-            oauthProvider:
-                clientLookup:
-                    className: 'org.transmart.oauth.Client'
-                authorizationCodeLookup:
-                    className: 'org.transmart.oauth.AuthorizationCode'
-                accessTokenLookup:
-                    className: 'org.transmart.oauth.AccessToken'
-                refreshTokenLookup:
-                    className: 'org.transmart.oauth.RefreshToken'
-            userLookup:
-                userDomainClassName: 'org.transmart.searchapp.AuthUser' #customized user GORM class
-                passwordPropertyName: 'passwd' #customized password field
-                authorityJoinClassName: 'org.transmart.searchapp.AuthUser' #customized user /role join GORM class
-            authority:
-                className: 'org.transmart.searchapp.Role'
-            requestMap:
-                className: 'org.transmart.searchapp.Requestmap'
-            successHandler:
-                defaultTargetUrl: '/userLanding'
-            logout:
-                afterLogoutUrl: '/login/forceAuth'
-
-bruteForceLoginLock:
-    allowedNumberOfAttempts: 3
-    lockTimeInMinutes: 10
-}
----
 hibernate:
     cache:
         queries: false
@@ -125,52 +94,3 @@ dataSource:
     driverClassName: org.h2.Driver
     username: sa
     password:
-
-dataSources:
-    oauth2:
-        driverClassName: 'org.h2.Driver'
-        url: "jdbc:h2:~/.grails/oauth2db;MVCC=TRUE"
-        dialect: 'org.hibernate.dialect.H2Dialect'
-        username: 'sa'
-        password: ''
-        dbCreate: 'update'
-        logSql: true
-        formatSql: true
-
-
-
-environments:
-    development:
-        dataSource:
-            url: jdbc:postgresql://localhost:5432/transmart
-            driverClassName: org.postgresql.Driver
-            dialect: org.hibernate.dialect.PostgreSQLDialect
-            username: biomart_user
-            password: biomart_user
-            dbCreate: none
-    test:
-        dataSource:
-            dbCreate: update
-            url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-    production:
-        dataSource:
-            dbCreate: none
-            url: jdbc:h2:./prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-            properties:
-                jmxEnabled: true
-                initialSize: 5
-                maxActive: 50
-                minIdle: 5
-                maxIdle: 25
-                maxWait: 10000
-                maxAge: 600000
-                timeBetweenEvictionRunsMillis: 5000
-                minEvictableIdleTimeMillis: 60000
-                validationQuery: SELECT 1
-                validationQueryTimeout: 3
-                validationInterval: 15000
-                testOnBorrow: true
-                testWhileIdle: true
-                testOnReturn: false
-                jdbcInterceptors: ConnectionState
-                defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
