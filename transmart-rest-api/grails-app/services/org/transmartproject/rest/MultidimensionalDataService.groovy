@@ -111,7 +111,11 @@ class MultidimensionalDataService {
                       OutputStream out) {
 
         Hypercube hypercube = multiDimService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
-        Map args = format == Format.TSV ? [dataType : type] : [:]
+
+        Map args = [:]
+        if (format == Format.TSV) {
+            args = [dataType : type]
+        }
 
         try {
             log.info "Writing to format: ${format}"

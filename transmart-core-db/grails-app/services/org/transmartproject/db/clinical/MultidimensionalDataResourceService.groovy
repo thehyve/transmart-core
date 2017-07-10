@@ -4,7 +4,6 @@ package org.transmartproject.db.clinical
 
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
-import com.sun.xml.internal.bind.v2.WellKnownNamespace
 import grails.orm.HibernateCriteriaBuilder
 import grails.plugin.cache.Cacheable
 import grails.util.Holders
@@ -785,7 +784,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         checkAccess(assayConstraint, user)
 
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, type)
-        if(oldAssayConstraints == null) {
+        if(!oldAssayConstraints || oldAssayConstraints.size() == 0) {
             return new EmptyHypercube()
         }
 
@@ -827,7 +826,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         Constraint assayConstraint = (Constraint) assayConstraint_
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')
         if(oldAssayConstraints == null) {
-            return null
+            return []
         }
 
         Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
@@ -847,7 +846,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
 
         if (assayIds.empty){
-            return null
+            return []
         }
         return [
                 highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)

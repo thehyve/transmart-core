@@ -43,7 +43,7 @@ class HypercubeCSVSerializer extends HypercubeSerializer {
      */
     protected void createObservationsFile() {
         List header = createObservationsHeader()
-        String fileName = defineTableName('observations')
+        String fileName = createTableName('observations')
         createNewFile(fileName, header)
     }
 
@@ -55,7 +55,7 @@ class HypercubeCSVSerializer extends HypercubeSerializer {
     protected void createDimensionsFiles() {
         for (dim in cube.dimensions.findAll { it.density.isDense }) {
             List header = createDimensionHeader(dim)
-            String fileName = defineTableName(dim.name)
+            String fileName = createTableName(dim.name)
             createNewFile(fileName, header, dim)
         }
     }
@@ -132,7 +132,7 @@ class HypercubeCSVSerializer extends HypercubeSerializer {
      * @param dimension
      * @return
      */
-    private String defineTableName(String dimension) {
+    private String createTableName(String dimension) {
         dataType + "_" + dimension.replace(' ', '_') + FORMAT_EXTENSION
     }
 

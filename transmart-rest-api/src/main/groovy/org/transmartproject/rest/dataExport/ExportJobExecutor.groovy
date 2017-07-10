@@ -22,16 +22,11 @@ class ExportJobExecutor implements Job {
 
     DataExportService dataExportService = ctx.restDataExportService
     ExportAsyncJobService asyncJobService = ctx.exportAsyncJobService
-//    QuartzSpringScope quartzSpringScope = ctx.quartzSpringScope
 
     final String tempFolderDirectory = Holders.config.com.recomdata.plugins.tempFolderDirectory
 
     public void execute(JobExecutionContext jobExecutionContext) {
-//        def userInContext = jobExecutionContext.jobDetail.jobDataMap['userInContext']
         Map jobDataMap = jobExecutionContext.jobDetail.getJobDataMap()
-
-//        // put the user in context
-//        quartzSpringScope.currentUserBeanQuartzScope = userInContext
 
         PersistenceContextInterceptor interceptor
         try {
@@ -41,8 +36,6 @@ class ExportJobExecutor implements Job {
         } catch (UnexpectedResultException e) {
             asyncJobService.updateStatus(jobDataMap.jobId, JobStatus.ERROR, null, e.message)
         } finally {
-//            // Thread will be reused, need to clear user in context
-//            quartzSpringScope.clear()
             interceptor.flush()
             interceptor.destroy()
         }
