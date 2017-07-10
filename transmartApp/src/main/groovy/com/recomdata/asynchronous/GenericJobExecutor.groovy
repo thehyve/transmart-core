@@ -14,7 +14,7 @@ import org.quartz.JobExecutionContext
 import org.rosuda.REngine.REXP
 import org.rosuda.REngine.Rserve.RConnection
 import org.rosuda.REngine.Rserve.RserveException
-import org.transmart.authorization.CurrentUserBeanProxyFactory
+import org.transmart.oauth.CurrentUserBeanProxyFactory
 import org.transmart.spring.QuartzSpringScope
 
 import java.lang.reflect.UndeclaredThrowableException

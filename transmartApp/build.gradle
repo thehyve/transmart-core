@@ -23,8 +23,6 @@ dependencies {
     compile 'org.grails.plugins:spring-security-core:3.1.1'
     compile 'org.grails.plugins:spring-security-oauth2-provider:3.0.0-RC2'
 
-    /* for SAML authentication */
-    compile('org.springframework.security.extensions:spring-security-saml2-core:1.0.0.RELEASE')
     // spring security version should be in sync with that brought with
     // grails-spring-security-core
     runtime 'org.springframework.security:spring-security-config:3.2.3.RELEASE'
@@ -65,6 +63,7 @@ dependencies {
     compile project(':search-domain')
     compile project(':biomart-domain')
     compile project(':transmart-legacy-db')
+    compile project(':transmart-oauth')
 
     testCompile project(':transmart-core-db-tests')
     testCompile "org.grails:grails-plugin-testing"
@@ -132,40 +131,6 @@ task installTransmartPlugins << {
 
 }
 
-war {
-    webInf {
-        with copySpec({
-            from '../Rmodules/src/main/resources/Rscripts'
-            into 'Rscripts'
-        })
-        with copySpec({
-            from 'src/main/resources/dataExportRScripts'
-            into 'dataExportRScripts'
-        })
-        with copySpec({
-            from '../open-api'
-            into 'classes/public/open-api'
-        })
-        with copySpec({
-            from 'src/main/resources/public'
-            into 'classes/public'
-        })
-        with copySpec({
-            from '../Rmodules/src/main/resources/public'
-            into 'classes/public'
-        })
-    } //Rscripts from Rmodules into WEB-INF dir.
-}
-
 test.testLogging.exceptionFormat = 'full'
 
-bootRun {
-    jvmArgs = ['-Xmx4096m']
 
-    // In development mode, set the TRANSMART_DEBUG_PORT environment variable to a port number to enable debugging on that port
-    if(! (System.env.TRANSMART_DEBUG_PORT ?: '').empty) {
-        def port = System.env.TRANSMART_DEBUG_PORT
-        assert port.isInteger() && (port as int) in 0..<2**16, "TRANSMART_DEBUG_PORT environment variable is not a valid port number: '$port'"
-        jvmArgs += ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$port"]
-    }
-}

@@ -45,13 +45,10 @@ class TransmartCoreGrailsPlugin extends Plugin {
 A runtime dependency for tranSMART that implements the Core API
 '''
 
-    // URL to the plugin's documentation
-    def documentation = "http://transmartproject.org"
-
     def license = "GPL3"
 
     // Details of company behind the plugin (if there is one)
-//    def organization = [ name: "My Company", url: "http://www.my-company.com/" ]
+    def organization = [name: "The Hyve", url: "http://www.thehyve.nl"]
 
     // Any additional developers beyond the author specified above.
     def developers = [
@@ -59,11 +56,8 @@ A runtime dependency for tranSMART that implements the Core API
             [ name: "Gustavo Lopes"   ,  email: "gustavo@thehyve.nl" ],
     ]
 
-    // Location of the plugin's issue tracker.
-//    def issueManagement = [ system: "JIRA", url: "http://jira.grails.org/browse/GPMYPLUGIN" ]
-
-    // Online location of the plugin's browseable source code.
-    def scm = [ url: "https://fisheye.ctmmtrait.nl/browse/transmart_core_db" ]
+    def scm = [url: "https://github.com/thehyve/transmart-core"]
+    def documentation = "https://github.com/thehyve/transmart-core"
 
     Closure doWithSpring() {{->
         xmlns context:"http://www.springframework.org/schema/context"
