@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.job.AsyncJobCoreDb as AsyncJob
+import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.dataExport.ExportService
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
@@ -37,7 +37,7 @@ class ExportController {
      * If the ${name} is not specified, job id will be set as a default name.
      *
      * @param name - optional
-     * @return {@link AsyncJob} instance
+     * @return {@link AsyncJobCoreDb} instance
      */
     def createJob(@RequestParam('name') String name) {
         checkParams(params, ['name'])
@@ -123,7 +123,7 @@ class ExportController {
      * List dataExport jobs created by the user:
      * <code>/v2/export/jobs
      *
-     * @return {@link AsyncJob} instances
+     * @return {@link AsyncJobCoreDb} instances
      */
     def listJobs() {
         checkParams(params, [])
@@ -235,7 +235,7 @@ class ExportController {
         }
     }
 
-    private static Map<String, Object> convertToMap(AsyncJob job) {
+    private static Map<String, Object> convertToMap(AsyncJobCoreDb job) {
         [
                 id           : job.id,
                 jobName      : job.jobName,
@@ -246,7 +246,7 @@ class ExportController {
         ]
     }
 
-    private static ContainerResponseWrapper wrapExportJob(AsyncJob source) {
+    private static ContainerResponseWrapper wrapExportJob(AsyncJobCoreDb source) {
         Map<String, Object> serializedJob = convertToMap(source)
 
         new ContainerResponseWrapper(
@@ -256,7 +256,7 @@ class ExportController {
         )
     }
 
-    private static ContainerResponseWrapper wrapExportJobs(List<AsyncJob> sources) {
+    private static ContainerResponseWrapper wrapExportJobs(List<AsyncJobCoreDb> sources) {
         List<Map<String, Object>> serializedJobs = sources.collect {
             convertToMap(it)
         }

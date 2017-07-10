@@ -9,7 +9,7 @@ import org.quartz.TriggerBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.db.job.AsyncJobCoreDb as AsyncJob
+import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.db.user.User
 
 import javax.transaction.NotSupportedException
@@ -55,8 +55,8 @@ class ExportService {
 
     static final clinicalDataType = "clinical"
 
-    AsyncJob createExportJob(User user, String name) {
-        AsyncJob newJob = exportAsyncJobService.createNewJob(user, name)
+    AsyncJobCoreDb createExportJob(User user, String name) {
+        AsyncJobCoreDb newJob = exportAsyncJobService.createNewJob(user, name)
         log.debug("Sending ${newJob.jobName} back to the client")
         newJob
     }
@@ -131,7 +131,7 @@ class ExportService {
         dataFormats
     }
 
-    private AsyncJob executeExportJob(Map dataMap) {
+    private AsyncJobCoreDb executeExportJob(Map dataMap) {
 
         def job
         def jobDataMap = new JobDataMap(dataMap)

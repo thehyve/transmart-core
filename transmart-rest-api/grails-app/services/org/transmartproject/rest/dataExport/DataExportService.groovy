@@ -11,7 +11,7 @@ import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.OrConstraint
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.rest.MultidimensionalDataService
-import org.transmartproject.rest.MultidimensionalDataService.Format as Format
+import org.transmartproject.rest.MultidimensionalDataService.Format
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import java.util.zip.ZipOutputStream

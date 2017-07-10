@@ -4,7 +4,7 @@ import grails.transaction.Transactional
 import org.grails.web.json.JSONObject
 import org.quartz.JobKey
 import org.quartz.Scheduler
-import org.transmartproject.db.job.AsyncJobCoreDb as AsyncJob
+import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
 import org.transmartproject.db.user.User
 
@@ -15,31 +15,31 @@ class ExportAsyncJobService {
 
     static String jobType = 'DataExport'
 
-    AsyncJob getJobById(Long id) {
-        AsyncJob.findById(id)
+    AsyncJobCoreDb getJobById(Long id) {
+        AsyncJobCoreDb.findById(id)
     }
 
-    List<AsyncJob> getJobList(User user) {
+    List<AsyncJobCoreDb> getJobList(User user) {
         // TODO add time constraints for retrived jobs
         if(user.admin) {
-            AsyncJob.findAllByJobType(jobType)
+            AsyncJobCoreDb.findAllByJobType(jobType)
         } else {
-            AsyncJob.findAllByUserIdAndJobType(user.username, jobType)
+            AsyncJobCoreDb.findAllByUserIdAndJobType(user.username, jobType)
         }
     }
 
-    AsyncJob getJobByNameAndUser(String jobName, User user) {
-        def jobs = AsyncJob.findAllByJobNameAndUserId(jobName, user.username)
+    AsyncJobCoreDb getJobByNameAndUser(String jobName, User user) {
+        def jobs = AsyncJobCoreDb.findAllByJobNameAndUserId(jobName, user.username)
         if(jobs.size() > 1) {
             throw new InvalidQueryException("More than one job with a name '$jobName' found")
         }
         jobs[0]
     }
 
-    AsyncJob createNewJob(User user, String jobName = null) {
+    AsyncJobCoreDb createNewJob(User user, String jobName = null) {
         def jobStatus = JobStatus.CREATED
 
-        def newJob = new AsyncJob(lastRunOn: new Date())
+        def newJob = new AsyncJobCoreDb(lastRunOn: new Date())
         newJob.jobType = jobType
         newJob.jobStatus = jobStatus.value
         newJob.jobName = jobName
@@ -71,23 +71,23 @@ class ExportAsyncJobService {
     }
 
     String getJobUser(Long id) {
-        def asyncJob = AsyncJob.findById(id)
-        asyncJob?.userId
+        def AsyncJobCoreDb = AsyncJobCoreDb.findById(id)
+        AsyncJobCoreDb?.userId
     }
 
-    AsyncJob updateStatus(Long id, JobStatus status, String viewerURL = null, String results = null) {
-        def asyncJob = AsyncJob.findById(id)
-        if (isJobCancelled(asyncJob)) return asyncJob
+    AsyncJobCoreDb updateStatus(Long id, JobStatus status, String viewerURL = null, String results = null) {
+        def AsyncJobCoreDb = AsyncJobCoreDb.findById(id)
+        if (isJobCancelled(AsyncJobCoreDb)) return AsyncJobCoreDb
 
-        asyncJob.jobStatus = status.value
-        if (viewerURL?.trim()) asyncJob.viewerURL = viewerURL
-        if (results?.trim()) asyncJob.results = results
+        AsyncJobCoreDb.jobStatus = status.value
+        if (viewerURL?.trim()) AsyncJobCoreDb.viewerURL = viewerURL
+        if (results?.trim()) AsyncJobCoreDb.results = results
 
-        asyncJob.save(flush: true)
-        return asyncJob
+        AsyncJobCoreDb.save(flush: true)
+        return AsyncJobCoreDb
     }
 
-    boolean isJobCancelled(AsyncJob job) {
+    boolean isJobCancelled(AsyncJobCoreDb job) {
         boolean isJobCancelled = job.jobStatus == JobStatus.CANCELLED.value
         if (isJobCancelled) {
             log.warn("Job ${job.jobName} has been cancelled")
