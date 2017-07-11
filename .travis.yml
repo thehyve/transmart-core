@@ -8,10 +8,12 @@ jdk:
 php:
   - 5.6
 env:
-  - TERM=dumb; DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
-  - TERM=dumb; DIR=transmart-rest-api; TEST=check
-  - TERM=dumb; DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST="-Dgrails.env=test_postgresql check"
-  - TERM=dumb; DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=shadowJar; TEST="test functionalTest"
+  matrix:
+    - TERM=dumb; DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
+    - TERM=dumb; DIR=transmart-rest-api; TEST=check
+    - TERM=dumb; DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST="-Dgrails.env=test_postgresql check"
+    - TERM=dumb; DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=shadowJar; TEST="test functionalTest"
+    - TERM=dumb; DIR=.; TEST=":transmart-core-api:publishToMavenLocal :transmart-data:publishToMavenLocal :transmart-server:publishToMavenLocal :transmart-batch:publishToMavenLocal"
 
 addons:
   postgres: 9.4
@@ -27,7 +29,9 @@ cache:
     - $HOME/pg
 
 before_install:
-  - gradle --version
+  - gradle wrapper
+  - GRADLE_SCRIPT="$(pwd)/gradlew"
+  - ${GRADLE_SCRIPT} --version
   - groovy --version
   - sudo chmod a+rX $HOME
 # We don't currently use these sources, but they can be re-enabled if necessary
@@ -36,32 +40,31 @@ before_install:
 #  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E5267A6C
 #  - echo deb http://ppa.launchpad.net/ondrej/php/ubuntu trusty main  | sudo tee /etc/apt/sources.list.d/ondrej_php.list
   - sudo apt-get -qq update
-  - sudo apt-get install -y tk-dev html2text
+  - sudo apt-get install -y tk-dev html2text gnupg2
+  - gpg2 --version
   - php --version
-  - echo $DIR; cd $DIR
+  - ([ -z "$PREINSTALL" ] && echo "Skipping preinstall.") || (echo $PREINSTALL; $PREINSTALL)
   - PWD=`pwd`
   - echo $PWD
-  - ([ -z "$PREINSTALL" ] && echo "Skipping preinstall.") || (echo $PREINSTALL; sudo -i -- sh -c "cd $PWD; gradle $PREINSTALL")
-  - cd -
 
 install:
   - echo $DIR; cd $DIR
-  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; gradle $INSTALL)
+  - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; ${GRADLE_SCRIPT} $INSTALL)
   - cd -
 
 before_script:
   - echo $DIR; cd $DIR
-  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; gradle $PREPARE)
+  - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; ${GRADLE_SCRIPT} $PREPARE)
   - cd -
 
 script:
   - echo $DIR; cd $DIR
-  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; gradle $TEST)
+  - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; ${GRADLE_SCRIPT} $TEST)
   - cd -
 
 after_success:
   - echo "Writing summary..."
-  - html2text $DIR/build/reports/tests/index.html
+  - ([ -d "$DIR/build/reports/tests" ]) && html2text $DIR/build/reports/tests/index.html
 
 after_failure:
   - echo "Writing reports..."

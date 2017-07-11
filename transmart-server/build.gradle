@@ -52,6 +52,12 @@ bootRun {
     }
 }
 
+task executableWar(type: Copy) {
+    from "${libsDir}/${project.name}-${project.version}.war"
+    into "${distsDir}"
+}
+executableWar.dependsOn 'bootRepackage'
+
 war {
     webInf {
         with copySpec({
@@ -77,3 +83,12 @@ war {
     } //Rscripts from Rmodules into WEB-INF dir.
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact file("${distsDir}/${project.name}-${project.version}.war") // Publish the output of the executableWar task
+        }
+    }
+}
+publishToMavenLocal.dependsOn 'executableWar'
+publish.dependsOn 'executableWar'

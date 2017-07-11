@@ -5,6 +5,11 @@
 TABLE_FILES = $(wildcard *_list)
 TABLE_DIRS = $(patsubst %_list,%,$(TABLE_FILES))
 
+SCHEMA_DIRS      := $(patsubst %_list,%,$(TABLE_FILES))
+MAKE_TARGETS := $(foreach schema,$(notdir $(SCHEMA_DIRS)),$(schema)/makefile.inc)
+
+makefiles: $(MAKE_TARGETS)
+
 minimize_diffs:
 	/bin/bash -c '                                                       \
 	for f in `php find_chg_tsv.php`; do                                  \

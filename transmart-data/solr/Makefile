@@ -5,8 +5,8 @@ start: solr_home
 
 include ../lib/makefile.inc
 
-SOLR_DL=http://files.thehyve.net/solr
 SOLR_VERSION=4.5.0
+SOLR_URL=https://archive.apache.org/dist/lucene/solr/$(SOLR_VERSION)/solr-$(SOLR_VERSION).tgz
 ifdef ORACLE
   JDBC_DRIVER=$(JDBC_DRIVER_ORA)
   JDBC_DRIVER_PATH=$(JDBC_DRIVER_ORA_PATH)
@@ -17,8 +17,15 @@ else
   DBSUBDIR=postgres
 endif
 
-solr-$(SOLR_VERSION).tgz:
-	curl -f '$(SOLR_DL)/$(SOLR_VERSION)/solr-$(SOLR_VERSION).tgz' -o $@
+solr-$(SOLR_VERSION).tgz.asc:
+	curl -f "$(SOLR_URL).asc" -o "$@"
+
+solr-$(SOLR_VERSION).tgz: solr-$(SOLR_VERSION).tgz.asc
+	curl -f "$(SOLR_URL)" -o "$@"
+
+verify: solr-$(SOLR_VERSION).tgz solr-$(SOLR_VERSION).tgz.asc
+	gpg2 --import APACHE_KEYS
+	gpg2 -v --verify "$<.asc" "$<"
 
 ROOT_FILES=contrib dist
 EXAMPLE_FILES=etc contexts lib logs resources solr-webapp \
@@ -78,7 +85,7 @@ solr/%/conf/data-config.xml: data-config/$(DBSUBDIR)/data-config_%.xml.php
 	test -d solr/$* || $(MAKE) solr/$* #solr/$* is touched on each solr run
 	php -d variables_order=E $< > $@
 
-solr_home: $(EXAMPLE_FILES) $(DRIVER) $(FOUND_CORE_TARGETS) $(FOUND_DATA_CONFIG_CORE_TARGETS) $(ROOT_FILES)
+solr_home: verify $(EXAMPLE_FILES) $(DRIVER) $(FOUND_CORE_TARGETS) $(FOUND_DATA_CONFIG_CORE_TARGETS) $(ROOT_FILES)
 
 $(FULL_IMPORT_TARGETS):
 	curl -f "http://localhost:8983/solr/$(patsubst %_full_import,%,$@)/dataimport?command=full-import"
@@ -92,4 +99,4 @@ clean:
 clean_cores:
 	find solr -maxdepth 1 -mindepth 1 -type d ! -name bin ! -name collection1 -exec rm -r {} \;
 
-.PHONY: start solr_home clean solr/%/conf/data-config.xml
+.PHONY: start solr_home clean solr/%/conf/data-config.xml verify

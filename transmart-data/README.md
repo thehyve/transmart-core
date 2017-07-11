@@ -1,7 +1,7 @@
 transmart-data
 ==============
 
-[![Build Status](https://travis-ci.org/transmart/transmart-data.svg?branch=master)](https://travis-ci.org/transmart/transmart-data)
+[![Build Status](https://travis-ci.org/thehyve/transmart-core.svg?branch=master)](https://travis-ci.org/thehyve/transmart-core)
 
 Introduction
 ------------
@@ -20,18 +20,14 @@ This repository is a set of make files and scripts for:
 * generating configuration files for tranSMART.
 
 The current schema is the one necessary to support the
-[`master` branch][master] of transmart (release 1.2) for Oracle and Postgres
+[`master` branch][master] of tranSMART (the upcoming 2017 version) for Oracle and Postgres
 
-This goal is to have this project displace `transmart-DB` by providing a better
-way to manage the tranSMART database.
-
-This project does not handle database upgrades and is therefore more adequate
-for development. Using [Liquibase][liquibase] here or some other more ad hoc
-solution for that problem is being studied.
+Some [database migration scripts](updatedb) are available to migrate from previous versions
+of the tranSMART database schema.
 
 A script is available that can compare dumps from two databases,
 intended for an installed copy to be compared to the latest
-transmart-data.
+`transmart-data`.
 
 Requirements
 ------------

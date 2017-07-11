@@ -27,8 +27,8 @@ $(COMMON_DIR)/%/makefile.inc:
 
 %/Makefile: $(COMMON_DIR)/%/makefile.inc
 	mkdir -p $*
-	printf 'COMMON_DIR := %s\nTHIS_SCHEMA := %s\ninclude ../makefile.inc\n' \
-        "$(COMMON_DIR)" $* > $@
+	printf 'SELF_DIR := $$(dir $$(lastword $$(MAKEFILE_LIST)))\nCOMMON_DIR := $$(realpath $$(SELF_DIR)/../../common)\nTHIS_SCHEMA := %s\ninclude ../makefile.inc\n' \
+        $* > $@
 	echo 'include ../../common/$*/makefile.inc' >> $@
 
 dump_schema_%: %/Makefile

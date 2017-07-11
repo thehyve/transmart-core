@@ -1,3 +1,5 @@
+apply plugin: 'distribution'
+
 project.ext {
     environment = [PATH: '/bin/:/usr/bin/:/usr/local/bin/']
 }
@@ -64,6 +66,20 @@ task downloadTransmartETL << {
 downloadTransmartETL.onlyIf { !file(etl_target).exists() }
 downloadTransmartETL.dependsOn 'checkDependencies'
 
+
+task downloadR << {
+    make('-C R sources')
+}
+downloadR.dependsOn 'createVars'
+distTar.dependsOn 'downloadR'
+
+task generateRequiredFiles << {
+    make('-C data/common makefiles')
+    make('-C ddl/postgres/META default_permissions.tsv')
+    make('-C data/common/searchapp/plugin_modules_params ../plugin_module.tsv')
+}
+distTar.dependsOn 'generateRequiredFiles'
+
 task setupPostgres << {
     sudo_make('-C env /var/lib/postgresql/tablespaces')
     make('postgres')
@@ -81,6 +97,7 @@ task setupOracle << {
 task setupSolr << {
     make('-C solr solr_home')
 }
+distTar.dependsOn 'setupSolr'
 
 task startSolr << {
     make('-C solr start_solr')
@@ -97,4 +114,58 @@ task dataloadingTest << {
 }
 dataloadingTest.dependsOn 'checkDependencies'
 
+// from https://medium.com/@ungesehn/use-gitignore-for-gradle-task-excludes-e5d011e99f71
+def gitignoreToList(File f) {
+    def ignores = []
+
+    f.eachLine { line ->
+        //ignore comments and empty lines
+        if (!line.startsWith('#') && !line.isEmpty()) {
+            ignores.add(line)
+        }
+    }
+    return ignores
+}
+
+distributions {
+    main {
+        contents {
+            exclude 'lib/schemaSpy_*.jar', 'solr/solr-*/**'
+            from '.'
+            include 'config/**', 'data/**', 'ddl/**','env/**', 'lib/**', 'R/**', 'samples/**', 'solr/**',
+                    'test_data/**', 'updatedb/**',
+                    'LICENSE', 'Makefile', 'makefile.inc', 'README.md', 'vars.sample', 'VERSION'
+        }
+    }
+    solr {
+        contents {
+            from '.'
+            include 'solr/**', 'VERSION'
+        }
+    }
+}
+
+distZip.enabled = false
+solrDistZip.enabled = false
+
+task createVersionFile << {
+    def file = new File("$projectDir/VERSION")
+    file.createNewFile()
+    file.text = "${version}"
+}
+distTar.dependsOn 'createVersionFile'
+
 defaultTasks 'createVars'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact distTar // Publish the output of the distTar task
+        }
+        solr(MavenPublication) {
+            artifactId 'transmart-data-solr'
+            artifact solrDistTar // Publish the output of the solrDistTar task
+        }
+    }
+}
+

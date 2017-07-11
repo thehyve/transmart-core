@@ -5,7 +5,7 @@ dependencies {
 
     provided "org.springframework.boot:spring-boot-starter-tomcat"
 
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.11.6"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
     runtime 'org.postgresql:postgresql:9.3-1100-jdbc4'
     runtime 'com.oracle:ojdbc7:12.1.0.1'
     runtime 'org.javassist:javassist:3.16.1-GA'
@@ -38,12 +38,12 @@ dependencies {
     compile "org.apache.lucene:lucene-core:2.4.0"
     compile "org.apache.lucene:lucene-demos:2.4.0"
     compile "org.apache.lucene:lucene-highlighter:2.4.0"
-    compile "org.apache.solr:solr-solrj:6.2.0"
+    compile "org.apache.solr:solr-solrj:6.3.0"
     compile 'commons-net:commons-net:3.3' // used for ftp transfers
     compile 'org.apache.commons:commons-math:2.2' //>2MB lib briefly used in ChartController
     compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.1'
     compile 'org.rosuda:Rserve:1.7.3'
-    compile 'com.google.guava:guava:18.0'
+    compile "com.google.guava:guava:$guavaVersion"
     compile 'log4j:apache-log4j-extras:1.2.17'
     /* for GeneGo web services: */
     compile 'axis:axis:1.4'
@@ -103,10 +103,10 @@ task installTransmartPlugins << {
     def gspDir = "${basedir}/grails-app/views/plugin"
     def rDir = ""
 
-//This is our plugin zip directory.
+    // This is our plugin zip directory.
     def zipDir = new File("${basedir}/plugins/")
 
-//For each of the zips in this directory, instruct ant to unzip the file and move the contents to the directory specified by their file extension.
+    // For each of the zips in this directory, instruct ant to unzip the file and move the contents to the directory specified by their file extension.
     zipDir.eachFile { zipFile ->
 
         //If we find a file.
@@ -125,12 +125,9 @@ task installTransmartPlugins << {
             }
 
             //TODO: Delete temp directory?
-
         }
     }
 
 }
 
 test.testLogging.exceptionFormat = 'full'
-
-
