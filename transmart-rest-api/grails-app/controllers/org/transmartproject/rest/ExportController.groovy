@@ -177,7 +177,7 @@ class ExportController {
         try {
             restExportService.isUserAllowedToExport(resultSetIds, user, typeOfSet)
         } catch (UnsupportedOperationException e) {
-            throw new AccessDeniedException("User ${user.username} has no EXPORT permission" +
+            throw new AccessDeniedException("User ${user.username} has no READ permission" +
                     " on one of the result sets: ${resultSetIds.join(', ')}")
         }
     }

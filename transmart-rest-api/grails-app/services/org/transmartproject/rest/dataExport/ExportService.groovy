@@ -103,7 +103,7 @@ class ExportService {
 
     List patientSetsExportPermission(List<Long> ids, org.transmartproject.core.users.User user){
         ids.collect { setId ->
-            multidimensionalDataService.multiDimService.findPatientSet(setId, user, ProtectedOperation.WellKnownOperations.EXPORT)
+            multidimensionalDataService.multiDimService.findPatientSet(setId, user)
         }
     }
 

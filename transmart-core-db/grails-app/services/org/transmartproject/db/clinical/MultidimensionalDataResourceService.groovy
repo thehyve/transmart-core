@@ -586,12 +586,12 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         resultInstance
     }
 
-    @Override QueryResult findPatientSet(Long patientSetId, User user, WellKnownOperations operation = WellKnownOperations.READ) {
+    @Override QueryResult findPatientSet(Long patientSetId, User user) {
         QueryResult queryResult = QtQueryResultInstance.findById(patientSetId)
         if (queryResult == null) {
             throw new NoSuchResourceException("Patient set not found with id ${patientSetId}.")
         }
-        if (!user.canPerform(operation, queryResult)) {
+        if (!user.canPerform(WellKnownOperations.READ, queryResult)) {
             throw new AccessDeniedException("Access denied to patient set with id ${patientSetId}.")
         }
         queryResult

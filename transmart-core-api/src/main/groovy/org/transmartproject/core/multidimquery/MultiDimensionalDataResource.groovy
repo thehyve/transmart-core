@@ -38,7 +38,6 @@ interface MultiDimensionalDataResource {
     QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) 
 
     QueryResult findPatientSet(Long patientSetId, User user)
-    QueryResult findPatientSet(Long patientSetId, User user, WellKnownOperations operation)
 
     Iterable<QueryResult> findPatientSets(User user)
 
