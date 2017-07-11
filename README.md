@@ -28,7 +28,7 @@ this repository.
 
 ## Build and run
 
-The project is built using [gradle](https://gradle.org/). Any version `> 2.12` should suffice.
+The project is built using [gradle](https://gradle.org/). Any version `> 2.12` and `< 2.3` should suffice (version `2.13` is recommended). Other versions may cause some build issues.
 To build the project, run:
 ```
 gradle :transmart-server:bootRepackage
