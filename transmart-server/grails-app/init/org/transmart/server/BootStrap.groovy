@@ -1,8 +1,6 @@
 package org.transmart.server
 
 import grails.core.GrailsApplication
-import grails.plugin.springsecurity.SecurityFilterPosition
-import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.util.Environment
 import org.grails.core.exceptions.GrailsConfigurationException
 import org.slf4j.LoggerFactory
@@ -16,6 +14,8 @@ class BootStrap {
     SecurityContextPersistenceFilter securityContextPersistenceFilter
 
     GrailsApplication grailsApplication
+
+    def OAuth2SyncService
 
     def init = { servletContext ->
         securityContextPersistenceFilter.forceEagerSessionCreation = true
@@ -36,6 +36,11 @@ class BootStrap {
         }
 
         fixupConfig()
+
+        if ('clientCredentialsAuthenticationProvider' in
+                grailsApplication.config.grails.plugin.springsecurity.providerNames) {
+            OAuth2SyncService.syncOAuth2Clients()
+        }
     }
 
     private boolean copyResources(String root, File targetDirectory) {
