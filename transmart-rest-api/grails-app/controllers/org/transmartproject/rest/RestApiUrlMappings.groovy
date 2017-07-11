@@ -136,6 +136,27 @@ class RestApiUrlMappings {
             "/dimensions/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
                 apiVersion = 'v2'
             }
+            "/export/job"(method: 'POST', controller: 'export', action: 'createJob') {
+                apiVersion = "v2"
+            }
+            "/export/$jobId/run"(method: 'POST', controller: 'export', action: 'run') {
+                apiVersion = "v2"
+            }
+            "/export/$jobId/download"(method: 'GET', controller: 'export', action: 'download') {
+                apiVersion = "v2"
+            }
+            "/export/$jobId/status"(method: 'GET', controller: 'export', action: 'jobStatus') {
+                apiVersion = "v2"
+            }
+            "/export/jobs"(method: 'GET', controller: 'export', action: 'listJobs') {
+                apiVersion = "v2"
+            }
+            "/export/data_formats"(method: 'GET', controller: 'export', action: 'dataFormats') {
+                apiVersion = "v2"
+            }
+            "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {
+                apiVersion = "v2"
+            }
         }
 
         group "/v1", {

@@ -184,6 +184,17 @@ class QueryServicePgSpec extends Specification {
 
     }
 
+    void "get hd data types"() {
+        User user = User.findByUsername('test-public-user-1')
+        ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        when:
+        def result = multiDimService.retriveHighDimDataTypes(conceptConstraint, user)
+        then:
+        result != null
+        result.contains("mrna")
+    }
+
     void 'Clinical data selected on visit dimension'() {
         def user = User.findByUsername('test-public-user-1')
         SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')

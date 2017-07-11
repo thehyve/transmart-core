@@ -1634,6 +1634,224 @@
           }
         }
       }
+    },
+    "/v2/export/job": {
+      "post": {
+        "description": "Creates a new asynchronous data export job.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "(optional) name of the export job (has to be unique for the user). If it is not specified, a default name will be created.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "an object with the created export job or error.\n",
+            "schema": {
+              "$ref": "#/definitions/export_job"
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/{jobId}/run": {
+      "post": {
+        "description": "Runs the specified data export job asynchronously. Creates a hypercube for each element from {elements} with PatientSetsConstraint for given `id`\nand serialises it to specified `fileFormat`. Output stream is saved on the server as .zip file.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "description": "id of the export job. The job has to have a status `Created`.",
+            "type": "string"
+          },
+          {
+            "name": "typeOfSet",
+            "required": true,
+            "in": "body",
+            "description": "specifies the type of the set you want to retrieve. For patient_set specify `patient`, for observation_set specify `observation`",
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "body",
+            "description": "IDs of the set specified by `typeOfSet`. To specify more than one value, multiple parameter instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`.",
+            "type": "array",
+            "collectionFormat": "multi",
+            "items": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "elements",
+            "required": true,
+            "in": "body",
+            "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:$(fileFormat}]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. Example: `[{\"dataType\":clinical, \"format\":TSV},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "an object with the run export job with status 'Started' or 'Error'.\n",
+            "schema": {
+              "$ref": "#/definitions/export_job"
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/{jobId}/download": {
+      "get": {
+        "description": "Gets zipped file with exported data, created by specified job.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "description": "id of the export job. The job has to have a status `Completed`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zip file stream with expoted data.\n",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/{jobId}/status": {
+      "get": {
+        "description": "Gets a status of specified data export job.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "description": "Id of the export job.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "an object with the export job, including its status.\n",
+            "schema": {
+              "$ref": "#/definitions/export_job"
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/jobs": {
+      "get": {
+        "description": "Gets all export jobs accessible by the user.\n",
+        "tags": [
+          "v2"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of export jobs\n",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/export_job"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/data_formats": {
+      "get": {
+        "description": "Gets data formats for specified sets, including `clinical` type and high dimensional types.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "description": "IDs of the set specified by `typeOfSet`. To specify more than one value, multiple parameter instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`",
+            "type": "array",
+            "collectionFormat": "multi",
+            "items": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "typeOfSet",
+            "required": true,
+            "in": "query",
+            "description": "specifies the type of the set you want to retrieve. For patient_set specify `patient`, for observation_set specify `observation`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of known data formats for specified sets.\nExample: `{ \"dataFormats\": [\"clinical\", \"mrna\", \"rnaseq_transcript\"] }`\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dataFormats": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/export/file_formats": {
+      "get": {
+        "description": "Gets supported export file formats.\n",
+        "tags": [
+          "v2"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a list of file formats that data can be exported to. Example: `{ \"fileFormats\": [\"TSV\"] }`\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "supportedFileFormats": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2226,6 +2444,30 @@
           "items": {
             "type": "object"
           }
+        }
+      }
+    },
+    "export_job": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "jobName": {
+          "type": "string"
+        },
+        "jobStatus": {
+          "type": "string"
+        },
+        "jobStatusTime": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "viewerURL": {
+          "type": "string"
         }
       }
     }

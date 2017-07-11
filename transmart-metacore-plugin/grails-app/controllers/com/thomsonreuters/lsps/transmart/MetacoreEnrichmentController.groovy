@@ -5,13 +5,14 @@ import com.transmart.util.FileWriterUtil
 import grails.converters.JSON
 import org.grails.web.json.JSONArray
 import org.grails.web.json.JSONObject
+import com.recomdata.transmart.data.export.DataExportService
 
 class MetacoreEnrichmentController {
 	
 	def metacoreEnrichmentService
 	def springSecurityService
 	def RModulesService
-	def dataExportService
+	DataExportService dataExportService
 	
 	def index = {
 		render (view:"index", model:[])

@@ -10,11 +10,11 @@ import java.util.regex.Pattern
 
 class DataExportController {
 
-    def exportService
+    ExportService exportService
     def exportMetadataService
     def springSecurityService
     User currentUserBean
-    def dataExportService
+    DataExportService dataExportService
 
     private static final String ROLE_ADMIN = 'ROLE_ADMIN'
 

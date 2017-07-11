@@ -1,5 +1,6 @@
 package com.recomdata.asynchronous
 
+import com.recomdata.transmart.data.export.DataExportService
 import com.recomdata.transmart.data.export.exception.DataNotFoundException
 import com.recomdata.transmart.data.export.util.FTPUtil
 import com.recomdata.transmart.data.export.util.ZipUtil
@@ -32,7 +33,7 @@ class GenericJobExecutor implements Job {
     def springSecurityService = ctx.springSecurityService
     def jobResultsService = ctx.jobResultsService
     def i2b2HelperService = ctx.i2b2HelperService
-    def dataExportService = ctx.dataExportService
+    DataExportService dataExportService = ctx.dataExportService
     def asyncJobService = ctx.asyncJobService
 
     QuartzSpringScope quartzSpringScope = ctx.quartzSpringScope

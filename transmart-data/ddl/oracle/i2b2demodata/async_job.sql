@@ -12,7 +12,8 @@
 "ALT_VIEWER_URL" VARCHAR2(4000 BYTE), 
 "JOB_RESULTS" CLOB, 
 "JOB_INPUTS_JSON" CLOB, 
-"JOB_TYPE" VARCHAR2(20 BYTE), 
+"JOB_TYPE" VARCHAR2(20 BYTE),
+"USER_ID" VARCHAR2(50 BYTE),
  PRIMARY KEY ("ID")
  USING INDEX
  TABLESPACE "TRANSMART"  ENABLE
@@ -34,3 +35,4 @@ COMMENT ON COLUMN async_job.job_name IS 'The job name. e.g. admin-RHeatmap-10044
 COMMENT ON COLUMN async_job.job_status IS 'The status of the job. [Started|Cancelled|Error|Completed|...]';
 COMMENT ON COLUMN async_job.job_status_time IS 'The time when current job_status took place.';
 COMMENT ON COLUMN async_job.last_run_on IS 'The start time of the job.';
+COMMENT ON COLUMN async_job.user_id IS 'Name of the user.';

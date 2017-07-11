@@ -52,6 +52,12 @@ You might consider to run it manually.
 |----------------------------------|------------------------------|
 | `qt_query_master.sql` 	   | Add REQUEST_CONSTRAINTS and API_VERSION columns |
 
+### Data export job.
+
+| Script                           | Description                  |
+|----------------------------------|------------------------------|
+| `async_job.sql` 	   | Add USER_ID column |
+
 
 How to apply all changes
 ------------------------

@@ -47,6 +47,7 @@ import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
 import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
@@ -590,7 +591,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         if (queryResult == null) {
             throw new NoSuchResourceException("Patient set not found with id ${patientSetId}.")
         }
-        if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+        if (!user.canPerform(WellKnownOperations.READ, queryResult)) {
             throw new AccessDeniedException("Access denied to patient set with id ${patientSetId}.")
         }
         queryResult
@@ -782,21 +783,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         BiomarkerConstraint biomarkerConstraint = (BiomarkerConstraint) biomarkerConstraint_
         checkAccess(assayConstraint, user)
 
-        List<ObservationFact> observations = highDimObservationList(assayConstraint, user,
-                type == 'autodetect' ? defaultHDModifierCriterion : HDModifierCriterionForType(type))
-
-        List assayIds = []
-        for(def o : observations) {
-            if(o.numberValue == null) throw new DataInconsistencyException("Observation row(s) found that miss the assayId")
-            assayIds.add(o.numberValue.toLong())
-        }
-
-        if (assayIds.empty){
+        List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, type)
+        if(!oldAssayConstraints || oldAssayConstraints.size() == 0) {
             return new EmptyHypercube()
         }
-        List<AssayConstraint> oldAssayConstraints = [
-                highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
-        ]
 
         HighDimensionDataTypeResource typeResource
         if(type == 'autodetect') {
@@ -831,6 +821,38 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
+    @Override List retriveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user){
+
+        Constraint assayConstraint = (Constraint) assayConstraint_
+        List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')
+        if(oldAssayConstraints == null) {
+            return []
+        }
+
+        Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
+                highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
+
+        assaysByType.keySet()?.collect {it.dataTypeName}
+    }
+
+    private ArrayList<AssayConstraint> getOldAssayConstraint(Constraint assayConstraint, User user, String type) {
+        List<ObservationFact> observations = highDimObservationList(assayConstraint, user,
+                type == 'autodetect' ? defaultHDModifierCriterion : HDModifierCriterionForType(type))
+
+        List assayIds = []
+        for(def o : observations) {
+            if(o.numberValue == null) throw new DataInconsistencyException("Observation row(s) found that miss the assayId")
+            assayIds.add(o.numberValue.toLong())
+        }
+
+        if (assayIds.empty){
+            return []
+        }
+        return [
+                highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+        ]
+    }
+
     @Override Hypercube retrieveClinicalData(MultiDimConstraint constraint_, User user) {
         Constraint constraint = (Constraint) constraint_
         checkAccess(constraint, user)
@@ -838,6 +860,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def accessibleStudies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
         retrieveData(dataType, accessibleStudies, constraint: constraint)
     }
+
 }
 
 @TupleConstructor
