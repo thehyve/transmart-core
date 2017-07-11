@@ -47,7 +47,7 @@ if (productionMode && logDirectory) {
             maxIndex = 9
         }
     }
-    root(WARN, ['transmart'])
+    root(INFO, ['transmart'])
 }
 
 /**
