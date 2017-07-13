@@ -99,9 +99,13 @@ class ExportController {
 
         def job = exportAsyncJobService.getJobById(jobId)
         def InputStream inputStream = restExportService.downloadFile(job)
+        def fileName = job.jobName + ".zip"
+        File file = new File(job.viewerURL)
+        int fileSize = file ? file.length() : 0
 
         response.setContentType 'application/zip'
-        response.setHeader "Content-disposition", "attachment;"//filename=${inputStream.ass}"
+        response.setHeader "Content-disposition", "attachment; filename=$fileName"
+        response.setContentLength fileSize
         response.outputStream << inputStream
         response.outputStream.flush()
         inputStream.close()
