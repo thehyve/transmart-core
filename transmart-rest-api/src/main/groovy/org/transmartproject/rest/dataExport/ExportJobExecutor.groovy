@@ -81,19 +81,4 @@ class ExportJobExecutor implements Job {
         userDirectory + File.separator + inputFileName
     }
 
-    static InputStream getExportJobFileStream(String filePath) {
-
-        InputStream inputStream = null
-        try {
-            File jobZipFile = new File(filePath);
-            if (jobZipFile.isFile()) {
-                inputStream = new FileInputStream(jobZipFile);
-            }
-        } catch (Exception e) {
-            log.error("Failed to get the ZIP file", e)
-        }
-
-        inputStream
-    }
-
 }

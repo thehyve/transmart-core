@@ -111,9 +111,13 @@ class ExportService {
         if(job.jobStatus != JobStatus.COMPLETED.value) {
             throw new InvalidRequestException("Job with a name is not completed. Current status: '$job.jobStatus'")
         }
+        File file = new File(job.viewerURL)
+        if (!file.isFile()) {
+            log.error("Failed to get the ZIP file. File does not exist in '$job.viewerURL'")
+            throw new InvalidRequestException("File '$job.viewerURL' does not exists.")
+        }
+        return file
 
-        def exportJobExecutor = new ExportJobExecutor()
-        return exportJobExecutor.getExportJobFileStream(job.viewerURL)
     }
 
     def exportData(Map jobDataMap, ZipOutputStream output) {
