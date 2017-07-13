@@ -65,9 +65,19 @@ class ConceptFragment implements Comparable<ConceptFragment> {
         }
     }
     static ConceptFragment decode(String encodedConceptPath) {
+        // We need to double the escape chars in DELIMITER since it's interpreted again by replaceAll
+        String escapedDelimiter = DELIMITER.replace('\\','\\\\')
+
+        // Use negative lookbehind to allow + and _ to be escaped by preceding it with a backslash
         String conceptPath = encodedConceptPath
-                .replace('+', DELIMITER)
-                .replace('_', ' ')
+                // replace underscores not preceded by backslash with space
+                .replaceAll('(?<!\\\\)_',' ')
+                // replace +'es not preceded by backslash with the delimiter
+                .replaceAll('(?<!\\\\)\\+', escapedDelimiter)
+                // replace \+ with +
+                .replace('\\+','+')
+                // replace \_ with _
+                .replace('\\_','_')
 
         new ConceptFragment(conceptPath)
     }
