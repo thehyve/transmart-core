@@ -151,6 +151,13 @@
                                                 </td>
                                             </tr>
                                         </g:if>
+                                        %{--<g:if test='${grailsApplication.config.org.transmart.security.googleEnabled}'>--}%
+                                            <tr>
+                                                <td colspan="2" style="font-size:10px;">
+                                                    Or <oauth2:connect style="color: black" provider="google" id="google-connect-link">sign in with Google account</oauth2:connect>
+                                                </td>
+                                            </tr>
+                                        %{--</g:if>--}%
                                     </table>
                                 </form>
                             </div>

@@ -14,6 +14,7 @@
  */
 org.transmart.originalConfigBinding = getBinding()
 
+org.transmartproject.app.googleEnabled = true
 org.transmartproject.app.oauthEnabled = true
 org.transmartproject.app.tmAppCompiled = true
 org.transmartproject.app.transmartURL = "http://localhost:${System.getProperty('server.port', '8080')}"
@@ -198,11 +199,11 @@ org.transmart.security.ldap.inheritPassword = true
 grails { plugin { springsecurity {
 
     // customized user GORM class
-    userLookup.userDomainClassName = 'org.transmart.searchapp.AuthUser'
+    userLookup.userDomainClassName = 'org.transmart.oauth.authentication.AuthUser'
     // customized password field
     userLookup.passwordPropertyName = 'passwd'
     // customized user /role join GORM class
-    userLookup.authorityJoinClassName = 'org.transmart.searchapp.AuthUser'
+    userLookup.authorityJoinClassName = 'org.transmart.oauth.authentication.AuthUser'
     // customized role GORM class
     authority.className = 'org.transmart.searchapp.Role'
     // request map GORM class name - request map is stored in the db
@@ -213,6 +214,22 @@ grails { plugin { springsecurity {
     successHandler.defaultTargetUrl = '/userLanding'
     // logout url
     logout.afterLogoutUrl = '/login/forceAuth'
+
+    oauth2 {
+        active = org.transmartproject.app.googleEnabled
+        domainClass = 'org.transmart.oauth.OAuthID'
+        providers {
+            google {
+                api_key = '148622907730-k3p2e7fgsct1c38p0i2fu3r7u466q7na.apps.googleusercontent.com'  //needed
+                api_secret = 'hA56LgHoNP55rFLi_xHWPV67'    //needed
+                successUri = "/oauth2/google/success"    //optional
+                failureUri = "/oauth2/google/failure"    //optional
+                callback = "/oauth2/google/callback"     //optional
+                scopes = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
+                //optional, see https://developers.google.com/identity/protocols/googlescopes#monitoringv3
+            }
+        }
+    }
 
     // configurable requestmap functionality in transmart is deprecated
     def useRequestMap = false
@@ -369,4 +386,5 @@ environments {
         }
     }
 }
+
 /* }}} */

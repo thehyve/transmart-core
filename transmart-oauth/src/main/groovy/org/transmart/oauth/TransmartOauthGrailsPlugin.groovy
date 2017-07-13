@@ -3,6 +3,7 @@ package transmart.oauth
 import grails.core.GrailsApplication
 import grails.plugin.springsecurity.SecurityFilterPosition
 import grails.plugin.springsecurity.SpringSecurityUtils
+import grails.plugin.springsecurity.oauth2.SpringSecurityOauth2BaseService
 import grails.plugins.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.MapFactoryBean
@@ -154,6 +155,8 @@ OAuth plugin for Transmart
                 // Spring never actually creates this bean
                 bean.scope = 'quartz'
             }
+            //needed for spring-google plugin
+            oAuth2BaseService(SpringSecurityOauth2BaseService)
         }
     }
 

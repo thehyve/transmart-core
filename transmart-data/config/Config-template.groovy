@@ -19,6 +19,7 @@ def searchIndex       = catalinaBase + '/searchIndex' //create this directory
 // for running transmart as WAR, create this directory and then create an alias
 def jobsDirectory     = "/var/tmp/jobs/"
 def samlEnabled  = false
+org.transmartproject.app.googleEnabled = true
 org.transmartproject.app.oauthEnabled = true
 org.transmartproject.app.gwavaEnabled = false
 org.transmartproject.app.transmartURL = "http://localhost:${System.getProperty('server.port', '8080')}"
