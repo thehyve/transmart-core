@@ -689,32 +689,35 @@ var spec = {
         ],
         "parameters": [
           {
-            "name": "type",
+            "name": "body",
             "required": true,
             "in": "body",
-            "description": "see GET parameters",
-            "type": "string"
-          },
-          {
-            "name": "constraint",
-            "required": true,
-            "in": "body",
-            "description": "see GET parameters",
-            "type": "string"
-          },
-          {
-            "name": "biomarker_constraint",
-            "required": false,
-            "in": "body",
-            "description": "see GET parameters",
-            "type": "string"
-          },
-          {
-            "name": "projection",
-            "required": false,
-            "in": "body",
-            "description": "see GET parameters",
-            "type": "string"
+            "description": "The parameters",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                },
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                },
+                "biomarker_constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                },
+                "projection": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                }
+              },
+              "required": [
+                "type",
+                "constraint"
+              ]
+            }
           }
         ],
         "responses": {
@@ -787,18 +790,25 @@ var spec = {
         ],
         "parameters": [
           {
-            "name": "constraint",
-            "required": true,
+            "name": "body",
             "in": "body",
-            "description": "see GET parameters",
-            "type": "string"
-          },
-          {
-            "name": "type",
-            "required": true,
-            "in": "body",
-            "description": "see GET parameters. Can be either a string or an array of strings.",
-            "type": "string"
+            "schema": {
+              "type": "object",
+              "properties": {
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "see GET parameters. Can be either a string or an array of strings."
+                }
+              },
+              "required": [
+                "constraint",
+                "type"
+              ]
+            }
           }
         ],
         "responses": {
@@ -862,11 +872,21 @@ var spec = {
         ],
         "parameters": [
           {
-            "name": "constraint",
+            "name": "body",
             "required": true,
             "in": "body",
-            "description": "see GET parameters",
-            "type": "string"
+            "schema": {
+              "type": "object",
+              "properties": {
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                }
+              },
+              "required": [
+                "constraint"
+              ]
+            }
           }
         ],
         "responses": {
@@ -926,11 +946,21 @@ var spec = {
         ],
         "parameters": [
           {
-            "name": "constraint",
+            "name": "body",
             "required": true,
             "in": "body",
-            "description": "see GET parameters",
-            "type": "string"
+            "schema": {
+              "type": "object",
+              "properties": {
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                }
+              },
+              "required": [
+                "constraint"
+              ]
+            }
           }
         ],
         "responses": {
@@ -1675,29 +1705,35 @@ var spec = {
             "type": "string"
           },
           {
-            "name": "typeOfSet",
+            "name": "body",
             "required": true,
             "in": "body",
-            "description": "specifies the type of the set you want to retrieve. For patient_set specify `patient`, for observation_set specify `observation`",
-            "type": "string"
-          },
-          {
-            "name": "id",
-            "required": true,
-            "in": "body",
-            "description": "IDs of the set specified by `typeOfSet`. To specify more than one value, multiple parameter instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`.",
-            "type": "array",
-            "collectionFormat": "multi",
-            "items": {
-              "type": "integer"
+            "description": "contains json object to initialize export job.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "typeOfSet": {
+                  "type": "string",
+                  "description": "specifies the type of the set you want to retrieve. For patient_set specify `patient`, for observation_set specify `observation`"
+                },
+                "id": {
+                  "type": "array",
+                  "description": "IDs of the set specified by `typeOfSet`. To specify more than one value, multiple parameter instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`.",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "elements": {
+                  "type": "string",
+                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:$(fileFormat}]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. Example: `[{\"dataType\":clinical, \"format\":TSV},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`."
+                }
+              },
+              "required": [
+                "typeOfSet",
+                "id",
+                "elements"
+              ]
             }
-          },
-          {
-            "name": "elements",
-            "required": true,
-            "in": "body",
-            "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:$(fileFormat}]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. Example: `[{\"dataType\":clinical, \"format\":TSV},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`.",
-            "type": "string"
           }
         ],
         "responses": {
@@ -1859,12 +1895,10 @@ var spec = {
       "type": "object",
       "properties": {
         "id": {
-          "type": "string",
-          "required": true
+          "type": "string"
         },
         "prefix": {
           "type": "string",
-          "required": true,
           "description": "the url prefix where this api can be found"
         },
         "version": {
@@ -1872,8 +1906,7 @@ var spec = {
           "description": "the full version string"
         },
         "major": {
-          "type": "integer",
-          "required": true
+          "type": "integer"
         },
         "minor": {
           "type": "integer"
@@ -1893,7 +1926,12 @@ var spec = {
             }
           }
         }
-      }
+      },
+      "required": [
+        "id",
+        "prefix",
+        "major"
+      ]
     },
     "v1observation": {
       "type": "object",
