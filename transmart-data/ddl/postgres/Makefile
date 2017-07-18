@@ -102,4 +102,6 @@ load: $(LOAD_TARGETS)
 	$(MAKE) load_cross
 	$(MAKE) -C META load
 
+drivers: $(JDBC_DRIVER_PSQL_PATH)
+
 .PHONY: load load_global load_cross
