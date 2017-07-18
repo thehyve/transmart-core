@@ -120,7 +120,7 @@ class InsertConceptsService {
                 c_columnname: 'concept_path',
                 c_columndatatype: 'T',
                 c_operator: 'LIKE',
-                c_dimcode: node.conceptPath?.toString() ?: '',
+                c_dimcode: node.conceptPath?.toString() ?: '@',
             ]
         }
         tableAccessInsert.executeBatch(tableAccessRows as Map[])
