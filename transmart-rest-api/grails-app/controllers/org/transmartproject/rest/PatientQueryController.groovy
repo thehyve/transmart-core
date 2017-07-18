@@ -107,12 +107,13 @@ class PatientQueryController extends AbstractQueryController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
         QueryResult patientSet = multiDimService.findPatientSet(id, user)
-        def constraint_version = multiDimService.getPatientSetConstraint(patientSet.id)
+        def constraint = patientSet.queryInstance.queryMaster.apiVersion
+        def version = patientSet.queryInstance.queryMaster.requestConstraints
 
         render new QueryResultWrapper(
-                apiVersion: constraint_version.constraint,
+                apiVersion: constraint,
                 queryResult: patientSet,
-                requestConstraint: constraint_version.version
+                requestConstraint: version
         ) as JSON
     }
 
@@ -195,11 +196,10 @@ class PatientQueryController extends AbstractQueryController {
         new ContainerResponseWrapper(
                 key: 'patientSets',
                 container: source.collect {
-                    def constraint_version = multiDimService.getPatientSetConstraint(it.id)
                     new QueryResultWrapper(
-                            apiVersion: constraint_version.version,
+                            apiVersion: it.queryInstance.queryMaster.apiVersion,
                             queryResult: it,
-                            requestConstraint: constraint_version.constraint
+                            requestConstraint: it.queryInstance.queryMaster.requestConstraints
                     )
                 },
                 componentType: QueryResult,

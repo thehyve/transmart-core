@@ -41,7 +41,6 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.multidimquery.MultiDimensionalDataResource.RequestConstraintAndVersion
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
@@ -608,12 +607,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                     .add(Subqueries.propertyIn('queryInstance', queryCriteria))
             return getIterable(queryResultCriteria)
         }
-    }
-
-    @Override RequestConstraintAndVersion getPatientSetConstraint(long id) {
-        QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findById(id)
-        def queryMaster = qtQueryResultInstance.queryInstance.queryMaster
-        new RequestConstraintAndVersion(queryMaster.requestConstraints, queryMaster.apiVersion)
     }
 
     @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')

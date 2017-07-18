@@ -219,14 +219,15 @@ class QueryServiceSpec extends TransmartSpecification {
         patients as Set == patients2 as Set
 
         when: "I query for patients based on saved constraints"
-        def constraintAndVersion = multiDimService.getPatientSetConstraint(patientSet.id)
-        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(constraintAndVersion.constraint) as Map)
+        def setConstraint = patientSet.queryInstance.queryMaster.requestConstraints
+        def setVersion = patientSet.queryInstance.queryMaster.apiVersion
+        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(setConstraint) as Map)
         def patients3 = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
                 savedPatientSetConstraint, accessLevelTestData.users[0]).toList()
 
         then: "I get the same set of patient as before"
         patients as Set == patients3 as Set
-        constraintAndVersion.version == apiVersion
+        setVersion == apiVersion
     }
 
     void "test query for all patient sets"() {

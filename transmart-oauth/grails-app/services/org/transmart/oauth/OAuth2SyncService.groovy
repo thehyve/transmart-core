@@ -18,7 +18,7 @@ class OAuth2SyncService {
         def clients = grailsApplication.config.grails.plugin.springsecurity.oauthProvider.clients
 
         if (clients == false) {
-            log.debug('Clients list in config is false; will do no synchronization')
+            log.info('Clients list in config is false; will do no synchronization')
             return
         }
 

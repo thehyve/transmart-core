@@ -65,7 +65,4 @@ interface MultiDimensionalDataResource {
 
     List<String> retriveHighDimDataTypes(MultiDimConstraint assayConstraint, User user)
 
-    RequestConstraintAndVersion getPatientSetConstraint(long id)
-
-    @Immutable class RequestConstraintAndVersion { String constraint; String version }
 }
