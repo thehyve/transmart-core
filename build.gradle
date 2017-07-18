@@ -29,7 +29,7 @@ apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
 ext {
-    transmartVersion = '17.1-RC1'
+    transmartVersion = '17.1-RC2'
     grailsVersion = '3.2.3'
     gradleWrapperVersion = '2.13'
     guavaVersion = '19.0'
