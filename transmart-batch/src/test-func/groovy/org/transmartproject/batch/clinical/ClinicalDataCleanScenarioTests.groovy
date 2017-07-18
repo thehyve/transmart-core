@@ -474,7 +474,7 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
                 hasEntry('c_columnname', 'concept_path'),
                 hasEntry('c_columndatatype', 'T'),
                 hasEntry('c_operator', 'LIKE'),
-                hasEntry('c_dimcode', ''),
+                hasEntry('c_dimcode', '@'),
         )
     }
 
