@@ -276,12 +276,13 @@ class ClinicalDataCleanScenarioTests implements JobRunningTestTrait {
 
         // i2b2_secure has one more column than i2b2, so we test
         // that we find all the columns in i2b2 against those in
-        // i2b2_secure (with two exceptions)
+        // i2b2_secure (with three exceptions)
         0..(r.size() - 1).each { i ->
             assertThat rSec[i], allOf(
                     r[i].collect { column, value ->
-                        // exclude i2b2_id/record_id columns from comparison
+                        // exclude i2b2_id/record_id/c_comment columns from comparison
                         column.equalsIgnoreCase('i2b2_id') ||
+                                column.equalsIgnoreCase('c_comment') ||
                                 column.equalsIgnoreCase('record_id') ?
                                 null :
                                 hasEntry(column, value)
