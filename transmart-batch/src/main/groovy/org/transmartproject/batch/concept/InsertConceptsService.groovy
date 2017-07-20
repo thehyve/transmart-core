@@ -139,6 +139,12 @@ class InsertConceptsService {
         newConcepts.each {
             String visualAttributes = visualAttributesFor(it)
             boolean isStudyNode = topNode.path == it.path.path
+            /* For compatibility with transmartApp, also intermediate nodes
+               are treated as concept nodes, in order to be able to select
+               subtrees based on a concept path prefix.
+               The c_comment column is only for compatibility with transmartApp
+               and should not have a role in security checks in the future.
+            */
             Map i2b2Row = [
                     c_hlevel          : it.level,
                     c_fullname        : it.path.toString(),
@@ -147,18 +153,19 @@ class InsertConceptsService {
                     c_synonym_cd      : 'N',
                     c_visualattributes: visualAttributes,
                     c_metadataxml     : metadataXmlFor(it),
-                    c_facttablecolumn : isStudyNode ? '@' : 'CONCEPT_CD',
-                    c_tablename       : isStudyNode ? 'STUDY' : 'CONCEPT_DIMENSION',
-                    c_columnname      : isStudyNode ? 'STUDY_ID' : 'CONCEPT_PATH',
+                    c_facttablecolumn : 'CONCEPT_CD',
+                    c_tablename       : 'CONCEPT_DIMENSION',
+                    c_columnname      : 'CONCEPT_PATH',
                     c_columndatatype  : 'T',
-                    c_operator        : isStudyNode ? '=' : 'LIKE',
-                    c_dimcode         : isStudyNode ? studyId : (it.conceptPath?.toString() ?: '@'),
+                    c_operator        : 'LIKE',
+                    c_dimcode         : it.conceptPath?.toString() ?: it.path.toString(),
                     c_tooltip         : it.path.toString(),
                     m_applied_path    : '@',
                     update_date       : now,
                     download_date     : now,
                     import_date       : now,
                     sourcesystem_cd   : conceptTree.isStudyNode(it) ? studyId : null,
+                    c_comment         : conceptTree.isStudyNode(it) ? "trial:${studyId}" : null,
             ]
 
             if (recordId) {
@@ -166,6 +173,7 @@ class InsertConceptsService {
             }
 
             Map i2b2SecureRow = new HashMap(i2b2Row)
+            i2b2SecureRow.remove('c_comment')
             /* In this case, we use 'EXP:PUBLIC' for public nodes, to make the nodes visible in transmartApp. */
             def sot = (it.ontologyNode || secureObjectToken.public) ? 'EXP:PUBLIC' : secureObjectToken.toString()
             i2b2SecureRow.put('secure_obj_token', sot)
