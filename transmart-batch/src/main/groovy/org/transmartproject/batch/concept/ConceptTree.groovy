@@ -28,6 +28,9 @@ class ConceptTree {
     @Value("#{jobParameters['TOP_NODE']}")
     ConceptPath topNodePath
 
+    @Value("#{jobParameters['STUDY_ID']}")
+    String studyId
+
     @Autowired
     private SequenceReserver reserver
 
@@ -162,6 +165,12 @@ class ConceptTree {
             node.conceptPath = variable.conceptPath
             node.code = variable.conceptCode
             node.ontologyNode = variable.ontologyNode
+        } else if (isStudyNode(node)) {
+            // For compatibility with transmartApp data export,
+            // there needs to be a 'study concept'
+            node.conceptPath = path
+            node.conceptName = studyId
+            node.code = studyId
         }
         log.debug("Generated new concept node: $path")
         nodeMap[path] = node
