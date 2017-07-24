@@ -88,6 +88,8 @@ drop: drop_users
 clean_all:
 	find $(SCHEMAS) GLOBAL -name '*.sql' -delete -o -name items.json -delete
 
+drivers: $(JDBC_DRIVER_ORA_PATH) $(JDBC_XDB_ORA_PATH)
+
 runsql.sh: $(JDBC_DRIVER_ORA_PATH)
 	printf '#!/bin/sh\n\n%s $$@\n' '$(RUN_SQL)' > $@
 	chmod +x $@
