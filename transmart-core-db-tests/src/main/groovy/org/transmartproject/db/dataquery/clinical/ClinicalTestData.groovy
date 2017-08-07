@@ -63,6 +63,13 @@ class ClinicalTestData {
     ModifierDimension       doseDimension
     ModifierDimension       tissueTypeDimension
 
+    List<ObservationFact> getAllHypercubeFacts() {
+        longitudinalClinicalFacts + sampleClinicalFacts + ehrClinicalFacts + multidimsClinicalFacts
+    }
+    List<Study> getAllHypercubeStudies() {
+        [longitudinalStudy, sampleStudy, ehrStudy, multidimsStudy]
+    }
+
 
     @Lazy
     QtQueryMaster patientsQueryMaster = createQueryResult patients
@@ -526,6 +533,7 @@ class ClinicalTestData {
         TestDataHelper.save ehrClinicalFacts
         TestDataHelper.save multidimsClinicalFacts
         TestDataHelper.save modifierDimensions
+        TestDataHelper.save allHypercubeStudies.findAll()
     }
 
 }

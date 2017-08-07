@@ -10,7 +10,8 @@ migrate:
 	$(PGSQL_BIN)/psql -f storage_system.sql
 	$(PGSQL_BIN)/psql -f linked_file_collection.sql
 	$(PGSQL_BIN)/psql -f data_migration.sql
-	$(PGSQL_BIN)/psql -f data_migration.sql
+	$(PGSQL_BIN)/psql -f qt_query_master.sql
+	$(PGSQL_BIN)/psql -f async_job.sql
 	$(PGSQL_BIN)/psql -f biomart_pf_to_tf.sql
-	$(PGSQL_BIN)/psql -f deapp_pf_to_tf.sql
-	$(PGSQL_BIN)/psql -f bio_marker_correl_mv.sql
+    $(PGSQL_BIN)/psql -f deapp_pf_to_tf.sql
+    $(PGSQL_BIN)/psql -f bio_marker_correl_mv.sql

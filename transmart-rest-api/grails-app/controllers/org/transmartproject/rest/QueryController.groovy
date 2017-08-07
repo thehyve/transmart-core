@@ -1,25 +1,26 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.rest
 
 import grails.converters.JSON
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
-import org.transmartproject.db.metadata.LegacyStudyException
+import org.transmartproject.core.exceptions.LegacyStudyException
+import org.transmartproject.core.multidimquery.AggregateType
+import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 
-import static org.transmartproject.rest.MultidimensionalDataSerialisationService.*
+import static MultidimensionalDataService.*
 
 @Slf4j
 class QueryController extends AbstractQueryController {
 
     static responseFormats = ['json', 'hal', 'protobuf']
 
-    HighDimensionResourceService highDimensionResourceService
+    MultidimensionalDataService multidimensionalDataService
 
     protected Format getContentFormat() {
         Format format = Format.NONE
@@ -44,7 +45,7 @@ class QueryController extends AbstractQueryController {
      *
      *
      * For high dimensional data:
-     * <code>/v2/high_dim?type=${type}&constraint=${assays}&biomarker_constraint=${biomarker}&projection=${projection}</code>
+     * <code>/v2/observations?type=${type}&constraint=${assays}&biomarker_constraint=${biomarker}&projection=${projection}</code>
      *
      * The type must be the data type name of a high dimension type, or 'autodetect'. The latter will automatically
      * try to detect the datatype based on the assay constraint. If there are multiple possible types an error is
@@ -59,18 +60,19 @@ class QueryController extends AbstractQueryController {
      * @return a hypercube representing the observations that satisfy the constraint.
      */
     def observations() {
-        checkParams(params, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
+        def args = getGetOrPostParams()
+        checkParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
 
-        if (params.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
+        if (args.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
 
-        if (params.type == 'clinical') {
-            clinicalObservations(params.constraint)
+        if (args.type == 'clinical') {
+            clinicalObservations(args.constraint)
         } else {
-            if(params.assay_constraint) {
+            if(args.assay_constraint) {
                 response.sendError(422, "Parameter 'assay_constraint' is no longer used, use 'constraint' instead")
                 return
             }
-            highdimObservations(params.type, params.constraint, params.biomarker_constraint, params.projection)
+            highdimObservations(args.type, args.constraint, args.biomarker_constraint, args.projection)
         }
     }
 
@@ -88,25 +90,26 @@ class QueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Hypercube result
+
+        OutputStream out = getLazyOutputStream(format)
+
         try {
-            result = queryService.retrieveClinicalData(constraint, user)
+            multidimensionalDataService.writeClinical([:], format, constraint, user, out)
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
+        } finally {
+            out.close()
         }
 
-        log.info "Writing to format: ${format}"
-        OutputStream out = new LazyOutputStreamDecorator(
+        return false
+    }
+
+    private getLazyOutputStream(Format format) {
+        new LazyOutputStreamDecorator(
                 outputStreamProducer: { ->
                     response.contentType = format.toString()
                     response.outputStream
                 })
-        try {
-            multidimensionalDataSerialisationService.serialise(result, format, out)
-        } finally {
-            out.close()
-        }
-        return false
     }
 
     /**
@@ -118,14 +121,15 @@ class QueryController extends AbstractQueryController {
      * @return a the number of observations that satisfy the constraint.
      */
     def count() {
-        checkParams(params, ['constraint'])
+        def args = getGetOrPostParams()
+        checkParams(args, ['constraint'])
 
-        Constraint constraint = bindConstraint(params.constraint)
+        Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def count = queryService.count(constraint, user)
+        def count = multiDimService.count(constraint, user)
         def result = [count: count]
         render result as JSON
     }
@@ -134,7 +138,7 @@ class QueryController extends AbstractQueryController {
      * Aggregate endpoint:
      * <code>/v2/observations/aggregate?type=${type}&constraint=${constraint}</code>
      *
-     * Expects an {@link AggregateType} parameter <code>type</code> and {@link Constraint}
+     * Expects an {@link org.transmartproject.core.multidimquery.AggregateType} parameter <code>type</code> and {@link Constraint}
      * parameter <code>constraint</code>.
      *
      * Checks if the supplied constraint contains a concept constraint on top level, because
@@ -147,20 +151,32 @@ class QueryController extends AbstractQueryController {
      * @return a map with the aggregate type as key and the result as value.
      */
     def aggregate() {
-        checkParams(params, ['constraint', 'type'])
+        def args = getGetOrPostParams()
+        checkParams(args, ['constraint', 'type'])
+        def type = args.type
 
-        if (!params.type) {
+        if (!type) {
             throw new InvalidArgumentsException("Type parameter is missing.")
         }
-        Constraint constraint = bindConstraint(params.constraint)
+        if (!(type instanceof String || type instanceof List)) throw new InvalidArgumentsException(
+                "invalid type parameter (not a string or a list of strings)")
+
+        if (type instanceof String) {
+            type = [type]
+        }
+        Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
             return
         }
-        def aggregateType = AggregateType.forName(params.type as String)
+        def aggregateTypes
+        try {
+            aggregateTypes = type.collect { AggregateType.forName(it as String) }
+        } catch (IllegalArgumentException e) {
+            throw new InvalidQueryException(e)
+        }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def aggregatedValue = queryService.aggregate(aggregateType, constraint, user)
-        def result = [(aggregateType.name().toLowerCase()): aggregatedValue]
-        render result as JSON
+        Map aggregateValues = multiDimService.aggregate(aggregateTypes, constraint, user)
+        render aggregateValues as JSON
     }
 
     /**
@@ -174,27 +190,21 @@ class QueryController extends AbstractQueryController {
      *
      * @return a hypercube representing the high dimensional data that satisfies the constraints.
      */
-    private def highdimObservations(String type, String assay_constraint, String biomarker_constraint, projection) {
+    private def highdimObservations(String type, assay_constraint, biomarker_constraint, projection) {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        Constraint assayConstraint = parseConstraint(URLDecoder.decode(assay_constraint, 'UTF-8'))
+        Constraint assayConstraint = getConstraintFromStringOrJson(assay_constraint)
 
         BiomarkerConstraint biomarkerConstraint = biomarker_constraint ?
-                (BiomarkerConstraint) parseConstraint(URLDecoder.decode(biomarker_constraint, 'UTF-8')) : new BiomarkerConstraint()
+                (BiomarkerConstraint) getConstraintFromStringOrJson(biomarker_constraint) : new BiomarkerConstraint()
 
-        Hypercube hypercube = queryService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
+        Format format = contentFormat
+        OutputStream out = getLazyOutputStream(format)
 
-        def format = contentFormat
-        OutputStream out = new LazyOutputStreamDecorator(
-                outputStreamProducer: { ->
-                    response.contentType = format.toString()
-                    response.outputStream
-                })
         try {
-            multidimensionalDataSerialisationService.serialise(hypercube, format, out)
+            multidimensionalDataService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection, user, out)
         } finally {
-            hypercube.close()
             out.close()
         }
     }

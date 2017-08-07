@@ -5,3 +5,7 @@
 /vars-*
 /private-feeds
 /lib/schemaSpy_*.jar
+/build
+/db-doc/postgres
+/db-doc/oracle
+VERSION

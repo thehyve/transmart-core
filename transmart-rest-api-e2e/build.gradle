@@ -14,12 +14,15 @@ dependencies {
     testCompile 'org.grails:grails-web:3.1.10'
     testCompile 'org.hamcrest:java-hamcrest:2.0.0.0'
     testCompile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
-    testCompile 'com.google.guava:guava:15.0'
+    testCompile "com.google.guava:guava:$guavaVersion"
 
     compile 'javax.servlet:javax.servlet-api:3.1.0'
 }
 
 tasks.withType(Test) { systemProperties = System.getProperties() }
+
+// Force selected tests to always run, even if Gradle thinks they are up to date
+test.outputs.upToDateWhen {false}
 
 test.testLogging.exceptionFormat = 'full'
 

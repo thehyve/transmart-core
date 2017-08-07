@@ -1,4 +1,0 @@
-This archive is part of the Transmart Foundation release of 
-transmartApp and the accompanying projects.
-
-VERSION: 17.1-SNAPSHOT

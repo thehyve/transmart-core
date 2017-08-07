@@ -1,14 +1,26 @@
 package org.transmartproject.browse.fm
 
 import annotation.*
+import com.mongodb.DB
+import com.mongodb.MongoClient
+import com.mongodb.gridfs.GridFS
+import com.mongodb.gridfs.GridFSDBFile
 import com.recomdata.util.FolderType
 import grails.transaction.Transactional
 import grails.util.Holders
 import grails.validation.ValidationException
+import groovyx.net.http.ContentType
+import groovyx.net.http.HTTPBuilder
+import groovyx.net.http.Method
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
+import org.apache.http.entity.mime.HttpMultipartMode
+import org.apache.http.entity.mime.MultipartEntity
+import org.apache.http.entity.mime.content.InputStreamBody
+import org.apache.solr.util.SimplePostTool
 import org.transmart.biomart.BioData
 import org.transmart.biomart.Experiment
+import org.transmart.mongo.MongoUtils
 import org.transmart.searchapp.AccessLog
 import org.transmart.searchapp.AuthUser
 
@@ -21,22 +33,25 @@ class FmFolderService {
     def getConfig() {
         Holders.grailsApplication.config
     }
+
     def getImportDirectory() {
         config.com.recomdata.FmFolderService.importDirectory
     }
+
     def getFilestoreDirectory() {
         config.com.recomdata.FmFolderService.filestoreDirectory
     }
+
     def getFileTypes() {
         config.com.recomdata.FmFolderService.fileTypes ?: DEFAULT_FILE_TYPES
     }
+
     String getSolrBaseUrl() {
         config.com.recomdata.solr.baseURL
     }
     def amTagItemService
     def springSecurityService
     def i2b2HelperService
-    def facetsIndexingService
 
     private String getSolrUrl() {
         solrBaseUrl + '/update'
@@ -99,7 +114,7 @@ class FmFolderService {
      */
     def processDirectory(File directory) {
         def fmFolder = null
-        /* null: uninitialized; false: not a folder it */
+        /* null: uninitialized; false: not a folder */
 
         /* the lazy initialization is to avoid loading the fmFolder if there are
          * actually no files under the directory being processed */
@@ -160,16 +175,13 @@ class FmFolderService {
      * @param file file to be proceessed
      * @return
      */
-    private void processFile(FmFolder fmFolder, File file, String customName = null, String description = null) {
+    private void processFile(FmFolder fmFolder, File file) {
         log.info "Importing file $file into folder $fmFolder"
 
         // Check if folder already contains file with same name.
         def fmFile;
-
-        def newFileName = customName?:file.getName()
-
         for (f in fmFolder.fmFiles) {
-            if (f.originalName == newFileName) {
+            if (f.originalName == file.getName()) {
                 fmFile = f;
                 break;
             }
@@ -183,14 +195,13 @@ class FmFolderService {
             log.info("File = " + file.getName() + " (" + fmFile.id + ") - Existing");
         } else {
             fmFile = new FmFile(
-                    displayName: newFileName,
+                    displayName: file.getName(),
                     originalName: file.getName(),
                     fileType: getFileType(file),
                     fileSize: file.length(),
                     filestoreLocation: "",
                     filestoreName: "",
-                    linkUrl: "",
-                    fileDescription: description
+                    linkUrl: ""
             );
             if (!fmFile.save(flush: true)) {
                 fmFile.errors.each {
@@ -230,7 +241,7 @@ class FmFolderService {
         }
 
         // Move file to appropriate filestore directory.
-        File filestoreFile = new File(filestoreDirectory + fmFile.filestoreLocation + file.separator + fmFile.filestoreName);
+        File filestoreFile = new File(filestoreDirectory + fmFile.filestoreLocation + File.separator + fmFile.filestoreName);
         try {
             FileUtils.copyFile(file, filestoreFile);
             if (!file.delete()) {
@@ -316,13 +327,106 @@ class FmFolderService {
      * @return
      */
     private void indexFile(FmFile fmFile) {
+
         try {
-            facetsIndexingService.indexByIds([this.getClass()
-                                                      .classLoader.loadClass('org.transmartproject.search.indexing.FacetsDocId')
-                                                      .newInstance('FILE', fmFile.id)] as Set)
+
+            /*
+             * Create the file entry first - the POST will handle the content.
+             */
+            String xmlString = "<add><doc><field name='id'>" + fmFile.getUniqueId() + "</field><field name='folder'>" + fmFile.folder.getUniqueId() + "</field><field name='name'>" + fmFile.originalName + "</field></doc></add>"
+            xmlString = URLEncoder.encode(xmlString, "UTF-8");
+            StringBuilder url = new StringBuilder(solrUrl);
+            url.append("?stream.body=").append(xmlString).append("&commit=true")
+            URL updateUrl = new URL(url.toString())
+            HttpURLConnection urlc = (HttpURLConnection) updateUrl.openConnection();
+            if (HttpURLConnection.HTTP_OK != urlc.getResponseCode()) {
+                log.warn("The SOLR service returned an error #" + urlc.getResponseCode() + " " + urlc.getResponseMessage() + " for url " + updateUrl);
+            } else {
+                log.debug("Pre-created record for " + fmFile.getUniqueId());
+            }
+
+            /*
+             * POST the file - if it has readable content, the contents will be indexed.
+             */
+            def useMongo = config.transmartproject.mongoFiles.enableMongo
+            url = new StringBuilder(solrUrl);
+            if (useMongo) url.append("/extract")
+            // Use the file's unique ID as the document ID in SOLR
+            url.append("?").append("literal.id=").append(URLEncoder.encode(fmFile.getUniqueId(), "UTF-8"));
+
+            // Use the file's parent folder's unique ID as the folder_uid in SOLR
+            if (fmFile.folder != null) {
+                url.append("&").append("literal.folder=").append(URLEncoder.encode(fmFile.folder.getUniqueId(), "UTF-8"));
+            }
+
+            // Use the file's name as document name is SOLR
+            url.append("&").append("literal.name=").append(URLEncoder.encode(fmFile.originalName, "UTF-8"));
+
+            if (!useMongo) {
+                // Get path to actual file in filestore.
+                String[] args = [filestoreDirectory + File.separator + fmFile.filestoreLocation + File.separator + fmFile.filestoreName] as String[];
+
+                // Use SOLR SimplePostTool to manage call to SOLR service.
+                SimplePostTool postTool = new SimplePostTool(SimplePostTool.DATA_MODE_FILES, new URL(url.toString()), true,
+                        null, 0, 0, fileTypes, System.out, true, true, args);
+
+                postTool.execute();
+            } else {
+                if (config.transmartproject.mongoFiles.useDriver) {
+                    MongoClient mongo = new MongoClient(config.transmartproject.mongoFiles.dbServer, config.transmartproject.mongoFiles.dbPort)
+                    DB db = mongo.getDB(config.transmartproject.mongoFiles.dbName)
+                    GridFS gfs = new GridFS(db)
+                    def http = new HTTPBuilder(url)
+                    GridFSDBFile gfsFile = gfs.findOne(fmFile.filestoreName)
+                    http.request(Method.POST) { request ->
+                        requestContentType: "multipart/form-data"
+                        MultipartEntity multiPartContent = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE)
+                        multiPartContent.addPart(fmFile.filestoreName, new InputStreamBody(gfsFile.getInputStream(), "application/octet-stream", fmFile.originalName))
+                        request.setEntity(multiPartContent)
+                        response.success = { resp ->
+                            log.info("File successfully indexed: " + fmFile.id)
+                        }
+                        response.failure = { resp ->
+                            log.error("Problem to index file " + fmFile.id + ": " + resp.status)
+                        }
+                    }
+                    mongo.close()
+                } else {
+                    def apiURL = config.transmartproject.mongoFiles.apiURL
+                    def apiKey = config.transmartproject.mongoFiles.apiKey
+                    def http = new HTTPBuilder(apiURL + fmFile.filestoreName + "/fsfile")
+                    url.append("&commit=true")
+                    http.request(Method.GET, ContentType.BINARY) { req ->
+                        headers.'apikey' = MongoUtils.hash(apiKey)
+                        response.success = { resp, binary ->
+                            assert resp.statusLine.statusCode == 200
+                            def inputStream = binary
+
+                            def http2 = new HTTPBuilder(url)
+                            http2.request(Method.POST) { request ->
+                                requestContentType: "multipart/form-data"
+                                MultipartEntity multiPartContent = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE)
+                                multiPartContent.addPart(fmFile.filestoreName, new InputStreamBody(inputStream, "application/octet-stream", fmFile.originalName))
+                                request.setEntity(multiPartContent)
+                                response.success = { resp2 ->
+                                    log.info("File successfully indexed: " + fmFile.id)
+                                }
+
+                                response.failure = { resp2 ->
+                                    log.error("Problem to index file " + fmFile.id + ": " + resp.status)
+                                }
+                            }
+                        }
+                        response.failure = { resp ->
+                            log.error("Problem during connection to API: " + resp.status)
+                        }
+                    }
+                }
+            }
         } catch (Exception ex) {
             log.error("Exception while indexing fmFile with id of " + fmFile.id, ex);
         }
+
     }
 
     /**
@@ -377,20 +481,58 @@ class FmFolderService {
     }
 
     def deleteFile(FmFile file) {
+        def deleted = false
         try {
-            File filestoreFile = getFile(file)
-            if (filestoreFile.exists()) {
-                filestoreFile.delete()
+            if (config.transmartproject.mongoFiles.enableMongo) {
+                if (config.transmartproject.mongoFiles.useDriver) {
+                    MongoClient mongo = new MongoClient(config.transmartproject.mongoFiles.dbServer, config.transmartproject.mongoFiles.dbPort)
+                    DB db = mongo.getDB(config.transmartproject.mongoFiles.dbName)
+                    GridFS gfs = new GridFS(db)
+                    gfs.remove(file.filestoreName)
+                    mongo.close()
+                    deleted = true
+                } else {
+                    def apiURL = config.transmartproject.mongoFiles.apiURL
+                    def apiKey = config.transmartproject.mongoFiles.apiKey
+                    def http = new HTTPBuilder(apiURL + file.filestoreName + "/delete")
+                    http.request(Method.GET) { req ->
+                        headers.'apikey' = MongoUtils.hash(apiKey)
+                        headers.'User-Agent' = "Mozilla/5.0 Firefox/3.0.4"
+                        response.success = { resp ->
+                            if (resp.statusLine.statusCode == 200) {
+                                log.info("File deleted: " + file.filestoreName)
+                                deleted = true
+                            } else {
+                                log.error("Error when deleting file: " + file.filestoreName)
+                            }
+                        }
+
+                        response.failure = { resp ->
+                            log.error("Error when deleting file: " + resp.status)
+                        }
+                    }
+                }
+            } else {
+                File filestoreFile = getFile(file)
+                if (filestoreFile.exists()) {
+                    filestoreFile.delete()
+                }
+                deleted = true
             }
-            removeSolrEntry(file.getUniqueId())
-            def data = FmData.get(file.id)
-            if (data) {
-                data.delete(flush: true)
+            if (deleted) {
+                removeSolrEntry(file.getUniqueId())
+                def data = FmData.get(file.id)
+                if (data) {
+                    data.delete(flush: true)
+                }
+                file.folder.fmFiles.remove(file)
+                file.folder.save(flush: true)
+                def al = new AccessLog(username: springSecurityService.getPrincipal().username, event: "Browse-Delete file", eventmessage: file.displayName + " (" + file.getUniqueId() + ")", accesstime: new java.util.Date())
+                al.save()
+                return true
+            } else {
+                return false
             }
-            file.folder.fmFiles.remove(file)
-            file.folder.save(flush: true)
-            def al = new AccessLog(username: springSecurityService.getPrincipal().username, event: "Browse-Delete file", eventmessage: file.displayName + " (" + file.getUniqueId() + ")", accesstime: new java.util.Date())
-            al.save()
         }
         catch (Exception ex) {
             System.out.println("Exception while deleting file with uid of " + file.getUniqueId(), ex);
@@ -556,6 +698,20 @@ class FmFolderService {
      */
     private void validateFolder(FmFolder folder, Object object, List items, Map values) {
 
+        if ((object instanceof Experiment) && (object.id)) {
+            def existingFolder = FmFolder.executeQuery("select ff from " +
+                    "BioData bdu, " +
+                    "FmFolderAssociation fla, " +
+                    "FmFolder ff " +
+                    "where " +
+                    "fla.objectUid = bdu.uniqueId and " +
+                    "fla.fmFolder = ff.id " +
+                    "and bdu.id = ? " +
+                    "and ff.activeInd = TRUE", [object.id])
+            if (!existingFolder.isEmpty() && (existingFolder[0] != folder)) {
+                folder.errors.rejectValue("id", "blank", ['StudyId'] as String[], "{0} must be unique.")
+            }
+        }
         // Validate folder specific fields, if there is no business object
         if (folder == object) {
             List fields = [[displayName: "Name", fieldName: "folderName"],
@@ -589,7 +745,8 @@ class FmFolderService {
 
             //check for unique study identifer
             if (item.codeTypeName == 'STUDY_IDENTIFIER') {
-                if (Experiment.findByAccession(values.list(item.tagItemAttr))) {
+                def experiment = Experiment.findByAccession(values.list(item.tagItemAttr));
+                if ((experiment != null) && (object == experiment)) {
                     folder.errors.rejectValue("id", "blank", [item.displayName] as String[], "{0} must be unique.")
                 }
             }

@@ -1,17 +1,5 @@
-# Open API specification for the tranSMART platform.
-# Copyright (C) 2017  The Hyve
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#  http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2017, tranSMART Foundation, Inc.
+
 swagger: '2.0'
 
 info:
@@ -30,23 +18,32 @@ info:
     
     # Constraints
     Constraints are used to build queries and are required in the `v2` API. They consist of a `Type` and that type's specific arguments. The implementation is in [Constraint.groovy](../transmart-core-db/src/main/groovy/org/transmartproject/db/multidimquery/query/Constraint.groovy).
-    
-    ## Combination
-    Most often a combination of constraints is needed to get the right result. This can be done by a constraint with type combination.
-    It takes an op `operator` and a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.
-    However an `and` operator with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.
+
+    ## Combinations (And/Or)
+    Most often a combination of constraints is needed to get the right result. This can be done by the constraints with type "and" and "or".
+    They take a list `args` with constraints. All args will be evaluated together on each observation. So an 'and' operator with a `patient_set` and a `concept` will return all observations for the given concept linked to the patient set.
+    However an `and` constraint with two ConceptConstraints will evaluate to an empty result, as no observation can have two concepts. This is also true even if nested with a different combination because constraints do not know scope.
+    (There is also a constraint with type "combination" on which the And and Or constraints are built. It does not provide any functionality not provided by And and Or constraints, and it should be considered deprecated for direct usage.)
     
     Example:
     ```json
-    {"type": "combination",
-     "operator": "and",
+    {"type": "and",
      "args": [
         {"type": "patient_set", "patientIds": -62},
         {"type": "concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
         ]
     }
     ```
-    
+
+    ```json
+    {"type": "or",
+     "args": [
+        {"type": "concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Blood Pressure\\"}
+        {"type": "concept", "path":" \\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}
+        ]
+    }
+    ```
+
     ## StudyName
     Evaluate if an observation is part of a particular study
     
@@ -129,6 +126,30 @@ info:
         "type": "patient_set",
         "patientSetId": 28820,
         "patientIds": [-62, -63]
+    }
+    ```
+
+    ## SubSelection
+    Create a subselection of patients, visits, or another dimension element, and then select all observations for these dimension elements.
+
+    Example: Select all observations for patients who have a certain diagnosis.
+    ```json
+    {
+        "type": "subselection",
+        "dimension": "patient",
+        "constraint": {
+            "type": "and",
+            "args": [{
+                    "type": "concept",
+                    "path": "\\Public Studies\\EHR\\Diagnosis\\",
+                    "conceptCode": "DIAG"
+                }, {
+                    "type": "value",
+                    "valueType": "STRING",
+                    "operator": "=",
+                    "value": "My eye hurts"
+                }]
+        }
     }
     ```
     
@@ -249,7 +270,7 @@ securityDefinitions:
   oauth:
     type: oauth2
     flow: implicit
-    authorizationUrl: '/oauth/authorize?response_type=token&client_id={client_id}&redirect_uri={redirect}'
+    authorizationUrl: '/oauth/authorize'
     scopes:
       basic: to be able to interact with transmart REST-API
 
@@ -260,26 +281,39 @@ paths:
   /versions:
     get:
       description: |
-        Gets all available API versions and prefixes.
+        Gets all available API versions and prefixes. The API version is separate from the version of transmart itself.
+
+        The API version follows semantic versioning: major versions can be incompatible, but minor version upgrades should be compatible with previous versions within the same major version. Patch versions are not used at the moment. The rest api can support multiple major versions at the same time using different prefixes.
+
+        The default settings expose this endpoint without any authentication requirements, as the version info may be needed to select an authentication method, however clients should be prepared to only be able to see the supported major versions without authentication. In that case the innermost dictionary in the response json will only contain "id", "prefix" and "major" keys.
+
+        Development and preview releases may also contain version tags, e.g. the version leading up to the development of 2.1 can be called 2.1-dev. Such tagged releases also support separate feature revisions. See `transmart-rest-api/grails-app/controllers/org/transmartproject/rest/VersionController.groovy` for details about that.
       responses:
         200:
-          description: 'Successful response. Example: `{ "versions": [ "id": "v2", "prefix": "/v2"] }`.'
+          description: |
+            Successful response. Example:
+            `{ "versions": {
+                "v2": {
+                    "id": "v2",
+                    "prefix": "/v2",
+                    "version: "2.1",
+                    "major": 2,
+                    "minor": 1
+                }
+            } }`'
           schema:
             type: object
             properties:
               versions:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    prefix:
-                      type: string
+                type: object
+                properties:
+                  version ids:
+                    $ref: "#/definitions/version"
+
   /versions/{id}:
     get:
       description: |
-        Gets the version and its prefix if available.
+        Gets information about the version if available. This returns the same information as `/versions`, but only for a single version.
       parameters:
         - name: id
           in: path
@@ -291,12 +325,7 @@ paths:
         200:
           description: Successful response.
           schema:
-            type: object
-            properties:
-              id:
-                type: string
-              prefix:
-                type: string
+            $ref: "#/definitions/version"
 
         404:
           description: Version not available.
@@ -536,8 +565,7 @@ paths:
   /v1/patient_sets/{resultInstanceId}:
     get:
       parameters:
-        -
-          name: resultInstanceId
+        - name: resultInstanceId
           in: path
           description: ID of the patient set, called resultInstance ID because internally it refers to the result of a query
           required: true
@@ -709,10 +737,48 @@ paths:
             Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
           schema:
             $ref: '#/definitions/observations'
+    post:
+          description: |
+            Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+          tags:
+            - v2
+          consumes:
+            - application/json
+          produces:
+            - application/json
+            - application/x-protobuf
+          parameters:
+            - name: body
+              required: true
+              in: body
+              description: The parameters
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: see GET parameters
+                  constraint:
+                    type: string
+                    description: see GET parameters
+                  biomarker_constraint:
+                    type: string
+                    description: see GET parameters
+                  projection:
+                    type: string
+                    description: see GET parameters
+                required: [ "type", "constraint" ]
+          responses:
+            200:
+              description: |
+                Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
+              schema:
+                $ref: '#/definitions/observations'
   /v2/observations/aggregate:
     get:
       description: |
-        Calculates and returns an aggregate value.
+        Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'count', and
+        'values'. The first three require numeric variables, the last one categorical variables.
       tags:
         - v2
       parameters:
@@ -724,8 +790,48 @@ paths:
         - name: type
           required: true
           in: query
-          description: 'min, max, average'
+          description: |
+            'min', 'max', 'average', 'count', or 'values'. This parameter can be specified multiple times to retrieve
+            multiple aggregates at once. The 'values' aggregate cannot be combined with the numeric aggregate types.
           type: string
+      responses:
+        200:
+          description: 'return the result in a json object. Example: `{min: 56}`.'
+          schema:
+            type: object
+            description: 'only the value of the requested aggregate type will be present.'
+            properties:
+              min:
+                type: number
+              max:
+                type: number
+              average:
+                type: number
+              values:
+                type: array
+                items:
+                  type: string
+                description: A list of the distinct values for categorical variables
+    post:
+      description: |
+        Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+      tags:
+        - v2
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              constraint:
+                type: string
+                description: see GET parameters
+              type:
+                type: string
+                description: see GET parameters. Can be either a string or an array of strings.
+            required: [ "constraint", "type" ]
       responses:
         200:
           description: 'return the result in a json object. Example: `{min: 56}`.'
@@ -759,10 +865,36 @@ paths:
             properties:
               count:
                 type: integer
+    post:
+          description: |
+            Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+          tags:
+            - v2
+          consumes:
+            - application/json
+          parameters:
+            - name: body
+              required: true
+              in: body
+              schema:
+                type: object
+                properties:
+                  constraint:
+                    type: string
+                    description: see GET parameters
+                required: [ "constraint" ]
+          responses:
+            200:
+              description: 'Return the result as a json object. Example: `{count: 56}`.'
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
   /v2/patients:
     get:
       description: |
-        Gets all patients that have an observation that satisfy the given constaint. Only patients the calling user has access to are returned.
+        Gets all patients that have an observation that satisfy the given constaint. Only patients that the calling user has access to are returned.
       tags:
         - v2
       parameters:
@@ -781,6 +913,34 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/patient'
+    post:
+          description: |
+            Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
+          tags:
+            - v2
+          consumes:
+            - application/json
+          parameters:
+            - name: body
+              required: true
+              in: body
+              schema:
+                type: object
+                properties:
+                  constraint:
+                    type: string
+                    description: see GET parameters
+                required: [ "constraint" ]
+          responses:
+            200:
+              description: OK
+              schema:
+                type: object
+                properties:
+                  patients:
+                    type: array
+                    items:
+                      $ref: '#/definitions/patient'
   /v2/patients/{id}:
     get:
       description: |
@@ -800,9 +960,18 @@ paths:
           schema:
             $ref: '#/definitions/patient'
   /v2/patient_sets:
+    get:
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            Gets all patient_sets accessible by the user.
+          schema:
+            $ref: '#/definitions/patient_set'
     post:
       description: |
-        creates a patient set with all patients that have an observation that satisfies the constaint given in the body. The set will only have patients the calling user access to.
+        creates a patient set with all patients that have an observation that satisfies the constaint given in the body. The set will only have patients the calling user access to. The constraint used to create the set will be stored in a database.
       tags:
         - v2
       parameters:
@@ -821,20 +990,24 @@ paths:
           description: |
             an object with the created patient_set or error.
           schema:
-            type: object
-            properties:
-              description:
-                type: string
-              errorMessage:
-                type: string
-              id:
-                type: integer
-              setSize:
-                type: integer
-              status:
-                type: string
-              username:
-                type: string
+            $ref: '#/definitions/patient_set'
+  /v2/patient_sets/{resultInstanceId}:
+    get:
+      parameters:
+        - name: resultInstanceId
+          in: path
+          description: |
+            ID of the patient set, called resultInstance ID because internally it refers to the result of a query
+          required: true
+          type: string
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            Returns one patient_set.
+          schema:
+            $ref: '#/definitions/patient_set'
   /v2/tree_nodes:
     get:
       description: |
@@ -1222,8 +1395,214 @@ paths:
       responses:
         204:
           description: 'returns null'
-
+  /v2/dimensions/{$dimensionName}/elements:
+    get:
+      description: |
+        Gets all elements from a dimension of given name that satisfy the constaint if given.
+      tags:
+        - v2
+      parameters:
+        - name: $dimensionName
+          in: path
+          required: true
+          type: string
+        - name: constraint
+          required: false
+          in: query
+          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
+          type: string
+      responses:
+        200:
+          description: |
+            Returns list of all elements from the given dimension that user has access to.
+          schema:
+            $ref: '#/definitions/dimensionElements'
+  /v2/export/job:
+    post:
+      description: |
+        Creates a new asynchronous data export job.
+      tags:
+        - v2
+      parameters:
+        - name: name
+          required: false
+          in: query
+          description: '(optional) name of the export job (has to be unique for the user). If it is not specified, a default name will be created.'
+          type: string
+      responses:
+        200:
+          description:  |
+            an object with the created export job or error.
+          schema:
+            $ref: '#/definitions/export_job'
+  /v2/export/{jobId}/run:
+    post:
+      description: |
+        Runs the specified data export job asynchronously. Creates a hypercube for each element from {elements} with PatientSetsConstraint for given `id`
+        and serialises it to specified `fileFormat`. Output stream is saved on the server as .zip file.
+      tags:
+        - v2
+      parameters:
+        - name: jobId
+          required: true
+          in: path
+          description: 'id of the export job. The job has to have a status `Created`.'
+          type: string
+        - name: body
+          required: true
+          in: body
+          description: 'contains json object to initialize export job.'
+          schema:
+            type: object
+            properties:
+              typeOfSet:
+                type: string
+                description: 'specifies the type of the set you want to retrieve. For patient_set specify `patient`,
+                for observation_set specify `observation`'
+              id:
+                type: array
+                description: 'IDs of the set specified by `typeOfSet`. To specify more than one value, multiple parameter
+                instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`.'
+                items:
+                  type: integer
+              elements:
+                type: string
+                description: 'json that specifies the list of pairs: `[{dataType:${dataType}, format:$(fileFormat}]`,
+                where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,
+                or one of the supported high dimensional data types and `format` is one of the supported file formats
+                you want to export current data type to.
+                Example: `[{"dataType":clinical, "format":TSV},{"dataType":rnaseq_transcript, "format":TSV}]`.'
+            required: [ "typeOfSet", "id", "elements" ]
+      responses:
+        200:
+          description:  |
+            an object with the run export job with status 'Started' or 'Error'.
+          schema:
+            $ref: '#/definitions/export_job'
+  /v2/export/{jobId}/download:
+    get:
+      description: |
+        Gets zipped file with exported data, created by specified job.
+      tags:
+        - v2
+      parameters:
+        - name: jobId
+          required: true
+          in: path
+          description: 'id of the export job. The job has to have a status `Completed`.'
+          type: string
+      responses:
+        200:
+          description:  |
+            Zip file stream with expoted data.
+          schema:
+            type: file
+  /v2/export/{jobId}/status:
+    get:
+      description: |
+        Gets a status of specified data export job.
+      tags:
+        - v2
+      parameters:
+        - name: jobId
+          required: true
+          in: path
+          description: 'Id of the export job.'
+          type: string
+      responses:
+        200:
+          description: |
+            an object with the export job, including its status.
+          schema:
+            $ref: '#/definitions/export_job'
+  /v2/export/jobs:
+    get:
+      description: |
+        Gets all export jobs accessible by the user.
+      tags:
+        - v2
+      produces:
+        - application/json
+      responses:
+        200:
+          description: |
+            Returns a list of export jobs
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/export_job'
+  /v2/export/data_formats:
+    get:
+      description: |
+        Gets data formats for specified sets, including `clinical` type and high dimensional types.
+      tags:
+        - v2
+      parameters:
+        - name: id
+          required: true
+          in: query
+          description: 'IDs of the set specified by `typeOfSet`. To specify more than one value, multiple parameter
+          instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`'
+          type: array
+          collectionFormat: multi
+          items:
+            type: integer
+        - name: typeOfSet
+          required: true
+          in: query
+          description: 'specifies the type of the set you want to retrieve. For patient_set specify `patient`,
+          for observation_set specify `observation`.'
+          type: string
+      responses:
+        200:
+          description:  |
+            Returns a list of known data formats for specified sets.
+            Example: `{ "dataFormats": ["clinical", "mrna", "rnaseq_transcript"] }`
+          schema:
+            type: object
+            properties:
+              dataFormats:
+                type: array
+                items:
+                  type: string
+  /v2/export/file_formats:
+    get:
+      description: |
+        Gets supported export file formats.
+      tags:
+        - v2
+      produces:
+        - application/json
+      responses:
+        200:
+          description: |
+            Returns a list of file formats that data can be exported to. Example: `{ "fileFormats": ["TSV"] }`
+          schema:
+            type: object
+            properties:
+              supportedFileFormats:
+                type: array
+                items:
+                  type: string
 definitions:
+  version:
+    type: object
+    properties:
+      id: { type: string }
+      prefix: { type: string, description: the url prefix where this api can be found }
+      version: { type: string, description: the full version string }
+      major: { type: integer }
+      minor: { type: integer }
+      patch: { type: integer }
+      tag: { type: string }
+      features:
+        type: object
+        properties:
+          features:
+            type: integer
+            description: string keys and numeric values that indicate features and their revision level. These are only present for -dev versions.
+    required: [ "id", "prefix", "major" ]
+
   v1observation:
     type: object
     properties:
@@ -1463,6 +1842,26 @@ definitions:
       trial:
         type: string
   
+  patient_set:
+    type: object
+    properties:
+      description:
+        type: string
+      errorMessage:
+        type: string
+      id:
+        type: integer
+      setSize:
+        type: integer
+      status:
+        type: string
+      username:
+        type: string
+      requestConstraints:
+        type: string
+      apiVersion:
+        type: string  
+  
   observation:
     type: object
     properties:
@@ -1576,3 +1975,31 @@ definitions:
   dimensionValue:
     type: object
     description: 'The structure of this value is described in the header. The order of the dimensionValues is determined by the order of the dimensionDeclaration in the header.'
+
+  dimensionElements:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+      elements:
+        description: 'List of dimension elements with properties specific to a given dimension.'
+        type: array
+        items:
+          type: object
+
+  export_job:
+    type: object
+    properties:
+      id:
+        type: integer
+      jobName:
+        type: string
+      jobStatus:
+        type: string
+      jobStatusTime:
+        type: string
+        format: datetime
+      userId:
+        type: string
+      viewerURL:
+        type: string

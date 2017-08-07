@@ -1,4 +1,5 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.rest.protobug
 
 import grails.test.mixin.integration.Integration
@@ -13,10 +14,13 @@ import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.TestData
 import org.transmartproject.rest.hypercubeProto.ObservationsProto
+import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import spock.lang.Ignore
 import spock.lang.Specification
+
+import java.util.zip.ZipOutputStream
 
 import static spock.util.matcher.HamcrestSupport.that
 import static org.hamcrest.Matchers.*
@@ -33,7 +37,9 @@ class ObservationsBuilderTests extends Specification {
     TestData testData
     ClinicalTestData clinicalData
     //Map<String, DimensionImpl> dims
-    
+
+    String tempDirectory = '/var/tmp/jobs/test'
+
     @Autowired
     MultidimensionalDataResourceService queryResource
 
@@ -170,6 +176,31 @@ class ObservationsBuilderTests extends Specification {
         header.dimensionDeclarationsList.size() == mockedCube.dimensions.size()
         cells.size() == clinicalData.longitudinalClinicalFacts.size()
         footer != null
+    }
+
+    public void testCSVSerialization() {
+        setupData()
+        def dataType = 'clinical'
+        def fileExtension = '.tsv'
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        def mockedCube = queryResource.retrieveData(dataType, [clinicalData.longitudinalStudy], constraint: constraint)
+        def builder = new HypercubeCSVSerializer()
+
+        when:
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
+        ZipOutputStream out = new ZipOutputStream(byteArrayOutputStream)
+        builder.write([dataType : dataType], mockedCube, out)
+        out.close()
+        out.flush()
+        List expectedEntries = ["${dataType}_observations$fileExtension",
+                                "${dataType}_concept$fileExtension",
+                                "${dataType}_patient$fileExtension",
+                                "${dataType}_study$fileExtension",
+                                "${dataType}_trial_visit$fileExtension"]
+
+        then:
+        out.xentries != null
+        out.names.sort() == expectedEntries.sort()
     }
 
     void setupData() {

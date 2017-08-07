@@ -51,6 +51,19 @@ There is data migration scripts that is not included into the automatic migratio
 It's `oracle/merge_concepts.sql`. It merges several terms you specify in the script into one.
 You might consider to run it manually.
 
+### Storing patient set query inside qt_query_master table.
+
+| Script                           | Description                  |
+|----------------------------------|------------------------------|
+| `qt_query_master.sql` 	   | Add REQUEST_CONSTRAINTS and API_VERSION columns |
+
+### Data export job.
+
+| Script                           | Description                  |
+|----------------------------------|------------------------------|
+| `async_job.sql` 	   | Add USER_ID column |
+
+
 How to apply all changes
 ------------------------
 

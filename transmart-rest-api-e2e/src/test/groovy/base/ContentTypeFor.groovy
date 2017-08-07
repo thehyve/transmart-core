@@ -8,5 +8,6 @@ public interface ContentTypeFor {
             contentTypeForXML = 'application/xml',
             contentTypeForoctetStream = 'application/octet-stream',
             contentTypeForProtobuf = 'application/x-protobuf',
-            contentTypeForJSON = 'application/json'
+            contentTypeForJSON = 'application/json',
+            contentTypeForZip = 'application/zip'
 }

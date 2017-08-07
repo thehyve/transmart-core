@@ -1,7 +1,13 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.core.multidimquery
 
+import groovy.transform.Immutable
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
+import org.transmartproject.core.users.User
 
 interface MultiDimensionalDataResource {
 
@@ -23,5 +29,40 @@ interface MultiDimensionalDataResource {
     Hypercube retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies)
 
     Dimension getDimension(String name)
+
+    Long count(MultiDimConstraint constraint, User user)
+    Long cachedCount(MultiDimConstraint constraint, User user)
+
+    Iterable getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user)
+
+    QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) 
+
+    QueryResult findPatientSet(Long patientSetId, User user)
+
+    Iterable<QueryResult> findPatientSets(User user)
+
+    Long getDimensionElementsCount(Dimension dimension, MultiDimConstraint constraint, User user)
+    Long cachedPatientCount(MultiDimConstraint constraint, User user)
+
+    /**
+     * Retrieve aggregate information
+     *
+     * @param types the list of aggregates you want
+     * @param constraint specifies which observations you want to aggregate
+     * @param user The user whose access rights to consider
+     * @return a map of aggregates. The keys are the names of the aggregates.
+     */
+    Map aggregate(List<AggregateType> types, MultiDimConstraint constraint, User user)
+
+    Hypercube highDimension(
+            MultiDimConstraint assayConstraint_,
+            MultiDimConstraint biomarkerConstraint,
+            String projectionName,
+            User user,
+            String type)
+
+    Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user)
+
+    List<String> retriveHighDimDataTypes(MultiDimConstraint assayConstraint, User user)
 
 }

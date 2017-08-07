@@ -1,4 +1,5 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.rest
 
 import grails.web.mime.MimeType
@@ -36,7 +37,7 @@ class PatientSetResourceTests extends ResourceSpec {
         that response.json, mapWith(
                 setSize: 1,
                 status: 'FINISHED',
-                description: 'Patient set for "My query"',
+                description: 'My query',
                 id: isA(Number),
                 username: 'user_-301',)
         that response.json, hasSelfLink("/${VERSION}/patient_sets/${response.json['id']}")

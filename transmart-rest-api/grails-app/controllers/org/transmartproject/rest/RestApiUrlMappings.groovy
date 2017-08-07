@@ -35,6 +35,9 @@ class RestApiUrlMappings {
         "/versions/$id"(method: 'GET', controller: 'version', action: 'show')
 
         group "/v2", {
+            "/versions"(method: 'GET', controller: 'version', action: 'index')
+            "/versions/$id"(method: 'GET', controller: 'version', action: 'show')
+
             "/studies"(method: 'GET', controller: 'studyQuery', action: 'listStudies') {
                 apiVersion = 'v2'
             }
@@ -44,34 +47,36 @@ class RestApiUrlMappings {
             "/studies/studyId/$studyId"(method: 'GET', controller: 'studyQuery', action: 'findStudyByStudyId') {
                 apiVersion = 'v2'
             }
-            "/observation_list"(method: 'GET', controller: 'query', action: 'observationList') {
-                apiVersion = 'v2'
-            }
-            "/observations"(method: 'GET', controller: 'query', action: 'observations') {
-                apiVersion = 'v2'
-            }
-            "/high_dim"(method: 'GET', controller: 'query', action: 'highDim') {
+            "/observations"(controller: 'query') {
+                action = [GET: 'observations', POST: 'observations']
                 apiVersion = 'v2'
             }
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
                 apiVersion = 'v2'
             }
-            "/observations/aggregate"(method: 'GET', controller: 'query', action: 'aggregate') {
+            "/observations/aggregate"(controller: 'query') {
+                action = [GET: 'aggregate', POST: 'aggregate']
                 apiVersion = 'v2'
             }
-            "/observations/count"(method: 'GET', controller: 'query', action: 'count') {
+            "/observations/count"(controller: 'query') {
+                action = [GET: 'count', POST: 'count']
                 apiVersion = 'v2'
             }
             "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
                 apiVersion = 'v2'
             }
+            "/patient_sets"(method: 'GET', controller: 'patientQuery', action: 'findPatientSets') {
+                apiVersion = 'v2'
+            }
             "/patient_sets"(method: 'POST', controller: 'patientQuery', action: 'createPatientSet') {
                 apiVersion = 'v2'
             }
-            "/patients/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatient') {
+            "/patients/$id"(controller: 'patientQuery') {
+                action = [GET: 'findPatient', POST: 'findPatient']
                 apiVersion = 'v2'
             }
-            "/patients"(method: 'GET', controller: 'patientQuery', action: 'listPatients') {
+            "/patients"(controller: 'patientQuery') {
+                action = [GET: 'listPatients', POST: 'listPatients']
                 apiVersion = 'v2'
             }
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
@@ -128,9 +133,35 @@ class RestApiUrlMappings {
             "/recommended_concepts/$conceptCode"(method: 'GET', controller: 'concept', action: 'showRecommended') {
                 apiVersion = 'v2'
             }
+            "/dimensions/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
+                apiVersion = 'v2'
+            }
+            "/export/job"(method: 'POST', controller: 'export', action: 'createJob') {
+                apiVersion = "v2"
+            }
+            "/export/$jobId/run"(method: 'POST', controller: 'export', action: 'run') {
+                apiVersion = "v2"
+            }
+            "/export/$jobId/download"(method: 'GET', controller: 'export', action: 'download') {
+                apiVersion = "v2"
+            }
+            "/export/$jobId/status"(method: 'GET', controller: 'export', action: 'jobStatus') {
+                apiVersion = "v2"
+            }
+            "/export/jobs"(method: 'GET', controller: 'export', action: 'listJobs') {
+                apiVersion = "v2"
+            }
+            "/export/data_formats"(method: 'GET', controller: 'export', action: 'dataFormats') {
+                apiVersion = "v2"
+            }
+            "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {
+                apiVersion = "v2"
+            }
         }
 
         group "/v1", {
+            "/versions"(method: 'GET', controller: 'version', action: 'index')
+            "/versions/$id"(method: 'GET', controller: 'version', action: 'show')
 
             '/studies'(controller: 'study', method: 'GET', resources: 'study', includes: ['index', 'show'])
 
@@ -171,14 +202,7 @@ class RestApiUrlMappings {
             '/patient_sets'(resources: 'patientSet', include: ['index', 'show', 'save'])
 
             '/observations'(method: 'GET', controller: 'observation', action: 'indexStandalone')
-            
             '/observations2'(method: 'GET', controller: 'observation', action: 'observations2')
-
-            "/export"(method: 'GET', controller: 'ExportController', action:'export')
-
-            "/api-version"(method: 'GET', controller: 'apiVersion', action: 'index')
-
-            "/export/datatypes"(method: 'GET', controller: 'export', action:'datatypes')
 
             "/studies/$studyId/concepts/$id**"(
                     controller: 'concept', action: 'show', method: 'GET'
@@ -189,7 +213,6 @@ class RestApiUrlMappings {
                     id validator: { !(it ==~ '.+/highdim(?:/[^/]+)?') }
                 }
             }
-
         }
 
     }

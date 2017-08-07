@@ -3,6 +3,8 @@ package org.transmartproject.app
 import com.recomdata.genesignature.FileSchemaException
 import com.recomdata.genesignature.WizardModelDetails
 import com.recomdata.util.DomainObjectExcelHelper
+import grails.plugin.springsecurity.SpringSecurityService
+import org.springframework.beans.factory.annotation.Autowired
 import org.transmart.biomart.BioAssayPlatform
 import org.transmart.biomart.CellLine
 import org.transmart.biomart.Compound
@@ -13,6 +15,7 @@ import org.transmart.searchapp.GeneSignature
 import org.transmart.searchapp.GeneSignatureFileSchema
 import org.transmart.searchapp.SearchKeyword
 import org.transmart.searchapp.SearchKeywordTerm
+import org.transmartproject.core.audit.AuditLogger
 import org.transmartproject.core.users.User
 
 import javax.servlet.ServletOutputStream
@@ -28,10 +31,15 @@ class GeneSignatureController {
     private static final String GENERIC_OTHER_CODE_TYPE_NAME = 'OTHER'
 
     // service injections
-    def geneSignatureService
-    def springSecurityService
-    def i2b2HelperService
-    def auditLogService
+    @Autowired
+    GeneSignatureService geneSignatureService
+    @Autowired
+    SpringSecurityService springSecurityService
+    @Autowired
+    I2b2HelperService i2b2HelperService
+    @Autowired(required = false)
+    AuditLogger auditLogService
+    @Autowired
     User currentUserBean
 
     // concept code categories

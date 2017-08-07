@@ -1,5 +1,6 @@
 package com.recomdata.transmart.asynchronous.job
 
+import com.recomdata.transmart.data.export.DataExportService
 import com.recomdata.transmart.domain.i2b2.AsyncJob
 import grails.transaction.Transactional
 import groovy.json.JsonSlurper
@@ -17,7 +18,7 @@ class AsyncJobService {
     Scheduler quartzScheduler
     def springSecurityService
     def jobResultsService
-    def dataExportService
+    DataExportService dataExportService
 
     /**
      * Method that will get the list of jobs to show in the jobs tab

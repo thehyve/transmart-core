@@ -12,13 +12,12 @@ dependencies {
     profile "org.grails.profiles:web-plugin"
     provided "org.grails:grails-plugin-services"
     provided "org.grails:grails-plugin-domain-class"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
     compile 'net.sf.opencsv:opencsv:2.3'
     compile 'org.rosuda:Rserve:1.7.3'
     compile 'org.mapdb:mapdb:0.9.10'
 
-    /* serializable ImmutableMap only on guava 16 */
-    compile group: 'com.google.guava', name: 'guava', version: '16.0-dev-20140115-68c8348'
+    compile "com.google.guava:guava:$guavaVersion"
     compile project(':transmart-core-api') 
 
     /* compile instead of test due to technical limitations

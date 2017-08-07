@@ -1,0 +1,10 @@
+gradle/
+.gradle
+gradlew*
+.idea
+out
+.class
+.jar
+*/build/
+/build/
+*.iml

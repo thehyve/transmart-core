@@ -315,6 +315,16 @@ grails { plugin { springsecurity {
                         authorizedGrantTypes: ['implicit', 'password'],
                         redirectUris: glowingBearRedirectUris,
                     ],
+                    [
+                        clientId: 'swagger',
+                        clientSecret: '',
+                        authorities: ['ROLE_CLIENT'],
+                        scopes: ['basic', 'vendorExtensions'],
+                        authorizedGrantTypes: ['implicit', 'password'],
+                        redirectUris: [
+                            (org.transmartproject.app.transmartURL - ~'\\/$') + '/open-api/o2c.html',
+                        ],
+                    ],
             ]
         }
     }
@@ -424,7 +434,7 @@ if (samlEnabled) {
             // Whether sessions should be invalidated after logout
             logout.invalidateHttpSession = "true"
             // Id of the spring security user service that should be called to fetch users.
-            saml.userService = "org.transmart.FederatedUserDetailsService"
+            saml.userService = "org.transmart.oauth.FederatedUserDetailsService"
         }
     } } }
 } else { // if (!samlEnabled)

@@ -1,38 +1,29 @@
 Clinical Data
 ================
 
-Clinical data is meant for all kind of measurements not falling into other
+Clinical data is meant for all kinds of measurements not falling into other
 categories. It can be data from questionnaires, physical body measurements or
-socio-economic info about patient.
+socio-economic info about the patients.
 
+The bare minimum that is needed to upload clinical data is a [data file](clinical_data_file.md) and a [column mapping file](column-mapping.md).
 
 Parameters
 ------------
-- `COLUMN_MAP_FILE` **Mandatory**. Points to the column file. See below for format.
-- `WORD_MAP_FILE` Points to the file with dictionary to be used.
-- `XTRIAL_FILE` Points to [the cross study concepts file](xtrial.md).
-- `TAGS_FILE` Points to [the concepts tags file](tags.md).
-- `ONTOLOGY_MAP_FILE` Points to [the ontology mapping file](ontology-mapping.md).
+The parameters file should be named `clinical.params` and may contain:
+- `COLUMN_MAP_FILE` **(Mandatory)** Points to the [column mapping file](column-mapping.md).
+- `WORD_MAP_FILE` Points to the [word mapping file](word-mapping.md).
+- `XTRIAL_FILE` Points to the [cross study concepts file](xtrial.md).
+- `TAGS_FILE` Points to the [concepts tags file](tags.md). Alternatively this may be specified in your [tags parameter file](tags.md).
+- `ONTOLOGY_MAP_FILE` Points to the [ontology mapping file](ontology-mapping.md).
+- `TRIAL_VISIT_MAP_FILE` **(Not yet implemented)** Points to the [trial visit mapping file](trial-visit-mapping.md).
+- `PATIENT_VISIT_MAP_FILE` **(Not yet implemented)** Points to the [patient visit mapping file](patient-visit-mapping.md).
 
-You could also use [the study-specific parameters](study-params.md).
-
-COLUMN_MAP_FILE format
+Clinical data upload
 ------------
+Uploading the clinical data is usually the first procedure when uploading a study to tranSMART:
+- Place the `clinical.params` file into the `clinical` folder of your study, alongside all other low-dimensional files that should be part of this upload, as specified in your clinical parameters (see above).
+- Run the upload pipeline from your transmart-batch folder:  
+`./transmart-batch.sh -p ./studies/GSE8581/clinical/clinical.params`
 
-|Filename|Category Code|Column Number|Data Label|Data Label Source|Control Vocab Cd|Concept Type |
-|--------|-------------|-------------|----------|-----------------|----------------|-------------|
-|data.txt|folder       |   0         |gewicht   |                 |                |NUMERICAL    |
-Table, tab separated, txt file. It contains information about columns which are
-to be uploaded into tranSMART.
-- `Filename`  This column determines the file where
-column is located
-- `Category Code` Path which contains the file
-- `Column Number` Index of the column from the left beginning from 0
-- `Data Label`  Label visible inside tranSMART after upload
-- `Data Label Source` works for template column only (has `\` in data label column). Refers to the data label column where to get data for dynamic concept path generation. See [templates](templates.md) documentation for more details.
-- `Control Vocab cd`  IGNORED skip if you don't need Concept Type Column
-- `Concept Type`  Use this concept type instead of inferring it from the first row
-
-Allowed values for Concept type:
-- `NUMERICAL` for numerical
-- `CATEGORICAL` for text
+#### Clinical data deletion
+Clinical data observations can be deleted by running the [backout.params](backout.md).

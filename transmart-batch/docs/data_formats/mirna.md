@@ -13,8 +13,8 @@ The annotation data file has to have following columns:
 
 |   Column Name   |               Description                |
 |-----------------|------------------------------------------|
-| ID_REF          | Any id (e.g. `1`) just to join with data |
-| MIRNA_ID        | miRNA identifier (e.g. `hsa-mir-302d`)   |
+| ID_REF          | **(Mandatory)** Any kind of identifier (e.g. `1`) to label each miRNA. Must be unique. |
+| MIRNA_ID        | **(Mandatory)** miRNA identifier (e.g. `hsa-mir-302d`).   |
 
 **Note:** Do not forget to upload miRNA dictionary with transmart-data:
 `make -C data/{postgres|oracle}/ load_mirna_dictionary`
@@ -26,13 +26,13 @@ Data
 
 ### Subject Sample Mapping
 
-See [subject-sample-mapping.md](subject-sample-mapping.md)
+See [subject-sample-mapping.md](subject-sample-mapping.md).
 
 ### Expression Data
 
 This is the data file format:
 
-| `ID_REF` | `GSM210005` | `GSM210006` | `GSM210007` |
+| ID_REF | GSM210005 | GSM210006 | GSM210007 |
 |----------|-------------|-------------|-------------|
 |     1    | 0           | 179.15      |367.436      |
 

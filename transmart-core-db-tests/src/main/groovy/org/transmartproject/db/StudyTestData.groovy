@@ -36,11 +36,15 @@ class StudyTestData {
                 if(!candidates) {
                     assert DimensionImpl.isBuiltinDimension(it), "Unknown dimension name '$it', " +
                             "modifier dimensions as string are not supported in createStudy()"
-                    study.addToDimensionDescriptions(new DimensionDescription(name: it))
+                    // saving is necessary here so that this dimension will be visible to other studies that are
+                    // created within this same transaction. Without it we will have duplicate dimensions.
+                    def dim = new DimensionDescription(name: it).save()
+                    study.addToDimensionDescriptions(dim)
                 } else if(candidates.size() == 1) {
                     study.addToDimensionDescriptions(candidates[0])
                 } else {
-                    assert false, "Multiple DimensionDescriptions with the same name found: '$it'"
+                    assert false, "Multiple DimensionDescriptions with the same name found: '$it'; this should be " +
+                            "impossible due to the unique name constraint"
                 }
             } else {
                 assert false, "Dimensions iterable passed to createStudy contains object that is not a String or a " +

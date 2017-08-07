@@ -1,8 +1,10 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2.hypercube
 
 import annotations.RequiresStudy
 import base.RESTSpec
+import spock.lang.Requires
 
 import static base.ContentTypeFor.contentTypeForJSON
 import static base.ContentTypeFor.contentTypeForProtobuf
@@ -181,7 +183,7 @@ class RelativeTimepointsSpec extends RESTSpec {
      *  when: "I get observations related to the General relative time label"
      *  then: "multiple concepts from both EHR and CLINICAL_TRIAL are returned"
      */
-    @RequiresStudy([CLINICAL_TRIAL_ID, EHR_ID])
+    @RequiresStudy([CLINICAL_TRIAL_ID, EHR_ID]) @Requires({ RUN_HUGE_TESTS })
     def "multiple concepts to the same relative timepoint within several studies"() {
         given: "studies EHR and CLINICAL_TRIAL are loaded"
         def request = [

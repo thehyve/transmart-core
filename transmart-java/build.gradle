@@ -14,7 +14,7 @@ dependencies {
     compile "org.hibernate:hibernate-ehcache"
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
     //runtime "com.h2database:h2"
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails.plugins:geb"
@@ -38,7 +38,7 @@ dependencies {
     compile 'org.apache.commons:commons-math:2.2' //>2MB lib briefly used in ChartController
     compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.1'
     compile 'org.rosuda:Rserve:1.7.3'
-    compile 'com.google.guava:guava:18.0'
+    compile "com.google.guava:guava:$guavaVersion"
 
     /* for GeneGo web services: */
     compile 'axis:axis:1.4'

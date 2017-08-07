@@ -1,4 +1,5 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package base
 
 import groovy.json.JsonBuilder
@@ -39,6 +40,17 @@ abstract class RESTSpec extends Specification{
             oauth2token.put(RestHelper.oauth2Authenticate(http, user))
         }
         return oauth2token.get(user.'username')
+    }
+
+    def getOrPostRequest(method, request, params){
+        if(method == "GET") {
+            request.query = params
+            return get(request)
+        }
+        else {
+            request.body = params
+            return post(request)
+        }
     }
 
     def delete(def requestMap){

@@ -145,7 +145,7 @@ environments {
             dialect = 'org.hibernate.dialect.H2Dialect'
             username = 'sa'
             password = ''
-            dbCreate = 'update'
+            dbCreate = 'create-drop'
             logSql = false
             formatSql = true
         }

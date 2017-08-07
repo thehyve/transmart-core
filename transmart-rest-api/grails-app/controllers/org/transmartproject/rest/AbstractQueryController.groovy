@@ -1,13 +1,15 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.rest
 
 import grails.artefact.Controller
 import grails.converters.JSON
+import groovy.json.JsonSlurper
 import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.ConstraintBindingException
 import org.transmartproject.db.multidimquery.query.ConstraintFactory
@@ -16,7 +18,7 @@ import org.transmartproject.rest.misc.CurrentUser
 abstract class AbstractQueryController implements Controller {
 
     @Autowired
-    QueryService queryService
+    MultiDimensionalDataResource multiDimService
 
     @Autowired
     CurrentUser currentUser
@@ -25,9 +27,16 @@ abstract class AbstractQueryController implements Controller {
     UsersResource usersResource
 
     @Autowired
-    MultidimensionalDataSerialisationService multidimensionalDataSerialisationService
-
+    MultidimensionalDataService multidimensionalDataService
+    
     def conceptsResourceService
+
+    static def globalParams = [
+            "controller",
+            "action",
+            "format",
+            "apiVersion"
+    ]
 
     /**
      * Checks if there are any parameters that are not in the set of default parameters
@@ -39,7 +48,7 @@ abstract class AbstractQueryController implements Controller {
      * @throws InvalidArgumentsException iff a parameter is used that is not supported.
      */
     static void checkParams(Map parameters, Collection<String> acceptedParameters) {
-        def acceptedParams = (['format', 'action', 'controller', 'apiVersion'] as Set) + acceptedParameters
+        def acceptedParams = (globalParams as Set) + acceptedParameters
         def unacceptableParams = parameters.keySet() - acceptedParams
         if (!unacceptableParams.empty) {
             if (unacceptableParams.size() == 1) {
@@ -50,52 +59,67 @@ abstract class AbstractQueryController implements Controller {
         }
     }
 
-    protected static Constraint parseConstraint(String constraintText) {
-        try {
-            Map constraintData = JSON.parse(constraintText) as Map
-            try {
-                return ConstraintFactory.create(constraintData)
-            } catch (ConstraintBindingException e) {
-                throw e
-            } catch (Exception e) {
-                throw new InvalidArgumentsException(e.message)
-            }
-        } catch (ConverterException e) {
-            throw new InvalidArgumentsException('Cannot parse constraint parameter.')
-        }
-    }
-
-    protected Constraint getConstraint(String constraint, String paramName = 'constraint') {
-        if (constraint == null) {
-            throw new InvalidArgumentsException("${paramName} parameter is missing.")
-        }
-        if (!constraint) {
+    protected static Constraint getConstraintFromStringOrJson(constraintParam) {
+        if (!constraintParam) {
             throw new InvalidArgumentsException('Empty constraint parameter.')
         }
-        String constraintParam = URLDecoder.decode(constraint, 'UTF-8')
-        parseConstraint(constraintParam)
-    }
 
-    protected Constraint bindConstraint(String constraint_text) {
-        Constraint constraint = getConstraint(constraint_text)
-        // check for parse errors
-        if (constraint.hasErrors()) {
-            response.status = 400
-            if(constraint.errors.fieldErrors.any()){
-                throw new InvalidArgumentsException(constraint.errors.fieldErrors.first().defaultMessage)
+        if (constraintParam instanceof String) {
+            try {
+                def constraintData = JSON.parse(constraintParam) as Map
+                return ConstraintFactory.create(constraintData)
+            } catch (ConverterException c) {
+                throw new InvalidArgumentsException("Cannot parse constraint parameter: $constraintParam")
             }
-            render constraint.errors as JSON
-            return null
+        } else {
+            return ConstraintFactory.create(constraintParam)
         }
-        // check for validation errors
-        constraint.validate()
-        if (constraint.hasErrors()) {
-            response.status = 400
-            render constraint.errors as JSON
-            return null
-        }
-        return constraint
     }
 
+    protected Constraint bindConstraint(constraintParam) {
+        try {
+            return getConstraintFromStringOrJson(constraintParam)
+        } catch (ConstraintBindingException e) {
+            if(e.errors?.hasErrors()) {
 
+                // This representation is compatible with what is returned when an exception is not caught.
+                //
+                // I want to add properties to the `e.errors as JSON`, but getting at a map representation of e.errors
+                // is not so easy. This is an ugly workaround, but this only happens for error conditions.
+                Map error = new JsonSlurper().parseText((e.errors as JSON).toString())
+                error = [
+                        httpStatus: 400,
+                        message: e.message,
+                        type: e.class.simpleName,
+                ] + error
+
+                response.status = 400
+                render error as JSON
+                return null
+            }
+            throw e
+        }
+    }
+
+    /**
+     * Gets arguments from received REST request
+     * either from queryString for GET method
+     * or from request body for POST method.
+     *
+     * @return Map with passed arguments
+     */
+    protected Map getGetOrPostParams() {
+        if(request.method == "POST") {
+            return request.JSON as Map
+        }
+        return params.collectEntries { String k, v ->
+            if (!globalParams.contains(k)) {
+                if(v instanceof Object[] || v instanceof List) {
+                    [k, v.collect { URLDecoder.decode(it, 'UTF-8') }]
+                } else {
+                    [k, URLDecoder.decode(v, 'UTF-8')]
+                }
+            } else [:]
+        }
+    }
 }

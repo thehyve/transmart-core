@@ -1,4 +1,5 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.db.util
 
 import groovy.transform.CompileStatic
@@ -6,32 +7,38 @@ import org.hibernate.ScrollableResults
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import java.util.function.Function
+
 @CompileStatic
 class ScrollableResultsIterator<T> implements Iterator<T>, Closeable {
 
     private Logger logger = LoggerFactory.getLogger(getClass())
     private ScrollableResults scrollableResults
+    private Function<Object,T> transform
     private Boolean hasNext = null
     private boolean closed
 
-    ScrollableResultsIterator(ScrollableResults scrollableResults) {
+    ScrollableResultsIterator(ScrollableResults scrollableResults, Function<Object,T> transform=null) {
         this.scrollableResults = scrollableResults
+        this.transform = transform
     }
 
     @Override
     boolean hasNext() {
         if (hasNext == null) {
             hasNext = scrollableResults.next()
-        } else {
-            hasNext
+            if(!hasNext) close()
         }
+        hasNext
     }
 
     @Override
     T next() {
         if (hasNext()) {
             hasNext = null
-            (T) scrollableResults.get(0)
+            def elem = scrollableResults.get(0)
+            if(transform != null) return transform.apply(elem)
+            else return (T) elem
         } else {
             throw new NoSuchElementException()
         }
@@ -44,7 +51,7 @@ class ScrollableResultsIterator<T> implements Iterator<T>, Closeable {
 
     @Override
     void close() throws IOException {
-        this.scrollableResults.close()
+        if(!closed) this.scrollableResults.close()
         closed = true
     }
 

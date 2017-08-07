@@ -1,4 +1,5 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2
 
 public interface Operator {
@@ -58,6 +59,7 @@ public interface constraints {
            TemporalConstraint = 'temporal',
            ConceptConstraint = 'concept',
            NullConstraint = 'null',
-           StudyNameConstraint = 'study_name'
+           StudyNameConstraint = 'study_name',
+           SubSelectionConstraint = 'subselection'
 }
 

@@ -3,7 +3,7 @@ package org.transmartproject.app
 import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.oauth2.provider.token.TokenStore
-import org.transmart.oauth2.AccessToken
+import org.transmart.oauth.AccessToken
 
 @Transactional
 class UserApplicationsController {

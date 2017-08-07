@@ -1,11 +1,17 @@
 package org.transmartproject.interceptors
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.audit.AuditLogger
 import org.transmartproject.core.users.User
 
 
 class RWGInterceptor {
-    def auditLogService
+
+    @Autowired(required=false)
+    AuditLogger auditLogService
+    @Autowired
     User currentUserBean
+
     RWGInterceptor(){
         match(controller: 'RWG', action: 'getFacetResults')
     }

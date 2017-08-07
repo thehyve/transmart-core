@@ -1,4 +1,5 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package tests.rest.v2
 
 import annotations.RequiresStudy
@@ -28,23 +29,28 @@ class AggregatedSpec extends RESTSpec {
     def "aggregated timeseries maximum"() {
 
         given: "study EHR is loaded"
+        def params = [
+                constraint: toJSON([
+                        type: ConceptConstraint,
+                        path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
+                ]),
+                type      : MAX
+        ]
         def request = [
                 path      : PATH_AGGREGATE,
-                acceptType: contentTypeForJSON,
-                query     : [
-                        constraint: toJSON([
-                                type: ConceptConstraint,
-                                path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"
-                        ]),
-                        type      : MAX
-                ]
+                acceptType: contentTypeForJSON
         ]
 
         when: "for that study I Aggregated the concept Heart Rate with type max"
-        def responseData = get(request)
+        def responseData = getOrPostRequest(method, request, params)
 
         then: "the number 102 is returned"
         assert responseData.max == 102.0
+
+        where:
+        method | _
+        "POST" | _
+        "GET"  | _
     }
 
     /**

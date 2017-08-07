@@ -1,6 +1,7 @@
 package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
+import org.transmartproject.rest.VersionController.VersionWrapper
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 
@@ -12,15 +13,12 @@ class VersionSerializationHelper extends AbstractHalOrJsonSerializationHelper<Ve
 
     @Override
     Collection<Link> getLinks(VersionWrapper version) {
-        [new Link(RELATIONSHIP_SELF, "/versions/${version.id}")]
+        [new Link(RELATIONSHIP_SELF, "/versions/${version.version.id}")]
     }
 
     @Override
     Map<String, Object> convertToMap(VersionWrapper version) {
-        [
-                id: version.id,
-                prefix: version.prefix
-        ]
+        version.version as LinkedHashMap
     }
 
 }

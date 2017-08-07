@@ -1,4 +1,5 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.db.tree
 
 import groovy.util.logging.Slf4j
@@ -10,6 +11,7 @@ import org.hibernate.criterion.Order
 import org.hibernate.criterion.Restrictions
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
@@ -17,7 +19,6 @@ import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.QueryService
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.ConstraintFactory
 import org.transmartproject.db.ontology.I2b2Secure
@@ -32,7 +33,8 @@ class TreeService {
     @Autowired
     AccessControlChecks accessControlChecks
 
-    QueryService queryService
+    @Autowired
+    MultiDimensionalDataResource multiDimensionalDataResource
 
     @Resource
     OntologyTermTagsResource tagsResource
@@ -70,6 +72,7 @@ class TreeService {
                         currentNode,
                         children
                 )
+                node.conceptPath = getConceptPath(node.tableName, node.dimensionCode)
                 node.dimension = getDimension(node.tableName, currentNode.code)
                 node.children.each { child ->
                     child.parent = node
@@ -101,13 +104,7 @@ class TreeService {
             case 'patient_dimension':
                 return DimensionImpl.PATIENT.name
             case 'modifier_dimension':
-                def dimension = DimensionDescription.createCriteria().list {
-                    eq('modifierCode', modifierCode)
-                } as List<DimensionDescription>
-                if (dimension.size() > 0) {
-                    return dimension.first().name
-                }
-                break
+                return DimensionDescription.findByModifierCode(modifierCode)?.name
             case 'trial_visit_dimension':
                 return DimensionImpl.TRIAL_VISIT.name
             case 'study':
@@ -116,6 +113,10 @@ class TreeService {
         return 'UNKNOWN'
     }
 
+    static String getConceptPath(String table, String code){
+        return table == 'concept_dimension' ? code : null
+    }
+    
     /**
      * Adds observation counts and patient counts to leaf nodes.
      */
@@ -124,13 +125,13 @@ class TreeService {
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
                 if (node.tableName == 'concept_dimension' && node.constraint) {
                     Constraint constraint = ConstraintFactory.create(node.constraint)
-                    node.observationCount = queryService.cachedCountForConstraint(constraint, user)
-                    node.patientCount = queryService.cachedPatientCountForConstraint(constraint, user)
+                    node.observationCount = multiDimensionalDataResource.cachedCount(constraint, user)
+                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(constraint, user)
                 }
             } else {
                 if (OntologyTerm.VisualAttributes.STUDY in node.visualAttributes && node.constraint) {
                     Constraint constraint = ConstraintFactory.create(node.constraint)
-                    node.patientCount = queryService.cachedPatientCountForConstraint(constraint, user)
+                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(constraint, user)
                 }
                 enrichWithCounts(node.children, user)
             }

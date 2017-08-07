@@ -63,6 +63,8 @@ class QueriesResourceService implements QueriesResource {
             generatedSql   : null,
             requestXml     : queryDefinitionXmlService.toXml(definition),
             i2b2RequestXml : null,
+            requestConstraints  : null,
+            apiVersion          : null
         )
 
         // 2. Populate qt_query_instance
@@ -148,7 +150,7 @@ class QueriesResourceService implements QueriesResource {
 
         // 7. Update result instance and query instance
         resultInstance.setSize = resultInstance.realSetSize = setSize
-        resultInstance.description = "Patient set for \"${definition.name}\""
+        resultInstance.description = definition.name
         resultInstance.endDate = new Date()
         resultInstance.statusTypeId = QueryStatus.FINISHED.id
 

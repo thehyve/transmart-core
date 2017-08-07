@@ -1,4 +1,5 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.core.multidimquery
 
 import com.google.common.collect.ImmutableMap
@@ -47,8 +48,6 @@ interface Dimension {
     Density getDensity()
 
     Packable getPackable()
-
-    IterableResult<Object> getElements(Collection<Study> studies)
 
     List resolveElements(List elementKeys)
 

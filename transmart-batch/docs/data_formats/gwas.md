@@ -4,7 +4,7 @@ GWAS
 Available Parameters
 --------------------
 
-- `META_DATA_FILE` **Mandatory**. The path to the _metadata file_
+- `META_DATA_FILE` **(Mandatory)** The path to the _metadata file_
   (see below). Can be a path relative to the `gwas` folder next to the
   parameters file or an absolute file.
 - `DATA_LOCATION` _Default_: parent directory of the metadata file. The
@@ -17,13 +17,13 @@ Metadata file
 A TSV that functions as an index for several analyses in the same study. This
 pipeline uses the following mandatory columns:
 
-* `STUDY` **Mandatory**. The name of the study (max: 50 characters).
-* `DATA_TYPE` **Mandatory**. Must be `GWAS`.
-* `ANALYSIS_NAME` **Mandatory**. A short name for the analysis. It should
+* `STUDY` **(Mandatory)** The name of the study (max: 50 characters).
+* `DATA_TYPE` **(Mandatory)** Must be `GWAS`.
+* `ANALYSIS_NAME` **(Mandatory)** A short name for the analysis. It should
   **not** include the string `"test"` (or any variant where one or more of the
   characters are uppercase), otherwise the analysis will not show up in GWAVA.
   Max: 500 characters. The tuple `(STUDY, ANALYSIS_NAME)` must be unique.
-* `INPUT_FILE`. **Mandatory**. The name of the file containing the analysis'
+* `INPUT_FILE` **(Mandatory)** The name of the file containing the analysis'
   data.
 
 Other columns can provide more meta data about the analysis. The full list can

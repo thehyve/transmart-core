@@ -23,7 +23,9 @@ CREATE TABLE qt_query_master (
     delete_flag character varying(3),
     generated_sql text,
     request_xml text,
-    i2b2_request_xml text
+    i2b2_request_xml text,
+    request_constraints text,
+    api_version text
 );
 
 --

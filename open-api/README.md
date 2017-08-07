@@ -1,5 +1,5 @@
 # Open API specification for the tranSMART platform
-[![Validation status](http://online.swagger.io/validator?url=https://raw.githubusercontent.com/thehyve/transmart-upgrade/master/open-api/swagger.json)](http://online.swagger.io/validator/debug?url=https://raw.githubusercontent.com/thehyve/transmart-upgrade/master/open-api/swagger.json)
+[![Validation status](http://online.swagger.io/validator?url=https://raw.githubusercontent.com/thehyve/transmart-core/master/open-api/swagger.json)](http://online.swagger.io/validator/debug?url=https://raw.githubusercontent.com/thehyve/transmart-core/master/open-api/swagger.json)
 
 ## Overview
 
@@ -18,29 +18,12 @@ You can open the UI [locally](index.html), or visit a
 
 To generate `swagger.json` and `swagger_spec.js` from `swagger.yaml`, run:
 ```bash
-js-yml swagger.yaml > swagger.json
+js-yaml swagger.yaml > swagger.json
 { echo -n "var spec = "; cat swagger.json; echo ";"; } > swagger_spec.js
 ```
 
-The `js-yml` tool can be obtained by:
+The `js-yaml` tool can be obtained by:
 
 ```bash
-npm -g install js-yml
+npm -g install js-yaml
 ```
-
-
-## License
-
-Copyright &copy; 2017  The Hyve
-
-Licensed under the [Apache License, Version 2.0](apache-2.0.txt) (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.

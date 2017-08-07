@@ -1,4 +1,5 @@
-/* Copyright © 2017 The Hyve B.V. */
+/* (c) Copyright 2017, tranSMART Foundation, Inc. */
+
 package org.transmartproject.db.util
 
 import grails.orm.HibernateCriteriaBuilder
@@ -6,7 +7,10 @@ import groovy.transform.CompileStatic
 import org.grails.core.util.ClassPropertyFetcher
 import org.grails.datastore.mapping.query.api.QueryableCriteria
 import org.grails.orm.hibernate.query.HibernateQuery
+import org.hibernate.Criteria
+import org.hibernate.StatelessSession
 import org.hibernate.criterion.Criterion
+import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Subqueries
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.internal.CriteriaImpl
@@ -47,6 +51,17 @@ class GormWorkarounds {
         builder.instance.fetchSize = fetchSize
 
         builder
+    }
+
+    /*
+     * A DetachedCriteria.getExecutableCriteria that accepts a StatelessSession.
+     * This method was not implemented by Hibernate itself because the Criteria api is deprecated. (Too bad Grails is
+     * still based on it.) See https://hibernate.atlassian.net/browse/HHH-2625.
+     */
+    final static Criteria getExecutableCriteria(DetachedCriteria detachedCriteria, StatelessSession session) {
+        CriteriaImpl impl = detachedCriteria.criteriaImpl
+        impl.setSession( (SessionImplementor) session );
+        return impl;
     }
 
     /**

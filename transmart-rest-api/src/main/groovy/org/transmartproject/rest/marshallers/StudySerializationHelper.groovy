@@ -27,9 +27,6 @@ package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.rest.StudyLoadingService
-
-import javax.annotation.Resource
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 
@@ -48,8 +45,7 @@ class StudySerializationHelper extends AbstractHalOrJsonSerializationHelper<Stud
     @Override
     Map<String, Object> convertToMap(Study study) {
         def term = new OntologyTermWrapper(study.ontologyTerm, true)
-        def mapResponse = [id: study.id, ontologyTerm: term]
-        mapResponse
+        [id: study.id, ontologyTerm: term]
     }
 
     @Override
