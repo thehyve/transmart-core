@@ -1,13 +1,12 @@
 package annotation
 
+import grails.transaction.Transactional
 import org.transmart.biomart.BioData
 import org.transmart.biomart.ConceptCode
 
-
+@Transactional
 class MetaDataService {
-
-    boolean transactional = true
-
+    
     def serviceMethod() {
 
     }

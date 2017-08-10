@@ -3,17 +3,22 @@ package org.transmartproject.db.multidimquery
 import grails.converters.JSON
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.multidimquery.AggregateType
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
-import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.multidimquery.query.*
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.AccessLevelTestData
+import spock.lang.Ignore
+
+import java.sql.Timestamp
 
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
@@ -23,6 +28,9 @@ class QueryServiceSpec extends TransmartSpecification {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
+
+    @Autowired
+    SessionFactory sessionFactory
 
     TestData testData
     AccessLevelTestData accessLevelTestData
@@ -56,6 +64,7 @@ class QueryServiceSpec extends TransmartSpecification {
         save accessLevelTestData.users
         accessLevelTestData.users[0].addToRoles(accessLevelTestData.roles.find { it.authority == 'ROLE_ADMIN' })
         accessLevelTestData.users[1].addToGroups(accessLevelTestData.groups.find { it.category == 'group_-201' })
+        sessionFactory.currentSession.flush()
     }
 
     Constraint createQueryForConcept(ObservationFact observationFact) {
@@ -179,7 +188,8 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when: "I query for all observations and patients for a constraint"
         def observations = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
-        def patients = multiDimService.listPatients(constraint, accessLevelTestData.users[0])
+        def patients = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
+                constraint, accessLevelTestData.users[0]).toList()
 
         then: "I get the expected number of observations and patients"
         observations.size() == hypercubeTestData.clinicalData.longitudinalClinicalFacts.size()
@@ -202,19 +212,64 @@ class QueryServiceSpec extends TransmartSpecification {
         Constraint patientSetConstraint = ConstraintFactory.create(
                 [ type: 'patient_set', patientSetId: patientSet.id ]
         )
-        def patients2 = multiDimService.listPatients(patientSetConstraint, accessLevelTestData.users[0])
+        def patients2 = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
+                patientSetConstraint, accessLevelTestData.users[0]).toList()
 
         then: "I get the same set of patient as before"
         patients as Set == patients2 as Set
 
         when: "I query for patients based on saved constraints"
-        def constraintAndVersion = multiDimService.getPatientSetConstraint(patientSet.id)
-        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(constraintAndVersion.constraint) as Map)
-        def patients3 = multiDimService.listPatients(savedPatientSetConstraint, accessLevelTestData.users[0])
+        def setConstraint = patientSet.queryInstance.queryMaster.requestConstraints
+        def setVersion = patientSet.queryInstance.queryMaster.apiVersion
+        def savedPatientSetConstraint = ConstraintFactory.create(JSON.parse(setConstraint) as Map)
+        def patients3 = multiDimService.getDimensionElements(multiDimService.getDimension('patient'),
+                savedPatientSetConstraint, accessLevelTestData.users[0]).toList()
 
         then: "I get the same set of patient as before"
         patients as Set == patients3 as Set
-        constraintAndVersion.version == apiVersion
+        setVersion == apiVersion
+    }
+
+    void "test query for all patient sets"() {
+        setupHypercubeData()
+
+        def constraintMap = [
+                type    : 'and',
+                args    : [
+                        [
+                                type    : 'or',
+                                args    : [
+                                        [ type: 'concept', path: '\\foo\\concept 5\\' ],
+                                        [ type: 'concept', path: '\\foo\\concept 6\\' ]
+                                ]
+                        ], [
+                                type:   'study',
+                                study:  hypercubeTestData.clinicalData.longitudinalStudy
+                        ]
+                ]
+        ]
+        Constraint constraint = ConstraintFactory.create(constraintMap)
+        String constraintJson = constraintMap as JSON
+        String apiVersion = "2.1-tests"
+        def adminUser = accessLevelTestData.users[0]
+        def otherUser = accessLevelTestData.users[3]
+        def patientSet = multiDimService.createPatientSet("Test admin set ",
+                constraint,
+                adminUser,
+                constraintJson.toString(),
+                apiVersion)
+
+        when: "I query for all patient sets with admin user"
+        def adminPatientSetList = multiDimService.findPatientSets(adminUser)
+
+        then: "List of all patient_sets contains the newly created one for admin user"
+        assert adminPatientSetList.contains(patientSet)
+
+        when: "I query for all patient sets with a different user"
+        def otherUserPatientSetList = multiDimService.findPatientSets(otherUser)
+
+        then: "List of all patient_sets does NOT contain the newly created patient set"
+        assert !otherUserPatientSetList.contains(patientSet)
     }
 
     void "test for max, min, average aggregate"() {
@@ -288,7 +343,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         def count1 = multiDimService.count(query, accessLevelTestData.users[0])
-        def patientCount1 = multiDimService.patientCount(query, accessLevelTestData.users[0])
+        def patientCount1 = multiDimService.getDimensionElementsCount(DimensionImpl.PATIENT, query, accessLevelTestData.users[0])
 
         then:
         count1 == 2L
@@ -301,7 +356,7 @@ class QueryServiceSpec extends TransmartSpecification {
         testData.clinicalData.facts << of2
         testData.saveAll()
         def count2 = multiDimService.count(query, accessLevelTestData.users[0])
-        def patientCount2 = multiDimService.patientCount(query, accessLevelTestData.users[0])
+        def patientCount2 = multiDimService.getDimensionElementsCount(DimensionImpl.PATIENT, query, accessLevelTestData.users[0])
 
         then:
         count2 == count1 + 1
@@ -344,6 +399,197 @@ class QueryServiceSpec extends TransmartSpecification {
 
         then:
         thrown(DataInconsistencyException)
+    }
+
+    void "test_patient_selection_constraint"() {
+        setupHypercubeData()
+
+        def testObservation = hypercubeTestData.clinicalData.longitudinalClinicalFacts[-1]
+        Constraint constraint = new AndConstraint(args: [
+                new StudyObjectConstraint(study: hypercubeTestData.clinicalData.longitudinalStudy),
+                new SubSelectionConstraint(
+                        dimension: DimensionImpl.PATIENT,
+                        constraint: new ValueConstraint(
+                                valueType: "STRING",
+                                operator: Operator.EQUALS,
+                                value: testObservation.textValue
+                        )
+                )
+        ])
+
+        when:
+        def result = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
+        def expectedObservations = hypercubeTestData.clinicalData.longitudinalClinicalFacts.findAll {
+            it.patient == testObservation.patient
+        }
+
+        then:
+        result.size() == expectedObservations.size()
+        result.every { it[DimensionImpl.PATIENT] == testObservation.patient }
+        result*.value.sort() == expectedObservations*.value.sort()
+    }
+
+    void "test_study_selection_constraint"() {
+        setupHypercubeData()
+
+        def testObservation = hypercubeTestData.clinicalData.longitudinalClinicalFacts[-1]
+        Constraint constraint = new SubSelectionConstraint(
+                dimension: DimensionImpl.STUDY,
+                constraint: new ValueConstraint(
+                        valueType: "STRING",
+                        operator: Operator.EQUALS,
+                        value: testObservation.textValue
+                )
+        )
+
+        when:
+        def result = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
+        def expectedObservations = hypercubeTestData.clinicalData.longitudinalClinicalFacts
+
+        then:
+        result.size() == expectedObservations.size()
+        result.every { it[DimensionImpl.STUDY] == testObservation.trialVisit.study }
+        result*.value.sort() == expectedObservations*.value.sort()
+    }
+
+    @Ignore("H2 does not support tuple comparisons with IN, which is used for subselections on visits, so this functionality will only work with Postgres or Oracle (Error: Subquery is not a single column query)")
+    void "test_visit_selection_constraint"() {
+        setupHypercubeData()
+
+        def testObservation = hypercubeTestData.clinicalData.ehrClinicalFacts[0]
+        Constraint constraint = new AndConstraint(args: [
+                new StudyObjectConstraint(study: hypercubeTestData.clinicalData.ehrStudy),
+                new SubSelectionConstraint(
+                        dimension: DimensionImpl.VISIT,
+                        constraint: new ValueConstraint(
+                                valueType: "NUMERIC",
+                                operator: Operator.EQUALS,
+                                value: testObservation.numberValue
+                        )
+                )
+        ])
+
+        when:
+        def result = multiDimService.retrieveClinicalData(constraint, accessLevelTestData.users[0]).asList()
+        def expectedObservations = hypercubeTestData.clinicalData.ehrClinicalFacts.findAll {
+            it.visit == testObservation.visit
+        }
+
+        then:
+        result.size() == expectedObservations.size()
+        result.every { it[DimensionImpl.VISIT] == testObservation.visit }
+        result*.value.sort() == expectedObservations*.value.sort()
+    }
+
+    void "test query for 'trial visit' dimension elements"() {
+        setupHypercubeData()
+        DimensionImpl dimension = DimensionImpl.TRIAL_VISIT
+        Constraint constraint = new StudyNameConstraint(studyId: hypercubeTestData.clinicalData.multidimsStudy.studyId )
+        def expectedResults = hypercubeTestData.clinicalData.multidimsStudy.trialVisits as Set<TrialVisit>
+
+        when:"I query for all trial visits for a constraint"
+        def trialVisits = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[1]).collect {
+            dimension.asSerializable(it)
+        }
+
+        then: "List of all trial visits matching the constraints is returned"
+        trialVisits.size() == expectedResults.size()
+        expectedResults.every { expected ->
+            trialVisits.any {
+                it.id == expected.id &&
+                        it.relTime == expected.relTime &&
+                        it.relTimeLabel == expected.relTimeLabel &&
+                        it.relTimeUnit == expected.relTimeUnit
+            }
+        }
+
+        when:"I query for trial visits count"
+        def trialVisitsCount = multiDimService.getDimensionElementsCount(dimension, constraint, accessLevelTestData.users[1])
+
+        then: "Number of trial visits matching the constraints is returned"
+        trialVisitsCount == Long.valueOf(expectedResults.grep().size())
+    }
+
+    void "test query for modifier dimensions elements"() {
+        setupHypercubeData()
+        DimensionImpl dimension = hypercubeTestData.clinicalData.doseDimension
+        Constraint constraint = new StudyNameConstraint(studyId: hypercubeTestData.clinicalData.sampleStudy.studyId )
+        def expectedResults = hypercubeTestData.clinicalData.sampleClinicalFacts.
+                findAll {it.modifierCd == dimension.modifierCode}?.numberValue as Set<BigDecimal>
+
+        when:"I query for all dose dimension elements from sample study"
+        def doseDimElements = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[0]).collect {
+            dimension.asSerializable(it)
+        }
+
+        then: "List of all dose dimension elements matching the constraints is returned"
+        doseDimElements.size() == expectedResults.size()
+        doseDimElements.sort() == expectedResults.sort()
+
+        when:"I query for dose dimension elements count"
+        def doseDimElementsCount = multiDimService.getDimensionElementsCount(dimension, constraint, accessLevelTestData.users[0])
+
+        then: "Number of trial visits matching the constraints is returned"
+        doseDimElementsCount == Long.valueOf(expectedResults.grep().size())
+    }
+
+    void "test query for SPARSE dimensions elements"() {
+        setupHypercubeData()
+        Constraint constraint = new StudyNameConstraint(studyId: hypercubeTestData.clinicalData.ehrStudy.studyId)
+
+        when: "I query for all start time dimension elements"
+        DimensionImpl dimension = DimensionImpl.START_TIME
+        def expectedResults = hypercubeTestData.clinicalData.ehrClinicalFacts.startDate.collect {
+            it?.toTimestamp()
+        } as Set<Timestamp>
+        def startTimes = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[0]).collect {
+            dimension.asSerializable(it)
+        }
+
+        then: "List of all start dates matching the constraints is returned"
+        startTimes.size() == expectedResults.size()
+        startTimes.sort() == expectedResults.sort()
+
+        when:"I query for start time dimension elements count"
+        def startTimesCount = multiDimService.getDimensionElementsCount(dimension, constraint, accessLevelTestData.users[0])
+
+        then: "Number of start time dimension elements matching the constraints is returned"
+        startTimesCount == Long.valueOf(expectedResults.grep().size())
+
+        when: "I query for all end time dimension elements"
+        dimension = DimensionImpl.END_TIME
+        expectedResults = hypercubeTestData.clinicalData.ehrClinicalFacts.endDate.collect {
+            it?.toTimestamp()
+        } as Set<Timestamp>
+        def endTimes = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[0]).collect {
+            dimension.asSerializable(it)
+        }
+        then: "List of all end dates matching the constraints is returned"
+        endTimes.size() == expectedResults.size()
+        endTimes.sort() == expectedResults.sort()
+
+        when:"I query for end time dimension elements count"
+        def endTimesCount = multiDimService.getDimensionElementsCount(dimension, constraint, accessLevelTestData.users[0])
+
+        then: "Number of end time dimension elements matching the constraints is returned"
+        endTimesCount != Long.valueOf(expectedResults.size()) // null element is not included in the elements count
+        endTimesCount == Long.valueOf(expectedResults.grep().size())
+
+        when: "I query for all location dimension elements"
+        dimension = DimensionImpl.LOCATION
+        expectedResults = hypercubeTestData.clinicalData.ehrClinicalFacts.locationCd as Set<String>
+        def locations = multiDimService.getDimensionElements(dimension, constraint, accessLevelTestData.users[0]).collect {
+            dimension.asSerializable(it)
+        }
+        then: "List of all locations matching the constraints is returned"
+        locations.size() == expectedResults.size()
+        locations.sort() == expectedResults.sort()
+
+        when:"I query for locations count"
+        def locationsCount = multiDimService.getDimensionElementsCount(dimension, constraint, accessLevelTestData.users[0])
+
+        then: "Number of locations matching the constraints is returned"
+        locationsCount == Long.valueOf(expectedResults.grep().size())
     }
 
 }

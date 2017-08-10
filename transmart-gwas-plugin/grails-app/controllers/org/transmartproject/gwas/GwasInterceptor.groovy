@@ -1,14 +1,21 @@
 package org.transmartproject.gwas
 
+import com.recomdata.grails.plugin.gwas.ExperimentService
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.audit.AuditLogger
+
 // from transmart-core-api
 import org.transmartproject.core.users.User
 // from transmart-extensions
 import org.transmart.biomart.BioAssayAnalysis
 
 class GwasInterceptor {
-
-    def auditLogService
-    def experimentService
+    
+    @Autowired(required = false)
+    AuditLogger auditLogService
+    @Autowired
+    ExperimentService experimentService
+    @Autowired
     User currentUserBean
 
     GwasInterceptor(){

@@ -6,7 +6,6 @@ import de.DeVariantSubjectDetail
 import static org.transmart.authorization.QueriesResourceAuthorizationDecorator.checkQueryResultAccess;
 
 class VcfDataService {
-    boolean transactional = false
 
     def snpRefDataService
     def dataSource

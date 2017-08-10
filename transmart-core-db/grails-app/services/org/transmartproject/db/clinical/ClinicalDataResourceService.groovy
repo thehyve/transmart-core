@@ -40,8 +40,6 @@ import org.transmartproject.db.i2b2data.PatientDimension
 @Slf4j
 class ClinicalDataResourceService implements ClinicalDataResource {
 
-    static transactional = false
-
     def sessionFactory
 
     @Autowired

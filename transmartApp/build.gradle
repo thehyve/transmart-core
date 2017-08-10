@@ -5,7 +5,7 @@ dependencies {
 
     provided "org.springframework.boot:spring-boot-starter-tomcat"
 
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.11.6"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
     runtime 'org.postgresql:postgresql:9.3-1100-jdbc4'
     runtime 'com.oracle:ojdbc7:12.1.0.1'
     runtime 'org.javassist:javassist:3.16.1-GA'
@@ -23,8 +23,6 @@ dependencies {
     compile 'org.grails.plugins:spring-security-core:3.1.1'
     compile 'org.grails.plugins:spring-security-oauth2-provider:3.0.0-RC2'
 
-    /* for SAML authentication */
-    compile('org.springframework.security.extensions:spring-security-saml2-core:1.0.0.RELEASE')
     // spring security version should be in sync with that brought with
     // grails-spring-security-core
     runtime 'org.springframework.security:spring-security-config:3.2.3.RELEASE'
@@ -40,12 +38,12 @@ dependencies {
     compile "org.apache.lucene:lucene-core:2.4.0"
     compile "org.apache.lucene:lucene-demos:2.4.0"
     compile "org.apache.lucene:lucene-highlighter:2.4.0"
-    compile "org.apache.solr:solr-solrj:6.2.0"
+    compile "org.apache.solr:solr-solrj:6.3.0"
     compile 'commons-net:commons-net:3.3' // used for ftp transfers
     compile 'org.apache.commons:commons-math:2.2' //>2MB lib briefly used in ChartController
     compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.1'
     compile 'org.rosuda:Rserve:1.7.3'
-    compile 'com.google.guava:guava:18.0'
+    compile "com.google.guava:guava:$guavaVersion"
     compile 'log4j:apache-log4j-extras:1.2.17'
     /* for GeneGo web services: */
     compile 'axis:axis:1.4'
@@ -65,6 +63,7 @@ dependencies {
     compile project(':search-domain')
     compile project(':biomart-domain')
     compile project(':transmart-legacy-db')
+    compile project(':transmart-oauth')
 
     testCompile project(':transmart-core-db-tests')
     testCompile "org.grails:grails-plugin-testing"
@@ -104,10 +103,10 @@ task installTransmartPlugins << {
     def gspDir = "${basedir}/grails-app/views/plugin"
     def rDir = ""
 
-//This is our plugin zip directory.
+    // This is our plugin zip directory.
     def zipDir = new File("${basedir}/plugins/")
 
-//For each of the zips in this directory, instruct ant to unzip the file and move the contents to the directory specified by their file extension.
+    // For each of the zips in this directory, instruct ant to unzip the file and move the contents to the directory specified by their file extension.
     zipDir.eachFile { zipFile ->
 
         //If we find a file.
@@ -126,42 +125,9 @@ task installTransmartPlugins << {
             }
 
             //TODO: Delete temp directory?
-
         }
     }
 
 }
 
-war {
-    webInf {
-        with copySpec({
-            from '../Rmodules/src/main/resources/Rscripts'
-            into 'Rscripts'
-        })
-        with copySpec({
-            from 'src/main/resources/dataExportRScripts'
-            into 'dataExportRScripts'
-        })
-        with copySpec({
-            from '../open-api'
-            into 'classes/public/open-api'
-        })
-        with copySpec({
-            from 'src/main/resources/public'
-            into 'classes/public'
-        })
-        with copySpec({
-            from '../Rmodules/src/main/resources/public'
-            into 'classes/public'
-        })
-    } //Rscripts from Rmodules into WEB-INF dir.
-}
-
 test.testLogging.exceptionFormat = 'full'
-
-bootRun {
-    jvmArgs = ['-Xmx4096m']
-
-    // Uncomment this to always run in debug mode on port 5006. Very useful in development.
-    //jvmArgs += ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006']
-}

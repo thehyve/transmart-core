@@ -2,8 +2,6 @@ package com.recomdata.transmart.util
 
 class UtilService {
 
-    boolean transactional = false
-
     def toListString(List<Object> objList) {
         StringBuilder objToString = new StringBuilder()
         objList.each { obj ->

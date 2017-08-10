@@ -46,6 +46,9 @@ class TreeNodeMarshaller implements ObjectMarshaller<JSON> {
         if (constraint) {
             result.constraint = constraint
         }
+        if (obj.conceptPath != null) {
+            result.conceptPath = obj.conceptPath
+        }
         if (obj.tags && obj.tags.size() > 0) {
             result.metadata = obj.tags.collectEntries { [(it.name): it.description ] }
         }

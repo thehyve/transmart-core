@@ -32,3 +32,9 @@ ALTER TABLE ONLY dimension_description ALTER COLUMN id SET DEFAULT nextval('dime
 ALTER TABLE ONLY dimension_description
     ADD CONSTRAINT dimension_description_pkey PRIMARY KEY (id);
 
+--
+-- Name: dimension_description_unique_name; Type: CONSTRAINT; Schema: i2b2metadata; Owner: -
+--
+ALTER TABLE ONLY dimension_description
+    ADD CONSTRAINT dimension_description_unique_name UNIQUE (name);
+

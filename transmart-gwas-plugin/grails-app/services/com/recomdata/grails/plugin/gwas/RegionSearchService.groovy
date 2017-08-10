@@ -20,9 +20,10 @@
 
 package com.recomdata.grails.plugin.gwas
 
-class RegionSearchService {
+import grails.transaction.Transactional
 
-    boolean transactional = true
+@Transactional
+class RegionSearchService {
 
     def dataSource
     def grailsApplication

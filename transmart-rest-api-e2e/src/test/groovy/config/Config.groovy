@@ -6,6 +6,8 @@ class Config {
     //Constants
     //$ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
     public static final String BASE_URL = System.getProperty('baseUrl') != null ? System.getProperty('baseUrl') : 'http://localhost:8080/'
+    public static final String TEMP_DIRECTORY = '/tmp'
+
     public static final String BAD_USERNAME = 'bad username'
     public static final String BAD_PASSWORD = 'bad password'
     public static final String DEFAULT_USERNAME = 'test-public-user-1'
@@ -33,6 +35,8 @@ class Config {
     public static final String PATH_STORAGE = "v2/storage"
     public static final String PATH_FILES = "v2/files"
     public static final String PATH_ARVADOS_WORKFLOWS = "v2/arvados/workflows"
+    public static final String PATH_DIMENSION = "v2/dimensions"
+    public static final String PATH_DATA_EXPORT = "v2/export"
 
     //study ids
     public static final String ORACLE_1000_PATIENT_ID = 'ORACLE_1000_PATIENT'

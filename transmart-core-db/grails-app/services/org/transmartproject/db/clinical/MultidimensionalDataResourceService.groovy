@@ -24,7 +24,7 @@ import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.Patient
+import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -41,12 +41,12 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.multidimquery.MultiDimensionalDataResource.RequestConstraintAndVersion
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.ProtectedOperation
+import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
 import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
@@ -66,7 +66,6 @@ import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
 import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintDimension
 import org.transmartproject.db.multidimquery.query.Field
 import org.transmartproject.db.multidimquery.query.FieldConstraint
 import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
@@ -83,6 +82,7 @@ import org.transmartproject.db.multidimquery.query.QueryBuilder
 import org.transmartproject.db.multidimquery.query.QueryBuilderException
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.multidimquery.query.StudyObjectConstraint
+import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.db.multidimquery.query.TemporalConstraint
 import org.transmartproject.db.multidimquery.query.TimeConstraint
 import org.transmartproject.db.multidimquery.query.TrueConstraint
@@ -93,7 +93,6 @@ import org.transmartproject.db.querytool.QtQueryInstance
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.util.GormWorkarounds
-import org.transmartproject.db.util.ScrollableResultsIterator
 
 import org.transmartproject.db.user.User as DbUser
 import org.transmartproject.db.util.ScrollableResultsWrappingIterable
@@ -114,8 +113,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     @Autowired
     ConceptsResource conceptsResource
 
-    Dimension getDimension(String name) {
-        DimensionDescription.findByName(name).dimension
+    @Override Dimension getDimension(String name) {
+        DimensionDescription.findByName(name)?.dimension
     }
 
     /**
@@ -134,6 +133,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @return a Hypercube result
      */
     @Override HypercubeImpl retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies) {
+        // Supporting a native Hypercube implementation for high dimensional data is the intention here. As of yet
+        // that has not been implemented, so we only support clinical data in this call. Instead there is the
+        // highDimension call that uses the old high dim api and converts the tabular result to a hypercube.
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint
@@ -189,7 +191,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             })
 
         } else {
-            validDimensions = ImmutableSet.copyOf DimensionDescription.all*.dimension.findAll{
+            validDimensions = ImmutableSet.copyOf DimensionDescription.allDimensions.findAll{
                 !(it.class in notImplementedDimensions)
             }
         }
@@ -270,10 +272,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
 
 
-    private final Field valueTypeField = new Field(dimension: ConstraintDimension.Value, fieldName: 'valueType', type: Type.STRING)
-    private final Field textValueField = new Field(dimension: ConstraintDimension.Value, fieldName: 'textValue', type: Type.STRING)
-    private final Field numberValueField =
-            new Field(dimension: ConstraintDimension.Value, fieldName: 'numberValue', type: Type.NUMERIC)
+    private final Field valueTypeField = new Field(dimension: VALUE, fieldName: 'valueType', type: Type.STRING)
+    private final Field textValueField = new Field(dimension: VALUE, fieldName: 'textValue', type: Type.STRING)
+    private final Field numberValueField = new Field(dimension: VALUE, fieldName: 'numberValue', type: Type.NUMERIC)
 
     @Lazy
     private Criterion defaultHDModifierCriterion = Restrictions.in('modifierCd',
@@ -301,6 +302,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             constraint.args.each { checkAccess(it, user) }
         } else if (constraint instanceof TemporalConstraint) {
             checkAccess(constraint.eventConstraint, user)
+        } else if (constraint instanceof SubSelectionConstraint) {
+            checkAccess(constraint.constraint, user)
         } else if (constraint instanceof BioMarkerDimension) {
             throw new InvalidQueryException("Not supported yet: ${constraint?.class?.simpleName}.")
         } else if (constraint instanceof PatientSetConstraint) {
@@ -311,11 +314,11 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 }
             }
         } else if (constraint instanceof FieldConstraint) {
-            if (constraint.field.dimension == ConstraintDimension.Concept) {
+            if (constraint.field.dimension == CONCEPT) {
                 throw new AccessDeniedException("Access denied. Concept dimension not allowed in field constraints. Use a ConceptConstraint instead.")
-            } else if (constraint.field.dimension == ConstraintDimension.Study) {
+            } else if (constraint.field.dimension == STUDY) {
                 throw new AccessDeniedException("Access denied. Study dimension not allowed in field constraints. Use a StudyConstraint instead.")
-            } else if (constraint.field.dimension == ConstraintDimension.TrialVisit) {
+            } else if (constraint.field.dimension == TRIAL_VISIT) {
                 if (constraint.field.fieldName == 'study') {
                     throw new AccessDeniedException("Access denied. Field 'study' of trial visit dimension not allowed in field constraints. Use a StudyConstraint instead.")
                 }
@@ -415,7 +418,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    private Object get(DetachedCriteria criteria) {
+    private def get(DetachedCriteria criteria) {
         getExecutableCriteria(criteria).uniqueResult()
     }
 
@@ -423,7 +426,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         getExecutableCriteria(criteria).list()
     }
 
-    private Iterable getIterable(DetachedCriteria criteria) {
+    private IterableResult getIterable(DetachedCriteria criteria) {
         def scrollableResult = getExecutableCriteria(criteria).scroll(ScrollMode.FORWARD_ONLY)
         new ScrollableResultsWrappingIterable(scrollableResult)
     }
@@ -470,19 +473,33 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     /**
-     * @description Function for getting a list of patients for which there are observations
+     * @description Function for getting a list of elements of a specified dimension
+     * that are meeting a specified criteria and the user has access to.
+     *
+     * @param dimensionName
+     * @param user
+     * @param constraint
+     */
+    @Override
+    IterableResult getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user) {
+        if(constraint) checkAccess(constraint, user)
+        HibernateCriteriaQueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria dimensionCriteria = builder.buildElementsCriteria((DimensionImpl) dimension, constraint)
+
+        return getIterable(dimensionCriteria)
+    }
+
+    /**
+     * @description Function for getting a number of dimension elements for which there are observations
      * that are specified by <code>query</code>.
      * @param query
      * @param user
      */
-    @Override List<Patient> listPatients(MultiDimConstraint constraint, User user) {
-        checkAccess(constraint, user)
+    @Override Long getDimensionElementsCount(Dimension dimension, MultiDimConstraint constraint, User user) {
+        if(constraint) checkAccess(constraint, user)
         def builder = getCheckedQueryBuilder(user)
-        DetachedCriteria constraintCriteria = builder.buildCriteria((Constraint) constraint)
-        DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
-        DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
-        patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
-        getList(patientCriteria)
+        DetachedCriteria dimensionCriteria = builder.buildElementCountCriteria((DimensionImpl) dimension, constraint)
+        (Long) get(dimensionCriteria)
     }
 
     /**
@@ -496,7 +513,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param user
      */
     @Override QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) {
-        List patients = listPatients(constraint, user)
+        List patients = getDimensionElements(PATIENT, constraint, user).toList()
 
         // 1. Populate qt_query_master
         def queryMaster = new QtQueryMaster(
@@ -554,7 +571,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         // 7. Update result instance and query instance
         resultInstance.setSize = resultInstance.realSetSize = patients.size()
-        resultInstance.description = "Patient set for \"${name}\""
+        resultInstance.description = name
         resultInstance.endDate = new Date()
         resultInstance.statusTypeId = QueryStatus.FINISHED.id
 
@@ -576,31 +593,28 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         if (queryResult == null) {
             throw new NoSuchResourceException("Patient set not found with id ${patientSetId}.")
         }
-        if (!user.canPerform(ProtectedOperation.WellKnownOperations.READ, queryResult)) {
+        if (!user.canPerform(WellKnownOperations.READ, queryResult)) {
             throw new AccessDeniedException("Access denied to patient set with id ${patientSetId}.")
         }
         queryResult
     }
-    
-    @Override RequestConstraintAndVersion getPatientSetConstraint(long id) {
-        QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findById(id)
-        def queryMaster = qtQueryResultInstance.queryInstance.queryMaster
-        new RequestConstraintAndVersion(queryMaster.requestConstraints, queryMaster.apiVersion)
-    }
-    
-    @Override Long patientCount(MultiDimConstraint constraint, User user) {
-        checkAccess(constraint, user)
-        QueryBuilder builder = getCheckedQueryBuilder(user)
-        DetachedCriteria constraintCriteria = builder.buildCriteria((Constraint) constraint)
-        DetachedCriteria patientIdsCriteria = constraintCriteria.setProjection(Projections.property('patient'))
-        DetachedCriteria patientCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.PatientDimension, 'patient')
-        patientCriteria.add(Subqueries.propertyIn('id', patientIdsCriteria))
-        (Long) get(patientCriteria.setProjection(Projections.rowCount()))
+
+    @Override Iterable<QueryResult> findPatientSets(User user) {
+        if(((DbUser) user).admin){
+            return getIterable(DetachedCriteria.forClass(QtQueryResultInstance))
+        } else {
+            def queryCriteria = DetachedCriteria.forClass(QtQueryInstance, 'queryInstance')
+                    .add(Restrictions.eq('userId', user.username))
+                    .setProjection(Projections.property('id'))
+            def queryResultCriteria = DetachedCriteria.forClass(QtQueryResultInstance)
+                    .add(Subqueries.propertyIn('queryInstance', queryCriteria))
+            return getIterable(queryResultCriteria)
+        }
     }
 
     @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
     Long cachedPatientCount(MultiDimConstraint constraint, User user) {
-        patientCount(constraint, user)
+        getDimensionElementsCount(DimensionImpl.PATIENT, constraint, user)
     }
 
     static List<StudyNameConstraint> findStudyNameConstraints(MultiDimConstraint constraint) {
@@ -765,21 +779,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         BiomarkerConstraint biomarkerConstraint = (BiomarkerConstraint) biomarkerConstraint_
         checkAccess(assayConstraint, user)
 
-        List<ObservationFact> observations = highDimObservationList(assayConstraint, user,
-                type == 'autodetect' ? defaultHDModifierCriterion : HDModifierCriterionForType(type))
-
-        List assayIds = []
-        for(def o : observations) {
-            if(o.numberValue == null) throw new DataInconsistencyException("Observation row(s) found that miss the assayId")
-            assayIds.add(o.numberValue.toLong())
-        }
-
-        if (assayIds.empty){
+        List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, type)
+        if(!oldAssayConstraints || oldAssayConstraints.size() == 0) {
             return new EmptyHypercube()
         }
-        List<AssayConstraint> oldAssayConstraints = [
-                highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
-        ]
 
         HighDimensionDataTypeResource typeResource
         if(type == 'autodetect') {
@@ -814,6 +817,38 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
+    @Override List retriveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user){
+
+        Constraint assayConstraint = (Constraint) assayConstraint_
+        List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')
+        if(oldAssayConstraints == null) {
+            return []
+        }
+
+        Map<HighDimensionDataTypeResource, Collection<Assay>> assaysByType =
+                highDimensionResourceService.getSubResourcesAssayMultiMap(oldAssayConstraints)
+
+        assaysByType.keySet()?.collect {it.dataTypeName}
+    }
+
+    private ArrayList<AssayConstraint> getOldAssayConstraint(Constraint assayConstraint, User user, String type) {
+        List<ObservationFact> observations = highDimObservationList(assayConstraint, user,
+                type == 'autodetect' ? defaultHDModifierCriterion : HDModifierCriterionForType(type))
+
+        List assayIds = []
+        for(def o : observations) {
+            if(o.numberValue == null) throw new DataInconsistencyException("Observation row(s) found that miss the assayId")
+            assayIds.add(o.numberValue.toLong())
+        }
+
+        if (assayIds.empty){
+            return []
+        }
+        return [
+                highDimensionResourceService.createAssayConstraint([ids: assayIds] as Map, AssayConstraint.ASSAY_ID_LIST_CONSTRAINT)
+        ]
+    }
+
     @Override Hypercube retrieveClinicalData(MultiDimConstraint constraint_, User user) {
         Constraint constraint = (Constraint) constraint_
         checkAccess(constraint, user)
@@ -821,6 +856,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def accessibleStudies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
         retrieveData(dataType, accessibleStudies, constraint: constraint)
     }
+
 }
 
 @TupleConstructor
@@ -828,3 +864,4 @@ class Query {
     HibernateCriteriaBuilder criteria
     Map params
 }
+

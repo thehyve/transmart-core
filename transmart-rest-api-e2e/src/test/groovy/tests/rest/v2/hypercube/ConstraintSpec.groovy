@@ -3,6 +3,7 @@
 package tests.rest.v2.hypercube
 
 import base.RESTSpec
+import spock.lang.Ignore
 import spock.lang.Requires
 
 import static base.ContentTypeFor.contentTypeForJSON
@@ -406,6 +407,69 @@ class ConstraintSpec extends RESTSpec {
             conceptCodes.add(selector.select(it, "concept", "conceptCode", 'String'))
         }
         assert conceptCodes.containsAll(['CV:DEM:SEX:M', 'CV:DEM:SEX:F', 'CV:DEM:RACE', 'CV:DEM:AGE'])
+
+        where:
+        acceptType             | newSelector
+        contentTypeForJSON     | jsonSelector
+        contentTypeForProtobuf | protobufSelector
+    }
+
+    def "SubSelectionConstraint.class"() {
+        when:
+        def request = [
+                path      : PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query     : toQuery([
+                        type : SubSelectionConstraint,
+                        dimension: 'patient',
+                        constraint: [type    : FieldConstraint,
+                                     field   : [dimension: 'patient',
+                                                fieldName: 'age',
+                                                type     : NUMERIC],
+                                     operator: EQUALS,
+                                     value   : 30],
+                ])
+        ]
+
+        def responseData = get(request)
+        def selector = newSelector(responseData)
+
+        then:
+        (0..<selector.cellCount).each {
+            assert selector.select(it, "patient", "age", 'Int') == 30
+        }
+
+        when:
+        request = [
+                path      : PATH_OBSERVATIONS,
+                acceptType: acceptType,
+                query     : toQuery([
+                    type : SubSelectionConstraint,
+                    dimension: 'visit',
+                    constraint: [type: 'and',
+                        args: [[
+                                type    : ValueConstraint,
+                                valueType: NUMERIC,
+                                operator: EQUALS,
+                                value   : 59.0,
+                            ], [
+                                type: StudyNameConstraint,
+                                studyId: "EHR",
+                            ]
+                        ]
+                    ]
+                ])
+        ]
+
+        responseData = get(request)
+        selector = newSelector(responseData)
+        def visits = (0..<selector.cellCount).collect { selector.select(it, "visit", "encounterNum", "Double") } as Set
+
+        then:
+        selector.cellCount == 2
+        // ensure we are also finding other cells than the value we specified in the constraint
+        (0..<selector.cellCount).collect { selector.select(it) }.any { it != 59.0 }
+        visits.size() == 1
 
         where:
         acceptType             | newSelector

@@ -102,8 +102,16 @@ abstract class AbstractTypicalHdDataJobConfig {
 
                 .next(deleteHdData)
                 .next(deleteCurrentAssays)
-                .next(deleteConceptCounts)
-                .next(deleteObservationFacts)
+
+                // FIXME: these lines do not only delete observations for
+                // highdim data, but also for clinical data.
+                // Deleting observations prior to inserting new observations
+                // is meant to support reloading of studies.
+                // A proper backout script should be written that deletes
+                // a selected subset of data for a study.
+                //
+                //.next(deleteConceptCounts)
+                //.next(deleteObservationFacts)
 
                 .next(insertConcepts)
                 .next(insertPseudoFacts)

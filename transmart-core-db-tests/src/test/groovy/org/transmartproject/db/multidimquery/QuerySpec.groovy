@@ -8,7 +8,7 @@ import org.transmartproject.db.multidimquery.query.Type
 import org.transmartproject.db.multidimquery.query.FieldConstraint
 import spock.lang.Specification
 
-import static org.transmartproject.db.multidimquery.query.ConstraintDimension.*
+import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 @TestMixin(ControllerUnitTestMixin)
 class QuerySpec extends Specification {
@@ -16,7 +16,7 @@ class QuerySpec extends Specification {
     Field patientIdField
 
     void setupData() {
-        patientIdField = new Field(dimension: Patient, fieldName: 'patientId', type: Type.NUMERIC)
+        patientIdField = new Field(dimension: PATIENT, fieldName: 'patientId', type: Type.NUMERIC)
     }
 
     void 'test observation query class'() {

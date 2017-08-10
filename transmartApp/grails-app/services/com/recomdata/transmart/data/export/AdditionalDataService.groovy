@@ -1,12 +1,12 @@
 package com.recomdata.transmart.data.export
 
 import com.recomdata.transmart.data.export.util.FileWriterUtil
+import grails.transaction.Transactional
 
 import static org.transmart.authorization.QueriesResourceAuthorizationDecorator.checkQueryResultAccess;
 
+@Transactional
 class AdditionalDataService {
-
-    boolean transactional = true
 
     def i2b2HelperService
 

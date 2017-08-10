@@ -34,7 +34,7 @@
 
   <script type="text/javascript">
     $(function () {
-      var url = "https://raw.githubusercontent.com/thehyve/transmart-upgrade/master/open-api/swagger.json" // fallback to master version
+      var url = "/open-api/swagger.json"
 
       hljs.configure({
         highlightSizeThreshold: 5000
@@ -52,12 +52,7 @@
         onComplete: function(swaggerApi, swaggerUi){
           if(typeof initOAuth == "function") {
             initOAuth({
-              clientId: "your-client-id",
-              clientSecret: "your-client-secret-if-required",
-              realm: "your-realms",
-              appName: "your-app-name",
-              scopeSeparator: " ",
-              additionalQueryStringParams: {}
+              clientId: "swagger"
             });
           }
 

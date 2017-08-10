@@ -2,6 +2,8 @@
 
 package org.transmartproject.rest
 
+import com.google.common.base.Function
+import com.google.common.collect.Iterators
 import grails.converters.JSON
 import grails.web.mime.MimeType
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,6 +13,7 @@ import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.PatientSetConstraint
@@ -44,7 +47,7 @@ class PatientQueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def patients = multiDimService.listPatients(constraint, user)
+        def patients = multiDimService.getDimensionElements(multiDimService.getDimension('patient'), constraint, user)
         respond wrapPatients(apiVersion, patients)
     }
 
@@ -68,21 +71,22 @@ class PatientQueryController extends AbstractQueryController {
 
         Constraint constraint = new PatientSetConstraint(patientIds: [id])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def patients = multiDimService.listPatients(constraint, user)
-        if (patients.empty) {
+        def patient = multiDimService.getDimensionElements(multiDimService.getDimension('patient'), constraint, user)[0]
+        if (patient == null) {
             throw new NoSuchResourceException("Patient not found with id ${id}.")
         }
 
         respond new PatientWrapper(
-                patient: patients[0],
+                patient: patient,
                 apiVersion: apiVersion
         )
     }
 
-    private def wrapPatients(String apiVersion, Collection<Patient> source) {
+    private def wrapPatients(String apiVersion, Iterable<Patient> source) {
         new ContainerResponseWrapper(
                 key: 'patients',
-                container: source.collect { new PatientWrapper(apiVersion: apiVersion, patient: it) },
+                container: Iterators.transform(source.iterator(),
+                        { new PatientWrapper(apiVersion: apiVersion, patient: it) } as Function),
                 componentType: Patient,
         )
     }
@@ -103,13 +107,32 @@ class PatientQueryController extends AbstractQueryController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
         QueryResult patientSet = multiDimService.findPatientSet(id, user)
-        def constraint_version = multiDimService.getPatientSetConstraint(patientSet.id)
+        def constraint = patientSet.queryInstance.queryMaster.apiVersion
+        def version = patientSet.queryInstance.queryMaster.requestConstraints
 
         render new QueryResultWrapper(
-                apiVersion: constraint_version.constraint,
+                apiVersion: constraint,
                 queryResult: patientSet,
-                requestConstraint: constraint_version.version
+                requestConstraint: version
         ) as JSON
+    }
+
+    /**
+     * Patient sets endpoint:
+     * <code>GET /v2/patient_sets</code>
+     *
+     * Finds all the patient sets that User has access to.
+     *
+     * @return a list of maps with the query result id, size and status.
+     */
+    def findPatientSets(
+            @RequestParam('api_version') String apiVersion) {
+        checkParams(params, [])
+
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        Iterable<QueryResult> patientSets = multiDimService.findPatientSets(user)
+
+        respond wrapPatientSets(patientSets)
     }
 
     /**
@@ -167,6 +190,20 @@ class PatientQueryController extends AbstractQueryController {
                 queryResult: patientSet,
                 requestConstraint: bodyJson
         ) as JSON
+    }
+
+    private def wrapPatientSets(Iterable<QueryResult> source) {
+        new ContainerResponseWrapper(
+                key: 'patientSets',
+                container: source.collect {
+                    new QueryResultWrapper(
+                            apiVersion: it.queryInstance.queryMaster.apiVersion,
+                            queryResult: it,
+                            requestConstraint: it.queryInstance.queryMaster.requestConstraints
+                    )
+                },
+                componentType: QueryResult,
+        )
     }
 
 }

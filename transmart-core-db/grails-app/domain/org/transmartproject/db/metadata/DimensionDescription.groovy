@@ -38,8 +38,9 @@ class DimensionDescription {
     }
 
     static mapping = {
-        table schema: 'i2b2metadata'
-        version       false
+        table   schema: 'i2b2metadata'
+        version false
+        name    unique: true
 
         size    column: 'size_cd'
     }
@@ -100,6 +101,6 @@ class DimensionDescription {
      * @return a list of all dimensions
      */
     static List<Dimension> getAllDimensions() {
-        findAll { name != LEGACY_MARKER }*.dimension
+        findAll { name != DimensionDescription.LEGACY_MARKER }*.dimension
     }
 }

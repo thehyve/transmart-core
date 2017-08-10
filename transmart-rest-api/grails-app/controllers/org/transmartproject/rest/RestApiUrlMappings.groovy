@@ -35,6 +35,9 @@ class RestApiUrlMappings {
         "/versions/$id"(method: 'GET', controller: 'version', action: 'show')
 
         group "/v2", {
+            "/versions"(method: 'GET', controller: 'version', action: 'index')
+            "/versions/$id"(method: 'GET', controller: 'version', action: 'show')
+
             "/studies"(method: 'GET', controller: 'studyQuery', action: 'listStudies') {
                 apiVersion = 'v2'
             }
@@ -60,6 +63,9 @@ class RestApiUrlMappings {
                 apiVersion = 'v2'
             }
             "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
+                apiVersion = 'v2'
+            }
+            "/patient_sets"(method: 'GET', controller: 'patientQuery', action: 'findPatientSets') {
                 apiVersion = 'v2'
             }
             "/patient_sets"(method: 'POST', controller: 'patientQuery', action: 'createPatientSet') {
@@ -127,9 +133,35 @@ class RestApiUrlMappings {
             "/recommended_concepts/$conceptCode"(method: 'GET', controller: 'concept', action: 'showRecommended') {
                 apiVersion = 'v2'
             }
+            "/dimensions/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
+                apiVersion = 'v2'
+            }
+            "/export/job"(method: 'POST', controller: 'export', action: 'createJob') {
+                apiVersion = "v2"
+            }
+            "/export/$jobId/run"(method: 'POST', controller: 'export', action: 'run') {
+                apiVersion = "v2"
+            }
+            "/export/$jobId/download"(method: 'GET', controller: 'export', action: 'download') {
+                apiVersion = "v2"
+            }
+            "/export/$jobId/status"(method: 'GET', controller: 'export', action: 'jobStatus') {
+                apiVersion = "v2"
+            }
+            "/export/jobs"(method: 'GET', controller: 'export', action: 'listJobs') {
+                apiVersion = "v2"
+            }
+            "/export/data_formats"(method: 'GET', controller: 'export', action: 'dataFormats') {
+                apiVersion = "v2"
+            }
+            "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {
+                apiVersion = "v2"
+            }
         }
 
         group "/v1", {
+            "/versions"(method: 'GET', controller: 'version', action: 'index')
+            "/versions/$id"(method: 'GET', controller: 'version', action: 'show')
 
             '/studies'(controller: 'study', method: 'GET', resources: 'study', includes: ['index', 'show'])
 

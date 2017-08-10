@@ -12,7 +12,8 @@ CREATE TABLE async_job (
     alt_viewer_url character varying(4000),
     job_results text,
     job_inputs_json text,
-    job_type character varying(20)
+    job_type character varying(20),
+    user_id character varying(50)
 );
 
 --
@@ -30,3 +31,4 @@ COMMENT ON COLUMN async_job.job_name IS 'The job name. e.g. admin-RHeatmap-10044
 COMMENT ON COLUMN async_job.job_status IS 'The status of the job. [Started|Cancelled|Error|Completed|...]';
 COMMENT ON COLUMN async_job.job_status_time IS 'The time when current job_status took place.';
 COMMENT ON COLUMN async_job.last_run_on IS 'The start time of the job.';
+COMMENT ON COLUMN async_job.user_id IS 'Name of the user.';

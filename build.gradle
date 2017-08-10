@@ -1,10 +1,13 @@
 buildscript {
     ext {
         grailsVersion = '3.2.3'
+        guavaVersion = '19.0'
+        assetPipelineVersion = '2.11.6'
     }
     repositories {
         mavenLocal()
         mavenCentral()
+        maven { url 'https://plugins.gradle.org/m2/' }
         maven { url 'https://repo.grails.org/grails/core' }
         maven { url 'https://dl.bintray.com/grails/plugins' }
         maven { url 'https://repo.transmartfoundation.org/content/repositories/public' }
@@ -12,26 +15,39 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath 'com.bertramlabs.plugins:asset-pipeline-gradle:2.11.6'
+        classpath "com.google.guava:guava:$guavaVersion"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:$assetPipelineVersion"
         classpath 'org.grails.plugins:hibernate5:6.0.4'
         classpath 'com.google.protobuf:protobuf-java:3.1.0'
         classpath 'com.google.protobuf:protobuf-java-util:3.1.0'
         classpath 'org.grails.plugins:views-gradle:1.0.12'
+        classpath 'net.linguica.gradle:maven-settings-plugin:0.5'
     }
 }
 
 apply plugin: 'idea'
+apply plugin: 'maven-publish'
 
 ext {
     transmartVersion = '17.1-SNAPSHOT'
     grailsVersion = '3.2.3'
     gradleWrapperVersion = '2.13'
+    guavaVersion = '19.0'
+    assetPipelineVersion = '2.11.6'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = gradleWrapperVersion
 }
 
 version = transmartVersion
 group = 'org.transmartproject'
 
 allprojects {
+    ext {
+        guavaVersion = guavaVersion
+        assetPipelineVersion = assetPipelineVersion
+    }
     repositories {
         repositories {
             mavenLocal()
@@ -52,8 +68,8 @@ subprojects { project ->
     apply plugin: 'eclipse'
     apply plugin: 'idea'
 
-    if (project.name =~ /^(biomart-domain|folder-management-plugin|mock-ontology-server|Rmodules|search-domain|transmart-core-db-tests|transmart-core-db|transmart-gwas-plugin|transmart-java|transmart-legacy-db|transmart-rest-api|transmartApp)$/) {
-        if (project.name =~ /^(transmartApp|mock-ontology-server)$/) {
+    if (project.name =~ /^(biomart-domain|folder-management-plugin|mock-ontology-server|Rmodules|search-domain|transmart-core-db-tests|transmart-core-db|transmart-gwas-plugin|transmart-java|transmart-legacy-db|transmart-rest-api|transmartApp|transmart-server|transmart-oauth)$/) {
+        if (project.name =~ /^(transmartApp|mock-ontology-server|transmart-server)$/) {
             apply plugin: 'war'
             apply plugin: 'org.grails.grails-web'
         } else {
@@ -69,5 +85,33 @@ subprojects { project ->
             }
             applyMavenExclusions false
         }
+
+        if (!(project.name =~ /^(transmart-server|transmartApp|mock-ontology-server)$/)) {
+            grailsPublish {
+                websiteUrl = 'http://transmartfoundation.org/'
+                license {
+                    name = 'GPL-3.0'
+                }
+                issueTrackerUrl = 'https://github.com/thehyve/transmart-core/issues'
+                vcsUrl = 'https://github.com/thehyve/transmart-core'
+                title = project.name
+                desc = project.description
+                developers = [johndoe: "John Doe"]
+            }
+        }
+
+    }
+    if (project.name =~ /^(transmart-server|transmart-core-api|transmart-data|transmart-batch)$/) {
+        apply plugin: 'net.linguica.maven-settings'
+        apply plugin: 'maven-publish'
+        publishing {
+            repositories {
+                maven {
+                    name "nl.thehyve.nexus"
+                    url "https://repo.thehyve.nl/content/repositories/snapshots/"
+                }
+            }
+        }
     }
 }
+

@@ -12,7 +12,8 @@ FILES = \
 	storage_system \
 	linked_file_collection \
 	data_migration \
-	qt_query_master
+	qt_query_master \
+	async_job
 
 RUN_SQL   = groovy -cp '$(CP_ORA)' ../../../ddl/oracle/_scripts/run_sql.groovy
 
