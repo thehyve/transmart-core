@@ -33,6 +33,7 @@ Reserved keywords for Data Label:
 - `\` Only used for variables containing placeholders in their Category Code. See [templates](templates.md) documentation.
 - `OMIT` Used to indicate this variable should not be uploaded to tranSMART.
 - `PATIENT_VISIT` **(Not yet implemented)** Integer variable used to link a subject's observations to a patient visit.
+- `SAMPLE_ID` **(Not yet implemented)** Modifier used to load clinical data for samples used in high-dimensional data
 
 Allowed values for Concept type:
 - `NUMERICAL` For numerical variables.
