@@ -2,8 +2,8 @@
 
 package base
 
+import config.Config
 import groovy.json.JsonBuilder
-import groovyx.net.http.HTTPBuilder
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import selectors.ObservationSelector
@@ -14,75 +14,47 @@ import spock.lang.Specification
 
 import java.text.SimpleDateFormat
 
-import static config.Config.*
+import static config.Config.DEFAULT_USERNAME
 import static org.hamcrest.Matchers.*
 
-abstract class RESTSpec extends Specification{
-
-    private static HashMap<String, String> oauth2token = [:]
+abstract class RESTSpec extends Specification {
 
     @Shared
-    private http = new HTTPBuilder(BASE_URL)
+    TestContext testContext = Config.testContext
+    String user = DEFAULT_USERNAME;
 
-    private user
-
-    def setup(){
-        setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
+    def setUser(String userID) {
+        user = userID
     }
 
-    def setUser(username, password){
-        user = ['username' : username,
-                'password' : password]
-    }
-
-    def getToken(User = user){
-        if (oauth2token.get(user.'username') == null){
-            oauth2token.put(RestHelper.oauth2Authenticate(http, user))
-        }
-        return oauth2token.get(user.'username')
-    }
-
-    def getOrPostRequest(method, request, params){
-        if(method == "GET") {
+    def getOrPostRequest(method, request, params) {
+        if (method == "GET") {
             request.query = params
             return get(request)
-        }
-        else {
+        } else {
             request.body = params
             return post(request)
         }
     }
 
-    def delete(def requestMap){
-        if (!requestMap.skipOauth && OAUTH_NEEDED){
-            requestMap.'accessToken' = getToken()
-        }
-        RestHelper.delete(http, requestMap)
+    def delete(def requestMap) {
+        RestHelper.delete(testContext, requestMap)
     }
 
-    def put(def requestMap){
-        if (!requestMap.skipOauth && OAUTH_NEEDED){
-            requestMap.'accessToken' = getToken()
-        }
-        RestHelper.put(http, requestMap)
+    def put(def requestMap) {
+        RestHelper.put(testContext, requestMap)
     }
 
-    def post(def requestMap){
-        if (!requestMap.skipOauth && OAUTH_NEEDED){
-            requestMap.'accessToken' = getToken()
-        }
-        RestHelper.post(http, requestMap)
+    def post(def requestMap) {
+        RestHelper.post(testContext, requestMap)
     }
 
-    def get(def requestMap){
-        if (!requestMap.skipOauth && OAUTH_NEEDED){
-            requestMap.'accessToken' = getToken()
-        }
-        RestHelper.get(http, requestMap)
+    def get(def requestMap) {
+        RestHelper.get(testContext, requestMap)
     }
 
-    static def jsonSelector = {new ObservationSelectorJson(parseHypercube(it))}
-    static def protobufSelector = {new ObservationSelector(it)}
+    static def jsonSelector = { new ObservationSelectorJson(parseHypercube(it)) }
+    static def protobufSelector = { new ObservationSelector(it) }
 
     /**
      * takes a map of constraints and returns a json query
@@ -90,20 +62,20 @@ abstract class RESTSpec extends Specification{
      * @param constraints
      * @return
      */
-    def toQuery(constraints){
+    def toQuery(constraints) {
         return [constraint: new JsonBuilder(constraints)]
     }
 
-    def toJSON(object){
+    def toJSON(object) {
         return new JsonBuilder(object).toString()
     }
 
-    def toDateString(dateString, inputFormat = "dd-MM-yyyyX"){
+    def toDateString(dateString, inputFormat = "dd-MM-yyyyX") {
         def date = new SimpleDateFormat(inputFormat).parse(dateString)
         date.format("yyyy-MM-dd'T'HH:mm:ssX", TimeZone.getTimeZone('Z'))
     }
 
-    static def parseHypercube(jsonHypercube){
+    static def parseHypercube(jsonHypercube) {
         def dimensionDeclarations = jsonHypercube.dimensionDeclarations
         def cells = jsonHypercube.cells
         def dimensionElements = jsonHypercube.dimensionElements
@@ -132,8 +104,6 @@ abstract class RESTSpec extends Specification{
                 ),
         )
     }
-
-
 
     /**
      * Generic matcher for a hal index response, expecting 2 entries:

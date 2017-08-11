@@ -4,16 +4,10 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
-import static config.Config.*
-import static tests.rest.v2.Operator.AND
-import static tests.rest.v2.Operator.OR
-import static tests.rest.v2.Operator.EQUALS
-import static tests.rest.v2.Operator.LESS_THAN
-import static tests.rest.v2.ValueType.NUMERIC
-import static tests.rest.v2.ValueType.STRING
-import static tests.rest.v2.constraints.*
+import static base.ContentTypeFor.JSON
+import static config.Config.EHR_ID
+import static config.Config.PATH_OBSERVATIONS
+import static tests.rest.constraints.ConceptConstraint
 
 class ObservationSpec extends RESTSpec {
 
@@ -35,7 +29,7 @@ class ObservationSpec extends RESTSpec {
         ]
         def request = [
                 path      : PATH_OBSERVATIONS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
 
         ]
 

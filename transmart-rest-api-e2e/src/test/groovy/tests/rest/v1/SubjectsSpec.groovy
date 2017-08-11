@@ -5,7 +5,7 @@ package tests.rest.v1
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.*
 
 @RequiresStudy(GSE8581_ID)
@@ -18,13 +18,13 @@ class SubjectsSpec extends RESTSpec {
      */
     def "v1 subjects"() {
         given: "study EHR is loaded"
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def studyId = GSE8581_ID
 
         when: "I request subjects related to this study"
         def responseData = get([
                 path      : V1_PATH_STUDIES + "/${studyId}/subjects",
-                acceptType: contentTypeForJSON
+                acceptType: JSON,
+                user      : ADMIN_USERNAME
         ])
 
         then: "subjects are returned"
@@ -50,18 +50,19 @@ class SubjectsSpec extends RESTSpec {
      */
     def "v1 single subject"() {
         given: "study EHR is loaded"
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def studyId = GSE8581_ID
 
         when: "I request a subject by it's id"
         def subjectId = get([
                 path      : V1_PATH_STUDIES + "/${studyId}/subjects",
-                acceptType: contentTypeForJSON
+                acceptType: JSON,
+                user      : ADMIN_USERNAME
         ]).subjects[0].id
 
         def responseData = get([
                 path      : V1_PATH_STUDIES + "/${studyId}/subjects/${subjectId}",
-                acceptType: contentTypeForJSON
+                acceptType: JSON,
+                user      : ADMIN_USERNAME
         ])
 
         then: "only that subject is returned"
@@ -84,14 +85,14 @@ class SubjectsSpec extends RESTSpec {
      */
     def "v1 subjects by concept"() {
         given: "study EHR is loaded"
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def studyId = GSE8581_ID
         def conceptPath = "Subjects/Age/"
 
         when: "I request subjects related to this study and a concept path"
         def responseData = get([
                 path      : V1_PATH_STUDIES + "/${studyId}/concepts/${conceptPath}/subjects",
-                acceptType: contentTypeForJSON
+                acceptType: JSON,
+                user      : ADMIN_USERNAME
         ])
 
         then: "subjects are returned"

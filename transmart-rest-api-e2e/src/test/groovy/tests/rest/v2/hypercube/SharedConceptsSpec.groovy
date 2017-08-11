@@ -5,12 +5,12 @@ package tests.rest.v2.hypercube
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.*
-import static tests.rest.v2.Operator.AND
-import static tests.rest.v2.Operator.OR
-import static tests.rest.v2.constraints.*
+import static tests.rest.Operator.AND
+import static tests.rest.Operator.OR
+import static tests.rest.constraints.*
 
 /**
  *  TMPREQ-5 Building a generic concept tree across studies
@@ -43,9 +43,9 @@ class SharedConceptsSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -80,9 +80,9 @@ class SharedConceptsSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -112,9 +112,9 @@ class SharedConceptsSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -125,11 +125,11 @@ class SharedConceptsSpec extends RESTSpec {
     @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
     def "get shared concept unrestricted"() {
         given: "studies STUDIENAME, STUDIENAME and STUDIENAME_RESTRICTED are loaded and all use shared Consept ids"
-        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
+                user      : UNRESTRICTED_USERNAME
         ]
 
         when: "I get observaties using this shared Consept id"
@@ -144,14 +144,13 @@ class SharedConceptsSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
     def "limit shared concept"() {
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def heartRate = [type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]
 
         def studiesOR = [
@@ -173,7 +172,7 @@ class SharedConceptsSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = get([path: PATH_OBSERVATIONS, acceptType: acceptType, query: toQuery(constaint)])
+        def responseData = get([path: PATH_OBSERVATIONS, acceptType: acceptType, query: toQuery(constaint), user: ADMIN_USERNAME])
         def selector = newSelector(responseData)
 
         then:
@@ -184,8 +183,8 @@ class SharedConceptsSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 }

@@ -5,7 +5,7 @@ package tests.rest.v2.storage
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.*
 
 @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
@@ -15,15 +15,14 @@ class FileAccessSpec extends RESTSpec {
     def file_link
 
     def setup() {
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def responseDataAll = get([path: PATH_FILES, acceptType: contentTypeForJSON])
+        def responseDataAll = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USERNAME])
         responseDataAll.files.each {
-            delete([path: PATH_FILES + "/${it.id}", statusCode: 204])
+            delete([path: PATH_FILES + "/${it.id}", statusCode: 204, user: ADMIN_USERNAME])
         }
 
-        responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
+        responseDataAll = get([path: PATH_STORAGE, acceptType: JSON, user: ADMIN_USERNAME])
         responseDataAll.storageSystems.each {
-            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204])
+            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204, user: ADMIN_USERNAME])
         }
 
         def sourceSystem = [
@@ -33,7 +32,7 @@ class FileAccessSpec extends RESTSpec {
                 'systemVersion'        : 'v1',
                 'singleFileCollections': false,
         ]
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USERNAME])
         storageId = responseData.id
 
         def new_file_link = [
@@ -42,7 +41,7 @@ class FileAccessSpec extends RESTSpec {
                 'study'       : SHARED_CONCEPTS_RESTRICTED_ID,
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
-        file_link = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 201])
+        file_link = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 201, user: ADMIN_USERNAME])
     }
 
     /**
@@ -52,12 +51,11 @@ class FileAccessSpec extends RESTSpec {
      */
     def "get files by study"() {
         given: "a file is attached to a restricted study and I do not have access"
-        setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
 
         when: "I get files for that study"
         def responseData = get([
                 path      : PATH_STUDIES + "/${SHARED_CONCEPTS_RESTRICTED_ID}/files",
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 statusCode: 403
         ])
 
@@ -73,12 +71,12 @@ class FileAccessSpec extends RESTSpec {
      */
     def "get files by study unrestricted"() {
         given: "a file is attached to a restricted study and I have access"
-        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I get files for that study"
         def responseData = get([
                 path      : PATH_STUDIES + "/${SHARED_CONCEPTS_RESTRICTED_ID}/files",
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
+                user      : ADMIN_USERNAME
         ])
 
         then: "I get a list of files"

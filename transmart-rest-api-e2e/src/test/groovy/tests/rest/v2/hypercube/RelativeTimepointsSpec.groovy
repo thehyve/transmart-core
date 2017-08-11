@@ -6,13 +6,13 @@ import annotations.RequiresStudy
 import base.RESTSpec
 import spock.lang.Requires
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.*
-import static tests.rest.v2.Operator.*
-import static tests.rest.v2.ValueType.NUMERIC
-import static tests.rest.v2.ValueType.STRING
-import static tests.rest.v2.constraints.*
+import static tests.rest.Operator.*
+import static tests.rest.ValueType.NUMERIC
+import static tests.rest.ValueType.STRING
+import static tests.rest.constraints.*
 
 /**
  *  TMPREQ-17
@@ -60,9 +60,9 @@ class RelativeTimepointsSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -130,9 +130,9 @@ class RelativeTimepointsSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -173,9 +173,9 @@ class RelativeTimepointsSpec extends RESTSpec {
         assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR')
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -183,7 +183,8 @@ class RelativeTimepointsSpec extends RESTSpec {
      *  when: "I get observations related to the General relative time label"
      *  then: "multiple concepts from both EHR and CLINICAL_TRIAL are returned"
      */
-    @RequiresStudy([CLINICAL_TRIAL_ID, EHR_ID]) @Requires({ RUN_HUGE_TESTS })
+    @RequiresStudy([CLINICAL_TRIAL_ID, EHR_ID])
+    @Requires({ RUN_HUGE_TESTS })
     def "multiple concepts to the same relative timepoint within several studies"() {
         given: "studies EHR and CLINICAL_TRIAL are loaded"
         def request = [
@@ -209,9 +210,9 @@ class RelativeTimepointsSpec extends RESTSpec {
         assert concepts.containsAll('EHR:DEM:AGE', 'EHR:VSIGN:HR', 'CT:DEM:AGE')
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -279,8 +280,8 @@ class RelativeTimepointsSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 }

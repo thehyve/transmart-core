@@ -5,12 +5,12 @@ package tests.rest.v2.hypercube
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.EHR_ID
 import static config.Config.PATH_OBSERVATIONS
-import static tests.rest.v2.Operator.*
-import static tests.rest.v2.constraints.*
+import static tests.rest.Operator.*
+import static tests.rest.constraints.*
 
 /**
  * TMPREQ-10
@@ -56,9 +56,9 @@ class TimeConstraintSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -98,9 +98,9 @@ class TimeConstraintSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -137,9 +137,9 @@ class TimeConstraintSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -183,8 +183,8 @@ class TimeConstraintSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 }

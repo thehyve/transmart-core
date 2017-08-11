@@ -12,7 +12,7 @@ class ObservationSelectorJson {
         this.hyperCubeMessage = hyperCubeMessage
         this.cellCount = hyperCubeMessage.cells.size()
         hyperCubeMessage.dimensionDeclarations.each {
-            if(it.inline){
+            if (it.inline) {
                 inlined.add(it.name)
             } else {
                 notInlined.add(it.name)
@@ -26,19 +26,19 @@ class ObservationSelectorJson {
         assert valueType in validValueTypes
         def result
         int index = inlined.indexOf(dimension)
-        if (index != -1){
+        if (index != -1) {
             def dimObject = hyperCubeMessage.cells[cellIndex].inlineDimensions[index]
             result = fieldName ? dimObject?.getAt(fieldName) : dimObject
         } else {
             // non inline
             index = notInlined.indexOf(dimension)
             def valueIndex = hyperCubeMessage.cells[cellIndex].dimensionIndexes[index]
-            if(valueIndex == null) return null
+            if (valueIndex == null) return null
             def dimElement = hyperCubeMessage.dimensionElements[dimension]?.getAt(valueIndex)
             result = fieldName ? dimElement?.getAt(fieldName) : dimElement
         }
 
-        switch (valueType){
+        switch (valueType) {
             case 'String':
                 return result as String
             case 'Int':
@@ -52,11 +52,12 @@ class ObservationSelectorJson {
         }
     }
 
-    def select(cellIndex, dimension, valueType = null){ //valueType is unused but needed to make the interface for json and protobuf selecter the same.
+    def select(cellIndex, dimension, valueType = null) {
+        //valueType is unused but needed to make the interface for json and protobuf selecter the same.
         int index = notInlined.indexOf(dimension)
-        if(index != -1) {
+        if (index != -1) {
             def valueIndex = hyperCubeMessage.cells[cellIndex].dimensionIndexes[index]
-            if(valueIndex == null) return null
+            if (valueIndex == null) return null
             // return the object at position valueIndex of inlined dimension index.
             return hyperCubeMessage.dimensionElements[dimension][valueIndex]
         } else {
@@ -72,8 +73,8 @@ class ObservationSelectorJson {
      * @param cellIndex
      * @return
      */
-    def select(cellIndex){
+    def select(cellIndex) {
         String stringValue = hyperCubeMessage.cells[cellIndex].stringValue
-        return  stringValue == null ? hyperCubeMessage.cells[cellIndex].numericValue : stringValue
+        return stringValue == null ? hyperCubeMessage.cells[cellIndex].numericValue : stringValue
     }
 }

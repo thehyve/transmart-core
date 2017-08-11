@@ -5,12 +5,12 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.*
-import static tests.rest.v2.Operator.AND
-import static tests.rest.v2.Operator.GREATER_THAN
-import static tests.rest.v2.ValueType.NUMERIC
-import static tests.rest.v2.constraints.*
+import static tests.rest.Operator.AND
+import static tests.rest.Operator.GREATER_THAN
+import static tests.rest.ValueType.NUMERIC
+import static tests.rest.constraints.*
 
 class PatientsSetSpec extends RESTSpec {
 
@@ -24,7 +24,7 @@ class PatientsSetSpec extends RESTSpec {
         given: "study EHR is loaded"
         def request = [
                 path      : PATH_PATIENT_SET,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : [name: 'test_set'],
                 body      : toJSON([
                         type    : Combination,
@@ -44,7 +44,7 @@ class PatientsSetSpec extends RESTSpec {
         assert responseData.id != null
         assert get([
                 path      : PATH_PATIENTS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : toQuery([type: PatientSetConstraint, patientSetId: responseData.id])
         ]).patients.size() == 2
 
@@ -60,7 +60,7 @@ class PatientsSetSpec extends RESTSpec {
         given: "Studies with shared concepts is loaded"
         def request = [
                 path      : PATH_PATIENT_SET,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : [name: 'test_set'],
                 body      : toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
                 statusCode: 201
@@ -73,7 +73,7 @@ class PatientsSetSpec extends RESTSpec {
         assert responseData.id != null
         assert get([
                 path      : PATH_PATIENTS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : toQuery([type: PatientSetConstraint, patientSetId: responseData.id])
         ]).patients.size() == 4
     }
@@ -88,7 +88,7 @@ class PatientsSetSpec extends RESTSpec {
         given: "Studies with shared concepts is loaded and I have acces to some"
         def request = [
                 path      : PATH_PATIENT_SET,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : [name: 'test_set'],
                 body      : toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
                 statusCode: 201
@@ -101,7 +101,7 @@ class PatientsSetSpec extends RESTSpec {
         assert responseData.id != null
         assert get([
                 path      : PATH_PATIENTS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : toQuery([type: PatientSetConstraint, patientSetId: responseData.id])
         ]).patients.size() == 4
     }
@@ -114,13 +114,13 @@ class PatientsSetSpec extends RESTSpec {
     @RequiresStudy([SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
     def "create patient set shared concepts unrestricted"() {
         given: "Studies with shared concepts is loaded and I have access to all"
-        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
         def request = [
                 path      : PATH_PATIENT_SET,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : [name: 'test_set'],
                 body      : toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
-                statusCode: 201
+                statusCode: 201,
+                user      : UNRESTRICTED_USERNAME
         ]
 
         when: "I make a patient set with a shared concept"
@@ -130,8 +130,9 @@ class PatientsSetSpec extends RESTSpec {
         assert responseData.id != null
         assert get([
                 path      : PATH_PATIENTS,
-                acceptType: contentTypeForJSON,
-                query     : toQuery([type: PatientSetConstraint, patientSetId: responseData.id])
+                acceptType: JSON,
+                query     : toQuery([type: PatientSetConstraint, patientSetId: responseData.id]),
+                user      : UNRESTRICTED_USERNAME
         ]).patients.size() == 6
     }
 
@@ -143,22 +144,21 @@ class PatientsSetSpec extends RESTSpec {
     @RequiresStudy([SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
     def "using patient by user without access"() {
         given: "Studies with shared concepts is loaded and I have access to some"
-        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
         def request = [
                 path      : PATH_PATIENT_SET,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : [name: 'test_set'],
                 body      : toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
-                statusCode: 201
+                statusCode: 201,
+                user      : UNRESTRICTED_USERNAME
         ]
         def response = post(request)
         int setID = response.id
-        setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
 
         when: "When I use a patient set that contains patients that I do not have access to"
         def responseData = get([
                 path      : PATH_PATIENTS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : toQuery([type: PatientSetConstraint, patientSetId: setID]),
                 statusCode: 403
         ])
@@ -170,16 +170,16 @@ class PatientsSetSpec extends RESTSpec {
     }
 
     /**
-    *  when: "I try to fetch all patientSets"
-    *  then: "the list of all patientSets is returned"
-    */
+     *  when: "I try to fetch all patientSets"
+     *  then: "the list of all patientSets is returned"
+     */
 
     @RequiresStudy(EHR_ID)
     def "get list of patientSets"() {
         given: "at least one patient_set exists"
         def createPatientSetRequest = [
                 path      : PATH_PATIENT_SET,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : [name: 'test_set'],
                 body      : toJSON([
                         type    : Combination,
@@ -194,8 +194,7 @@ class PatientsSetSpec extends RESTSpec {
         def newSet = post(createPatientSetRequest)
         def request = [
                 path      : PATH_PATIENT_SET,
-                acceptType: contentTypeForJSON,
-                statusCode: 400
+                acceptType: JSON,
         ]
 
         when: "I try to fetch all patientSets"
