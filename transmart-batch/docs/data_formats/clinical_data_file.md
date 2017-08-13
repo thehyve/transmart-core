@@ -48,7 +48,7 @@ Observations derived from electronic health records can be uploaded as part of a
 | patient2   | 2             |        |               |      | 69         | 142      |
 
 ### Replicate observations
-By default, tranSMART expects unique combinations of subject ID, patient visit, trial visit, observation start date and variable. In case there are repeated measurements (i.e. not distinguishable by aforementioned aspects) that you wish to upload, this has to be made explicit by using the `instance number` column (see also [column mapping file](column-mapping.md)).
+By default, tranSMART expects unique combinations of subject ID, patient visit, observation start date and variable. In case there are repeated measurements (i.e. not distinguishable by aforementioned aspects) that you wish to upload, this has to be made explicit by using the `instance number` column (see also [column mapping file](column-mapping.md)).
 
 | Subject_id | Start date | Instance num | Gender | Treatment arm | Heart rate | Hb level |
 |------------|------------|--------------|--------|---------------|------------|----------|
