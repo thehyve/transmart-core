@@ -35,11 +35,9 @@ class Config {
 
     public static final String TEMP_DIRECTORY = '/tmp'
 
-    public static final String BAD_USERNAME = 'bad username'
-    public static final String BAD_PASSWORD = 'bad password'
-    public static final String DEFAULT_USERNAME = 'test-public-user-1'
-    public static final String UNRESTRICTED_USERNAME = 'test-public-user-2'
-    public static final String ADMIN_USERNAME = 'ADMIN'
+    public static final String DEFAULT_USER = 'test-public-user-1'
+    public static final String UNRESTRICTED_USER = 'test-public-user-2'
+    public static final String ADMIN_USER = 'ADMIN'
 
     public static final String VERSIONS_PATH = '/versions'
     public static final String NON_EXISTING_API_VERSION = 'v0'
@@ -83,7 +81,7 @@ class Config {
 
     //settings
     public static final boolean DB_MIGRATED = true
-    public static final boolean OAUTH_NEEDED = true
+    public static final boolean AUTH_NEEDED = true
     public static final boolean DEBUG = false
     public static final boolean SUPPRESS_KNOWN_BUGS = true
     public static final boolean SUPPRESS_UNIMPLEMENTED = true

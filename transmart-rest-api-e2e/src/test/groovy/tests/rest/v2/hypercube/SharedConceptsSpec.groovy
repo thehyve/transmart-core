@@ -129,7 +129,7 @@ class SharedConceptsSpec extends RESTSpec {
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query     : toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ]
 
         when: "I get observaties using this shared Consept id"
@@ -172,7 +172,7 @@ class SharedConceptsSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = get([path: PATH_OBSERVATIONS, acceptType: acceptType, query: toQuery(constaint), user: ADMIN_USERNAME])
+        def responseData = get([path: PATH_OBSERVATIONS, acceptType: acceptType, query: toQuery(constaint), user: ADMIN_USER])
         def selector = newSelector(responseData)
 
         then:

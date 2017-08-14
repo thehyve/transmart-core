@@ -30,7 +30,7 @@ class StudiesSpec extends RESTSpec {
         def responseData = get([
                 path      : PATH_STUDIES,
                 acceptType: JSON,
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ])
         def studies = responseData.studies as List
         def studyIds = studies*.studyId as List
@@ -96,7 +96,7 @@ class StudiesSpec extends RESTSpec {
         def studyResponse = get([
                 path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
                 acceptType: JSON,
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ])
 
         then: "the study object is returned"

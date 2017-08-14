@@ -5,7 +5,7 @@ package tests.rest.v2.storage
 import base.RESTSpec
 
 import static base.ContentTypeFor.JSON
-import static config.Config.ADMIN_USERNAME
+import static config.Config.ADMIN_USER
 import static config.Config.PATH_ARVADOS_WORKFLOWS
 
 /**
@@ -16,9 +16,9 @@ class ArvadosWorkflowsSpec extends RESTSpec {
 
 
     def setup() {
-        def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: JSON, user: ADMIN_USERNAME])
+        def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: JSON, user: ADMIN_USER])
         responseDataAll.supportedWorkflows.each {
-            delete([path: PATH_ARVADOS_WORKFLOWS + "/${it.id}", acceptType: JSON, statusCode: 204, user: ADMIN_USERNAME])
+            delete([path: PATH_ARVADOS_WORKFLOWS + "/${it.id}", acceptType: JSON, statusCode: 204, user: ADMIN_USER])
         }
     }
 
@@ -43,7 +43,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
                 acceptType: JSON,
                 body      : toJSON(data),
                 statusCode: 201,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
         def id = responseData.id
 
@@ -56,7 +56,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         assert responseData.uuid == data.uuid
 
         when:
-        responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, user: ADMIN_USERNAME])
+        responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, user: ADMIN_USER])
 
         then:
         assert responseData.name == data.name
@@ -66,14 +66,14 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         assert responseData.uuid == data.uuid
 
         when:
-        def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: JSON, user: ADMIN_USERNAME])
+        def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: JSON, user: ADMIN_USER])
 
         then:
         assert responseDataAll.supportedWorkflows.contains(responseData)
 
         when:
         data.name = 'new file Link renamed'
-        responseData = put([path: PATH_ARVADOS_WORKFLOWS + "/${id}", body: toJSON(data), user: ADMIN_USERNAME])
+        responseData = put([path: PATH_ARVADOS_WORKFLOWS + "/${id}", body: toJSON(data), user: ADMIN_USER])
 
         then:
         assert responseData.id == id
@@ -84,9 +84,9 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         assert responseData.uuid == data.uuid
 
         when:
-        responseData = delete([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, statusCode: 204, user: ADMIN_USERNAME])
+        responseData = delete([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, statusCode: 204, user: ADMIN_USER])
         assert responseData == null
-        responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, statusCode: 404, user: ADMIN_USERNAME])
+        responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, statusCode: 404, user: ADMIN_USER])
 
         then:
         assert responseData.status == 404
@@ -112,7 +112,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
                                     "defaultParams"     : null
                 ]),
                 statusCode: 500,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ]
 
         when:
@@ -135,7 +135,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
                 acceptType: JSON,
                 body      : null,
                 statusCode: 500,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
 
         then:
@@ -153,7 +153,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
                 path      : PATH_ARVADOS_WORKFLOWS + "/0",
                 acceptType: JSON,
                 statusCode: 404,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
 
         then:
@@ -182,7 +182,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
                 acceptType: JSON,
                 body      : toJSON(data),
                 statusCode: 201,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
         data.uuid = null
 
@@ -191,7 +191,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
                 path      : PATH_ARVADOS_WORKFLOWS + "/${responseData.id}",
                 body      : toJSON(data),
                 statusCode: 422,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
 
         then:
@@ -223,7 +223,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
                 acceptType: JSON,
                 body      : toJSON(data),
                 statusCode: 404,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
 
         then:

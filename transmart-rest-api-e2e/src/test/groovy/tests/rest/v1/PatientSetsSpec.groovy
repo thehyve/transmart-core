@@ -27,7 +27,7 @@ class PatientSetsSpec extends RESTSpec {
                 contentType: XML,
                 body       : body,
                 statusCode : 201,
-                user       : ADMIN_USERNAME
+                user       : ADMIN_USER
         ])
 
         then: "a set is created and returned"
@@ -51,14 +51,14 @@ class PatientSetsSpec extends RESTSpec {
                 contentType: XML,
                 body       : body,
                 statusCode : 201,
-                user       : ADMIN_USERNAME
+                user       : ADMIN_USER
         ]).id
 
         when: "I get a patient set by id"
         def responseData = get([
                 path      : V1_PATH_PATIENT_SETS + "/${id}",
                 acceptType: JSON,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
 
         then: "a set is returned"

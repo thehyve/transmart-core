@@ -34,7 +34,7 @@ class DimensionSpec extends RESTSpec {
         def responseData = get([
                 path      : PATH_DIMENSION + "/$dimensionName/elements",
                 acceptType: JSON,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
 
         then: "the list of trial visits for all studies is returned"

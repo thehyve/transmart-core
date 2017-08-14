@@ -56,7 +56,7 @@ class AccessLevelSpec extends RESTSpec {
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]),
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ]
 
 
@@ -87,7 +87,7 @@ class AccessLevelSpec extends RESTSpec {
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
                 query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]),
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ]
 
 

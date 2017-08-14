@@ -24,7 +24,7 @@ class SubjectsSpec extends RESTSpec {
         def responseData = get([
                 path      : V1_PATH_STUDIES + "/${studyId}/subjects",
                 acceptType: JSON,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
 
         then: "subjects are returned"
@@ -56,13 +56,13 @@ class SubjectsSpec extends RESTSpec {
         def subjectId = get([
                 path      : V1_PATH_STUDIES + "/${studyId}/subjects",
                 acceptType: JSON,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ]).subjects[0].id
 
         def responseData = get([
                 path      : V1_PATH_STUDIES + "/${studyId}/subjects/${subjectId}",
                 acceptType: JSON,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
 
         then: "only that subject is returned"
@@ -92,7 +92,7 @@ class SubjectsSpec extends RESTSpec {
         def responseData = get([
                 path      : V1_PATH_STUDIES + "/${studyId}/concepts/${conceptPath}/subjects",
                 acceptType: JSON,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
 
         then: "subjects are returned"

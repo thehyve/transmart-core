@@ -19,14 +19,14 @@ class FilesSpec extends RESTSpec {
     def storageId
 
     def setup() {
-        def responseDataAll = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USERNAME])
+        def responseDataAll = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USER])
         responseDataAll.files.each {
-            delete([path: PATH_FILES + "/${it.id}", statusCode: 204, user: ADMIN_USERNAME])
+            delete([path: PATH_FILES + "/${it.id}", statusCode: 204, user: ADMIN_USER])
         }
 
-        responseDataAll = get([path: PATH_STORAGE, acceptType: JSON, user: ADMIN_USERNAME])
+        responseDataAll = get([path: PATH_STORAGE, acceptType: JSON, user: ADMIN_USER])
         responseDataAll.storageSystems.each {
-            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204, user: ADMIN_USERNAME])
+            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204, user: ADMIN_USER])
         }
 
         def sourceSystem = [
@@ -36,7 +36,7 @@ class FilesSpec extends RESTSpec {
                 'systemVersion'        : 'v1',
                 'singleFileCollections': false,
         ]
-        def responseData = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 201, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 201, user: ADMIN_USER])
         storageId = responseData.id
     }
 
@@ -53,7 +53,7 @@ class FilesSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_FILES, body: new_file_link, statusCode: 201, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_FILES, body: new_file_link, statusCode: 201, user: ADMIN_USER])
         def id = responseData.id
 
         then:
@@ -74,14 +74,14 @@ class FilesSpec extends RESTSpec {
         assert responseData.uuid == 'aaaaa-bbbbb-ccccccccccccccc'
 
         when:
-        def responseDataAll = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USERNAME])
+        def responseDataAll = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USER])
 
         then:
         assert responseDataAll.files.contains(responseData)
 
         when:
         new_file_link.name = 'new file Link renamed'
-        responseData = put([path: PATH_FILES + "/${id}", body: toJSON(new_file_link), user: ADMIN_USERNAME])
+        responseData = put([path: PATH_FILES + "/${id}", body: toJSON(new_file_link), user: ADMIN_USER])
 
         then:
         assert responseData.id == id
@@ -91,7 +91,7 @@ class FilesSpec extends RESTSpec {
         assert responseData.uuid == 'aaaaa-bbbbb-ccccccccccccccc'
 
         when:
-        responseData = delete([path: PATH_FILES + "/${id}", statusCode: 204, user: ADMIN_USERNAME])
+        responseData = delete([path: PATH_FILES + "/${id}", statusCode: 204, user: ADMIN_USER])
         assert responseData == null
         responseData = get([path: PATH_FILES + "/${id}", acceptType: JSON, statusCode: 404])
 
@@ -116,7 +116,7 @@ class FilesSpec extends RESTSpec {
                 'systemVersion'        : 'v1',
                 'singleFileCollections': false,
         ]
-        def storageId2 = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 201, user: ADMIN_USERNAME]).id
+        def storageId2 = post([path: PATH_STORAGE, body: sourceSystem, statusCode: 201, user: ADMIN_USER]).id
 
         def new_file_link1 = [
                 'name'        : 'file in storage 1',
@@ -132,12 +132,12 @@ class FilesSpec extends RESTSpec {
                 'uuid'        : 'aaaaa-ccccccccccccccc',
         ]
 
-        def fileID1 = post([path: PATH_FILES, body: new_file_link1, statusCode: 201, user: ADMIN_USERNAME]).id
+        def fileID1 = post([path: PATH_FILES, body: new_file_link1, statusCode: 201, user: ADMIN_USER]).id
 
-        def fileID2 = post([path: PATH_FILES, body: new_file_link2, statusCode: 201, user: ADMIN_USERNAME]).id
+        def fileID2 = post([path: PATH_FILES, body: new_file_link2, statusCode: 201, user: ADMIN_USER]).id
 
         when: "I get the list of file links"
-        def responseData = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USERNAME])
+        def responseData = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USER])
 
         then: "the list of files has several sourceSystem ids"
         def files = responseData.files as List
@@ -158,7 +158,7 @@ class FilesSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_FILES, body: new_file_link, statusCode: 422, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_FILES, body: new_file_link, statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 1
@@ -173,7 +173,7 @@ class FilesSpec extends RESTSpec {
      */
     def "post empty"() {
         when:
-        def responseData = post([path: PATH_FILES, statusCode: 422, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_FILES, statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 4
@@ -205,7 +205,7 @@ class FilesSpec extends RESTSpec {
                 'study'       : studyId,
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
-        def responseData = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 201, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 201, user: ADMIN_USER])
         def id = responseData.id
         new_file_link.uuid = null
 
@@ -214,7 +214,7 @@ class FilesSpec extends RESTSpec {
                 path      : (PATH_FILES + "/${id}"),
                 body      : toJSON(new_file_link),
                 statusCode: 422,
-                user      : ADMIN_USERNAME])
+                user      : ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 1
@@ -237,7 +237,7 @@ class FilesSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = put([path: PATH_FILES + "/0", body: toJSON(new_file_link), statusCode: 500, user: ADMIN_USERNAME])
+        def responseData = put([path: PATH_FILES + "/0", body: toJSON(new_file_link), statusCode: 500, user: ADMIN_USER])
 
         then:
         assert responseData.httpStatus == 500

@@ -3,8 +3,8 @@ package base
 import groovyx.net.http.FromServer
 import groovyx.net.http.HttpBuilder
 
-import static config.Config.DEFAULT_USERNAME
-import static config.Config.OAUTH_NEEDED
+import static config.Config.AUTH_NEEDED
+import static config.Config.DEFAULT_USER
 
 class RestHelper {
 
@@ -15,8 +15,8 @@ class RestHelper {
             request.uri.path = requestMap.path
             request.uri.query = requestMap.query
 
-            if (!requestMap.skipOauth && OAUTH_NEEDED) {
-                testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USERNAME))
+            if (!requestMap.skipOauth && AUTH_NEEDED) {
+                testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USER))
             }
 
             response.success { FromServer fromServer, body ->
@@ -45,8 +45,8 @@ class RestHelper {
             request.contentType = requestMap.contentType ?: ContentTypeFor.JSON
             request.body = requestMap.body
 
-            if (!requestMap.skipOauth && OAUTH_NEEDED) {
-                testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USERNAME))
+            if (!requestMap.skipOauth && AUTH_NEEDED) {
+                testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USER))
             }
 
             response.success { FromServer fromServer, body ->
@@ -75,8 +75,8 @@ class RestHelper {
             request.contentType = requestMap.contentType ?: ContentTypeFor.JSON
             request.body = requestMap.body
 
-            if (!requestMap.skipOauth && OAUTH_NEEDED) {
-                testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USERNAME))
+            if (!requestMap.skipOauth && AUTH_NEEDED) {
+                testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USER))
             }
 
             response.success { FromServer fromServer, body ->
@@ -104,8 +104,8 @@ class RestHelper {
             request.accept = requestMap.acceptType ?: ContentTypeFor.JSON
 
 
-            if (!requestMap.skipOauth && OAUTH_NEEDED) {
-                testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USERNAME))
+            if (!requestMap.skipOauth && AUTH_NEEDED) {
+                testContext.getAuthAdapter().authenticate(getRequest(), (requestMap.user ?: DEFAULT_USER))
             }
 
             response.success { FromServer fromServer, body ->

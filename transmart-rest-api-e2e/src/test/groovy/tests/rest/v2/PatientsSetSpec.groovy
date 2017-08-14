@@ -120,7 +120,7 @@ class PatientsSetSpec extends RESTSpec {
                 query     : [name: 'test_set'],
                 body      : toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
                 statusCode: 201,
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ]
 
         when: "I make a patient set with a shared concept"
@@ -132,7 +132,7 @@ class PatientsSetSpec extends RESTSpec {
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
                 query     : toQuery([type: PatientSetConstraint, patientSetId: responseData.id]),
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ]).patients.size() == 6
     }
 
@@ -150,7 +150,7 @@ class PatientsSetSpec extends RESTSpec {
                 query     : [name: 'test_set'],
                 body      : toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"]),
                 statusCode: 201,
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ]
         def response = post(request)
         int setID = response.id

@@ -14,18 +14,12 @@ import spock.lang.Specification
 
 import java.text.SimpleDateFormat
 
-import static config.Config.DEFAULT_USERNAME
 import static org.hamcrest.Matchers.*
 
 abstract class RESTSpec extends Specification {
 
     @Shared
     TestContext testContext = Config.testContext
-    String user = DEFAULT_USERNAME;
-
-    def setUser(String userID) {
-        user = userID
-    }
 
     def getOrPostRequest(method, request, params) {
         if (method == "GET") {

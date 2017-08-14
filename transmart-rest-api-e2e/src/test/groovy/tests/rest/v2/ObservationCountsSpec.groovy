@@ -45,7 +45,7 @@ class ObservationCountsSpec extends RESTSpec {
         def request = [
                 path      : PATH_COUNTS,
                 acceptType: JSON,
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ]
 
         when: "I count observations for the concept Heart Rate"

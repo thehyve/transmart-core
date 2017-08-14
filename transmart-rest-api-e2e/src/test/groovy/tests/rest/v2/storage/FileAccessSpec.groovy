@@ -15,14 +15,14 @@ class FileAccessSpec extends RESTSpec {
     def file_link
 
     def setup() {
-        def responseDataAll = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USERNAME])
+        def responseDataAll = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USER])
         responseDataAll.files.each {
-            delete([path: PATH_FILES + "/${it.id}", statusCode: 204, user: ADMIN_USERNAME])
+            delete([path: PATH_FILES + "/${it.id}", statusCode: 204, user: ADMIN_USER])
         }
 
-        responseDataAll = get([path: PATH_STORAGE, acceptType: JSON, user: ADMIN_USERNAME])
+        responseDataAll = get([path: PATH_STORAGE, acceptType: JSON, user: ADMIN_USER])
         responseDataAll.storageSystems.each {
-            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204, user: ADMIN_USERNAME])
+            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204, user: ADMIN_USER])
         }
 
         def sourceSystem = [
@@ -32,7 +32,7 @@ class FileAccessSpec extends RESTSpec {
                 'systemVersion'        : 'v1',
                 'singleFileCollections': false,
         ]
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USER])
         storageId = responseData.id
 
         def new_file_link = [
@@ -41,7 +41,7 @@ class FileAccessSpec extends RESTSpec {
                 'study'       : SHARED_CONCEPTS_RESTRICTED_ID,
                 'uuid'        : 'aaaaa-bbbbb-ccccccccccccccc',
         ]
-        file_link = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 201, user: ADMIN_USERNAME])
+        file_link = post([path: PATH_FILES, body: toJSON(new_file_link), statusCode: 201, user: ADMIN_USER])
     }
 
     /**
@@ -76,7 +76,7 @@ class FileAccessSpec extends RESTSpec {
         def responseData = get([
                 path      : PATH_STUDIES + "/${SHARED_CONCEPTS_RESTRICTED_ID}/files",
                 acceptType: JSON,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
 
         then: "I get a list of files"

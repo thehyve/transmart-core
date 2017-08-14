@@ -34,10 +34,10 @@ class RequiresStudyExtension extends AbstractAnnotationDrivenExtension<RequiresS
         if (loadedStudies?.empty) {
             try {
                 println("retrieving studies loaded on ${BASE_URL}")
-                def v1studies = RestHelper.get(testContext, [path: V1_PATH_STUDIES, acceptType: JSON, user: ADMIN_USERNAME]).studies as List
+                def v1studies = RestHelper.get(testContext, [path: V1_PATH_STUDIES, acceptType: JSON, user: ADMIN_USER]).studies as List
                 loadedStudies.addAll(v1studies*.id as Set)
 
-                def v2studies = RestHelper.get(testContext, [path: PATH_STUDIES, acceptType: JSON, user: ADMIN_USERNAME]).studies as List
+                def v2studies = RestHelper.get(testContext, [path: PATH_STUDIES, acceptType: JSON, user: ADMIN_USER]).studies as List
                 loadedStudies.addAll(v2studies*.studyId as Set)
                 println("studies retrieved. loadedStudies: ${loadedStudies}")
             } catch (Exception e) {

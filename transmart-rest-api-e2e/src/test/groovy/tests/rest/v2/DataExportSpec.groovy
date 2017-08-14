@@ -32,7 +32,7 @@ class DataExportSpec extends RESTSpec {
         assert responseData.jobName == id.toString()
         assert responseData.jobStatus == "Created"
         assert responseData.jobStatusTime != null
-        assert responseData.userId == DEFAULT_USERNAME
+        assert responseData.userId == DEFAULT_USER
         assert responseData.viewerUrl == null
 
         when: "Export job name is specified"
@@ -47,7 +47,7 @@ class DataExportSpec extends RESTSpec {
         assert responseData.jobName == name
         assert responseData.jobStatus == "Created"
         assert responseData.jobStatusTime != null
-        assert responseData.userId == DEFAULT_USERNAME
+        assert responseData.userId == DEFAULT_USER
         assert responseData.viewerUrl == null
     }
 
@@ -93,7 +93,7 @@ class DataExportSpec extends RESTSpec {
                         type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
                 ]),
-                user      : ADMIN_USERNAME,
+                user      : ADMIN_USER,
                 statusCode: 201
         ]
         def createPatientSetResponse = post(patientSetRequest)
@@ -139,7 +139,7 @@ class DataExportSpec extends RESTSpec {
                         type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
                 ]),
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ]
         def createPatientSetResponse = post(patientSetRequest)
         def patientSetId = createPatientSetResponse.id
@@ -147,7 +147,7 @@ class DataExportSpec extends RESTSpec {
         def newJobRequest = [
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ]
         def newJobResponse = post(newJobRequest)
         def jobId = newJobResponse.exportJob.id
@@ -169,7 +169,7 @@ class DataExportSpec extends RESTSpec {
                                            ]]),
                 ]),
                 acceptType: JSON,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ])
 
         then: "Job instance with status: 'Started' is returned"
@@ -181,12 +181,12 @@ class DataExportSpec extends RESTSpec {
         assert runResponse.viewerUrl == null
 
         when: "Check the status of the job"
-        String fileName = "$TEMP_DIRECTORY/$ADMIN_USERNAME/$jobName" + ".zip"
+        String fileName = "$TEMP_DIRECTORY/$ADMIN_USER/$jobName" + ".zip"
         int maxAttemptNumber = 10 // max number of status check attempts
         def statusRequest = [
                 path      : "$PATH_DATA_EXPORT/$jobId/status",
                 acceptType: JSON,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ]
         def statusResponse = get(statusRequest)
 
@@ -208,7 +208,7 @@ class DataExportSpec extends RESTSpec {
         def downloadRequest = [
                 path      : "$PATH_DATA_EXPORT/$jobId/download",
                 acceptType: ZIP,
-                user      : ADMIN_USERNAME
+                user      : ADMIN_USER
         ]
         def downloadResponse = get(downloadRequest)
 

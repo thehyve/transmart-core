@@ -180,7 +180,7 @@ class AggregatedSpec extends RESTSpec {
                         constraint: toJSON([type: ConceptConstraint, path: conceptPath]),
                         type      : AVERAGE
                 ],
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ]
 
         when: "for that study I Aggregated the concept Heart Rate with type average"

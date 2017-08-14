@@ -26,7 +26,7 @@ class TreeNodesSpec extends RESTSpec {
         def responseData = get([
                 path      : PATH_TREE_NODES,
                 acceptType: JSON,
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ])
 
         then: "only nodes from SHARED_CONCEPTS_A are returned"
@@ -140,7 +140,7 @@ class TreeNodesSpec extends RESTSpec {
                 path      : PATH_TREE_NODES,
                 acceptType: JSON,
                 query     : ['counts': true],
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ])
 
         then: "then concept nodes have observationCount and patientCount"

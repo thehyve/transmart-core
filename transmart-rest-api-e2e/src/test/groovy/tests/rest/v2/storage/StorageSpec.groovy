@@ -14,14 +14,14 @@ import static config.Config.*
 class StorageSpec extends RESTSpec {
 
     def setup() {
-        def responseDataAll = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USERNAME])
+        def responseDataAll = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USER])
         responseDataAll.files.each {
-            delete([path: PATH_FILES + "/${it.id}", statusCode: 204, user: ADMIN_USERNAME])
+            delete([path: PATH_FILES + "/${it.id}", statusCode: 204, user: ADMIN_USER])
         }
 
-        responseDataAll = get([path: PATH_STORAGE, acceptType: JSON, user: ADMIN_USERNAME])
+        responseDataAll = get([path: PATH_STORAGE, acceptType: JSON, user: ADMIN_USER])
         responseDataAll.storageSystems.each {
-            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204, user: ADMIN_USERNAME])
+            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204, user: ADMIN_USER])
         }
     }
 
@@ -39,7 +39,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USER])
         def id = responseData.id
 
         then:
@@ -51,7 +51,7 @@ class StorageSpec extends RESTSpec {
         assert responseData.url == sourceSystem.url
 
         when:
-        responseData = get([path: PATH_STORAGE + "/${id}", acceptType: JSON, user: ADMIN_USERNAME])
+        responseData = get([path: PATH_STORAGE + "/${id}", acceptType: JSON, user: ADMIN_USER])
 
         then:
         assert responseData.id == id
@@ -62,14 +62,14 @@ class StorageSpec extends RESTSpec {
         assert responseData.url == sourceSystem.url
 
         when:
-        def responseDataAll = get([path: PATH_STORAGE, acceptType: JSON, user: ADMIN_USERNAME])
+        def responseDataAll = get([path: PATH_STORAGE, acceptType: JSON, user: ADMIN_USER])
 
         then:
         assert responseDataAll.storageSystems.contains(responseData)
 
         when:
         sourceSystem.name = 'Arvbox at The Hyve renamed'
-        responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem), user: ADMIN_USERNAME])
+        responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem), user: ADMIN_USER])
 
         then:
         assert responseData.id == id
@@ -80,9 +80,9 @@ class StorageSpec extends RESTSpec {
         assert responseData.url == sourceSystem.url
 
         when:
-        responseData = delete([path: PATH_STORAGE + "/${id}", statusCode: 204, user: ADMIN_USERNAME])
+        responseData = delete([path: PATH_STORAGE + "/${id}", statusCode: 204, user: ADMIN_USER])
         assert responseData == null
-        responseData = get([path: PATH_STORAGE + "/${id}", acceptType: JSON, statusCode: 404, user: ADMIN_USERNAME])
+        responseData = get([path: PATH_STORAGE + "/${id}", acceptType: JSON, statusCode: 404, user: ADMIN_USER])
 
         then:
         assert responseData.status == 404
@@ -104,7 +104,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors[0].field == 'systemVersion'
@@ -127,7 +127,7 @@ class StorageSpec extends RESTSpec {
         sourceSystem = sourceSystem.take(20)
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 4
@@ -147,7 +147,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 1
@@ -161,7 +161,7 @@ class StorageSpec extends RESTSpec {
      */
     def "post invalid empty"() {
         when:
-        def responseData = post([path: PATH_STORAGE, statusCode: 422, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_STORAGE, statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 4
@@ -207,9 +207,9 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USER])
         sourceSystem.singleFileCollections = 'bad_value'
-        responseData = put([path: PATH_STORAGE + "/${responseData.id}", body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USERNAME])
+        responseData = put([path: PATH_STORAGE + "/${responseData.id}", body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 1
@@ -233,7 +233,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem), statusCode: 404, user: ADMIN_USERNAME])
+        def responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem), statusCode: 404, user: ADMIN_USER])
 
         then:
         assert responseData.status == 404
@@ -276,7 +276,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USERNAME])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USER])
         responseData = delete([path: PATH_STORAGE + "/${responseData.id}", statusCode: 403])
 
         then:

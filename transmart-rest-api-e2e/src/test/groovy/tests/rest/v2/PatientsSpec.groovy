@@ -128,7 +128,7 @@ class PatientsSpec extends RESTSpec {
                 path      : PATH_PATIENTS,
                 acceptType: JSON,
                 query     : toQuery([type: StudyNameConstraint, studyId: SHARED_CONCEPTS_RESTRICTED_ID]),
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ]
 
         when: "I try to get the patients from that study"
@@ -177,7 +177,7 @@ class PatientsSpec extends RESTSpec {
         def responseData = get([
                 path      : PATH_PATIENTS + "/-69",
                 acceptType: JSON,
-                user      : UNRESTRICTED_USERNAME
+                user      : UNRESTRICTED_USER
         ])
 
         then: "I get the patient"
