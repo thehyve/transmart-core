@@ -48,7 +48,7 @@ Observations derived from electronic health records can be uploaded as part of a
 | patient2   | 2             |        |               |      | 69         | 142      |
 
 ### Sample-specific data (not yet implemented)
-In case some of your clinical data is specific to a subject's sample (used a high-dimensional data set), the   
+In case some of your clinical data is specific to a subject's sample (used in a high-dimensional data set), the   
 `Sample CD` modifier can be used. When applied, all observations in that row will be linked to the sample.
 
 | Subject_id | Sample CD     | Gender | Treatment arm | Hypermutated  | MVD        |
