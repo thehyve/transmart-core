@@ -1,6 +1,7 @@
 package transmart.core.db.tests
 
 import grails.plugins.Plugin
+import org.transmartproject.db.test.DbDictionaryTablesLoader
 import org.transmartproject.db.test.H2Views
 
 /*
@@ -47,6 +48,7 @@ class TransmartCoreDbTestsGrailsPlugin extends Plugin {
     Closure doWithSpring() {
         return { ->
             h2Views(H2Views)
+            dbDictionaryTablesLoader(DbDictionaryTablesLoader)
         }
     }
 }
