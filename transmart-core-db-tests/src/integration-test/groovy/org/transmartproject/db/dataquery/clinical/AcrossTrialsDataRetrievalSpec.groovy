@@ -37,13 +37,14 @@ class AcrossTrialsDataRetrievalSpec extends TransmartSpecification {
     public static final String AGE_AT_DIAGNOSIS_PATH =
             '\\Across Trials\\Demographics\\Age at Diagnosis\\'
 
-    AcrossTrialsTestData testData = AcrossTrialsTestData.createDefault()
+    AcrossTrialsTestData testData
 
     def clinicalDataResourceService
 
     def sessionFactory
 
     void setupData() {
+        testData = AcrossTrialsTestData.createDefault()
         testData.saveAll()
     }
 
