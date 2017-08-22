@@ -2,8 +2,6 @@ package org.transmartproject.db
 
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
-import org.transmartproject.db.multidimquery.DimensionImpl
-
 
 class StudyTestData {
 
@@ -21,37 +19,17 @@ class StudyTestData {
     }
 
     /**
-     * dimensions can contain Strings or Dimensions
+     * Creates a public or private study with specified study id and dimensions.
      * @param name
      * @param dimensions
      * @return
      */
-    static Study createStudy(String name, Iterable dimensions, boolean isPublic = false) {
-        def study = new Study(studyId: name, secureObjectToken: isPublic ? Study.PUBLIC : "EXP:${name}")
-        dimensions.each {
-            if(it instanceof DimensionDescription) {
-                study.addToDimensionDescriptions(it)
-            } else if(it instanceof String) {
-                def candidates = DimensionDescription.findAllByName(it)
-                if(!candidates) {
-                    assert DimensionImpl.isBuiltinDimension(it), "Unknown dimension name '$it', " +
-                            "modifier dimensions as string are not supported in createStudy()"
-                    // saving is necessary here so that this dimension will be visible to other studies that are
-                    // created within this same transaction. Without it we will have duplicate dimensions.
-                    def dim = new DimensionDescription(name: it).save()
-                    study.addToDimensionDescriptions(dim)
-                } else if(candidates.size() == 1) {
-                    study.addToDimensionDescriptions(candidates[0])
-                } else {
-                    assert false, "Multiple DimensionDescriptions with the same name found: '$it'; this should be " +
-                            "impossible due to the unique name constraint"
-                }
-            } else {
-                assert false, "Dimensions iterable passed to createStudy contains object that is not a String or a " +
-                        "DimensionDescription: $it"
-            }
-        }
-        study
+    static Study createStudy(String name, List<String> dimensions = [], boolean isPublic = false) {
+        new Study(
+            studyId: name,
+            secureObjectToken: isPublic ? Study.PUBLIC : "EXP:${name}",
+            dimensionDescriptions: DimensionDescription.findAllByNameInList(dimensions)
+        )
     }
 
 }
