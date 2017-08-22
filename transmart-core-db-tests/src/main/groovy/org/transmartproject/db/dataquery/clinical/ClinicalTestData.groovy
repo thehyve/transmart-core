@@ -149,7 +149,7 @@ class ClinicalTestData {
                 size: MEDIUM, density: DENSE, packable: PACKABLE).save()
 
         def sampleStudy = StudyTestData.createStudy "sample study", ["patient", "concept", "study",
-                doseDimension, tissueTypeDimension] // todo: "sample"
+                "dose", "tissueType"] // todo: "sample"
         def sampleClinicalFacts = createSampleFacts(conceptDims[5], patients, sampleStudy, observationStartDates, observationEndDates,
                 locations, providers)
 
