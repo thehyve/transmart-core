@@ -21,14 +21,16 @@ class StudyTestData {
     /**
      * Creates a public or private study with specified study id and dimensions.
      * @param name
-     * @param dimensions
+     * @param dimensionNames
      * @return
      */
-    static Study createStudy(String name, List<String> dimensions = [], boolean isPublic = false) {
+    static Study createStudy(String name, List<String> dimensionNames = [], boolean isPublic = false) {
+        def dimensionDescriptions = DimensionDescription.findAllByNameInList(dimensionNames)
+        assert (dimensionNames - dimensionDescriptions*.name).empty : 'Not all dimensions were found.'
         new Study(
-            studyId: name,
-            secureObjectToken: isPublic ? Study.PUBLIC : "EXP:${name}",
-            dimensionDescriptions: DimensionDescription.findAllByNameInList(dimensions)
+                studyId: name,
+                secureObjectToken: isPublic ? Study.PUBLIC : "EXP:${name}",
+                dimensionDescriptions: dimensionDescriptions
         )
     }
 
