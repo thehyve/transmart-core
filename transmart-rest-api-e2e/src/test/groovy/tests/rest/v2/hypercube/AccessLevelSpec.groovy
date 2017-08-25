@@ -5,10 +5,10 @@ package tests.rest.v2.hypercube
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.*
-import static tests.rest.v2.constraints.ConceptConstraint
+import static tests.rest.constraints.ConceptConstraint
 
 /**
  *  TMPREQ-8 Specifying user/group access by study
@@ -40,9 +40,9 @@ class AccessLevelSpec extends RESTSpec {
         assert responseData.message == 'Access denied to concept path: \\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\'
 
         where:
-        acceptType             | _
-        contentTypeForJSON     | _
-        contentTypeForProtobuf | _
+        acceptType | _
+        JSON       | _
+        PROTOBUF   | _
     }
 
     /**
@@ -52,11 +52,11 @@ class AccessLevelSpec extends RESTSpec {
      */
     def "unrestricted access"(def acceptType, def newSelector) {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
-        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]),
+                user      : UNRESTRICTED_USER
         ]
 
 
@@ -71,9 +71,9 @@ class AccessLevelSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -83,11 +83,11 @@ class AccessLevelSpec extends RESTSpec {
      */
     def "unrestricted access admin"(def acceptType, def newSelector) {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def request = [
                 path      : PATH_OBSERVATIONS,
                 acceptType: acceptType,
-                query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"])
+                query     : toQuery([type: ConceptConstraint, path: "\\Private Studies\\SHARED_CONCEPTS_STUDY_C_PRIV\\Demography\\Age\\"]),
+                user      : ADMIN_USER
         ]
 
 
@@ -103,8 +103,8 @@ class AccessLevelSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 }

@@ -5,7 +5,7 @@ package tests.rest.v1
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.GSE8581_ID
 import static config.Config.V1_PATH_STUDIES
 
@@ -22,7 +22,7 @@ class ConceptsSpec extends RESTSpec {
         def studieId = GSE8581_ID
 
         when: "I request all concepts related to this study"
-        def responseData = get([path: V1_PATH_STUDIES + "/${studieId}/concepts", acceptType: contentTypeForJSON])
+        def responseData = get([path: V1_PATH_STUDIES + "/${studieId}/concepts", acceptType: JSON])
 
         then: "I get all relevant concepts"
         responseData.ontology_terms.each {
@@ -42,7 +42,7 @@ class ConceptsSpec extends RESTSpec {
         def conceptPath = "Subjects/Age/"
 
         when: "I request one concept related to this study"
-        def responseData = get([path: V1_PATH_STUDIES + "/${studieId}/concepts/${conceptPath}", acceptType: contentTypeForJSON])
+        def responseData = get([path: V1_PATH_STUDIES + "/${studieId}/concepts/${conceptPath}", acceptType: JSON])
 
         then: "I get the requested concept"
         assert responseData.name == "Age"

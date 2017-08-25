@@ -6,7 +6,7 @@ import annotations.RequiresStudy
 import base.RESTSpec
 import groovy.util.logging.Slf4j
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.*
 
 /**
@@ -26,11 +26,11 @@ class StudiesSpec extends RESTSpec {
     @RequiresStudy([EHR_ID, EHR_HIGHDIM_ID, CLINICAL_TRIAL_ID, CATEGORICAL_VALUES_ID, TUMOR_NORMAL_SAMPLES_ID, SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
     def "all studies are returned"() {
         given: "All studies are loaded and I do have unlimited access"
-        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
         when: "I try to fetch all studies"
         def responseData = get([
                 path      : PATH_STUDIES,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
+                user      : UNRESTRICTED_USER
         ])
         def studies = responseData.studies as List
         def studyIds = studies*.studyId as List
@@ -55,7 +55,7 @@ class StudiesSpec extends RESTSpec {
         when: "I try to fetch all studies"
         def responseData = get([
                 path      : PATH_STUDIES,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
         ])
         def studies = responseData.studies as List
         def studyIds = studies*.studyId as List
@@ -77,7 +77,7 @@ class StudiesSpec extends RESTSpec {
         when: "I try to fetch study A by id"
         def studyResponse = get([
                 path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_A_DB_ID}",
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
         ])
 
         then: "the study object is returned"
@@ -91,12 +91,12 @@ class StudiesSpec extends RESTSpec {
      */
     def "restricted study is fetched by id"() {
         given: "Shared concepts studies are loaded and I do have un limited access"
-        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I try to fetch study A by id"
         def studyResponse = get([
                 path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
+                user      : UNRESTRICTED_USER
         ])
 
         then: "the study object is returned"
@@ -114,7 +114,7 @@ class StudiesSpec extends RESTSpec {
         when: "I try to fetch study A by id"
         def studyResponse = get([
                 path      : "${PATH_STUDIES}/${SHARED_CONCEPTS_RESTRICTED_DB_ID}",
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 statusCode: 403
         ])
 
@@ -134,7 +134,7 @@ class StudiesSpec extends RESTSpec {
         when: "I try to fetch study A by studyId"
         def studyResponse = get([
                 path      : "${PATH_STUDIES}/studyId/${SHARED_CONCEPTS_A_ID}",
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
         ])
 
         then: "the study object is returned"

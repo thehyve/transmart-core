@@ -2,41 +2,63 @@
 
 package config
 
+import base.ContentTypeFor
+import base.TestContext
+import groovyx.net.http.ChainedHttpConfig
+import groovyx.net.http.FromServer
+
+import static groovyx.net.http.HttpBuilder.configure
+import static groovyx.net.http.HttpVerb.GET
+
 class Config {
-    //Constants
     //$ gradle -DbaseUrl=http://transmart-pro-test.thehyve.net/ test
-    public static final String BASE_URL = System.getProperty('baseUrl') != null ? System.getProperty('baseUrl') : 'http://localhost:8080/'
+    public static
+    final String BASE_URL = System.getProperty('baseUrl') != null ? System.getProperty('baseUrl') : 'http://localhost:8080/'
+//    public static final AuthAdapter authAdapter = new AuthAdapterOauth()
+
+    //Configure the default TestContext. This is shared between all tests unless it is replaced by a testClass
+    public static final TestContext testContext = new TestContext().setHttpBuilder(configure {
+        request.uri = BASE_URL
+        // custom parsers
+        response.parser(ContentTypeFor.PROTOBUF) { ChainedHttpConfig cfg, FromServer fs ->
+            ProtobufHelper.parse(fs.inputStream)
+        }
+        // custom interceptor
+        execution.interceptor(GET) { cfg, fx ->
+            // set default type for PATH_OBSERVATIONS
+            if (cfg.request.uri.path == PATH_OBSERVATIONS && !cfg.request.uri.query.type) {
+                cfg.request.uri.query.type = 'clinical'
+            }
+            fx.apply(cfg)
+        }
+    }).setAuthAdapter(new OauthAdapter())
+
     public static final String TEMP_DIRECTORY = '/tmp'
 
-    public static final String BAD_USERNAME = 'bad username'
-    public static final String BAD_PASSWORD = 'bad password'
-    public static final String DEFAULT_USERNAME = 'test-public-user-1'
-    public static final String DEFAULT_PASSWORD = 'test-public-user-1'
-    public static final String UNRESTRICTED_USERNAME = 'test-public-user-2'
-    public static final String UNRESTRICTED_PASSWORD = 'test-public-user-2'
-    public static final String ADMIN_USERNAME = 'admin'
-    public static final String ADMIN_PASSWORD = 'admin'
+    public static final String DEFAULT_USER = 'test-public-user-1'
+    public static final String UNRESTRICTED_USER = 'test-public-user-2'
+    public static final String ADMIN_USER = 'ADMIN'
 
     public static final String VERSIONS_PATH = '/versions'
     public static final String NON_EXISTING_API_VERSION = 'v0'
 
-    public static final String V1_PATH_STUDIES = "v1/studies"
-    public static final String V1_PATH_observations = "v1/observations"
-    public static final String V1_PATH_PATIENT_SETS = "v1/patient_sets"
+    public static final String V1_PATH_STUDIES = "/v1/studies"
+    public static final String V1_PATH_observations = "/v1/observations"
+    public static final String V1_PATH_PATIENT_SETS = "/v1/patient_sets"
 
-    public static final String PATH_OBSERVATIONS = "v2/observations"
-    public static final String PATH_AGGREGATE = "v2/observations/aggregate"
-    public static final String PATH_COUNTS = "v2/observations/count"
-    public static final String PATH_SUPPORTED_FIELDS = "v2/supported_fields"
-    public static final String PATH_PATIENTS = "v2/patients"
-    public static final String PATH_TREE_NODES = "v2/tree_nodes"
-    public static final String PATH_STUDIES = "v2/studies"
-    public static final String PATH_PATIENT_SET = "v2/patient_sets"
-    public static final String PATH_STORAGE = "v2/storage"
-    public static final String PATH_FILES = "v2/files"
-    public static final String PATH_ARVADOS_WORKFLOWS = "v2/arvados/workflows"
-    public static final String PATH_DIMENSION = "v2/dimensions"
-    public static final String PATH_DATA_EXPORT = "v2/export"
+    public static final String PATH_OBSERVATIONS = "/v2/observations"
+    public static final String PATH_AGGREGATE = "/v2/observations/aggregate"
+    public static final String PATH_COUNTS = "/v2/observations/count"
+    public static final String PATH_SUPPORTED_FIELDS = "/v2/supported_fields"
+    public static final String PATH_PATIENTS = "/v2/patients"
+    public static final String PATH_TREE_NODES = "/v2/tree_nodes"
+    public static final String PATH_STUDIES = "/v2/studies"
+    public static final String PATH_PATIENT_SET = "/v2/patient_sets"
+    public static final String PATH_STORAGE = "/v2/storage"
+    public static final String PATH_FILES = "/v2/files"
+    public static final String PATH_ARVADOS_WORKFLOWS = "/v2/arvados/workflows"
+    public static final String PATH_DIMENSION = "/v2/dimensions"
+    public static final String PATH_DATA_EXPORT = "/v2/export"
 
     //study ids
     public static final String ORACLE_1000_PATIENT_ID = 'ORACLE_1000_PATIENT'
@@ -59,8 +81,8 @@ class Config {
 
     //settings
     public static final boolean DB_MIGRATED = true
-    public static final boolean OAUTH_NEEDED = true
-    public static final boolean DEBUG = true
+    public static final boolean AUTH_NEEDED = true
+    public static final boolean DEBUG = false
     public static final boolean SUPPRESS_KNOWN_BUGS = true
     public static final boolean SUPPRESS_UNIMPLEMENTED = true
     public static final boolean RUN_HUGE_TESTS = false

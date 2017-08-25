@@ -6,7 +6,7 @@ import annotations.RequiresStudy
 import base.RESTSpec
 import spock.lang.Requires
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.*
 
 @RequiresStudy(GSE8581_ID)
@@ -22,7 +22,7 @@ class ObservationsSpec extends RESTSpec {
         def path = "\\Public Studies\\GSE8581\\Subjects\\Age\\"
         def id = get([
                 path      : V1_PATH_STUDIES + "/${GSE8581_ID}/subjects",
-                acceptType: contentTypeForJSON
+                acceptType: JSON
         ]).subjects[0].id
 
         when: "I request all observations related to a patient and concept"
@@ -32,7 +32,7 @@ class ObservationsSpec extends RESTSpec {
                         patients     : [id],
                         concept_paths: [path]
                 ],
-                acceptType: contentTypeForJSON
+                acceptType: JSON
         ])
 
         then: "I get all relevant observations"
@@ -54,7 +54,7 @@ class ObservationsSpec extends RESTSpec {
         def path = "${V1_PATH_STUDIES}/${studyId}/concepts/${conceptPath}/observations"
 
         when: "I request all observations related to this study and concept"
-        def responseData = get([path: path, acceptType: contentTypeForJSON])
+        def responseData = get([path: path, acceptType: JSON])
 
         then: "I get observations"
         responseData.each {
@@ -77,7 +77,7 @@ class ObservationsSpec extends RESTSpec {
         def studyId = GSE8581_ID
 
         when: "I request all observations related to this study"
-        def responseData = get([path: V1_PATH_STUDIES + "/${studyId}/observations", acceptType: contentTypeForJSON, statusCode: 500])
+        def responseData = get([path: V1_PATH_STUDIES + "/${studyId}/observations", acceptType: JSON, statusCode: 500])
 
         then: "I get observations"
         assert responseData.httpStatus == 500
@@ -100,7 +100,7 @@ class ObservationsSpec extends RESTSpec {
         def concept = "HD/Breast"
 
         when: "I request all observations for a high dim concept (one per patient)"
-        def responseData = get([path: "${V1_PATH_STUDIES}/${studyId}/concepts/${concept}/observations", acceptType: contentTypeForJSON])
+        def responseData = get([path: "${V1_PATH_STUDIES}/${studyId}/concepts/${concept}/observations", acceptType: JSON])
 
         then: "I get observations"
         assert responseData.size() == 3

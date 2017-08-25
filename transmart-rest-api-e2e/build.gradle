@@ -8,12 +8,12 @@ dependencies {
     compile 'ch.qos.logback:logback-classic:1.1.7'
     compile 'org.slf4j:slf4j-api:1.7.20'
 
-    testCompile 'junit:junit:4.11'
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
     testCompile 'org.grails:grails-dependencies:3.1.10'
     testCompile 'org.grails:grails-web:3.1.10'
     testCompile 'org.hamcrest:java-hamcrest:2.0.0.0'
     testCompile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
+    testCompile 'io.github.http-builder-ng:http-builder-ng-apache:0.17.0'
     testCompile "com.google.guava:guava:$guavaVersion"
 
     compile 'javax.servlet:javax.servlet-api:3.1.0'

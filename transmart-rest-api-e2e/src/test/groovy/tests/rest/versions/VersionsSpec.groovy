@@ -4,7 +4,7 @@ package tests.rest.versions
 
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.NON_EXISTING_API_VERSION
 import static config.Config.VERSIONS_PATH
 
@@ -16,7 +16,7 @@ class VersionsSpec extends RESTSpec {
      */
     def "fetch versions"() {
         when: "I fetch supported versions"
-        def responseData = get([path: VERSIONS_PATH, acceptType: contentTypeForJSON])
+        def responseData = get([path: VERSIONS_PATH, acceptType: JSON])
 
         then: "I get both v1 and v2 as response"
         assert responseData.versions.size() == 2
@@ -28,7 +28,7 @@ class VersionsSpec extends RESTSpec {
      */
     def "fetch version v1"() {
         when: "I fetch version v1"
-        def responseData = get([path: "${VERSIONS_PATH}/v1", acceptType: contentTypeForJSON])
+        def responseData = get([path: "${VERSIONS_PATH}/v1", acceptType: JSON])
 
         then: "I get both v1 response"
         assert responseData.id == 'v1'
@@ -43,7 +43,7 @@ class VersionsSpec extends RESTSpec {
         when: "I fetch version v0"
         def responseData = get([
                 path      : "${VERSIONS_PATH}/${NON_EXISTING_API_VERSION}",
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 statusCode: 404
         ])
 

@@ -5,7 +5,7 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.*
 
 /**
@@ -21,12 +21,12 @@ class TreeNodesSpec extends RESTSpec {
      */
     def "restricted tree_nodes are included"() {
         given: "Study SHARED_CONCEPTS_STUDY_C_PRIV and SHARED_CONCEPTS_A is loaded, and I do not have access"
-        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I try to get the tree_nodes from all studies"
         def responseData = get([
                 path      : PATH_TREE_NODES,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
+                user      : UNRESTRICTED_USER
         ])
 
         then: "only nodes from SHARED_CONCEPTS_A are returned"
@@ -48,7 +48,7 @@ class TreeNodesSpec extends RESTSpec {
         when: "I try to get the tree_nodes from all studies"
         def responseData = get([
                 path      : PATH_TREE_NODES,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
         ])
 
         then: "only nodes from SHARED_CONCEPTS_A are returned"
@@ -70,7 +70,7 @@ class TreeNodesSpec extends RESTSpec {
         when: "I get the tree_nodes with a subNode and depth"
         def responseData = get([
                 path      : PATH_TREE_NODES,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : [root: "\\Public Studies\\SHARED_CONCEPTS_STUDY_A\\", depth: 2]
         ])
 
@@ -92,7 +92,7 @@ class TreeNodesSpec extends RESTSpec {
         when: "I get the tree_nodes with counts=true"
         def responseData = get([
                 path      : PATH_TREE_NODES,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : ['counts': true]
         ])
 
@@ -116,7 +116,7 @@ class TreeNodesSpec extends RESTSpec {
         when: "I get the tree_nodes with counts=true"
         def responseData = get([
                 path      : PATH_TREE_NODES,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : ['counts': true]
         ])
 
@@ -134,13 +134,13 @@ class TreeNodesSpec extends RESTSpec {
      */
     def "nodes with counts true unrestricted"() {
         given: "Study SHARED_CONCEPTS is loaded"
-        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
 
         when: "I get the tree_nodes with counts=true"
         def responseData = get([
                 path      : PATH_TREE_NODES,
-                acceptType: contentTypeForJSON,
-                query     : ['counts': true]
+                acceptType: JSON,
+                query     : ['counts': true],
+                user      : UNRESTRICTED_USER
         ])
 
         then: "then concept nodes have observationCount and patientCount"
@@ -162,7 +162,7 @@ class TreeNodesSpec extends RESTSpec {
         when: "I get the tree_nodes with tags=true"
         def responseData = get([
                 path      : PATH_TREE_NODES,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : ['tags': true]
         ])
 
@@ -183,7 +183,7 @@ class TreeNodesSpec extends RESTSpec {
         when: "I try to get the tree_nodes from that study"
         def responseData = get([
                 path      : PATH_TREE_NODES,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : [root: path, depth: 1],
                 statusCode: 403
         ])

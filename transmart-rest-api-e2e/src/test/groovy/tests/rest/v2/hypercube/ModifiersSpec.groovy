@@ -4,15 +4,15 @@ package tests.rest.v2.hypercube
 
 import annotations.RequiresStudy
 import base.RESTSpec
-import tests.rest.v2.constraints
+import tests.rest.constraints
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.PATH_OBSERVATIONS
 import static config.Config.TUMOR_NORMAL_SAMPLES_ID
-import static tests.rest.v2.Operator.OR
-import static tests.rest.v2.constraints.Combination
-import static tests.rest.v2.constraints.ConceptConstraint
+import static constraints.Combination
+import static constraints.ConceptConstraint
+import static tests.rest.Operator.OR
 
 @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
 class ModifiersSpec extends RESTSpec {
@@ -45,9 +45,9 @@ class ModifiersSpec extends RESTSpec {
         assert modifierDimension == [null, 'Tumor', 'Normal'] as HashSet
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -86,8 +86,8 @@ class ModifiersSpec extends RESTSpec {
         assert modifierDimension.containsAll('Tumor', 'Normal')
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 }

@@ -4,7 +4,7 @@ package tests.rest.v2.storage
 
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.*
 
 /**
@@ -14,15 +14,14 @@ import static config.Config.*
 class StorageSpec extends RESTSpec {
 
     def setup() {
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def responseDataAll = get([path: PATH_FILES, acceptType: contentTypeForJSON])
+        def responseDataAll = get([path: PATH_FILES, acceptType: JSON, user: ADMIN_USER])
         responseDataAll.files.each {
-            delete([path: PATH_FILES + "/${it.id}", statusCode: 204])
+            delete([path: PATH_FILES + "/${it.id}", statusCode: 204, user: ADMIN_USER])
         }
 
-        responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
+        responseDataAll = get([path: PATH_STORAGE, acceptType: JSON, user: ADMIN_USER])
         responseDataAll.storageSystems.each {
-            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204])
+            delete([path: PATH_STORAGE + "/${it.id}", statusCode: 204, user: ADMIN_USER])
         }
     }
 
@@ -31,7 +30,6 @@ class StorageSpec extends RESTSpec {
      */
     def "post, get, put, delete"() {
         given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = [
                 'name'                 : 'Arvbox at The Hyve',
                 'systemType'           : 'Arvados',
@@ -41,7 +39,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USER])
         def id = responseData.id
 
         then:
@@ -53,7 +51,7 @@ class StorageSpec extends RESTSpec {
         assert responseData.url == sourceSystem.url
 
         when:
-        responseData = get([path: PATH_STORAGE + "/${id}", acceptType: contentTypeForJSON])
+        responseData = get([path: PATH_STORAGE + "/${id}", acceptType: JSON, user: ADMIN_USER])
 
         then:
         assert responseData.id == id
@@ -64,14 +62,14 @@ class StorageSpec extends RESTSpec {
         assert responseData.url == sourceSystem.url
 
         when:
-        def responseDataAll = get([path: PATH_STORAGE, acceptType: contentTypeForJSON])
+        def responseDataAll = get([path: PATH_STORAGE, acceptType: JSON, user: ADMIN_USER])
 
         then:
         assert responseDataAll.storageSystems.contains(responseData)
 
         when:
         sourceSystem.name = 'Arvbox at The Hyve renamed'
-        responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem)])
+        responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem), user: ADMIN_USER])
 
         then:
         assert responseData.id == id
@@ -82,9 +80,9 @@ class StorageSpec extends RESTSpec {
         assert responseData.url == sourceSystem.url
 
         when:
-        responseData = delete([path: PATH_STORAGE + "/${id}", statusCode: 204])
+        responseData = delete([path: PATH_STORAGE + "/${id}", statusCode: 204, user: ADMIN_USER])
         assert responseData == null
-        responseData = get([path: PATH_STORAGE + "/${id}", acceptType: contentTypeForJSON, statusCode: 404])
+        responseData = get([path: PATH_STORAGE + "/${id}", acceptType: JSON, statusCode: 404, user: ADMIN_USER])
 
         then:
         assert responseData.status == 404
@@ -98,15 +96,15 @@ class StorageSpec extends RESTSpec {
      */
     def "post missing values"() {
         given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = [
                 'name'      : 'post invalid',
                 'systemType': 'Arvados',
                 'url'       : 'http://arvbox-pro-dev.thehyve.net/',
+
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors[0].field == 'systemVersion'
@@ -119,7 +117,6 @@ class StorageSpec extends RESTSpec {
      */
     def "post invalid json format"() {
         given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = toJSON([
                 'name'                 : 'Arvbox at The Hyve',
                 'systemType'           : 'Arvados',
@@ -130,7 +127,7 @@ class StorageSpec extends RESTSpec {
         sourceSystem = sourceSystem.take(20)
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 4
@@ -141,7 +138,6 @@ class StorageSpec extends RESTSpec {
      */
     def "post invalid value"() {
         given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = [
                 'name'                 : 'Arvbox at The Hyve',
                 'systemType'           : 'Arvados',
@@ -151,7 +147,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 1
@@ -164,11 +160,8 @@ class StorageSpec extends RESTSpec {
      *  post empty
      */
     def "post invalid empty"() {
-        given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-
         when:
-        def responseData = post([path: PATH_STORAGE, statusCode: 422])
+        def responseData = post([path: PATH_STORAGE, statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 4
@@ -179,7 +172,7 @@ class StorageSpec extends RESTSpec {
      */
     def "get invalid value"() {
         when:
-        def responseData = get([path: PATH_STORAGE + "/some_letters", acceptType: contentTypeForJSON, statusCode: 404])
+        def responseData = get([path: PATH_STORAGE + "/some_letters", acceptType: JSON, statusCode: 404])
 
         then:
         assert responseData.status == 404
@@ -192,7 +185,7 @@ class StorageSpec extends RESTSpec {
      */
     def "get nonexistent"() {
         when:
-        def responseData = get([path: PATH_STORAGE + "/0", acceptType: contentTypeForJSON, statusCode: 404])
+        def responseData = get([path: PATH_STORAGE + "/0", acceptType: JSON, statusCode: 404])
 
         then:
         assert responseData.status == 404
@@ -205,7 +198,6 @@ class StorageSpec extends RESTSpec {
      */
     def "put invalid values"() {
         given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = [
                 'name'                 : 'Arvbox at The Hyve',
                 'systemType'           : 'Arvados',
@@ -215,9 +207,9 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USER])
         sourceSystem.singleFileCollections = 'bad_value'
-        responseData = put([path: PATH_STORAGE + "/${responseData.id}", body: toJSON(sourceSystem), statusCode: 422])
+        responseData = put([path: PATH_STORAGE + "/${responseData.id}", body: toJSON(sourceSystem), statusCode: 422, user: ADMIN_USER])
 
         then:
         assert responseData.errors.size() == 1
@@ -231,7 +223,6 @@ class StorageSpec extends RESTSpec {
      */
     def "put nonexistent"() {
         given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def id = 0
         def sourceSystem = [
                 'name'                 : 'Arvbox at The Hyve',
@@ -242,7 +233,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem), statusCode: 404])
+        def responseData = put([path: PATH_STORAGE + "/${id}", body: toJSON(sourceSystem), statusCode: 404, user: ADMIN_USER])
 
         then:
         assert responseData.status == 404
@@ -255,7 +246,6 @@ class StorageSpec extends RESTSpec {
      */
     def "post no access"() {
         given:
-        setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
         def sourceSystem = [
                 'name'                 : 'Arvbox at The Hyve',
                 'systemType'           : 'Arvados',
@@ -277,7 +267,6 @@ class StorageSpec extends RESTSpec {
      */
     def "delete no access"() {
         given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def sourceSystem = [
                 'name'                 : 'Arvbox at The Hyve',
                 'systemType'           : 'Arvados',
@@ -287,8 +276,7 @@ class StorageSpec extends RESTSpec {
         ]
 
         when:
-        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201])
-        setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
+        def responseData = post([path: PATH_STORAGE, body: toJSON(sourceSystem), statusCode: 201, user: ADMIN_USER])
         responseData = delete([path: PATH_STORAGE + "/${responseData.id}", statusCode: 403])
 
         then:
@@ -296,6 +284,4 @@ class StorageSpec extends RESTSpec {
         assert responseData.message == 'Removing a storage system entry is an admin action'
         assert responseData.type == 'AccessDeniedException'
     }
-
-
 }

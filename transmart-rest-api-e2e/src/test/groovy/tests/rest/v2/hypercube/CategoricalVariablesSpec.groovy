@@ -5,14 +5,14 @@ package tests.rest.v2.hypercube
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.CATEGORICAL_VALUES_ID
 import static config.Config.PATH_OBSERVATIONS
-import static tests.rest.v2.Operator.AND
-import static tests.rest.v2.Operator.EQUALS
-import static tests.rest.v2.ValueType.STRING
-import static tests.rest.v2.constraints.*
+import static tests.rest.Operator.AND
+import static tests.rest.Operator.EQUALS
+import static tests.rest.ValueType.STRING
+import static tests.rest.constraints.*
 
 /**
  *  TMPREQ-18
@@ -42,9 +42,9 @@ class CategoricalVariablesSpec extends RESTSpec {
         assert responseData.cells == []
 
         where:
-        acceptType             | _
-        contentTypeForJSON     | _
-        contentTypeForProtobuf | _
+        acceptType | _
+        JSON       | _
+        PROTOBUF   | _
     }
 
     /**
@@ -71,9 +71,9 @@ class CategoricalVariablesSpec extends RESTSpec {
         assert selector.select(0) == 'Female'
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -101,9 +101,9 @@ class CategoricalVariablesSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -139,8 +139,8 @@ class CategoricalVariablesSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 }

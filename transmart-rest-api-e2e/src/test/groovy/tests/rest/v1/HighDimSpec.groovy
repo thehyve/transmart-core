@@ -6,8 +6,8 @@ import annotations.RequiresStudy
 import base.RESTSpec
 import org.apache.http.conn.EofSensorInputStream
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForoctetStream
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.OCTETSTREAM
 import static config.Config.GSE8581_ID
 import static config.Config.V1_PATH_STUDIES
 
@@ -26,7 +26,7 @@ class HighDimSpec extends RESTSpec {
         def conceptPath = 'Biomarker Data/Affymetrix Human Genome U133 Plus 2.0 Array/Lung/'
 
         when: "I request all highdim dataTypes for a concept"
-        def responseData = get([path: V1_PATH_STUDIES + "/${studieId}/concepts/${conceptPath}/highdim", acceptType: contentTypeForJSON])
+        def responseData = get([path: V1_PATH_STUDIES + "/${studieId}/concepts/${conceptPath}/highdim", acceptType: JSON])
 
         then: "I get all relevant dataTypes"
         assert responseData.dataTypes.each {
@@ -56,7 +56,7 @@ class HighDimSpec extends RESTSpec {
                         projection      : 'default_real_projection',
                         assayConstraints: toJSON([patient_id_list: [ids: ["GSE8581GSM210196"]]])
                 ],
-                acceptType: contentTypeForoctetStream
+                acceptType: OCTETSTREAM
         ])
 
         then: "I get a file stream"

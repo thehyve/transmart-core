@@ -15,7 +15,7 @@ class ObservationSelector {
         this.protoMessage = protoMessage
         this.cellCount = protoMessage.cells.size()
         protoMessage.header.dimensionDeclarationsList.each {
-            if(it.inline){
+            if (it.inline) {
                 inlined.add(it.name)
             } else {
                 notInlined.add(it.name)
@@ -38,7 +38,7 @@ class ObservationSelector {
         assert valueType in validValueTypes, "Invalid type: $valueType not in $validValueTypes"
 
         int dimensionDeclarationIndex = -1
-        if (notInlined.contains(dimension)){
+        if (notInlined.contains(dimension)) {
             dimensionDeclarationIndex = notInlined.indexOf(dimension)
         } else if (inlined.contains(dimension)) {
             dimensionDeclarationIndex = inlined.indexOf(dimension)
@@ -66,7 +66,7 @@ class ObservationSelector {
         if (inlined.contains(dimension)) {
             DimensionElement element = retrieveNullable(cell.inlineDimensionsList, dimensionDeclarationIndex, cell.absentInlineDimensionsList)
             def valueholder
-            if(fieldsIndex) {
+            if (fieldsIndex) {
                 valueholder = retrieveNullable(element.fieldsList, fieldsIndex, element.absentFieldIndicesList)
             } else {
                 valueholder = element
@@ -76,7 +76,7 @@ class ObservationSelector {
 
         //nonInline
         long dimIndexL = cell.getDimensionIndexes(dimensionDeclarationIndex)
-        if(dimIndexL == 0L) return null
+        if (dimIndexL == 0L) return null
         dimIndexL-- // convert from 1-based to 0-based
         assert dimIndexL <= Integer.MAX_VALUE, "Cell.dimensionIndexes value $dimIndexL cannot be converted to int, value too large"
         int dimIndex = (int) dimIndexL
@@ -84,7 +84,7 @@ class ObservationSelector {
         DimensionElements elements = protoMessage.footer.getDimension(dimensionDeclarationIndex)
 
         DimensionElementFieldColumn fieldColumn
-        if(fieldsIndex) {
+        if (fieldsIndex) {
             fieldColumn = retrieveNullable(elements.fieldsList, fieldsIndex, elements.absentFieldColumnIndicesList)
         } else {
             fieldColumn = elements.absentFieldColumnIndicesList == [1] ? null : elements.getFields(0)
@@ -99,21 +99,21 @@ class ObservationSelector {
      * @return the value or null
      */
     private def retrieveNullable(List values, int index, List<Integer> absentIndices) {
-        if(values == null) return null
+        if (values == null) return null
         assert values.size() + absentIndices.size() > index, "invalid value retrieval"
 
         // The number of values not present before the one we are looking for
         int skippedAbsentees = 0
-        for(i in absentIndices) {
+        for (i in absentIndices) {
             // this list is 1-based
-            if(i-1 < index) skippedAbsentees++
-            else if(i-1 == index) return null
+            if (i - 1 < index) skippedAbsentees++
+            else if (i - 1 == index) return null
             else break
         }
-        return values[index-skippedAbsentees]
+        return values[index - skippedAbsentees]
     }
 
-    def select(int cellIndex, String dimension, String valueType){
+    def select(int cellIndex, String dimension, String valueType) {
         return select(cellIndex, dimension, null, valueType)
     }
 
@@ -123,8 +123,8 @@ class ObservationSelector {
      * @param cellIndex
      * @return the value of a cell
      */
-    def select(cellIndex){
+    def select(cellIndex) {
         String stringValue = protoMessage.cells.get(cellIndex).stringValue
-        return  stringValue.empty ? protoMessage.cells.get(cellIndex).numericValue : stringValue
+        return stringValue.empty ? protoMessage.cells.get(cellIndex).numericValue : stringValue
     }
 }

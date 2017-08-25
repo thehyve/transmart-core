@@ -5,12 +5,12 @@ package tests.rest.v2.hypercube
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.*
-import static tests.rest.v2.Operator.OR
-import static tests.rest.v2.constraints.Combination
-import static tests.rest.v2.constraints.StudyNameConstraint
+import static tests.rest.Operator.OR
+import static tests.rest.constraints.Combination
+import static tests.rest.constraints.StudyNameConstraint
 
 @RequiresStudy(CATEGORICAL_VALUES_ID)
 class DeserializationSpec extends RESTSpec {
@@ -41,9 +41,9 @@ class DeserializationSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector      | result
-        contentTypeForJSON     | jsonSelector     | CATEGORICAL_VALUES_OBSERVATIONS_json
-        contentTypeForProtobuf | protobufSelector | CATEGORICAL_VALUES_OBSERVATIONS_proto
+        acceptType | newSelector      | result
+        JSON       | jsonSelector     | CATEGORICAL_VALUES_OBSERVATIONS_json
+        PROTOBUF   | protobufSelector | CATEGORICAL_VALUES_OBSERVATIONS_proto
     }
 
     @RequiresStudy(CLINICAL_TRIAL_ID)
@@ -84,9 +84,9 @@ class DeserializationSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector      | map1                                  | map2
-        contentTypeForJSON     | jsonSelector     | CATEGORICAL_VALUES_OBSERVATIONS_json  | CLINICAL_TRIAL_OBSERVATIONS_json
-        contentTypeForProtobuf | protobufSelector | CATEGORICAL_VALUES_OBSERVATIONS_proto | CLINICAL_TRIAL_OBSERVATIONS_proto
+        acceptType | newSelector      | map1                                  | map2
+        JSON       | jsonSelector     | CATEGORICAL_VALUES_OBSERVATIONS_json  | CLINICAL_TRIAL_OBSERVATIONS_json
+        PROTOBUF   | protobufSelector | CATEGORICAL_VALUES_OBSERVATIONS_proto | CLINICAL_TRIAL_OBSERVATIONS_proto
     }
 
 

@@ -4,12 +4,12 @@ package tests.rest.v2.hypercube
 
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.PATH_OBSERVATIONS
-import static tests.rest.v2.Operator.*
-import static tests.rest.v2.ValueType.*
-import static tests.rest.v2.constraints.*
+import static tests.rest.Operator.*
+import static tests.rest.ValueType.*
+import static tests.rest.constraints.*
 
 class InvalidConstraintSpec extends RESTSpec {
 
@@ -47,13 +47,13 @@ class InvalidConstraintSpec extends RESTSpec {
         assert responseData.errors.size() > 0
 
         where:
-        acceptType             | badValue
-        contentTypeForJSON     | null
-        contentTypeForJSON     | ""
-        contentTypeForJSON     | "  "
-        contentTypeForProtobuf | null
-        contentTypeForProtobuf | ""
-        contentTypeForProtobuf | "  "
+        acceptType | badValue
+        JSON       | null
+        JSON       | ""
+        JSON       | "  "
+        PROTOBUF   | null
+        PROTOBUF   | ""
+        PROTOBUF   | "  "
 
     }
 
@@ -77,13 +77,13 @@ class InvalidConstraintSpec extends RESTSpec {
         assert responseData.errors.size() > 0
 
         where:
-        acceptType             | badValue
-        contentTypeForJSON     | null
-        contentTypeForJSON     | ""
-        contentTypeForJSON     | "  "
-        contentTypeForProtobuf | null
-        contentTypeForProtobuf | ""
-        contentTypeForProtobuf | "  "
+        acceptType | badValue
+        JSON       | null
+        JSON       | ""
+        JSON       | "  "
+        PROTOBUF   | null
+        PROTOBUF   | ""
+        PROTOBUF   | "  "
     }
 
     def "ValueConstraint.class"() {
@@ -101,13 +101,13 @@ class InvalidConstraintSpec extends RESTSpec {
         assert responseData.errors.size() > 0
 
         where:
-        acceptType             | badValue
-        contentTypeForJSON     | null
-        contentTypeForJSON     | ""
-        contentTypeForJSON     | "  "
-        contentTypeForProtobuf | null
-        contentTypeForProtobuf | ""
-        contentTypeForProtobuf | "  "
+        acceptType | badValue
+        JSON       | null
+        JSON       | ""
+        JSON       | "  "
+        PROTOBUF   | null
+        PROTOBUF   | ""
+        PROTOBUF   | "  "
     }
 
     def "TimeConstraint.class"() {
@@ -128,13 +128,13 @@ class InvalidConstraintSpec extends RESTSpec {
         assert responseData.httpStatus == status
 
         where:
-        acceptType             | badValue | status
-        contentTypeForJSON     | null     | 500
-        contentTypeForJSON     | ""       | 500
-        contentTypeForJSON     | "  "     | 400
-        contentTypeForProtobuf | null     | 500
-        contentTypeForProtobuf | ""       | 500
-        contentTypeForProtobuf | "  "     | 400
+        acceptType | badValue | status
+        JSON       | null     | 500
+        JSON       | ""       | 500
+        JSON       | "  "     | 400
+        PROTOBUF   | null     | 500
+        PROTOBUF   | ""       | 500
+        PROTOBUF   | "  "     | 400
     }
 
     def "Negation.class"() {
@@ -154,13 +154,13 @@ class InvalidConstraintSpec extends RESTSpec {
         then:
         assert responseData.httpStatus == 400
         where:
-        acceptType             | badValue
-        contentTypeForJSON     | null
-        contentTypeForJSON     | ""
-        contentTypeForJSON     | "  "
-        contentTypeForProtobuf | null
-        contentTypeForProtobuf | ""
-        contentTypeForProtobuf | "  "
+        acceptType | badValue
+        JSON       | null
+        JSON       | ""
+        JSON       | "  "
+        PROTOBUF   | null
+        PROTOBUF   | ""
+        PROTOBUF   | "  "
     }
 
     def "Combination.class"() {
@@ -185,13 +185,13 @@ class InvalidConstraintSpec extends RESTSpec {
         assert responseData.httpStatus == 400
 
         where:
-        acceptType             | badValue
-        contentTypeForJSON     | null
-        contentTypeForJSON     | ""
-        contentTypeForJSON     | "  "
-        contentTypeForProtobuf | null
-        contentTypeForProtobuf | ""
-        contentTypeForProtobuf | "  "
+        acceptType | badValue
+        JSON       | null
+        JSON       | ""
+        JSON       | "  "
+        PROTOBUF   | null
+        PROTOBUF   | ""
+        PROTOBUF   | "  "
     }
 
     def "TemporalConstraint.class"() {
@@ -215,13 +215,13 @@ class InvalidConstraintSpec extends RESTSpec {
         assert responseData.httpStatus == 400
 
         where:
-        acceptType             | badValue
-        contentTypeForJSON     | null
-        contentTypeForJSON     | ""
-        contentTypeForJSON     | "  "
-        contentTypeForProtobuf | null
-        contentTypeForProtobuf | ""
-        contentTypeForProtobuf | "  "
+        acceptType | badValue
+        JSON       | null
+        JSON       | ""
+        JSON       | "  "
+        PROTOBUF   | null
+        PROTOBUF   | ""
+        PROTOBUF   | "  "
     }
 
     def "ConceptConstraint.class"() {
@@ -239,13 +239,13 @@ class InvalidConstraintSpec extends RESTSpec {
         assert responseData.errors.size() > 0
 
         where:
-        acceptType             | badValue
-        contentTypeForJSON     | null
-        contentTypeForJSON     | ""
-        contentTypeForJSON     | "  "
-        contentTypeForProtobuf | null
-        contentTypeForProtobuf | ""
-        contentTypeForProtobuf | "  "
+        acceptType | badValue
+        JSON       | null
+        JSON       | ""
+        JSON       | "  "
+        PROTOBUF   | null
+        PROTOBUF   | ""
+        PROTOBUF   | "  "
     }
 
     def "StudyConstraint.class"() {
@@ -263,13 +263,13 @@ class InvalidConstraintSpec extends RESTSpec {
         assert responseData.errors.size() > 0
 
         where:
-        acceptType             | badValue
-        contentTypeForJSON     | null
-        contentTypeForJSON     | ""
-        contentTypeForJSON     | "  "
-        contentTypeForProtobuf | null
-        contentTypeForProtobuf | ""
-        contentTypeForProtobuf | "  "
+        acceptType | badValue
+        JSON       | null
+        JSON       | ""
+        JSON       | "  "
+        PROTOBUF   | null
+        PROTOBUF   | ""
+        PROTOBUF   | "  "
     }
 
     def "NullConstraint.class"() {
@@ -290,13 +290,13 @@ class InvalidConstraintSpec extends RESTSpec {
         assert responseData.httpStatus == 400
 
         where:
-        acceptType             | badValue
-        contentTypeForJSON     | null
-        contentTypeForJSON     | ""
-        contentTypeForJSON     | "  "
-        contentTypeForProtobuf | null
-        contentTypeForProtobuf | ""
-        contentTypeForProtobuf | "  "
+        acceptType | badValue
+        JSON       | null
+        JSON       | ""
+        JSON       | "  "
+        PROTOBUF   | null
+        PROTOBUF   | ""
+        PROTOBUF   | "  "
     }
 
 }

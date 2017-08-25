@@ -6,10 +6,10 @@ import annotations.RequiresStudy
 import base.RESTSpec
 import spock.lang.Ignore
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.EHR_ID
 import static config.Config.PATH_PATIENTS
-import static tests.rest.v2.constraints.StudyNameConstraint
+import static tests.rest.constraints.StudyNameConstraint
 
 @RequiresStudy(EHR_ID)
 class PrettyJsonSpec extends RESTSpec {
@@ -26,7 +26,7 @@ class PrettyJsonSpec extends RESTSpec {
         given: 'we get json'
         def Json = get([
                 path      : PATH_PATIENTS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : toQuery([type: StudyNameConstraint, studyId: EHR_ID])
         ]).patients[index]
 
