@@ -9,7 +9,9 @@ import static base.ContentTypeFor.ZIP
 import static config.Config.*
 import static tests.rest.Operator.EQUALS
 import static tests.rest.ValueType.STRING
+import static tests.rest.constraints.ConceptConstraint
 import static tests.rest.constraints.ModifierConstraint
+import static tests.rest.constraints.TrueConstraint
 import static tests.rest.constraints.ValueConstraint
 
 @Slf4j
@@ -102,6 +104,7 @@ class DataExportSpec extends RESTSpec {
         def newJobRequest = [
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
+                user: DEFAULT_USER
         ]
         def newJobResponse = post(newJobRequest)
         def jobId = newJobResponse.exportJob.id
@@ -122,7 +125,8 @@ class DataExportSpec extends RESTSpec {
                                                 format  : 'TSV'
                                         ]]),
                 ]),
-                statusCode: 403
+                statusCode: 403,
+                user: DEFAULT_USER
         ])
         then: "I get an access error"
         assert responseData.httpStatus == 403
@@ -139,7 +143,8 @@ class DataExportSpec extends RESTSpec {
                         type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
                         values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
                 ]),
-                user      : ADMIN_USER
+                user      : ADMIN_USER,
+                statusCode: 201
         ]
         def createPatientSetResponse = post(patientSetRequest)
         def patientSetId = createPatientSetResponse.id
@@ -214,11 +219,10 @@ class DataExportSpec extends RESTSpec {
 
         then: "ZipStream is returned"
         assert downloadResponse != null
-        assert downloadResponse.eofWatcher.wrappedEntity.contentType.value == ZIP
         assert new File(fileName).isFile()
 
         cleanup: "Remove created file"
-        new File(fileName).delete()
+        if (fileName) { new File(fileName).delete() }
     }
 
     def "list all dataExport jobs for user"() {
@@ -254,4 +258,120 @@ class DataExportSpec extends RESTSpec {
         "I get a list of fields containing $supportedFormat format"
         assert supportedFormat in responseData.fileFormats
     }
+
+    @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
+    def "run data export with either id or constraint parameter only"() {
+        def newJobRequest = [
+                path      : "$PATH_DATA_EXPORT/job",
+                acceptType: JSON,
+        ]
+        def newJobResponse = post(newJobRequest)
+        def jobId = newJobResponse.exportJob.id
+
+        when: "I run a newly created job without id nor constraint parameter supplied."
+        def runResponse1 = post([
+                path      : "$PATH_DATA_EXPORT/$jobId/run",
+                query     : ([
+                        typeOfSet : 'patient',
+                        elements  : toJSON([[
+                                                    dataType: 'clinical',
+                                                    format  : 'TSV'
+                                            ]]),
+                ]),
+                acceptType: JSON,
+                statusCode: 400,
+        ])
+        then: "I get the error."
+        runResponse1.message == 'Whether id or constraint parameters can be supplied.'
+
+        when: "I run a newly created job with both id and constraint parameter."
+        def runResponse2 = post([
+                path      : "$PATH_DATA_EXPORT/$jobId/run",
+                query     : ([
+                        typeOfSet : 'patient',
+                        id : -1,
+                        constraint: toJSON([type: TrueConstraint]),
+                        elements  : toJSON([[
+                                                    dataType: 'clinical',
+                                                    format  : 'TSV'
+                                            ]]),
+                ]),
+                acceptType: JSON,
+                statusCode: 400
+        ])
+        then: "I get the error."
+        runResponse2.message == 'Whether id or constraint parameters can be supplied.'
+    }
+
+    @RequiresStudy(EHR_ID)
+    def "run data export using a constraint"() {
+        def newJobRequest = [
+                path      : "$PATH_DATA_EXPORT/job",
+                acceptType: JSON,
+        ]
+        def newJobResponse = post(newJobRequest)
+        def jobId = newJobResponse.exportJob.id
+        def jobName = newJobResponse.exportJob.jobName
+
+        when: "I run a newly created job asynchronously"
+        def runResponse = post([
+                path      : "$PATH_DATA_EXPORT/$jobId/run",
+                query     : ([
+                        typeOfSet: 'patient',
+                        constraint: toJSON([type: ConceptConstraint,
+                                           path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]),
+                        elements : toJSON([[
+                                                   dataType: 'clinical',
+                                                   format  : 'TSV'
+                                           ]]),
+                ]),
+                acceptType: JSON,
+        ])
+
+        then: "Job instance with status: 'Started' is returned"
+        assert runResponse != null
+        assert runResponse.exportJob.id == jobId
+        assert runResponse.exportJob.jobStatus == 'Started'
+        assert runResponse.exportJob.jobStatusTime != null
+        assert runResponse.exportJob.userId == DEFAULT_USER
+        assert runResponse.viewerUrl == null
+
+        when: "Check the status of the job"
+        String fileName = "$TEMP_DIRECTORY/$DEFAULT_USER/$jobName" + ".zip"
+        int maxAttemptNumber = 10 // max number of status check attempts
+        def statusRequest = [
+                path      : "$PATH_DATA_EXPORT/$jobId/status",
+                acceptType: JSON,
+        ]
+        def statusResponse = get(statusRequest)
+
+        then: "Returned status is 'Completed'"
+        assert statusResponse != null
+        def status = statusResponse.exportJob.jobStatus
+
+        // waiting for async process to end (increase number of attempts if needed)
+        for (int attempNum = 0; status != 'Completed' && attempNum < maxAttemptNumber; attempNum++) {
+            sleep(500)
+            statusResponse = get(statusRequest)
+            status = statusResponse.exportJob.jobStatus
+        }
+
+        assert status == 'Completed'
+        assert statusResponse.exportJob.viewerUrl == fileName
+
+        when: "Try to download the file"
+        def downloadRequest = [
+                path      : "$PATH_DATA_EXPORT/$jobId/download",
+                acceptType: ZIP,
+        ]
+        def downloadResponse = get(downloadRequest)
+
+        then: "ZipStream is returned"
+        assert downloadResponse != null
+        assert new File(fileName).isFile()
+
+        cleanup: "Remove created file"
+        if (fileName) { new File(fileName).delete() }
+    }
+
 }

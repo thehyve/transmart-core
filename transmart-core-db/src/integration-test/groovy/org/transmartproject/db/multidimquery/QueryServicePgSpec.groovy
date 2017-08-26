@@ -2,12 +2,16 @@
 
 package org.transmartproject.db.multidimquery
 
+import grails.converters.JSON
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryResultType
+import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.multidimquery.query.AndConstraint
 import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.db.multidimquery.query.Combination
@@ -23,6 +27,8 @@ import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.db.multidimquery.query.TimeConstraint
 import org.transmartproject.db.multidimquery.query.Type
 import org.transmartproject.db.multidimquery.query.ValueConstraint
+import org.transmartproject.db.querytool.QtPatientSetCollection
+import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 import java.text.SimpleDateFormat
@@ -421,4 +427,83 @@ class QueryServicePgSpec extends Specification {
         // then: "Number of visits matching the constraints is returned"
         // locationsCount == Long.valueOf(expectedResult.size())
     }
+
+    void "test patient set query"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        when:
+        QueryResult patientSetQueryResult = multiDimService.createPatientSetQueryResult("Test set",
+                constraint,
+                user,
+                (constraint as JSON).toString(),
+                'v2')
+
+        then:
+        patientSetQueryResult.id > 0
+        patientSetQueryResult.queryResultType.id == QueryResultType.PATIENT_SET_ID
+        patientSetQueryResult.setSize == 3L
+        patientSetQueryResult.status == QueryStatus.FINISHED
+        patientSetQueryResult.username == user.name
+        !patientSetQueryResult.description.empty
+        patientSetQueryResult.errorMessage == null
+        def patientSetEntries = QtPatientSetCollection
+                .findAllByResultInstance(QtQueryResultInstance.load(patientSetQueryResult.id))
+        patientSetEntries.size() == 3
+        (patientSetEntries*.setIndex - (1..3 as List)).empty
+        patientSetEntries*.patient.id != null
+    }
+
+    void "test generic query"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        when:
+        QueryResult patientSetQueryResult = multiDimService.createObservationSetQueryResult(
+                "Test generic query without patient set.",
+                user,
+                (constraint as JSON).toString(),
+                'v2')
+
+        then:
+        patientSetQueryResult.id > 0
+        patientSetQueryResult.queryResultType.id == QueryResultType.GENERIC_QUERY_RESULT_ID
+        patientSetQueryResult.setSize == -1L
+        patientSetQueryResult.status == QueryStatus.FINISHED
+        patientSetQueryResult.username == user.name
+        !patientSetQueryResult.description.empty
+        patientSetQueryResult.errorMessage == null
+        def patientSetEntries = QtPatientSetCollection
+                .findAllByResultInstance(QtQueryResultInstance.load(patientSetQueryResult.id))
+        !patientSetEntries
+    }
+
+    void "test find query results per type"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        def qr1 = multiDimService.createPatientSetQueryResult('Patient set query result', constraint,
+                user, (constraint as JSON).toString(), 'v2')
+        def qr2 = multiDimService.createObservationSetQueryResult('Generic query result',
+                user, (constraint as JSON).toString(), 'v2')
+
+        when:
+        def patientSetQueryResults = multiDimService.findPatientSetQueryResults(user).toList()
+        then:
+        qr1 in patientSetQueryResults
+        !(qr2 in patientSetQueryResults)
+
+        when:
+        def queryResults = multiDimService.findObservationSetQueryResults(user).toList()
+        then:
+        !(qr1 in queryResults)
+        qr2 in queryResults
+    }
+
 }

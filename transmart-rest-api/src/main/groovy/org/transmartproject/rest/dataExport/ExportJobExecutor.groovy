@@ -25,7 +25,7 @@ class ExportJobExecutor implements Job {
 
     final String tempFolderDirectory = Holders.config.com.recomdata.plugins.tempFolderDirectory
 
-    public void execute(JobExecutionContext jobExecutionContext) {
+    void execute(JobExecutionContext jobExecutionContext) {
         Map jobDataMap = jobExecutionContext.jobDetail.getJobDataMap()
 
         PersistenceContextInterceptor interceptor
@@ -67,7 +67,7 @@ class ExportJobExecutor implements Job {
 
     private String getFilePath(String inputFileName, String userName) {
 
-        String jobTmpDirectory = ''
+        String jobTmpDirectory
         if (StringUtils.isEmpty(tempFolderDirectory)) {
             jobTmpDirectory = '/var/tmp/jobs/'
         } else {

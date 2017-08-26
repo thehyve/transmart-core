@@ -26,6 +26,7 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.user.User
 
@@ -75,9 +76,10 @@ class QueriesResourceService implements QueriesResource {
 
         // 3. Populate qt_query_result_instance
         QtQueryResultInstance resultInstance = new QtQueryResultInstance(
-                statusTypeId  : QueryStatus.PROCESSING.id,
-                startDate     : new Date(),
-                queryInstance : queryInstance
+                statusTypeId    : QueryStatus.PROCESSING.id,
+                startDate       : new Date(),
+                queryInstance   : queryInstance,
+                queryResultType : QtQueryResultType.load(QueryResultType.PATIENT_SET_ID)
         )
         queryInstance.addToQueryResults(resultInstance)
 

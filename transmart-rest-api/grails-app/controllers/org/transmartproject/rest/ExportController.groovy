@@ -7,8 +7,15 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb
+import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.ConstraintFactory
+import org.transmartproject.db.multidimquery.query.OrConstraint
+import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService
@@ -25,8 +32,10 @@ class ExportController {
     CurrentUser currentUser
     @Autowired
     UsersResource usersResource
+    @Autowired
+    MultiDimensionalDataResource multiDimService
 
-    static def globalParams = [
+    static final globalParams = [
             "controller",
             "action",
             "format",
@@ -71,15 +80,18 @@ class ExportController {
     def run(@RequestParam('typeOfSet') String typeOfSet,
             @PathVariable('jobId') Long jobId) {
 
-        checkParams(params, ['typeOfSet', 'jobId', 'id', 'elements'])
-        List<Long> id = parseId(params)
-        List<Map> elements = parseElements(params)
+        checkParams(params, ['typeOfSet', 'jobId', 'id', 'elements', 'constraint'])
+        if (!(params.containsKey('id') ^ params.containsKey('constraint'))) {
+            throw new InvalidArgumentsException("Whether id or constraint parameters can be supplied.")
+        }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        checkTypeOfSetSupported(typeOfSet)
-        checkRightsToExport(id, user, typeOfSet)
         checkJobAccess(jobId, user)
+        List<Map> elements = parseElements(params)
+        checkTypeOfSetSupported(typeOfSet)
 
-        def job = exportAsyncJobService.exportData(id, typeOfSet, elements, user, jobId)
+        Constraint constraint = getConstraint(params, user)
+
+        def job = exportAsyncJobService.exportData(constraint, typeOfSet, elements, user, jobId)
 
         respond wrapExportJob(job)
     }
@@ -98,7 +110,7 @@ class ExportController {
         checkJobAccess(jobId, user)
 
         def job = exportAsyncJobService.getJobById(jobId)
-        def InputStream inputStream = restExportService.downloadFile(job)
+        InputStream inputStream = restExportService.downloadFile(job)
 
         response.setContentType 'application/zip'
         response.setHeader "Content-disposition", "attachment;"//filename=${inputStream.ass}"
@@ -148,13 +160,14 @@ class ExportController {
      */
     def dataFormats(@RequestParam('typeOfSet') String typeOfSet) {
 
-        checkParams(params, ['typeOfSet', 'id'])
-        List<Long> id = parseId(params)
+        checkParams(params, ['typeOfSet', 'id', 'constraint'])
         checkTypeOfSetSupported(typeOfSet)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-
-        def formats = restExportService.getDataFormats(typeOfSet, id, user)
-        def results = [dataFormats: formats]
+        Constraint constraint = getConstraint(params, user)
+        def formats = ['clinical'] + multiDimService.retriveHighDimDataTypes(constraint, user)
+        def results = [
+                dataFormats: formats
+        ]
         render results as JSON
     }
 
@@ -171,17 +184,6 @@ class ExportController {
         render results as JSON
     }
 
-
-
-    private void checkRightsToExport(List<Long> resultSetIds, User user, String typeOfSet) {
-        try {
-            restExportService.isUserAllowedToExport(resultSetIds, user, typeOfSet)
-        } catch (UnsupportedOperationException e) {
-            throw new AccessDeniedException("User ${user.username} has no READ permission" +
-                    " on one of the result sets: ${resultSetIds.join(', ')}")
-        }
-    }
-    
     private checkJobAccess(Long jobId, User user) {
         String jobUsername = exportAsyncJobService.getJobUser(jobId)
         if (!jobUsername) throw new InvalidArgumentsException("Job with id '$jobId' does not exists.")
@@ -271,5 +273,34 @@ class ExportController {
                 container: serializedJobs,
                 componentType: Map,
         )
+    }
+
+    private Constraint getConstraint(Map params, User user) {
+        if (params.containsKey('id')) {
+            //TODO Fix abstraction leak
+            List<Long> ids = parseId(params)
+            List<QueryResult> queryResults = ids.collect { multiDimService.findQueryResult(it, user) }
+            Map<Long, List<QueryResult>> queryResultTypeByType = queryResults
+                    .groupBy { it.queryResultType.id }
+                    .withDefault { [] }
+            Set<Long> foundNotSupportedQueryTypeIds = queryResultTypeByType.keySet() -
+                    [QueryResultType.PATIENT_SET_ID, QueryResultType.GENERIC_QUERY_RESULT_ID]
+            assert !foundNotSupportedQueryTypeIds : "Query types with following ids are not supported: ${foundNotSupportedQueryTypeIds}"
+            List<Constraint> patientSetConstraints = queryResultTypeByType[QueryResultType.PATIENT_SET_ID]
+                    .collect { QueryResult qr -> new PatientSetConstraint(patientSetId: qr.id) }
+            List<Constraint> observationSetConstraints = queryResultTypeByType[QueryResultType.GENERIC_QUERY_RESULT_ID]
+                    .collect { QueryResult qr ->
+                getConstraint(qr.queryInstance.queryMaster.requestConstraints as String)
+            }
+            return new OrConstraint(args: (patientSetConstraints + observationSetConstraints))
+        } else if (params.containsKey('constraint')) {
+            return getConstraint(params.constraint as String)
+        } else {
+            throw new InvalidArgumentsException("Whether id or constraint parameters can be supplied.")
+        }
+    }
+
+    private static Constraint getConstraint(final String constraintString) {
+        ConstraintFactory.create(JSON.parse(constraintString) as Map)
     }
 }

@@ -10,6 +10,7 @@ import org.quartz.Scheduler
 import org.quartz.TriggerBuilder
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.db.job.AsyncJobCoreDb
+import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
 import org.transmartproject.db.user.User
 
@@ -107,12 +108,12 @@ class ExportAsyncJobService {
         isJobCancelled
     }
 
-    private static Map createJobDataMap(List<Long> ids, String typeOfSet, List types, User user, Long jobId, String jobName) {
+    private static Map createJobDataMap(Constraint constraint, String typeOfSet, List types, User user, Long jobId, String jobName) {
         [
                 user                 : user,
                 jobName              : jobName,
                 jobId                : jobId,
-                ids                  : ids,
+                constraint           : constraint,
                 typeOfSet            : typeOfSet,
                 dataTypeAndFormatList: types
         ]
@@ -145,13 +146,17 @@ class ExportAsyncJobService {
     }
 
     def exportData(List<Long> ids, String typeOfSet, List types, User user, Long jobId) {
+
+    }
+
+    def exportData(Constraint constraint, String typeOfSet, List types, User user, Long jobId) {
         def job = getJobById(jobId)
         if (job.jobStatus != JobStatus.CREATED.value) {
             throw new InvalidRequestException("Job with id $jobId has invalid status. " +
                     "Expected: $JobStatus.CREATED.value, actual: $job.jobStatus")
         }
 
-        def dataMap = createJobDataMap(ids, typeOfSet, types, user, jobId, job.jobName)
+        def dataMap = createJobDataMap(constraint, typeOfSet, types, user, jobId, job.jobName)
         executeExportJob(dataMap)
     }
 

@@ -16,28 +16,28 @@ interface QueryResult extends ProtectedResource {
      *
      * @return the numerical identifier for this result
      */
-    public Long getId()
+    Long getId()
 
     /**
      * A description of the query, set by the creator.
      *
      * @return the textual description of the query.
      */
-    public String getDescription()
+    String getDescription()
 
     /**
      * The size of the set, or -1 if there was an error.
      *
      * @return the size of the set
      */
-    public Long getSetSize()
+    Long getSetSize()
 
     /**
      * The status of this query result instance.
      *
      * @return the status or null if unknown
      */
-    public QueryStatus getStatus() //FINISHED (3), ERROR (4)
+    QueryStatus getStatus() //FINISHED (3), ERROR (4)
 
     /**
      * The error message associated with this query result. May be an
@@ -45,14 +45,15 @@ interface QueryResult extends ProtectedResource {
      *
      * @return the error message or null if none
      */
-    public String getErrorMessage()
+    String getErrorMessage()
 
     /**
      * The set of patients included in this result.
-     *
+     * @deprecated Query result is not necessarily associated with patients.
      * @return the set of patients
      */
-    public Set<Patient> getPatients()
+    @Deprecated
+    Set<Patient> getPatients()
 
     /**
      * The username of the user associated with this query. There may not
@@ -61,6 +62,12 @@ interface QueryResult extends ProtectedResource {
      * @return the username associated with the query definition used to issue
      * this query
      */
-    public String getUsername()
+    String getUsername()
+
+    /**
+     * Information on the type of the result query produced.
+     * @return the query result type
+     */
+    QueryResultType getQueryResultType()
 
 }
