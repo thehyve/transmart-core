@@ -21,6 +21,7 @@ package org.transmartproject.db.querytool
 
 import com.google.common.collect.Iterables
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.i2b2data.PatientDimension
 
@@ -50,6 +51,7 @@ class QueryResultData {
                 queryInstance: queryInstance,
                 setSize: patients.size(),
                 realSetSize: patients.size(),
+                queryResultType: QtQueryResultType.load(QueryResultType.PATIENT_SET_ID),
         )
         queryInstance.addToQueryResults(resultInstance)
 

@@ -25,6 +25,7 @@ import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
+import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -35,7 +36,6 @@ import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.exceptions.EmptySetException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
@@ -44,6 +44,7 @@ import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
@@ -52,6 +53,7 @@ import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.i2b2data.ConceptDimension
+import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.AssayDimension
 import org.transmartproject.db.multidimquery.BioMarkerDimension
@@ -92,6 +94,7 @@ import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.querytool.QtQueryInstance
 import org.transmartproject.db.querytool.QtQueryMaster
 import org.transmartproject.db.querytool.QtQueryResultInstance
+import org.transmartproject.db.querytool.QtQueryResultType
 import org.transmartproject.db.util.GormWorkarounds
 
 import org.transmartproject.db.user.User as DbUser
@@ -503,18 +506,25 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     /**
-     * @description Function for creating a patient set consisting of patients for which there are observations
-     * that are specified by <code>query</code>.
-     *
-     * FIXME: this implementation was copied from QueriesResourceService.runQuery and modified. The two copies should
-     * be folded together.
-     *
-     * @param query
-     * @param user
+     * Synchronously executes the query and tracks its progress by saving the status.
+     * @param name meaningful text for the user to find back the query results.
+     * @param user user that executes the query
+     * @param constraintText textual representation of the constraint
+     * @param apiVersion v1 or v2
+     * @param queryResultType the type of the result set.
+     * Patient set and generic query result (no assoc set) are supported at the moment.
+     * @param queryExecutor closure that actually executes the query.
+     * It gets the query result object and returns the number of the result set.
+     * It also responsible for saving all actual results.
+     * @return the query result object that does not contains result as such but rather status of execution
+     * and result instance id you might use to fetch actual results.
      */
-    @Override QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) {
-        List patients = getDimensionElements(PATIENT, constraint, user).toList()
-
+    QtQueryResultInstance createQueryResult(String name,
+                                            User user,
+                                            String constraintText,
+                                            String apiVersion,
+                                            QtQueryResultType queryResultType,
+                                            Closure<Long> queryExecutor) {
         // 1. Populate qt_query_master
         def queryMaster = new QtQueryMaster(
                 name           : name,
@@ -540,66 +550,109 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         // 3. Populate qt_query_result_instance
         def resultInstance = new QtQueryResultInstance(
-                statusTypeId  : QueryStatus.PROCESSING.id,
-                startDate     : new Date(),
-                queryInstance : queryInstance
+                name            : name,
+                statusTypeId    : QueryStatus.PROCESSING.id,
+                startDate       : new Date(),
+                queryInstance   : queryInstance,
+                queryResultType : queryResultType,
+                description     : name
         )
-        queryInstance.addToQueryResults(resultInstance)
+        queryMaster.save(failOnError: true)
 
-        // 4. Save the three objects
-        if (!queryMaster.validate()) {
-            throw new InvalidRequestException('Could not create a valid ' +
-                    'QtQueryMaster: ' + queryMaster.errors)
+        try {
+            // 4. Execute the query
+            resultInstance.setSize = queryExecutor(resultInstance)
+
+            // 5a. Update the result
+            resultInstance.endDate = new Date()
+            resultInstance.statusTypeId = QueryStatus.FINISHED.id
+            queryInstance.endDate = new Date()
+            queryInstance.statusTypeId = QueryStatus.FINISHED.id
+        } catch (Throwable t) {
+            // 5b. Update the result with the error message
+            resultInstance.setSize = resultInstance.realSetSize = -1
+            resultInstance.errorMessage = t.message
+            resultInstance.endDate = new Date()
+            resultInstance.statusTypeId = QueryStatus.ERROR.id
+            queryInstance.endDate = new Date()
+            queryInstance.statusTypeId = QueryStatus.ERROR.id
         }
-        if (queryMaster.save() == null) {
-            throw new RuntimeException('Failure saving QtQueryMaster')
-        }
-
-        patients.each { patient ->
-            def entry = new QtPatientSetCollection(
-                    resultInstance: resultInstance,
-                    patient: patient
-            )
-            resultInstance.addToPatientSet(entry)
-        }
-
-        def newResultInstance = resultInstance.save()
-        if (!newResultInstance) {
-            throw new RuntimeException('Failure saving patient set. Errors: ' +
-                    resultInstance.errors)
-        }
-
-        // 7. Update result instance and query instance
-        resultInstance.setSize = resultInstance.realSetSize = patients.size()
-        resultInstance.description = name
-        resultInstance.endDate = new Date()
-        resultInstance.statusTypeId = QueryStatus.FINISHED.id
-
-        queryInstance.endDate = new Date()
-        queryInstance.statusTypeId = QueryStatus.COMPLETED.id
-
-        newResultInstance = resultInstance.save()
-        if (!newResultInstance) {
-            throw new RuntimeException('Failure saving resultInstance after ' +
-                    'successfully building patient set. Errors: ' +
-                    resultInstance.errors)
-        }
+        // 6. Validate and save the query instance and the result instance.
+        queryInstance.save(failOnError: true)
+        resultInstance.save(failOnError: true)
 
         resultInstance
     }
 
-    @Override QueryResult findPatientSet(Long patientSetId, User user) {
-        QueryResult queryResult = QtQueryResultInstance.findById(patientSetId)
+    QtQueryResultInstance finishQueryResultInstance(QtQueryResultInstance queryResult) {
+        queryResult.setSize = queryResult.realSetSize = patients.size()
+        queryResult.endDate = new Date()
+        queryResult.statusTypeId = QueryStatus.FINISHED.id
+
+        queryResult.queryInstance.endDate = new Date()
+        queryResult.queryInstance.statusTypeId = QueryStatus.COMPLETED.id
+        queryResult.save(failOnError: true)
+    }
+
+    /**
+     * @description Function for creating a patient set consisting of patients for which there are observations
+     * that are specified by <code>query</code>.
+     *
+     * FIXME: this implementation was copied from QueriesResourceService.runQuery and modified. The two copies should
+     * be folded together.
+     *
+     * @param query
+     * @param user
+     */
+    @Override QueryResult createPatientSetQueryResult(String name,
+                                                      MultiDimConstraint constraint,
+                                                      User user,
+                                                      String constraintText,
+                                                      String apiVersion) {
+
+        createQueryResult(
+                name,
+                user,
+                constraintText,
+                apiVersion,
+                QtQueryResultType.load(QueryResultType.PATIENT_SET_ID)) { QtQueryResultInstance queryResult ->
+
+            List<Patient> patients = getDimensionElements(PATIENT, constraint, user).toList()
+            patients.eachWithIndex { Patient patient, Integer index ->
+                queryResult.addToPatientSet(
+                    new QtPatientSetCollection(
+                            resultInstance: queryResult,
+                            patient: PatientDimension.load(patient.id),
+                            setIndex: index + 1
+                    )
+                )
+            }
+
+            patients.size()
+        }
+    }
+
+    @Override QueryResult createObservationSetQueryResult(String name, User user, String constraintText, String apiVersion) {
+        createQueryResult(
+                name,
+                user,
+                constraintText,
+                apiVersion,
+                QtQueryResultType.load(QueryResultType.GENERIC_QUERY_RESULT_ID)) { QtQueryResultInstance queryResult -> -1 }
+    }
+
+    @Override QueryResult findQueryResult(Long queryResultId, User user) {
+        QueryResult queryResult = QtQueryResultInstance.findById(queryResultId)
         if (queryResult == null) {
-            throw new NoSuchResourceException("Patient set not found with id ${patientSetId}.")
+            throw new NoSuchResourceException("Patient set not found with id ${queryResultId}.")
         }
         if (!user.canPerform(WellKnownOperations.READ, queryResult)) {
-            throw new AccessDeniedException("Access denied to patient set with id ${patientSetId}.")
+            throw new AccessDeniedException("Access denied to patient set with id ${queryResultId}.")
         }
         queryResult
     }
 
-    @Override Iterable<QueryResult> findPatientSets(User user) {
+    Iterable<QueryResult> findQueryResults(final User user, QueryResultType resultType) {
         if(((DbUser) user).admin){
             return getIterable(DetachedCriteria.forClass(QtQueryResultInstance))
         } else {
@@ -608,8 +661,19 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                     .setProjection(Projections.property('id'))
             def queryResultCriteria = DetachedCriteria.forClass(QtQueryResultInstance)
                     .add(Subqueries.propertyIn('queryInstance', queryCriteria))
+            if (resultType) {
+                queryResultCriteria.add(Restrictions.eq('queryResultType.id', resultType.getId()))
+            }
             return getIterable(queryResultCriteria)
         }
+    }
+
+    @Override Iterable<QueryResult> findPatientSetQueryResults(User user) {
+        findQueryResults(user, QtQueryResultType.load(QueryResultType.PATIENT_SET_ID))
+    }
+
+    @Override Iterable<QueryResult> findObservationSetQueryResults(User user) {
+        findQueryResults(user, QtQueryResultType.load(QueryResultType.GENERIC_QUERY_RESULT_ID))
     }
 
     @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
