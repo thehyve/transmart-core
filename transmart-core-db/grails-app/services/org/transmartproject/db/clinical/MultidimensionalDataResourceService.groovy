@@ -130,8 +130,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      *
      * Not yet implemented:
      * @param sort
-     * @param pack
-     * @param preloadDimensions
      *
      * @return a Hypercube result
      */
@@ -157,8 +155,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         // These are not yet implemented
         def sort = args.sort
-        def pack = args.pack
-        def preloadDimensions = args.pack ?: false
 
         // Add any studies that are being selected on
         def studyIds = findStudyNameConstraints(constraint)*.studyId
@@ -206,7 +202,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         dimensions.each {
             it.selectIDs(query)
         }
-        if (query.params.modifierCodes != ['@']) {
+        boolean hasModifiers = query.params.modifierCodes != ['@']
+        if (hasModifiers) {
             if(sort != null) throw new NotImplementedException("sorting is not implemented")
 
             // Make sure all primary key dimension columns are selected, even if they are not part of the result
@@ -223,9 +220,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 // TODO: The order of sorting should match the one of the main index (or any index). Todo: create
                 // main index.
                 // 'modifierCd' needs to be excluded or listed last when using modifiers
+                order 'patient'
                 order 'conceptCode'
                 order 'providerId'
-                order 'patient'
                 order 'encounterNum'
                 order 'startDate'
                 order 'instanceNum'
@@ -234,17 +231,12 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         q.with {
             inList 'modifierCd', query.params.modifierCodes
-
-            // FIXME: Ordering by start date is needed for end-to-end tests. This should be replaced by ordering
-            // support in this service which the tests should then use.
-            if(query.params.modifierCodes == ['@']) {
-                order 'startDate'
+            if(!hasModifiers) {
+                order 'patient'
             }
         }
 
         CriteriaImpl hibernateCriteria = query.criteria.instance
-        String[] aliases = (hibernateCriteria.projection as ProjectionList).aliases
-
         HibernateCriteriaQueryBuilder restrictionsBuilder = new HibernateCriteriaQueryBuilder(
                 studies: accessibleStudies
         )
@@ -252,10 +244,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         restrictionsBuilder.applyToCriteria(hibernateCriteria, [constraint])
 
-        ScrollableResults results = query.criteria.instance.scroll(ScrollMode.FORWARD_ONLY)
-
-        new HypercubeImpl(results, dimensions, aliases, query, session)
         // session will be closed by the Hypercube
+        new HypercubeImpl(dimensions, hibernateCriteria)
     }
 
     static final List<DimensionImpl> primaryKeyDimensions = ImmutableList.of(
@@ -917,7 +907,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         Constraint constraint = (Constraint) constraint_
         checkAccess(constraint, user)
         def dataType = 'clinical'
-        def accessibleStudies = accessControlChecks.getDimensionStudiesForUser((DbUser) user)
+        def accessibleStudies = accessControlChecks.getDimensionStudiesForUser(DbUser.load(user.id))
         retrieveData(dataType, accessibleStudies, constraint: constraint)
     }
 

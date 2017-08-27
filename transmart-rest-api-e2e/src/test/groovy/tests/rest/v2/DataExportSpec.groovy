@@ -4,6 +4,9 @@ import annotations.RequiresStudy
 import base.RESTSpec
 import groovy.util.logging.Slf4j
 
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+
 import static base.ContentTypeFor.JSON
 import static base.ContentTypeFor.ZIP
 import static config.Config.*
@@ -368,10 +371,120 @@ class DataExportSpec extends RESTSpec {
 
         then: "ZipStream is returned"
         assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        filesLineNumbers['clinical_observations.tsv'] == 10
+        filesLineNumbers['clinical_study.tsv'] == 2
+        filesLineNumbers['clinical_concept.tsv'] == 2
+        filesLineNumbers['clinical_patient.tsv'] == 4
+        filesLineNumbers['clinical_visit.tsv'] == 8
+        filesLineNumbers['clinical_trial_visit.tsv'] == 2
+        filesLineNumbers['clinical_provider.tsv'] == 1
+        filesLineNumbers['clinical_sample_type.tsv'] == 1
         assert new File(fileName).isFile()
 
         cleanup: "Remove created file"
         if (fileName) { new File(fileName).delete() }
     }
 
+    @RequiresStudy(EHR_ID)
+    def "export wide file format"() {
+        def newJobRequest = [
+                path      : "$PATH_DATA_EXPORT/job",
+                acceptType: JSON,
+        ]
+        def newJobResponse = post(newJobRequest)
+        def jobId = newJobResponse.exportJob.id
+        def jobName = newJobResponse.exportJob.jobName
+
+        when: "I run a newly created job asynchronously"
+        def runResponse = post([
+                path      : "$PATH_DATA_EXPORT/$jobId/run",
+                query     : ([
+                        typeOfSet: 'patient',
+                        constraint: toJSON([type: ConceptConstraint,
+                                            path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]),
+                        elements : toJSON([[
+                                                   dataType: 'clinical',
+                                                   format  : 'TSV',
+                                                    wide   : true
+                                           ]]),
+                ]),
+                acceptType: JSON,
+        ])
+
+        then: "Job instance with status: 'Started' is returned"
+        assert runResponse != null
+        assert runResponse.exportJob.id == jobId
+        assert runResponse.exportJob.jobStatus == 'Started'
+        assert runResponse.exportJob.jobStatusTime != null
+        assert runResponse.exportJob.userId == DEFAULT_USER
+        assert runResponse.viewerUrl == null
+
+        when: "Check the status of the job"
+        String fileName = "$TEMP_DIRECTORY/$DEFAULT_USER/$jobName" + ".zip"
+        int maxAttemptNumber = 10 // max number of status check attempts
+        def statusRequest = [
+                path      : "$PATH_DATA_EXPORT/$jobId/status",
+                acceptType: JSON,
+        ]
+        def statusResponse = get(statusRequest)
+
+        then: "Returned status is 'Completed'"
+        assert statusResponse != null
+        def status = statusResponse.exportJob.jobStatus
+
+        // waiting for async process to end (increase number of attempts if needed)
+        for (int attempNum = 0; status != 'Completed' && attempNum < maxAttemptNumber; attempNum++) {
+            sleep(500)
+            statusResponse = get(statusRequest)
+            status = statusResponse.exportJob.jobStatus
+        }
+
+        assert status == 'Completed'
+        assert statusResponse.exportJob.viewerUrl == fileName
+
+        when: "Try to download the file"
+        def downloadRequest = [
+                path      : "$PATH_DATA_EXPORT/$jobId/download",
+                acceptType: ZIP,
+        ]
+        def downloadResponse = get(downloadRequest)
+
+        then: "ZipStream is returned"
+        assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        filesLineNumbers['clinical_observations.tsv'] == 10
+        filesLineNumbers['clinical_study.tsv'] == 2
+        filesLineNumbers['clinical_concept.tsv'] == 2
+        filesLineNumbers['clinical_patient.tsv'] == 4
+        filesLineNumbers['clinical_visit.tsv'] == 8
+        filesLineNumbers['clinical_trial_visit.tsv'] == 2
+        filesLineNumbers['clinical_provider.tsv'] == 1
+        filesLineNumbers['clinical_sample_type.tsv'] == 1
+        assert new File(fileName).isFile()
+
+        cleanup: "Remove created file"
+        if (fileName) { new File(fileName).delete() }
+    }
+
+    private Map<String, Integer> getFilesLineNumbers(byte[] content) {
+        Map<String, Integer> result = [:]
+        def zipInputStream
+        try {
+            zipInputStream = new ZipInputStream(new ByteArrayInputStream(content))
+            ZipEntry entry
+            while (entry = zipInputStream.nextEntry) {
+                def reader = new BufferedReader(new InputStreamReader(zipInputStream))
+                Integer linesNumber = 0
+                while (reader.readLine()) {
+                    linesNumber += 1
+                }
+                result[entry.name] = linesNumber
+            }
+        } finally {
+            if (zipInputStream) zipInputStream.close()
+        }
+
+        result
+    }
 }
