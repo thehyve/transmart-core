@@ -11,11 +11,6 @@ import org.transmartproject.core.multidimquery.HypercubeValue
 
 class EmptyHypercube implements Hypercube {
 
-    final boolean DimensionsPreloadable = false
-    final boolean DimensionsPreloaded =  false
-    final boolean AutoloadDimensions = false
-
-    void loadDimensions() {}
     ImmutableList<Object> dimensionElements(Dimension dim){
         throw new InvalidArgumentsException("Dimension $dim is not part of this result")
     }
@@ -31,10 +26,6 @@ class EmptyHypercube implements Hypercube {
     }
 
     void close(){}
-
-    void setAutoloadDimensions(boolean value){}
-
-    void preloadDimensions(){}
 
     PeekingIterator<HypercubeValue> iterator() {
         return new PeekingIterator() {

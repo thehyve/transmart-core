@@ -25,7 +25,7 @@ import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
 @CompileStatic
-class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<HypercubeValue> implements Hypercube {
+class HddTabularResultHypercubeAdapter implements Hypercube {
     private static Object typeError(cell) {
         throw new RuntimeException("HDD value '$cell' is not a Double and is not a Map, this projection is not" +
                 " implemented in HddTabularResultHypercubeAdapter")
@@ -47,7 +47,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     private List<String> _projectionFields = null
     List<String> getProjectionFields() {
         if(_projectionFields != null) return _projectionFields
-        getIterator().hasNext() // sets _projectionFields as a side effect
+        iterator().hasNext() // sets _projectionFields as a side effect
         _projectionFields
     }
 
@@ -101,9 +101,11 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     }
 
 
-    @Override PeekingIterator<HypercubeValue> iterator() { (PeekingIterator) super.iterator() }
-    @Override PeekingIterator<HypercubeValue> getIterator() {
-        iterator == null ? (iterator = new TabularResultAdapterIterator()) : iterator
+    @Override PeekingIterator<HypercubeValue> iterator() {
+        if (iterator == null) {
+            iterator = new TabularResultAdapterIterator()
+        }
+        iterator
     }
 
     class TabularResultAdapterIterator extends AbstractIterator<HypercubeValue> implements
@@ -230,13 +232,6 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
         final String label
         final String biomarker
     }
-
-
-    void loadDimensions() { /*no-op*/ }
-    void preloadDimensions() { throw new UnsupportedOperationException() }
-    final boolean dimensionsPreloadable = false
-    final boolean dimensionsPreloaded = false
-    boolean autoloadDimensions = true
 
     @Override
     void close() {

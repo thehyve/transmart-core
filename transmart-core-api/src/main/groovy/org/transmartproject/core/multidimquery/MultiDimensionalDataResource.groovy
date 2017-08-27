@@ -19,8 +19,6 @@ interface MultiDimensionalDataResource {
      *
      * Not yet implemented:
      * @param sort
-     * @param pack
-     * @param preloadDimensions
      *
      * @return a Hypercube result
      */
