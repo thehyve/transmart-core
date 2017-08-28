@@ -29,7 +29,7 @@ import org.transmartproject.core.querytool.QueryResultType
 import javax.annotation.PostConstruct
 import javax.sql.DataSource
 
-import static org.transmartproject.db.test.H2Views.ObjectStatus.*
+import static H2DatabaseCreator.ObjectStatus.*
 
 /**
  * This class is for integration test purposes, but has to be here due to
@@ -38,7 +38,7 @@ import static org.transmartproject.db.test.H2Views.ObjectStatus.*
  * the test classpath.
  */
 @Slf4j
-class H2Views {
+class H2DatabaseCreator {
 
     @Autowired
     @Qualifier('dataSource')
@@ -55,7 +55,7 @@ class H2Views {
                 return
             }
 
-            log.info 'Executing H2Views init actions'
+            log.info 'Executing H2DatabaseCreator init actions'
 
             createSearchBioMkrCorrelView()
             createSearchAuthUserSecAccessV()
