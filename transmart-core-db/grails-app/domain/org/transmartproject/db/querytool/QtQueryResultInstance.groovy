@@ -37,7 +37,6 @@ class QtQueryResultInstance implements QueryResult {
     Long realSetSize
     String obfuscMethod
     QtQueryInstance queryInstance
-    //TODO Change to enum?
     QtQueryResultType queryResultType
 
     static belongsTo = QtQueryInstance
