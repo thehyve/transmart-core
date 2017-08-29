@@ -218,7 +218,7 @@ class HypercubeImpl implements Hypercube {
             }
         }, {
             completeScanNumber += 1
-        }).each {}
+        }).collect()
     }
 
     void close() {
@@ -256,7 +256,7 @@ class HypercubeImpl implements Hypercube {
         final ProjectionMapIterator iter
         final List<ModifierDimension> modifierDimensions
 
-        ModifierResultIterator(List<ModifierDimension> modifierDimensions, ImmutableMap<String, Integer> aliases,
+        ModifierResultIterator(List<ModifierDimension> modifierDimensions, Map<String, Integer> aliases,
                                ScrollableResults results) {
             iter = new ProjectionMapIterator(aliases, results)
             this.modifierDimensions = modifierDimensions
@@ -270,6 +270,7 @@ class HypercubeImpl implements Hypercube {
             Map<String, ProjectionMap> group = nextGroup()
 
             Map result = group['@']?.toMutable() ?:
+                    //TODO Decide: Add keys part, skip with warning or throw an exception?
                     [valueType: ObservationFact.TYPE_TEXT, textValue: null]
 
             for (dim in modifierDimensions) {
@@ -313,7 +314,7 @@ class HypercubeImpl implements Hypercube {
 
     @TupleConstructor
     static class ProjectionMapIterator extends AbstractIterator<ProjectionMap> {
-        final ImmutableMap<String, Integer> aliases
+        final Map<String, Integer> aliases
         final ScrollableResults results
 
         ProjectionMap computeNext() {
@@ -384,10 +385,10 @@ class HypercubeValueImpl implements HypercubeValue {
 @CompileStatic
 class ProjectionMap extends AbstractMap<String, Object> {
     // @Delegate(includes="size, containsKey, keySet") can't delegate since these methods are already implemented on AbstractMap :(
-    private final ImmutableMap<String, Integer> mapping
+    private final Map<String, Integer> mapping
     private final Object[] tuple
 
-    ProjectionMap(ImmutableMap<String, Integer> _mapping, Object[] _tuple) {
+    ProjectionMap(Map<String, Integer> _mapping, Object[] _tuple) {
         mapping = _mapping
         tuple = _tuple
     }

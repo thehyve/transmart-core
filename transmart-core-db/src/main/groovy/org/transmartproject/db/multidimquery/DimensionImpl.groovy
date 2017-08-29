@@ -23,7 +23,6 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Property
 import org.transmartproject.core.ontology.MDStudy
-import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.TrialVisit
