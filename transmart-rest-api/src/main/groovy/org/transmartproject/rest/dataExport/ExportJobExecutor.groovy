@@ -54,9 +54,9 @@ class ExportJobExecutor implements Job {
         try {
             asyncJobService.updateStatus(jobId, JobStatus.GATHERING_DATA)
             exportService.exportData(jobDataMap, zipFile)
-        } catch (Throwable t) {
-            log.error 'An exception occurred during data export job', t
-            throw t
+        } catch (Exception e) {
+            log.error 'An exception occurred during data export job', e
+            throw e
         } finally {
             zipFile.close()
         }

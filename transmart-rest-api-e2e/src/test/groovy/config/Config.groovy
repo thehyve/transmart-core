@@ -79,6 +79,8 @@ class Config {
     public static final Long SHARED_CONCEPTS_RESTRICTED_DB_ID = -29L
     public static final String RNASEQ_TRANSCRIPT_ID = 'RNASEQ_TRANSCRIPT'
     public static final String MIX_HD_ID = 'MIX_HD'
+    public static final String SURVEY1_ID = 'SURVEY1'
+    public static final String SURVEY2_ID = 'SURVEY2'
 
     //settings
     public static final boolean DB_MIGRATED = true

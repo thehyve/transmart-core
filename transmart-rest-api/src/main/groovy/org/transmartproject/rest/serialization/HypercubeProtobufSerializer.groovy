@@ -2,7 +2,6 @@
 
 package org.transmartproject.rest.serialization
 
-import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.multidimquery.Dimension
@@ -25,7 +24,7 @@ class HypercubeProtobufSerializer extends HypercubeSerializer {
     protected boolean packingEnabled
     protected OutputStream out
 
-    private PeekingIterator<HypercubeValue> iterator
+    private Iterator<HypercubeValue> iterator
     private List<Dimension> inlineDims
     private List<Dimension> indexedDims
 

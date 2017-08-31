@@ -37,7 +37,10 @@ class TreeServiceTest extends Specification {
         forest*.name == [
                 'Vital Signs',
                 'Public Studies',
-                'Private Studies'
+                'Projects',
+                'Private Studies',
+                'General',
+                'Demographics',
         ]
     }
 
@@ -83,7 +86,10 @@ class TreeServiceTest extends Specification {
         forest*.name == [
                 'Vital Signs',
                 'Public Studies',
-                'Private Studies'
+                'Projects',
+                'Private Studies',
+                'General',
+                'Demographics',
         ]
         forest*.children.unique() == [null]
     }
@@ -101,7 +107,10 @@ class TreeServiceTest extends Specification {
         forest*.name == [
                 'Vital Signs',
                 'Public Studies',
-                'Private Studies'
+                'Projects',
+                'Private Studies',
+                'General',
+                'Demographics',
         ]
     }
 
@@ -140,7 +149,10 @@ class TreeServiceTest extends Specification {
         forest*.name == [
                 'Vital Signs',
                 'Public Studies',
-                'Private Studies'
+                'Projects',
+                'Private Studies',
+                'General',
+                'Demographics',
         ]
     }
 

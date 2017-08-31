@@ -70,7 +70,6 @@ class HypercubeImpl implements Hypercube {
             new HypercubeValueImpl(this, dimensionElementIdexes, value)
         }, {
             completeScanNumber += 1
-            close()
         })
     }
 
@@ -182,7 +181,7 @@ class HypercubeImpl implements Hypercube {
             if (!resultIterator.hasNext()) {
                 onClose()
                 results.close()
-                return endOfData()
+                return super.endOfData()
             }
 
             Map<String, Object> row = resultIterator.next()
@@ -319,7 +318,7 @@ class HypercubeImpl implements Hypercube {
 
         ProjectionMap computeNext() {
             if (!results.next()) {
-                return endOfData()
+                return super.endOfData()
             }
             new ProjectionMap(aliases, results.get())
         }
