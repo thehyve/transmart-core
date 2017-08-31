@@ -22,7 +22,7 @@ class DimensionSpec extends RESTSpec {
         ])
 
         then: "the list of trial visits for unrestricted studies is returned"
-        responseData.elements.size() == 19
+        responseData.elements.size() == 21
     }
 
     @RequiresStudy([EHR_ID, EHR_HIGHDIM_ID, CLINICAL_TRIAL_ID, CATEGORICAL_VALUES_ID, TUMOR_NORMAL_SAMPLES_ID, SHARED_CONCEPTS_A_ID, SHARED_CONCEPTS_B_ID, SHARED_CONCEPTS_RESTRICTED_ID])
@@ -38,7 +38,7 @@ class DimensionSpec extends RESTSpec {
         ])
 
         then: "the list of trial visits for all studies is returned"
-        responseData.elements.size() == 21
+        responseData.elements.size() == 23
     }
 
     def "Invalid dimension name"() {

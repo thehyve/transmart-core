@@ -1,0 +1,27 @@
+gender	\Demographics\Gender\	Gender	"{
+    ""type"": ""Numeric"",
+    ""width"": 12,
+    ""columns"": 14,
+    ""measure"": ""Nominal"",
+    ""valueLabels"": {""1"":""female"", ""2"":""male""},
+    ""missingValues"": [-1.0, -2]
+}"						A
+height	\Demographics\Height\	Height	"{
+    ""type"": ""Numeric"",
+    ""width"": 14,
+    ""decimals"": 2,
+    ""columns"": 15,
+    ""measure"": ""Scale""
+}"						
+birthdate	\Demographics\Birth Date\	Birth Date	"{
+    ""type"": ""Date"",
+    ""width"": 11,
+    ""columns"": 11,
+    ""measure"": ""Scale""
+}"						
+description	\General\Description\	Description	"{
+    ""type"": ""String"",
+    ""width"": 200,
+    ""columns"": 210,
+    ""measure"": ""Nominal""
+}"						

@@ -14,6 +14,7 @@ import static tests.rest.Operator.EQUALS
 import static tests.rest.ValueType.STRING
 import static tests.rest.constraints.ConceptConstraint
 import static tests.rest.constraints.ModifierConstraint
+import static tests.rest.constraints.StudyNameConstraint
 import static tests.rest.constraints.TrueConstraint
 import static tests.rest.constraints.ValueConstraint
 
@@ -386,8 +387,8 @@ class DataExportSpec extends RESTSpec {
         if (fileName) { new File(fileName).delete() }
     }
 
-    @RequiresStudy(EHR_ID)
-    def "export wide file format"() {
+    @RequiresStudy(SURVEY1_ID)
+    def "export tabular file format"() {
         def newJobRequest = [
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
@@ -401,12 +402,12 @@ class DataExportSpec extends RESTSpec {
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
                 query     : ([
                         typeOfSet: 'patient',
-                        constraint: toJSON([type: ConceptConstraint,
-                                            path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]),
+                        constraint: toJSON([type: StudyNameConstraint,
+                                            studyId: SURVEY1_ID]),
                         elements : toJSON([[
                                                    dataType: 'clinical',
                                                    format  : 'TSV',
-                                                    wide   : true
+                                                   tabular : true
                                            ]]),
                 ]),
                 acceptType: JSON,
@@ -453,14 +454,8 @@ class DataExportSpec extends RESTSpec {
         then: "ZipStream is returned"
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
-        filesLineNumbers['clinical_observations.tsv'] == 10
-        filesLineNumbers['clinical_study.tsv'] == 2
-        filesLineNumbers['clinical_concept.tsv'] == 2
-        filesLineNumbers['clinical_patient.tsv'] == 4
-        filesLineNumbers['clinical_visit.tsv'] == 8
-        filesLineNumbers['clinical_trial_visit.tsv'] == 2
-        filesLineNumbers['clinical_provider.tsv'] == 1
-        filesLineNumbers['clinical_sample_type.tsv'] == 1
+        filesLineNumbers.size() == 1
+        filesLineNumbers['data.tsv'] == 3
         assert new File(fileName).isFile()
 
         cleanup: "Remove created file"

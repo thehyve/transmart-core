@@ -214,7 +214,7 @@ class ObservationsBuilderTests extends Specification {
         when:
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
         ZipOutputStream out = new ZipOutputStream(byteArrayOutputStream)
-        builder.write([dataType : dataType, wide: true], mockedCube, out)
+        builder.write([dataType : dataType], mockedCube, out)
         out.close()
         out.flush()
         List expectedEntries = ["${dataType}_observations$fileExtension",

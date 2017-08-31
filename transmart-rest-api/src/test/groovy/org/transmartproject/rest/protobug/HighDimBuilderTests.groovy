@@ -154,14 +154,10 @@ class HighDimBuilderTests {
             data[i]
         }
 
-        Object getAt(Object o) {
-            def indx = assayColumns.findIndexOf { o == it }
-            data[indx]
-        }
-
         @Override
         Object getAt(AssayColumn assayColumn) {
-            getAt(assayColumn)
+            def indx = assayColumns.findIndexOf { assayColumn == it }
+            data[indx]
         }
 
         @Override
