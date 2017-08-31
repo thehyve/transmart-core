@@ -68,6 +68,7 @@ class VersionController {
                         'and-or-constraints',
                         'values_aggregate',
                         'inline-selections',
+                        'observation-sets',
                 ]
             ]
     ])
