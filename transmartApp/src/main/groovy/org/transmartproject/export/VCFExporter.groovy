@@ -3,7 +3,7 @@ package org.transmartproject.export
 import grails.util.Metadata
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -90,7 +90,7 @@ class VCFExporter implements HighDimExporter {
             List<AssayColumn> assayList = tabularResult.indicesList
 
             // Start looping 
-            for (DataRow datarow : tabularResult) {
+            for (ColumnOrderAwareDataRow datarow : tabularResult) {
                 // Test periodically if the export is cancelled
                 if (isCancelled()) {
                     return
@@ -124,7 +124,7 @@ class VCFExporter implements HighDimExporter {
         ["CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT"] + tabularResult.indicesList*.label
     }
 
-    protected List<String> getDataForPosition(DataRow datarow, List<AssayColumn> assayList) {
+    protected List<String> getDataForPosition(ColumnOrderAwareDataRow datarow, List<AssayColumn> assayList) {
         def data = []
 
         // First add general info from the summary
@@ -169,7 +169,7 @@ class VCFExporter implements HighDimExporter {
      * @param datarow
      * @return
      */
-    protected Map getInfoFields(DataRow datarow) {
+    protected Map getInfoFields(ColumnOrderAwareDataRow datarow) {
         Map<String, String> infoFields = [:]
 
         // Add info fields from the whitelist
@@ -215,7 +215,7 @@ class VCFExporter implements HighDimExporter {
      * @param genotypeIndex Index within the formats list of the GT field
      * @return
      */
-    protected List getSubjectData(DataRow datarow, AssayColumn assay,
+    protected List getSubjectData(ColumnOrderAwareDataRow datarow, AssayColumn assay,
                                   List<String> originalVariants, List<String> newVariants,
                                   List<String> formats, int genotypeIndex) {
 

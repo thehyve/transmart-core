@@ -3,7 +3,7 @@ package org.transmartproject.export
 import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
@@ -249,10 +249,10 @@ class VCFExporterTests {
         highDimResult
     }
 
-    DataRow createVCFRowForAssays(List<AssayColumn> assays,
-                                  List<Object> data,
-                                  Map<String, Object> vcfProperties,
-                                  String label) {
+    ColumnOrderAwareDataRow createVCFRowForAssays(List<AssayColumn> assays,
+                                                  List<Object> data,
+                                                  Map<String, Object> vcfProperties,
+                                                  String label) {
         createMockVCFRow(
                 dot(assays, data, { a, b -> [a, b] })
                         .collectEntries(Closure.IDENTITY),
@@ -260,9 +260,9 @@ class VCFExporterTests {
                 label)
     }
 
-    private DataRow<AssayColumn, Object> createMockVCFRow(Map<AssayColumn, Object> values,
-                                                          Map<String, Object> vcfProperties, String label) {
-        DataRow row = mock(DataRow)
+    private ColumnOrderAwareDataRow<AssayColumn, Object> createMockVCFRow(Map<AssayColumn, Object> values,
+                                                                          Map<String, Object> vcfProperties, String label) {
+        ColumnOrderAwareDataRow row = mock(ColumnOrderAwareDataRow)
         row.label.returns(label).stub()
 
         row.chromosome.returns(vcfProperties.chromosome).stub()

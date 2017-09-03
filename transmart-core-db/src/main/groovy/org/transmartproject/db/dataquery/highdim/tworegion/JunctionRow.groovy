@@ -3,14 +3,14 @@
 package org.transmartproject.db.dataquery.highdim.tworegion
 
 import com.google.common.collect.AbstractIterator
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.tworegion.Junction
 
 /**
  * Implements a (sparse) row with exactly one assay with data (a junction).
  */
-class JunctionRow implements DataRow<AssayColumn, Junction> {
+class JunctionRow implements ColumnOrderAwareDataRow<AssayColumn, Junction> {
 
     private final AssayColumn assay
     private final int assayIndex

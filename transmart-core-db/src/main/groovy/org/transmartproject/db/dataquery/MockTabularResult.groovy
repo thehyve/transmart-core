@@ -3,10 +3,10 @@
 package org.transmartproject.db.dataquery
 
 import org.transmartproject.core.dataquery.DataColumn
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 
-class MockTabularResult<I extends DataColumn, R extends DataRow> implements TabularResult<I,R> {
+class MockTabularResult<I extends DataColumn, R extends ColumnOrderAwareDataRow> implements TabularResult<I,R> {
 
     String columnsDimensionLabel = "column label"
     String rowsDimensionLabel = "row label"

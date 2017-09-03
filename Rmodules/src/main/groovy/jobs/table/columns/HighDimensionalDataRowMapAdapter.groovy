@@ -5,12 +5,11 @@ import com.google.common.base.Predicate
 import com.google.common.collect.ForwardingMap
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.Maps
-import groovy.transform.CompileStatic
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 
 /**
- * Exposes a {@link org.transmartproject.core.dataquery.DataRow} as a
+ * Exposes a {@link ColumnOrderAwareDataRow} as a
  * {@link Map}. The keys are the patient ids, the values are maps with
  * a single entry: row label -> value
  */
@@ -19,7 +18,7 @@ class HighDimensionalDataRowMapAdapter extends ForwardingMap<String, Map<String,
     Map<String, Map<String, Object>> innerMap
 
     HighDimensionalDataRowMapAdapter(List<AssayColumn> assays,
-                                     DataRow<AssayColumn, ?> row,
+                                     ColumnOrderAwareDataRow<AssayColumn, ?> row,
                                      String contextPrepend = '') {
 
         /* empty cells are dropped!

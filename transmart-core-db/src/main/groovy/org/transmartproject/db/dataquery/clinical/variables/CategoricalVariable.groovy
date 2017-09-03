@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.clinical.variables
 
 import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.core.concept.ConceptKey
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.exceptions.UnexpectedResultException
 
@@ -31,7 +31,7 @@ class CategoricalVariable extends AbstractComposedVariable implements
     String conceptPath
 
     @Override
-    String getVariableValue(DataRow<ClinicalVariableColumn, Object> dataRow) {
+    String getVariableValue(ColumnOrderAwareDataRow<ClinicalVariableColumn, Object> dataRow) {
         for (var in innerClinicalVariables) {
             def currentValue = dataRow.getAt(var)
 

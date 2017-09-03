@@ -21,13 +21,13 @@ package org.transmartproject.db.dataquery.highdim
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.db.dataquery.CollectingTabularResult
 
 @CompileStatic
 @ToString
-class DefaultHighDimensionTabularResult<R extends DataRow>
+class DefaultHighDimensionTabularResult<R extends ColumnOrderAwareDataRow>
         extends CollectingTabularResult<AssayColumn, R> {
 
     final String columnEntityName = 'assay'

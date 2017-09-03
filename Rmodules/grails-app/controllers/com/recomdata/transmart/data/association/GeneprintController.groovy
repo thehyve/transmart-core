@@ -1,11 +1,9 @@
 package com.recomdata.transmart.data.association
 
 import grails.converters.JSON
-import jobs.misc.AnalysisConstraints
 import jobs.misc.Hacks
-import jobs.steps.OpenHighDimensionalDataStep
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -84,7 +82,7 @@ class GeneprintController {
     private void processResult(TabularResult tabularResult, searchKeyword, String dataType,
                                double mrnaThreshold, double proteinThreshold) {
         def assayList = tabularResult.indicesList
-        tabularResult.each { DataRow row ->
+        tabularResult.each { ColumnOrderAwareDataRow row ->
             if (searchKeyword.symbol == null) {
                 searchKeyword.symbol = row.bioMarker
             }
