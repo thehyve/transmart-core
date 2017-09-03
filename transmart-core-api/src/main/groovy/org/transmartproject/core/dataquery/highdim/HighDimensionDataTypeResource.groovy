@@ -1,6 +1,6 @@
 package org.transmartproject.core.dataquery.highdim
 
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
@@ -15,7 +15,7 @@ import org.transmartproject.core.querytool.QueryResult
  *
  * @param < R >
  */
-interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depends on projection */>> {
+interface HighDimensionDataTypeResource<R extends ColumnOrderAwareDataRow<AssayColumn, ? /* depends on projection */>> {
 
     /**
      * The name with which this data type is registered.
@@ -40,12 +40,12 @@ interface HighDimensionDataTypeResource<R extends DataRow<AssayColumn, ? /* depe
      *
      * Each column has associated an {@link AssayColumn} object; each row an
      * object of a type that is data type specific, but that in any case will
-     * extend {@link DataRow}. Both objects have a 'label' property that be
+     * extend {@link ColumnOrderAwareDataRow}. Both objects have a 'label' property that be
      * used to identify a specific row or column, for instance for display
      * purposes.
      *
      * The results are provided row-by-row. There is no way to get beforehand
-     * all the {@link DataRow} objects or even to know how many the result set
+     * all the {@link ColumnOrderAwareDataRow} objects or even to know how many the result set
      * will contain.
      *
      * This method throws an {@link EmptySetException} exception if and only if

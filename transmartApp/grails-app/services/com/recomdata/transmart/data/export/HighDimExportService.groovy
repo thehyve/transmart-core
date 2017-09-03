@@ -1,7 +1,7 @@
 package com.recomdata.transmart.data.export
 
 import au.com.bytecode.opencsv.CSVWriter
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -143,7 +143,7 @@ class HighDimExportService {
             log.debug("[job=${jobName} key=${term.key}] " +
                     "Retrieving the HD data for the term and a patient set: ${resultInstanceId}.")
         }
-        TabularResult<AssayColumn, DataRow> tabularResult =
+        TabularResult<AssayColumn, ColumnOrderAwareDataRow> tabularResult =
                 dataTypeResource.retrieveData(assayConstraints, [], projection)
 
         File nodeDataFolder = new File(studyDir, getRelativeFolderPathForSingleNode(term))

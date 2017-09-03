@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.clinical
 
 import com.google.common.collect.Iterators
 import groovy.transform.ToString
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 import org.transmartproject.core.dataquery.clinical.PatientRow
@@ -35,7 +35,7 @@ class PatientRowImpl implements PatientRow {
 
     List<TerminalClinicalVariable> flattenedIndices
 
-    Map<String, DataRow<ClinicalVariableColumn, Object>> delegatingDataRows
+    Map<String, ColumnOrderAwareDataRow<ClinicalVariableColumn, Object>> delegatingDataRows
 
     String getLabel() {
         patient.inTrialId

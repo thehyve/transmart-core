@@ -3,7 +3,7 @@ package org.transmartproject.export
 import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.Platform
@@ -138,10 +138,10 @@ class ProteomicsBedExporterTests {
         highDimResult
     }
 
-    DataRow createProteomicsRowForAssays(List<AssayColumn> assays,
-                                   List data,
-                                   Map<String, Object> properties,
-                                   String label) {
+    ColumnOrderAwareDataRow createProteomicsRowForAssays(List<AssayColumn> assays,
+                                                         List data,
+                                                         Map<String, Object> properties,
+                                                         String label) {
         createMockProteomicsRow(
                 dot(assays, data, { a, b -> [a, b] })
                         .collectEntries(Closure.IDENTITY),
@@ -149,9 +149,9 @@ class ProteomicsBedExporterTests {
                 label)
     }
 
-    private DataRow<AssayColumn, Object> createMockProteomicsRow(Map<AssayColumn, Object> values,
-                                                           Map<String, Object> properties, String label) {
-        DataRow row = mock(ProteinDataRow)
+    private ColumnOrderAwareDataRow<AssayColumn, Object> createMockProteomicsRow(Map<AssayColumn, Object> values,
+                                                                                 Map<String, Object> properties, String label) {
+        ColumnOrderAwareDataRow row = mock(ProteinDataRow)
         row.label.returns(label).stub()
 
         row.chromosome.returns(properties.chromosome).stub()

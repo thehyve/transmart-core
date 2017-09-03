@@ -3,8 +3,7 @@ package jobs.table.columns
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Maps
 import com.google.common.collect.Multimap
-import groovy.transform.CompileStatic
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.exceptions.UnexpectedResultException
@@ -37,7 +36,7 @@ class HighDimensionMultipleRowsResultColumn extends AbstractColumn {
     @Override
     void onReadRow(String dataSourceName, Object row) {
         /* calls to onReadRow() and consumeResultingTableRows should be interleaved */
-        assert row instanceof DataRow
+        assert row instanceof ColumnOrderAwareDataRow
         assert nextResult == null
 
         String rowLabel = row.label

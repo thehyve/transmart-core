@@ -1,7 +1,7 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableList
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
@@ -74,7 +74,7 @@ class HddTabularResultHypercubeAdapterSpec extends Specification {
         String bioMarker
     }
 
-    static class MockRow<COL, CELL> implements DataRow<COL, CELL> {
+    static class MockRow<COL, CELL> implements ColumnOrderAwareDataRow<COL, CELL> {
         List<CELL> cells
         protected List<COL> columns
 

@@ -3,7 +3,7 @@ package org.transmartproject.export
 import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.Platform
@@ -127,10 +127,10 @@ class RnaSeqBedExporterTests {
         highDimResult
     }
 
-    DataRow createRnaSeqRowForAssays(List<AssayColumn> assays,
-                                   List data,
-                                   Map<String, Object> properties,
-                                   String label) {
+    ColumnOrderAwareDataRow createRnaSeqRowForAssays(List<AssayColumn> assays,
+                                                     List data,
+                                                     Map<String, Object> properties,
+                                                     String label) {
         createMockRnaSeqRow(
                 dot(assays, data, { a, b -> [a, b] })
                         .collectEntries(Closure.IDENTITY),
@@ -138,9 +138,9 @@ class RnaSeqBedExporterTests {
                 label)
     }
 
-    private DataRow<AssayColumn, Object> createMockRnaSeqRow(Map<AssayColumn, Object> values,
-                                                           Map<String, Object> properties, String label) {
-        DataRow row = mock(RegionRowImpl)
+    private ColumnOrderAwareDataRow<AssayColumn, Object> createMockRnaSeqRow(Map<AssayColumn, Object> values,
+                                                                             Map<String, Object> properties, String label) {
+        ColumnOrderAwareDataRow row = mock(RegionRowImpl)
         row.label.returns(label).stub()
 
         row.chromosome.returns(properties.chromosome).stub()

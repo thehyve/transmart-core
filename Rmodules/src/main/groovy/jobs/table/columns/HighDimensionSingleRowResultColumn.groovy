@@ -2,14 +2,14 @@ package jobs.table.columns
 
 import com.google.common.collect.ImmutableMap
 import groovy.util.logging.Slf4j
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 
 @Slf4j
 class HighDimensionSingleRowResultColumn extends AbstractColumn {
 
-    private DataRow row
+    private ColumnOrderAwareDataRow row
 
     private boolean sawRow = false
 
@@ -24,7 +24,7 @@ class HighDimensionSingleRowResultColumn extends AbstractColumn {
 
     @Override
     void onReadRow(String dataSourceName, Object row) {
-        assert row instanceof DataRow
+        assert row instanceof ColumnOrderAwareDataRow
 
         if (sawRow) {
             log.warn("Further rows from $dataSourceName ignored")

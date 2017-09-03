@@ -10,7 +10,7 @@ import groovy.transform.Immutable
 import groovy.transform.TailRecursive
 import groovy.transform.TupleConstructor
 import org.transmartproject.core.dataquery.DataColumn
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
@@ -24,8 +24,6 @@ import org.transmartproject.core.multidimquery.dimensions.BioMarker
 import org.transmartproject.db.util.AbstractOneTimeCallIterable
 import org.transmartproject.db.util.IndexedArraySet
 
-import org.transmartproject.db.i2b2data.PatientDimension as I2b2Patient
-
 @CompileStatic
 class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<HypercubeValue> implements Hypercube {
     private static Object typeError(cell) {
@@ -38,7 +36,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     static Dimension patientDim = DimensionImpl.PATIENT
     static Dimension projectionDim = DimensionImpl.PROJECTION
 
-    private TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ? /* depends on projection */>> table
+    private TabularResult<AssayColumn, ? extends ColumnOrderAwareDataRow<AssayColumn, ? /* depends on projection */>> table
     private TabularResultAdapterIterator iterator
 
     /**
@@ -63,7 +61,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
     protected List<Patient> patients  // replaced by an ImmutableList once we have finished iterating
     protected List<BioMarker> biomarkers = [] // idem
 
-    HddTabularResultHypercubeAdapter(TabularResult<AssayColumn, ? extends DataRow<AssayColumn, ?>> tabularResult) {
+    HddTabularResultHypercubeAdapter(TabularResult<AssayColumn, ? extends ColumnOrderAwareDataRow<AssayColumn, ?>> tabularResult) {
         table = tabularResult
         assays = (ImmutableList) ImmutableList.copyOf(table.getIndicesList())
 
@@ -110,7 +108,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
 
     class TabularResultAdapterIterator extends AbstractIterator<HypercubeValue> implements
             PeekingIterator<HypercubeValue> {
-        private Iterator<? extends DataRow<AssayColumn, ?>> tabularIter = table.getRows()
+        private Iterator<? extends ColumnOrderAwareDataRow<AssayColumn, ?>> tabularIter = table.getRows()
         private List<HypercubeValue> nextVals = []
         private Iterator<HypercubeValue> nextIter = nextVals.iterator()
 
@@ -132,7 +130,7 @@ class HddTabularResultHypercubeAdapter extends AbstractOneTimeCallIterable<Hyper
                 return endOfData()
             }
 
-            DataRow<AssayColumn, ?> row = tabularIter.next()
+            ColumnOrderAwareDataRow<AssayColumn, ?> row = tabularIter.next()
             BioMarker bm = new BioMarkerAdapter(row.label,
                     row instanceof BioMarkerDataRow ? ((BioMarkerDataRow) row).bioMarker : null)
             int biomarkerIdx = biomarkers.size()

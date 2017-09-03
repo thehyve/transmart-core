@@ -21,7 +21,7 @@ package org.transmartproject.db.dataquery.clinical.variables
 
 import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.core.concept.ConceptKey
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 
 class NormalizedLeafsVariable extends AbstractComposedVariable
@@ -30,7 +30,7 @@ class NormalizedLeafsVariable extends AbstractComposedVariable
     String conceptPath
 
     @Override
-    Object getVariableValue(DataRow<ClinicalVariableColumn, Object> dataRow) {
+    Object getVariableValue(ColumnOrderAwareDataRow<ClinicalVariableColumn, Object> dataRow) {
         innerClinicalVariables.collectEntries { var ->
             [var, dataRow.getAt(var)]
         }

@@ -1,7 +1,7 @@
 package jobs.table
 
 import org.gmock.GMockController
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -17,9 +17,9 @@ class MockTabularResultHelper {
         }
     }
 
-    DataRow createRowForAssays(List<AssayColumn> assays,
-                               List<Double> data,
-                               String label) {
+    ColumnOrderAwareDataRow createRowForAssays(List<AssayColumn> assays,
+                                               List<Double> data,
+                                               String label) {
         createMockRow(
                 dot(assays, data, {a, b -> [ a, b ]})
                         .collectEntries(Closure.IDENTITY),
@@ -81,9 +81,9 @@ class MockTabularResultHelper {
         ] as AssayColumn
     }
 
-    private DataRow<AssayColumn, Double> createMockRow(Map<AssayColumn, Double> values,
-                                                       String label) {
-        DataRow row = mock(DataRow)
+    private ColumnOrderAwareDataRow<AssayColumn, Double> createMockRow(Map<AssayColumn, Double> values,
+                                                                       String label) {
+        ColumnOrderAwareDataRow row = mock(ColumnOrderAwareDataRow)
         row.label.returns(label).stub()
 
         values.eachWithIndex { entry, i ->
