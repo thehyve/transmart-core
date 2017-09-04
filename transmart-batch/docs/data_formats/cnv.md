@@ -27,7 +27,7 @@ Replace `<sample_code>` with an actual sample code defined in your [subject-samp
 | Column Name | Description |
 --------------|--------------
 | region_name | **(Mandatory)** The name of this region as defined in your [annotations file](chromosomal_region.md) (e.g. `WASH7P`) |
-| `<sample_code>`.flag | **(Mandatory)** Copy number state of. Possible values are: `-2` - homozygous loss, `-1` - loss `0` - normal, `1` - gain, `2` - amplification. |
+| `<sample_code>`.flag | **(Mandatory)** Copy number state of the region. Possible values are: `-2` - homozygous loss, `-1` - loss `0` - normal, `1` - gain, `2` - amplification. |
 | `<sample_code>`.chip | log2 ratio of the measurement. |
 | `<sample_code>`.segmented |  Segmented log2 ratio. |
 | `<sample_code>`.probhomloss | Probability of homozygous loss. |
