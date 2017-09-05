@@ -1,7 +1,6 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
-import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
@@ -63,35 +62,44 @@ class ExportController {
 
     /**
      * Run a data export job asynchronously:
-     * <code>/v2/export/${jobId}/run?typeOfSet=${typeOfSet}&id=${id1}&...&id=${idx}&elements=${elements}</code>
-     *
-     * Creates a hypercube for each element from ${elements} with PatientSetsConstraint for given ${ids}
-     * (see {@link org.transmartproject.db.dataquery.clinical.patientconstraints.PatientSetsConstraint})
+     * <code>/v2/export/${jobId}/run</code>
+     * Request body:
+     * <code>
+     * {
+     *      id: [id1,....idx], //list of query result ids. Could be "observation sets" or "patient sets"
+     *      criteria: <criteria json>
+     *      elements: {
+     *          dataType: "<clinical/mrna/...>" //supported data type
+     *          format: "<TSV/SPSS/...>" //supported file format
+     *          tabular: <true/false> //optional, false by default.
+     *          //When tabular = true => represent hypercube as table with a subject per row and variable per column
+     *      }
+     * }
+     * </code>
+     * Creates a hypercube for each element from ${elements} that satisfies ${id} or ${criteria} (one of two could be supplied)
      * and serialises it to specified $(fileFormat}.
      * Output stream is saved as .zip file in <code>tempFolderDirectory</code>, specified in configuration file.
      *
-     * @param typeOfSet - 'patient' or 'observation' set
      * @param jobId - id of previously created job with status: 'Created'
-     * @param id - list of sets ids, multiple parameter instances format
-     * @param elements - list of pairs: {dataType:${dataType}, format:$(fileFormat}, JSON format
      * @return The first time at which the <code>Trigger</code> to run the export will be fired
      *         by the scheduler
      */
-    def run(@RequestParam('typeOfSet') String typeOfSet,
-            @PathVariable('jobId') Long jobId) {
-
-        checkParams(params, ['typeOfSet', 'jobId', 'id', 'elements', 'constraint'])
-        if (!(params.containsKey('id') ^ params.containsKey('constraint'))) {
-            throw new InvalidArgumentsException("Whether id or constraint parameters can be supplied.")
+    def run(@PathVariable('jobId') Long jobId) {
+        checkParams(params, ['jobId'])
+        def requestBody = request.JSON as Map
+        def notSupportedFields = requestBody.keySet() - ['id', 'elements', 'constraint']
+        if (notSupportedFields) {
+            throw new InvalidArgumentsException("Following fields are not supported ${notSupportedFields}.")
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobAccess(jobId, user)
-        List<Map> elements = parseElements(params)
-        checkTypeOfSetSupported(typeOfSet)
+        if (!requestBody.elements) {
+            throw new InvalidArgumentsException('Empty elements map.')
+        }
 
-        Constraint constraint = getConstraint(params, user)
+        Constraint constraint = getConstraintFromJson(requestBody, user)
 
-        def job = exportAsyncJobService.exportData(constraint, typeOfSet, elements, user, jobId)
+        def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId)
 
         respond wrapExportJob(job)
     }
@@ -152,18 +160,16 @@ class ExportController {
     /**
      * Get available types of the data for specified set id,
      * `clinical` for clinical data and supported high dimensional data types.
-     * <code>/v2/export/data_formats?id=${id1}&...&id=${idx}&typeOfSet=${typeOfSet}
+     * <code>/v2/export/data_formats?id=${id1}&...&id=${idx}
      *
-     * @param typeOfSet
      * @param id - list of sets ids, multiple parameter instances format
      * @return data formats
      */
-    def dataFormats(@RequestParam('typeOfSet') String typeOfSet) {
+    def dataFormats() {
 
-        checkParams(params, ['typeOfSet', 'id', 'constraint'])
-        checkTypeOfSetSupported(typeOfSet)
+        checkParams(params, ['id'])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Constraint constraint = getConstraint(params, user)
+        Constraint constraint = createOrConstraint(parseId(params), user)
         def formats = ['clinical'] + multiDimService.retriveHighDimDataTypes(constraint, user)
         def results = [
                 dataFormats: formats
@@ -214,12 +220,6 @@ class ExportController {
         }
     }
 
-    private void checkTypeOfSetSupported(String typeOfSet) {
-        if (!(typeOfSet?.trim() in restExportService.supportedTypesOfSet)) {
-            throw new InvalidArgumentsException("Type of set not supported: $typeOfSet.")
-        }
-    }
-
     private static List<Long> parseId(params) {
         if (!params.id){
             throw new InvalidArgumentsException('Empty id parameter.')
@@ -228,17 +228,6 @@ class ExportController {
             return params.getList('id').collect { it as Long }
         } catch (NumberFormatException e) {
             throw new InvalidArgumentsException('Id parameter should be a number.')
-        }
-    }
-
-    private static List<Map> parseElements(params) {
-        if (!params.elements) {
-            throw new InvalidArgumentsException('Empty elements map.')
-        }
-        try {
-            return JSON.parse(params.elements)
-        } catch (ConverterException c) {
-            throw new InvalidArgumentsException("Cannot parse parameter: $params.elements")
         }
     }
 
@@ -275,32 +264,35 @@ class ExportController {
         )
     }
 
-    private Constraint getConstraint(Map params, User user) {
-        if (params.containsKey('id')) {
-            //TODO Fix abstraction leak
-            List<Long> ids = parseId(params)
-            List<QueryResult> queryResults = ids.collect { multiDimService.findQueryResult(it, user) }
-            Map<Long, List<QueryResult>> queryResultTypeByType = queryResults
-                    .groupBy { it.queryResultType.id }
-                    .withDefault { [] }
-            Set<Long> foundNotSupportedQueryTypeIds = queryResultTypeByType.keySet() -
-                    [QueryResultType.PATIENT_SET_ID, QueryResultType.GENERIC_QUERY_RESULT_ID]
-            assert !foundNotSupportedQueryTypeIds : "Query types with following ids are not supported: ${foundNotSupportedQueryTypeIds}"
-            List<Constraint> patientSetConstraints = queryResultTypeByType[QueryResultType.PATIENT_SET_ID]
-                    .collect { QueryResult qr -> new PatientSetConstraint(patientSetId: qr.id) }
-            List<Constraint> observationSetConstraints = queryResultTypeByType[QueryResultType.GENERIC_QUERY_RESULT_ID]
-                    .collect { QueryResult qr ->
-                getConstraint(qr.queryInstance.queryMaster.requestConstraints as String)
-            }
-            return new OrConstraint(args: (patientSetConstraints + observationSetConstraints))
-        } else if (params.containsKey('constraint')) {
-            return getConstraint(params.constraint as String)
-        } else {
+    private Constraint getConstraintFromJson(json, User user) {
+        if (!(json.containsKey('id') ^ json.containsKey('constraint'))) {
             throw new InvalidArgumentsException("Whether id or constraint parameters can be supplied.")
+        } else if (json.containsKey('id')) {
+            return createOrConstraint(json.id instanceof Number ? [ json.id ]: json.id, user)
+        } else if (json.containsKey('constraint')) {
+            return ConstraintFactory.create(json.constraint)
         }
     }
 
-    private static Constraint getConstraint(final String constraintString) {
+    private OrConstraint createOrConstraint(List<Long> ids, User user) {
+        //TODO Fix abstraction leak
+        List<QueryResult> queryResults = ids.collect { multiDimService.findQueryResult(it, user) }
+        Map<Long, List<QueryResult>> queryResultTypeByType = queryResults
+                .groupBy { it.queryResultType.id }
+                .withDefault { [] }
+        Set<Long> foundNotSupportedQueryTypeIds = queryResultTypeByType.keySet() -
+                [QueryResultType.PATIENT_SET_ID, QueryResultType.GENERIC_QUERY_RESULT_ID]
+        assert !foundNotSupportedQueryTypeIds: "Query types with following ids are not supported: ${foundNotSupportedQueryTypeIds}"
+        List<Constraint> patientSetConstraints = queryResultTypeByType[QueryResultType.PATIENT_SET_ID]
+                .collect { QueryResult qr -> new PatientSetConstraint(patientSetId: qr.id) }
+        List<Constraint> observationSetConstraints = queryResultTypeByType[QueryResultType.GENERIC_QUERY_RESULT_ID]
+                .collect { QueryResult qr ->
+            getConstraintFromJsonString(qr.queryInstance.queryMaster.requestConstraints as String)
+        }
+        return new OrConstraint(args: (patientSetConstraints + observationSetConstraints))
+    }
+
+    private static Constraint getConstraintFromJsonString(final String constraintString) {
         ConstraintFactory.create(JSON.parse(constraintString) as Map)
     }
 }

@@ -12,11 +12,7 @@ import static base.ContentTypeFor.ZIP
 import static config.Config.*
 import static tests.rest.Operator.EQUALS
 import static tests.rest.ValueType.STRING
-import static tests.rest.constraints.ConceptConstraint
-import static tests.rest.constraints.ModifierConstraint
-import static tests.rest.constraints.StudyNameConstraint
-import static tests.rest.constraints.TrueConstraint
-import static tests.rest.constraints.ValueConstraint
+import static tests.rest.constraints.*
 
 @Slf4j
 class DataExportSpec extends RESTSpec {
@@ -70,7 +66,6 @@ class DataExportSpec extends RESTSpec {
                 ]),
                 statusCode: 201
         ]
-        def typeOfSet = "patient"
         def createPatientSetResponse = post(request)
         def patientSetId = createPatientSetResponse.id
 
@@ -79,8 +74,7 @@ class DataExportSpec extends RESTSpec {
                 path      : "$PATH_DATA_EXPORT/data_formats",
                 acceptType: JSON,
                 query     : [
-                        id       : patientSetId,
-                        typeOfSet: typeOfSet
+                        id: patientSetId,
                 ],
         ])
 
@@ -108,7 +102,7 @@ class DataExportSpec extends RESTSpec {
         def newJobRequest = [
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
-                user: DEFAULT_USER
+                user      : DEFAULT_USER
         ]
         def newJobResponse = post(newJobRequest)
         def jobId = newJobResponse.exportJob.id
@@ -116,21 +110,20 @@ class DataExportSpec extends RESTSpec {
         when: "I run a newly created job asynchronously"
         def responseData = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                query     : ([
-                        typeOfSet: 'patient',
-                        id       : patientSetId,
-                        elements :
-                                toJSON([[
-                                                dataType: 'clinical',
-                                                format  : 'TSV'
-                                        ],
-                                        [
-                                                dataType: 'mrna',
-                                                format  : 'TSV'
-                                        ]]),
+                body      : toJSON([
+                        id      : patientSetId,
+                        elements:
+                                [[
+                                         dataType: 'clinical',
+                                         format  : 'TSV'
+                                 ],
+                                 [
+                                         dataType: 'mrna',
+                                         format  : 'TSV'
+                                 ]],
                 ]),
                 statusCode: 403,
-                user: DEFAULT_USER
+                user      : DEFAULT_USER
         ])
         then: "I get an access error"
         assert responseData.httpStatus == 403
@@ -165,17 +158,16 @@ class DataExportSpec extends RESTSpec {
         when: "I run a newly created job asynchronously"
         def runResponse = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                query     : ([
-                        typeOfSet: 'patient',
-                        id       : patientSetId,
-                        elements : toJSON([[
-                                                   dataType: 'clinical',
-                                                   format  : 'TSV'
-                                           ],
-                                           [
-                                                   dataType: 'mrna',
-                                                   format  : 'TSV'
-                                           ]]),
+                body      : toJSON([
+                        id      : patientSetId,
+                        elements: [[
+                                           dataType: 'clinical',
+                                           format  : 'TSV'
+                                   ],
+                                   [
+                                           dataType: 'mrna',
+                                           format  : 'TSV'
+                                   ]],
                 ]),
                 acceptType: JSON,
                 user      : ADMIN_USER
@@ -226,7 +218,9 @@ class DataExportSpec extends RESTSpec {
         assert new File(fileName).isFile()
 
         cleanup: "Remove created file"
-        if (fileName) { new File(fileName).delete() }
+        if (fileName) {
+            new File(fileName).delete()
+        }
     }
 
     def "list all dataExport jobs for user"() {
@@ -275,12 +269,11 @@ class DataExportSpec extends RESTSpec {
         when: "I run a newly created job without id nor constraint parameter supplied."
         def runResponse1 = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                query     : ([
-                        typeOfSet : 'patient',
-                        elements  : toJSON([[
-                                                    dataType: 'clinical',
-                                                    format  : 'TSV'
-                                            ]]),
+                body      : toJSON([
+                        elements: [[
+                                           dataType: 'clinical',
+                                           format  : 'TSV'
+                                   ]],
                 ]),
                 acceptType: JSON,
                 statusCode: 400,
@@ -291,14 +284,13 @@ class DataExportSpec extends RESTSpec {
         when: "I run a newly created job with both id and constraint parameter."
         def runResponse2 = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                query     : ([
-                        typeOfSet : 'patient',
-                        id : -1,
-                        constraint: toJSON([type: TrueConstraint]),
-                        elements  : toJSON([[
-                                                    dataType: 'clinical',
-                                                    format  : 'TSV'
-                                            ]]),
+                body     : toJSON([
+                        id        : -1,
+                        constraint: [type: TrueConstraint],
+                        elements  : [[
+                                             dataType: 'clinical',
+                                             format  : 'TSV'
+                                     ]],
                 ]),
                 acceptType: JSON,
                 statusCode: 400
@@ -320,14 +312,13 @@ class DataExportSpec extends RESTSpec {
         when: "I run a newly created job asynchronously"
         def runResponse = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                query     : ([
-                        typeOfSet: 'patient',
-                        constraint: toJSON([type: ConceptConstraint,
-                                           path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"]),
-                        elements : toJSON([[
-                                                   dataType: 'clinical',
-                                                   format  : 'TSV'
-                                           ]]),
+                body      : toJSON([
+                        constraint: [type: ConceptConstraint,
+                                     path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"],
+                        elements  : [[
+                                             dataType: 'clinical',
+                                             format  : 'TSV'
+                                     ]],
                 ]),
                 acceptType: JSON,
         ])
@@ -384,7 +375,9 @@ class DataExportSpec extends RESTSpec {
         assert new File(fileName).isFile()
 
         cleanup: "Remove created file"
-        if (fileName) { new File(fileName).delete() }
+        if (fileName) {
+            new File(fileName).delete()
+        }
     }
 
     @RequiresStudy(SURVEY1_ID)
@@ -400,15 +393,14 @@ class DataExportSpec extends RESTSpec {
         when: "I run a newly created job asynchronously"
         def runResponse = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                query     : ([
-                        typeOfSet: 'patient',
-                        constraint: toJSON([type: StudyNameConstraint,
-                                            studyId: SURVEY1_ID]),
-                        elements : toJSON([[
-                                                   dataType: 'clinical',
-                                                   format  : 'TSV',
-                                                   tabular : true
-                                           ]]),
+                body     : toJSON([
+                        constraint: [type   : StudyNameConstraint,
+                                     studyId: SURVEY1_ID],
+                        elements  : [[
+                                             dataType: 'clinical',
+                                             format  : 'TSV',
+                                             tabular : true
+                                     ]],
                 ]),
                 acceptType: JSON,
         ])
@@ -459,7 +451,9 @@ class DataExportSpec extends RESTSpec {
         assert new File(fileName).isFile()
 
         cleanup: "Remove created file"
-        if (fileName) { new File(fileName).delete() }
+        if (fileName) {
+            new File(fileName).delete()
+        }
     }
 
     private Map<String, Integer> getFilesLineNumbers(byte[] content) {

@@ -30,21 +30,7 @@ class ExportService {
         String getKey() { name() }
     }
 
-    static enum SupportedTypesOfSet {
-        OBSERVATION('observation'),
-        PATIENT('patient')
-
-        final String value
-
-        SupportedTypesOfSet(String value) { this.value = value }
-
-        String toString() { value }
-
-        String getKey() { name() }
-    }
-
     static supportedFileFormats = FileFormat.values().collect { it.toString() }
-    static supportedTypesOfSet = SupportedTypesOfSet.values().collect { it.toString() }
 
     def downloadFile(AsyncJobCoreDb job) {
         if(job.jobStatus != JobStatus.COMPLETED.value) {
