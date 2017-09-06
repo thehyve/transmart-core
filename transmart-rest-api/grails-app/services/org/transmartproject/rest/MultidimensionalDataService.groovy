@@ -15,6 +15,7 @@ import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import org.transmartproject.rest.serialization.tabular.TabularResultCSVSerializer
+import org.transmartproject.rest.serialization.tabular.TabularResultSAVSerializer
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -33,6 +34,7 @@ class MultidimensionalDataService {
         JSON('application/json'),
         PROTOBUF('application/x-protobuf'),
         TSV('TSV'),
+        SAV('SAV'),
         NONE('none')
 
         private String format
@@ -86,17 +88,31 @@ class MultidimensionalDataService {
      */
     @CompileStatic
     private void serialise(Map args, TabularResult tabularResult, Format format, OutputStream out) {
-        if (format != Format.TSV) {
-            throw new UnsupportedOperationException("Unsupported format for tabular data: ${format}")
-        }
-        if (out instanceof ZipOutputStream) {
-            ZipOutputStream zipOutStream = (ZipOutputStream) out
-            String fileName = ((String) args.fileName) + '.tsv'
-            zipOutStream.putNextEntry(new ZipEntry(fileName))
-            TabularResultCSVSerializer.write(tabularResult, out)
-            zipOutStream.closeEntry()
-        } else {
-            TabularResultCSVSerializer.write(tabularResult, out)
+        switch (format) {
+            case Format.TSV:
+                if (out instanceof ZipOutputStream) {
+                    ZipOutputStream zipOutStream = (ZipOutputStream) out
+                    String fileName = ((String) args.fileName) + '.tsv'
+                    zipOutStream.putNextEntry(new ZipEntry(fileName))
+                    TabularResultCSVSerializer.write(tabularResult, out)
+                    zipOutStream.closeEntry()
+                } else {
+                    TabularResultCSVSerializer.write(tabularResult, out)
+                }
+                break
+            case Format.SAV:
+                if (out instanceof ZipOutputStream) {
+                    ZipOutputStream zipOutStream = (ZipOutputStream) out
+                    String fileName = ((String) args.fileName) + '.sav'
+                    zipOutStream.putNextEntry(new ZipEntry(fileName))
+                    TabularResultSAVSerializer.write(tabularResult, out)
+                    zipOutStream.closeEntry()
+                } else {
+                    TabularResultSAVSerializer.write(tabularResult, out)
+                }
+                break
+            default:
+                throw new UnsupportedOperationException("Unsupported format for tabular data: ${format}")
         }
     }
 
