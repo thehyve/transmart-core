@@ -1,2 +1,6 @@
-"-50"		"SURVEY1"	"PUBLIC"
-"-51"		"SURVEY2"	"PUBLIC"
+-50		SURVEY1	PUBLIC	"{
+	""conceptToVariableName"": { ""gender"": ""gender1"", ""birthdate"": ""birthdate1"" }
+}"
+-51		SURVEY2	PUBLIC	"{
+	""conceptToVariableName"": { ""height"": ""height1"" }
+}"

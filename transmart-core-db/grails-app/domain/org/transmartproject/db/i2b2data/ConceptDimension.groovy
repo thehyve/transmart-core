@@ -62,9 +62,8 @@ class ConceptDimension {
         //uploadId         nullable:   true
     }
 
-    @Lazy
-    def conceptBlobAsJson = {
+    def conceptBlobAsJson() {
         JSON_SLURPER.parseText(conceptBlob)
-    }()
+    }
 
 }
