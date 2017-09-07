@@ -1,5 +1,6 @@
 -50		SURVEY1	PUBLIC	"{
-	""conceptToVariableName"": { ""gender"": ""gender1"", ""birthdate"": ""birthdate1"" }
+	""conceptToVariableName"": { ""gender"": ""gender1"", ""birthdate"": ""birthdate1"" },
+	""privateVariableNames"" : [""birthdate1""]
 }"
 -51		SURVEY2	PUBLIC	"{
 	""conceptToVariableName"": { ""height"": ""height1"" }
