@@ -10,7 +10,7 @@ foreach ($roles as $r) {
 		continue;
 	}
 	$escaped_password = str_replace('"', '""', $password);
-	echo "ALTER USER $r IDENTIFIED BY \"$escaped_password\"\n";
+	echo "ALTER USER $r IDENTIFIED BY \"$escaped_password\";\n";
 }
 if ($unspec) {
 	$roles_j = implode(', ', $unspec);
