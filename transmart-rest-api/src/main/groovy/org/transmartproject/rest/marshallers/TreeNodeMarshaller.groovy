@@ -8,7 +8,6 @@ import org.grails.web.converters.marshaller.ObjectMarshaller
 import org.grails.web.util.WebUtils
 import org.springframework.stereotype.Component
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.db.tree.TreeNode
 

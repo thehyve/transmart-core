@@ -21,6 +21,8 @@ package org.transmartproject.db.ontology
 
 class I2b2Secure extends AbstractI2b2Metadata implements Serializable {
 
+    public static final String ROOT = '\\'
+
     String secureObjectToken
 
     static String backingTable = 'I2B2_SECURE'
