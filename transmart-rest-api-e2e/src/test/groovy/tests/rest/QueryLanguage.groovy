@@ -1,15 +1,15 @@
 /* (c) Copyright 2017, tranSMART Foundation, Inc. */
 
-package tests.rest.v2
+package tests.rest
 
-public interface Operator {
+interface Operator {
     String LESS_THAN = '<',
            GREATER_THAN = '>',
-           EQUALS ='=',
+           EQUALS = '=',
            NOT_EQUALS = '!=',
            LESS_THAN_OR_EQUALS = '<=',
            GREATER_THAN_OR_EQUALS = '>=',
-           LIKE ='like',
+           LIKE = 'like',
            CONTAINS = 'contains',
            IN = 'in',
            BEFORE = '<-',
@@ -22,7 +22,7 @@ public interface Operator {
            NONE = 'none'
 }
 
-public interface QueryType {
+interface QueryType {
     String VALUES = 'values',
            MIN = 'min',
            MAX = 'max',
@@ -32,7 +32,7 @@ public interface QueryType {
            NONE = 'none'
 }
 
-public interface ValueType {
+interface ValueType {
     String ID = 'ID',
            NUMERIC = 'NUMERIC',
            DATE = 'DATE',
@@ -45,8 +45,7 @@ public interface ValueType {
 }
 
 
-
-public interface constraints {
+interface constraints {
     String TrueConstraint = 'true',
            BiomarkerConstraint = 'biomarker',
            ModifierConstraint = 'modifier',

@@ -5,7 +5,7 @@ package tests.rest.v1
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.GSE8581_ID
 import static config.Config.V1_PATH_STUDIES
 
@@ -23,7 +23,7 @@ class StudySpec extends RESTSpec {
         when: "I request all studies"
         def responseData = get([
                 path      : V1_PATH_STUDIES,
-                acceptType: contentTypeForJSON
+                acceptType: JSON
         ])
 
         then: "I get several studies"
@@ -48,7 +48,7 @@ class StudySpec extends RESTSpec {
         when: "I request studies with id EHR"
         def responseData = get([
                 path      : V1_PATH_STUDIES + "/${studieId}",
-                acceptType: contentTypeForJSON
+                acceptType: JSON
         ])
 
         then: "only the EHR study is returned"

@@ -5,14 +5,14 @@ package tests.rest.v2.hypercube
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.PATH_OBSERVATIONS
 import static config.Config.TUMOR_NORMAL_SAMPLES_ID
-import static tests.rest.v2.Operator.EQUALS
-import static tests.rest.v2.ValueType.STRING
-import static tests.rest.v2.constraints.ModifierConstraint
-import static tests.rest.v2.constraints.ValueConstraint
+import static tests.rest.Operator.EQUALS
+import static tests.rest.ValueType.STRING
+import static tests.rest.constraints.ModifierConstraint
+import static tests.rest.constraints.ValueConstraint
 
 /**
  *   TMPREQ-12 Support storing and fetching multiple samples.
@@ -48,9 +48,9 @@ class SamplesSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -80,9 +80,9 @@ class SamplesSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -107,8 +107,8 @@ class SamplesSpec extends RESTSpec {
         assert responseData.cells == []
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 }

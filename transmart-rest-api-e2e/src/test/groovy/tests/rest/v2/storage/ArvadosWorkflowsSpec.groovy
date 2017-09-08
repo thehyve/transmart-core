@@ -4,8 +4,9 @@ package tests.rest.v2.storage
 
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static config.Config.*
+import static base.ContentTypeFor.JSON
+import static config.Config.ADMIN_USER
+import static config.Config.PATH_ARVADOS_WORKFLOWS
 
 /**
  *  Creating ArvadosWorkflows
@@ -15,10 +16,9 @@ class ArvadosWorkflowsSpec extends RESTSpec {
 
 
     def setup() {
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-        def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: contentTypeForJSON])
+        def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: JSON, user: ADMIN_USER])
         responseDataAll.supportedWorkflows.each {
-            delete([path: PATH_ARVADOS_WORKFLOWS + "/${it.id}", acceptType: contentTypeForJSON, statusCode: 204])
+            delete([path: PATH_ARVADOS_WORKFLOWS + "/${it.id}", acceptType: JSON, statusCode: 204, user: ADMIN_USER])
         }
     }
 
@@ -27,7 +27,6 @@ class ArvadosWorkflowsSpec extends RESTSpec {
      */
     def "post, get, put, delete"() {
         given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def data = ["uuid"              : "bla",
                     "arvadosInstanceUrl": "a",
                     "name"              : "name",
@@ -41,9 +40,10 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         when:
         def responseData = post([
                 path      : PATH_ARVADOS_WORKFLOWS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 body      : toJSON(data),
-                statusCode: 201
+                statusCode: 201,
+                user      : ADMIN_USER
         ])
         def id = responseData.id
 
@@ -56,7 +56,7 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         assert responseData.uuid == data.uuid
 
         when:
-        responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: contentTypeForJSON])
+        responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, user: ADMIN_USER])
 
         then:
         assert responseData.name == data.name
@@ -66,14 +66,14 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         assert responseData.uuid == data.uuid
 
         when:
-        def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: contentTypeForJSON])
+        def responseDataAll = get([path: PATH_ARVADOS_WORKFLOWS, acceptType: JSON, user: ADMIN_USER])
 
         then:
         assert responseDataAll.supportedWorkflows.contains(responseData)
 
         when:
         data.name = 'new file Link renamed'
-        responseData = put([path: PATH_ARVADOS_WORKFLOWS + "/${id}", body: toJSON(data)])
+        responseData = put([path: PATH_ARVADOS_WORKFLOWS + "/${id}", body: toJSON(data), user: ADMIN_USER])
 
         then:
         assert responseData.id == id
@@ -84,15 +84,15 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         assert responseData.uuid == data.uuid
 
         when:
-        responseData = delete([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: contentTypeForJSON, statusCode: 204])
+        responseData = delete([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, statusCode: 204, user: ADMIN_USER])
         assert responseData == null
-        responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: contentTypeForJSON, statusCode: 404])
+        responseData = get([path: PATH_ARVADOS_WORKFLOWS + "/${id}", acceptType: JSON, statusCode: 404, user: ADMIN_USER])
 
         then:
         assert responseData.status == 404
         assert responseData.error == 'Not Found'
         assert responseData.message == 'No message available'
-        assert responseData.path == "/${PATH_ARVADOS_WORKFLOWS}/${id}"
+        assert responseData.path == "${PATH_ARVADOS_WORKFLOWS}/${id}"
     }
 
     /**
@@ -101,10 +101,9 @@ class ArvadosWorkflowsSpec extends RESTSpec {
     //TODO: could do with a better error
     def "post invalid values"() {
         given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def request = [
                 path      : PATH_ARVADOS_WORKFLOWS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 body      : toJSON(["uuid"              : null,
                                     "arvadosInstanceUrl": null,
                                     "name"              : null,
@@ -112,7 +111,8 @@ class ArvadosWorkflowsSpec extends RESTSpec {
                                     "arvadosVersion"    : null,
                                     "defaultParams"     : null
                 ]),
-                statusCode: 500
+                statusCode: 500,
+                user      : ADMIN_USER
         ]
 
         when:
@@ -129,15 +129,13 @@ class ArvadosWorkflowsSpec extends RESTSpec {
      */
     //TODO: could do with a better error
     def "post empty"() {
-        given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-
         when:
         def responseData = post([
                 path      : PATH_ARVADOS_WORKFLOWS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 body      : null,
-                statusCode: 500
+                statusCode: 500,
+                user      : ADMIN_USER
         ])
 
         then:
@@ -150,21 +148,19 @@ class ArvadosWorkflowsSpec extends RESTSpec {
      *  get nonexistent
      */
     def "get nonexistent"() {
-        given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
-
         when:
         def responseData = get([
                 path      : PATH_ARVADOS_WORKFLOWS + "/0",
-                acceptType: contentTypeForJSON,
-                statusCode: 404
+                acceptType: JSON,
+                statusCode: 404,
+                user      : ADMIN_USER
         ])
 
         then:
         assert responseData.status == 404
         assert responseData.error == 'Not Found'
         assert responseData.message == 'No message available'
-        assert responseData.path == "/${PATH_ARVADOS_WORKFLOWS}/0"
+        assert responseData.path == "${PATH_ARVADOS_WORKFLOWS}/0"
     }
 
     /**
@@ -172,7 +168,6 @@ class ArvadosWorkflowsSpec extends RESTSpec {
      */
     def "put invalid"() {
         given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def data = ["uuid"              : "bla",
                     "arvadosInstanceUrl": "a",
                     "name"              : "name",
@@ -184,10 +179,10 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         ]
         def responseData = post([
                 path      : PATH_ARVADOS_WORKFLOWS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 body      : toJSON(data),
-                statusCode: 201
-
+                statusCode: 201,
+                user      : ADMIN_USER
         ])
         data.uuid = null
 
@@ -195,7 +190,8 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         responseData = put([
                 path      : PATH_ARVADOS_WORKFLOWS + "/${responseData.id}",
                 body      : toJSON(data),
-                statusCode: 422
+                statusCode: 422,
+                user      : ADMIN_USER
         ])
 
         then:
@@ -211,7 +207,6 @@ class ArvadosWorkflowsSpec extends RESTSpec {
      */
     def "put nonexistent"() {
         given:
-        setUser(ADMIN_USERNAME, ADMIN_PASSWORD)
         def data = ["uuid"              : "bla",
                     "arvadosInstanceUrl": "a",
                     "name"              : "name",
@@ -225,16 +220,17 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         when:
         def responseData = put([
                 path      : PATH_ARVADOS_WORKFLOWS + "/0",
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 body      : toJSON(data),
-                statusCode: 404
+                statusCode: 404,
+                user      : ADMIN_USER
         ])
 
         then:
         assert responseData.status == 404
         assert responseData.error == 'Not Found'
         assert responseData.message == 'No message available'
-        assert responseData.path == "/${PATH_ARVADOS_WORKFLOWS}/0"
+        assert responseData.path == "${PATH_ARVADOS_WORKFLOWS}/0"
     }
 
     /**
@@ -242,7 +238,6 @@ class ArvadosWorkflowsSpec extends RESTSpec {
      */
     def "no access"() {
         given:
-        setUser(DEFAULT_USERNAME, DEFAULT_PASSWORD)
         def data = ["uuid"              : "bla",
                     "arvadosInstanceUrl": "a",
                     "name"              : "name",
@@ -256,9 +251,9 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         when:
         def responseData = post([
                 path      : PATH_ARVADOS_WORKFLOWS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 body      : toJSON(data),
-                statusCode: 403
+                statusCode: 403,
         ])
 
         then:
@@ -270,9 +265,9 @@ class ArvadosWorkflowsSpec extends RESTSpec {
         data.name = 'new file Link renamed'
         responseData = put([
                 path      : PATH_ARVADOS_WORKFLOWS + "/0",
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 body      : toJSON(data),
-                statusCode: 403
+                statusCode: 403,
         ])
 
         then:

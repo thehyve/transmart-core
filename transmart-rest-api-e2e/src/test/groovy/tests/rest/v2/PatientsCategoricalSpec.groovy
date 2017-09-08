@@ -5,15 +5,15 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.CATEGORICAL_VALUES_ID
 import static config.Config.PATH_PATIENTS
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
-import static tests.rest.v2.Operator.AND
-import static tests.rest.v2.Operator.EQUALS
-import static tests.rest.v2.ValueType.STRING
-import static tests.rest.v2.constraints.*
+import static tests.rest.Operator.AND
+import static tests.rest.Operator.EQUALS
+import static tests.rest.ValueType.STRING
+import static tests.rest.constraints.*
 
 /**
  *  TMPREQ-18
@@ -32,7 +32,7 @@ class PatientsCategoricalSpec extends RESTSpec {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
         def request = [
                 path      : PATH_PATIENTS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\"])
         ]
 
@@ -52,7 +52,7 @@ class PatientsCategoricalSpec extends RESTSpec {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the old data format"
         def request = [
                 path      : PATH_PATIENTS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Gender\\Female\\"])
         ]
 
@@ -73,7 +73,7 @@ class PatientsCategoricalSpec extends RESTSpec {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
         def request = [
                 path      : PATH_PATIENTS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : toQuery([type: ConceptConstraint, path: "\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\"])
         ]
 
@@ -94,7 +94,7 @@ class PatientsCategoricalSpec extends RESTSpec {
         given: "study CATEGORICAL_VALUES is loaded where Gender is stored in the new data format"
         def request = [
                 path      : PATH_PATIENTS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : toQuery([
                         type    : Combination,
                         operator: AND,

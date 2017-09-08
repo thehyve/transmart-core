@@ -133,6 +133,9 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @return a Hypercube result
      */
     @Override HypercubeImpl retrieveData(Map args, String dataType, Collection<MDStudy> accessibleStudies) {
+        // Supporting a native Hypercube implementation for high dimensional data is the intention here. As of yet
+        // that has not been implemented, so we only support clinical data in this call. Instead there is the
+        // highDimension call that uses the old high dim api and converts the tabular result to a hypercube.
         if(dataType != "clinical") throw new NotImplementedException("High dimension datatypes are not yet implemented")
 
         Constraint constraint = args.constraint
