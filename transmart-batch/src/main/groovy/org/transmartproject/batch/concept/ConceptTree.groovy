@@ -115,6 +115,12 @@ class ConceptTree {
         if (node) {
             return node
         }
+        if(ClinicalVariable.conceptTypeFor(variable) != ConceptType.CATEGORICAL) {
+            /* to generate missing parent tree nodes for non-categorical variables */
+            for (def p = variable.path.parent; p != null; p = p.parent) {
+                getOrGenerate(p, null, ConceptType.UNKNOWN)
+            }
+        }
         node = new ConceptNode(variable.path)
         node.type = ClinicalVariable.conceptTypeFor(variable)
         node.conceptName = variable.conceptName
