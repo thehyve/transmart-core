@@ -12,9 +12,9 @@
 "SOURCESYSTEM_CD" VARCHAR2(50 BYTE), 
 "UPLOAD_ID" NUMBER, 
 "TABLE_NAME" VARCHAR2(255 BYTE), 
- CONSTRAINT "CONCEPT_DIMENSION_PK" PRIMARY KEY ("CONCEPT_PATH")
+ CONSTRAINT "CONCEPT_DIMENSION_PK" PRIMARY KEY ("CONCEPT_CD")
  USING INDEX
- TABLESPACE "TRANSMART"  ENABLE
+ TABLESPACE "INDX"  ENABLE
   ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "TRANSMART" 
 LOB ("CONCEPT_BLOB") STORE AS BASICFILE (
@@ -22,10 +22,10 @@ LOB ("CONCEPT_BLOB") STORE AS BASICFILE (
  NOCACHE NOLOGGING ) ;
 
 --
--- Type: INDEX; Owner: I2B2DEMODATA; Name: IDX_CONCEPT_DIM_1
+-- Type: INDEX; Owner: I2B2DEMODATA; Name: CD_IDX_CONCEPT_PATH
 --
-CREATE INDEX "I2B2DEMODATA"."IDX_CONCEPT_DIM_1" ON "I2B2DEMODATA"."CONCEPT_DIMENSION" ("CONCEPT_CD")
-TABLESPACE "TRANSMART" ;
+CREATE UNIQUE INDEX "I2B2DEMODATA"."CD_IDX_CONCEPT_PATH" ON "I2B2DEMODATA"."CONCEPT_DIMENSION" ("CONCEPT_PATH")
+TABLESPACE "INDX" ;
 
 --
 -- Type: TRIGGER; Owner: I2B2DEMODATA; Name: TRG_CONCEPT_DIMENSION_CD
@@ -48,6 +48,6 @@ ALTER TRIGGER "I2B2DEMODATA"."TRG_CONCEPT_DIMENSION_CD" ENABLE;
 --
 COMMENT ON TABLE i2b2demodata.concept_dimension IS 'Table contains the concepts that classify observations.';
 
-COMMENT ON COLUMN concept_dimension.concept_path IS 'Primary key. The path that uniquely identifies a concept.';
-COMMENT ON COLUMN concept_dimension.concept_cd IS 'REQUIRED. The code that is used to refer to the concept from observation_fact.';
+COMMENT ON COLUMN concept_dimension.concept_cd IS 'Primary key. The code that is used to refer to the concept from observation_fact.';
+COMMENT ON COLUMN concept_dimension.concept_path IS 'REQUIRED. A path that uniquely identifies a concept.';
 COMMENT ON COLUMN concept_dimension.name_char IS 'REQUIRED. The name of the concept.';

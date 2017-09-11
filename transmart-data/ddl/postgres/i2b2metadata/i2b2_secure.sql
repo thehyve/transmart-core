@@ -32,9 +32,15 @@ CREATE TABLE i2b2_secure (
 );
 
 --
--- Name: idx_i2b2_secure_fullname; Type: INDEX; Schema: i2b2metadata; Owner: -
+-- Name: i2b2_secure_pkey; Type: CONSTRAINT; Schema: i2b2metadata; Owner: -
 --
-CREATE INDEX idx_i2b2_secure_fullname ON i2b2_secure USING btree (c_fullname);
+ALTER TABLE ONLY i2b2_secure
+    ADD CONSTRAINT i2b2_secure_pkey PRIMARY KEY (c_fullname);
+
+--
+-- Name: idx_i2b2_secure_level_fullname; Type: INDEX; Schema: i2b2metadata; Owner: -
+--
+CREATE INDEX idx_i2b2_secure_level_fullname ON i2b2_secure USING btree (c_hlevel, c_fullname);
 
 --
 -- add documentation

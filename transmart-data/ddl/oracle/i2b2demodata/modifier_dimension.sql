@@ -3,7 +3,7 @@
 --
  CREATE TABLE "I2B2DEMODATA"."MODIFIER_DIMENSION" 
   (	"MODIFIER_PATH" VARCHAR2(700 BYTE) NOT NULL ENABLE, 
-"MODIFIER_CD" VARCHAR2(50 BYTE), 
+"MODIFIER_CD" VARCHAR2(50 BYTE) NOT NULL ENABLE,
 "NAME_CHAR" VARCHAR2(2000 BYTE), 
 "MODIFIER_BLOB" CLOB, 
 "UPDATE_DATE" DATE, 
@@ -13,9 +13,9 @@
 "UPLOAD_ID" NUMBER(38,0), 
 "MODIFIER_LEVEL" NUMBER(18,0), 
 "MODIFIER_NODE_TYPE" VARCHAR2(10 BYTE), 
- CONSTRAINT "MODIFIER_DIMENSION_PK" PRIMARY KEY ("MODIFIER_PATH")
+ CONSTRAINT "MODIFIER_DIMENSION_PK" PRIMARY KEY ("MODIFIER_CD")
  USING INDEX
- TABLESPACE "TRANSMART"  ENABLE
+ TABLESPACE "INDX"  ENABLE
   ) SEGMENT CREATION IMMEDIATE
  TABLESPACE "TRANSMART" 
 LOB ("MODIFIER_BLOB") STORE AS BASICFILE (
@@ -23,16 +23,22 @@ LOB ("MODIFIER_BLOB") STORE AS BASICFILE (
  NOCACHE LOGGING ) ;
 
 --
+-- Type: INDEX; Owner: I2B2DEMODATA; Name: MD_IDX_MODIFIER_PATH
+--
+CREATE UNIQUE INDEX "I2B2DEMODATA"."MD_IDX_MODIFIER_PATH" ON "I2B2DEMODATA"."MODIFIER_DIMENSION" ("MODIFIER_PATH")
+TABLESPACE "INDX" ;
+
+--
 -- Type: INDEX; Owner: I2B2DEMODATA; Name: MD_IDX_UPLOADID
 --
 CREATE INDEX "I2B2DEMODATA"."MD_IDX_UPLOADID" ON "I2B2DEMODATA"."MODIFIER_DIMENSION" ("UPLOAD_ID")
-TABLESPACE "TRANSMART" ;
+TABLESPACE "INDX" ;
 
 --
 -- add documentation
 --
 COMMENT ON TABLE i2b2demodata.modifier_dimension IS 'Table holds the modifiers on an observation. Used to link to highdim data and samples as well.';
 
-COMMENT ON COLUMN modifier_dimension.modifier_path IS 'Primary key. The path that uniquely identifies a modifier.';
-COMMENT ON COLUMN modifier_dimension.modifier_cd IS 'The code that is used to refer to the modifier from obervation_fact. However, it is nullable.';
+COMMENT ON COLUMN modifier_dimension.modifier_cd IS 'Primary key. The code that is used to refer to the modifier from obervation_fact.';
+COMMENT ON COLUMN modifier_dimension.modifier_path IS 'REQUIRED. The path that uniquely identifies a modifier.';
 COMMENT ON COLUMN modifier_dimension.name_char IS 'The name of the modifier.';

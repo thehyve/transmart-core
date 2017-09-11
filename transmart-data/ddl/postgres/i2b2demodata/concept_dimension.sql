@@ -18,7 +18,12 @@ CREATE TABLE concept_dimension (
 -- Name: concept_dimension_pk; Type: CONSTRAINT; Schema: i2b2demodata; Owner: -
 --
 ALTER TABLE ONLY concept_dimension
-    ADD CONSTRAINT concept_dimension_pk PRIMARY KEY (concept_path);
+    ADD CONSTRAINT concept_dimension_pk PRIMARY KEY (concept_cd);
+
+--
+-- Name: cd_concept_path_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
+--
+CREATE INDEX cd_concept_path_idx ON concept_dimension USING btree (concept_path);
 
 --
 -- Name: cd_uploadid_idx; Type: INDEX; Schema: i2b2demodata; Owner: -
@@ -40,6 +45,6 @@ CREATE SEQUENCE concept_id
 --
 COMMENT ON TABLE i2b2demodata.concept_dimension IS 'Table contains the concepts that classify observations.';
 
-COMMENT ON COLUMN concept_dimension.concept_path IS 'Primary key. The path that uniquely identifies a concept.';
-COMMENT ON COLUMN concept_dimension.concept_cd IS 'REQUIRED. The code that is used to refer to the concept from observation_fact.';
+COMMENT ON COLUMN concept_dimension.concept_cd IS 'Primary key. The code that is used to refer to the concept from observation_fact.';
+COMMENT ON COLUMN concept_dimension.concept_path IS 'REQUIRED. A path that uniquely identifies a concept.';
 COMMENT ON COLUMN concept_dimension.name_char IS 'REQUIRED. The name of the concept.';
