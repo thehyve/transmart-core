@@ -77,7 +77,7 @@ CREATE SEQUENCE i2b2_id_seq
 --
 -- add documentation
 --
-COMMENT ON TABLE i2b2metadata.i2b2 IS 'Holds all nodes in the i2b2 tree.';
+COMMENT ON TABLE i2b2metadata.i2b2 IS 'DEPRECATED. Holds all nodes in the i2b2 tree. Redundant, as the same data is in i2b2_secure.';
 
 COMMENT ON COLUMN i2b2.c_hlevel IS 'Number that represents the depth of the node. 0 for root.';
 COMMENT ON COLUMN i2b2.c_fullname IS 'Full path to the node. E.g., \Vital Signs\Heart Rate\.';

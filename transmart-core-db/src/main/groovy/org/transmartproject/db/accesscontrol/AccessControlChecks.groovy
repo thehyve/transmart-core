@@ -232,7 +232,7 @@ class AccessControlChecks {
     }
 
     /* Study is included if the user has ANY kind of access */
-    Collection<MDStudy> getDimensionStudiesForUser(User user) {
+    Collection<org.transmartproject.db.i2b2data.Study> getDimensionStudiesForUser(User user) {
         if (user.admin) {
             return org.transmartproject.db.i2b2data.Study.findAll()
         }

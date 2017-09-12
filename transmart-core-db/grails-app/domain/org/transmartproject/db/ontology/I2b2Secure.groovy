@@ -19,7 +19,12 @@
 
 package org.transmartproject.db.ontology
 
+/**
+ * Domain class for storing an ontology tree.
+ */
 class I2b2Secure extends AbstractI2b2Metadata implements Serializable {
+
+    public static final String ROOT = '\\'
 
     String secureObjectToken
 

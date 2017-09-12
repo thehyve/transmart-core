@@ -18,4 +18,16 @@ class StringUtils {
         new LikeExpression(propertyName, asLikeLiteral(value), mode, '\\' as char, false) {}
     }
 
+    static final Criterion like(String propertyName, String value) {
+        like(propertyName, value, MatchMode.EXACT)
+    }
+
+    static final Criterion startsWith(String propertyName, String value) {
+        like(propertyName, value, MatchMode.START)
+    }
+
+    static final Criterion contains(String propertyName, String value) {
+        like(propertyName, value, MatchMode.ANYWHERE)
+    }
+
 }

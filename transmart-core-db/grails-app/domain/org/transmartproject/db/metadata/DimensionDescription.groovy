@@ -96,6 +96,10 @@ class DimensionDescription {
         }
     }
 
+    static DimensionDescription getDimensionByModifierCode(String modifierCode) {
+        findByModifierCode(modifierCode)
+    }
+
     /**
      * Retrieve all dimensions that are available in this database for all studies
      * @return a list of all dimensions
