@@ -1,6 +1,7 @@
 /* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.rest
 
+import grails.core.GrailsApplication
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,15 +10,13 @@ import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
-import org.transmartproject.db.multidimquery.HypercubeTabularResultView
+import org.transmartproject.db.multidimquery.HypercubeTabularResultTransformedView
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
+import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeSerializer
-import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import org.transmartproject.rest.serialization.tabular.TabularResultCSVSerializer
 
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 @Transactional
@@ -25,6 +24,8 @@ class MultidimensionalDataService {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
+    @Autowired
+    GrailsApplication grailsApplication
 
     /**
      * Type to represent the requested serialization format.
@@ -85,19 +86,11 @@ class MultidimensionalDataService {
      * @param out the stream to serialise to.
      */
     @CompileStatic
-    private void serialise(Map args, TabularResult tabularResult, Format format, OutputStream out) {
+    private void serialise(TabularResult tabularResult, Format format, OutputStream out) {
         if (format != Format.TSV) {
             throw new UnsupportedOperationException("Unsupported format for tabular data: ${format}")
         }
-        if (out instanceof ZipOutputStream) {
-            ZipOutputStream zipOutStream = (ZipOutputStream) out
-            String fileName = ((String) args.fileName) + '.tsv'
-            zipOutStream.putNextEntry(new ZipEntry(fileName))
-            TabularResultCSVSerializer.write(tabularResult, out)
-            zipOutStream.closeEntry()
-        } else {
-            TabularResultCSVSerializer.write(tabularResult, out)
-        }
+        TabularResultCSVSerializer.writeFilesToZip(tabularResult, (ZipOutputStream) out)
     }
 
     /**
@@ -114,11 +107,12 @@ class MultidimensionalDataService {
 
         if (tabular) {
             def patientDimension = multiDimService.getDimension('patient')
-            def hypercube = multiDimService.retrieveClinicalData(constraint, user, [ patientDimension ])
-            def tabularView = new HypercubeTabularResultView(hypercube, hypercube.dimensions - patientDimension)
+            def hypercube = multiDimService.retrieveClinicalData(constraint, user, [patientDimension])
+            def customizations = grailsApplication.config.export.table.customizations
+            def tabularView = new HypercubeTabularResultTransformedView(customizations, hypercube)
             try {
                 log.info "Writing tabular data in ${format} format."
-                serialise(tabularView, format, out, fileName: 'data')
+                serialise(tabularView, format, out)
             } finally {
                 tabularView.close()
             }
@@ -157,7 +151,7 @@ class MultidimensionalDataService {
 
         Map args = [:]
         if (format == Format.TSV) {
-            args = [dataType : type]
+            args = [dataType: type]
         }
 
         try {

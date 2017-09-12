@@ -446,8 +446,10 @@ class DataExportSpec extends RESTSpec {
         then: "ZipStream is returned"
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
-        filesLineNumbers.size() == 1
+        filesLineNumbers.size() == 3
         filesLineNumbers['data.tsv'] == 3
+        filesLineNumbers['variables.tsv'] == 6
+        filesLineNumbers['value_labels.tsv'] == 4
         assert new File(fileName).isFile()
 
         cleanup: "Remove created file"

@@ -17,6 +17,11 @@ class EmptyHypercube implements Hypercube {
 
     ImmutableList<Dimension> getDimensions() { ImmutableList.of() }
 
+    @Override
+    Dimension getValueDimension() {
+        throw new NoSuchElementException()
+    }
+
     Object dimensionElement(Dimension dim, Integer idx) {
         throw new InvalidArgumentsException("Dimension $dim is not part of this result")
     }
@@ -27,13 +32,8 @@ class EmptyHypercube implements Hypercube {
 
     void close(){}
 
-    PeekingIterator<HypercubeValue> iterator() {
-        return new PeekingIterator() {
-            @Override boolean hasNext() { return false }
-            @Override Object next() { throw new NoSuchElementException() }
-            @Override Object peek() { throw new NoSuchElementException() }
-            @Override void remove() { throw new UnsupportedOperationException() }
-        }
+    Iterator<HypercubeValue> iterator() {
+        [].iterator()
     }
 
 

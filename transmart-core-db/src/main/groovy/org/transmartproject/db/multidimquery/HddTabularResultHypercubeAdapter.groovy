@@ -35,6 +35,7 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
     static Dimension assayDim = DimensionImpl.ASSAY
     static Dimension patientDim = DimensionImpl.PATIENT
     static Dimension projectionDim = DimensionImpl.PROJECTION
+    final Dimension valueDimension = DimensionImpl.VALUE
 
     private TabularResult<AssayColumn, ? extends ColumnOrderAwareDataRow<AssayColumn, ? /* depends on projection */>> table
     private TabularResultAdapterIterator iterator
@@ -203,6 +204,7 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
         Patient getPatient() { assay.patient }
 
         def getAt(Dimension dim) {
+            if(dim == DimensionImpl.VALUE) return value
             if(dim == biomarkerDim) return biomarker
             if(dim == assayDim) return assay
             if(dim == patientDim) return patient

@@ -1,10 +1,10 @@
 -1	-3000	gender	@	0001-01-01 00:00:00	@	1	-500	T	Male														1
--1	-3000	height	@	2014-04-15 10:00:00	@	1	-501	N	E														
--1	-3000	height	@	2005-05-24 13:40:00	MISSVAL	1	-501	T	Asked, but not answered	-1													
+-1	-3000	height	@	2005-05-24 13:40:00	@	1	-501	N	E														
+-1	-3000	height	@	2005-05-24 13:40:00	MISSVAL	1	-501	T	Asked, but not answered														
 -1	-3000	birthdate	@	2015-11-14 19:05:00	@	1	-500	N	E	334879200						1980-08-12							
 -1	-3000	description	@	2016-03-21 10:36:01	@	1	-501	T	Description about subject 123456														
--1	-3001	gender	@	0001-01-01 00:00:00	@	1	-500	T	Female														
+-1	-3001	gender	@	0001-01-01 00:00:00	@	1	-500	T															
+-1	-3001	gender	@	0001-01-01 00:00:00	MISSVAL	1	-500	T	Not Specified														
 -1	-3001	height	@	2004-08-27 10:45:32	@	1	-501	N	E	169													
 -1	-3001	birthdate	@	2010-12-16 20:23:15	@	1	-500	N	E	530319600						1986-10-22							
--1	-3001	description	@	0001-01-01 00:00:00	@	1	-501	T	No description asked														
--1	-3001	description	@	0001-01-01 00:00:00	MISSVAL	1	-501	T	No description asked	-2													
+-1	-3001	description	@	0001-01-01 00:00:00	@	1	-501	T	No description														

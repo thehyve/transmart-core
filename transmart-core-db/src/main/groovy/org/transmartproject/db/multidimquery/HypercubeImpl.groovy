@@ -32,6 +32,7 @@ class HypercubeImpl implements Hypercube {
      * in dimensionElements. Each dimension has a numeric index in dimensionsIndexMap. Each ClinicalValue
      */
 
+    final Dimension valueDimension = VALUE
     private static final int FETCH_SIZE = 10000
 
     private CriteriaImpl criteria
@@ -104,6 +105,7 @@ class HypercubeImpl implements Hypercube {
 
     @Override
     Object dimensionElementKey(Dimension dim, Integer idx) {
+        //FIXME Triggers additional elements scan. Optimize! Check idx
         dimensionElementKeys(dim)[idx]
     }
 

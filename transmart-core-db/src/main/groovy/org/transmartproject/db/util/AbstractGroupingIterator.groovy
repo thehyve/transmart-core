@@ -6,7 +6,7 @@ import com.google.common.collect.PeekingIterator
 /**
  * Groups rows that belong to the same group to one.
  */
-abstract class AbstractGroupingIterator<K, T> extends AbstractIterator<K> implements PeekingIterator {
+abstract class AbstractGroupingIterator<I, T, K> extends AbstractIterator<I> implements PeekingIterator {
 
     private final PeekingIterator<T> iterator
 
@@ -14,22 +14,23 @@ abstract class AbstractGroupingIterator<K, T> extends AbstractIterator<K> implem
         this.iterator = PeekingIteratorImpl.getPeekingIterator(iterator)
     }
 
-    abstract boolean isTheSameGroup(T item1, T item2)
+    abstract K calculateGroupKey(T item)
 
-    abstract K computeResultItem(Iterable<T> groupedItems)
+    abstract I computeResultItem(K groupKey, Iterable<T> groupedItems)
 
     @Override
-    protected K computeNext() {
+    protected I computeNext() {
         if (!iterator.hasNext()) {
             endOfData()
             return null
         }
         def groupedItems = new ArrayList<T>()
         groupedItems.add(iterator.next())
-        while (iterator.hasNext() && isTheSameGroup(groupedItems.first(), iterator.peek())) {
+        def groupKey = calculateGroupKey(groupedItems.first())
+        while (iterator.hasNext() && groupKey == calculateGroupKey(iterator.peek())) {
             groupedItems.add(iterator.peek())
             iterator.next()
         }
-        computeResultItem(groupedItems)
+        computeResultItem(groupKey, groupedItems)
     }
 }

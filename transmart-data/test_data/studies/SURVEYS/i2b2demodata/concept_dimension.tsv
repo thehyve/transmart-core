@@ -3,15 +3,17 @@ gender	\Demographics\Gender\	Gender	"{
     ""width"": 12,
     ""columns"": 14,
     ""measure"": ""Nominal"",
-    ""valueLabels"": {""1"":""female"", ""2"":""male""},
-    ""missingValues"": [-1.0, -2]
+    ""valueLabels"": {""1"":""Female"", ""2"":""Male"", ""-2"": ""Not Specified""},
+    ""missingValues"": [-2]
 }"						A
 height	\Demographics\Height\	Height	"{
     ""type"": ""Numeric"",
     ""width"": 14,
     ""decimals"": 2,
     ""columns"": 15,
-    ""measure"": ""Scale""
+    ""measure"": ""Scale"",,
+    ""valueLabels"": {""-1"":""Asked, but not answered""},
+    ""missingValues"": [-1]
 }"						
 birthdate	\Demographics\Birth Date\	Birth Date	"{
     ""type"": ""Date"",

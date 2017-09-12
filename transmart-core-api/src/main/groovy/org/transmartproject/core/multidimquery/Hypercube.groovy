@@ -12,6 +12,8 @@ interface Hypercube extends IterableResult<HypercubeValue> {
 
     List<Dimension> getDimensions()
 
+    Dimension getValueDimension()
+
     Object dimensionElement(Dimension dim, Integer idx)
 
     Object dimensionElementKey(Dimension dim, Integer idx)
