@@ -60,6 +60,8 @@ class ClinicalVariable implements Serializable {
 
     public static final String CONCEPT_TYPE_CATEGORICAL = 'CATEGORICAL'
     public static final String CONCEPT_TYPE_NUMERICAL = 'NUMERICAL'
+    public static final String CONCEPT_TYPE_TEXT = 'TEXT'
+    public static final String CONCEPT_TYPE_DATE = 'DATE'
 
     /**
      * Get concept type for a variable, based on the concept type name as
@@ -74,6 +76,10 @@ class ClinicalVariable implements Serializable {
                 return ConceptType.CATEGORICAL
             case CONCEPT_TYPE_NUMERICAL:
                 return ConceptType.NUMERICAL
+            case CONCEPT_TYPE_TEXT:
+                return ConceptType.TEXT
+            case CONCEPT_TYPE_DATE:
+                return ConceptType.DATE
             case null:
             case '':
                 return ConceptType.UNKNOWN
