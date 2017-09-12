@@ -25,6 +25,7 @@ enum Type {
     NUMERIC,
     DATE,
     STRING,
+    TEXT,
     EVENT,
     OBJECT,
     COLLECTION,
@@ -38,7 +39,7 @@ enum Type {
         }
     }
 
-    public static Type forName(String name) {
+    static Type forName(String name) {
         name = name.toLowerCase()
         if (mapping.containsKey(name)) {
             return mapping[name]
@@ -53,6 +54,7 @@ enum Type {
             (NUMERIC): Number.class,
             (DATE): Date.class,
             (STRING): CharSequence.class,
+            (TEXT): CharSequence.class,
             (EVENT): Constraint.class,
             (OBJECT): Object.class,
             (COLLECTION): Collection.class,
@@ -137,6 +139,13 @@ enum Operator {
                     BETWEEN
             ] as Set<Operator>,
             (Type.STRING): [
+                    EQUALS,
+                    NOT_EQUALS,
+                    LIKE,
+                    CONTAINS,
+                    IN
+            ] as Set<Operator>,
+            (Type.TEXT): [
                     EQUALS,
                     NOT_EQUALS,
                     LIKE,

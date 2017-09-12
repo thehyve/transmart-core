@@ -10,6 +10,7 @@ import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.ModifierDimension
 
 import static org.transmartproject.db.i2b2data.ObservationFact.TYPE_NUMBER
+import static org.transmartproject.db.i2b2data.ObservationFact.TYPE_RAW_TEXT
 import static org.transmartproject.db.i2b2data.ObservationFact.TYPE_TEXT
 
 class DimensionDescription {
@@ -63,10 +64,10 @@ class DimensionDescription {
             if([modifierCode, valueType, size, density, packable].any { it == null }) {
                 throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' dimension" +
                         " is not builtin and some modifier dimension fields are NULL")
-            } else if(!(valueType in [TYPE_NUMBER, TYPE_TEXT])) {
+            } else if(!(valueType in [TYPE_NUMBER, TYPE_TEXT, TYPE_RAW_TEXT])) {
                 throw new DataInconsistencyException("Inconsistent metadata in DimensionDescription: '$name' " +
                         "dimension contains an unrecognized valueType '$valueType', expected " +
-                        "'$TYPE_TEXT' or '$TYPE_NUMBER'")
+                        "'${TYPE_TEXT}', '${TYPE_NUMBER}' or '${TYPE_RAW_TEXT}")
             }
         }
     }
@@ -80,19 +81,20 @@ class DimensionDescription {
             return DimensionImpl.getBuiltinDimension(name)
         }
         if(modifierDimension == null) {
-            modifierDimension = ModifierDimension.get(name, modifierCode, classForType(), size, density, packable)
+            modifierDimension = ModifierDimension.get(name, modifierCode, valueType, size, density, packable)
         }
         return modifierDimension
     }
 
-    private Class classForType() {
+    static Class classForType(String valueType) {
         switch(valueType) {
             case TYPE_TEXT:
+            case TYPE_RAW_TEXT:
                 return String
             case TYPE_NUMBER:
                 return Double
             default:
-                throw new RuntimeException("Unsupported value type: ${valueType}. Should be one of [${TYPE_NUMBER}, ${TYPE_TEXT}].")
+                throw new RuntimeException("Unsupported value type: ${valueType}. Should be one of [${TYPE_NUMBER}, ${TYPE_TEXT}, ${TYPE_RAW_TEXT}].")
         }
     }
 

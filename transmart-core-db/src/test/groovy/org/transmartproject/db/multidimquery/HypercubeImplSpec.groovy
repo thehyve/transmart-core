@@ -4,6 +4,7 @@ import org.hibernate.ScrollableResults
 import org.transmartproject.core.multidimquery.Dimension.Density
 import org.transmartproject.core.multidimquery.Dimension.Packable
 import org.transmartproject.core.multidimquery.Dimension.Size
+import org.transmartproject.db.i2b2data.ObservationFact
 import spock.lang.Specification
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
@@ -45,9 +46,9 @@ class HypercubeImplSpec extends Specification {
         ]
         def testee = new HypercubeImpl.ModifierResultIterator(
                 [
-                        ModifierDimension.get('test_modifier_1', 'md1', String, Size.SMALL,
+                        ModifierDimension.get('test_modifier_1', 'md1', ObservationFact.TYPE_TEXT, Size.SMALL,
                                 Density.DENSE, Packable.NOT_PACKABLE),
-                        ModifierDimension.get('test_modifier_2', 'md2', Integer, Size.SMALL,
+                        ModifierDimension.get('test_modifier_2', 'md2', ObservationFact.TYPE_NUMBER, Size.SMALL,
                                 Density.DENSE, Packable.NOT_PACKABLE)
                 ],
                 [

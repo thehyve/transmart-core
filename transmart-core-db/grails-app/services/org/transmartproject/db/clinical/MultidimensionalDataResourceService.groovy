@@ -158,6 +158,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 property 'valueType', 'valueType'
                 property 'textValue', 'textValue'
                 property 'numberValue', 'numberValue'
+                property 'rawValue', 'rawValue'
             }
         }
 
@@ -231,6 +232,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     private final Field valueTypeField = new Field(dimension: VALUE, fieldName: 'valueType', type: Type.STRING)
     private final Field textValueField = new Field(dimension: VALUE, fieldName: 'textValue', type: Type.STRING)
+    private final Field rawValueField = new Field(dimension: VALUE, fieldName: 'rawValue', type: Type.STRING)
     private final Field numberValueField = new Field(dimension: VALUE, fieldName: 'numberValue', type: Type.NUMERIC)
 
     @Lazy

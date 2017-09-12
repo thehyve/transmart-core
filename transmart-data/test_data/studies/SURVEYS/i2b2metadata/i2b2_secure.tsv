@@ -4,11 +4,14 @@
 1	\Demographics\Birth Date\	Birth Date	N	LAD 		birthdate		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Birth Date\			@	2016-11-09 13:44:06									PUBLIC
 0	\General\	General	N	FA 				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\General\			@	2016-11-09 13:44:06									PUBLIC
 1	\General\Description\	Description	N	LAT 		description		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\General\Description\			@	2016-11-09 13:44:06									PUBLIC
+0	\Interests\	Interests	N	FA 				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Interests\			@	2016-11-09 13:44:06									PUBLIC
+1	\Interests\Favourite Book\	Favourite Book	N	LAT 		description		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Interests\Favourite Book\			@	2016-11-09 13:44:06									PUBLIC
 0	\Projects\	Projects	N	CA 				""	STUDY	STUDY_ID	T	=	""			@	2016-11-09 13:44:06									PUBLIC
 1	\Projects\Survey 1\	Survey 1	N	FAS 				""	STUDY	STUDY_ID	T	=	SURVEY1			@	2016-11-09 13:44:06									PUBLIC
 2	\Projects\Survey 1\Demographics\	Demographics	N	FA 				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\			@	2016-11-09 13:44:06									PUBLIC
 3	\Projects\Survey 1\Demographics\Gender\	Gender	N	LAC 		gender		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Gender\			@	2016-11-09 13:44:06									PUBLIC
 3	\Projects\Survey 1\Demographics\Birth Date\	Birth Date	N	LAD 		birthdate		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Birth Date\			@	2016-11-09 13:44:06									PUBLIC
+3	\Projects\Survey 1\Interests\Favourite Book\	Favourite Book	N	LAT 		favouritebook		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Interests\Favourite Book\			@	2016-11-09 13:44:06									PUBLIC
 1	\Projects\Survey 2\	Survey 2	N	FAS 				""	STUDY	STUDY_ID	T	=	SURVEY2			@	2016-11-09 13:44:06									PUBLIC
 2	\Projects\Survey 2\Demographics\	Demographics	N	FA 				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\			@	2016-11-09 13:44:06									PUBLIC
 3	\Projects\Survey 2\Demographics\Height\	Height	N	LAN 		height		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Height\			@	2016-11-09 13:44:06									PUBLIC
