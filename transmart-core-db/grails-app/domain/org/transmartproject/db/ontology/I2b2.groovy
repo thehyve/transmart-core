@@ -23,6 +23,11 @@ import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.util.GormWorkarounds
 
+/**
+ * Domain class for storing an ontology tree.
+ * Redundant, the same data already resides in {@link I2b2Secure}.
+ */
+@Deprecated
 class I2b2 extends AbstractI2b2Metadata implements Serializable {
 
     BigDecimal   cTotalnum
