@@ -56,6 +56,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(BIOMARKER).size() == 3
         hypercube.dimensionElements(ASSAY).size() == 6
         hypercube.dimensionElements(PROJECTION).size() == 10
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'get hd data for selected patients'() {
@@ -83,6 +86,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(BIOMARKER).size() == 3
         hypercube.dimensionElements(ASSAY).size() == 2
         hypercube.dimensionElements(PROJECTION).size() == 10
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'get hd data for selected biomarkers'() {
@@ -105,6 +111,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(BIOMARKER).size() == 2
         hypercube.dimensionElements(ASSAY).size() == 6
         hypercube.dimensionElements(PROJECTION).size() == 10
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'get hd data for selected trial visit dimension'() {
@@ -144,8 +153,10 @@ class QueryServicePgSpec extends Specification {
         patient.id == -601
         patient.age == 26
 
-
+        cleanup:
+        if (hypercube) hypercube.close()
     }
+
     void 'get hd data for selected time constraint'() {
         def user = User.findByUsername('test-public-user-2')
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\')
@@ -188,6 +199,8 @@ class QueryServicePgSpec extends Specification {
         then:
         hypercube.dimensionElements(ASSAY).size() == 1
 
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void "get hd data types"() {
@@ -230,6 +243,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(VISIT).each {
             assert (it.getAt('startDate') as Date) > minDate
         }
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
 
@@ -259,6 +275,9 @@ class QueryServicePgSpec extends Specification {
 
         then:
         hypercube.dimensionElements(ASSAY).size() == 1
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
 
@@ -288,6 +307,9 @@ class QueryServicePgSpec extends Specification {
 
         then:
         hypercube.dimensionElements(PATIENT).size() == 2
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'Test for empty set of assayIds'(){
@@ -310,6 +332,9 @@ class QueryServicePgSpec extends Specification {
 
         then:
         hypercube.toList().empty
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'get transcript data for selected patients and selected transcripts'() {
@@ -343,6 +368,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(BIOMARKER).size() == 1
         hypercube.dimensionElements(ASSAY).size() == 1
         hypercube.dimensionElements(PROJECTION).size() == 13
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'get transcript data for selected genes'() {
@@ -365,6 +393,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(BIOMARKER).size() == 1
         hypercube.dimensionElements(ASSAY).size() == 3
         hypercube.dimensionElements(PROJECTION).size() == 13
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     // This is basically a copy of QueryServiceSpec.test_visit_selection_constraint in transmart-core-db-tests.
