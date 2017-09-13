@@ -878,7 +878,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         Constraint assayConstraint = (Constraint) assayConstraint_
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')
-        if(oldAssayConstraints == null) {
+        if(!oldAssayConstraints) {
             return []
         }
 
