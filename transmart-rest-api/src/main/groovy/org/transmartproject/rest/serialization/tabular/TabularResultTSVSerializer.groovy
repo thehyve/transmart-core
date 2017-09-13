@@ -6,12 +6,14 @@ import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.db.multidimquery.MetadataAwareDataColumn
 
+import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-class TabularResultCSVSerializer {
+class TabularResultTSVSerializer {
 
     final static char COLUMN_SEPARATOR = '\t' as char
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy hh:mm")
 
     /**
      * Writes a tabular file content to the csv/tsv file to the output stream.
@@ -38,9 +40,19 @@ class TabularResultCSVSerializer {
         csvWriter.writeNext(columns*.label as String[])
         tabularResult.rows.each { DataRow row ->
             List valuesRow = columns.collect { DataColumn column -> row[column] }
-            csvWriter.writeNext(valuesRow as String[])
+            csvWriter.writeNext(formatRowValues(valuesRow))
         }
         csvWriter.flush()
+    }
+
+    private static String[] formatRowValues(List<Object> valuesRow) {
+        valuesRow.collect { value ->
+            if (value instanceof Date) {
+                DATE_FORMAT.format(value)
+            } else {
+                value as String
+            }
+        } as String[]
     }
 
     static writeColumnsMetadata(TabularResult tabularResult, OutputStream outputStream) {

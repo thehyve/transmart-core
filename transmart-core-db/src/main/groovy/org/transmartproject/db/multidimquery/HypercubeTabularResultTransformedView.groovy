@@ -113,8 +113,8 @@ class HypercubeTabularResultTransformedView implements TabularResult<MetadataAwa
                 type: DATE,
                 measure: SCALE,
                 description: dateColDescription,
-                width: 12,
-                columns: 12,
+                width: 22,
+                columns: 22,
         )
 
         StartDateColumn(String label, HypercubeDataColumn originalColumn) {

@@ -17,8 +17,8 @@ height	\Demographics\Height\	Height	"{
 }"						
 birthdate	\Demographics\Birth Date\	Birth Date	"{
     ""type"": ""Date"",
-    ""width"": 11,
-    ""columns"": 11,
+    ""width"": 22,
+    ""columns"": 22,
     ""measure"": ""Scale""
 }"						
 description	\General\Description\	Description	"{

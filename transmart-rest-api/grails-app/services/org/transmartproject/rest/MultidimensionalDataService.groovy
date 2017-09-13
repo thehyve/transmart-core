@@ -15,7 +15,8 @@ import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeSerializer
-import org.transmartproject.rest.serialization.tabular.TabularResultCSVSerializer
+import org.transmartproject.rest.serialization.tabular.TabularResultSPSSSerializer
+import org.transmartproject.rest.serialization.tabular.TabularResultTSVSerializer
 
 import java.util.zip.ZipOutputStream
 
@@ -34,6 +35,7 @@ class MultidimensionalDataService {
         JSON('application/json'),
         PROTOBUF('application/x-protobuf'),
         TSV('TSV'),
+        SPSS('SPSS'),
         NONE('none')
 
         private String format
@@ -87,10 +89,16 @@ class MultidimensionalDataService {
      */
     @CompileStatic
     private void serialise(TabularResult tabularResult, Format format, OutputStream out) {
-        if (format != Format.TSV) {
-            throw new UnsupportedOperationException("Unsupported format for tabular data: ${format}")
+        switch (format) {
+            case Format.TSV:
+                TabularResultTSVSerializer.writeFilesToZip(tabularResult, (ZipOutputStream) out)
+                break
+            case Format.SPSS:
+                TabularResultSPSSSerializer.writeFilesToZip(tabularResult, (ZipOutputStream) out)
+                break
+            default:
+                throw new UnsupportedOperationException("Unsupported format for tabular data: ${format}")
         }
-        TabularResultCSVSerializer.writeFilesToZip(tabularResult, (ZipOutputStream) out)
     }
 
     /**
