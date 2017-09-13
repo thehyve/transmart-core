@@ -3,7 +3,6 @@
 package org.transmartproject.db.multidimquery
 
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.PeekingIterator
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
@@ -11,16 +10,11 @@ import org.transmartproject.core.multidimquery.HypercubeValue
 
 class EmptyHypercube implements Hypercube {
 
-    ImmutableList<Object> dimensionElements(Dimension dim){
+    ImmutableList<Object> dimensionElements(Dimension dim) {
         throw new InvalidArgumentsException("Dimension $dim is not part of this result")
     }
 
     ImmutableList<Dimension> getDimensions() { ImmutableList.of() }
-
-    @Override
-    Dimension getValueDimension() {
-        throw new NoSuchElementException()
-    }
 
     Object dimensionElement(Dimension dim, Integer idx) {
         throw new InvalidArgumentsException("Dimension $dim is not part of this result")
@@ -30,7 +24,7 @@ class EmptyHypercube implements Hypercube {
         throw new InvalidArgumentsException("Dimension $dim is not part of this result")
     }
 
-    void close(){}
+    void close() {}
 
     Iterator<HypercubeValue> iterator() {
         [].iterator()

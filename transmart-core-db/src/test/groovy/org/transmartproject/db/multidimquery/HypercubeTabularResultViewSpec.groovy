@@ -18,15 +18,12 @@ class HypercubeTabularResultViewSpec extends Specification {
     def val3 = Mock(HypercubeValue)
     def val4 = Mock(HypercubeValue)
     def hypercubeValues = [val1, val2, val3, val4]
-    def valueDimension = Mock(Dimension)
 
     def setup() {
         dim1.name >> 'dim1'
         dim2.name >> 'dim2'
         dim3.name >> 'dim3'
         var.name >> 'var'
-        valueDimension.name >> 'valueDimension'
-        hypercube.valueDimension >> valueDimension
 
         val1.value >> 'val 1'
         val1.getDimElementIndex(dim1) >> 1

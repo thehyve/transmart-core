@@ -35,7 +35,6 @@ class HddTabularResultHypercubeAdapter implements Hypercube {
     static Dimension assayDim = DimensionImpl.ASSAY
     static Dimension patientDim = DimensionImpl.PATIENT
     static Dimension projectionDim = DimensionImpl.PROJECTION
-    final Dimension valueDimension = DimensionImpl.VALUE
 
     private TabularResult<AssayColumn, ? extends ColumnOrderAwareDataRow<AssayColumn, ? /* depends on projection */>> table
     private TabularResultAdapterIterator iterator
