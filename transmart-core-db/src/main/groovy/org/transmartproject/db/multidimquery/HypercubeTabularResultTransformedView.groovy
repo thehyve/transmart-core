@@ -83,25 +83,6 @@ class HypercubeTabularResultTransformedView implements TabularResult<MetadataAwa
         transformedColumns
     }()
 
-    //TODO 1. See how to reduce interface with HypercubeDataColumn
-    abstract class AbstractTransformedDataColumn<T> implements ValueFetchingDataColumn<T, HypercubeDataRow> {
-        HypercubeDataColumn originalColumn
-
-        AbstractTransformedDataColumn(HypercubeDataColumn originalColumn) {
-            this.originalColumn = originalColumn
-        }
-
-        abstract String getLabel()
-
-        @Override
-        T getValue(HypercubeDataRow row) {
-            def hValue = row.getHypercubeValue(originalColumn.index)
-            calculateValue(hValue)
-        }
-
-        abstract T calculateValue(HypercubeValue hypercubeValue)
-    }
-
     class SubjectIdColumn implements ValueFetchingDataColumn<Long, HypercubeDataRow>, MetadataAwareDataColumn {
         String label = subjectIdColumnName
 
