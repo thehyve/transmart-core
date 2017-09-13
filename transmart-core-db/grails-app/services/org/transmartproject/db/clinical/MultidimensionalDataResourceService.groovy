@@ -4,6 +4,7 @@ package org.transmartproject.db.clinical
 
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
+import grails.converters.JSON
 import grails.orm.HibernateCriteriaBuilder
 import grails.plugin.cache.Cacheable
 import grails.util.Holders
@@ -13,11 +14,7 @@ import org.apache.commons.lang.NotImplementedException
 import org.hibernate.Criteria
 import org.hibernate.ScrollMode
 import org.hibernate.SessionFactory
-import org.hibernate.criterion.Criterion
-import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.Projections
-import org.hibernate.criterion.Restrictions
-import org.hibernate.criterion.Subqueries
+import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
@@ -30,15 +27,8 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
-import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.exceptions.DataInconsistencyException
-import org.transmartproject.core.exceptions.EmptySetException
-import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.core.multidimquery.MultiDimConstraint
-import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.exceptions.*
+import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
@@ -51,54 +41,15 @@ import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.metadata.DimensionDescription
-import org.transmartproject.db.multidimquery.AliasAwareDimension
-import org.transmartproject.db.multidimquery.AssayDimension
-import org.transmartproject.db.multidimquery.BioMarkerDimension
-import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.EmptyHypercube
-import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
-import org.transmartproject.db.multidimquery.HypercubeImpl
-import org.transmartproject.db.multidimquery.I2b2Dimension
-import org.transmartproject.db.multidimquery.ModifierDimension
-import org.transmartproject.db.multidimquery.ProjectionDimension
-import org.transmartproject.core.multidimquery.AggregateType
-import org.transmartproject.db.multidimquery.query.AndConstraint
-import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.db.multidimquery.query.Combination
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.Field
-import org.transmartproject.db.multidimquery.query.FieldConstraint
-import org.transmartproject.db.multidimquery.query.HibernateCriteriaQueryBuilder
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.multidimquery.query.InvalidQueryException
-import org.transmartproject.db.multidimquery.query.ModifierConstraint
-import org.transmartproject.db.multidimquery.query.Negation
-import org.transmartproject.db.multidimquery.query.NullConstraint
-import org.transmartproject.db.multidimquery.query.Operator
-import org.transmartproject.db.multidimquery.query.OrConstraint
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.QueryBuilder
-import org.transmartproject.db.multidimquery.query.QueryBuilderException
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.multidimquery.query.StudyObjectConstraint
-import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
-import org.transmartproject.db.multidimquery.query.TemporalConstraint
-import org.transmartproject.db.multidimquery.query.TimeConstraint
-import org.transmartproject.db.multidimquery.query.TrueConstraint
-import org.transmartproject.db.multidimquery.query.Type
-import org.transmartproject.db.multidimquery.query.ValueConstraint
-import org.transmartproject.db.querytool.QtPatientSetCollection
-import org.transmartproject.db.querytool.QtQueryInstance
-import org.transmartproject.db.querytool.QtQueryMaster
-import org.transmartproject.db.querytool.QtQueryResultInstance
-import org.transmartproject.db.querytool.QtQueryResultType
-import org.transmartproject.db.util.GormWorkarounds
-
+import org.transmartproject.db.metadata.DimensionDescription
+import org.transmartproject.db.multidimquery.*
+import org.transmartproject.db.multidimquery.query.*
+import org.transmartproject.db.querytool.*
 import org.transmartproject.db.user.User as DbUser
+import org.transmartproject.db.util.GormWorkarounds
 import org.transmartproject.db.util.ScrollableResultsWrappingIterable
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
@@ -643,6 +594,36 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             throw new AccessDeniedException("Access denied to patient set with id ${queryResultId}.")
         }
         queryResult
+    }
+
+    @Override
+    MultiDimConstraint createQueryResultsDisjunctionConstraint(List<Long> queryResultIds, User user) {
+        List<QueryResult> queryResults = queryResultIds.collect { findQueryResult(it, user) }
+
+        Map<Long, List<QueryResult>> queryResultTypeByType = queryResults
+                .groupBy { it.queryResultType.id }
+                .withDefault { [] }
+
+        Set<Long> foundNotSupportedQueryTypeIds = queryResultTypeByType.keySet() -
+                [QueryResultType.PATIENT_SET_ID, QueryResultType.GENERIC_QUERY_RESULT_ID]
+        assert !foundNotSupportedQueryTypeIds:
+                "Query types with following ids are not supported: ${foundNotSupportedQueryTypeIds}"
+
+        List<Constraint> patientSetConstraints = queryResultTypeByType[QueryResultType.PATIENT_SET_ID]
+                .collect { QueryResult qr -> new PatientSetConstraint(patientSetId: qr.id) }
+        List<Constraint> observationSetConstraints = queryResultTypeByType[QueryResultType.GENERIC_QUERY_RESULT_ID]
+                .collect { QueryResult qr ->
+            String constraintString = qr.queryInstance.queryMaster.requestConstraints
+            ConstraintFactory.create(JSON.parse(constraintString) as Map)
+        }
+
+        List<Constraint> constraints = patientSetConstraints + observationSetConstraints
+
+        if (constraints.size() == 1) {
+            constraints.first()
+        } else {
+            new OrConstraint(args: constraints)
+        }
     }
 
     Iterable<QueryResult> findQueryResults(final User user, QueryResultType resultType) {

@@ -7,14 +7,10 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.ConstraintFactory
-import org.transmartproject.db.multidimquery.query.OrConstraint
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService
@@ -169,7 +165,7 @@ class ExportController {
 
         checkParams(params, ['id'])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Constraint constraint = createOrConstraint(parseId(params), user)
+        Constraint constraint = multiDimService.createQueryResultsDisjunctionConstraint(parseId(params), user)
         def formats = ['clinical'] + multiDimService.retriveHighDimDataTypes(constraint, user)
         def results = [
                 dataFormats: formats
@@ -268,31 +264,9 @@ class ExportController {
         if (!(json.containsKey('id') ^ json.containsKey('constraint'))) {
             throw new InvalidArgumentsException("Whether id or constraint parameters can be supplied.")
         } else if (json.containsKey('id')) {
-            return createOrConstraint(json.id instanceof Number ? [ json.id ]: json.id, user)
+            return multiDimService.createQueryResultsDisjunctionConstraint(json.id instanceof Number ? [json.id] : json.id, user)
         } else if (json.containsKey('constraint')) {
             return ConstraintFactory.create(json.constraint)
         }
-    }
-
-    private OrConstraint createOrConstraint(List<Long> ids, User user) {
-        //TODO Fix abstraction leak
-        List<QueryResult> queryResults = ids.collect { multiDimService.findQueryResult(it, user) }
-        Map<Long, List<QueryResult>> queryResultTypeByType = queryResults
-                .groupBy { it.queryResultType.id }
-                .withDefault { [] }
-        Set<Long> foundNotSupportedQueryTypeIds = queryResultTypeByType.keySet() -
-                [QueryResultType.PATIENT_SET_ID, QueryResultType.GENERIC_QUERY_RESULT_ID]
-        assert !foundNotSupportedQueryTypeIds: "Query types with following ids are not supported: ${foundNotSupportedQueryTypeIds}"
-        List<Constraint> patientSetConstraints = queryResultTypeByType[QueryResultType.PATIENT_SET_ID]
-                .collect { QueryResult qr -> new PatientSetConstraint(patientSetId: qr.id) }
-        List<Constraint> observationSetConstraints = queryResultTypeByType[QueryResultType.GENERIC_QUERY_RESULT_ID]
-                .collect { QueryResult qr ->
-            getConstraintFromJsonString(qr.queryInstance.queryMaster.requestConstraints as String)
-        }
-        return new OrConstraint(args: (patientSetConstraints + observationSetConstraints))
-    }
-
-    private static Constraint getConstraintFromJsonString(final String constraintString) {
-        ConstraintFactory.create(JSON.parse(constraintString) as Map)
     }
 }

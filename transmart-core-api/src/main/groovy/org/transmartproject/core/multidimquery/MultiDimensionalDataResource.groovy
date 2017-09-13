@@ -38,6 +38,8 @@ interface MultiDimensionalDataResource {
 
     QueryResult findQueryResult(Long queryResultId, User user)
 
+    MultiDimConstraint createQueryResultsDisjunctionConstraint(List<Long> queryResultIds, User user)
+
     Iterable<QueryResult> findPatientSetQueryResults(User user)
 
     Iterable<QueryResult> findObservationSetQueryResults(User user)
