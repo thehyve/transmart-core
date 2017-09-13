@@ -836,7 +836,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    @Override List retriveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user){
+    @Override List retrieveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user){
 
         Constraint assayConstraint = (Constraint) assayConstraint_
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')

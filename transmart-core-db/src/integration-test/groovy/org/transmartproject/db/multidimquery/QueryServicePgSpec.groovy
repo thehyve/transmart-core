@@ -189,7 +189,7 @@ class QueryServicePgSpec extends Specification {
         ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
         when:
-        def result = multiDimService.retriveHighDimDataTypes(conceptConstraint, user)
+        def result = multiDimService.retrieveHighDimDataTypes(conceptConstraint, user)
         then:
         result != null
         result.contains("mrna")
