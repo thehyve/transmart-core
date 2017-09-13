@@ -31,7 +31,10 @@ interface MultiDimensionalDataResource {
     Dimension getDimension(String name)
 
     Long count(MultiDimConstraint constraint, User user)
+
     Long cachedCount(MultiDimConstraint constraint, User user)
+
+    Map<String, Long> countPerConcept(MultiDimConstraint constraint, User user)
 
     Iterable getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user)
 

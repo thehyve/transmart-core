@@ -468,6 +468,23 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     @Override
+    Map<String, Long> countPerConcept(MultiDimConstraint constraint, User user) {
+        log.debug "Computing counts per concept ..."
+        def t1 = new Date()
+        checkAccess(constraint, user)
+        QueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
+                .add(Projections.groupProperty('conceptCode'))
+                .add(Projections.rowCount()))
+        List result = getList(criteria)
+        def t2 = new Date()
+        log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
+        result.collectEntries{ row ->
+            [(row[0] as String): row[1] as Long]
+        }
+    }
+
+    @Override
     @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService', key = '{#constraint, #user.username}')
     Long cachedCount(MultiDimConstraint constraint, User user) {
         count(constraint, user)

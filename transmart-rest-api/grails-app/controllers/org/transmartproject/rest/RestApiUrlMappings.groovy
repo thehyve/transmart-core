@@ -62,6 +62,10 @@ class RestApiUrlMappings {
                 action = [GET: 'count', POST: 'count']
                 apiVersion = 'v2'
             }
+            "/observations/count_per_concept"(controller: 'query') {
+                action = [GET: 'countPerConcept', POST: 'countPerConcept']
+                apiVersion = 'v2'
+            }
             "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
                 apiVersion = 'v2'
             }

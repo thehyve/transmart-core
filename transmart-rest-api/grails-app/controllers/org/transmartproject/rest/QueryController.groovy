@@ -135,6 +135,28 @@ class QueryController extends AbstractQueryController {
     }
 
     /**
+     * Count endpoint:
+     * <code>/v2/observations/countPerConcept?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a map from concept code to the number of observations that satisfy the constraint for that concept.
+     */
+    def countPerConcept() {
+        def args = getGetOrPostParams()
+        checkParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def counts = multiDimService.countPerConcept(constraint, user)
+        def result = [counts: counts]
+        render result as JSON
+    }
+
+    /**
      * Aggregate endpoint:
      * <code>/v2/observations/aggregate?type=${type}&constraint=${constraint}</code>
      *
