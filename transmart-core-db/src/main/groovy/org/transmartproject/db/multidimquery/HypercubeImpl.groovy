@@ -104,8 +104,12 @@ class HypercubeImpl implements Hypercube {
 
     @Override
     Object dimensionElementKey(Dimension dim, Integer idx) {
-        //FIXME Triggers additional elements scan. Optimize! Check idx
-        dimensionElementKeys(dim)[idx]
+        checkDimension(dim)
+        checkIsDense(dim)
+        if (completeScanNumber <= 0 && !dimensionElementKeys[dim].contains(idx)) {
+            fetchAllDimensionsElementKeys()
+        }
+        dimensionElementKeys[dim][idx]
     }
 
     private <ELT, ELKey> int indexDimensionElement(DimensionImpl<ELT, ELKey> dimension, ELKey dimensionElementKey) {
