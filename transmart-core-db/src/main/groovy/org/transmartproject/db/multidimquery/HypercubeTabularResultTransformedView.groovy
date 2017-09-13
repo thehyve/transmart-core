@@ -167,7 +167,10 @@ class HypercubeTabularResultTransformedView implements TabularResult<MetadataAwa
         }
 
         private Date toDate(Number value) {
-            new Date((value * 1000) as Long)
+            def calendar = new GregorianCalendar()
+            calendar.setTimeZone(TimeZone.getTimeZone('UTC'))
+            calendar.setTimeInMillis((value * 1000) as Long)
+            calendar.getTime()
         }
 
         private String getMissingValueLabel(HypercubeValue hValue) {
