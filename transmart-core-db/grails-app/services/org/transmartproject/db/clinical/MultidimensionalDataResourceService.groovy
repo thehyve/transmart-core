@@ -467,7 +467,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         (Long) get(builder.buildCriteria((Constraint) constraint).setProjection(Projections.rowCount()))
     }
 
-    @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
+    @Override
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService', key = '{#constraint, #user.username}')
     Long cachedCount(MultiDimConstraint constraint, User user) {
         count(constraint, user)
     }
@@ -612,7 +613,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
+    @Override
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService', key = '{#constraint, #user.username}')
     Long cachedPatientCount(MultiDimConstraint constraint, User user) {
         getDimensionElementsCount(DimensionImpl.PATIENT, constraint, user)
     }
