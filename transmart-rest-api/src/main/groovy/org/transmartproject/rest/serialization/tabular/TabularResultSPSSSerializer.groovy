@@ -76,15 +76,19 @@ class TabularResultSPSSSerializer {
         buffer << columns.collect { [it.label, '"' + it.metadata.description + '"', '/'].join(' ') }.join('\n')
         buffer << '\n.\n'
 
-        buffer << 'VALUE LABELS\n'
-        buffer << columns
-                .findAll { it.metadata.valueLabels }
-                .collect { column ->
-            ([column.label]
-                    + column.metadata.valueLabels.collect { value, label -> "'${value}' \"${label}\"" }
-                    + '/').join('\n')
-        }.join('\n')
-        buffer << '\n.\n'
+        List<MetadataAwareDataColumn> columnsWithLabels = columns.findAll { it.metadata.valueLabels }
+        if (columnsWithLabels) {
+            buffer << 'VALUE LABELS\n'
+            buffer << columns
+                    .findAll { it.metadata.valueLabels }
+                    .collect { column ->
+                ([column.label]
+                        + column.metadata.valueLabels.collect { value, label -> "'${value}' \"${label}\"" }
+                        + '/').join('\n')
+            }.join('\n')
+            buffer << '\n.\n'
+        }
+
         buffer << 'EXECUTE.'
         outputStream << buffer
     }

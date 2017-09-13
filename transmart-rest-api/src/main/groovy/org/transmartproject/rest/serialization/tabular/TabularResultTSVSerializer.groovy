@@ -29,9 +29,12 @@ class TabularResultTSVSerializer {
         writeColumnsMetadata(tabularResult, zipOutStream)
         zipOutStream.closeEntry()
 
-        zipOutStream.putNextEntry(new ZipEntry('value_labels.tsv'))
-        writeColumnsValueMappings(tabularResult, zipOutStream)
-        zipOutStream.closeEntry()
+        if (tabularResult.indicesList
+                .any { it instanceof MetadataAwareDataColumn && it.metadata?.valueLabels }) {
+            zipOutStream.putNextEntry(new ZipEntry('value_labels.tsv'))
+            writeColumnsValueMappings(tabularResult, zipOutStream)
+            zipOutStream.closeEntry()
+        }
     }
 
     static writeValues(TabularResult tabularResult, OutputStream outputStream) {
