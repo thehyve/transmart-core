@@ -43,9 +43,9 @@ class HypercubeTabularResultTransformedViewSpec extends Specification {
         metadata*.type == [NUMERIC, DATE, DATE, NUMERIC, DATE]
         metadata*.measure == [SCALE, SCALE, SCALE, NOMINAL, SCALE]
         metadata*.description == ['FIS Number', 'Birth Date', 'Date of measurement', 'Gender', 'Date of measurement']
-        metadata*.width == [12, 11, 12, 12, 12]
+        metadata*.width == [12, 22, 22, 12, 22]
         metadata*.decimals == [0, null, null, null, null]
-        metadata*.columns == [12, 11, 12, 14, 12]
+        metadata*.columns == [12, 22, 22, 14, 22]
         def height1Metadata = columns.find { it.label == 'gender1' }.metadata
         height1Metadata.valueLabels == [(1): 'Female', (2): 'Male', (-2): 'Not Specified']
         height1Metadata.missingValues == [-2]
@@ -89,9 +89,9 @@ class HypercubeTabularResultTransformedViewSpec extends Specification {
         metadata*.type == [NUMERIC, STRING, DATE, NUMERIC, DATE]
         metadata*.measure == [SCALE, NOMINAL, SCALE, SCALE, SCALE]
         metadata*.description == ['FIS Number', 'Description', 'Date of measurement', 'Height', 'Date of measurement']
-        metadata*.width == [12, 200, 12, 14, 12]
+        metadata*.width == [12, 200, 22, 14, 22]
         metadata*.decimals == [0, null, null, 2, null]
-        metadata*.columns == [12, 210, 12, 15, 12]
+        metadata*.columns == [12, 210, 22, 15, 22]
         def height1Metadata = columns.find { it.label == 'height1' }.metadata
         height1Metadata.valueLabels == [(-1): 'Asked, but not answered']
         height1Metadata.missingValues == [-1]

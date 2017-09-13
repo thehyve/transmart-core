@@ -365,44 +365,6 @@ class QueryServiceSpec extends TransmartSpecification {
         patientCount2 == patientCount1
     }
 
-    void "test for check if aggregate returns error when any numerical value is null"() {
-        setupData()
-
-        def observationFact = createObservationWithSameConcept()
-        def newConcept = createNewConcept(observationFact.conceptCode).save()
-
-        observationFact.numberValue = null
-        observationFact.textValue = 'E'
-        observationFact.valueType = 'N'
-        observationFact.conceptCode = newConcept.conceptCode
-        testData.clinicalData.facts << observationFact.save()
-
-        when:
-        Constraint query = createQueryForConcept(observationFact)
-        multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
-
-        then:
-        thrown(DataInconsistencyException)
-    }
-
-    void "test for check if aggregate returns error when the textValue is other then E and no numeric value"() {
-        setupData()
-
-        def observationFact = createObservationWithSameConcept()
-        def newConcept = createNewConcept(observationFact.conceptCode).save()
-        observationFact.textValue = 'GT'
-        observationFact.numberValue = null
-        observationFact.conceptCode = newConcept.conceptCode
-        testData.clinicalData.facts << observationFact.save()
-
-        when:
-        Constraint query = createQueryForConcept(observationFact)
-        multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
-
-        then:
-        thrown(DataInconsistencyException)
-    }
-
     void "test_patient_selection_constraint"() {
         setupHypercubeData()
 
