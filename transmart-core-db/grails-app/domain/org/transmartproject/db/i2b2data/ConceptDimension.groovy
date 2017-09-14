@@ -63,7 +63,11 @@ class ConceptDimension {
     }
 
     def conceptBlobAsJson() {
-        JSON_SLURPER.parseText(conceptBlob)
+        if (conceptBlob) {
+            JSON_SLURPER.parseText(conceptBlob)
+        } else {
+            [:]
+        }
     }
 
 }

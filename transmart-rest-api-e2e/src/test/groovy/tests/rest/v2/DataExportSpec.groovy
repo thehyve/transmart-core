@@ -284,7 +284,7 @@ class DataExportSpec extends RESTSpec {
         when: "I run a newly created job with both id and constraint parameter."
         def runResponse2 = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                body     : toJSON([
+                body      : toJSON([
                         id        : -1,
                         constraint: [type: TrueConstraint],
                         elements  : [[
@@ -301,67 +301,16 @@ class DataExportSpec extends RESTSpec {
 
     @RequiresStudy(EHR_ID)
     def "run data export using a constraint"() {
-        def newJobRequest = [
-                path      : "$PATH_DATA_EXPORT/job",
-                acceptType: JSON,
-        ]
-        def newJobResponse = post(newJobRequest)
-        def jobId = newJobResponse.exportJob.id
-        def jobName = newJobResponse.exportJob.jobName
-
-        when: "I run a newly created job asynchronously"
-        def runResponse = post([
-                path      : "$PATH_DATA_EXPORT/$jobId/run",
-                body      : toJSON([
-                        constraint: [type: ConceptConstraint,
-                                     path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"],
-                        elements  : [[
-                                             dataType: 'clinical',
-                                             format  : 'TSV'
-                                     ]],
-                ]),
-                acceptType: JSON,
+        when:
+        def downloadResponse = runTypicalExport([
+                constraint: [type: ConceptConstraint,
+                             path: "\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"],
+                elements  : [[
+                                     dataType: 'clinical',
+                                     format  : 'TSV'
+                             ]]
         ])
-
-        then: "Job instance with status: 'Started' is returned"
-        assert runResponse != null
-        assert runResponse.exportJob.id == jobId
-        assert runResponse.exportJob.jobStatus == 'Started'
-        assert runResponse.exportJob.jobStatusTime != null
-        assert runResponse.exportJob.userId == DEFAULT_USER
-        assert runResponse.viewerUrl == null
-
-        when: "Check the status of the job"
-        String fileName = "$TEMP_DIRECTORY/$DEFAULT_USER/$jobName" + ".zip"
-        int maxAttemptNumber = 10 // max number of status check attempts
-        def statusRequest = [
-                path      : "$PATH_DATA_EXPORT/$jobId/status",
-                acceptType: JSON,
-        ]
-        def statusResponse = get(statusRequest)
-
-        then: "Returned status is 'Completed'"
-        assert statusResponse != null
-        def status = statusResponse.exportJob.jobStatus
-
-        // waiting for async process to end (increase number of attempts if needed)
-        for (int attempNum = 0; status != 'Completed' && attempNum < maxAttemptNumber; attempNum++) {
-            sleep(500)
-            statusResponse = get(statusRequest)
-            status = statusResponse.exportJob.jobStatus
-        }
-
-        assert status == 'Completed'
-        assert statusResponse.exportJob.viewerUrl == fileName
-
-        when: "Try to download the file"
-        def downloadRequest = [
-                path      : "$PATH_DATA_EXPORT/$jobId/download",
-                acceptType: ZIP,
-        ]
-        def downloadResponse = get(downloadRequest)
-
-        then: "ZipStream is returned"
+        then:
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         filesLineNumbers['clinical_observations.tsv'] == 10
@@ -372,16 +321,91 @@ class DataExportSpec extends RESTSpec {
         filesLineNumbers['clinical_trial_visit.tsv'] == 2
         filesLineNumbers['clinical_provider.tsv'] == 1
         filesLineNumbers['clinical_sample_type.tsv'] == 1
-        assert new File(fileName).isFile()
-
-        cleanup: "Remove created file"
-        if (fileName) {
-            new File(fileName).delete()
-        }
     }
 
     @RequiresStudy(SURVEY1_ID)
-    def "export tabular file format"() {
+    def "export survey to tsv file format"() {
+        when:
+        def downloadResponse = runTypicalExport([
+                constraint: [type   : StudyNameConstraint,
+                             studyId: SURVEY1_ID],
+                elements  : [[
+                                     dataType: 'clinical',
+                                     format  : 'TSV',
+                                     dataView : 'subjectObservationsByStudyConceptsTableView'
+                             ]],
+        ])
+        then:
+        assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        filesLineNumbers.size() == 3
+        filesLineNumbers['data.tsv'] == 3
+        filesLineNumbers['variables.tsv'] == 6
+        filesLineNumbers['value_labels.tsv'] == 4
+
+    }
+
+    @RequiresStudy(SURVEY1_ID)
+    def "export survey to spss file format"() {
+        when:
+        def downloadResponse = runTypicalExport([
+                constraint: [type   : StudyNameConstraint,
+                             studyId: SURVEY1_ID],
+                elements  : [[
+                                     dataType: 'clinical',
+                                     format  : 'SPSS',
+                                     dataView : 'subjectObservationsByStudyConceptsTableView'
+                             ]],
+        ])
+        then:
+        assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        filesLineNumbers.size() == 2
+        filesLineNumbers['data.tsv'] == 3
+        filesLineNumbers['data.sps'] == 28
+    }
+
+    @RequiresStudy(CATEGORICAL_VALUES_ID)
+    def "export non conventional study to tsv file format"() {
+        when:
+        def downloadResponse = runTypicalExport([
+                constraint: [type   : StudyNameConstraint,
+                             studyId: CATEGORICAL_VALUES_ID],
+                elements  : [[
+                                     dataType: 'clinical',
+                                     format  : 'TSV',
+                                     dataView : 'subjectObservationsByStudyConceptsTableView'
+                             ]],
+        ])
+        then:
+        assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        filesLineNumbers.size() == 2
+        filesLineNumbers['data.tsv'] == 4
+        filesLineNumbers['variables.tsv'] == 10
+    }
+
+    @RequiresStudy(CATEGORICAL_VALUES_ID)
+    def "export not conventional to spss file format"() {
+        when:
+        def downloadResponse = runTypicalExport([
+                constraint: [type   : StudyNameConstraint,
+                             studyId: CATEGORICAL_VALUES_ID],
+                elements  : [[
+                                     dataType: 'clinical',
+                                     format  : 'SPSS',
+                                     dataView : 'subjectObservationsByStudyConceptsTableView'
+                             ]],
+        ])
+        then:
+        assert downloadResponse != null
+        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
+        filesLineNumbers.size() == 2
+        filesLineNumbers['data.tsv'] == 4
+        filesLineNumbers['data.sps'] == 29
+    }
+
+    def runTypicalExport(body) {
         def newJobRequest = [
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
@@ -390,22 +414,12 @@ class DataExportSpec extends RESTSpec {
         def jobId = newJobResponse.exportJob.id
         def jobName = newJobResponse.exportJob.jobName
 
-        when: "I run a newly created job asynchronously"
         def runResponse = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
-                body     : toJSON([
-                        constraint: [type   : StudyNameConstraint,
-                                     studyId: SURVEY1_ID],
-                        elements  : [[
-                                             dataType: 'clinical',
-                                             format  : 'TSV',
-                                             tabular : true
-                                     ]],
-                ]),
+                body      : toJSON(body),
                 acceptType: JSON,
         ])
 
-        then: "Job instance with status: 'Started' is returned"
         assert runResponse != null
         assert runResponse.exportJob.id == jobId
         assert runResponse.exportJob.jobStatus == 'Started'
@@ -413,7 +427,6 @@ class DataExportSpec extends RESTSpec {
         assert runResponse.exportJob.userId == DEFAULT_USER
         assert runResponse.viewerUrl == null
 
-        when: "Check the status of the job"
         String fileName = "$TEMP_DIRECTORY/$DEFAULT_USER/$jobName" + ".zip"
         int maxAttemptNumber = 10 // max number of status check attempts
         def statusRequest = [
@@ -422,7 +435,6 @@ class DataExportSpec extends RESTSpec {
         ]
         def statusResponse = get(statusRequest)
 
-        then: "Returned status is 'Completed'"
         assert statusResponse != null
         def status = statusResponse.exportJob.jobStatus
 
@@ -436,26 +448,19 @@ class DataExportSpec extends RESTSpec {
         assert status == 'Completed'
         assert statusResponse.exportJob.viewerUrl == fileName
 
-        when: "Try to download the file"
         def downloadRequest = [
                 path      : "$PATH_DATA_EXPORT/$jobId/download",
                 acceptType: ZIP,
         ]
         def downloadResponse = get(downloadRequest)
 
-        then: "ZipStream is returned"
-        assert downloadResponse != null
-        def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
-        filesLineNumbers.size() == 3
-        filesLineNumbers['data.tsv'] == 3
-        filesLineNumbers['variables.tsv'] == 6
-        filesLineNumbers['value_labels.tsv'] == 4
         assert new File(fileName).isFile()
 
-        cleanup: "Remove created file"
         if (fileName) {
             new File(fileName).delete()
         }
+
+        return downloadResponse
     }
 
     private Map<String, Integer> getFilesLineNumbers(byte[] content) {

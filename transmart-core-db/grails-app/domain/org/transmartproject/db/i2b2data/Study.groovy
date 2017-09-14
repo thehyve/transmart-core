@@ -81,7 +81,11 @@ class Study implements MDStudy {
     }
 
     def studyBlobAsJson() {
-        JSON_SLURPER.parseText(studyBlob)
+        if (studyBlob) {
+            JSON_SLURPER.parseText(studyBlob)
+        } else {
+            [:]
+        }
     }
 
 }

@@ -10,7 +10,7 @@ import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
-import org.transmartproject.db.multidimquery.HypercubeTabularResultTransformedView
+import org.transmartproject.db.multidimquery.SubjectObservationsByStudyConceptsTableView
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
@@ -108,16 +108,31 @@ class MultidimensionalDataService {
      * @param constraint
      * @param user The user accessing the data
      * @param out
+     * @param view predefined string that specifies how exported data structure will look like
      */
-    void writeClinical(Map args, Format format, MultiDimConstraint constraint, User user, OutputStream out) {
+    void writeClinical(Format format,
+                       MultiDimConstraint constraint,
+                       User user,
+                       OutputStream out,
+                       String view = null) {
 
-        boolean tabular = args.tabular
+        String dataView = view ?: grailsApplication.config.export.clinical.defaultDataView
 
-        if (tabular) {
+        if (!dataView) {
+            Hypercube result = multiDimService.retrieveClinicalData(constraint, user)
+
+            try {
+                log.info "Writing to format: ${format}"
+                serialise(result, format, out, dataType: 'clinical')
+            } finally {
+                result.close()
+            }
+        } else if (dataView == 'subjectObservationsByStudyConceptsTableView') {
             def patientDimension = multiDimService.getDimension('patient')
             def hypercube = multiDimService.retrieveClinicalData(constraint, user, [patientDimension])
-            def customizations = grailsApplication.config.export.table.customizations
-            def tabularView = new HypercubeTabularResultTransformedView(customizations, hypercube)
+            def customizations = grailsApplication.config
+                    .export.clinical.subjectObservationsByStudyConceptsTableView
+            def tabularView = new SubjectObservationsByStudyConceptsTableView(customizations, hypercube)
             try {
                 log.info "Writing tabular data in ${format} format."
                 serialise(tabularView, format, out)
@@ -125,14 +140,7 @@ class MultidimensionalDataService {
                 tabularView.close()
             }
         } else {
-            Hypercube result = multiDimService.retrieveClinicalData(constraint, user)
-
-            try {
-                log.info "Writing to format: ${format}"
-                serialise(args, result, format, out)
-            } finally {
-                result.close()
-            }
+            throw new UnsupportedOperationException("${dataView} data view is not supported.")
         }
     }
 
@@ -146,6 +154,7 @@ class MultidimensionalDataService {
      * @param projection
      * @param user
      * @param out
+     * @param view predefined string that specifies how exported data structure will look like
      */
     void writeHighdim(Format format,
                       String type,
@@ -153,18 +162,18 @@ class MultidimensionalDataService {
                       MultiDimConstraint biomarkerConstraint,
                       String projection,
                       User user,
-                      OutputStream out) {
+                      OutputStream out,
+                      String view = null) {
+
+        if (view) {
+            throw new UnsupportedOperationException("${view} data view is not supported.")
+        }
 
         Hypercube hypercube = multiDimService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
 
-        Map args = [:]
-        if (format == Format.TSV) {
-            args = [dataType: type]
-        }
-
         try {
             log.info "Writing to format: ${format}"
-            serialise(args, hypercube, format, out)
+            serialise(hypercube, format, out, dataType: type)
         } finally {
             hypercube.close()
         }

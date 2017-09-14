@@ -11,9 +11,8 @@ import org.transmartproject.db.i2b2data.Study
 
 import java.rmi.UnexpectedException
 
-import static org.transmartproject.db.multidimquery.ColumnDataType.DATE
-import static org.transmartproject.db.multidimquery.ColumnDataType.NUMERIC
-import static org.transmartproject.db.multidimquery.ColumnDataType.STRING
+import static org.transmartproject.db.multidimquery.ColumnDataType.*
+import static org.transmartproject.db.multidimquery.Measure.NOMINAL
 import static org.transmartproject.db.multidimquery.Measure.SCALE
 
 /**
@@ -24,21 +23,9 @@ import static org.transmartproject.db.multidimquery.Measure.SCALE
  * - Renames column names to the study specific
  * - Blends in the missing values
  * - Returns back original codebook values
- *
- * You can customise table by specifying in the configuration file following structure:
- * export {
-     table {
-         customizations {
-             subjectIdColumnName = ...
-             subjectIdColumnDescription = ...
-             subjectIdSource = 'EXTDB'
-             dateColDescription = 'Date of measurement'
-         }
-     }
- }
  */
 @Slf4j
-class HypercubeTabularResultTransformedView implements TabularResult<MetadataAwareDataColumn, DataRow> {
+class SubjectObservationsByStudyConceptsTableView implements TabularResult<MetadataAwareDataColumn, DataRow> {
 
     @Delegate
     final HypercubeTabularResultView hypercubeTabularResultView
@@ -55,7 +42,7 @@ class HypercubeTabularResultTransformedView implements TabularResult<MetadataAwa
     final String subjectIdSource
     final String dateColDescription
 
-    HypercubeTabularResultTransformedView(Map<String, String> customizations, Hypercube hypercube) {
+    SubjectObservationsByStudyConceptsTableView(Map<String, String> customizations, Hypercube hypercube) {
         this.hypercube = hypercube
 
         def rowDimensions = [DimensionImpl.PATIENT]
@@ -99,7 +86,7 @@ class HypercubeTabularResultTransformedView implements TabularResult<MetadataAwa
         Long getValue(HypercubeDataRow row) {
             org.transmartproject.db.i2b2data.PatientDimension patient = row.getDimensionElement(DimensionImpl.PATIENT)
             if (patient) {
-                return patient.mappings.find { it.source == subjectIdSource }.encryptedId as Long
+                return patient.mappings.find { it.source == subjectIdSource }?.encryptedId as Long
             }
         }
     }
@@ -124,7 +111,9 @@ class HypercubeTabularResultTransformedView implements TabularResult<MetadataAwa
 
         Date getValue(HypercubeDataRow row) {
             def hValue = row.getHypercubeValue(originalColumn.index)
-            hValue[DimensionImpl.START_TIME] as Date
+            if (hValue && DimensionImpl.START_TIME in hValue.availableDimensions) {
+                hValue[DimensionImpl.START_TIME] as Date
+            }
         }
     }
 
@@ -141,12 +130,18 @@ class HypercubeTabularResultTransformedView implements TabularResult<MetadataAwa
             this.originalColumn = originalColumn
             org.transmartproject.db.i2b2data.ConceptDimension conceptDimension =
                     originalColumn.getDimensionElement(DimensionImpl.CONCEPT)
-            metadata = parseColumnMetadata(conceptDimension.conceptBlobAsJson(), conceptDimension.nameChar)
+            def conceptMetadata = conceptDimension.conceptBlobAsJson()
+            if (conceptMetadata) {
+                metadata = parseColumnMetadata(conceptDimension.conceptBlobAsJson(), conceptDimension.nameChar)
+            } else {
+                metadata = computeColumnMetadata()
+            }
             labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] }
         }
 
         Object getValue(HypercubeDataRow row) {
             def hValue = row.getHypercubeValue(originalColumn.index)
+            if (hValue == null) return null
             def value = hValue.value
             switch (metadata?.type) {
                 case NUMERIC:
@@ -171,6 +166,16 @@ class HypercubeTabularResultTransformedView implements TabularResult<MetadataAwa
             calendar.setTimeZone(TimeZone.getTimeZone('UTC'))
             calendar.setTimeInMillis((value * 1000) as Long)
             calendar.getTime()
+        }
+
+        private ColumnMetadata computeColumnMetadata() {
+            new ColumnMetadata(
+                    type: STRING,
+                    measure: NOMINAL,
+                    description: originalColumn.label,
+                    width: 25,
+                    columns: 25,
+            )
         }
 
         private String getMissingValueLabel(HypercubeValue hValue) {
@@ -225,8 +230,8 @@ class ColumnMetadata {
     Integer width
     Integer decimals
     Integer columns
-    Map<Integer, String> valueLabels
-    List<Integer> missingValues
+    Map<Integer, String> valueLabels = [:]
+    List<Integer> missingValues = []
 }
 
 interface MetadataAwareDataColumn extends DataColumn {

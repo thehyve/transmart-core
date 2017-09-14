@@ -17,7 +17,7 @@ import static org.transmartproject.db.multidimquery.Measure.SCALE
 
 @Rollback
 @Integration
-class HypercubeTabularResultTransformedViewSpec extends Specification {
+class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
@@ -29,10 +29,10 @@ class HypercubeTabularResultTransformedViewSpec extends Specification {
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
 
         when:
-        def transformedView = new HypercubeTabularResultTransformedView(hypercube,
+        def transformedView = new SubjectObservationsByStudyConceptsTableView(hypercube,
                 subjectIdColumnName: 'FISNumber',
                 subjectIdColumnDescription: 'FIS Number',
-                subjectIdSource: 'EXTDB',
+                subjectIdSource: 'SUBJ_ID',
                 dateColDescription: 'Date of measurement',
         )
         then: 'header matches expectations'
@@ -75,10 +75,10 @@ class HypercubeTabularResultTransformedViewSpec extends Specification {
         Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user, [DimensionImpl.PATIENT])
 
         when:
-        def transformedView = new HypercubeTabularResultTransformedView(hypercube,
+        def transformedView = new SubjectObservationsByStudyConceptsTableView(hypercube,
                 subjectIdColumnName: 'FISNumber',
                 subjectIdColumnDescription: 'FIS Number',
-                subjectIdSource: 'EXTDB',
+                subjectIdSource: 'SUBJ_ID',
                 dateColDescription: 'Date of measurement',
         )
         then: 'header matches expectations'

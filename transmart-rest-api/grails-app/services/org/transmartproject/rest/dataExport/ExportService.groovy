@@ -50,20 +50,17 @@ class ExportService {
         dataTypeAndFormatList.each { typeFormatPair ->
             MultidimensionalDataService.Format outFormat = MultidimensionalDataService.Format[typeFormatPair.format]
             String dataType = typeFormatPair.dataType
-            boolean tabular = typeFormatPair.tabular
+            String dataView = typeFormatPair.dataView
 
             if (dataType == 'clinical') {
                 try {
-                    multidimensionalDataService.writeClinical([dataType : dataType, tabular: tabular], outFormat, constraint, user, output)
+                    multidimensionalDataService.writeClinical(outFormat, constraint, user, output, dataView)
                 } catch (LegacyStudyException e) {
                     throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
                 }
             } else {
-                if (tabular) {
-                    throw new UnsupportedOperationException('Tabular format is not supported for HD data.')
-                }
                 try {
-                    multidimensionalDataService.writeHighdim(outFormat, dataType, constraint, null, null, user, output)
+                    multidimensionalDataService.writeHighdim(outFormat, dataType, constraint, null, null, user, output, dataView)
                 } catch (LegacyStudyException e) {
                     throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
                 }

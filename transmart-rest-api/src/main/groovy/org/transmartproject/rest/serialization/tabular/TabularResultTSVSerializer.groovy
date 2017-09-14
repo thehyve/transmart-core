@@ -50,6 +50,7 @@ class TabularResultTSVSerializer {
 
     private static String[] formatRowValues(List<Object> valuesRow) {
         valuesRow.collect { value ->
+            if (value == null) return ''
             if (value instanceof Date) {
                 DATE_FORMAT.format(value)
             } else {
