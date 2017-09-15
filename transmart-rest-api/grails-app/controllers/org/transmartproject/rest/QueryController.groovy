@@ -136,13 +136,13 @@ class QueryController extends AbstractQueryController {
 
     /**
      * Count endpoint:
-     * <code>/v2/observations/countPerConcept?constraint=${constraint}</code>
+     * <code>/v2/observations/counts_per_concept?constraint=${constraint}</code>
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
      *
      * @return a map from concept code to the number of observations that satisfy the constraint for that concept.
      */
-    def countPerConcept() {
+    def countsPerConcept() {
         def args = getGetOrPostParams()
         checkParams(args, ['constraint'])
 
@@ -151,8 +151,56 @@ class QueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = multiDimService.countPerConcept(constraint, user)
-        def result = [counts: counts]
+        def counts = multiDimService.countsPerConcept(constraint, user)
+        def result = [countsPerConcept: counts]
+        render result as JSON
+    }
+
+    /**
+     * Count endpoint:
+     * <code>/v2/observations/counts_per_study?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a map from study if to the number of observations that satisfy the constraint for that study.
+     */
+    def countsPerStudy() {
+        def args = getGetOrPostParams()
+        checkParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def counts = multiDimService.countsPerStudy(constraint, user)
+        def result = [countsPerStudy: counts]
+        render result as JSON
+    }
+
+    /**
+     * Count endpoint:
+     * <code>/v2/observations/counts_per_study_and_concept?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a map from study id to a map from concept code to the number of observations that satisfy the constraint
+     * for that combination of study and concept.
+     */
+    def countsPerStudyAndConcept() {
+        def args = getGetOrPostParams()
+        checkParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def counts = multiDimService.countsPerStudyAnyConcept(constraint, user)
+        counts.collectEntries { studyId, countsPerConcept ->
+            [(studyId): [countsPerConcept: countsPerConcept]]
+        }
+        def result = [countsPerStudy: counts]
         render result as JSON
     }
 

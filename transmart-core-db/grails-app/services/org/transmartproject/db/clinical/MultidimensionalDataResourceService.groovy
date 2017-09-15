@@ -8,6 +8,7 @@ import grails.orm.HibernateCriteriaBuilder
 import grails.plugin.cache.Cacheable
 import grails.util.Holders
 import groovy.transform.CompileStatic
+import groovy.transform.Immutable
 import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
 import org.hibernate.Criteria
@@ -52,6 +53,7 @@ import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.i2b2data.ConceptDimension
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.AssayDimension
 import org.transmartproject.db.multidimquery.BioMarkerDimension
@@ -468,7 +470,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     @Override
-    Map<String, Long> countPerConcept(MultiDimConstraint constraint, User user) {
+    Map<String, Long> countsPerConcept(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per concept ..."
         def t1 = new Date()
         checkAccess(constraint, user)
@@ -482,6 +484,54 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         result.collectEntries{ row ->
             [(row[0] as String): row[1] as Long]
         }
+    }
+
+    @Override
+    Map<String, Long> countsPerStudy(MultiDimConstraint constraint, User user) {
+        log.debug "Computing counts per study ..."
+        def t1 = new Date()
+        checkAccess(constraint, user)
+        QueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
+                .add(Projections.groupProperty('trialVisit'))
+                .add(Projections.rowCount()))
+        List rows = getList(criteria)
+        def t2 = new Date()
+        log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
+        rows.groupBy { row -> (row[0] as TrialVisit).study.studyId }.collectEntries{ studyId, rowsPerStudy ->
+            [(studyId): rowsPerStudy.sum { row -> row[1] as Long }]
+        } as Map<String, Long>
+    }
+
+    @Immutable
+    class ConceptStudyCountRow {
+        String conceptCode
+        String studyId
+        Long count
+    }
+
+    @Override
+    Map<String, Map<String, Long>> countsPerStudyAnyConcept(MultiDimConstraint constraint, User user) {
+        log.debug "Computing counts per study and concept..."
+        def t1 = new Date()
+        checkAccess(constraint, user)
+        QueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
+                .add(Projections.groupProperty('conceptCode'))
+                .add(Projections.groupProperty('trialVisit'))
+                .add(Projections.rowCount()))
+        List result = getList(criteria)
+        def t2 = new Date()
+        log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
+        List<ConceptStudyCountRow> counts = result.collect{ row ->
+            new ConceptStudyCountRow(conceptCode: row[0] as String, studyId: (row[1] as TrialVisit).study.studyId, count: row[2] as Long)
+        }
+        counts.groupBy { it.studyId }.collectEntries { String studyId, List<ConceptStudyCountRow> rowsPerStudy ->
+            [(studyId): rowsPerStudy.groupBy { it.conceptCode}.collectEntries { String conceptCode, List<ConceptStudyCountRow> rows ->
+                [(conceptCode): rows.sum { row -> row.count }]
+            } as Map<String, Long>
+            ]
+        } as Map<String, Map<String, Long>>
     }
 
     @Override
