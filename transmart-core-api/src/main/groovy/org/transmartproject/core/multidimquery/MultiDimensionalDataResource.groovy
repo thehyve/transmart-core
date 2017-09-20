@@ -2,11 +2,8 @@
 
 package org.transmartproject.core.multidimquery
 
-import groovy.transform.Immutable
-import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.users.ProtectedOperation.WellKnownOperations
 import org.transmartproject.core.users.User
 
 interface MultiDimensionalDataResource {
@@ -34,11 +31,11 @@ interface MultiDimensionalDataResource {
 
     Long cachedCount(MultiDimConstraint constraint, User user)
 
-    Map<String, Long> countsPerConcept(MultiDimConstraint constraint, User user)
+    Map<String, Counts> countsPerConcept(MultiDimConstraint constraint, User user)
 
-    Map<String, Long> countsPerStudy(MultiDimConstraint constraint, User user)
+    Map<String, Counts> countsPerStudy(MultiDimConstraint constraint, User user)
 
-    Map<String, Map<String, Long>> countsPerStudyAnyConcept(MultiDimConstraint constraint, User user)
+    Map<String, Map<String, Counts>> countsPerStudyAnyConcept(MultiDimConstraint constraint, User user)
 
     Iterable getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user)
 

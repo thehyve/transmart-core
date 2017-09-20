@@ -42,6 +42,7 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
@@ -53,7 +54,6 @@ import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
 import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.AssayDimension
 import org.transmartproject.db.multidimquery.BioMarkerDimension
@@ -391,6 +391,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 return Projections.max('numberValue')
             case AggregateType.COUNT:
                 return Projections.rowCount()
+            case AggregateType.PATIENT_COUNT:
+                return Projections.countDistinct('patient')
             case AggregateType.VALUES:
                 return Projections.distinct(Projections.property('textValue'))
             default:
@@ -470,68 +472,79 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     @Override
-    Map<String, Long> countsPerConcept(MultiDimConstraint constraint, User user) {
+    Map<String, Counts> countsPerConcept(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per concept ..."
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
-                .add(Projections.groupProperty('conceptCode'))
-                .add(Projections.rowCount()))
-        List result = getList(criteria)
+                .add(Projections.groupProperty('conceptCode'), 'conceptCode')
+                .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
+                .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+        List rows = getList(criteria)
         def t2 = new Date()
         log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
-        result.collectEntries{ row ->
-            [(row[0] as String): row[1] as Long]
+        rows.collectEntries{ Map row ->
+            [(row.conceptCode as String):
+                     new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)]
         }
     }
 
     @Override
-    Map<String, Long> countsPerStudy(MultiDimConstraint constraint, User user) {
+    Map<String, Counts> countsPerStudy(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per study ..."
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
-        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
-                .add(Projections.groupProperty('trialVisit'))
-                .add(Projections.rowCount()))
+        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
+                .setProjection(Projections.projectionList()
+                    .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
+                    .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
+                    .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List rows = getList(criteria)
         def t2 = new Date()
         log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
-        rows.groupBy { row -> (row[0] as TrialVisit).study.studyId }.collectEntries{ studyId, rowsPerStudy ->
-            [(studyId): rowsPerStudy.sum { row -> row[1] as Long }]
-        } as Map<String, Long>
+        rows.collectEntries { Map row ->
+            [((row.study as Study).studyId):
+                     new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)]
+        } as Map<String, Counts>
     }
 
     @Immutable
     class ConceptStudyCountRow {
         String conceptCode
         String studyId
-        Long count
+        Counts summary
     }
 
     @Override
-    Map<String, Map<String, Long>> countsPerStudyAnyConcept(MultiDimConstraint constraint, User user) {
+    Map<String, Map<String, Counts>> countsPerStudyAnyConcept(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per study and concept..."
         def t1 = new Date()
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
-        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
-                .add(Projections.groupProperty('conceptCode'))
-                .add(Projections.groupProperty('trialVisit'))
-                .add(Projections.rowCount()))
+        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
+                .setProjection(Projections.projectionList()
+                    .add(Projections.groupProperty('conceptCode'), 'conceptCode')
+                    .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
+                    .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
+                    .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List result = getList(criteria)
         def t2 = new Date()
         log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
-        List<ConceptStudyCountRow> counts = result.collect{ row ->
-            new ConceptStudyCountRow(conceptCode: row[0] as String, studyId: (row[1] as TrialVisit).study.studyId, count: row[2] as Long)
+        List<ConceptStudyCountRow> counts = result.collect{ Map row ->
+            new ConceptStudyCountRow(conceptCode: row.conceptCode as String, studyId: (row.study as Study).studyId,
+                    summary: new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long))
         }
         counts.groupBy { it.studyId }.collectEntries { String studyId, List<ConceptStudyCountRow> rowsPerStudy ->
             [(studyId): rowsPerStudy.groupBy { it.conceptCode}.collectEntries { String conceptCode, List<ConceptStudyCountRow> rows ->
-                [(conceptCode): rows.sum { row -> row.count }]
-            } as Map<String, Long>
+                [(conceptCode): rows[0].summary]
+            } as Map<String, Counts>
             ]
-        } as Map<String, Map<String, Long>>
+        } as Map<String, Map<String, Counts>>
     }
 
     @Override
