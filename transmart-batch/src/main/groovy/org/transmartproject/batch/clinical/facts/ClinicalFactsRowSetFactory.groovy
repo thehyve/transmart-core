@@ -133,7 +133,8 @@ class ClinicalFactsRowSetFactory {
     private ConceptNode getOrGenerateConceptNode(ClinicalDataFileVariables variables,
                                                  ClinicalVariable var,
                                                  ClinicalDataRow row) {
-        if (!var.conceptPath) {
+
+        if (var.dataLabel == ClinicalVariable.TEMPLATE) {
             /*
              * Concepts are created and assigned types and ids
              */
@@ -141,6 +142,7 @@ class ClinicalFactsRowSetFactory {
             var.conceptPath = conceptPath
             var.path = conceptPath
         }
+
         ConceptNode concept = tree.conceptNodeForConceptPath(var.conceptPath)
         // if the concept doesn't yet exist (ie first record)
         concept = concept ?: tree.getOrGenerateConceptForVariable(var)
@@ -160,11 +162,6 @@ class ClinicalFactsRowSetFactory {
     private ConceptPath getOrGenerateConceptPath(ClinicalDataFileVariables variables,
                                                  ClinicalVariable var,
                                                  ClinicalDataRow row) {
-        if (var.conceptPath) {
-            return var.conceptPath
-        }
-
-        assert var.dataLabel == ClinicalVariable.TEMPLATE
 
         def relConceptPath = ConceptFragment.decode(var.categoryCode).path
 
