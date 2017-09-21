@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
 import org.transmartproject.db.TransmartSpecification
@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.*
 @Rollback
 class DefaultOntologyTermConstraintSpec extends TransmartSpecification {
 
-    ConceptsResource conceptsResourceService
+    OntologyTermsResource conceptsResourceService
 
     AssayTestData testData = new AssayTestData()
 

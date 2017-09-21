@@ -43,7 +43,7 @@ import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.multidimquery.Counts
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
@@ -113,7 +113,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     HighDimensionResourceService highDimensionResourceService
 
     @Autowired
-    ConceptsResource conceptsResource
+    OntologyTermsResource conceptsResource
 
     @Override Dimension getDimension(String name) {
         DimensionDescription.findByName(name)?.dimension

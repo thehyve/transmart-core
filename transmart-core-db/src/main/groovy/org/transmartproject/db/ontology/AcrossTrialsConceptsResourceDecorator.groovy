@@ -20,16 +20,16 @@
 package org.transmartproject.db.ontology
 
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.concept.ConceptKey
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TOP_TERM_NAME
 
-class AcrossTrialsConceptsResourceDecorator implements ConceptsResource {
+class AcrossTrialsConceptsResourceDecorator implements OntologyTermsResource {
 
-    ConceptsResource inner
+    OntologyTermsResource inner
 
     private final OntologyTerm topTerm = new AcrossTrialsTopTerm()
 

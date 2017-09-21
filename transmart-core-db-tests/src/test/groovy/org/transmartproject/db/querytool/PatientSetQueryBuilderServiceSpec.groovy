@@ -22,7 +22,7 @@ package org.transmartproject.db.querytool
 import grails.test.mixin.TestFor
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.InvalidRequestException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
@@ -65,7 +65,7 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
                     res.databasePortabilityService = databasePortabilityStub
                     res
                 }
-        ] as ConceptsResource
+        ] as OntologyTermsResource
         service.conceptsResourceService = conceptsResourceServiceStub
 
         resultInstance = new QtQueryResultInstance()

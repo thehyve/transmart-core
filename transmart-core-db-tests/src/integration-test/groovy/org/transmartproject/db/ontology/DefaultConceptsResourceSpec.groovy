@@ -23,7 +23,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.db.TransmartSpecification
 
 import static org.hamcrest.Matchers.*
@@ -35,7 +35,7 @@ import static spock.util.matcher.HamcrestSupport.that
 @Rollback
 class DefaultConceptsResourceSpec extends TransmartSpecification {
 
-    ConceptsResource conceptsResourceService = new DefaultConceptsResource()
+    OntologyTermsResource conceptsResourceService = new DefaultConceptsResource()
 
     void setupData() {
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',

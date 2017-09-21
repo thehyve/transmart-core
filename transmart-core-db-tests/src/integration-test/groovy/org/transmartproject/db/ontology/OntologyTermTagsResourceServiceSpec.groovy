@@ -2,7 +2,7 @@ package org.transmartproject.db.ontology
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.db.TransmartSpecification
@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.*
 class OntologyTermTagsResourceServiceSpec extends TransmartSpecification {
 
     OntologyTermTagsResourceService ontologyTermTagsResourceService
-    ConceptsResource conceptsResourceService
+    OntologyTermsResource conceptsResourceService
 
     TabularStudyTestData studyTestData = new TabularStudyTestData()
 

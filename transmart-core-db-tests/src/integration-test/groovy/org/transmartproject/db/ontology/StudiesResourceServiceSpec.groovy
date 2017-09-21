@@ -22,7 +22,7 @@ package org.transmartproject.db.ontology
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.TransmartSpecification
@@ -38,7 +38,7 @@ class StudiesResourceServiceSpec extends TransmartSpecification {
 
     StudiesResource studiesResourceService
 
-    ConceptsResource conceptsResourceService
+    OntologyTermsResource conceptsResourceService
 
     void setupData() {
         studyTestData.saveAll()

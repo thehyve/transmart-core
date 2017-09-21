@@ -24,7 +24,7 @@ import grails.plugin.cache.Cacheable
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
 
@@ -34,11 +34,11 @@ class StudyIdService {
     QueriesResource queriesResourceService
 
     @Resource
-    ConceptsResource conceptsResourceService
+    OntologyTermsResource conceptsResourceService
 
     /**
      * Fetches the study id associated with a concept from the 
-     * {@link ConceptsResource} using the concept key.
+     * {@link OntologyTermsResource} using the concept key.
      * 
      * @param concept_key the concept key.
      * @param options map with optional parameters:

@@ -6,7 +6,7 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
  * The ConceptsResource represent i2b2 concepts, that is,
  * classes of data. These concepts are organized in a hierarchical fashion.
  */
-interface ConceptsResource {
+interface OntologyTermsResource {
 
     /**
      * Categories are concepts that group data for which there is a common
@@ -24,4 +24,5 @@ interface ConceptsResource {
      * @throws NoSuchResourceException
      */
     OntologyTerm getByKey(String conceptKey) throws NoSuchResourceException
+
 }

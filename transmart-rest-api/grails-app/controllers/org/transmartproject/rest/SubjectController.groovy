@@ -29,7 +29,7 @@ import grails.rest.Link
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.clinical.PatientsResource
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.PatientWrapper
@@ -41,7 +41,7 @@ class SubjectController {
 
     StudyLoadingService studyLoadingServiceProxy
     PatientsResource    patientsResourceService
-    ConceptsResource    conceptsResourceService
+    OntologyTermsResource conceptsResourceService
 
     /** GET request on /v1/studies/XXX/subjects/
      *  This will return the list of subjects for certain study,

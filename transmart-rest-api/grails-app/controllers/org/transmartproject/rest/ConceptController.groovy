@@ -25,7 +25,7 @@
 
 package org.transmartproject.rest
 import grails.rest.Link
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.OntologyTermWrapper
 import org.transmartproject.rest.ontology.OntologyTermCategory
@@ -35,7 +35,7 @@ class ConceptController {
     static responseFormats = ['json', 'hal']
 
     StudyLoadingService studyLoadingServiceProxy
-    ConceptsResource conceptsResourceService
+    OntologyTermsResource conceptsResourceService
 
     /** GET request on /v1/studies/XXX/concepts/
      *  This will return the list of concepts, where each concept will be rendered in its short format

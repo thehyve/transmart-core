@@ -20,7 +20,7 @@
 package org.transmartproject.db.ontology
 
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.concept.ConceptKey
 
@@ -28,7 +28,7 @@ import org.transmartproject.core.concept.ConceptKey
  * Handles loading {@link OntologyTerm}s from <code>table_access</code> and
  * related tables.
  */
-class DefaultConceptsResource implements ConceptsResource {
+class DefaultConceptsResource implements OntologyTermsResource {
 
     @Override
     List<OntologyTerm> getAllCategories() {
