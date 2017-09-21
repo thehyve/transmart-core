@@ -148,4 +148,9 @@
            timeToIdleSeconds="0"
     />
 
+    <cache name="org.transmartproject.db.concept.ConceptsService"
+           maxElementsInMemory="100000"
+           timeToIdleSeconds="0"
+    />
+
 </ehcache>

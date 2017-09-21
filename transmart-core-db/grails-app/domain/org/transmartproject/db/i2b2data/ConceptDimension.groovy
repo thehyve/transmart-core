@@ -20,15 +20,16 @@
 package org.transmartproject.db.i2b2data
 
 import groovy.transform.ToString
+import org.transmartproject.core.concept.Concept
 
 @ToString
-class ConceptDimension {
+class ConceptDimension implements Concept {
 
-    String       conceptPath
-    String       conceptCode
+    String conceptPath
+    String conceptCode
+    String name
 
     // not used
-    //String       nameChar
     //String       conceptBlob
     //Date         updateDate
     //Date         downloadDate
@@ -40,17 +41,19 @@ class ConceptDimension {
         table   schema: 'i2b2demodata'
         id      name:   'conceptPath', generator: 'assigned'
 
+        conceptPath column: 'concept_path'
         conceptCode column: 'concept_cd'
+        name        column: 'name_char'
 
         version false
     }
 
     static constraints = {
-        conceptPath      maxSize:    700
-        conceptCode      maxSize:    50
+        conceptPath     maxSize:    700
+        conceptCode     maxSize:    50
+        name            nullable:   true,   maxSize:   2000
 
         // not used
-        //nameChar         nullable:   true,   maxSize:   2000
         //conceptBlob      nullable:   true
         //updateDate       nullable:   true
         //downloadDate     nullable:   true
