@@ -162,10 +162,7 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         }
 
         private Date toDate(Number value) {
-            def calendar = new GregorianCalendar()
-            calendar.setTimeZone(TimeZone.getTimeZone('UTC'))
-            calendar.setTimeInMillis((value * 1000) as Long)
-            calendar.getTime()
+            new Date((value * 1000) as Long)
         }
 
         private ColumnMetadata computeColumnMetadata() {
