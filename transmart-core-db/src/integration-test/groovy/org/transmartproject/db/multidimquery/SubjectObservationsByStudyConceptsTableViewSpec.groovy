@@ -22,6 +22,8 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
     @Autowired
     MultiDimensionalDataResource multiDimService
 
+    private final UTC = TimeZone.getTimeZone('UTC')
+
     def 'survey 1'() {
         setup:
         def user = User.findByUsername('test-public-user-1')
@@ -54,12 +56,12 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         def rows = transformedView.rows.toList()
         then: 'content matches expactations'
         rows[0][columns[0]] == 123457L
-        rows[0][columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1986-10-22 00:00:00')
+        rows[0][columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1986-10-22 00:00:00', UTC)
         rows[0][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2010-12-16 20:23:15')
         rows[0][columns[3]] == -2
         rows[0][columns[4]] == null
         rows[1][columns[0]] == 123456L
-        rows[1][columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1980-08-12 00:00:00')
+        rows[1][columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1980-08-12 00:00:00', UTC)
         rows[1][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2015-11-14 19:05:00')
         rows[1][columns[3]] == 2
         rows[1][columns[4]] == null
