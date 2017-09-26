@@ -6,3 +6,4 @@
 \i biomart_user/gene_ontology_data.sql
 \i biomart_user/ioe_temp_obj_reg2.sql
 \i biomart_user/kde_temp_obj_reg3.sql
+\i biomart_user/queries.sql

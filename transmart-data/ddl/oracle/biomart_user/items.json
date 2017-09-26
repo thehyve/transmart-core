@@ -3184,6 +3184,13 @@
     "parents" : [ ]
   }, {
     "child" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERIES"
+    },
+    "parents" : [ ]
+  }, {
+    "child" : {
       "type" : "SYNONYM",
       "owner" : "BIOMART_USER",
       "name" : "GENE_SYNONYM_TEST"
@@ -5442,6 +5449,13 @@
       "name" : "GENE_ONTOLOGY_DATA"
     },
     "file" : "biomart_user/gene_ontology_data.sql"
+  }, {
+    "item" : {
+      "type" : "TABLE",
+      "owner" : "BIOMART_USER",
+      "name" : "QUERIES"
+    },
+    "file" : "biomart_user/queries.sql"
   }, {
     "item" : {
       "type" : "INDEX",
