@@ -1,7 +1,7 @@
 --
--- Name: queries; Type: TABLE; Schema: biomart_user; Owner: -
+-- Name: query; Type: TABLE; Schema: biomart_user; Owner: -
 --
-CREATE TABLE biomart_user.queries (
+CREATE TABLE biomart_user.query (
     id SERIAL PRIMARY KEY,
     username character varying(50) NOT NULL,
     patients_query text,
@@ -14,6 +14,6 @@ CREATE TABLE biomart_user.queries (
 );
 
 --
--- Name: queries_user; Type: INDEX; Schema: biomart_user; Owner: -
+-- Name: query_user; Type: INDEX; Schema: biomart_user; Owner: -
 --
-CREATE INDEX queries_user ON biomart_user.queries USING btree (username);
+CREATE INDEX query_user ON biomart_user.query USING btree (username);

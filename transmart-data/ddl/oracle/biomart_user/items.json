@@ -3186,7 +3186,7 @@
     "child" : {
       "type" : "TABLE",
       "owner" : "BIOMART_USER",
-      "name" : "QUERIES"
+      "name" : "QUERY"
     },
     "parents" : [ ]
   }, {
@@ -5453,9 +5453,9 @@
     "item" : {
       "type" : "TABLE",
       "owner" : "BIOMART_USER",
-      "name" : "QUERIES"
+      "name" : "QUERY"
     },
-    "file" : "biomart_user/queries.sql"
+    "file" : "biomart_user/query.sql"
   }, {
     "item" : {
       "type" : "INDEX",
