@@ -20,8 +20,8 @@ dependencies {
     final GUAVA_VERSION = guavaVersion
     final JUNIT_VERSION = '4.11'
     final GMOCK_VERSION = '0.8.3'
-    final POSTGRESQL_VERSION = '9.3-1102-jdbc41'
-    final ORACLE_VERSION = '11.2.0.3.0'
+    final POSTGRESQL_VERSION = postgresqlVersion
+    final ORACLE_VERSION = ojdb7Version
     final H2_VERSION = '1.4.185'
     final HIBERNATE_VALIDATOR_VERSION = '5.2.2.Final'
 
@@ -46,7 +46,7 @@ dependencies {
     compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: SLF4J_VERSION
 
     runtime group: 'org.postgresql', name: 'postgresql', version: POSTGRESQL_VERSION
-    runtime group: 'com.oracle',     name: 'ojdbc6',     version: ORACLE_VERSION
+    runtime group: 'com.oracle',     name: 'ojdbc7',     version: ORACLE_VERSION
 
     testCompile group: 'org.springframework.batch', name: 'spring-batch-test', version: BATCH_VERSION
     testCompile group: 'org.springframework', name: 'spring-test', version: SPRING_VERSION

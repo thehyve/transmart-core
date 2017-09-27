@@ -6,8 +6,8 @@ dependencies {
     provided "org.springframework.boot:spring-boot-starter-tomcat"
 
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
-    runtime 'org.postgresql:postgresql:9.3-1100-jdbc4'
-    runtime 'com.oracle:ojdbc7:12.1.0.1'
+    runtime "org.postgresql:postgresql:${postgresqlVersion}"
+    runtime "com.oracle:ojdbc7:${ojdb7Version}"
     runtime 'org.javassist:javassist:3.16.1-GA'
 
     compile "org.springframework.boot:spring-boot-starter-logging"
@@ -20,21 +20,21 @@ dependencies {
     compile "org.grails.plugins:cache"
     compile "org.grails.plugins:scaffolding"
     compile "org.grails.plugins:hibernate5"
-    compile 'org.grails.plugins:spring-security-core:3.1.1'
-    compile 'org.grails.plugins:spring-security-oauth2-provider:3.0.0-RC2'
+    compile "org.grails.plugins:spring-security-core:${springSecurityPluginVersion}"
+    compile "org.grails.plugins:spring-security-oauth2-provider:${springSecurityOauth2PluginVersion}"
 
     // spring security version should be in sync with that brought with
     // grails-spring-security-core
-    runtime 'org.springframework.security:spring-security-config:3.2.3.RELEASE'
+    runtime "org.springframework.security:spring-security-config:${springSecurityVersion}"
 
     //compile 'org.springframework.ldap:spring-ldap-core:2.1.0.RELEASE'
-    compile 'org.springframework.security:spring-security-ldap:3.2.3.RELEASE'
-    compile 'org.springframework.security:spring-security-web:3.2.3.RELEASE'
+    compile "org.springframework.security:spring-security-ldap:${springSecurityVersion}"
+    compile "org.springframework.security:spring-security-web:${springSecurityVersion}"
     //compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.11.RELEASE'
 
     compile "org.swinglabs:pdf-renderer:1.0.5"
     compile 'antlr:antlr:2.7.7'
-    compile 'net.sf.opencsv:opencsv:2.3'
+    compile "com.opencsv:opencsv:${openCsvVersion}"
     compile "org.apache.lucene:lucene-core:2.4.0"
     compile "org.apache.lucene:lucene-demos:2.4.0"
     compile "org.apache.lucene:lucene-highlighter:2.4.0"
