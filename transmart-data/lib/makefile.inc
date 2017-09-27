@@ -2,6 +2,7 @@ JDBC_DL_PSQL     := https://repo.thehyve.nl/service/local/repositories/central/c
 JDBC_DRIVER_PSQL := postgresql-9.4.1211.jre7.jar
 JDBC_DL_ORA      := https://repo.thehyve.nl/service/local/repositories/thirdparty/content/com/oracle/ojdbc7/12.1.0.1
 JDBC_DRIVER_ORA  := ojdbc7-12.1.0.1.jar
+JDBC_DL_XDB_ORA  := http://files.thehyve.net
 JDBC_XDB_ORA     := xdb.jar
 
 LIB_DIR          := $(dir $(lastword $(MAKEFILE_LIST)))
@@ -20,7 +21,7 @@ $(JDBC_DRIVER_ORA_PATH): $(JDBC_XDB_ORA_PATH)
 	curl -f $(JDBC_DL_ORA)/$(JDBC_DRIVER_ORA) > $@
 
 $(JDBC_XDB_ORA_PATH):
-	curl -f $(JDBC_DL_ORA)/$(JDBC_XDB_ORA) > $@
+	curl -f $(JDBC_DL_XDB_ORA)/$(JDBC_XDB_ORA) > $@
 
 NETTY_JAR        := netty-3.5.13.Final.jar
 NETTY_JAR_DL     := http://files.thehyve.net
