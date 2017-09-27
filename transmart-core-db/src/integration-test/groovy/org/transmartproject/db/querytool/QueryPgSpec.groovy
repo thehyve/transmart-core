@@ -15,6 +15,7 @@ class QueryPgSpec extends Specification {
 
         when:
         def query = new Query(
+                name: 'test query name',
                 username: 'test_user',
                 patientQuery: 'patient query',
                 observationQuery: 'observation query',

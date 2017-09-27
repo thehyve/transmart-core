@@ -3,6 +3,7 @@
 --
 CREATE TABLE biomart_user.query (
     id SERIAL PRIMARY KEY,
+    name character varying(1000) NOT NULL,
     username character varying(50) NOT NULL,
     patients_query text,
     observations_query text,
