@@ -17,15 +17,15 @@ CREATE TABLE "BIOMART_USER"."QUERY"
 );
 
 --
--- Type: INDEX; Owner: BIOMART_USER; Name: QUERY_USER
+-- Type: INDEX; Owner: BIOMART_USERNAME_DELETED; Name: QUERY_USER
 --
-CREATE INDEX "BIOMART_USER"."QUERY_USER" ON "BIOMART_USER"."QUERY" ("USERNAME")
+CREATE INDEX "BIOMART_USER"."QUERY_USERNAME_DELETED" ON "BIOMART_USER"."QUERY" ("USERNAME", "DELETED")
 TABLESPACE "TRANSMART" ;
 
 --
--- Type: SEQUENCE; Owner: BIOMART_USER; Name: QUERY_ID
+-- Type: SEQUENCE; Owner: BIOMART_USER; Name: QUERY_ID_SEQ
 --
-CREATE SEQUENCE "BIOMART_USER"."QUERY_ID";
+CREATE SEQUENCE "BIOMART_USER"."QUERY_ID_SEQ";
 
 --
 -- Type: TRIGGER; Owner: BIOMART_USER; Name: TRG_QUERY_ID
@@ -35,10 +35,23 @@ CREATE SEQUENCE "BIOMART_USER"."QUERY_ID";
 	 for each row begin
 	 if inserting then
 	 if :NEW."ID" is null then
-	 select QUERY_ID.nextval into :NEW."ID" from dual;
+	 select QUERY_ID_SEQ.nextval into :NEW."ID" from dual;
 	 end if;
 	 end if;
 	 end;
 
 /
 ALTER TRIGGER "BIOMART_USER"."TRG_QUERY_ID" ENABLE;
+
+--
+-- Table documentation
+--
+COMMENT ON TABLE biomart_user.query IS 'Storage for patients and observations queries to support front end functionality.';
+
+COMMENT ON COLUMN query.name IS 'The query name.';
+COMMENT ON COLUMN query.username IS 'The username of the user that created the query.';
+COMMENT ON COLUMN query.patients_query IS 'The patient selection part of the query.';
+COMMENT ON COLUMN query.observations_query IS 'The observation selection part of the query.';
+COMMENT ON COLUMN query.api_version IS 'The version of the API the query was intended for.';
+COMMENT ON COLUMN query.bookmarked IS 'Flag to indicate if the user has bookmarked the query.';
+COMMENT ON COLUMN query.deleted IS 'Flag to indicate if the query has been deleted.';

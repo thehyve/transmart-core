@@ -17,4 +17,17 @@ CREATE TABLE biomart_user.query (
 --
 -- Name: query_user; Type: INDEX; Schema: biomart_user; Owner: -
 --
-CREATE INDEX query_user ON biomart_user.query USING btree (username);
+CREATE INDEX query_username_deleted ON biomart_user.query USING btree (username, deleted);
+
+--
+-- Table documentation
+--
+COMMENT ON TABLE biomart_user.query IS 'Storage for patients and observations queries to support front end functionality.';
+
+COMMENT ON COLUMN query.name IS 'The query name.';
+COMMENT ON COLUMN query.username IS 'The username of the user that created the query.';
+COMMENT ON COLUMN query.patients_query IS 'The patient selection part of the query.';
+COMMENT ON COLUMN query.observations_query IS 'The observation selection part of the query.';
+COMMENT ON COLUMN query.api_version IS 'The version of the API the query was intended for.';
+COMMENT ON COLUMN query.bookmarked IS 'Flag to indicate if the user has bookmarked the query.';
+COMMENT ON COLUMN query.deleted IS 'Flag to indicate if the query has been deleted.';
