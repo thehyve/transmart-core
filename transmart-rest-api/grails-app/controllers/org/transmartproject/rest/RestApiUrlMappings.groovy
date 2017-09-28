@@ -169,6 +169,15 @@ class RestApiUrlMappings {
             "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {
                 apiVersion = "v2"
             }
+            "/queries"(method: 'GET', controller: 'userQuery', action: 'index')
+            "/queries/$id"(method: 'GET', controller: 'userQuery', action: 'get')
+            "/queries"(method: 'POST', controller: 'userQuery', action: 'save') {
+                apiVersion = "v2"
+            }
+            "/queries/$id"(method: 'PUT', controller: 'userQuery', action: 'update') {
+                apiVersion = "v2"
+            }
+            "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
         }
 
         group "/v1", {

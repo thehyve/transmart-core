@@ -8,12 +8,12 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.core.multidimquery.AggregateType
-import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 
-import static MultidimensionalDataService.*
+import static org.transmartproject.rest.MultidimensionalDataService.Format
+import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 @Slf4j
 class QueryController extends AbstractQueryController {
@@ -61,7 +61,7 @@ class QueryController extends AbstractQueryController {
      */
     def observations() {
         def args = getGetOrPostParams()
-        checkParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
+        checkForUnsupportedParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
 
         if (args.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
 
@@ -122,7 +122,7 @@ class QueryController extends AbstractQueryController {
      */
     def count() {
         def args = getGetOrPostParams()
-        checkParams(args, ['constraint'])
+        checkForUnsupportedParams(args, ['constraint'])
 
         Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
@@ -222,7 +222,7 @@ class QueryController extends AbstractQueryController {
      */
     def aggregate() {
         def args = getGetOrPostParams()
-        checkParams(args, ['constraint', 'type'])
+        checkForUnsupportedParams(args, ['constraint', 'type'])
         def type = args.type
 
         if (!type) {
@@ -287,7 +287,7 @@ class QueryController extends AbstractQueryController {
      * @return the list of fields supported by {@link org.transmartproject.db.multidimquery.query.FieldConstraint}.
      */
     def supportedFields() {
-        checkParams(params, [])
+        checkForUnsupportedParams(params, [])
 
         List<Field> fields = DimensionMetadata.supportedFields
         render fields as JSON

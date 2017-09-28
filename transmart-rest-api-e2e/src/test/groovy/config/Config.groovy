@@ -59,6 +59,7 @@ class Config {
     public static final String PATH_ARVADOS_WORKFLOWS = "/v2/arvados/workflows"
     public static final String PATH_DIMENSION = "/v2/dimensions"
     public static final String PATH_DATA_EXPORT = "/v2/export"
+    public static final String PATH_QUERY = "/v2/queries"
 
     //study ids
     public static final String ORACLE_1000_PATIENT_ID = 'ORACLE_1000_PATIENT'
