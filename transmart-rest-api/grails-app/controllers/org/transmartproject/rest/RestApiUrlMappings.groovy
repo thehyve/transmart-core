@@ -91,6 +91,12 @@ class RestApiUrlMappings {
                 action = [GET: 'listPatients', POST: 'listPatients']
                 apiVersion = 'v2'
             }
+            "/concepts"(method: 'GET', controller: 'concept', action: 'index') {
+                apiVersion = 'v2'
+            }
+            "/concepts/${conceptCode}"(method: 'GET', controller: 'concept', action: 'show') {
+                apiVersion = 'v2'
+            }
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
                 apiVersion = 'v2'
             }
