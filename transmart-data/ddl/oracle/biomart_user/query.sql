@@ -48,10 +48,10 @@ ALTER TRIGGER "BIOMART_USER"."TRG_QUERY_ID" ENABLE;
 --
 COMMENT ON TABLE biomart_user.query IS 'Storage for patients and observations queries to support front end functionality.';
 
-COMMENT ON COLUMN query.name IS 'The query name.';
-COMMENT ON COLUMN query.username IS 'The username of the user that created the query.';
-COMMENT ON COLUMN query.patients_query IS 'The patient selection part of the query.';
-COMMENT ON COLUMN query.observations_query IS 'The observation selection part of the query.';
-COMMENT ON COLUMN query.api_version IS 'The version of the API the query was intended for.';
-COMMENT ON COLUMN query.bookmarked IS 'Flag to indicate if the user has bookmarked the query.';
-COMMENT ON COLUMN query.deleted IS 'Flag to indicate if the query has been deleted.';
+COMMENT ON COLUMN biomart_user.query.name IS 'The query name.';
+COMMENT ON COLUMN biomart_user.query.username IS 'The username of the user that created the query.';
+COMMENT ON COLUMN biomart_user.query.patients_query IS 'The patient selection part of the query.';
+COMMENT ON COLUMN biomart_user.query.observations_query IS 'The observation selection part of the query.';
+COMMENT ON COLUMN biomart_user.query.api_version IS 'The version of the API the query was intended for.';
+COMMENT ON COLUMN biomart_user.query.bookmarked IS 'Flag to indicate if the user has bookmarked the query.';
+COMMENT ON COLUMN biomart_user.query.deleted IS 'Flag to indicate if the query has been deleted.';
