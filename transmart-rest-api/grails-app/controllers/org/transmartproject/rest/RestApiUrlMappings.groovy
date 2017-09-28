@@ -148,9 +148,6 @@ class RestApiUrlMappings {
             "/arvados/workflows/$id"(method: 'PUT', controller: 'arvados', action: 'update') {
                 apiVersion = "v2"
             }
-            "/recommended_concepts/$conceptCode"(method: 'GET', controller: 'ontologyTerm', action: 'showRecommended') {
-                apiVersion = 'v2'
-            }
             "/dimensions/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
                 apiVersion = 'v2'
             }
