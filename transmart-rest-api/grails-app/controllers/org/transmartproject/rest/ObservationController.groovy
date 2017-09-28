@@ -51,7 +51,7 @@ class ObservationController {
     ClinicalDataResource clinicalDataResourceService
     StudyLoadingService studyLoadingServiceProxy
     PatientsResource patientsResourceService
-    OntologyTermsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
     QueriesResource queriesResourceService
 
     /** GET request on /v1/studies/XXX/observations/
@@ -201,7 +201,7 @@ class ObservationController {
         }
 
         use (OntologyTermCategory) {
-            conceptsResourceService.getByKey(
+            ontologyTermsResourceService.getByKey(
                     conceptId.keyFromURLPart(study))
         }
     }

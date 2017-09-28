@@ -24,7 +24,7 @@ class OntologyController {
     def ontologyService
     def amTagTemplateService
     def amTagItemService
-    OntologyTermsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
     OntologyTermTagsResource ontologyTermTagsResourceService
     HighDimensionResource highDimensionResourceService
 
@@ -87,7 +87,7 @@ class OntologyController {
     def showConceptDefinition = {
         def model = [:]
 
-        OntologyTerm term = conceptsResourceService.getByKey(params.conceptKey)
+        OntologyTerm term = ontologyTermsResourceService.getByKey(params.conceptKey)
 
         //high dimensional information
         if (term.visualAttributes.contains(HIGH_DIMENSIONAL)) {

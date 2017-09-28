@@ -41,7 +41,7 @@ class SubjectController {
 
     StudyLoadingService studyLoadingServiceProxy
     PatientsResource    patientsResourceService
-    OntologyTermsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     /** GET request on /v1/studies/XXX/subjects/
      *  This will return the list of subjects for certain study,
@@ -77,7 +77,7 @@ class SubjectController {
         use (OntologyTermCategory) {
             def ontologyTermKey = params.conceptId.keyFromURLPart(
                     studyLoadingServiceProxy.study)
-            def ontologyTerm = conceptsResourceService.getByKey(ontologyTermKey)
+            def ontologyTerm = ontologyTermsResourceService.getByKey(ontologyTermKey)
             def patients = ontologyTerm.patients
             def selfLink = selfLinkForConcept ontologyTerm
 

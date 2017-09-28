@@ -28,7 +28,7 @@ import org.transmartproject.core.concept.ConceptKey
  * Handles loading {@link OntologyTerm}s from <code>table_access</code> and
  * related tables.
  */
-class DefaultConceptsResource implements OntologyTermsResource {
+class DefaultOntologyTermsResource implements OntologyTermsResource {
 
     @Override
     List<OntologyTerm> getAllCategories() {

@@ -30,20 +30,20 @@ import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.OntologyTermWrapper
 import org.transmartproject.rest.ontology.OntologyTermCategory
 
-class ConceptController {
+class OntologyTermController {
 
     static responseFormats = ['json', 'hal']
 
     StudyLoadingService studyLoadingServiceProxy
-    OntologyTermsResource conceptsResourceService
+    OntologyTermsResource ontologyTermResourceService
 
     /** GET request on /v1/studies/XXX/concepts/
      *  This will return the list of concepts, where each concept will be rendered in its short format
     */
     def index() {
-        def concepts = studyLoadingServiceProxy.study.ontologyTerm.allDescendants
-        def conceptWrappers = concepts.collect { new OntologyTermWrapper(it, false) }
-        respond wrapConcepts(conceptWrappers)
+        def ontologyTerms = studyLoadingServiceProxy.study.ontologyTerm.allDescendants
+        def ontologyTermWrappers = ontologyTerms.collect { new OntologyTermWrapper(it, false) }
+        respond wrapOntologyTerms(ontologyTermWrappers)
     }
 
     /** GET request on /v1/studies/XXX/concepts/${id}
@@ -54,8 +54,8 @@ class ConceptController {
     def show(String id) {
         use (OntologyTermCategory) {
             String key = id.keyFromURLPart studyLoadingServiceProxy.study
-            def concept = conceptsResourceService.getByKey(key)
-            respond new OntologyTermWrapper(concept,
+            def ontologyTerm = ontologyTermResourceService.getByKey(key)
+            respond new OntologyTermWrapper(ontologyTerm,
                     id == OntologyTermCategory.ROOT_CONCEPT_PATH)
         }
     }
@@ -64,7 +64,7 @@ class ConceptController {
      * @param source
      * @return CollectionResponseWrapper so we can provide a proper HAL response
      */
-    private ContainerResponseWrapper wrapConcepts(List<OntologyTermWrapper> source) {
+    private ContainerResponseWrapper wrapOntologyTerms(List<OntologyTermWrapper> source) {
         new ContainerResponseWrapper(
                 container: source,
                 componentType: OntologyTermWrapper,

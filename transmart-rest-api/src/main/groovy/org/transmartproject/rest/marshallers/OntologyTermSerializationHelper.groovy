@@ -44,7 +44,7 @@ class OntologyTermSerializationHelper extends AbstractHalOrJsonSerializationHelp
     StudyLoadingService studyLoadingServiceProxy
 
     @Resource
-    OntologyTermsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     @Resource
     OntologyTermTagsResource tagsResource
@@ -92,7 +92,7 @@ class OntologyTermSerializationHelper extends AbstractHalOrJsonSerializationHelp
 
         def currentKey = new ConceptKey(term.key)
         def key = new ConceptKey(currentKey.tableCode, new ConceptFullName(term.fullName).parent.toString()).toString()
-        conceptsResourceService.getByKey(key)
+        ontologyTermsResourceService.getByKey(key)
     }
 
     @Override
