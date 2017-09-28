@@ -144,7 +144,7 @@ class QueryController extends AbstractQueryController {
      */
     def countsPerConcept() {
         def args = getGetOrPostParams()
-        checkParams(args, ['constraint'])
+        checkForUnsupportedParams(args, ['constraint'])
 
         Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
@@ -166,7 +166,7 @@ class QueryController extends AbstractQueryController {
      */
     def countsPerStudy() {
         def args = getGetOrPostParams()
-        checkParams(args, ['constraint'])
+        checkForUnsupportedParams(args, ['constraint'])
 
         Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
@@ -189,7 +189,7 @@ class QueryController extends AbstractQueryController {
      */
     def countsPerStudyAndConcept() {
         def args = getGetOrPostParams()
-        checkParams(args, ['constraint'])
+        checkForUnsupportedParams(args, ['constraint'])
 
         Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
