@@ -35,7 +35,7 @@ class OntologyTermController {
     static responseFormats = ['json', 'hal']
 
     StudyLoadingService studyLoadingServiceProxy
-    OntologyTermsResource ontologyTermResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     /** GET request on /v1/studies/XXX/concepts/
      *  This will return the list of concepts, where each concept will be rendered in its short format
@@ -54,7 +54,7 @@ class OntologyTermController {
     def show(String id) {
         use (OntologyTermCategory) {
             String key = id.keyFromURLPart studyLoadingServiceProxy.study
-            def ontologyTerm = ontologyTermResourceService.getByKey(key)
+            def ontologyTerm = ontologyTermsResourceService.getByKey(key)
             respond new OntologyTermWrapper(ontologyTerm,
                     id == OntologyTermCategory.ROOT_CONCEPT_PATH)
         }
