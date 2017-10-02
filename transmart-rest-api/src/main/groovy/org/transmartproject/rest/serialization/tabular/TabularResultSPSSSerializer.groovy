@@ -4,9 +4,9 @@ import au.com.bytecode.opencsv.CSVWriter
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.db.multidimquery.ColumnDataType
-import org.transmartproject.db.multidimquery.ColumnMetadata
-import org.transmartproject.db.multidimquery.MetadataAwareDataColumn
+import org.transmartproject.core.dataquery.ColumnDataType
+import org.transmartproject.core.dataquery.ColumnMetadata
+import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 
 import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry

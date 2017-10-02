@@ -3,8 +3,8 @@ package org.transmartproject.rest.serialization.tabular
 import au.com.bytecode.opencsv.CSVWriter
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.db.multidimquery.MetadataAwareDataColumn
 
 import java.text.SimpleDateFormat
 import java.util.zip.ZipEntry

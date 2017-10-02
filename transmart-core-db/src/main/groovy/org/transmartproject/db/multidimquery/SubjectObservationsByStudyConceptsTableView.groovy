@@ -1,8 +1,12 @@
 package org.transmartproject.db.multidimquery
 
 import groovy.util.logging.Slf4j
+import org.transmartproject.core.dataquery.ColumnDataType
+import org.transmartproject.core.dataquery.ColumnMetadata
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.Measure
+import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.ValueFetchingDataColumn
 import org.transmartproject.core.multidimquery.Hypercube
@@ -11,9 +15,9 @@ import org.transmartproject.db.i2b2data.Study
 
 import java.rmi.UnexpectedException
 
-import static org.transmartproject.db.multidimquery.ColumnDataType.*
-import static org.transmartproject.db.multidimquery.Measure.NOMINAL
-import static org.transmartproject.db.multidimquery.Measure.SCALE
+import static org.transmartproject.core.dataquery.ColumnDataType.*
+import static org.transmartproject.core.dataquery.Measure.NOMINAL
+import static org.transmartproject.core.dataquery.Measure.SCALE
 
 /**
  * Custom tabular view
@@ -210,27 +214,4 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
             conceptDimension.conceptCode
         }
     }
-}
-
-enum ColumnDataType {
-    NUMERIC, DATE, STRING
-}
-
-enum Measure {
-    NOMINAL, ORDINAL, SCALE
-}
-
-class ColumnMetadata {
-    ColumnDataType type
-    Measure measure
-    String description
-    Integer width
-    Integer decimals
-    Integer columns
-    Map<Integer, String> valueLabels = [:]
-    List<Integer> missingValues = []
-}
-
-interface MetadataAwareDataColumn extends DataColumn {
-    ColumnMetadata getMetadata()
 }
