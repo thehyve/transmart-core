@@ -19,17 +19,20 @@
 
 package org.transmartproject.db.querytool
 
-class Query {
+import org.springframework.validation.Errors
+import org.transmartproject.core.userquery.UserQuery
+
+class Query implements UserQuery {
 
     String name
     String username
     String patientsQuery
     String observationsQuery
     String apiVersion
-    Boolean bookmarked
-    Boolean deleted
-    Date createDate
-    Date updateDate
+    Boolean bookmarked = false
+    Boolean deleted = false
+    Date createDate = new Date()
+    Date updateDate = new Date()
 
     static mapping = {
         table schema: 'BIOMART_USER'
@@ -41,7 +44,13 @@ class Query {
         name maxSize: 1000
         username maxSize: 50
         patientsQuery nullable: true
-        observationsQuery nullable: true
+        observationsQuery nullable: true, validator: { val, obj, Errors errors ->
+            if (!val && !obj.patientsQuery) {
+                errors.reject(
+                        'org.transmartproject.db.querytool.query.emptyQueries',
+                        'patientsQuery or observationsQuery has to be not null.')
+            }
+        }
         apiVersion nullable: true, maxSize: 25
         bookmarked nullable: true
         deleted nullable: true

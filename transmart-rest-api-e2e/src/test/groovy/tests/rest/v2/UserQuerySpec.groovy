@@ -72,43 +72,7 @@ class UserQuerySpec extends RESTSpec {
                 ]),
         ])
         then:
-        responseData.message == 'At least one parameter of two has to be provided: patientsQuery, observationsQuery'
-    }
-
-    def "save invalid patientsQuery"() {
-        when:
-        def responseData = post([
-                path      : PATH_QUERY,
-                acceptType: JSON,
-                user      : DEFAULT_USER,
-                statusCode: 400,
-                body      : toJSON([
-                        name             : 'test query',
-                        patientsQuery    : [message: 'test'],
-                        observationsQuery: null,
-                        bookmarked       : true
-                ]),
-        ])
-        then:
-        responseData.message == 'patientsQuery does not contain valid constraint.'
-    }
-
-    def "save invalid observationsQuery"() {
-        when:
-        def responseData = post([
-                path      : PATH_QUERY,
-                acceptType: JSON,
-                user      : DEFAULT_USER,
-                statusCode: 400,
-                body      : toJSON([
-                        name             : 'test query',
-                        patientsQuery    : null,
-                        observationsQuery: [message: 'test'],
-                        bookmarked       : true
-                ]),
-        ])
-        then:
-        responseData.message == 'observationsQuery does not contain valid constraint.'
+        responseData.message == 'patientsQuery or observationsQuery has to be not null.'
     }
 
     def "update query"() {
@@ -149,35 +113,6 @@ class UserQuerySpec extends RESTSpec {
 
         then:
         updateResponseData1.message == 'Query does not belong to the current user.'
-
-        when: 'invalid patients query supplied'
-        def updateResponseData3 = put([
-                path      : "${PATH_QUERY}/${id}",
-                acceptType: JSON,
-                user      : DEFAULT_USER,
-                statusCode: 400,
-                body      : toJSON([
-                        patientsQuery: [message: 'test'],
-                ]),
-        ])
-
-        then:
-        updateResponseData3.message == 'patientsQuery does not contain valid constraint.'
-
-        when: 'invalid observations query supplied'
-        def updateResponseData4 = put([
-                path      : "${PATH_QUERY}/${id}",
-                acceptType: JSON,
-                user      : DEFAULT_USER,
-                statusCode: 400,
-                body      : toJSON([
-                        observationsQuery: [message: 'test'],
-                ]),
-        ])
-
-        then:
-        updateResponseData4.message == 'observationsQuery does not contain valid constraint.'
-
     }
 
     def "delete query"() {
