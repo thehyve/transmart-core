@@ -904,6 +904,219 @@
         }
       }
     },
+    "/v2/observations/counts_per_study": {
+      "get": {
+        "description": "Counts the number of observations and patients that satisfy the given constraint and groups them by study.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "query",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from study id to counts. Example: `{countsPerStudy: {SHARED_A: 2, SHARED_B: 3}}`.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerStudy": {
+                  "$ref": "#/definitions/CountsMap"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                }
+              },
+              "required": [
+                "constraint"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from study id to counts. Example: `{countsPerStudy: {SHARED_A: 2, SHARED_B: 3}}`.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerStudy": {
+                  "$ref": "#/definitions/CountsMap"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/observations/counts_per_concept": {
+      "get": {
+        "description": "Counts the number of observations and patients that satisfy the given constraint and groups them by concept.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "query",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from concept code to counts. Example: `{countsPerConcept: {\"DEM:AGE\": 2, \"HR\": 3}}`.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerConcept": {
+                  "$ref": "#/definitions/CountsMap"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                }
+              },
+              "required": [
+                "constraint"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from concept code to counts. Example: `{countsPerConcept: {\"DEM:AGE\": 2, \"HR\": 3}}`.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerConcept": {
+                  "$ref": "#/definitions/CountsMap"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/observations/counts_per_study_and_concept": {
+      "get": {
+        "description": "Counts the number of observations and patients that satisfy the given constraint and groups them by study and concept.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "query",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from study id to a map from concept code to counts.\nExample: `{countsPerStudy: {\"SHARED_A\": {\"DEM:AGE\": 2, \"HR\": 3}, \"SHARED_B\": {\"DEM:AGE\": 1}}}`.\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerStudy": {
+                  "$ref": "#/definitions/CountsMapMap"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                }
+              },
+              "required": [
+                "constraint"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from study id to a map from concept code to counts.\nExample: `{countsPerStudy: {\"SHARED_A\": {\"DEM:AGE\": 2, \"HR\": 3}, \"SHARED_B\": {\"DEM:AGE\": 1}}}`.\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerStudy": {
+                  "$ref": "#/definitions/CountsMapMap"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/patients": {
       "get": {
         "description": "Gets all patients that have an observation that satisfy the given constaint. Only patients that the calling user has access to are returned.\n",
@@ -1072,6 +1285,58 @@
             "schema": {
               "$ref": "#/definitions/patient_set"
             }
+          }
+        }
+      }
+    },
+    "/v2/concepts": {
+      "get": {
+        "description": "Gets all concepts the user has access to.\nSimilar to `/v2/dimensions/concept/elements` without any constraint.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the concepts that the user has access to.\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "concepts": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/concept"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/concepts/{conceptCode}": {
+      "get": {
+        "description": "Gets the concepts with the provided concept code if it exists and the user has access to it.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "conceptCode",
+            "required": true,
+            "in": "path",
+            "description": "Concept code of the concept.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the concept if it exists and the user has access to it.\n",
+            "schema": {
+              "$ref": "#/definitions/concept"
+            }
+          },
+          "404": {
+            "description": "No concept exists with the concept code, or the user does not have access to the concept.\n"
           }
         }
       }
@@ -2452,6 +2717,53 @@
         "apiVersion": {
           "type": "string"
         }
+      }
+    },
+    "concept": {
+      "type": "object",
+      "properties": {
+        "conceptCode": {
+          "type": "string"
+        },
+        "conceptPath": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Counts": {
+      "type": "object",
+      "properties": {
+        "observationCount": {
+          "type": "integer"
+        },
+        "patientCount": {
+          "type": "integer"
+        }
+      }
+    },
+    "CountsMap": {
+      "description": "a map from string to Counts. `default` is an example key.",
+      "properties": {
+        "default": {
+          "$ref": "#/definitions/Counts"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/Counts"
+      }
+    },
+    "CountsMapMap": {
+      "description": "a map from string to a map from string to Counts. `default` is an example key.",
+      "properties": {
+        "default": {
+          "$ref": "#/definitions/CountsMap"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/CountsMap"
       }
     },
     "observation": {

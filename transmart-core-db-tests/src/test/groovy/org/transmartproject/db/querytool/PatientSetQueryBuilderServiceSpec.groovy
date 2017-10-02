@@ -52,7 +52,7 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
         ] as DatabasePortabilityService
         service.databasePortabilityService = databasePortabilityStub
 
-        def conceptsResourceServiceStub = [
+        def ontologyTermsResourceServiceStub = [
                 getByKey: { String key ->
                     def res = new I2b2(
                             factTableColumn: 'concept_cd',
@@ -66,7 +66,7 @@ class PatientSetQueryBuilderServiceSpec extends Specification {
                     res
                 }
         ] as OntologyTermsResource
-        service.conceptsResourceService = conceptsResourceServiceStub
+        service.ontologyTermsResourceService = ontologyTermsResourceServiceStub
 
         resultInstance = new QtQueryResultInstance()
         resultInstance.id = 42

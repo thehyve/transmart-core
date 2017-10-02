@@ -25,9 +25,6 @@ import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedPar
 
 class PatientQueryController extends AbstractQueryController {
 
-    @Autowired
-    VersionController versionController
-
     static responseFormats = ['json', 'hal']
 
     /**
@@ -179,7 +176,7 @@ class PatientQueryController extends AbstractQueryController {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         
-        String currentVersion = versionController.currentVersion(apiVersion)
+        String currentVersion = VersionController.currentVersion(apiVersion)
 
         // This converts bodyJson back to string, but the request doesn't save the body, it only provides an
         // inputstream.

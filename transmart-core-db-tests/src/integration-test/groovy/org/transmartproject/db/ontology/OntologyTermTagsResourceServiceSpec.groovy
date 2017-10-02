@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.*
 class OntologyTermTagsResourceServiceSpec extends TransmartSpecification {
 
     OntologyTermTagsResourceService ontologyTermTagsResourceService
-    OntologyTermsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     TabularStudyTestData studyTestData = new TabularStudyTestData()
 
@@ -25,7 +25,7 @@ class OntologyTermTagsResourceServiceSpec extends TransmartSpecification {
     void testGetTagsShallow() {
         setupData()
         String key = '\\\\i2b2 main\\foo\\study1\\'
-        def studyConcept = conceptsResourceService.getByKey(key)
+        def studyConcept = ontologyTermsResourceService.getByKey(key)
         Map<OntologyTerm, List<OntologyTermTag>> tags = ontologyTermTagsResourceService
                 .getTags([studyConcept] as Set, false)
         //note that reverse order here tests sorting by tag.position
@@ -48,8 +48,8 @@ class OntologyTermTagsResourceServiceSpec extends TransmartSpecification {
         setupData()
         String key1 = '\\\\i2b2 main\\foo\\study1\\'
         String key2 = '\\\\i2b2 main\\foo\\study2\\'
-        def study1Concept = conceptsResourceService.getByKey(key1)
-        def study2Concept = conceptsResourceService.getByKey(key2)
+        def study1Concept = ontologyTermsResourceService.getByKey(key1)
+        def study2Concept = ontologyTermsResourceService.getByKey(key2)
         Map<OntologyTerm, List<OntologyTermTag>> tags = ontologyTermTagsResourceService
                 .getTags([study1Concept, study2Concept] as Set, false)
         //note that reverse order here tests sorting by tag.position
@@ -85,7 +85,7 @@ class OntologyTermTagsResourceServiceSpec extends TransmartSpecification {
     void testGetTagsDeep() {
         setupData()
         String key = '\\\\i2b2 main\\foo\\study1\\'
-        def studyConcept = conceptsResourceService.getByKey(key)
+        def studyConcept = ontologyTermsResourceService.getByKey(key)
         Map<OntologyTerm, List<OntologyTermTag>> tags = ontologyTermTagsResourceService
                 .getTags([studyConcept] as Set, true)
         //note that reverse order here tests sorting by tag.position

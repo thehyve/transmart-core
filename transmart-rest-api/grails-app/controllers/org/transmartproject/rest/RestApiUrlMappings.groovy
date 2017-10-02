@@ -91,6 +91,12 @@ class RestApiUrlMappings {
                 action = [GET: 'listPatients', POST: 'listPatients']
                 apiVersion = 'v2'
             }
+            "/concepts"(method: 'GET', controller: 'concept', action: 'index') {
+                apiVersion = 'v2'
+            }
+            "/concepts/${conceptCode}"(method: 'GET', controller: 'concept', action: 'show') {
+                apiVersion = 'v2'
+            }
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
                 apiVersion = 'v2'
             }
@@ -142,9 +148,6 @@ class RestApiUrlMappings {
             "/arvados/workflows/$id"(method: 'PUT', controller: 'arvados', action: 'update') {
                 apiVersion = "v2"
             }
-            "/recommended_concepts/$conceptCode"(method: 'GET', controller: 'concept', action: 'showRecommended') {
-                apiVersion = 'v2'
-            }
             "/dimensions/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
                 apiVersion = 'v2'
             }
@@ -191,7 +194,7 @@ class RestApiUrlMappings {
             }
 
             "/studies/$studyId/concepts"(
-                    controller: 'concept', action: 'index'
+                    controller: 'ontologyTerm', action: 'index'
             )
 
             "/studies/$studyId/concepts/$conceptId**/subjects"(
@@ -226,7 +229,7 @@ class RestApiUrlMappings {
             '/observations2'(method: 'GET', controller: 'observation', action: 'observations2')
 
             "/studies/$studyId/concepts/$id**"(
-                    controller: 'concept', action: 'show', method: 'GET'
+                    controller: 'ontologyTerm', action: 'show', method: 'GET'
             ) {
                 constraints {
                     // this mapping has fewer wildcards than .../highdim/<type>

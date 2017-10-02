@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.*
 @Rollback
 class DefaultOntologyTermConstraintSpec extends TransmartSpecification {
 
-    OntologyTermsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     AssayTestData testData = new AssayTestData()
 
@@ -45,7 +45,7 @@ class DefaultOntologyTermConstraintSpec extends TransmartSpecification {
         setupData()
         List<Assay> assays = new AssayQuery([
                 new DefaultConceptPathCriteriaConstraint(
-                        conceptPath: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar').fullName
+                        conceptPath: ontologyTermsResourceService.getByKey('\\\\i2b2 main\\foo\\bar').fullName
                 )
         ]).list()
 
@@ -66,7 +66,7 @@ class DefaultOntologyTermConstraintSpec extends TransmartSpecification {
                 new DisjunctionAssayCriteriaConstraint(constraints: [
                         new DefaultTrialNameCriteriaConstraint(trialName: 'bad name'),
                         new DefaultConceptPathCriteriaConstraint(
-                                conceptPath: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar').fullName
+                                conceptPath: ontologyTermsResourceService.getByKey('\\\\i2b2 main\\foo\\bar').fullName
                         )])]).list()
 
         expect:

@@ -29,8 +29,6 @@ abstract class AbstractQueryController implements Controller {
 
     @Autowired
     MultidimensionalDataService multidimensionalDataService
-    
-    def conceptsResourceService
 
     protected static Constraint getConstraintFromStringOrJson(constraintParam) {
         if (!constraintParam) {

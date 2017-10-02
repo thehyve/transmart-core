@@ -1,79 +1,38 @@
-/*
- * Copyright 2014 Janssen Research & Development, LLC.
- *
- * This file is part of REST API: transMART's plugin exposing tranSMART's
- * data via an HTTP-accessible RESTful API.
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version, along with the following terms:
- *
- *   1. You may convey a work based on this program in accordance with
- *      section 5, provided that you retain the above notices.
- *   2. You may convey verbatim copies of this program code as you receive
- *      it, in any medium, provided that you retain the above notices.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
- * Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 package org.transmartproject.rest
-import grails.rest.Link
-import org.transmartproject.core.ontology.OntologyTermsResource
-import org.transmartproject.rest.marshallers.ContainerResponseWrapper
-import org.transmartproject.rest.marshallers.OntologyTermWrapper
-import org.transmartproject.rest.ontology.OntologyTermCategory
 
-class ConceptController {
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.PathVariable
+import org.transmartproject.core.concept.ConceptsResource
+import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
-    static responseFormats = ['json', 'hal']
+class ConceptController extends AbstractQueryController {
 
-    StudyLoadingService studyLoadingServiceProxy
-    OntologyTermsResource conceptsResourceService
+    static responseFormats = ['json']
 
-    /** GET request on /v1/studies/XXX/concepts/
-     *  This will return the list of concepts, where each concept will be rendered in its short format
-    */
-    def index() {
-        def concepts = studyLoadingServiceProxy.study.ontologyTerm.allDescendants
-        def conceptWrappers = concepts.collect { new OntologyTermWrapper(it, false) }
-        respond wrapConcepts(conceptWrappers)
-    }
+    @Autowired
+    ConceptsResource conceptsResource
 
-    /** GET request on /v1/studies/XXX/concepts/${id}
-     *  This returns the single requested entity.
+    /**
+     * Fetches all concepts.
      *
-     *  @param id The id for which to return study information.
+     * @return the list of concepts as JSON.
      */
-    def show(String id) {
-        use (OntologyTermCategory) {
-            String key = id.keyFromURLPart studyLoadingServiceProxy.study
-            def concept = conceptsResourceService.getByKey(key)
-            respond new OntologyTermWrapper(concept,
-                    id == OntologyTermCategory.ROOT_CONCEPT_PATH)
-        }
+    def index() {
+        checkForUnsupportedParams(params, [])
+        respond concepts: conceptsResource.getConcepts(currentUser)
     }
 
     /**
-     * @param source
-     * @return CollectionResponseWrapper so we can provide a proper HAL response
+     * Fetches the concept with the conceptCode if it exists.
+     *
+     * @param conceptCode the conceptCode of the concept.
+     * @return the concept as JSON.
+     * @throws org.transmartproject.core.exceptions.NoSuchResourceException
+     * if the concept does not exists or the user does not have access to it.
      */
-    private ContainerResponseWrapper wrapConcepts(List<OntologyTermWrapper> source) {
-        new ContainerResponseWrapper(
-                container: source,
-                componentType: OntologyTermWrapper,
-                links: [
-                        new Link(grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF,
-                                "/v1/studies/${studyLoadingServiceProxy.studyLowercase}/concepts"
-                        )
-                ]
-        )
+    def show(@PathVariable('conceptCode') String conceptCode) {
+        checkForUnsupportedParams(params, ['conceptCode'])
+        respond conceptsResource.getConceptByConceptCodeForUser(conceptCode, currentUser)
     }
 
 }

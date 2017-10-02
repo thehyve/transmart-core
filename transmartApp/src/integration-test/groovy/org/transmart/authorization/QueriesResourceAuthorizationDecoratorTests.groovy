@@ -30,7 +30,7 @@ class QueriesResourceAuthorizationDecoratorTests {
 
     SpringSecurityService springSecurityService
 
-    OntologyTermsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     def queriesResourceAuthorizationDecorator
 
@@ -38,7 +38,7 @@ class QueriesResourceAuthorizationDecoratorTests {
     void setUp() {
         accessLevelTestData.saveAll()
         assert springSecurityService != null
-        assert conceptsResourceService != null
+        assert ontologyTermsResourceService != null
         assert queriesResourceAuthorizationDecorator != null
     }
 

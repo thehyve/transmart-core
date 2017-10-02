@@ -34,7 +34,7 @@ class StudyIdService {
     QueriesResource queriesResourceService
 
     @Resource
-    OntologyTermsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     /**
      * Fetches the study id associated with a concept from the 
@@ -60,7 +60,7 @@ class StudyIdService {
         String studyId = ""
         try {
             log.debug "Query study id for concept key: ${concept_key}"
-            OntologyTerm term = conceptsResourceService.getByKey(concept_key)
+            OntologyTerm term = ontologyTermsResourceService.getByKey(concept_key)
             Study study = term?.study
             studyId = study?.id
             if (options?.studyConceptOnly && study?.ontologyTerm != term) {

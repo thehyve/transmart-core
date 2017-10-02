@@ -35,7 +35,7 @@ import static spock.util.matcher.HamcrestSupport.that
 @Rollback
 class DefaultConceptsResourceSpec extends TransmartSpecification {
 
-    OntologyTermsResource conceptsResourceService = new DefaultConceptsResource()
+    OntologyTermsResource ontologyTermsResourceService = new DefaultOntologyTermsResource()
 
     void setupData() {
         addTableAccess(level: 0, fullName: '\\foo\\', name: 'foo',
@@ -58,7 +58,7 @@ class DefaultConceptsResourceSpec extends TransmartSpecification {
     void testGetAllCategories() {
         setupData()
         expect:
-        that(conceptsResourceService.allCategories, allOf(
+        that(ontologyTermsResourceService.allCategories, allOf(
                 hasItem(hasProperty('name', equalTo('foo'))),
                 hasItem(hasProperty('name', equalTo('level1'))),
                 hasItem(hasProperty('name', equalTo('hidden'))),
@@ -68,7 +68,7 @@ class DefaultConceptsResourceSpec extends TransmartSpecification {
 
     void testGetByKeySimple() {
         setupData()
-        def concept = conceptsResourceService.getByKey('\\\\i2b2 main' +
+        def concept = ontologyTermsResourceService.getByKey('\\\\i2b2 main' +
                 '\\foo\\bar')
         expect:
         concept hasProperty('name', equalTo('bar'))
@@ -79,7 +79,7 @@ class DefaultConceptsResourceSpec extends TransmartSpecification {
         def concept = "\\\\bogus code\\foo\\bar\\"
 
         when:
-        conceptsResourceService.getByKey(concept)
+        ontologyTermsResourceService.getByKey(concept)
         then:
         def e = thrown(NoSuchResourceException)
         e.message.contains('Unknown or unmapped table code')
@@ -90,7 +90,7 @@ class DefaultConceptsResourceSpec extends TransmartSpecification {
         setupData()
 
         when:
-        conceptsResourceService.getByKey('\\\\i2b2 main\\does not exist\\')
+        ontologyTermsResourceService.getByKey('\\\\i2b2 main\\does not exist\\')
         then:
         def e = thrown(NoSuchResourceException)
         e.message.contains('No non-synonym concept with fullName')
