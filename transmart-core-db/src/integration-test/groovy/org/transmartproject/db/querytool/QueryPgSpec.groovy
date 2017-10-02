@@ -12,21 +12,21 @@ class QueryPgSpec extends Specification {
 
     void 'query mapping is correct'() {
         def now = new Date()
-
-        when:
         def query = new Query(
                 name: 'test query name',
                 username: 'test_user',
-                patientQuery: 'patient query',
-                observationQuery: 'observation query',
+                patientsQuery: 'patient query',
+                observationsQuery: 'observation query',
                 apiVersion: 'v2',
                 bookmarked: true,
                 deleted: true,
                 createDate: now,
                 updateDate: now
-        ).save(flush: true)
+        )
+
+        when:
+        query.save(flush: true)
         then:
-        query
         query.validate()
         query.id != null
     }
