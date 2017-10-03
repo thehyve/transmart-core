@@ -10,7 +10,7 @@ interface ConceptsResource {
      *
      * @return the concepts.
      */
-    Iterable<Concept> getConcepts(User user)
+    List<Concept> getConcepts(User user)
 
     /**
      * Returns the concept with the given concept code.

@@ -51,12 +51,12 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
     }
 
     @Override
-    Iterable<Concept> getConcepts(User user) {
+    List<Concept> getConcepts(User user) {
         org.transmartproject.db.user.User dbUser = (org.transmartproject.db.user.User) usersResource.getUserFromUsername(user.username)
         if (dbUser.admin) {
             return ConceptDimension.findAll()
         } else {
-            return multiDimService.getDimensionElements(multiDimService.getDimension('concept'), new TrueConstraint(), dbUser)
+            return multiDimService.getDimensionElements(multiDimService.getDimension('concept'), new TrueConstraint(), dbUser).asList()
         }
     }
 
