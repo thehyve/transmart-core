@@ -21,16 +21,17 @@ package org.transmartproject.db.i2b2data
 
 import groovy.json.JsonSlurper
 import groovy.transform.ToString
+import org.transmartproject.core.concept.Concept
 
 @ToString
-class ConceptDimension {
+class ConceptDimension implements Concept {
 
     private static final JsonSlurper JSON_SLURPER = new JsonSlurper()
 
     String       conceptPath
     String       conceptCode
-    String       nameChar
     String       conceptBlob
+    String       name
 
     // not used
     //Date         updateDate
@@ -43,7 +44,9 @@ class ConceptDimension {
         table   schema: 'i2b2demodata'
         id      name:   'conceptPath', generator: 'assigned'
 
+        conceptPath column: 'concept_path'
         conceptCode column: 'concept_cd'
+        name        column: 'name_char'
 
         version false
     }
@@ -51,7 +54,7 @@ class ConceptDimension {
     static constraints = {
         conceptPath      maxSize:    700
         conceptCode      maxSize:    50
-        nameChar         nullable:   true,   maxSize:   2000
+        name            nullable:   true, maxSize: 2000
         conceptBlob      nullable:   true
 
         // not used

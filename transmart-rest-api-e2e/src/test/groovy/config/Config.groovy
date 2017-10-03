@@ -49,8 +49,12 @@ class Config {
     public static final String PATH_OBSERVATIONS = "/v2/observations"
     public static final String PATH_AGGREGATE = "/v2/observations/aggregate"
     public static final String PATH_COUNTS = "/v2/observations/count"
+    public static final String PATH_COUNTS_PER_CONCEPT = "/v2/observations/counts_per_concept"
+    public static final String PATH_COUNTS_PER_STUDY = "/v2/observations/counts_per_study"
+    public static final String PATH_COUNTS_PER_STUDY_AND_CONCEPT = "/v2/observations/counts_per_study_and_concept"
     public static final String PATH_SUPPORTED_FIELDS = "/v2/supported_fields"
     public static final String PATH_PATIENTS = "/v2/patients"
+    public static final String PATH_CONCEPTS = "/v2/concepts"
     public static final String PATH_TREE_NODES = "/v2/tree_nodes"
     public static final String PATH_STUDIES = "/v2/studies"
     public static final String PATH_PATIENT_SET = "/v2/patient_sets"
@@ -60,6 +64,7 @@ class Config {
     public static final String PATH_ARVADOS_WORKFLOWS = "/v2/arvados/workflows"
     public static final String PATH_DIMENSION = "/v2/dimensions"
     public static final String PATH_DATA_EXPORT = "/v2/export"
+    public static final String PATH_QUERY = "/v2/queries"
 
     //study ids
     public static final String ORACLE_1000_PATIENT_ID = 'ORACLE_1000_PATIENT'

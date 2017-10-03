@@ -138,13 +138,18 @@
         timeToIdleSeconds="300"
         />
 
-    <cache name="org.transmartproject.db.tree.TreeCacheService.user"
-           maxElementsInMemory="1000"
+    <cache name="org.transmartproject.db.clinical.MultidimensionalDataResourceService"
+           maxElementsInMemory="100000"
            timeToIdleSeconds="0"
     />
 
-    <cache name="org.transmartproject.db.tree.TreeCacheService.subtree"
+    <cache name="org.transmartproject.db.tree.TreeCacheService"
            maxElementsInMemory="10000"
+           timeToIdleSeconds="0"
+    />
+
+    <cache name="org.transmartproject.db.concept.ConceptsService"
+           maxElementsInMemory="100000"
            timeToIdleSeconds="0"
     />
 

@@ -13,6 +13,7 @@ import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.DimensionElementSerializer
+import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 @Slf4j
 class DimensionController extends AbstractQueryController {
@@ -33,7 +34,7 @@ class DimensionController extends AbstractQueryController {
      */
     def list(@PathVariable('dimensionName') String dimensionName) {
 
-        checkParams(params, ['dimensionName', 'constraint'])
+        checkForUnsupportedParams(params, ['dimensionName', 'constraint'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def dimension = getDimension(dimensionName, user)

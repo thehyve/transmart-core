@@ -7,7 +7,7 @@ import grails.util.GrailsWebUtil
 import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.exceptions.AccessDeniedException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
@@ -30,7 +30,7 @@ class QueriesResourceAuthorizationDecoratorTests {
 
     SpringSecurityService springSecurityService
 
-    ConceptsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     def queriesResourceAuthorizationDecorator
 
@@ -38,7 +38,7 @@ class QueriesResourceAuthorizationDecoratorTests {
     void setUp() {
         accessLevelTestData.saveAll()
         assert springSecurityService != null
-        assert conceptsResourceService != null
+        assert ontologyTermsResourceService != null
         assert queriesResourceAuthorizationDecorator != null
     }
 

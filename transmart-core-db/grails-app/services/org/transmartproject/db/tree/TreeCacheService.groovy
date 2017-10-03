@@ -107,56 +107,32 @@ class TreeCacheService {
         forest[topLevel]
     }
 
-    private I2b2Secure fetchRootNode(User user, String rootKey) {
-        I2b2Secure root = null
-        if (rootKey != I2b2Secure.ROOT) {
-            DetachedCriteria criteria = DetachedCriteria.forClass(I2b2Secure)
-                    .add(StringUtils.like('fullName', rootKey))
-
-            if (!user.admin) {
-                Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user)
-                List<String> tokens = [Study.PUBLIC, 'EXP:PUBLIC'] + studies*.secureObjectToken
-                criteria = criteria.add(Restrictions.in('secureObjectToken', tokens))
-            }
-
-            root = criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult() as I2b2Secure
-            if (!root) {
-                throw new AccessDeniedException("Access denied to path: ${rootKey}")
-            }
-        }
-        root
-    }
-
     /**
      * Fetches a subtree for a user. Returns the list of to level tree nodes,
      * with the child nodes embedded.
      *
-     * @param user the user to fetch the tree for.
-     * @param root restricts to fetching only starting from the specified root element.
+     * @param isAdmin whether the user is admin or not.
+     * @param studyTokens Secure access tokens of the studies the user has access to.
+     * @param rootPath restricts to fetching only starting from the specified root element.
      *        (default: null, meaning no restriction.)
-     * @param depth restricts to fetching up to the specified number of level, starting at the root node.
+     * @param maxLevel restricts to fetching up to the specified level.
      *        (default: 0, meaning no restriction.)
      *
      * @return the list of top level tree nodes with child nodes embedded.
      */
-    @Cacheable(value = 'org.transmartproject.db.tree.TreeCacheService.subtree', key = '{#user.username, #rootKey, #depth}')
-    List<TreeNode> fetchCachedSubtreeForUser(User user, String rootKey = I2b2Secure.ROOT, int depth = 0){
+    @Cacheable('org.transmartproject.db.tree.TreeCacheService')
+    List<TreeNode> fetchCachedSubtree(boolean isAdmin = false, List<String> studyTokens = [], String rootPath = I2b2Secure.ROOT, int maxLevel = 0) {
         log.debug  "Finding nodes ..."
         DetachedCriteria criteria = DetachedCriteria.forClass(I2b2Secure)
-        if (!user.admin) {
-            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user) as Collection<Study>
-            List<String> tokens = [Study.PUBLIC, 'EXP:PUBLIC'] + studies*.secureObjectToken
+        if (!isAdmin) {
+            List<String> tokens = [Study.PUBLIC, 'EXP:PUBLIC'] + studyTokens
             criteria = criteria.add(Restrictions.in('secureObjectToken', tokens))
         }
-        int toplevel = -1
-        I2b2Secure root = fetchRootNode(user, rootKey)
-        if (root) {
-            toplevel = root.level
-            criteria.add(Restrictions.ge('level', toplevel))
-            criteria.add(StringUtils.startsWith('fullName', root.fullName))
+        if (rootPath != I2b2Secure.ROOT) {
+            criteria.add(StringUtils.startsWith('fullName', rootPath))
         }
-        if (depth > 0) {
-            criteria.add(Restrictions.lt('level', toplevel + depth))
+        if (maxLevel > 0) {
+            criteria.add(Restrictions.lt('level', maxLevel))
         }
         criteria.addOrder(Order.desc('level'))
         criteria.addOrder(Order.desc('fullName'))
@@ -171,18 +147,6 @@ class TreeCacheService {
         log.debug "Forest growing took ${t3.time - t2.time} ms."
 
         forest
-    }
-
-    /**
-     * Fetches the entire i2b2 tree for a user. Returns the list of to level tree nodes,
-     * with the child nodes embedded.
-
-     * @param user the user to fetch the tree for.
-     * @return the list of top level tree nodes with child nodes embedded.
-     */
-    @Cacheable(value = 'org.transmartproject.db.tree.TreeCacheService.user', key = '#user.username')
-    List<TreeNode> fetchCachedTreeForUser(User user){
-        fetchCachedSubtreeForUser(user)
     }
 
 }

@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
@@ -36,7 +36,7 @@ import static org.transmartproject.db.dataquery.highdim.parameterproducers.Bindi
 class StandardAssayConstraintFactory extends AbstractMethodBasedParameterFactory {
 
     @Autowired
-    ConceptsResource conceptsResource
+    OntologyTermsResource conceptsResource
 
     @Autowired
     QueriesResource queriesResource

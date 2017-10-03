@@ -5,7 +5,7 @@ import grails.test.mixin.support.GrailsUnitTestMixin
 import org.gmock.GMockTestCase
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 
 /**
@@ -16,7 +16,7 @@ class ConceptTimeValuesTableTest extends GMockTestCase {
 
     ConceptTimeValuesTable table
 
-    ConceptsResource conceptsResource
+    OntologyTermsResource conceptsResource
 
     String path1 = "\\foo\\"
     String path2 = "\\bar\\"
@@ -24,7 +24,7 @@ class ConceptTimeValuesTableTest extends GMockTestCase {
     @Before
     void setUp() {
         table = new ConceptTimeValuesTable()
-        conceptsResource = mock(ConceptsResource)
+        conceptsResource = mock(OntologyTermsResource)
         table.conceptsResource = conceptsResource
         table.conceptPaths = [] //concept paths starts empty, and will be filled by each test
     }

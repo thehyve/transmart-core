@@ -15,6 +15,7 @@ enum AggregateType {
     MAX,
     AVERAGE,
     COUNT,
+    PATIENT_COUNT,
     VALUES
 
     private static final Map<String, AggregateType> mapping = values().collectEntries {

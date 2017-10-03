@@ -1,6 +1,6 @@
 package org.transmartproject.rest.serialization.tabular
 
-import au.com.bytecode.opencsv.CSVWriter
+import com.opencsv.CSVWriter
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn

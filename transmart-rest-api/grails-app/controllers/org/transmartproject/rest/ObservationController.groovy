@@ -32,7 +32,7 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.clinical.*
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueriesResource
@@ -51,7 +51,7 @@ class ObservationController {
     ClinicalDataResource clinicalDataResourceService
     StudyLoadingService studyLoadingServiceProxy
     PatientsResource patientsResourceService
-    ConceptsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
     QueriesResource queriesResourceService
 
     /** GET request on /v1/studies/XXX/observations/
@@ -201,7 +201,7 @@ class ObservationController {
         }
 
         use (OntologyTermCategory) {
-            conceptsResourceService.getByKey(
+            ontologyTermsResourceService.getByKey(
                     conceptId.keyFromURLPart(study))
         }
     }

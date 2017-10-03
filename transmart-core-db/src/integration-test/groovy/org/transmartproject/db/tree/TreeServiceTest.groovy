@@ -76,7 +76,7 @@ class TreeServiceTest extends Specification {
     void 'test tree retrieval with limited depth for admin user'() {
         User user = (User) usersResource.getUserFromUsername(ADMIN_USER)
         def rootKey = '\\'
-        def depth = 2
+        def depth = 1
         def counts = false
 
         when: "retrieving the tree with depth 1 for admin user"

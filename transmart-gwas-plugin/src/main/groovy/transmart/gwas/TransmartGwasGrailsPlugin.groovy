@@ -1,5 +1,8 @@
 package transmart.gwas
-class TransmartGwasGrailsPlugin {
+
+import grails.plugins.Plugin
+
+class TransmartGwasGrailsPlugin extends Plugin {
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "3.1.10 > *"
     // the other plugins this plugin depends on

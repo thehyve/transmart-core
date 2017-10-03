@@ -16,6 +16,8 @@ import org.transmartproject.db.user.User
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.QueryResultWrapper
 
+import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
+
 class ObservationQueryController extends AbstractQueryController {
 
     @Autowired
@@ -33,7 +35,7 @@ class ObservationQueryController extends AbstractQueryController {
      */
     def findObservationSetQueryResult(
             @PathVariable('id') Long id) {
-        checkParams(params, ['id'])
+        checkForUnsupportedParams(params, ['id'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
@@ -51,7 +53,7 @@ class ObservationQueryController extends AbstractQueryController {
      * @return a list of maps with the query result id, size and status.
      */
     def findObservationSetQueryResultsForCurrentUser() {
-        checkParams(params, [])
+        checkForUnsupportedParams(params, [])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         Iterable<QueryResult> queryResults = multiDimService.findObservationSetQueryResults(user)
@@ -70,7 +72,7 @@ class ObservationQueryController extends AbstractQueryController {
     def createObservationSetQueryResult(
             @RequestParam('api_version') String apiVersion,
             @RequestParam('name') String name) {
-        checkParams(params, ['name', 'constraint'])
+        checkForUnsupportedParams(params, ['name', 'constraint'])
         if (name) {
             name = URLDecoder.decode(name, 'UTF-8').trim()
         } else {

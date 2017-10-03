@@ -669,7 +669,7 @@ class ConstraintFactory {
         if (type == null) {
             throw new ConstraintBindingException("Constraint not supported: ${name}.")
         }
-        log.info "Creating constraint of type ${type.simpleName}"
+        log.debug "Creating constraint of type ${type.simpleName}"
         Constraint result = type.newInstance()
         constraintDataBinder.bindData(result, values, [exclude: ['type', 'errors']])
         if(result.errors?.hasErrors() || !result.validate()) {

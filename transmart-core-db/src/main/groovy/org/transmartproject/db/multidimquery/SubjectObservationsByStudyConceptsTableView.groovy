@@ -136,7 +136,7 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
                     originalColumn.getDimensionElement(DimensionImpl.CONCEPT)
             def conceptMetadata = conceptDimension.conceptBlobAsJson()
             if (conceptMetadata) {
-                metadata = parseColumnMetadata(conceptDimension.conceptBlobAsJson(), conceptDimension.nameChar)
+                metadata = parseColumnMetadata(conceptDimension.conceptBlobAsJson(), conceptDimension.name)
             } else {
                 metadata = computeColumnMetadata()
             }

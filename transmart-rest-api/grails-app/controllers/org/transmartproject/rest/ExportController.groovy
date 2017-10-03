@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb
@@ -16,6 +17,7 @@ import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
+import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 class ExportController {
 
@@ -30,13 +32,6 @@ class ExportController {
     @Autowired
     MultiDimensionalDataResource multiDimService
 
-    static final globalParams = [
-            "controller",
-            "action",
-            "format",
-            "apiVersion"
-    ]
-
     /**
      * Create a new asynchronous dataExport job:
      * <code>/v2/export/job?name=${name}</code>
@@ -47,7 +42,7 @@ class ExportController {
      * @return {@link AsyncJobCoreDb} instance
      */
     def createJob(@RequestParam('name') String name) {
-        checkParams(params, ['name'])
+        checkForUnsupportedParams(params, ['name'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobNameUnique(name, user)
@@ -81,7 +76,7 @@ class ExportController {
      *         by the scheduler
      */
     def run(@PathVariable('jobId') Long jobId) {
-        checkParams(params, ['jobId'])
+        checkForUnsupportedParams(params, ['jobId'])
         def requestBody = request.JSON as Map
         def notSupportedFields = requestBody.keySet() - ['id', 'elements', 'constraint']
         if (notSupportedFields) {
@@ -109,7 +104,7 @@ class ExportController {
      */
     def download(@PathVariable('jobId') Long jobId) {
 
-        checkParams(params, ['jobId'])
+        checkForUnsupportedParams(params, ['jobId'])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobAccess(jobId, user)
 
@@ -132,7 +127,7 @@ class ExportController {
      * @return current status of the job
      */
    def jobStatus(@PathVariable('jobId') Long jobId) {
-       checkParams(params, ['jobId'])
+       checkForUnsupportedParams(params, ['jobId'])
        def job = exportAsyncJobService.getJobById(jobId)
        if (!job) {
            throw new InvalidArgumentsException("Job with id '$jobId' does not exist.")
@@ -147,7 +142,7 @@ class ExportController {
      * @return {@link AsyncJobCoreDb} instances
      */
     def listJobs() {
-        checkParams(params, [])
+        checkForUnsupportedParams(params, [])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def results = exportAsyncJobService.getJobList(user)
         respond wrapExportJobs(results)
@@ -163,10 +158,10 @@ class ExportController {
      */
     def dataFormats() {
 
-        checkParams(params, ['id'])
+        checkForUnsupportedParams(params, ['id'])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Constraint constraint = multiDimService.createQueryResultsDisjunctionConstraint(parseId(params), user)
-        def formats = ['clinical'] + multiDimService.retriveHighDimDataTypes(constraint, user)
+        MultiDimConstraint constraint = multiDimService.createQueryResultsDisjunctionConstraint(parseId(params), user)
+        def formats = ['clinical'] + multiDimService.retrieveHighDimDataTypes(constraint, user)
         def results = [
                 dataFormats: formats
         ]
@@ -180,7 +175,7 @@ class ExportController {
      * @return File format types
      */
     def fileFormats() {
-        checkParams(params, [])
+        checkForUnsupportedParams(params, [])
         def fileFormats = restExportService.supportedFileFormats
         def results = [fileFormats: fileFormats]
         render results as JSON
@@ -204,15 +199,6 @@ class ExportController {
         String name = jobName?.trim()
         if(name && !exportAsyncJobService.isJobNameUniqueForUser(name, user)) {
             throw new InvalidArgumentsException("Given job name: '$name' already exists for user '$user.")
-        }
-    }
-
-    private static void checkParams(Map params, Collection<String> acceptedParams) {
-        acceptedParams.addAll(globalParams)
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
         }
     }
 

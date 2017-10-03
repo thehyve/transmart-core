@@ -13,6 +13,7 @@ import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.StudyWrapper
+import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 class StudyQueryController extends AbstractQueryController {
 
@@ -29,7 +30,7 @@ class StudyQueryController extends AbstractQueryController {
      * that are accessible for the user.
      */
     def listStudies(@RequestParam('api_version') String apiVersion) {
-        checkParams(params, [])
+        checkForUnsupportedParams(params, [])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def studies = accessControlChecks.getDimensionStudiesForUser(user)
         respond wrapStudies(apiVersion, studies)
@@ -51,7 +52,7 @@ class StudyQueryController extends AbstractQueryController {
             throw new InvalidArgumentsException("Parameter 'id' is missing.")
         }
 
-        checkParams(params, ['id'])
+        checkForUnsupportedParams(params, ['id'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def study = Study.findById(id)
@@ -81,7 +82,7 @@ class StudyQueryController extends AbstractQueryController {
             throw new InvalidArgumentsException("Parameter 'studyId' is missing.")
         }
 
-        checkParams(params, ['studyId'])
+        checkForUnsupportedParams(params, ['studyId'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def study = Study.findByStudyId(studyId)

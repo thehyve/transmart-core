@@ -17,9 +17,9 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 
-    compile 'org.grails.plugins:spring-security-core:3.1.1'
-    compile 'org.grails.plugins:spring-security-oauth2-provider:3.0.0-RC2'
-    compile 'org.springframework.security:spring-security-ldap:3.2.3.RELEASE'
+    compile "org.grails.plugins:spring-security-core:${springSecurityPluginVersion}"
+    compile "org.grails.plugins:spring-security-oauth2-provider:${springSecurityOauth2PluginVersion}"
+    compile "org.springframework.security:spring-security-ldap:${springSecurityVersion}"
     
     /* for SAML authentication */
     compile('org.springframework.security.extensions:spring-security-saml2-core:1.0.0.RELEASE')

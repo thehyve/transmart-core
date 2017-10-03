@@ -21,10 +21,9 @@ import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.PatientWrapper
 import org.transmartproject.rest.marshallers.QueryResultWrapper
 
-class PatientQueryController extends AbstractQueryController {
+import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
-    @Autowired
-    VersionController versionController
+class PatientQueryController extends AbstractQueryController {
 
     static responseFormats = ['json', 'hal']
 
@@ -39,7 +38,7 @@ class PatientQueryController extends AbstractQueryController {
      */
     def listPatients(@RequestParam('api_version') String apiVersion) {
         def args = getGetOrPostParams()
-        checkParams(args, ['constraint'])
+        checkForUnsupportedParams(args, ['constraint'])
 
         Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
@@ -66,7 +65,7 @@ class PatientQueryController extends AbstractQueryController {
             throw new InvalidArgumentsException("Parameter 'id' is missing.")
         }
 
-        checkParams(params, ['id'])
+        checkForUnsupportedParams(params, ['id'])
 
         Constraint constraint = new PatientSetConstraint(patientIds: [id])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
@@ -101,7 +100,7 @@ class PatientQueryController extends AbstractQueryController {
     def findPatientSet(
             @RequestParam('api_version') String apiVersion,
             @PathVariable('id') Long id) {
-        checkParams(params, ['id'])
+        checkForUnsupportedParams(params, ['id'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
@@ -126,7 +125,7 @@ class PatientQueryController extends AbstractQueryController {
      */
     def findPatientSets(
             @RequestParam('api_version') String apiVersion) {
-        checkParams(params, [])
+        checkForUnsupportedParams(params, [])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         Iterable<QueryResult> patientSets = multiDimService.findPatientSetQueryResults(user)
@@ -173,11 +172,11 @@ class PatientQueryController extends AbstractQueryController {
             return null
         }
 
-        checkParams(params, ['name', 'constraint'])
+        checkForUnsupportedParams(params, ['name', 'constraint'])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         
-        String currentVersion = versionController.currentVersion(apiVersion)
+        String currentVersion = VersionController.currentVersion(apiVersion)
 
         // This converts bodyJson back to string, but the request doesn't save the body, it only provides an
         // inputstream.

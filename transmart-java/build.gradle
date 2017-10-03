@@ -21,16 +21,15 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 
-
-    runtime 'org.postgresql:postgresql:9.3-1100-jdbc4'
-    runtime 'com.oracle:ojdbc7:12.1.0.1'
+    runtime "org.postgresql:postgresql:${postgresqlVersion}"
+    runtime "com.oracle:ojdbc7:${ojdb7Version}"
 
     runtime 'org.javassist:javassist:3.16.1-GA'
 
     compile project(':transmart-core-api')
 
     compile 'antlr:antlr:2.7.7'
-    compile 'net.sf.opencsv:opencsv:2.3'
+    compile "com.opencsv:opencsv:${openCsvVersion}"
     compile "org.apache.lucene:lucene-core:2.4.0"
     compile "org.apache.lucene:lucene-demos:2.4.0"
     compile "org.apache.lucene:lucene-highlighter:2.4.0"

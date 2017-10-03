@@ -30,6 +30,7 @@ import grails.rest.Link
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.marshallers.HighDimSummary
 import org.transmartproject.rest.marshallers.HighDimSummarySerializationHelper
@@ -44,7 +45,7 @@ class HighDimController {
 
     def highDimDataService
 
-    def conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     StudyLoadingService studyLoadingServiceProxy
 
@@ -57,7 +58,7 @@ class HighDimController {
         }
 
         String conceptKey = getConceptKey(params.conceptId)
-        OntologyTerm concept = conceptsResourceService.getByKey(conceptKey)
+        OntologyTerm concept = ontologyTermsResourceService.getByKey(conceptKey)
         String conceptLink = studyLoadingServiceProxy.getOntologyTermUrl(concept)
         String selfLink = HighDimSummarySerializationHelper.getHighDimIndexUrl(conceptLink)
 
