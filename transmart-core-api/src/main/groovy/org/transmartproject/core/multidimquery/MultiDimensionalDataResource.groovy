@@ -27,15 +27,53 @@ interface MultiDimensionalDataResource {
 
     Dimension getDimension(String name)
 
+    /**
+     * Observation count: counts the number of observations that satisfy the constraint and that
+     * the user has access to.
+     *
+     * @param constraint the constraint.
+     * @param user the current user.
+     * @return the number of observations.
+     */
     Long count(MultiDimConstraint constraint, User user)
 
     Long cachedCount(MultiDimConstraint constraint, User user)
 
+    /**
+     * Observation and patient counts per concept:
+     * counts the number of observations that satisfy the constraint and that
+     * the user has access to, and the number of associated patients,
+     * and groups them by concept code.
+     *
+     * @param constraint the constraint.
+     * @param user the current user.
+     * @return a map from concept code to the counts.
+     */
     Map<String, Counts> countsPerConcept(MultiDimConstraint constraint, User user)
 
+    /**
+     * Observation and patient counts per study:
+     * counts the number of observations that satisfy the constraint and that
+     * the user has access to, and the number of associated patients,
+     * and groups them by study id.
+     *
+     * @param constraint the constraint.
+     * @param user the current user.
+     * @return a map from study id to the counts.
+     */
     Map<String, Counts> countsPerStudy(MultiDimConstraint constraint, User user)
 
-    Map<String, Map<String, Counts>> countsPerStudyAnyConcept(MultiDimConstraint constraint, User user)
+    /**
+     * Observation and patient counts per study and concept:
+     * counts the number of observations that satisfy the constraint and that
+     * the user has access to, and the number of associated patients,
+     * and groups them by first study id and then concept code.
+     *
+     * @param constraint the constraint.
+     * @param user the current user.
+     * @return a map from study id to maps from concept code to the counts.
+     */
+    Map<String, Map<String, Counts>> countsPerStudyAndConcept(MultiDimConstraint constraint, User user)
 
     Iterable getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user)
 

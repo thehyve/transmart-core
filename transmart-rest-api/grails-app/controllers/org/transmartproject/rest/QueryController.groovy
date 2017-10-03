@@ -196,7 +196,7 @@ class QueryController extends AbstractQueryController {
             return
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        def counts = multiDimService.countsPerStudyAnyConcept(constraint, user)
+        def counts = multiDimService.countsPerStudyAndConcept(constraint, user)
         counts.collectEntries { studyId, countsPerConcept ->
             [(studyId): [countsPerConcept: countsPerConcept]]
         }

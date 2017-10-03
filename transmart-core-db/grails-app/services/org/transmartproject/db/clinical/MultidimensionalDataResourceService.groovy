@@ -520,7 +520,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     @Override
-    Map<String, Map<String, Counts>> countsPerStudyAnyConcept(MultiDimConstraint constraint, User user) {
+    Map<String, Map<String, Counts>> countsPerStudyAndConcept(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per study and concept..."
         def t1 = new Date()
         checkAccess(constraint, user)
