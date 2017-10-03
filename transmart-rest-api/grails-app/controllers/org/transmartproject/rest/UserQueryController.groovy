@@ -37,7 +37,7 @@ class UserQueryController {
     }
 
     def save(@RequestParam('api_version') String apiVersion) {
-        def requestJson = request.JSON
+        def requestJson = request.JSON as Map
         checkForUnsupportedParams(requestJson, ['name', 'patientsQuery', 'observationsQuery', 'bookmarked'])
         UserQuery query = userQueryResource.create(currentUser)
         query.apiVersion = versionController.currentVersion(apiVersion)
@@ -55,7 +55,7 @@ class UserQueryController {
 
     def update(@RequestParam('api_version') String apiVersion,
                @PathVariable('id') Long id) {
-        def requestJson = request.JSON
+        def requestJson = request.JSON as Map
         checkForUnsupportedParams(requestJson, ['name', 'patientsQuery', 'observationsQuery', 'bookmarked'])
         UserQuery query = userQueryResource.get(id, currentUser)
         if (requestJson.containsKey('name')) {
