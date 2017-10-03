@@ -22,9 +22,10 @@ dependencies {
 
     compile "com.google.guava:guava:$guavaVersion"
 
-    runtime('org.postgresql:postgresql:9.3-1100-jdbc41')
-    compile project(':transmart-core-api')
+    runtime "org.postgresql:postgresql:${postgresqlVersion}"
+    runtime "com.oracle:ojdbc7:${ojdb7Version}"
 
+    compile project(':transmart-core-api')
 }
 
 assets {

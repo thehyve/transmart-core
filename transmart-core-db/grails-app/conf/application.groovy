@@ -27,8 +27,8 @@ environments {
         dataSource {
             url = 'jdbc:postgresql://localhost:5433/transmart'
             driverClassName = 'org.postgresql.Driver'
-            username = 'tm_cz'
-            password = 'tm_cz'
+            username = 'biomart_user'
+            password = 'biomart_user'
             logSql = true
             formatSql = true
         }
@@ -37,8 +37,8 @@ environments {
         dataSource {
             url = 'jdbc:postgresql://localhost:5432/transmart'
             driverClassName = 'org.postgresql.Driver'
-            username = 'tm_cz'
-            password = 'tm_cz'
+            username = 'biomart_user'
+            password = 'biomart_user'
             logSql = true
             formatSql = true
         }
@@ -47,8 +47,8 @@ environments {
         dataSource {
             url = 'jdbc:oracle:thin:@localhost:1521:ORCL'
             driverClassName = 'oracle.jdbc.driver.OracleDriver'
-            username = 'tm_cz'
-            password = 'tm_cz'
+            username = 'biomart_user'
+            password = 'biomart_user'
             logSql = true
             formatSql = true
         }

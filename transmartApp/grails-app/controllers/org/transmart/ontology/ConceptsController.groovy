@@ -2,27 +2,26 @@ package org.transmart.ontology
 
 import grails.converters.JSON
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.ontology.OntologyTermsResource
+
 //import org.transmartproject.core.ontology.BoundModifier
-
-import javax.naming.OperationNotSupportedException
-
 class ConceptsController {
 
-    def conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     def getCategories() {
-        render conceptsResourceService.allCategories as JSON
+        render ontologyTermsResourceService.allCategories as JSON
     }
 
     def getChildren() {
         def parentConceptKey = params.get('concept_key')
-        def parent = conceptsResourceService.getByKey(parentConceptKey)
+        def parent = ontologyTermsResourceService.getByKey(parentConceptKey)
         render parent.children as JSON
     }
 
     def getResource() {
         def concept = params.get('concept_key')
-        render conceptsResourceService.getByKey(concept) as JSON
+        render ontologyTermsResourceService.getByKey(concept) as JSON
     }
 
     def getModifierChildren() {
@@ -35,9 +34,9 @@ class ConceptsController {
         }
 
         /* TODO: method needs to be added to the interface */
- /*       if (conceptsResourceService.respondsTo('getModifier')) {
+ /*       if (ontologyTermsResourceService.respondsTo('getModifier')) {
             BoundModifier modifier =
-                    conceptsResourceService.getModifier(
+                    ontologyTermsResourceService.getModifier(
                             modifierKey, appliedPath, qualifiedTermKey)
             render modifier.children as JSON
         } else {

@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
-import org.transmartproject.core.users.ProtectedOperation
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.OrConstraint
@@ -98,7 +97,7 @@ class ExportService {
     }
 
     private List highDimDataTypes(Constraint constraint, org.transmartproject.core.users.User user) {
-        multidimensionalDataService.multiDimService.retriveHighDimDataTypes(constraint, user)
+        multidimensionalDataService.multiDimService.retrieveHighDimDataTypes(constraint, user)
     }
 
     List patientSetsExportPermission(List<Long> ids, org.transmartproject.core.users.User user){

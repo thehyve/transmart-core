@@ -6,6 +6,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.multidimquery.query.AndConstraint
@@ -21,6 +22,7 @@ import org.transmartproject.db.multidimquery.query.PatientSetConstraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
 import org.transmartproject.db.multidimquery.query.TimeConstraint
+import org.transmartproject.db.multidimquery.query.TrueConstraint
 import org.transmartproject.db.multidimquery.query.Type
 import org.transmartproject.db.multidimquery.query.ValueConstraint
 import org.transmartproject.db.user.User
@@ -189,7 +191,7 @@ class QueryServicePgSpec extends Specification {
         ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
 
         when:
-        def result = multiDimService.retriveHighDimDataTypes(conceptConstraint, user)
+        def result = multiDimService.retrieveHighDimDataTypes(conceptConstraint, user)
         then:
         result != null
         result.contains("mrna")
@@ -421,4 +423,67 @@ class QueryServicePgSpec extends Specification {
         // then: "Number of visits matching the constraints is returned"
         // locationsCount == Long.valueOf(expectedResult.size())
     }
+
+    /**
+     * Test the functionality to count patients and observations grouped by
+     * study, concept, or concept and study.
+     */
+    void "test counts per study, concept"() {
+        def user = User.findByUsername('test-public-user-1')
+        Constraint studyConstraint = new StudyNameConstraint(studyId: "EHR")
+
+        when: "fetching all counts per concept for study EHR"
+        def countsPerConcept = multiDimService.countsPerConcept(studyConstraint, user)
+
+        then: "the result should contain entries for both concepts in the study"
+        !countsPerConcept.empty
+        countsPerConcept.keySet() == ['EHR:DEM:AGE', 'EHR:VSIGN:HR'] as Set
+
+        then: "the result should contain the correct counts for both concepts"
+        countsPerConcept['EHR:DEM:AGE'].patientCount == 3
+        countsPerConcept['EHR:DEM:AGE'].observationCount == 3
+        countsPerConcept['EHR:VSIGN:HR'].patientCount == 3
+        countsPerConcept['EHR:VSIGN:HR'].observationCount == 9
+
+        when: "fetching all counts per study"
+        def countsPerStudy = multiDimService.countsPerStudy(new TrueConstraint(), user)
+
+        then: "the result should contain all study ids as key"
+        !countsPerStudy.empty
+        countsPerStudy.keySet() == [
+                'CATEGORICAL_VALUES',
+                'CLINICAL_TRIAL',
+                'CLINICAL_TRIAL_HIGHDIM',
+                'EHR',
+                'EHR_HIGHDIM',
+                'MIX_HD',
+                'ORACLE_1000_PATIENT',
+                'RNASEQ_TRANSCRIPT',
+                'SHARED_CONCEPTS_STUDY_A',
+                'SHARED_CONCEPTS_STUDY_B',
+                'SHARED_HD_CONCEPTS_STUDY_A',
+                'SHARED_HD_CONCEPTS_STUDY_B',
+                'TUMOR_NORMAL_SAMPLES'
+        ] as Set
+
+        then: "the result should have the correct counts for study EHR"
+        countsPerStudy['EHR'].patientCount == 3
+        countsPerStudy['EHR'].observationCount == 12
+
+        when: "fetching all counts per study and concept"
+        def countsPerStudyAndConcept = multiDimService.countsPerStudyAndConcept(new TrueConstraint(), user)
+        def observationCount = multiDimService.count(new TrueConstraint(), user)
+
+        then: "the result should contain the counts for study EHR and concept EHR:VSIGN:HR"
+        !countsPerStudyAndConcept.empty
+        countsPerStudyAndConcept.keySet() == countsPerStudy.keySet()
+        countsPerStudyAndConcept['EHR']['EHR:VSIGN:HR'].patientCount == 3
+        countsPerStudyAndConcept['EHR']['EHR:VSIGN:HR'].observationCount == 9
+
+        then: "the total observation count should be equal to the sum of observation counts of the returned map"
+        observationCount == countsPerStudyAndConcept.values().sum { Map<String, Counts> countsMap ->
+            countsMap.values().sum { Counts counts -> counts.observationCount }
+        }
+    }
+
 }

@@ -71,6 +71,34 @@ class TreeService {
         }
     }
 
+    private List<String> getStudyTokens(User user) {
+        List<String> studyTokens = []
+        if (!user.admin) {
+            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user) as Collection<Study>
+            studyTokens = studies*.secureObjectToken
+        }
+        studyTokens
+    }
+
+    private I2b2Secure fetchRootNode(User user, String rootKey) {
+        if (rootKey == I2b2Secure.ROOT) {
+            return null
+        }
+        DetachedCriteria criteria = DetachedCriteria.forClass(I2b2Secure)
+                .add(StringUtils.like('fullName', rootKey))
+
+        if (!user.admin) {
+            List<String> tokens = [Study.PUBLIC, 'EXP:PUBLIC'] + getStudyTokens(user)
+            criteria = criteria.add(Restrictions.in('secureObjectToken', tokens))
+        }
+
+        I2b2Secure root = criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult() as I2b2Secure
+        if (!root) {
+            throw new AccessDeniedException("Access denied to path: ${rootKey}")
+        }
+        root
+    }
+
     /**
      * Finds tree nodes with prefix $rootKey up to depth $depth lower than the $rootKey level.
      * If $counts is true, observation counts and patient counts will be added to leaf nodes.
@@ -93,12 +121,13 @@ class TreeService {
         includeCounts = includeCounts ?: Boolean.FALSE
         includeTags = includeTags ?: Boolean.FALSE
 
-        List<TreeNode> forest
-        if (rootKey != I2b2Secure.ROOT || depth > 0) {
-            forest = treeCacheService.fetchCachedSubtreeForUser(user, rootKey, depth)
-        } else {
-            forest = treeCacheService.fetchCachedTreeForUser(user)
+        I2b2Secure root = fetchRootNode(user, rootKey)
+        int maxLevel = depth
+        if (depth > 0 && root) {
+            maxLevel += root.level
         }
+        List<TreeNode> forest = treeCacheService.fetchCachedSubtree(user.admin, getStudyTokens(user), rootKey, maxLevel)
+
         if (includeCounts) {
             def t3 = new Date()
             enrichWithCounts(forest, user)

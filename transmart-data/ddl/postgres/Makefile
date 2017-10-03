@@ -1,4 +1,5 @@
 include ../../makefile.inc
+include ../../lib/makefile.inc
 
 SCHEMAS = \
 		  biomart_user \

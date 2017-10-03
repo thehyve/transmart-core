@@ -62,6 +62,18 @@ class RestApiUrlMappings {
                 action = [GET: 'count', POST: 'count']
                 apiVersion = 'v2'
             }
+            "/observations/counts_per_concept"(controller: 'query') {
+                action = [GET: 'countsPerConcept', POST: 'countsPerConcept']
+                apiVersion = 'v2'
+            }
+            "/observations/counts_per_study"(controller: 'query') {
+                action = [GET: 'countsPerStudy', POST: 'countsPerStudy']
+                apiVersion = 'v2'
+            }
+            "/observations/counts_per_study_and_concept"(controller: 'query') {
+                action = [GET: 'countsPerStudyAndConcept', POST: 'countsPerStudyAndConcept']
+                apiVersion = 'v2'
+            }
             "/patient_sets/$id"(method: 'GET', controller: 'patientQuery', action: 'findPatientSet') {
                 apiVersion = 'v2'
             }
@@ -77,6 +89,12 @@ class RestApiUrlMappings {
             }
             "/patients"(controller: 'patientQuery') {
                 action = [GET: 'listPatients', POST: 'listPatients']
+                apiVersion = 'v2'
+            }
+            "/concepts"(method: 'GET', controller: 'concept', action: 'index') {
+                apiVersion = 'v2'
+            }
+            "/concepts/${conceptCode}"(method: 'GET', controller: 'concept', action: 'show') {
                 apiVersion = 'v2'
             }
             "/tree_nodes"(method: 'GET', controller: 'tree', action: 'index') {
@@ -130,9 +148,6 @@ class RestApiUrlMappings {
             "/arvados/workflows/$id"(method: 'PUT', controller: 'arvados', action: 'update') {
                 apiVersion = "v2"
             }
-            "/recommended_concepts/$conceptCode"(method: 'GET', controller: 'concept', action: 'showRecommended') {
-                apiVersion = 'v2'
-            }
             "/dimensions/$dimensionName/elements"(methos: 'GET', controller: 'dimension', action: 'list'){
                 apiVersion = 'v2'
             }
@@ -157,6 +172,15 @@ class RestApiUrlMappings {
             "/export/file_formats"(method: 'GET', controller: 'export', action: 'fileFormats') {
                 apiVersion = "v2"
             }
+            "/queries"(method: 'GET', controller: 'userQuery', action: 'index')
+            "/queries/$id"(method: 'GET', controller: 'userQuery', action: 'get')
+            "/queries"(method: 'POST', controller: 'userQuery', action: 'save') {
+                apiVersion = "v2"
+            }
+            "/queries/$id"(method: 'PUT', controller: 'userQuery', action: 'update') {
+                apiVersion = "v2"
+            }
+            "/queries/$id"(method: 'DELETE', controller: 'userQuery', action: 'delete')
         }
 
         group "/v1", {
@@ -170,7 +194,7 @@ class RestApiUrlMappings {
             }
 
             "/studies/$studyId/concepts"(
-                    controller: 'concept', action: 'index'
+                    controller: 'ontologyTerm', action: 'index'
             )
 
             "/studies/$studyId/concepts/$conceptId**/subjects"(
@@ -205,7 +229,7 @@ class RestApiUrlMappings {
             '/observations2'(method: 'GET', controller: 'observation', action: 'observations2')
 
             "/studies/$studyId/concepts/$id**"(
-                    controller: 'concept', action: 'show', method: 'GET'
+                    controller: 'ontologyTerm', action: 'show', method: 'GET'
             ) {
                 constraints {
                     // this mapping has fewer wildcards than .../highdim/<type>

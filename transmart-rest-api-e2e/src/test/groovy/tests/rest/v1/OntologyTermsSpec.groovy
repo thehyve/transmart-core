@@ -10,7 +10,7 @@ import static config.Config.GSE8581_ID
 import static config.Config.V1_PATH_STUDIES
 
 @RequiresStudy(GSE8581_ID)
-class ConceptsSpec extends RESTSpec {
+class OntologyTermsSpec extends RESTSpec {
 
     /**
      *  given: "study GSE8581 is loaded"

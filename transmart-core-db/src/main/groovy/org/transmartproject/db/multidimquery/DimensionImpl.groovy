@@ -546,7 +546,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
 class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, String> implements
         CompositeElemDim<I2b2ConceptDimensions, String> {
     Class elemType = I2b2ConceptDimensions
-    List elemFields = ["conceptPath", "conceptCode"]
+    List elemFields = ["conceptPath", "conceptCode", "name"]
     String joinProperty = 'conceptCode'
     String name = 'concept'
     String alias = 'conceptCode'

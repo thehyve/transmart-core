@@ -8,6 +8,7 @@ import grails.orm.HibernateCriteriaBuilder
 import grails.plugin.cache.Cacheable
 import grails.util.Holders
 import groovy.transform.CompileStatic
+import groovy.transform.Immutable
 import groovy.transform.TupleConstructor
 import org.apache.commons.lang.NotImplementedException
 import org.hibernate.Criteria
@@ -41,7 +42,8 @@ import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.multidimquery.Counts
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryStatus
@@ -111,7 +113,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     HighDimensionResourceService highDimensionResourceService
 
     @Autowired
-    ConceptsResource conceptsResource
+    OntologyTermsResource conceptsResource
 
     @Override Dimension getDimension(String name) {
         DimensionDescription.findByName(name)?.dimension
@@ -389,6 +391,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 return Projections.max('numberValue')
             case AggregateType.COUNT:
                 return Projections.rowCount()
+            case AggregateType.PATIENT_COUNT:
+                return Projections.countDistinct('patient')
             case AggregateType.VALUES:
                 return Projections.distinct(Projections.property('textValue'))
             default:
@@ -467,7 +471,84 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         (Long) get(builder.buildCriteria((Constraint) constraint).setProjection(Projections.rowCount()))
     }
 
-    @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
+    @Override
+    Map<String, Counts> countsPerConcept(MultiDimConstraint constraint, User user) {
+        log.debug "Computing counts per concept ..."
+        def t1 = new Date()
+        checkAccess(constraint, user)
+        QueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
+                .add(Projections.groupProperty('conceptCode'), 'conceptCode')
+                .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
+                .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+        List rows = getList(criteria)
+        def t2 = new Date()
+        log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
+        rows.collectEntries{ Map row ->
+            [(row.conceptCode as String):
+                     new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)]
+        }
+    }
+
+    @Override
+    Map<String, Counts> countsPerStudy(MultiDimConstraint constraint, User user) {
+        log.debug "Computing counts per study ..."
+        def t1 = new Date()
+        checkAccess(constraint, user)
+        QueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
+                .setProjection(Projections.projectionList()
+                    .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
+                    .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
+                    .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+        List rows = getList(criteria)
+        def t2 = new Date()
+        log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
+        rows.collectEntries { Map row ->
+            [((row.study as Study).studyId):
+                     new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)]
+        } as Map<String, Counts>
+    }
+
+    @Immutable
+    class ConceptStudyCountRow {
+        String conceptCode
+        String studyId
+        Counts summary
+    }
+
+    @Override
+    Map<String, Map<String, Counts>> countsPerStudyAndConcept(MultiDimConstraint constraint, User user) {
+        log.debug "Computing counts per study and concept..."
+        def t1 = new Date()
+        checkAccess(constraint, user)
+        QueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
+                .setProjection(Projections.projectionList()
+                    .add(Projections.groupProperty('conceptCode'), 'conceptCode')
+                    .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
+                    .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
+                    .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+        List result = getList(criteria)
+        def t2 = new Date()
+        log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
+        List<ConceptStudyCountRow> counts = result.collect{ Map row ->
+            new ConceptStudyCountRow(conceptCode: row.conceptCode as String, studyId: (row.study as Study).studyId,
+                    summary: new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long))
+        }
+        counts.groupBy { it.studyId }.collectEntries { String studyId, List<ConceptStudyCountRow> rowsPerStudy ->
+            [(studyId): rowsPerStudy.groupBy { it.conceptCode}.collectEntries { String conceptCode, List<ConceptStudyCountRow> rows ->
+                [(conceptCode): rows[0].summary]
+            } as Map<String, Counts>
+            ]
+        } as Map<String, Map<String, Counts>>
+    }
+
+    @Override
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService', key = '{#constraint, #user.username}')
     Long cachedCount(MultiDimConstraint constraint, User user) {
         count(constraint, user)
     }
@@ -612,7 +693,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    @Override @Cacheable('org.transmartproject.db.clinical.MultidimensionalDataResourceService')
+    @Override
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService', key = '{#constraint, #user.username}')
     Long cachedPatientCount(MultiDimConstraint constraint, User user) {
         getDimensionElementsCount(DimensionImpl.PATIENT, constraint, user)
     }
@@ -817,7 +899,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    @Override List retriveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user){
+    @Override List retrieveHighDimDataTypes(MultiDimConstraint assayConstraint_, User user){
 
         Constraint assayConstraint = (Constraint) assayConstraint_
         List<AssayConstraint> oldAssayConstraints = getOldAssayConstraint(assayConstraint, user, 'autodetect')
