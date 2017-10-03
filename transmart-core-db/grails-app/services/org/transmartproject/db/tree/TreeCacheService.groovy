@@ -2,6 +2,7 @@
 
 package org.transmartproject.db.tree
 
+import grails.plugin.cache.CacheEvict
 import grails.plugin.cache.Cacheable
 import groovy.transform.CompileStatic
 import org.hibernate.SessionFactory
@@ -12,13 +13,12 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
-import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.ontology.I2b2Secure
-import org.transmartproject.db.user.User
 import org.transmartproject.db.util.StringUtils
 
 @Transactional(readOnly = true)
@@ -86,7 +86,7 @@ class TreeCacheService {
             println "Level ${level}: ${leveledNodes.size()} nodes, ${previousLevel.size()} in the previous level (${parentPathToChildNodes.keySet().size()} groups)."
             List<TreeNode> levelForest = levelNodes.collect { I2b2Secure currentNode ->
                 List<TreeNode> children = parentPathToChildNodes[currentNode.fullName]?.sort { TreeNode it -> it.name }
-                TreeNode node = new TreeNode(
+                def node = new TreeNodeImpl(
                         currentNode,
                         children
                 )
@@ -95,7 +95,7 @@ class TreeCacheService {
                 node.children?.each { child ->
                     child.parent = node
                 }
-                node
+                node as TreeNode
             }
             forest[level] = levelForest
             def l2 = new Date()
@@ -122,7 +122,7 @@ class TreeCacheService {
      */
     @Cacheable('org.transmartproject.db.tree.TreeCacheService')
     List<TreeNode> fetchCachedSubtree(boolean isAdmin = false, List<String> studyTokens = [], String rootPath = I2b2Secure.ROOT, int maxLevel = 0) {
-        log.debug  "Finding nodes ..."
+        log.info "Fetching tree nodes ..."
         DetachedCriteria criteria = DetachedCriteria.forClass(I2b2Secure)
         if (!isAdmin) {
             List<String> tokens = [Study.PUBLIC, 'EXP:PUBLIC'] + studyTokens
@@ -140,13 +140,22 @@ class TreeCacheService {
         def t1 = new Date()
         List<I2b2Secure> i2b2Nodes = criteria.getExecutableCriteria(sessionFactory.currentSession).list()
         def t2 = new Date()
-        log.debug "Found ${i2b2Nodes.size()} nodes. Query took ${t2.time - t1.time} ms."
+        log.info "Found ${i2b2Nodes.size()} nodes. Query took ${t2.time - t1.time} ms."
 
         List<TreeNode> forest = buildForest(i2b2Nodes)
         def t3 = new Date()
         log.debug "Forest growing took ${t3.time - t2.time} ms."
 
         forest
+    }
+
+    /**
+     * Clears the tree node cache. This function should be called after loading, removing or updating
+     * tree nodes in the database.
+     */
+    @CacheEvict(value = 'org.transmartproject.db.tree.TreeCacheService', allEntries = true)
+    void clearAllCacheEntries() {
+        log.info 'Clearing tree nodes cache ...'
     }
 
 }

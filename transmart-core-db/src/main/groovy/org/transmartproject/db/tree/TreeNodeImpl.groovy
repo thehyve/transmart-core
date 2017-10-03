@@ -6,6 +6,7 @@ import groovy.transform.CompileStatic
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermType
+import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
@@ -19,33 +20,33 @@ import org.transmartproject.db.ontology.I2b2Secure
 import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.*
 
 @CompileStatic
-class TreeNode {
+class TreeNodeImpl implements TreeNode {
 
-    public I2b2Secure delegate
+    I2b2Secure delegate
 
-    public String apiVersion
+    String apiVersion
 
-    public TreeNode parent
+    TreeNode parent
 
-    private List<TreeNode> children
+    List<TreeNode> children
 
-    public List<OntologyTermTag> tags
+    List<OntologyTermTag> tags
 
-    public Long observationCount
+    Long observationCount
 
-    public Long patientCount
+    Long patientCount
 
-    public String name
+    String name
 
-    public String fullName
+    String fullName
 
-    public EnumSet<OntologyTerm.VisualAttributes> visualAttributes
+    EnumSet<OntologyTerm.VisualAttributes> visualAttributes
 
-    public String dimension
+    String dimension
     
-    public String conceptPath
+    String conceptPath
 
-    TreeNode(I2b2Secure term, List<TreeNode> children) {
+    TreeNodeImpl(I2b2Secure term, List<TreeNode> children) {
         this.delegate = term
         this.name = term.name
         this.fullName = term.fullName
@@ -69,13 +70,6 @@ class TreeNode {
         delegate.columnName.toLowerCase().trim()
     }
 
-    /**
-     * Create a constraint object for the query that this node represents.
-     *
-     * Supports study, concept, modifier, patient and trial visit nodes.
-     *
-     * @return the constraint map for this node.
-     */
     final Map getConstraint() {
         def constraint = [:] as Map
         if (studyNode && studyId) {
@@ -192,11 +186,6 @@ class TreeNode {
         }
     }
 
-    /**
-     * Retrieves the dimension code as study id if the node is a study node,
-     * the table name is 'study' and the column name is 'study_id';
-     * null otherwise.
-     */
     final String getStudyId() {
         if (!studyNode) {
             return null
@@ -207,9 +196,6 @@ class TreeNode {
         return null
     }
 
-    /**
-     * Returns the node itself if itself is a study node or an ancestry study node if it exists.
-     */
     final TreeNode getStudy() {
         if (studyNode) {
             this

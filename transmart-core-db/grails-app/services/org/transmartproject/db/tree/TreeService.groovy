@@ -12,6 +12,9 @@ import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
+import org.transmartproject.core.tree.TreeNode
+import org.transmartproject.core.tree.TreeResource
+import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.multidimquery.query.Constraint
@@ -22,7 +25,10 @@ import org.transmartproject.db.util.StringUtils
 
 import javax.annotation.Resource
 
-class TreeService {
+class TreeService implements TreeResource {
+
+    @Autowired
+    UsersResource usersResource
 
     @Autowired
     AccessControlChecks accessControlChecks
@@ -63,7 +69,7 @@ class TreeService {
      * Adds metadata tags to tree nodes.
      */
     void enrichWithTags(List<TreeNode> forest, User user) {
-        def terms = forest*.delegate as Set<I2b2Secure>
+        def terms = forest*.delegate as Set<OntologyTerm>
         Map<OntologyTerm, List<OntologyTermTag>> map = tagsResource.getTags(terms, false)
         forest.each { TreeNode node ->
             node.tags = map.get(node.delegate)
@@ -115,7 +121,8 @@ class TreeService {
      * of their ancestor nodes.
      */
     @CompileStatic
-    List<TreeNode> findNodesForUser(String rootKey, Integer depth, Boolean includeCounts, Boolean includeTags, User user) {
+    List<TreeNode> findNodesForUser(String rootKey, Integer depth, Boolean includeCounts, Boolean includeTags, org.transmartproject.core.users.User currentUser) {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
         rootKey = rootKey ?: I2b2Secure.ROOT
         depth = depth ?: 0
         includeCounts = includeCounts ?: Boolean.FALSE
@@ -141,6 +148,22 @@ class TreeService {
             log.debug "Adding metadata tags took ${t6.time - t5.time} ms."
         }
         forest
+    }
+
+    /**
+     * Clears the tree node cache. This function should be called after loading, removing or updating
+     * tree nodes in the database.
+     * Only available for administrators.
+     *
+     * @param currentUser the current user.
+     *
+     */
+    void clearCache(org.transmartproject.core.users.User currentUser) {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        if (!user.admin) {
+            throw new AccessDeniedException('Only allowed for administrators.')
+        }
+        treeCacheService.clearAllCacheEntries()
     }
 
 }

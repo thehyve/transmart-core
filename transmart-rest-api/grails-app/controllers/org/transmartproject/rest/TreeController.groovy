@@ -8,10 +8,8 @@ import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.users.UsersResource
-import org.transmartproject.db.tree.TreeNode
-import org.transmartproject.db.tree.TreeService
-import org.transmartproject.db.user.User
+import org.transmartproject.core.tree.TreeNode
+import org.transmartproject.core.tree.TreeResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
 
@@ -24,21 +22,21 @@ class TreeController {
     CurrentUser currentUser
 
     @Autowired
-    UsersResource usersResource
-
-    TreeService treeService
+    TreeResource treeResource
 
     /**
      * Tree nodes endpoint:
      * <code>/${apiVersion}/tree_nodes</code>
      *
-     * Optional parameters:
-     * - root
-     * - depth
-     * - counts
-     * - tags
+     * Fetches all ontology nodes the satisfy the specified criteria (all nodes by default)
+     * as a forest.
      *
-     * @return
+     * @param root (Optional) the root element from which to fetch.
+     * @param depth (Optional) the maximum number of levels to fetch.
+     * @param counts flag if counts should be included in the result (default: false)
+     * @param tags flag if tags should be included in the result (default: false)
+     *
+     * @return a forest of ontology nodes.
      */
     def index(@RequestParam('api_version') String apiVersion,
               @RequestParam('root') String root,
@@ -55,15 +53,26 @@ class TreeController {
             root = URLDecoder.decode(root, 'UTF-8')
         }
         log.info "Tree. apiVersion = ${apiVersion}, root = ${root}, depth = ${depth}, counts = ${counts}, tags = ${tags}"
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        List<TreeNode> nodes = treeService.findNodesForUser(
+        List<TreeNode> nodes = treeResource.findNodesForUser(
                 root,
                 depth,
                 counts,
                 tags,
-                user)
+                currentUser)
         log.info "${nodes.size()} results."
         respond wrapNodes(apiVersion, root, depth, nodes)
+    }
+
+    /**
+     * Clear tree node cache:
+     * <code>/${apiVersion}/tree_nodes/clear_cache</code>
+     *
+     * This endpoint should be called after loading, deleting or updating
+     * tree nodes in the database.
+     * Only available for administrators.
+     */
+    def clearCache() {
+        treeResource.clearCache(currentUser)
     }
 
     private setVersion(String apiVersion, List<TreeNode> nodes) {
@@ -74,8 +83,7 @@ class TreeController {
     }
 
     /**
-     * @param source
-     * @return CollectionResponseWrapper so we can provide a proper HAL response
+     * Wrapper so we can provide a proper HAL response.
      */
     private ContainerResponseWrapper wrapNodes(String apiVersion,
                                                String root,
