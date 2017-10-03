@@ -118,14 +118,28 @@ info:
     ```
     
     ## PatientSet
-    Evaluate if an observation is liked to a patient in the set. It needs either a `patientSetId` or a list of `patientIds`.
+    Evaluate if an observation is liked to a patient in the set. You have to provide one of three: a `patientSetId`, a list of `patientIds` or a list of `subjectIds`.
     
-    Example:
+    Examples:
+    By specifying a patient set id.
     ```json
     {
         "type": "patient_set",
-        "patientSetId": 28820,
+        "patientSetId": 28820
+    }
+    ```
+    By specifying a list of patient identifiers.
+    ```json
+    {
+        "type": "patient_set",
         "patientIds": [-62, -63]
+    }
+    ```
+    And by specifying a list of subject identifiers (aka external identifiers).
+    ```json
+    {
+        "type": "patient_set",
+        "subjectIds": ["4543AB", "4543AC"]
     }
     ```
 
