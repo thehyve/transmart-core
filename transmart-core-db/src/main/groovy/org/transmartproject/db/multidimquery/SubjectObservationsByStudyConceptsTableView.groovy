@@ -68,7 +68,7 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         transformedColumns
     }()
 
-    class SubjectIdColumn implements ValueFetchingDataColumn<Long, HypercubeDataRow>, MetadataAwareDataColumn {
+    class SubjectIdColumn implements ValueFetchingDataColumn<String, HypercubeDataRow>, MetadataAwareDataColumn {
         String label = subjectIdColumnName
 
         VariableMetadata metadata = new VariableMetadata(
@@ -81,10 +81,10 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         )
 
         @Override
-        Long getValue(HypercubeDataRow row) {
+        String getValue(HypercubeDataRow row) {
             org.transmartproject.db.i2b2data.PatientDimension patient = row.getDimensionElement(DimensionImpl.PATIENT)
             if (patient) {
-                return patient.mappings.find { it.source == subjectIdSource }?.encryptedId as Long
+                return patient.mappings.find { it.source == subjectIdSource }?.encryptedId
             }
         }
     }

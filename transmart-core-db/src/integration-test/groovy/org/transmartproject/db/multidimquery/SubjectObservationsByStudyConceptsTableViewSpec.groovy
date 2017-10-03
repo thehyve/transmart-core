@@ -55,12 +55,12 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         when: 'get row'
         def rows = transformedView.rows.toList()
         then: 'content matches expactations'
-        rows[0][columns[0]] == 123457L
+        rows[0][columns[0]] == '123457'
         rows[0][columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1986-10-22 00:00:00', UTC)
         rows[0][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2010-12-16 20:23:15')
         rows[0][columns[3]] == -2
         rows[0][columns[4]] == null
-        rows[1][columns[0]] == 123456L
+        rows[1][columns[0]] == '123456'
         rows[1][columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1980-08-12 00:00:00', UTC)
         rows[1][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2015-11-14 19:05:00')
         rows[1][columns[3]] == 2
@@ -101,12 +101,12 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         when: 'get row'
         def rows = transformedView.rows.toList()
         then: 'content matches expactations'
-        rows[0][columns[0]] == 123457L
+        rows[0][columns[0]] == '123457'
         rows[0][columns[1]] == 'No description'
         rows[0][columns[2]] == null
         rows[0][columns[3]] <=> 169 == 0
         rows[0][columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2004-08-27 10:45:32')
-        rows[1][columns[0]] == 123456L
+        rows[1][columns[0]] == '123456'
         rows[1][columns[1]] == 'Description about subject 123456'
         rows[1][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
         rows[1][columns[3]] == -1
