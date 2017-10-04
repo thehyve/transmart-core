@@ -1,21 +1,15 @@
 package org.transmartproject.db.multidimquery
 
 import groovy.util.logging.Slf4j
-import org.transmartproject.core.dataquery.ColumnDataType
-import org.transmartproject.core.dataquery.ColumnMetadata
-import org.transmartproject.core.dataquery.DataColumn
-import org.transmartproject.core.dataquery.DataRow
-import org.transmartproject.core.dataquery.Measure
-import org.transmartproject.core.dataquery.MetadataAwareDataColumn
-import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.ValueFetchingDataColumn
+import org.transmartproject.core.concept.Concept
+import org.transmartproject.core.dataquery.*
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
-import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.core.ontology.MDStudy
 
 import java.rmi.UnexpectedException
 
-import static org.transmartproject.core.dataquery.ColumnDataType.*
+import static VariableDataType.*
 import static org.transmartproject.core.dataquery.Measure.NOMINAL
 import static org.transmartproject.core.dataquery.Measure.SCALE
 
@@ -77,7 +71,7 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
     class SubjectIdColumn implements ValueFetchingDataColumn<Long, HypercubeDataRow>, MetadataAwareDataColumn {
         String label = subjectIdColumnName
 
-        ColumnMetadata metadata = new ColumnMetadata(
+        VariableMetadata metadata = new VariableMetadata(
                 type: NUMERIC,
                 measure: SCALE,
                 description: subjectIdColumnDescription,
@@ -100,7 +94,7 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         final String label
         final HypercubeDataColumn originalColumn
 
-        ColumnMetadata metadata = new ColumnMetadata(
+        VariableMetadata metadata = new VariableMetadata(
                 type: DATE,
                 measure: SCALE,
                 description: dateColDescription,
@@ -126,7 +120,7 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         private final static MISSING_VALUE_MODIFIER_DIMENSION_NAME = 'missing_value'
         final String label
         final HypercubeDataColumn originalColumn
-        final ColumnMetadata metadata
+        final VariableMetadata metadata
         private final Map<String, Integer> labelsToValues = [:]
 
         VariableColumn(String label, HypercubeDataColumn originalColumn) {
@@ -134,12 +128,7 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
             this.originalColumn = originalColumn
             org.transmartproject.db.i2b2data.ConceptDimension conceptDimension =
                     originalColumn.getDimensionElement(DimensionImpl.CONCEPT)
-            def conceptMetadata = conceptDimension.conceptBlobAsJson()
-            if (conceptMetadata) {
-                metadata = parseColumnMetadata(conceptDimension.conceptBlobAsJson(), conceptDimension.name)
-            } else {
-                metadata = computeColumnMetadata()
-            }
+            metadata = conceptDimension.metadata ?: computeColumnMetadata()
             labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] }
         }
 
@@ -169,8 +158,8 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
             new Date((value * 1000) as Long)
         }
 
-        private ColumnMetadata computeColumnMetadata() {
-            new ColumnMetadata(
+        private VariableMetadata computeColumnMetadata() {
+            new VariableMetadata(
                     type: STRING,
                     measure: NOMINAL,
                     description: originalColumn.label,
@@ -184,34 +173,18 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
                     .find { it.name == MISSING_VALUE_MODIFIER_DIMENSION_NAME }
                     .with { naDim -> hValue[naDim] }
         }
-
-        ColumnMetadata parseColumnMetadata(json, String description) {
-            if (!json) return null
-            new ColumnMetadata(
-                    type: json.type?.toUpperCase() as ColumnDataType,
-                    measure: json.measure?.toUpperCase() as Measure,
-                    description: description,
-                    width: json.width,
-                    decimals: json.decimals,
-                    valueLabels: json.valueLabels?.collectEntries { key, value -> [key as Integer, value] } ?: [:],
-                    missingValues: json.missingValues?.collect { it as Integer } ?: [],
-                    columns: json.columns
-            )
-        }
     }
 
     private static String getVariableName(HypercubeDataColumn originalColumn) {
-        Study study = originalColumn.getDimensionElement(DimensionImpl.STUDY)
-        org.transmartproject.db.i2b2data.ConceptDimension conceptDimension =
+        MDStudy study = originalColumn.getDimensionElement(DimensionImpl.STUDY)
+        Concept concept =
                 originalColumn.getDimensionElement(DimensionImpl.CONCEPT)
 
-        def studyMetadata = study.studyBlobAsJson()
-        if (studyMetadata
-                && studyMetadata.conceptToVariableName
-                && conceptDimension.conceptCode in studyMetadata.conceptToVariableName) {
-            return studyMetadata.conceptToVariableName[conceptDimension.conceptCode]
+        def studyMetadata = study.metadata
+        if (studyMetadata?.conceptToVariableName?.containsKey(concept.conceptCode)) {
+            return studyMetadata.conceptToVariableName[concept.conceptCode]
         } else {
-            conceptDimension.conceptCode
+            concept.conceptCode
         }
     }
 }

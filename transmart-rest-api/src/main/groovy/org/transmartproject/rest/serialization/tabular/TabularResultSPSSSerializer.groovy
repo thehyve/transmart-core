@@ -4,8 +4,8 @@ import com.opencsv.CSVWriter
 import org.transmartproject.core.dataquery.DataColumn
 import org.transmartproject.core.dataquery.DataRow
 import org.transmartproject.core.dataquery.TabularResult
-import org.transmartproject.core.dataquery.ColumnDataType
-import org.transmartproject.core.dataquery.ColumnMetadata
+import org.transmartproject.core.dataquery.VariableDataType
+import org.transmartproject.core.dataquery.VariableMetadata
 import org.transmartproject.core.dataquery.MetadataAwareDataColumn
 
 import java.text.SimpleDateFormat
@@ -94,13 +94,13 @@ class TabularResultSPSSSerializer {
         outputStream << buffer
     }
 
-    private static String getSpsDataTypeCode(ColumnMetadata metadata) {
+    private static String getSpsDataTypeCode(VariableMetadata metadata) {
         switch (metadata?.type) {
-            case ColumnDataType.NUMERIC:
+            case VariableDataType.NUMERIC:
                 return 'F' + (metadata.width ?: '') + (metadata.decimals ? '.' + metadata.decimals : '')
-            case ColumnDataType.DATE:
+            case VariableDataType.DATE:
                 return 'DATETIME' + (metadata.width ?: '')
-            case ColumnDataType.STRING:
+            case VariableDataType.STRING:
                 return 'A' + (metadata.width ?: '')
             default: return ''
         }

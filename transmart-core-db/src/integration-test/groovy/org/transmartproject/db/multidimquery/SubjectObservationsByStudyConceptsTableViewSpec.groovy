@@ -9,9 +9,9 @@ import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.user.User
 import spock.lang.Specification
-import static org.transmartproject.core.dataquery.ColumnDataType.NUMERIC
-import static org.transmartproject.core.dataquery.ColumnDataType.STRING
-import static org.transmartproject.core.dataquery.ColumnDataType.DATE
+import static org.transmartproject.core.dataquery.VariableDataType.NUMERIC
+import static org.transmartproject.core.dataquery.VariableDataType.STRING
+import static org.transmartproject.core.dataquery.VariableDataType.DATE
 import static org.transmartproject.core.dataquery.Measure.NOMINAL
 import static org.transmartproject.core.dataquery.Measure.SCALE
 

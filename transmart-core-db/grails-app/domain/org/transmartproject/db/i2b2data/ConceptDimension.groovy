@@ -22,6 +22,9 @@ package org.transmartproject.db.i2b2data
 import groovy.json.JsonSlurper
 import groovy.transform.ToString
 import org.transmartproject.core.concept.Concept
+import org.transmartproject.core.dataquery.VariableDataType
+import org.transmartproject.core.dataquery.VariableMetadata
+import org.transmartproject.core.dataquery.Measure
 
 @ToString
 class ConceptDimension implements Concept {
@@ -65,12 +68,28 @@ class ConceptDimension implements Concept {
         //uploadId         nullable:   true
     }
 
-    def conceptBlobAsJson() {
+    private conceptBlobAsJson() {
         if (conceptBlob) {
             JSON_SLURPER.parseText(conceptBlob)
         } else {
             [:]
         }
+    }
+
+    @Override
+    VariableMetadata getMetadata() {
+        def json = conceptBlobAsJson()
+        if (!json) return null
+        new VariableMetadata(
+                type: json.type?.toUpperCase() as VariableDataType,
+                measure: json.measure?.toUpperCase() as Measure,
+                description: name,
+                width: json.width,
+                decimals: json.decimals,
+                valueLabels: json.valueLabels?.collectEntries { key, value -> [key as Integer, value] } ?: [:],
+                missingValues: json.missingValues?.collect { it as Integer } ?: [],
+                columns: json.columns
+        )
     }
 
 }
