@@ -192,6 +192,12 @@ class TreeNodeImpl implements TreeNode {
         }
         if (tableName == 'study' && columnName == 'study_id' && hasOperator(['=', 'like'])) {
             return dimensionCode
+        } else if (tableName == 'concept_dimension') {
+            // FIXME: This is not a very reliable method to get the study id,
+            // but it is required if a study has to be compatible with transmartApp.
+            // If table name 'study' is specified, dragging a study node into patient selection
+            // does not work.
+            return delegate.sourceSystemCd
         }
         return null
     }
