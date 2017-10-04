@@ -1,8 +1,8 @@
 package org.transmartproject.core.dataquery.highdim
 
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 
-public interface BioMarkerDataRow<CELL> extends DataRow<AssayColumn, CELL> {
+public interface BioMarkerDataRow<CELL> extends ColumnOrderAwareDataRow<AssayColumn, CELL> {
 
     /**
      * An arbitrary representation for an arbitrary biomarker. This is useful

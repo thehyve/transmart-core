@@ -10,6 +10,7 @@ import org.quartz.Scheduler
 import org.quartz.TriggerBuilder
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.db.job.AsyncJobCoreDb
+import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.InvalidQueryException
 import org.transmartproject.db.user.User
 
@@ -83,20 +84,20 @@ class ExportAsyncJobService {
     }
 
     String getJobUser(Long id) {
-        def AsyncJobCoreDb = AsyncJobCoreDb.findById(id)
-        AsyncJobCoreDb?.userId
+        def asyncJobCoreDb = AsyncJobCoreDb.findById(id)
+        asyncJobCoreDb?.userId
     }
 
     AsyncJobCoreDb updateStatus(Long id, JobStatus status, String viewerURL = null, String results = null) {
-        def AsyncJobCoreDb = AsyncJobCoreDb.findById(id)
-        if (isJobCancelled(AsyncJobCoreDb)) return AsyncJobCoreDb
+        def asyncJobCoreDb = AsyncJobCoreDb.findById(id)
+        if (isJobCancelled(asyncJobCoreDb)) return asyncJobCoreDb
 
-        AsyncJobCoreDb.jobStatus = status.value
-        if (viewerURL?.trim()) AsyncJobCoreDb.viewerURL = viewerURL
-        if (results?.trim()) AsyncJobCoreDb.results = results
+        asyncJobCoreDb.jobStatus = status.value
+        if (viewerURL?.trim()) asyncJobCoreDb.viewerURL = viewerURL
+        if (results?.trim()) asyncJobCoreDb.results = results
 
-        AsyncJobCoreDb.save(flush: true)
-        return AsyncJobCoreDb
+        asyncJobCoreDb.save(flush: true)
+        return asyncJobCoreDb
     }
 
     boolean isJobCancelled(AsyncJobCoreDb job) {
@@ -107,13 +108,12 @@ class ExportAsyncJobService {
         isJobCancelled
     }
 
-    private static Map createJobDataMap(List<Long> ids, String typeOfSet, List types, User user, Long jobId, String jobName) {
+    private static Map createJobDataMap(Constraint constraint, List types, User user, Long jobId, String jobName) {
         [
                 user                 : user,
                 jobName              : jobName,
                 jobId                : jobId,
-                ids                  : ids,
-                typeOfSet            : typeOfSet,
+                constraint           : constraint,
                 dataTypeAndFormatList: types
         ]
     }
@@ -144,14 +144,14 @@ class ExportAsyncJobService {
         return job
     }
 
-    def exportData(List<Long> ids, String typeOfSet, List types, User user, Long jobId) {
+    def exportData(Constraint constraint, List types, User user, Long jobId) {
         def job = getJobById(jobId)
         if (job.jobStatus != JobStatus.CREATED.value) {
             throw new InvalidRequestException("Job with id $jobId has invalid status. " +
                     "Expected: $JobStatus.CREATED.value, actual: $job.jobStatus")
         }
 
-        def dataMap = createJobDataMap(ids, typeOfSet, types, user, jobId, job.jobName)
+        def dataMap = createJobDataMap(constraint, types, user, jobId, job.jobName)
         executeExportJob(dataMap)
     }
 

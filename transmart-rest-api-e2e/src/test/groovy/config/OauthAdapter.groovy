@@ -12,7 +12,7 @@ class OauthAdapter implements AuthAdapter {
     OauthAdapter() {
         users.put('test-public-user-1', new User('test-public-user-1', 'test-public-user-1'))
         users.put('test-public-user-2', new User('test-public-user-2', 'test-public-user-2'))
-        users.put('ADMIN', new User('admin', 'admin'))
+        users.put('admin', new User('admin', 'admin'))
     }
 
     @Override

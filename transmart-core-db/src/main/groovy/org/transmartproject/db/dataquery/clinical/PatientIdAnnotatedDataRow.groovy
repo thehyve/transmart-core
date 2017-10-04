@@ -20,11 +20,11 @@
 package org.transmartproject.db.dataquery.clinical
 
 import groovy.transform.ToString
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.clinical.ClinicalVariableColumn
 
 @ToString(includes = ['patientId', 'data'])
-class PatientIdAnnotatedDataRow implements DataRow<ClinicalVariableColumn, Object> {
+class PatientIdAnnotatedDataRow implements ColumnOrderAwareDataRow<ClinicalVariableColumn, Object> {
 
     Long patientId
 

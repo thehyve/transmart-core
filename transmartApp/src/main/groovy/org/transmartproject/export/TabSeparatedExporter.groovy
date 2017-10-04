@@ -2,7 +2,7 @@ package org.transmartproject.export
 
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
@@ -88,7 +88,7 @@ class TabSeparatedExporter implements HighDimExporter {
             List<AssayColumn> assayList = tabularResult.indicesList
 
             // Start looping 
-            for (DataRow<AssayColumn, Object> datarow : tabularResult) {
+            for (ColumnOrderAwareDataRow<AssayColumn, Object> datarow : tabularResult) {
                 // Test periodically if the export is cancelled
                 if (isCancelled()) {
                     return null

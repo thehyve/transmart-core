@@ -2,6 +2,7 @@
 
 package org.transmartproject.db.multidimquery
 
+import grails.converters.JSON
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,6 +10,9 @@ import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstrain
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.querytool.QueryResult
+import org.transmartproject.core.querytool.QueryResultType
+import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.multidimquery.query.AndConstraint
 import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
 import org.transmartproject.db.multidimquery.query.Combination
@@ -25,6 +29,8 @@ import org.transmartproject.db.multidimquery.query.TimeConstraint
 import org.transmartproject.db.multidimquery.query.TrueConstraint
 import org.transmartproject.db.multidimquery.query.Type
 import org.transmartproject.db.multidimquery.query.ValueConstraint
+import org.transmartproject.db.querytool.QtPatientSetCollection
+import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 import java.text.SimpleDateFormat
@@ -52,6 +58,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(BIOMARKER).size() == 3
         hypercube.dimensionElements(ASSAY).size() == 6
         hypercube.dimensionElements(PROJECTION).size() == 10
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'get hd data for selected patients'() {
@@ -79,6 +88,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(BIOMARKER).size() == 3
         hypercube.dimensionElements(ASSAY).size() == 2
         hypercube.dimensionElements(PROJECTION).size() == 10
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'get hd data for selected biomarkers'() {
@@ -101,6 +113,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(BIOMARKER).size() == 2
         hypercube.dimensionElements(ASSAY).size() == 6
         hypercube.dimensionElements(PROJECTION).size() == 10
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'get hd data for selected trial visit dimension'() {
@@ -140,8 +155,10 @@ class QueryServicePgSpec extends Specification {
         patient.id == -601
         patient.age == 26
 
-
+        cleanup:
+        if (hypercube) hypercube.close()
     }
+
     void 'get hd data for selected time constraint'() {
         def user = User.findByUsername('test-public-user-2')
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\')
@@ -184,6 +201,8 @@ class QueryServicePgSpec extends Specification {
         then:
         hypercube.dimensionElements(ASSAY).size() == 1
 
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void "get hd data types"() {
@@ -226,6 +245,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(VISIT).each {
             assert (it.getAt('startDate') as Date) > minDate
         }
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
 
@@ -255,6 +277,9 @@ class QueryServicePgSpec extends Specification {
 
         then:
         hypercube.dimensionElements(ASSAY).size() == 1
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
 
@@ -284,6 +309,9 @@ class QueryServicePgSpec extends Specification {
 
         then:
         hypercube.dimensionElements(PATIENT).size() == 2
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'Test for empty set of assayIds'(){
@@ -306,6 +334,9 @@ class QueryServicePgSpec extends Specification {
 
         then:
         hypercube.toList().empty
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'get transcript data for selected patients and selected transcripts'() {
@@ -339,6 +370,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(BIOMARKER).size() == 1
         hypercube.dimensionElements(ASSAY).size() == 1
         hypercube.dimensionElements(PROJECTION).size() == 13
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     void 'get transcript data for selected genes'() {
@@ -361,6 +395,9 @@ class QueryServicePgSpec extends Specification {
         hypercube.dimensionElements(BIOMARKER).size() == 1
         hypercube.dimensionElements(ASSAY).size() == 3
         hypercube.dimensionElements(PROJECTION).size() == 13
+
+        cleanup:
+        if (hypercube) hypercube.close()
     }
 
     // This is basically a copy of QueryServiceSpec.test_visit_selection_constraint in transmart-core-db-tests.
@@ -424,6 +461,85 @@ class QueryServicePgSpec extends Specification {
         // locationsCount == Long.valueOf(expectedResult.size())
     }
 
+    void "test patient set query"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        when:
+        QueryResult patientSetQueryResult = multiDimService.createPatientSetQueryResult("Test set",
+                constraint,
+                user,
+                (constraint as JSON).toString(),
+                'v2')
+
+        then:
+        patientSetQueryResult.id > 0
+        patientSetQueryResult.queryResultType.id == QueryResultType.PATIENT_SET_ID
+        patientSetQueryResult.setSize == 3L
+        patientSetQueryResult.status == QueryStatus.FINISHED
+        patientSetQueryResult.username == user.name
+        !patientSetQueryResult.description.empty
+        patientSetQueryResult.errorMessage == null
+        def patientSetEntries = QtPatientSetCollection
+                .findAllByResultInstance(QtQueryResultInstance.load(patientSetQueryResult.id))
+        patientSetEntries.size() == 3
+        (patientSetEntries*.setIndex - (1..3 as List)).empty
+        patientSetEntries*.patient.id != null
+    }
+
+    void "test generic query"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        when:
+        QueryResult patientSetQueryResult = multiDimService.createObservationSetQueryResult(
+                "Test generic query without patient set.",
+                user,
+                (constraint as JSON).toString(),
+                'v2')
+
+        then:
+        patientSetQueryResult.id > 0
+        patientSetQueryResult.queryResultType.id == QueryResultType.GENERIC_QUERY_RESULT_ID
+        patientSetQueryResult.setSize == -1L
+        patientSetQueryResult.status == QueryStatus.FINISHED
+        patientSetQueryResult.username == user.name
+        !patientSetQueryResult.description.empty
+        patientSetQueryResult.errorMessage == null
+        def patientSetEntries = QtPatientSetCollection
+                .findAllByResultInstance(QtQueryResultInstance.load(patientSetQueryResult.id))
+        !patientSetEntries
+    }
+
+    void "test find query results per type"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(path:
+                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
+
+        def qr1 = multiDimService.createPatientSetQueryResult('Patient set query result', constraint,
+                user, (constraint as JSON).toString(), 'v2')
+        def qr2 = multiDimService.createObservationSetQueryResult('Generic query result',
+                user, (constraint as JSON).toString(), 'v2')
+
+        when:
+        def patientSetQueryResults = multiDimService.findPatientSetQueryResults(user).toList()
+        then:
+        qr1 in patientSetQueryResults
+        !(qr2 in patientSetQueryResults)
+
+        when:
+        def queryResults = multiDimService.findObservationSetQueryResults(user).toList()
+        then:
+        !(qr1 in queryResults)
+        qr2 in queryResults
+    }
+
+
     /**
      * Test the functionality to count patients and observations grouped by
      * study, concept, or concept and study.
@@ -463,7 +579,9 @@ class QueryServicePgSpec extends Specification {
                 'SHARED_CONCEPTS_STUDY_B',
                 'SHARED_HD_CONCEPTS_STUDY_A',
                 'SHARED_HD_CONCEPTS_STUDY_B',
-                'TUMOR_NORMAL_SAMPLES'
+                'TUMOR_NORMAL_SAMPLES',
+                'SURVEY1',
+                'SURVEY2',
         ] as Set
 
         then: "the result should have the correct counts for study EHR"

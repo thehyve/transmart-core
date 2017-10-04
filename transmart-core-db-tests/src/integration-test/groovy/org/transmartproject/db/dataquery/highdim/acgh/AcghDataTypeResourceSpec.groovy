@@ -44,9 +44,10 @@ class AcghDataTypeResourceSpec extends TransmartSpecification {
 
     HighDimensionDataTypeResource acghResource
 
-    AcghTestData testData = new AcghTestData()
+    AcghTestData testData
 
     void setupData() {
+        testData = new AcghTestData()
         acghResource = highDimensionResourceService.getSubResourceForType 'acgh'
     }
 

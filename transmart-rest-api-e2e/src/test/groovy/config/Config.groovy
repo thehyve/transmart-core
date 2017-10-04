@@ -37,7 +37,7 @@ class Config {
 
     public static final String DEFAULT_USER = 'test-public-user-1'
     public static final String UNRESTRICTED_USER = 'test-public-user-2'
-    public static final String ADMIN_USER = 'ADMIN'
+    public static final String ADMIN_USER = 'admin'
 
     public static final String VERSIONS_PATH = '/versions'
     public static final String NON_EXISTING_API_VERSION = 'v0'
@@ -58,6 +58,7 @@ class Config {
     public static final String PATH_TREE_NODES = "/v2/tree_nodes"
     public static final String PATH_STUDIES = "/v2/studies"
     public static final String PATH_PATIENT_SET = "/v2/patient_sets"
+    public static final String PATH_OBSERVATION_SET = "/v2/observation_sets"
     public static final String PATH_STORAGE = "/v2/storage"
     public static final String PATH_FILES = "/v2/files"
     public static final String PATH_ARVADOS_WORKFLOWS = "/v2/arvados/workflows"
@@ -83,6 +84,8 @@ class Config {
     public static final Long SHARED_CONCEPTS_RESTRICTED_DB_ID = -29L
     public static final String RNASEQ_TRANSCRIPT_ID = 'RNASEQ_TRANSCRIPT'
     public static final String MIX_HD_ID = 'MIX_HD'
+    public static final String SURVEY1_ID = 'SURVEY1'
+    public static final String SURVEY2_ID = 'SURVEY2'
 
     //settings
     public static final boolean DB_MIGRATED = true

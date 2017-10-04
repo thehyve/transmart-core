@@ -9,17 +9,15 @@ import org.transmartproject.core.users.User
 interface MultiDimensionalDataResource {
 
     /**
-     * @param accessibleStudies: The studies the current user has access to.
-     * @param dataType: The string identifying the data type. "clinical" for clinical data, for high dimensional data
+     * @param accessibleStudies : The studies the current user has access to.
+     * @param dataType : The string identifying the data type. "clinical" for clinical data, for high dimensional data
      * the appropriate identifier string.
-     * @param constraints: (nullable) A list of Constraint-s. If null, selects all the data in the database.
-     * @param dimensions: (nullable) A list of Dimension-s to select. Only dimensions valid for the selected studies
+     * @param constraints : (nullable) A list of Constraint-s. If null, selects all the data in the database.
+     * @param dimensions : (nullable) A list of Dimension-s to select. Only dimensions valid for the selected studies
      * will actually be applied. If null, select all available dimensions.
      *
      * Not yet implemented:
      * @param sort
-     * @param pack
-     * @param preloadDimensions
      *
      * @return a Hypercube result
      */
@@ -77,13 +75,20 @@ interface MultiDimensionalDataResource {
 
     Iterable getDimensionElements(Dimension dimension, MultiDimConstraint constraint, User user)
 
-    QueryResult createPatientSet(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion) 
+    QueryResult createPatientSetQueryResult(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion)
 
-    QueryResult findPatientSet(Long patientSetId, User user)
+    QueryResult createObservationSetQueryResult(String name, User user, String constraintText, String apiVersion)
 
-    Iterable<QueryResult> findPatientSets(User user)
+    QueryResult findQueryResult(Long queryResultId, User user)
+
+    MultiDimConstraint createQueryResultsDisjunctionConstraint(List<Long> queryResultIds, User user)
+
+    Iterable<QueryResult> findPatientSetQueryResults(User user)
+
+    Iterable<QueryResult> findObservationSetQueryResults(User user)
 
     Long getDimensionElementsCount(Dimension dimension, MultiDimConstraint constraint, User user)
+
     Long cachedPatientCount(MultiDimConstraint constraint, User user)
 
     /**
@@ -105,6 +110,10 @@ interface MultiDimensionalDataResource {
 
     Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user)
 
+    Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user, List<Dimension> orderByDimensions)
+
     List<String> retrieveHighDimDataTypes(MultiDimConstraint assayConstraint, User user)
+
+    Iterable<Dimension> getSupportedDimensions(MultiDimConstraint constraint)
 
 }

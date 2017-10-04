@@ -1,23 +1,32 @@
 /* Copyright © 2017 The Hyve B.V. */
 package org.transmartproject.rest
 
+import grails.core.GrailsApplication
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
+import org.transmartproject.db.multidimquery.SubjectObservationsByStudyConceptsTableView
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
+import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
 import org.transmartproject.rest.serialization.HypercubeSerializer
-import org.transmartproject.rest.serialization.HypercubeJsonSerializer
+import org.transmartproject.rest.serialization.tabular.TabularResultSPSSSerializer
+import org.transmartproject.rest.serialization.tabular.TabularResultTSVSerializer
+
+import java.util.zip.ZipOutputStream
 
 @Transactional
 class MultidimensionalDataService {
 
     @Autowired
     MultiDimensionalDataResource multiDimService
+    @Autowired
+    GrailsApplication grailsApplication
 
     /**
      * Type to represent the requested serialization format.
@@ -26,6 +35,7 @@ class MultidimensionalDataService {
         JSON('application/json'),
         PROTOBUF('application/x-protobuf'),
         TSV('TSV'),
+        SPSS('SPSS'),
         NONE('none')
 
         private String format
@@ -66,9 +76,29 @@ class MultidimensionalDataService {
                 serializer = new HypercubeCSVSerializer()
                 break
             default:
-                throw new Exception("Unsupported format: ${format}")
+                throw new UnsupportedOperationException("Unsupported format: ${format}")
         }
         serializer.write(args, hypercube, out)
+    }
+
+    /**
+     * Serialises tabular data to <code>out</code>.
+     *
+     * @param tabularResult the table to serialise.
+     * @param out the stream to serialise to.
+     */
+    @CompileStatic
+    private void serialise(TabularResult tabularResult, Format format, OutputStream out) {
+        switch (format) {
+            case Format.TSV:
+                TabularResultTSVSerializer.writeFilesToZip(tabularResult, (ZipOutputStream) out)
+                break
+            case Format.SPSS:
+                TabularResultSPSSSerializer.writeFilesToZip(tabularResult, (ZipOutputStream) out)
+                break
+            default:
+                throw new UnsupportedOperationException("Unsupported format for tabular data: ${format}")
+        }
     }
 
     /**
@@ -78,16 +108,39 @@ class MultidimensionalDataService {
      * @param constraint
      * @param user The user accessing the data
      * @param out
+     * @param view predefined string that specifies how exported data structure will look like
      */
-    void writeClinical(Map args, Format format, MultiDimConstraint constraint, User user, OutputStream out) {
+    void writeClinical(Format format,
+                       MultiDimConstraint constraint,
+                       User user,
+                       OutputStream out,
+                       String view = null) {
 
-        Hypercube result = multiDimService.retrieveClinicalData(constraint, user)
+        String dataView = view ?: grailsApplication.config.export.clinical.defaultDataView
 
-        try {
-            log.info "Writing to format: ${format}"
-            serialise(args, result, format, out)
-        } finally {
-            result.close()
+        if (!dataView) {
+            Hypercube result = multiDimService.retrieveClinicalData(constraint, user)
+
+            try {
+                log.info "Writing to format: ${format}"
+                serialise(result, format, out, dataType: 'clinical')
+            } finally {
+                result.close()
+            }
+        } else if (dataView == 'subjectObservationsByStudyConceptsTableView') {
+            def patientDimension = multiDimService.getDimension('patient')
+            def hypercube = multiDimService.retrieveClinicalData(constraint, user, [patientDimension])
+            def customizations = grailsApplication.config
+                    .export.clinical.subjectObservationsByStudyConceptsTableView
+            def tabularView = new SubjectObservationsByStudyConceptsTableView(customizations, hypercube)
+            try {
+                log.info "Writing tabular data in ${format} format."
+                serialise(tabularView, format, out)
+            } finally {
+                tabularView.close()
+            }
+        } else {
+            throw new UnsupportedOperationException("${dataView} data view is not supported.")
         }
     }
 
@@ -101,6 +154,7 @@ class MultidimensionalDataService {
      * @param projection
      * @param user
      * @param out
+     * @param view predefined string that specifies how exported data structure will look like
      */
     void writeHighdim(Format format,
                       String type,
@@ -108,18 +162,18 @@ class MultidimensionalDataService {
                       MultiDimConstraint biomarkerConstraint,
                       String projection,
                       User user,
-                      OutputStream out) {
+                      OutputStream out,
+                      String view = null) {
+
+        if (view) {
+            throw new UnsupportedOperationException("${view} data view is not supported.")
+        }
 
         Hypercube hypercube = multiDimService.highDimension(assayConstraint, biomarkerConstraint, projection, user, type)
 
-        Map args = [:]
-        if (format == Format.TSV) {
-            args = [dataType : type]
-        }
-
         try {
             log.info "Writing to format: ${format}"
-            serialise(args, hypercube, format, out)
+            serialise(hypercube, format, out, dataType: type)
         } finally {
             hypercube.close()
         }

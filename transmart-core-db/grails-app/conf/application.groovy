@@ -25,7 +25,7 @@ hibernate {
 environments {
     test {
         dataSource {
-            url = 'jdbc:postgresql://localhost:5433/transmart'
+            url = 'jdbc:postgresql://localhost:5432/transmart'
             driverClassName = 'org.postgresql.Driver'
             username = 'biomart_user'
             password = 'biomart_user'

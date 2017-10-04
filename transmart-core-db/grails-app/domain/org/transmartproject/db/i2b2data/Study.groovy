@@ -2,13 +2,11 @@
 
 package org.transmartproject.db.i2b2data
 
+import groovy.json.JsonSlurper
 import org.transmartproject.core.ontology.MDStudy
-import org.transmartproject.core.users.ProtectedResource
-import org.transmartproject.core.dataquery.Patient
-import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.StudyMetadata
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.storage.LinkedFileCollection
 
 /**
  * Domain class that represents the link between a study and observation data
@@ -28,6 +26,7 @@ import org.transmartproject.db.storage.LinkedFileCollection
 class Study implements MDStudy {
 
     static final String PUBLIC = 'PUBLIC'
+    private static final JsonSlurper JSON_SLURPER = new JsonSlurper()
 
     /**
      * String label (optional)
@@ -44,11 +43,13 @@ class Study implements MDStudy {
      * Refers to {@link org.transmart.biomart.Experiment#id}.
      */
     Long bioExperimentId
+    String studyBlob
 
     static constraints = {
         studyId             maxSize: 100
         secureObjectToken   maxSize: 200
         bioExperimentId     nullable: true
+        studyBlob           nullable: true
     }
 
     static hasMany = [
@@ -80,4 +81,21 @@ class Study implements MDStudy {
         dd.dimension
     }
 
+    private studyBlobAsJson() {
+        if (studyBlob) {
+            JSON_SLURPER.parseText(studyBlob)
+        } else {
+            [:]
+        }
+    }
+
+    @Override
+    StudyMetadata getMetadata() {
+        def json = studyBlobAsJson()
+        if (json) {
+            return new StudyMetadata(
+                    conceptToVariableName: json.conceptToVariableName ?: [:]
+            )
+        }
+    }
 }

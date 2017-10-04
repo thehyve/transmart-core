@@ -104,7 +104,7 @@ class PatientQueryController extends AbstractQueryController {
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
 
-        QueryResult patientSet = multiDimService.findPatientSet(id, user)
+        QueryResult patientSet = multiDimService.findQueryResult(id, user)
         def constraint = patientSet.queryInstance.queryMaster.apiVersion
         def version = patientSet.queryInstance.queryMaster.requestConstraints
 
@@ -128,7 +128,7 @@ class PatientQueryController extends AbstractQueryController {
         checkForUnsupportedParams(params, [])
 
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Iterable<QueryResult> patientSets = multiDimService.findPatientSets(user)
+        Iterable<QueryResult> patientSets = multiDimService.findPatientSetQueryResults(user)
 
         respond wrapPatientSets(patientSets)
     }
@@ -180,7 +180,7 @@ class PatientQueryController extends AbstractQueryController {
 
         // This converts bodyJson back to string, but the request doesn't save the body, it only provides an
         // inputstream.
-        QueryResult patientSet = multiDimService.createPatientSet(name, constraint, user, bodyJson.toString(), currentVersion)
+        QueryResult patientSet = multiDimService.createPatientSetQueryResult(name, constraint, user, bodyJson.toString(), currentVersion)
 
         response.status = 201
         render new QueryResultWrapper(

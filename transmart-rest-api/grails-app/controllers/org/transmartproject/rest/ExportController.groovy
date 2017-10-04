@@ -1,14 +1,17 @@
 package org.transmartproject.rest
 
 import grails.converters.JSON
-import org.grails.web.converters.exceptions.ConverterException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidArgumentsException
+import org.transmartproject.core.multidimquery.MultiDimConstraint
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.job.AsyncJobCoreDb
+import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.ConstraintFactory
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.dataExport.ExportAsyncJobService
 import org.transmartproject.rest.dataExport.ExportService
@@ -26,6 +29,8 @@ class ExportController {
     CurrentUser currentUser
     @Autowired
     UsersResource usersResource
+    @Autowired
+    MultiDimensionalDataResource multiDimService
 
     /**
      * Create a new asynchronous dataExport job:
@@ -48,32 +53,44 @@ class ExportController {
 
     /**
      * Run a data export job asynchronously:
-     * <code>/v2/export/${jobId}/run?typeOfSet=${typeOfSet}&id=${id1}&...&id=${idx}&elements=${elements}</code>
-     *
-     * Creates a hypercube for each element from ${elements} with PatientSetsConstraint for given ${ids}
-     * (see {@link org.transmartproject.db.dataquery.clinical.patientconstraints.PatientSetsConstraint})
+     * <code>/v2/export/${jobId}/run</code>
+     * Request body:
+     * <code>
+     * {
+     *      id: [id1,....idx], //list of query result ids. Could be "observation sets" or "patient sets"
+     *      criteria: <criteria json>
+     *      elements: {
+     *          dataType: "<clinical/mrna/...>" //supported data type
+     *          format: "<TSV/SPSS/...>" //supported file format
+     *          tabular: <true/false> //optional, false by default.
+     *          //When tabular = true => represent hypercube as table with a subject per row and variable per column
+     *      }
+     * }
+     * </code>
+     * Creates a hypercube for each element from ${elements} that satisfies ${id} or ${criteria} (one of two could be supplied)
      * and serialises it to specified $(fileFormat}.
      * Output stream is saved as .zip file in <code>tempFolderDirectory</code>, specified in configuration file.
      *
-     * @param typeOfSet - 'patient' or 'observation' set
      * @param jobId - id of previously created job with status: 'Created'
-     * @param id - list of sets ids, multiple parameter instances format
-     * @param elements - list of pairs: {dataType:${dataType}, format:$(fileFormat}, JSON format
      * @return The first time at which the <code>Trigger</code> to run the export will be fired
      *         by the scheduler
      */
-    def run(@RequestParam('typeOfSet') String typeOfSet,
-            @PathVariable('jobId') Long jobId) {
-
-        checkForUnsupportedParams(params, ['typeOfSet', 'jobId', 'id', 'elements'])
-        List<Long> id = parseId(params)
-        List<Map> elements = parseElements(params)
+    def run(@PathVariable('jobId') Long jobId) {
+        checkForUnsupportedParams(params, ['jobId'])
+        def requestBody = request.JSON as Map
+        def notSupportedFields = requestBody.keySet() - ['id', 'elements', 'constraint']
+        if (notSupportedFields) {
+            throw new InvalidArgumentsException("Following fields are not supported ${notSupportedFields}.")
+        }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        checkTypeOfSetSupported(typeOfSet)
-        checkRightsToExport(id, user, typeOfSet)
         checkJobAccess(jobId, user)
+        if (!requestBody.elements) {
+            throw new InvalidArgumentsException('Empty elements map.')
+        }
 
-        def job = exportAsyncJobService.exportData(id, typeOfSet, elements, user, jobId)
+        Constraint constraint = getConstraintFromJson(requestBody, user)
+
+        def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId)
 
         respond wrapExportJob(job)
     }
@@ -92,7 +109,7 @@ class ExportController {
         checkJobAccess(jobId, user)
 
         def job = exportAsyncJobService.getJobById(jobId)
-        def InputStream inputStream = restExportService.downloadFile(job)
+        InputStream inputStream = restExportService.downloadFile(job)
 
         response.setContentType 'application/zip'
         response.setHeader "Content-disposition", "attachment;"//filename=${inputStream.ass}"
@@ -134,21 +151,20 @@ class ExportController {
     /**
      * Get available types of the data for specified set id,
      * `clinical` for clinical data and supported high dimensional data types.
-     * <code>/v2/export/data_formats?id=${id1}&...&id=${idx}&typeOfSet=${typeOfSet}
+     * <code>/v2/export/data_formats?id=${id1}&...&id=${idx}
      *
-     * @param typeOfSet
      * @param id - list of sets ids, multiple parameter instances format
      * @return data formats
      */
-    def dataFormats(@RequestParam('typeOfSet') String typeOfSet) {
+    def dataFormats() {
 
-        checkForUnsupportedParams(params, ['typeOfSet', 'id'])
-        List<Long> id = parseId(params)
-        checkTypeOfSetSupported(typeOfSet)
+        checkForUnsupportedParams(params, ['id'])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-
-        def formats = restExportService.getDataFormats(typeOfSet, id, user)
-        def results = [dataFormats: formats]
+        MultiDimConstraint constraint = multiDimService.createQueryResultsDisjunctionConstraint(parseId(params), user)
+        def formats = ['clinical'] + multiDimService.retrieveHighDimDataTypes(constraint, user)
+        def results = [
+                dataFormats: formats
+        ]
         render results as JSON
     }
 
@@ -165,17 +181,6 @@ class ExportController {
         render results as JSON
     }
 
-
-
-    private void checkRightsToExport(List<Long> resultSetIds, User user, String typeOfSet) {
-        try {
-            restExportService.isUserAllowedToExport(resultSetIds, user, typeOfSet)
-        } catch (UnsupportedOperationException e) {
-            throw new AccessDeniedException("User ${user.username} has no READ permission" +
-                    " on one of the result sets: ${resultSetIds.join(', ')}")
-        }
-    }
-    
     private checkJobAccess(Long jobId, User user) {
         String jobUsername = exportAsyncJobService.getJobUser(jobId)
         if (!jobUsername) throw new InvalidArgumentsException("Job with id '$jobId' does not exists.")
@@ -197,12 +202,6 @@ class ExportController {
         }
     }
 
-    private void checkTypeOfSetSupported(String typeOfSet) {
-        if (!(typeOfSet?.trim() in restExportService.supportedTypesOfSet)) {
-            throw new InvalidArgumentsException("Type of set not supported: $typeOfSet.")
-        }
-    }
-
     private static List<Long> parseId(params) {
         if (!params.id){
             throw new InvalidArgumentsException('Empty id parameter.')
@@ -211,17 +210,6 @@ class ExportController {
             return params.getList('id').collect { it as Long }
         } catch (NumberFormatException e) {
             throw new InvalidArgumentsException('Id parameter should be a number.')
-        }
-    }
-
-    private static List<Map> parseElements(params) {
-        if (!params.elements) {
-            throw new InvalidArgumentsException('Empty elements map.')
-        }
-        try {
-            return JSON.parse(params.elements)
-        } catch (ConverterException c) {
-            throw new InvalidArgumentsException("Cannot parse parameter: $params.elements")
         }
     }
 
@@ -256,5 +244,15 @@ class ExportController {
                 container: serializedJobs,
                 componentType: Map,
         )
+    }
+
+    private Constraint getConstraintFromJson(json, User user) {
+        if (!(json.containsKey('id') ^ json.containsKey('constraint'))) {
+            throw new InvalidArgumentsException("Whether id or constraint parameters can be supplied.")
+        } else if (json.containsKey('id')) {
+            return multiDimService.createQueryResultsDisjunctionConstraint(json.id instanceof Number ? [json.id] : json.id, user)
+        } else if (json.containsKey('constraint')) {
+            return ConstraintFactory.create(json.constraint)
+        }
     }
 }

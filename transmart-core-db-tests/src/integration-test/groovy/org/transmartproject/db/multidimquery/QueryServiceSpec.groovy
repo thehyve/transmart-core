@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.DataInconsistencyException
 import org.transmartproject.core.multidimquery.AggregateType
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
 import org.transmartproject.db.i2b2data.TrialVisit
@@ -199,7 +200,7 @@ class QueryServiceSpec extends TransmartSpecification {
         observations*.getAt(DimensionImpl.PATIENT) as Set == patients as Set
 
         when: "I build a patient set based on the constraint"
-        def patientSet = multiDimService.createPatientSet("Test set",
+        def patientSet = multiDimService.createPatientSetQueryResult("Test set",
                                                        constraint,
                                                        accessLevelTestData.users[0],
                                                        constraintJson.toString(),
@@ -207,6 +208,7 @@ class QueryServiceSpec extends TransmartSpecification {
         then: "I get a patient set id"
         patientSet != null
         patientSet.id != null
+        patientSet.queryResultType.id == QueryResultType.PATIENT_SET_ID
 
         when: "I query for patients based on the patient set id"
         Constraint patientSetConstraint = ConstraintFactory.create(
@@ -253,20 +255,20 @@ class QueryServiceSpec extends TransmartSpecification {
         String apiVersion = "2.1-tests"
         def adminUser = accessLevelTestData.users[0]
         def otherUser = accessLevelTestData.users[3]
-        def patientSet = multiDimService.createPatientSet("Test admin set ",
+        def patientSet = multiDimService.createPatientSetQueryResult("Test admin set ",
                 constraint,
                 adminUser,
                 constraintJson.toString(),
                 apiVersion)
 
         when: "I query for all patient sets with admin user"
-        def adminPatientSetList = multiDimService.findPatientSets(adminUser)
+        def adminPatientSetList = multiDimService.findPatientSetQueryResults(adminUser)
 
         then: "List of all patient_sets contains the newly created one for admin user"
         assert adminPatientSetList.contains(patientSet)
 
         when: "I query for all patient sets with a different user"
-        def otherUserPatientSetList = multiDimService.findPatientSets(otherUser)
+        def otherUserPatientSetList = multiDimService.findPatientSetQueryResults(otherUser)
 
         then: "List of all patient_sets does NOT contain the newly created patient set"
         assert !otherUserPatientSetList.contains(patientSet)
@@ -361,44 +363,6 @@ class QueryServiceSpec extends TransmartSpecification {
         then:
         count2 == count1 + 1
         patientCount2 == patientCount1
-    }
-
-    void "test for check if aggregate returns error when any numerical value is null"() {
-        setupData()
-
-        def observationFact = createObservationWithSameConcept()
-        def newConcept = createNewConcept(observationFact.conceptCode).save()
-
-        observationFact.numberValue = null
-        observationFact.textValue = 'E'
-        observationFact.valueType = 'N'
-        observationFact.conceptCode = newConcept.conceptCode
-        testData.clinicalData.facts << observationFact.save()
-
-        when:
-        Constraint query = createQueryForConcept(observationFact)
-        multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
-
-        then:
-        thrown(DataInconsistencyException)
-    }
-
-    void "test for check if aggregate returns error when the textValue is other then E and no numeric value"() {
-        setupData()
-
-        def observationFact = createObservationWithSameConcept()
-        def newConcept = createNewConcept(observationFact.conceptCode).save()
-        observationFact.textValue = 'GT'
-        observationFact.numberValue = null
-        observationFact.conceptCode = newConcept.conceptCode
-        testData.clinicalData.facts << observationFact.save()
-
-        when:
-        Constraint query = createQueryForConcept(observationFact)
-        multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
-
-        then:
-        thrown(DataInconsistencyException)
     }
 
     void "test_patient_selection_constraint"() {

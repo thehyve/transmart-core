@@ -203,6 +203,31 @@ class ObservationsBuilderTests extends Specification {
         out.names.sort() == expectedEntries.sort()
     }
 
+    void testWideFormatCSVSerialization() {
+        setupData()
+        def dataType = 'clinical'
+        def fileExtension = '.tsv'
+        Constraint constraint = new StudyNameConstraint(studyId: clinicalData.longitudinalStudy.studyId)
+        def mockedCube = queryResource.retrieveData(dataType, [clinicalData.longitudinalStudy], constraint: constraint)
+        def builder = new HypercubeCSVSerializer()
+
+        when:
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
+        ZipOutputStream out = new ZipOutputStream(byteArrayOutputStream)
+        builder.write([dataType : dataType], mockedCube, out)
+        out.close()
+        out.flush()
+        List expectedEntries = ["${dataType}_observations$fileExtension",
+                                "${dataType}_concept$fileExtension",
+                                "${dataType}_patient$fileExtension",
+                                "${dataType}_study$fileExtension",
+                                "${dataType}_trial_visit$fileExtension"]
+
+        then:
+        out.xentries != null
+        out.names.sort() == expectedEntries.sort()
+    }
+
     void setupData() {
         testData = TestData.createHypercubeDefault()
         clinicalData = testData.clinicalData

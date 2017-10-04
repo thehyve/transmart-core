@@ -1641,24 +1641,24 @@ paths:
           schema:
             type: object
             properties:
-              typeOfSet:
-                type: string
-                description: 'specifies the type of the set you want to retrieve. For patient_set specify `patient`,
-                for observation_set specify `observation`'
               id:
                 type: array
-                description: 'IDs of the set specified by `typeOfSet`. To specify more than one value, multiple parameter
+                description: 'result instance ids. To specify more than one value, multiple parameter
                 instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`.'
                 items:
                   type: integer
+              constraint:
+                type: string
+                description: 'observations that meet this constraint get exported. Note: whether id or constraint has to be supplied, not both. Example: `constraint={"type": "study_name", "studyId": "EHR"}`.'
               elements:
                 type: string
-                description: 'json that specifies the list of pairs: `[{dataType:${dataType}, format:$(fileFormat}]`,
+                description: 'json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, tabular:<boolean>]`,
                 where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data,
                 or one of the supported high dimensional data types and `format` is one of the supported file formats
-                you want to export current data type to.
-                Example: `[{"dataType":clinical, "format":TSV},{"dataType":rnaseq_transcript, "format":TSV}]`.'
-            required: [ "typeOfSet", "id", "elements" ]
+                you want to export current data type to. The tabular flag (optional, false by default) specifies whether
+                represent hypercube data as wide filer format where patients are rows and columns are variables.
+                Example: `[{"dataType":clinical, "format":TSV, "tabular":true},{"dataType":rnaseq_transcript, "format":TSV}]`.'
+            required: [ "id", "elements" ]
       responses:
         200:
           description:  |
@@ -1727,18 +1727,12 @@ paths:
         - name: id
           required: true
           in: query
-          description: 'IDs of the set specified by `typeOfSet`. To specify more than one value, multiple parameter
+          description: 'Result instance ids. To specify more than one value, multiple parameter
           instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`'
           type: array
           collectionFormat: multi
           items:
             type: integer
-        - name: typeOfSet
-          required: true
-          in: query
-          description: 'specifies the type of the set you want to retrieve. For patient_set specify `patient`,
-          for observation_set specify `observation`.'
-          type: string
       responses:
         200:
           description:  |

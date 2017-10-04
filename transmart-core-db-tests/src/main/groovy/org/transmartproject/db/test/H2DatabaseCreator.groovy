@@ -23,11 +23,13 @@ import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import org.transmartproject.core.querytool.QueryResultType
 
 import javax.annotation.PostConstruct
 import javax.sql.DataSource
 
-import static org.transmartproject.db.test.H2Views.ObjectStatus.*
+import static H2DatabaseCreator.ObjectStatus.*
 
 /**
  * This class is for integration test purposes, but has to be here due to
@@ -36,7 +38,7 @@ import static org.transmartproject.db.test.H2Views.ObjectStatus.*
  * the test classpath.
  */
 @Slf4j
-class H2Views {
+class H2DatabaseCreator {
 
     @Autowired
     @Qualifier('dataSource')
@@ -53,7 +55,7 @@ class H2Views {
                 return
             }
 
-            log.info 'Executing H2Views init actions'
+            log.info 'Executing H2DatabaseCreator init actions'
 
             createSearchBioMkrCorrelView()
             createSearchAuthUserSecAccessV()
@@ -62,9 +64,48 @@ class H2Views {
             createSuperPathwayCorrelView()
             createModifierDimensionView()
             createDeVariantSummaryDetailGene()
+            fillDictionaries()
         } finally {
             this.sql.close()
         }
+    }
+
+    void fillDictionaries() {
+        new SimpleJdbcInsert(dataSource)
+                .withSchemaName('i2b2demodata')
+                .withTableName('qt_query_result_type')
+                .executeBatch(
+                [
+                        result_type_id: QueryResultType.PATIENT_SET_ID,
+                        description   : 'Patient set',
+                ],
+                [
+                        result_type_id: QueryResultType.GENERIC_QUERY_RESULT_ID,
+                        description   : 'Generic query result',
+                ],
+        )
+
+        new SimpleJdbcInsert(dataSource)
+                .withSchemaName('i2b2metadata')
+                .withTableName('dimension_description')
+                .executeBatch(
+                [name: 'study'],
+                [name: 'concept'],
+                [name: 'patient'],
+                [name: 'visit'],
+                [name: 'start time'],
+                [name: 'end time'],
+                [name: 'location'],
+                [name: 'trial visit'],
+                [name: 'provider'],
+                [name: 'biomarker'],
+                [name: 'assay'],
+                [name: 'projection'],
+                [name: 'sample_type',
+                 density: 'DENSE', modifier_code: 'TNS:SMPL', value_type: 'T', packable: 'NOT_PACKABLE', size_cd: 'SMALL'],
+                [name: 'original_variable',
+                 density: 'DENSE', modifier_code: 'TRANSMART:ORIGINAL_VARIABLE', value_type: 'T', packable: 'NOT_PACKABLE', size_cd: 'SMALL'],
+        )
     }
 
     void createBioMarkerCorrelMv() {

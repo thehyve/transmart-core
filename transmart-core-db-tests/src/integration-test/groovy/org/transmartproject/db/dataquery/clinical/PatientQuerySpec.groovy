@@ -36,9 +36,10 @@ import static org.hamcrest.Matchers.*
 @Rollback
 class PatientQuerySpec extends TransmartSpecification {
 
-    TestData testData = TestData.createDefault()
+    TestData testData
 
     void setupData() {
+        testData = TestData.createDefault()
         testData.saveAll()
     }
 
