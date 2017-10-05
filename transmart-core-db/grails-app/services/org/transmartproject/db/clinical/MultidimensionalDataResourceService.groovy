@@ -798,18 +798,44 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
         def builder = getCheckedQueryBuilder(user)
 
-        def fieldTypes = types.collect { aggregateFieldType(it) }.unique()
-        if(fieldTypes.findAll().size() > 1) throw new InvalidQueryException(
-                "aggregate queries on numeric and textual values can not be combined in a single call")
+        // Aggregates that all use the same field type (text or numeric or both) can be combined into a single DB
+        // query. Aggregates that use one field type cannot be combined with aggregates that use a different field type.
+        // The COUNT aggregate which doesn't care about the value type cannot be combined with aggregates that use
+        // text fields (the additional type constraint in the query could result in wrong results for COUNT).
+        //
+        // But as an exception, COUNT can be combined with aggregates that use numeric values. For textual
+        // observations the numberValue will be null so the numeric aggregates (MIN, MAX, AVERAGE) will ignore those
+        // if they are selected.
+        // The reverse does not work, as numeric observations still have their textValue field set to 'E' (or other
+        // codes in I2b2).
 
+        def fieldTypes = types.collect { aggregateFieldType(it) }.unique()
         if(fieldTypes.size() == 0) return [:]
 
-        def typedConstraint = fieldTypes.size() != 1 ? constraint :
-                new AndConstraint(args: [constraint, new FieldConstraint(
-                    operator: Operator.EQUALS,
-                    field: valueTypeField,
-                    value: fieldTypes[0],
+        def typedConstraint
+
+        if(ObservationFact.TYPE_TEXT in fieldTypes) {
+            if(ObservationFact.TYPE_NUMBER in fieldTypes || null in fieldTypes) {
+                // These aggregates cannot be combined in a single database call, so we split them up
+                return aggregate(
+                        types.findAll { aggregateFieldType(it) == ObservationFact.TYPE_TEXT},
+                        constraint, user) +
+                    aggregate(
+                        types.findAll { aggregateFieldType(it) != ObservationFact.TYPE_TEXT},
+                        constraint, user)
+            } else {
+                assert fieldTypes == [ObservationFact.TYPE_TEXT]
+                typedConstraint = new AndConstraint(args: [constraint, new FieldConstraint(
+                        operator: Operator.EQUALS,
+                        field: valueTypeField,
+                        value: fieldTypes[0],
                 )])
+            }
+        } else {
+            // Numeric aggregates and COUNT can be combined due to the exception described above, so nothing to do in
+            // this branch.
+            typedConstraint = constraint
+        }
 
         // get aggregate value
         DetachedCriteria queryCriteria = builder.buildCriteria(typedConstraint)
