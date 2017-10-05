@@ -12,17 +12,21 @@ import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
+import org.transmartproject.core.tree.TreeNode
+import org.transmartproject.core.tree.TreeResource
+import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintFactory
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User
 import org.transmartproject.db.util.StringUtils
 
 import javax.annotation.Resource
 
-class TreeService {
+class TreeService implements TreeResource {
+
+    @Autowired
+    UsersResource usersResource
 
     @Autowired
     AccessControlChecks accessControlChecks
@@ -41,18 +45,18 @@ class TreeService {
     /**
      * Adds observation counts and patient counts to leaf nodes.
      */
+    @CompileStatic
     void enrichWithCounts(List<TreeNode> forest, User user) {
-        forest.each { TreeNode node ->
+        forest.each { TreeNode it ->
+            def node = it as TreeNodeImpl
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
                 if (node.tableName == 'concept_dimension' && node.constraint) {
-                    Constraint constraint = ConstraintFactory.create(node.constraint)
-                    node.observationCount = multiDimensionalDataResource.cachedCount(constraint, user)
-                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(constraint, user)
+                    node.observationCount = multiDimensionalDataResource.cachedCount(node.constraint, user)
+                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(node.constraint, user)
                 }
             } else {
                 if (OntologyTerm.VisualAttributes.STUDY in node.visualAttributes && node.constraint) {
-                    Constraint constraint = ConstraintFactory.create(node.constraint)
-                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(constraint, user)
+                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(node.constraint, user)
                 }
                 enrichWithCounts(node.children, user)
             }
@@ -62,11 +66,13 @@ class TreeService {
     /**
      * Adds metadata tags to tree nodes.
      */
+    @CompileStatic
     void enrichWithTags(List<TreeNode> forest, User user) {
-        def terms = forest*.delegate as Set<I2b2Secure>
-        Map<OntologyTerm, List<OntologyTermTag>> map = tagsResource.getTags(terms, false)
-        forest.each { TreeNode node ->
-            node.tags = map.get(node.delegate)
+        def termPaths = forest*.fullName as Set<String>
+        Map<String, List<OntologyTermTag>> map = tagsResource.getTags(termPaths)
+        forest.each { TreeNode it ->
+            def node = it as TreeNodeImpl
+            node.tags = map.get(node.fullName)
             enrichWithTags(node.children, user)
         }
     }
@@ -115,7 +121,8 @@ class TreeService {
      * of their ancestor nodes.
      */
     @CompileStatic
-    List<TreeNode> findNodesForUser(String rootKey, Integer depth, Boolean includeCounts, Boolean includeTags, User user) {
+    List<TreeNode> findNodesForUser(String rootKey, Integer depth, Boolean includeCounts, Boolean includeTags, org.transmartproject.core.users.User currentUser) {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
         rootKey = rootKey ?: I2b2Secure.ROOT
         depth = depth ?: 0
         includeCounts = includeCounts ?: Boolean.FALSE
@@ -141,6 +148,22 @@ class TreeService {
             log.debug "Adding metadata tags took ${t6.time - t5.time} ms."
         }
         forest
+    }
+
+    /**
+     * Clears the tree node cache. This function should be called after loading, removing or updating
+     * tree nodes in the database.
+     * Only available for administrators.
+     *
+     * @param currentUser the current user.
+     *
+     */
+    void clearCache(org.transmartproject.core.users.User currentUser) {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        if (!user.admin) {
+            throw new AccessDeniedException('Only allowed for administrators.')
+        }
+        treeCacheService.clearAllCacheEntries()
     }
 
 }

@@ -11,7 +11,7 @@ import groovy.util.logging.Slf4j
 import org.springframework.validation.Errors
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimConstraint
-import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.multidimquery.DimensionImpl
 
 /**
@@ -169,14 +169,14 @@ enum Operator {
 
 /**
  * Specification of a domain class field using the dimensions defined as
- * subclasses of {@link org.transmartproject.db.multidimquery.DimensionImpl} and the field name in the domain class.
+ * implementations of {@link org.transmartproject.core.multidimquery.Dimension} and the field name in the domain class.
  * The data type ({@link Type}) of the field is also included to allow for
  * early validation (assuming that clients know the data type of a field).
  */
 @Canonical
 class Field implements Validateable {
     @BindUsing({ obj, source -> DimensionImpl.fromName(source['dimension'])})
-    DimensionImpl dimension
+    Dimension dimension
     @BindUsing({ obj, source -> Type.forName(source['type']) })
     Type type = Type.NONE
     String fieldName
@@ -366,7 +366,7 @@ class StudyNameConstraint extends Constraint {
 class StudyObjectConstraint extends Constraint {
     static String constraintName = "study"
 
-    Study study
+    MDStudy study
 }
 
 @Canonical

@@ -194,6 +194,28 @@ class TreeNodesSpec extends RESTSpec {
         assert responseData.message == "Access denied to path: ${path}"
     }
 
+    def "clear tree node cache as admin"() {
+        when: "I try to clear the tree node cache as admin"
+        def responseData = get([
+                path      : PATH_TREE_NODES_CLEAR_CACHE,
+                acceptType: JSON,
+                user      : ADMIN_USER,
+        ])
+        then: "a success code is returned"
+        assert responseData.httpStatus == 200
+    }
+
+    def "clear tree node cache"() {
+        when: "I try to clear the tree node cache as a regular user"
+        def responseData = get([
+                path      : PATH_TREE_NODES_CLEAR_CACHE,
+                acceptType: JSON,
+                statusCode: 403
+        ])
+        then: "access is denied"
+        assert responseData.httpStatus == 403
+    }
+
     def getRootNodeByName(list, name) {
         def root
         list.tree_nodes.each {
