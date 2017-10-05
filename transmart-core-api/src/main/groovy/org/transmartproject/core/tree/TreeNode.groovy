@@ -27,8 +27,6 @@ interface TreeNode {
      */
     TreeNode getParent()
 
-    void setParent(TreeNode parent)
-
     /**
      * Retrieves the child nodes.
      * @return the child nodes.
@@ -41,8 +39,6 @@ interface TreeNode {
      */
     List<OntologyTermTag> getTags()
 
-    void setTags(List<OntologyTermTag> tags)
-
     /**
      * The number of observations that satisfy the constraint in {@link #getConstraint()}.
      * The count is not always set, it can also be null.
@@ -50,16 +46,12 @@ interface TreeNode {
      */
     Long getObservationCount()
 
-    void setObservationCount(Long count)
-
     /**
      * The number of patients that have observations that satisfy the constraint in {@link #getConstraint()}.
      * The count is not always set, it can also be null.
      * @return the number of patients for this node if set; null otherwise.
      */
     Long getPatientCount()
-
-    void setPatientCount(Long count)
 
     /**
      * The name of the node.
@@ -83,11 +75,6 @@ interface TreeNode {
      * The dimension that the current node refers to. Could be study or concept.
      */
     String getDimension()
-
-    /**
-     * Name of the table the current node refers to. E.g., 'concept_dimension'.
-     */
-    String getTableName()
 
     /**
      * The concept path of the concept that this node represents, if it represents a concept; null otherwise.

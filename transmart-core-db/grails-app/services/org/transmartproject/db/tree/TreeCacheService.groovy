@@ -92,7 +92,8 @@ class TreeCacheService {
                 )
                 node.conceptPath = getConceptPath(node.tableName, node.dimensionCode)
                 node.dimension = getDimension(node.tableName, currentNode.code)
-                node.children?.each { child ->
+                node.children?.each { TreeNode it ->
+                    def child = it as TreeNodeImpl
                     child.parent = node
                 }
                 node as TreeNode

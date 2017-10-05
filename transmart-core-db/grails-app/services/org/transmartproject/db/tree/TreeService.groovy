@@ -45,8 +45,10 @@ class TreeService implements TreeResource {
     /**
      * Adds observation counts and patient counts to leaf nodes.
      */
+    @CompileStatic
     void enrichWithCounts(List<TreeNode> forest, User user) {
-        forest.each { TreeNode node ->
+        forest.each { TreeNode it ->
+            def node = it as TreeNodeImpl
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
                 if (node.tableName == 'concept_dimension' && node.constraint) {
                     node.observationCount = multiDimensionalDataResource.cachedCount(node.constraint, user)
@@ -64,10 +66,12 @@ class TreeService implements TreeResource {
     /**
      * Adds metadata tags to tree nodes.
      */
+    @CompileStatic
     void enrichWithTags(List<TreeNode> forest, User user) {
         def termPaths = forest*.fullName as Set<String>
         Map<String, List<OntologyTermTag>> map = tagsResource.getTags(termPaths)
-        forest.each { TreeNode node ->
+        forest.each { TreeNode it ->
+            def node = it as TreeNodeImpl
             node.tags = map.get(node.fullName)
             enrichWithTags(node.children, user)
         }
