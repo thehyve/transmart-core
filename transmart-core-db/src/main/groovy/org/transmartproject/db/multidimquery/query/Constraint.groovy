@@ -464,6 +464,7 @@ class PatientSetConstraint extends Constraint {
 
     Long patientSetId
     Set<Long> patientIds
+    Set<String> subjectIds
 
     static constraints = {
         patientIds nullable: true, validator: { val, obj, Errors errors ->
@@ -475,16 +476,24 @@ class PatientSetConstraint extends Constraint {
             }
         }
         patientSetId nullable: true, validator: { val, obj, Errors errors ->
-            if (!val && obj.patientIds == null) {
+            if (!val && obj.patientIds == null && obj.subjectIds == null) {
                 errors.rejectValue(
                         'patientSetId',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint requires patientSetId or patientIds. Got none.")
-            } else if (val && (obj.patientIds != null)) {
+                        "Patient set constraint requires patientSetId, patientIds or subjectIds. Got none.")
+            } else if (val && (obj.patientIds != null || obj.subjectIds != null)) {
                 errors.rejectValue(
                         'patientSetId',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint requires patientSetId or patientIds. Got both.")
+                        "Patient set constraint requires patientSetId or patientIds or subjectIds. Got more than one specified.")
+            }
+        }
+        subjectIds nullable: true, validator: { val, obj, Errors errors ->
+            if (val != null && val.empty) {
+                errors.rejectValue(
+                        'subjectIds',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "Patient set constraint has empty subjectIds parameter.")
             }
         }
     }

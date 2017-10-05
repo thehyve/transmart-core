@@ -339,6 +339,21 @@ class QueryServicePgSpec extends Specification {
         if (hypercube) hypercube.close()
     }
 
+    void 'get data for the patient with given id'() {
+        def user = User.findByUsername('test-public-user-1')
+        Constraint subjectIdConstraint = new PatientSetConstraint(subjectIds: ['123457'])
+
+
+        when:
+        Hypercube hypercube = multiDimService.retrieveClinicalData(subjectIdConstraint, user)
+        then:
+        hypercube.dimensionElements(PATIENT).size() == 1
+        hypercube.dimensionElements(PATIENT).first().id == -3001L
+
+        cleanup:
+        if (hypercube) hypercube.close()
+    }
+
     void 'get transcript data for selected patients and selected transcripts'() {
         def user = User.findByUsername('test-public-user-1')
         ConceptConstraint conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\RNASEQ_TRANSCRIPT\\HD\\Breast\\')
