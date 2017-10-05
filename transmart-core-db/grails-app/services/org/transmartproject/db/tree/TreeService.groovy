@@ -47,6 +47,9 @@ class TreeService implements TreeResource {
      */
     @CompileStatic
     void enrichWithCounts(List<TreeNode> forest, User user) {
+        if (!forest) {
+            return
+        }
         forest.each { TreeNode it ->
             def node = it as TreeNodeImpl
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
@@ -68,6 +71,9 @@ class TreeService implements TreeResource {
      */
     @CompileStatic
     void enrichWithTags(List<TreeNode> forest, User user) {
+        if (!forest) {
+            return
+        }
         def termPaths = forest*.fullName as Set<String>
         Map<String, List<OntologyTermTag>> map = tagsResource.getTags(termPaths)
         forest.each { TreeNode it ->
