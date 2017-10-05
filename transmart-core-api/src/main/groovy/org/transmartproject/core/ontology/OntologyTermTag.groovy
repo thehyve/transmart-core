@@ -12,6 +12,12 @@ interface OntologyTermTag {
     String getName()
 
     /**
+     * Path of the ontology term the tag is associated with.
+     * @return
+     */
+    String getOntologyTermFullName()
+
+    /**
      * @return Free text value.
      */
     String getDescription()

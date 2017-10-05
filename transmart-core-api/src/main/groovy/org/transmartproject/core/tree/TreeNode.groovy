@@ -1,5 +1,6 @@
 package org.transmartproject.core.tree
 
+import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermType
@@ -19,11 +20,6 @@ interface TreeNode {
     String getApiVersion()
 
     void setApiVersion(String version)
-
-    /**
-     * The domain object on which this node is based.
-     */
-    OntologyTerm getDelegate()
 
     /**
      * Retrieves the parent node if it exists (i.e., when it is not a root node).
@@ -123,6 +119,6 @@ interface TreeNode {
      *
      * @return the constraint map for this node.
      */
-    Map getConstraint()
+    MultiDimConstraint getConstraint()
 
 }

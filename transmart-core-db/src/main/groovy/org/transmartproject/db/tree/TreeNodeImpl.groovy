@@ -10,6 +10,7 @@ import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.query.Combination
 import org.transmartproject.db.multidimquery.query.ConceptConstraint
+import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.FieldConstraint
 import org.transmartproject.db.multidimquery.query.ModifierConstraint
 import org.transmartproject.db.multidimquery.query.Operator
@@ -70,120 +71,8 @@ class TreeNodeImpl implements TreeNode {
         delegate.columnName.toLowerCase().trim()
     }
 
-    final Map getConstraint() {
-        def constraint = [:] as Map
-        if (studyNode && studyId) {
-            return [
-                type: StudyNameConstraint.constraintName,
-                studyId: studyId
-            ] as Map
-        }
-        if (!(LEAF in visualAttributes || MODIFIER_LEAF in visualAttributes)) {
-            return null
-        }
-        switch (tableName) {
-            case 'concept_dimension':
-                if (columnName == 'concept_path' && hasOperator(['=', 'like'])) {
-                    // constraint for the concept
-                    def conceptConstraint = [
-                            type: ConceptConstraint.constraintName,
-                            path: dimensionCode
-                    ] as Map
-                    // lookup study for this node
-                    def parentStudyId = study?.studyId
-                    if (!parentStudyId) {
-                        // not a study specific node, return concept constraint only
-                        return conceptConstraint
-                    }
-                    // combine concept constraint with study constraint
-                    def studyConstraint =                             [
-                            type: StudyNameConstraint.constraintName,
-                            studyId: parentStudyId
-                    ]
-                    constraint.type = Combination.constraintName
-                    constraint.operator = Operator.AND.symbol
-                    constraint.args = [
-                            conceptConstraint,
-                            studyConstraint
-                    ]
-                    return constraint
-                }
-                return null
-            case 'patient_dimension':
-                if (columnName == 'patient_num') {
-                    constraint.type = PatientSetConstraint.constraintName
-                    def patientIds = []
-                    if (hasOperator(['='])) {
-                        try {
-                            patientIds.add(Long.parseLong(dimensionCode))
-                        } catch(NumberFormatException e) {
-                            return null
-                        }
-                    } else if (hasOperator(['in'])) {
-                        try {
-                            dimensionCode.split(',').each { String s ->
-                                patientIds.add(Long.parseLong(s))
-                            }
-                        } catch(NumberFormatException e) {
-                            return null
-                        }
-                    } else {
-                        return null
-                    }
-                    constraint.patientIds = [dimensionCode]
-                    return constraint
-                }
-                return null
-            case 'modifier_dimension':
-                constraint.type = ModifierConstraint.constraintName
-                if (columnName == 'modifier_path' && hasOperator(['=', 'like'])) {
-                    constraint.path = dimensionCode
-                    return constraint
-                } else if (columnName == 'modifier_cd' && hasOperator(['=', 'like'])) {
-                    constraint.modifierCode = dimensionCode
-                    return constraint
-                }
-                return null
-            case 'trial_visit_dimension':
-                constraint.type = FieldConstraint.constraintName
-                def fieldName
-                def value
-                switch (columnName) {
-                    case 'study_num':
-                        constraint.type = StudyNameConstraint.constraintName
-                        if (hasOperator(['='])) {
-                            try {
-                                constraint.id = Long.parseLong(dimensionCode)
-                            } catch (NumberFormatException e) {
-                                return null
-                            }
-                            return constraint
-                        }
-                        return null
-                    case 'rel_time_label':
-                        fieldName = 'relTimeLabel'
-                        value = dimensionCode
-                        break
-                    case 'trial_visit_num':
-                        fieldName = 'id'
-                        try {
-                            value = Long.parseLong(dimensionCode)
-                        } catch (NumberFormatException e) {
-                            return null
-                        }
-                        break
-                    default:
-                        return null
-                }
-                constraint.field = [
-                        dimension: DimensionImpl.TRIAL_VISIT.name,
-                        fieldName: fieldName,
-                        value: value
-                ] as Map
-                return constraint
-            default:
-                return null
-        }
+    final Constraint getConstraint() {
+        TreeNodeConstraintHelper.createConstraintForTreeNode(this)
     }
 
     final String getStudyId() {

@@ -140,8 +140,8 @@ class QueryServiceSpec extends TransmartSpecification {
                                 type    : 'or',
                                 args    : hypercubeTestData.clinicalData.allHypercubeStudies.collect {
                                     [
-                                            type:   'study',
-                                            study:  it
+                                            type:   'study_name',
+                                            studyId:  it.studyId
                                     ]
                                 }
                         ]
@@ -178,8 +178,8 @@ class QueryServiceSpec extends TransmartSpecification {
                             [ type: 'concept', path: '\\foo\\concept 6\\' ]
                     ]
                 ], [
-                    type:   'study',
-                    study:  hypercubeTestData.clinicalData.longitudinalStudy
+                    type:   'study_name',
+                    studyId:  hypercubeTestData.clinicalData.longitudinalStudy.studyId
                 ]
             ]
         ]
@@ -196,7 +196,7 @@ class QueryServiceSpec extends TransmartSpecification {
         observations.size() == hypercubeTestData.clinicalData.longitudinalClinicalFacts.size()
         patients.size() == 3
 
-        then: "I set of patients matches the patients associated with the observations"
+        then: "the set of patients matches the patients associated with the observations"
         observations*.getAt(DimensionImpl.PATIENT) as Set == patients as Set
 
         when: "I build a patient set based on the constraint"
@@ -245,8 +245,8 @@ class QueryServiceSpec extends TransmartSpecification {
                                         [ type: 'concept', path: '\\foo\\concept 6\\' ]
                                 ]
                         ], [
-                                type:   'study',
-                                study:  hypercubeTestData.clinicalData.longitudinalStudy
+                                type:   'study_name',
+                                studyId:  hypercubeTestData.clinicalData.longitudinalStudy.studyId
                         ]
                 ]
         ]

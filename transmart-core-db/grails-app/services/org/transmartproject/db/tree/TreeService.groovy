@@ -17,8 +17,6 @@ import org.transmartproject.core.tree.TreeResource
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintFactory
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User
 import org.transmartproject.db.util.StringUtils
@@ -51,14 +49,12 @@ class TreeService implements TreeResource {
         forest.each { TreeNode node ->
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
                 if (node.tableName == 'concept_dimension' && node.constraint) {
-                    Constraint constraint = ConstraintFactory.create(node.constraint)
-                    node.observationCount = multiDimensionalDataResource.cachedCount(constraint, user)
-                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(constraint, user)
+                    node.observationCount = multiDimensionalDataResource.cachedCount(node.constraint, user)
+                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(node.constraint, user)
                 }
             } else {
                 if (OntologyTerm.VisualAttributes.STUDY in node.visualAttributes && node.constraint) {
-                    Constraint constraint = ConstraintFactory.create(node.constraint)
-                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(constraint, user)
+                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(node.constraint, user)
                 }
                 enrichWithCounts(node.children, user)
             }
@@ -69,10 +65,10 @@ class TreeService implements TreeResource {
      * Adds metadata tags to tree nodes.
      */
     void enrichWithTags(List<TreeNode> forest, User user) {
-        def terms = forest*.delegate as Set<OntologyTerm>
-        Map<OntologyTerm, List<OntologyTermTag>> map = tagsResource.getTags(terms, false)
+        def termPaths = forest*.fullName as Set<String>
+        Map<String, List<OntologyTermTag>> map = tagsResource.getTags(termPaths)
         forest.each { TreeNode node ->
-            node.tags = map.get(node.delegate)
+            node.tags = map.get(node.fullName)
             enrichWithTags(node.children, user)
         }
     }
