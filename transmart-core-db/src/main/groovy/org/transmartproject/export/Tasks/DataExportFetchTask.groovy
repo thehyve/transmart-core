@@ -1,6 +1,6 @@
 package org.transmartproject.export.Tasks
 
-import au.com.bytecode.opencsv.CSVWriter
+import com.opencsv.CSVWriter
 import com.google.common.base.Charsets
 import com.google.common.base.Stopwatch
 import com.google.common.collect.Iterators

@@ -64,7 +64,7 @@ class ExperimentAnalysisController {
         session.searchFilter.datasource = "experiment"
         bindData(session.searchFilter.expAnalysisFilter, params)
 
-        //  log.info params
+        //  log.info params.toMapString()
         searchService.doResultCount(sResult, session.searchFilter)
         render(view: '/search/list', model: [searchresult: sResult, page: false])
     }
@@ -77,7 +77,7 @@ class ExperimentAnalysisController {
         //log.info diseases
         def stimer = new ElapseTimer();
 
-        //	log.info params
+        //	log.info params.toMapString()
         def max = grailsApplication.config.com.recomdata.search.paginate.max
         def paramMap = searchService.createPagingParamMap(params, max, 0)
 

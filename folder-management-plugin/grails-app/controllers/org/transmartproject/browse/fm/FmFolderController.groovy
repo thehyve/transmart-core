@@ -221,7 +221,7 @@ class FmFolderController {
     }
 
     def save = {
-        log.info params
+        log.info params.toMapString()
         def fmFolderInstance = new FmFolder(params)
         if (fmFolderInstance.save(flush: true)) {
             redirect(action: "show", id: fmFolderInstance.id)
@@ -232,8 +232,7 @@ class FmFolderController {
 
     def saveProgram = {
         log.info "saveProgram called"
-        log.info params
-
+        log.info params.toMapString()
         def folder = new FmFolder(params)
         folder.folderLevel = 0
         folder.folderType = FolderType.PROGRAM.name()
@@ -259,8 +258,7 @@ class FmFolderController {
 
     def saveStudy = {
         log.info "saveStudy called"
-        log.info params
-
+        log.info params.toMapString()
         def parentFolder = FmFolder.get(params.parentId)
         if (!parentFolder) {
             log.error "Parent folder is null"
@@ -300,8 +298,7 @@ class FmFolderController {
 
     def saveAssay = {
         log.info "saveAssay called"
-        log.info params
-
+        log.info params.toMapString()
         def parentFolder = FmFolder.get(params.parentId)
         if (!parentFolder) {
             log.error "Parent folder is null"
@@ -336,8 +333,7 @@ class FmFolderController {
 
     def saveAnalysis = {
         log.info "saveAnalysis called"
-        log.info params
-
+        log.info params.toMapString()
         def parentFolder = FmFolder.get(params.parentId)
         if (!parentFolder) {
             log.error "Parent folder is null"
@@ -388,8 +384,7 @@ class FmFolderController {
 
     def saveFolder = {
         log.info "saveFolder called"
-        log.info params
-
+        log.info params.toMapString()
         def parentFolder = FmFolder.get(params.parentId)
         if (!parentFolder) {
             log.error "Parent folder is null"
@@ -1145,8 +1140,7 @@ class FmFolderController {
 
     def updateMetaData = {
         log.info "updateMetaData called"
-        log.info params
-
+        log.info params.toMapString()
         if (!isAdmin()) {
             return;
         }
@@ -1326,7 +1320,7 @@ class FmFolderController {
 
     def ajaxVendors =
             {
-                log.info params
+                log.info params.toMapString()
                 def queryString = " where 1=1"
 
                 if (params.technologyName != null && params.technologyName != 'null') {
@@ -1345,7 +1339,7 @@ class FmFolderController {
 
     def ajaxMeasurements =
             {
-                log.info params
+                log.info params.toMapString()
                 def queryString = " where 1=1"
 
                 if (params.technologyName != null && params.technologyName != 'null') {
@@ -1364,7 +1358,7 @@ class FmFolderController {
 
     def ajaxPlatforms =
             {
-                log.info params
+                log.info params.toMapString()
                 def queryString = " where 1=1"
 
                 if (params.measurementName != null && params.measurementName != 'null') {

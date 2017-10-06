@@ -19,7 +19,6 @@
 
 package org.transmartproject.db.querytool
 
-import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
@@ -29,7 +28,6 @@ import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
-import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.ontology.AbstractI2b2Metadata
 import org.transmartproject.db.ontology.MetadataSelectQuerySpecification
 import org.transmartproject.db.user.User
@@ -337,7 +335,7 @@ class PatientSetQueryBuilderService {
      */
     public String buildPatientCountQuery(OntologyTerm term) {
         String path
-        def term2 = conceptsResourceService.getByKey(term.key)
+        def term2 = ontologyTermsResourceService.getByKey(term.key)
         if (term2 instanceof AbstractI2b2Metadata) {
             if (term2.dimensionTableName.toLowerCase() == 'concept_dimension'
                     && term2.operator.toLowerCase() in ['=', 'like']) {
@@ -351,20 +349,6 @@ class PatientSetQueryBuilderService {
             path += "\\";
         }
         "select patient_count from i2b2demodata.concept_counts where concept_path='$path'"
-    }
-
-    /**
-     *
-     * @param String conceptKey (including root node)
-     * @return concept path (without root node)
-     */
-    private String getConceptRelativePath(String conceptKey) {
-        conceptKey = conceptKey.replace("\\\\", "") // skip double slashes specific to root
-        String sep = "\\\\" // double escaped because of regexp
-        ArrayList<String> splittage = Arrays.asList(conceptKey.split(sep))
-        splittage.remove(splittage.first()) // drop root node
-        sep = "\\" // for sql query and other purposes: single \
-        sep + splittage.join(sep) + sep //needs to start and end with \
     }
 
 }

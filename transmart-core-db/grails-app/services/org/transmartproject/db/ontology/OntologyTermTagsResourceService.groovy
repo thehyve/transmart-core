@@ -31,7 +31,7 @@ class OntologyTermTagsResourceService implements OntologyTermTagsResource {
             or {
                 ontologyTermPaths.each { String path ->
                     if (includeDescendantsTags) {
-                        add(StringUtils.like('ontologyTermFullName', path, MatchMode.START))
+                        add(StringUtils.startsWith('ontologyTermFullName', path))
                     } else {
                         eq 'ontologyTermFullName', path
                     }

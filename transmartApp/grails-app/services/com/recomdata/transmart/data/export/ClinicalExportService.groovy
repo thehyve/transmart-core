@@ -1,6 +1,6 @@
 package com.recomdata.transmart.data.export
 
-import au.com.bytecode.opencsv.CSVWriter
+import com.opencsv.CSVWriter
 import com.google.common.collect.Iterators
 import com.google.common.collect.PeekingIterator
 import org.transmartproject.core.concept.ConceptKey

@@ -59,15 +59,14 @@ class SimpleTabularResult <C, R extends DataRow>
             throw new IllegalStateException('getRows() cannot be called more than once')
         }
 
-        // Groovy chokes on the generics here, so remove them
-        new AbstractIterator() {
+        new AbstractIterator<R>() {
             @Override
-            protected Object computeNext() {
+            protected R computeNext() {
                 if (!results.next()) {
                     return endOfData()
                 }
 
-                convertDbRow.call(results.get())
+                (R) convertDbRow.call(results.get())
             }
         }
     }

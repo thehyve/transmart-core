@@ -6,7 +6,7 @@
  */
 package com.recomdata.transmart.data.export.util;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 

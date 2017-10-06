@@ -107,14 +107,6 @@ class I2b2Spec extends TransmartSpecification {
         children[0].fullName == '\\foo\\xpto\\bar\\'
         children[0].conceptKey
         children[0].conceptKey == new ConceptKey('\\\\i2b2 table code OOOO\\foo\\xpto\\bar\\')
-        /*children allOf(
-                hasSize(1),
-                contains(allOf(
-                        hasProperty('fullName', equalTo('\\foo\\xpto\\bar\\')),
-                        //table code is copied from parent:
-                        hasProperty('conceptKey', equalTo(new ConceptKey
-                                ('\\\\i2b2 table code OOOO\\foo\\xpto\\bar\\')))
-                )))*/
     }
 
     void testGetAllDescendants() {
