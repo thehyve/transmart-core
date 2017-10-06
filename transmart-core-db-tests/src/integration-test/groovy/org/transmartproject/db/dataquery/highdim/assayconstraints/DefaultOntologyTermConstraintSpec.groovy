@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery.highdim.assayconstraints
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.db.dataquery.highdim.AssayQuery
 import org.transmartproject.db.dataquery.highdim.AssayTestData
 import org.transmartproject.db.TransmartSpecification
@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.*
 @Rollback
 class DefaultOntologyTermConstraintSpec extends TransmartSpecification {
 
-    ConceptsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     AssayTestData testData = new AssayTestData()
 
@@ -45,7 +45,7 @@ class DefaultOntologyTermConstraintSpec extends TransmartSpecification {
         setupData()
         List<Assay> assays = new AssayQuery([
                 new DefaultConceptPathCriteriaConstraint(
-                        conceptPath: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar').fullName
+                        conceptPath: ontologyTermsResourceService.getByKey('\\\\i2b2 main\\foo\\bar').fullName
                 )
         ]).list()
 
@@ -66,7 +66,7 @@ class DefaultOntologyTermConstraintSpec extends TransmartSpecification {
                 new DisjunctionAssayCriteriaConstraint(constraints: [
                         new DefaultTrialNameCriteriaConstraint(trialName: 'bad name'),
                         new DefaultConceptPathCriteriaConstraint(
-                                conceptPath: conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\bar').fullName
+                                conceptPath: ontologyTermsResourceService.getByKey('\\\\i2b2 main\\foo\\bar').fullName
                         )])]).list()
 
         expect:

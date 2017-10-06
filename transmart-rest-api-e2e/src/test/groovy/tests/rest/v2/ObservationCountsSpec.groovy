@@ -5,9 +5,9 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.*
-import static tests.rest.v2.constraints.ConceptConstraint
+import static tests.rest.constraints.ConceptConstraint
 
 @RequiresStudy(SHARED_CONCEPTS_RESTRICTED_ID)
 class ObservationCountsSpec extends RESTSpec {
@@ -21,7 +21,7 @@ class ObservationCountsSpec extends RESTSpec {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
         def request = [
                 path      : PATH_COUNTS,
-                acceptType: contentTypeForJSON,
+                acceptType: JSON,
                 query     : toQuery([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
         ]
 
@@ -39,13 +39,13 @@ class ObservationCountsSpec extends RESTSpec {
      */
     def "unrestricted count"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I have access"
-        setUser(UNRESTRICTED_USERNAME, UNRESTRICTED_PASSWORD)
         def params = [
                 constraint: toJSON([type: ConceptConstraint, path: "\\Vital Signs\\Heart Rate\\"])
         ]
         def request = [
                 path      : PATH_COUNTS,
-                acceptType: contentTypeForJSON
+                acceptType: JSON,
+                user      : UNRESTRICTED_USER
         ]
 
         when: "I count observations for the concept Heart Rate"

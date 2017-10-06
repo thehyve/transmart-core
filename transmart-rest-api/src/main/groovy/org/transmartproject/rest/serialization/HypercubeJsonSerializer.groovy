@@ -278,7 +278,6 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
      * @param out the stream to write to.
      */
     void write(Map args, Hypercube cube, OutputStream out) {
-        assert args == [:]
         this.cube = cube
 
         writer = new PrintWriter(new BufferedOutputStream(out))

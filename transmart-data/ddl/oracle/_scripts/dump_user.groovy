@@ -17,9 +17,10 @@
  * transmart-data.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+@Grab('org.codehaus.jackson:jackson-core-asl:1.9.13')
+@Grab('org.codehaus.jackson:jackson-mapper-asl:1.9.13')
 import inc.oracle.BasicItem
 import inc.oracle.GrantItem
-@Grab(group='org.codehaus.jackson', module='jackson-mapper-asl', version='1.9.13')
 import inc.oracle.Item
 import inc.oracle.ItemRepository
 import inc.oracle.JacksonMapperProducer

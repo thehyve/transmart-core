@@ -1,6 +1,6 @@
 package jobs.steps
 
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
 
@@ -9,7 +9,7 @@ class BioMarkerDumpDataStep extends AbstractDumpHighDimensionalDataStep {
     @Override
     protected computeCsvRow(String subsetName,
                             String seriesName,
-                            DataRow row,
+                            ColumnOrderAwareDataRow row,
                             AssayColumn column,
                             Object cell) {
 

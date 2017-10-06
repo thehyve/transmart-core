@@ -10,6 +10,7 @@ import org.transmartproject.core.dataquery.clinical.ComposedVariable
 import org.transmartproject.core.dataquery.clinical.PatientRow
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.QueryResult
 
@@ -21,7 +22,7 @@ class ClinicalExportService {
     def clinicalDataResourceService
     def studiesResourceService
     def ontologyTermTagsResourceService
-    def conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     final static String DATA_FILE_NAME = 'data_clinical.tsv'
     final static String META_FILE_NAME = 'meta.tsv'
@@ -137,7 +138,7 @@ class ClinicalExportService {
 
     private Set<OntologyTerm> getRelatedOntologyTerms(List<ComposedVariable> variables) {
         variables.collect { ComposedVariable variable ->
-            conceptsResourceService.getByKey(variable.key.toString())
+            ontologyTermsResourceService.getByKey(variable.key.toString())
         } as Set
     }
 

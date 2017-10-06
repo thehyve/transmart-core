@@ -2,7 +2,7 @@ package jobs.steps
 
 import au.com.bytecode.opencsv.CSVWriter
 import jobs.UserParameters
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 
@@ -33,7 +33,7 @@ abstract class AbstractDumpHighDimensionalDataStep extends AbstractDumpStep {
 
     abstract protected computeCsvRow(String subsetName,
                                      String seriesName,
-                                     DataRow row,
+                                     ColumnOrderAwareDataRow row,
                                      AssayColumn column,
                                      Object cell)
 
@@ -56,9 +56,9 @@ abstract class AbstractDumpHighDimensionalDataStep extends AbstractDumpStep {
     }
 
     /* nextRow is a closure with this signature:
-     * (String subsetName, DataRow row, Long rowNumber, AssayColumn column, Object cell) -> List<Object> csv row
+     * (String subsetName, ColumnOrderAwareDataRow row, Long rowNumber, AssayColumn column, Object cell) -> List<Object> csv row
      */
-    private void writeDefaultCsv(Map<List<String>, TabularResult<AssayColumn, DataRow<AssayColumn, Object>>> results,
+    private void writeDefaultCsv(Map<List<String>, TabularResult<AssayColumn, ColumnOrderAwareDataRow<AssayColumn, Object>>> results,
                                  List<String> header) {
 
 
@@ -84,7 +84,7 @@ abstract class AbstractDumpHighDimensionalDataStep extends AbstractDumpStep {
 
         def assayList = tabularResult.indicesList
 
-        tabularResult.each { DataRow row ->
+        tabularResult.each { ColumnOrderAwareDataRow row ->
             if (callPerColumn) {
                 assayList.each { AssayColumn assay ->
                     if (row[assay] == null) {

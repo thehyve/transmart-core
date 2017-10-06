@@ -21,8 +21,8 @@ class StorageTestData {
 
     public static StorageTestData createDefault() {
         def storageTestData = new StorageTestData()
-        def study1 = StudyTestData.createStudy "storage_study", []
-        def study2 = StudyTestData.createStudy "storage_study2", []
+        def study1 = StudyTestData.createStudy "storage_study"
+        def study2 = StudyTestData.createStudy "storage_study2"
         storageTestData.studies = []
         storageTestData.studies << study1
         storageTestData.studies << study2

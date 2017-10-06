@@ -1,6 +1,6 @@
 package org.transmartproject.rest.serialization
 
-import au.com.bytecode.opencsv.CSVWriter
+import com.opencsv.CSVWriter
 import groovy.transform.CompileStatic
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube

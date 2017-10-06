@@ -22,7 +22,7 @@ package org.transmartproject.db.ontology
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.TransmartSpecification
 
@@ -37,15 +37,15 @@ class AcrossTrialsConceptsResourceSpec extends TransmartSpecification {
     public static final String AGE_AT_DIAGNOSIS_KEY =
             '\\\\xtrials\\Across Trials\\Demographics\\Age at Diagnosis\\'
 
-    ConceptsResource testee
-    ConceptsResource innerMock
+    OntologyTermsResource testee
+    OntologyTermsResource innerMock
 
     AcrossTrialsTestData testData
 
     def sessionFactory
 
     void setupData() {
-        innerMock = Mock(ConceptsResource)
+        innerMock = Mock(OntologyTermsResource)
         testee = new AcrossTrialsConceptsResourceDecorator(inner: innerMock)
 
         testData = AcrossTrialsTestData.createDefault()

@@ -1,8 +1,9 @@
 buildscript {
     ext {
+        assetPipelineVersion = '2.11.6'
         grailsVersion = '3.2.3'
         guavaVersion = '19.0'
-        assetPipelineVersion = '2.11.6'
+        protobufVersion = '3.1.0'
     }
     repositories {
         mavenLocal()
@@ -18,8 +19,8 @@ buildscript {
         classpath "com.google.guava:guava:$guavaVersion"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:$assetPipelineVersion"
         classpath 'org.grails.plugins:hibernate5:6.0.4'
-        classpath 'com.google.protobuf:protobuf-java:3.1.0'
-        classpath 'com.google.protobuf:protobuf-java-util:3.1.0'
+        classpath "com.google.protobuf:protobuf-java:${protobufVersion}"
+        classpath "com.google.protobuf:protobuf-java-util:${protobufVersion}"
         classpath 'org.grails.plugins:views-gradle:1.0.12'
         classpath 'net.linguica.gradle:maven-settings-plugin:0.5'
     }
@@ -30,10 +31,18 @@ apply plugin: 'maven-publish'
 
 ext {
     transmartVersion = '17.1-SNAPSHOT'
-    grailsVersion = '3.2.3'
-    gradleWrapperVersion = '2.13'
-    guavaVersion = '19.0'
+
     assetPipelineVersion = '2.11.6'
+    gradleWrapperVersion = '2.13'
+    grailsVersion = '3.2.3'
+    guavaVersion = '19.0'
+    ojdb7Version = '12.1.0.1'
+    openCsvVersion = '4.0'
+    postgresqlVersion = '42.1.4'
+    protobufVersion = '3.1.0'
+    springSecurityOauth2PluginVersion = '3.0.0-RC2'
+    springSecurityPluginVersion = '3.1.1'
+    springSecurityVersion = '3.2.3.RELEASE'
 }
 
 task wrapper(type: Wrapper) {
@@ -45,8 +54,15 @@ group = 'org.transmartproject'
 
 allprojects {
     ext {
-        guavaVersion = guavaVersion
         assetPipelineVersion = assetPipelineVersion
+        guavaVersion = guavaVersion
+        ojdb7Version = ojdb7Version
+        openCsvVersion = openCsvVersion
+        postgresqlVersion = postgresqlVersion
+        protobufVersion = protobufVersion
+        springSecurityOauth2PluginVersion = springSecurityOauth2PluginVersion
+        springSecurityPluginVersion = springSecurityPluginVersion
+        springSecurityVersion = springSecurityVersion
     }
     repositories {
         repositories {

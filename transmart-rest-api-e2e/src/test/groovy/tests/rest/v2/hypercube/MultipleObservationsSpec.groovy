@@ -5,12 +5,12 @@ package tests.rest.v2.hypercube
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.EHR_ID
 import static config.Config.PATH_OBSERVATIONS
-import static tests.rest.v2.Operator.AND
-import static tests.rest.v2.constraints.*
+import static tests.rest.Operator.AND
+import static tests.rest.constraints.*
 
 @RequiresStudy(EHR_ID)
 class MultipleObservationsSpec extends RESTSpec {
@@ -48,9 +48,9 @@ class MultipleObservationsSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -88,9 +88,9 @@ class MultipleObservationsSpec extends RESTSpec {
         assert validStartDate == 7
 
         where:
-        acceptType             | newSelector      | assertion
-        contentTypeForJSON     | jsonSelector     | { it, index -> assert (it.select(index, 'start time', null, 'Timestamp') as Date) instanceof Date }
-        contentTypeForProtobuf | protobufSelector | { it, index -> assert it.select(index, 'start time', null, 'Timestamp') instanceof Number }
+        acceptType | newSelector      | assertion
+        JSON       | jsonSelector     | { it, index -> assert (it.select(index, 'start time', null, 'Timestamp') as Date) instanceof Date }
+        PROTOBUF   | protobufSelector | { it, index -> assert it.select(index, 'start time', null, 'Timestamp') instanceof Number }
     }
 
     /**
@@ -123,9 +123,9 @@ class MultipleObservationsSpec extends RESTSpec {
         assert nonNUllEndDate == 4
 
         where:
-        acceptType             | newSelector      | assertion
-        contentTypeForJSON     | jsonSelector     | { it, index -> assert (it.select(index, 'start time', null, 'Timestamp') as Date) instanceof Date }
-        contentTypeForProtobuf | protobufSelector | { it, index -> assert it.select(index, 'start time', null, 'Timestamp') instanceof Number }
+        acceptType | newSelector      | assertion
+        JSON       | jsonSelector     | { it, index -> assert (it.select(index, 'start time', null, 'Timestamp') as Date) instanceof Date }
+        PROTOBUF   | protobufSelector | { it, index -> assert it.select(index, 'start time', null, 'Timestamp') instanceof Number }
     }
 
     /**
@@ -164,8 +164,8 @@ class MultipleObservationsSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 }

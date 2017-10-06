@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 class FilterNaNsItemProcessor implements ItemProcessor<DataPoint, DataPoint> {
     @Override
     DataPoint process(DataPoint item) throws Exception {
-        if (!Double.isNaN(item.value)) {
+        if (item.value != null && !Double.isNaN(item.value)) {
             item
         } // else null (filter out)
     }

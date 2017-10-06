@@ -7,10 +7,10 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.InvalidArgumentsException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 
 @Component
-class DataExportFetchTaskFactory implements  ApplicationContextAware {
+class DataExportFetchTaskFactory implements ApplicationContextAware {
 
     public static final String CONCEPT_KEYS_PARAMETER_NAME = 'conceptKeys'
     public static final String ASSAY_CONSTRAINTS_PARAMETER_NAME = 'assayConstraints'
@@ -21,8 +21,7 @@ class DataExportFetchTaskFactory implements  ApplicationContextAware {
     ApplicationContext applicationContext
 
     @Autowired
-    private ConceptsResource conceptsResource
-
+    private OntologyTermsResource ontologyTermsResource
 
     // we don't support several constraints of the same type yet
     private boolean constraintsOK(Object value) {
@@ -30,7 +29,7 @@ class DataExportFetchTaskFactory implements  ApplicationContextAware {
             return true
         }
         (value instanceof Map) &&
-                value.keySet().every { it instanceof  String } &&
+                value.keySet().every { it instanceof String } &&
                 value.values().every { it instanceof Map }
     }
 
@@ -50,7 +49,7 @@ class DataExportFetchTaskFactory implements  ApplicationContextAware {
         // normalize keys and values to strings
         conceptKeysArg = conceptKeysArg.collectEntries() { k, v ->
             try {
-                [k as String, conceptsResource.getByKey(v as String)]
+                [k as String, ontologyTermsResource.getByKey(v as String)]
             } catch (Exception ex) {
                 // should be IllegalArgumentException | NoSuchResourceException
                 // but that's broken in the version of Groovy used

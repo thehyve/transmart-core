@@ -26,7 +26,7 @@
 package org.transmartproject.rest.protobug
 
 import org.junit.Test
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
@@ -47,7 +47,7 @@ class HighDimBuilderTests {
             [id: 2, patientInTrialId: 'TRIAL2', platform: [id: 1], sampleCode: 'SAMPLE1'] as AssayColumn,
     ]
 
-    private createBuilder(DataRow row, Projection projection = null)  {
+    private createBuilder(ColumnOrderAwareDataRow row, Projection projection = null)  {
         builder = new HighDimBuilder(
                 projection ?: ([] as Projection),
                 [
@@ -154,14 +154,10 @@ class HighDimBuilderTests {
             data[i]
         }
 
-        Object getAt(Object o) {
-            def indx = assayColumns.findIndexOf { o == it }
-            data[indx]
-        }
-
         @Override
         Object getAt(AssayColumn assayColumn) {
-            getAt(assayColumn)
+            def indx = assayColumns.findIndexOf { assayColumn == it }
+            data[indx]
         }
 
         @Override

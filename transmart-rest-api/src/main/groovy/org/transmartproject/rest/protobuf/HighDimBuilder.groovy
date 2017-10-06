@@ -31,7 +31,7 @@ import com.google.common.collect.Iterators
 import com.google.common.collect.Maps
 import com.google.common.collect.PeekingIterator
 import groovy.transform.CompileStatic
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.BioMarkerDataRow
@@ -56,7 +56,7 @@ class HighDimBuilder {
 
     private TabularResult<AssayColumn, ?> tabularResult
 
-    private PeekingIterator<DataRow<AssayColumn, ?>> rowsIterator
+    private PeekingIterator<ColumnOrderAwareDataRow<AssayColumn, ?>> rowsIterator
 
     private Row.Builder rowBuilder = Row.newBuilder()
 
@@ -95,7 +95,7 @@ class HighDimBuilder {
     }
 
     private HighDimProtos.ColumnValue.Builder columnValueBuilderSetupForDouble(
-            HighDimProtos.ColumnValue.Builder builder, String dataProperty, DataRow<AssayColumn, ?> row) {
+            HighDimProtos.ColumnValue.Builder builder, String dataProperty, ColumnOrderAwareDataRow<AssayColumn, ?> row) {
         builder.clear()
         builder.addAllDoubleValue tabularResult.indicesList.collect { AssayColumn col ->
             def cell = row.getAt col
@@ -108,7 +108,7 @@ class HighDimBuilder {
     }
 
     private HighDimProtos.ColumnValue.Builder columnValueBuilderSetupForString(
-            HighDimProtos.ColumnValue.Builder builder, String dataProperty, DataRow<AssayColumn, ?> row) {
+            HighDimProtos.ColumnValue.Builder builder, String dataProperty, ColumnOrderAwareDataRow<AssayColumn, ?> row) {
         builder.clear()
         builder.addAllStringValue tabularResult.indicesList.collect { AssayColumn col ->
             def cell = row.getAt col
@@ -121,7 +121,7 @@ class HighDimBuilder {
     }
 
     static void write(Projection projection,
-                      TabularResult<AssayColumn, DataRow<AssayColumn,? extends Object>> tabularResult,
+                      TabularResult<AssayColumn, ColumnOrderAwareDataRow<AssayColumn,? extends Object>> tabularResult,
                       OutputStream out) {
         def highDimBuilder = new HighDimBuilder(projection, tabularResult)
         highDimBuilder.writeHeader out
@@ -185,7 +185,7 @@ class HighDimBuilder {
         }
     }
 
-    private Row createRow(DataRow<AssayColumn, ?> inputRow) {
+    private Row createRow(ColumnOrderAwareDataRow<AssayColumn, ?> inputRow) {
         rowBuilder.clear()
         rowBuilder.label = inputRow.label
         if (inputRow instanceof BioMarkerDataRow) {

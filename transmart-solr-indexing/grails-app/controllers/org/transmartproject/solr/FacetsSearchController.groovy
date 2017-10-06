@@ -15,9 +15,9 @@ import org.transmartproject.core.concept.ConceptFullName
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.UnexpectedResultException
-import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.ontology.OntologyTermsResource
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -35,7 +35,7 @@ class FacetsSearchController {
     FacetsQueryingService facetsQueryingService
 
     @Autowired
-    ConceptsResource conceptsResource
+    OntologyTermsResource ontologyTermsResource
 
     private static final String PSEUDO_FIELD_GENE_LIST = '__gene_list'
     private static final String PSEUDO_FIELD_GENE_SIGNATURE = '__gene_signature'
@@ -175,7 +175,7 @@ class FacetsSearchController {
 
     @Cacheable('misc_cache')
     protected Map<ConceptFullName, Study> getCategoriesFullNameMap() {
-        conceptsResource.allCategories.collectEntries {
+        ontologyTermsResource.allCategories.collectEntries {
             [new ConceptFullName(it.fullName), it]
         }
     }

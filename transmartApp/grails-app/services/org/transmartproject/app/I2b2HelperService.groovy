@@ -12,6 +12,7 @@ import org.transmart.searchapp.AuthUserSecureAccess
 import org.transmart.searchapp.SecureAccessLevel
 import org.transmart.searchapp.SecureObjectPath
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.ontology.AbstractI2b2Metadata
@@ -52,7 +53,7 @@ class I2b2HelperService {
     def sessionFactory
     def dataSource
     def conceptService
-    def conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
     def sampleInfoService
 
     /**
@@ -162,7 +163,7 @@ class I2b2HelperService {
     def String getConceptCodeFromKey(String key) {
         log.trace("Getting concept codes for key:" + key);
         String path
-        def term = conceptsResourceService.getByKey(key)
+        def term = ontologyTermsResourceService.getByKey(key)
         if (term instanceof AbstractI2b2Metadata) {
             if (term.dimensionTableName.toLowerCase() == 'concept_dimension'
                     && term.operator.toLowerCase() in ['=', 'like']) {
@@ -246,7 +247,7 @@ class I2b2HelperService {
     }
 
     def Boolean isXTrialsConcept(String concept_key) {
-        def itemProbe = conceptsResourceService.getByKey(concept_key)
+        def itemProbe = ontologyTermsResourceService.getByKey(concept_key)
         return (itemProbe instanceof AcrossTrialsOntologyTerm)
     }
 
@@ -257,7 +258,7 @@ class I2b2HelperService {
         log.trace "----------------- start isValueConceptKey"
         log.trace "concept_key: " + concept_key
         if (isXTrialsConcept(concept_key)) {
-            def itemProbe = conceptsResourceService.getByKey(concept_key)
+            def itemProbe = ontologyTermsResourceService.getByKey(concept_key)
             log.trace "itemProbe.modifierDimension.valueType = " + itemProbe.modifierDimension.valueType
             def xTrialsValueConcept = itemProbe.modifierDimension.valueType.equalsIgnoreCase("N")
             log.trace "isValueConceptKey returns " + xTrialsValueConcept
@@ -282,7 +283,7 @@ class I2b2HelperService {
         //log.trace "----------------- isLeafConceptKey - String case"
 
         if (isXTrialsConcept(concept_key)) {
-            def itemProbe = conceptsResourceService.getByKey(concept_key)
+            def itemProbe = ontologyTermsResourceService.getByKey(concept_key)
             return isLeafConceptKey(itemProbe)
         }
         String fullname = concept_key.substring(concept_key.indexOf("\\", 2), concept_key.length());
@@ -332,7 +333,7 @@ class I2b2HelperService {
 
        if (xTrialsCaseFlag) {
             log.trace("XTrials for getConceptDistributionDataForConcept")
-            def node = conceptsResourceService.getByKey(concept_key)
+            def node = ontologyTermsResourceService.getByKey(concept_key)
             def List<OntologyTerm> childNodes = node.children
             for (OntologyTerm term: childNodes) {
                 counts.put(term.fullName,getObservationCountForXTrialsNode(term))
@@ -623,7 +624,7 @@ class I2b2HelperService {
         }
         log.trace "lookup concept_key = " + concept_key
 
-        def node = conceptsResourceService.getByKey(concept_key)
+        def node = ontologyTermsResourceService.getByKey(concept_key)
 
         if (xTrialsCaseFlag) {
             log.trace("XTrials for getConceptDistributionDataForConcept")
@@ -667,7 +668,7 @@ class I2b2HelperService {
         }
         log.trace "lookup concept_key = " + concept_key
 
-        def baseNode = conceptsResourceService.getByKey(concept_key)
+        def baseNode = ontologyTermsResourceService.getByKey(concept_key)
         log.trace(baseNode.class.name)
 
         def List<String> trials = trialsForResultSet(result_instance_id)
@@ -675,7 +676,7 @@ class I2b2HelperService {
 
         if (xTrialsCaseFlag) {
             log.trace("Across Trials case")
-            def itemProbe = conceptsResourceService.getByKey(concept_key)
+            def itemProbe = ontologyTermsResourceService.getByKey(concept_key)
             def String modifier_cd = itemProbe.modifierDimension.code
             for (String trial: trials) {
                 log.trace("results for: " + trial + ", " + concept_key)
@@ -844,7 +845,7 @@ class I2b2HelperService {
 
         log.debug "------ getAllObservationCountsForXTrialsConceptNodeWithTrial"
 
-        def node = conceptsResourceService.getByKey(concept_key)
+        def node = ontologyTermsResourceService.getByKey(concept_key)
         def List<OntologyTerm> childNodes = node.children
 
         def modifierList = []
@@ -1233,7 +1234,7 @@ class I2b2HelperService {
             // That is possible if the folder contains only categorical values and no subfolders.
 
             // Check whether the folder is valid: first find all children of the current code
-            def item = conceptsResourceService.getByKey(concept_key)
+            def item = ontologyTermsResourceService.getByKey(concept_key)
 
             log.debug "----------------- this is Folder Node"
             log.trace "concept_key = " + concept_key
@@ -1401,7 +1402,7 @@ class I2b2HelperService {
         def valueLeafNodeFlag = isValueConceptKey(concept_key)
         def dataList = []
 
-        def itemProbe = conceptsResourceService.getByKey(concept_key)
+        def itemProbe = ontologyTermsResourceService.getByKey(concept_key)
         String modifier_cd = itemProbe.modifierDimension.code
 
         log.debug "concept_key = " + concept_key
@@ -5484,7 +5485,7 @@ class I2b2HelperService {
 
             if (xTrialsCaseFlag) {
 
-                def itemProbe = conceptsResourceService.getByKey(concept_key)
+                def itemProbe = ontologyTermsResourceService.getByKey(concept_key)
                 String modifier_cd = itemProbe.modifierDimension.code
 
                 log.debug "modifier_cd = " + modifier_cd
@@ -5701,7 +5702,7 @@ class I2b2HelperService {
             log.trace("XTrials for getChildrenWithAccessForUserNew")
             log.warn("getChildrenWithAccessForUserNew - For cross trials, make no check at this time!!")
 
-            def node = conceptsResourceService.getByKey(concept_key)
+            def node = ontologyTermsResourceService.getByKey(concept_key)
             def List<OntologyTerm> childNodes = node.children
             for (OntologyTerm term: childNodes) {
                 results.put(term.fullName, 'view')

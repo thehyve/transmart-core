@@ -18,6 +18,7 @@ NOCYCLE;
 "BIO_EXPERIMENT_ID" NUMBER(18,0),
 "STUDY_ID" VARCHAR2(100 BYTE) NOT NULL ENABLE,
 "SECURE_OBJ_TOKEN" NVARCHAR2(200) NOT NULL ENABLE,
+"STUDY_BLOB" CLOB,
  CONSTRAINT "STUDY_PK" PRIMARY KEY ("STUDY_NUM")
  USING INDEX
  TABLESPACE "TRANSMART"  ENABLE
@@ -57,3 +58,4 @@ COMMENT ON COLUMN study.study_num IS 'Primary key.';
 COMMENT ON COLUMN study.bio_experiment_id IS 'Foreign key: bio_experiment_id in bio_experiment.';
 COMMENT ON COLUMN study.study_id IS 'E.g., GSE8581.';
 COMMENT ON COLUMN study.secure_obj_token IS 'Token needed for access to the study. E.g., ‘PUBLIC’ or ‘EXP:GSE8581’.';
+COMMENT ON COLUMN study.study_blob IS 'Stores arbitrary information about the study';

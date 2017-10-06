@@ -16,7 +16,8 @@
  * You should have received a copy of the GNU General Public License along with
  * transmart-data.  If not, see <http://www.gnu.org/licenses/>.
  */
-@Grab(group='org.codehaus.jackson', module='jackson-mapper-asl', version='1.9.13')
+@Grab('org.codehaus.jackson:jackson-core-asl:1.9.13')
+@Grab('org.codehaus.jackson:jackson-mapper-asl:1.9.13')
 import groovy.sql.Sql
 import groovyx.gpars.dataflow.DataflowVariable
 import inc.oracle.*

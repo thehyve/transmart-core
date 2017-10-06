@@ -11,7 +11,7 @@ import groovy.util.logging.Slf4j
 import org.springframework.validation.Errors
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.MultiDimConstraint
-import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.db.multidimquery.DimensionImpl
 
 /**
@@ -169,14 +169,14 @@ enum Operator {
 
 /**
  * Specification of a domain class field using the dimensions defined as
- * subclasses of {@link org.transmartproject.db.multidimquery.DimensionImpl} and the field name in the domain class.
+ * implementations of {@link org.transmartproject.core.multidimquery.Dimension} and the field name in the domain class.
  * The data type ({@link Type}) of the field is also included to allow for
  * early validation (assuming that clients know the data type of a field).
  */
 @Canonical
 class Field implements Validateable {
     @BindUsing({ obj, source -> DimensionImpl.fromName(source['dimension'])})
-    DimensionImpl dimension
+    Dimension dimension
     @BindUsing({ obj, source -> Type.forName(source['type']) })
     Type type = Type.NONE
     String fieldName
@@ -366,7 +366,7 @@ class StudyNameConstraint extends Constraint {
 class StudyObjectConstraint extends Constraint {
     static String constraintName = "study"
 
-    Study study
+    MDStudy study
 }
 
 @Canonical
@@ -464,6 +464,7 @@ class PatientSetConstraint extends Constraint {
 
     Long patientSetId
     Set<Long> patientIds
+    Set<String> subjectIds
 
     static constraints = {
         patientIds nullable: true, validator: { val, obj, Errors errors ->
@@ -475,16 +476,24 @@ class PatientSetConstraint extends Constraint {
             }
         }
         patientSetId nullable: true, validator: { val, obj, Errors errors ->
-            if (!val && obj.patientIds == null) {
+            if (!val && obj.patientIds == null && obj.subjectIds == null) {
                 errors.rejectValue(
                         'patientSetId',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint requires patientSetId or patientIds. Got none.")
-            } else if (val && (obj.patientIds != null)) {
+                        "Patient set constraint requires patientSetId, patientIds or subjectIds. Got none.")
+            } else if (val && (obj.patientIds != null || obj.subjectIds != null)) {
                 errors.rejectValue(
                         'patientSetId',
                         'org.transmartproject.query.invalid.arg.message',
-                        "Patient set constraint requires patientSetId or patientIds. Got both.")
+                        "Patient set constraint requires patientSetId or patientIds or subjectIds. Got more than one specified.")
+            }
+        }
+        subjectIds nullable: true, validator: { val, obj, Errors errors ->
+            if (val != null && val.empty) {
+                errors.rejectValue(
+                        'subjectIds',
+                        'org.transmartproject.query.invalid.arg.message',
+                        "Patient set constraint has empty subjectIds parameter.")
             }
         }
     }
@@ -669,7 +678,7 @@ class ConstraintFactory {
         if (type == null) {
             throw new ConstraintBindingException("Constraint not supported: ${name}.")
         }
-        log.info "Creating constraint of type ${type.simpleName}"
+        log.debug "Creating constraint of type ${type.simpleName}"
         Constraint result = type.newInstance()
         constraintDataBinder.bindData(result, values, [exclude: ['type', 'errors']])
         if(result.errors?.hasErrors() || !result.validate()) {

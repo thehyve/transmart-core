@@ -6,11 +6,12 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.web.converters.marshaller.ObjectMarshaller
 import org.grails.web.util.WebUtils
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.transmartproject.core.concept.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
-import org.transmartproject.db.tree.TreeNode
+import org.transmartproject.core.tree.TreeNode
 
 import javax.annotation.Resource
 
@@ -23,6 +24,9 @@ class TreeNodeMarshaller implements ObjectMarshaller<JSON> {
 
     @Resource
     OntologyTermTagsResource tagsResource
+
+    @Autowired
+    ConceptsResource conceptsResource
 
     public static final String LINKS_ATTRIBUTE = '_links'
     public static final String RELATIONSHIP_CHILDREN = 'children'
@@ -46,8 +50,14 @@ class TreeNodeMarshaller implements ObjectMarshaller<JSON> {
         if (constraint) {
             result.constraint = constraint
         }
+        if (obj.study?.studyId) {
+            result.studyId = obj.study?.studyId
+        }
         if (obj.conceptPath != null) {
             result.conceptPath = obj.conceptPath
+            if (OntologyTerm.VisualAttributes.LEAF in obj.visualAttributes) {
+                result.conceptCode = conceptsResource.getConceptCodeByConceptPath(obj.conceptPath)
+            }
         }
         if (obj.tags && obj.tags.size() > 0) {
             result.metadata = obj.tags.collectEntries { [(it.name): it.description ] }

@@ -6,7 +6,7 @@ import jobs.table.MockTabularResultHelper
 import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -28,7 +28,7 @@ class HighDimensionalDataRowMapAdapterTests {
     @Test
     void basicTest() {
         List<AssayColumn> assays = createSampleAssays(2)
-        DataRow row = createRowForAssays(assays, [1, 2], 'row1')
+        ColumnOrderAwareDataRow row = createRowForAssays(assays, [1, 2], 'row1')
 
         play {
             def testee = new HighDimensionalDataRowMapAdapter(assays, row, 'prepend|')

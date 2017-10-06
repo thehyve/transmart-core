@@ -19,4 +19,52 @@ class ConceptPathTests {
                 hasProperty('parts', contains('A', 'B C')),
         )
     }
+
+    @Test
+    void testEscapePlus() {
+        ConceptFragment decodedConcept = ConceptFragment.decode('A+B\\+_C')
+
+        assertThat decodedConcept, allOf(
+                hasProperty('path', equalTo('A\\B+ C\\')),
+                hasProperty('parts', contains('A', 'B+ C'))
+        )
+
+        decodedConcept = ConceptFragment.decode('A+B+_C\\+')
+
+        assertThat decodedConcept, allOf(
+                hasProperty('path', equalTo('A\\B\\ C+\\')),
+                hasProperty('parts', contains('A', 'B', ' C+'))
+        )
+
+        decodedConcept = ConceptFragment.decode('\\+A+B+_C\\+')
+
+        assertThat decodedConcept, allOf(
+                hasProperty('path', equalTo('+A\\B\\ C+\\')),
+                hasProperty('parts', contains('+A', 'B', ' C+'))
+        )
+    }
+
+    @Test
+    void testEscapeUnderscore() {
+        ConceptFragment decodedConcept = ConceptFragment.decode('A+B\\_C')
+
+        assertThat decodedConcept, allOf(
+                hasProperty('path', equalTo('A\\B_C\\')),
+                hasProperty('parts', contains('A', 'B_C'))
+        )
+
+        decodedConcept = ConceptFragment.decode('A+B+_C\\_')
+
+        assertThat decodedConcept, allOf(
+                hasProperty('path', equalTo('A\\B\\ C_\\')),
+                hasProperty('parts', contains('A', 'B', ' C_'))
+        )
+
+        decodedConcept = ConceptFragment.decode('\\_A+B+_C')
+
+        assertThat decodedConcept, allOf(
+                hasProperty('path', equalTo('_A\\B\\ C\\')),
+                hasProperty('parts', contains('_A', 'B', ' C'))
+        )
+    }
 }

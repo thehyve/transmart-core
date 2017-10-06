@@ -4,7 +4,7 @@ import jobs.misc.Hacks
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 
 /**
@@ -15,7 +15,7 @@ import org.transmartproject.core.ontology.OntologyTerm
 class ConceptTimeValuesTable {
 
     @Autowired
-    ConceptsResource conceptsResource
+    OntologyTermsResource conceptsResource
 
     List<String> conceptPaths
 

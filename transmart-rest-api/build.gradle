@@ -1,14 +1,8 @@
 dependencies {
     compile 'org.javassist:javassist:3.16.1-GA'
 
-    // includes fix for GRAILS-11126
-    //compile 'org.grails:grails-plugin-rest:2.3.5-hyve4'
-
-    compile 'com.google.protobuf:protobuf-java:3.1.0'
-    compile 'com.google.protobuf:protobuf-java-util:3.1.0' // provides  protobuf-to-json serialization
-
-    runtime 'org.postgresql:postgresql:9.3-1100-jdbc41'
-    runtime 'com.oracle:ojdbc6:11.2.0.3.0'
+    compile "com.google.protobuf:protobuf-java:${protobufVersion}"
+    compile "com.google.protobuf:protobuf-java-util:${protobufVersion}"
 
     testCompile 'org.gmock:gmock:0.8.3'
     testCompile 'junit:junit:4.11'
@@ -38,9 +32,9 @@ dependencies {
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     testCompile 'org.grails:grails-datastore-rest-client'
     compile 'org.quartz-scheduler:quartz:2.2.1'
-    compile 'net.sf.opencsv:opencsv:2.3'
+    compile "com.opencsv:opencsv:${openCsvVersion}"
 
-    compile 'org.grails.plugins:spring-security-core:3.1.1'
+    compile "org.grails.plugins:spring-security-core:${springSecurityPluginVersion}"
     compile project(':transmart-core-api')
     compile project(':transmart-core-db-tests')
 }

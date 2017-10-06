@@ -3,7 +3,7 @@ package org.transmartproject.export
 import org.gmock.WithGMock
 import org.junit.Before
 import org.junit.Test
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.Platform
@@ -183,10 +183,10 @@ class AcghBedExporterTests {
         highDimResult
     }
 
-    DataRow createAcghRowForAssays(List<AssayColumn> assays,
-                                   List data,
-                                   Map<String, Object> acghProperties,
-                                   String label) {
+    ColumnOrderAwareDataRow createAcghRowForAssays(List<AssayColumn> assays,
+                                                   List data,
+                                                   Map<String, Object> acghProperties,
+                                                   String label) {
         createMockAcghRow(
                 dot(assays, data, { a, b -> [a, b] })
                         .collectEntries(Closure.IDENTITY),
@@ -194,9 +194,9 @@ class AcghBedExporterTests {
                 label)
     }
 
-    private DataRow<AssayColumn, Object> createMockAcghRow(Map<AssayColumn, Object> values,
-                                                           Map<String, Object> acghProperties, String label) {
-        DataRow row = mock(RegionRowImpl)
+    private ColumnOrderAwareDataRow<AssayColumn, Object> createMockAcghRow(Map<AssayColumn, Object> values,
+                                                                           Map<String, Object> acghProperties, String label) {
+        ColumnOrderAwareDataRow row = mock(RegionRowImpl)
         row.label.returns(label).stub()
 
         row.chromosome.returns(acghProperties.chromosome).stub()

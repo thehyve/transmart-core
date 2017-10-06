@@ -60,11 +60,12 @@ class RnaSeqEndToEndRetrievalSpec extends TransmartSpecification {
 
     SessionFactory sessionFactory
 
-    RnaSeqTestData testData = new RnaSeqTestData()
+    RnaSeqTestData testData
 
     AssayConstraint trialNameConstraint
 
     void setupData() {
+        testData = new RnaSeqTestData()
         testData.saveAll()
 
         rnaseqResource = highDimensionResourceService.getSubResourceForType 'rnaseq'

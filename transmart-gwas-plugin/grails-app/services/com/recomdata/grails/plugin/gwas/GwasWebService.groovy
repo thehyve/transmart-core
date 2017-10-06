@@ -20,7 +20,7 @@
 
 package com.recomdata.grails.plugin.gwas
 
-import au.com.bytecode.opencsv.CSVWriter
+import com.opencsv.CSVWriter
 import grails.transaction.Transactional
 import org.transmart.searchapp.SecureObject;
 import org.transmart.searchapp.AuthUserSecureAccess;

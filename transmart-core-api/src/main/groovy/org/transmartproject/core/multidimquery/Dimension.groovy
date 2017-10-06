@@ -3,6 +3,7 @@
 package org.transmartproject.core.multidimquery
 
 import com.google.common.collect.ImmutableMap
+import groovy.transform.Immutable
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.ontology.Study
 

@@ -15,6 +15,7 @@ import org.hibernate.internal.CriteriaImpl
 import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.PatientMapping
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
@@ -42,6 +43,7 @@ import static org.transmartproject.db.multidimquery.DimensionImpl.*
 @Slf4j
 class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedCriteria> {
 
+    public static final String SUBJECT_ID_SOURCE = 'SUBJ_ID'
     final DimensionMetadata valueMetadata =  DimensionMetadata.forDimension(VALUE)
     final Field valueTypeField = valueMetadata.fields.find { it.fieldName == 'valueType' }
     final Field numberValueField = valueMetadata.fields.find { it.fieldName == 'numberValue' }
@@ -422,17 +424,18 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * Creates a criteria object for a patient set by conversion to a field constraint for the patient id field.
      */
     Criterion build(PatientSetConstraint constraint) {
-        if (constraint.patientIds != null && !constraint.patientIds.empty) {
+        if (constraint.patientIds) {
             build(new FieldConstraint(field: patientIdField, operator: Operator.IN, value: constraint.patientIds))
-        }
-        else if (constraint.patientSetId != null) {
+        } else if (constraint.patientSetId != null) {
             DetachedCriteria subCriteria = DetachedCriteria.forClass(QtPatientSetCollection, 'qt_patient_set_collection')
             subCriteria.add(Restrictions.eq('resultInstance.id', constraint.patientSetId))
-
-            return Subqueries.propertyIn('patient',
-                    subCriteria.setProjection(Projections.property("patient")))
-        }
-        else {
+            Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property("patient")))
+        } else if (constraint.subjectIds) {
+            DetachedCriteria subCriteria = DetachedCriteria.forClass(PatientMapping, 'patient_mapping')
+            subCriteria.add(Restrictions.in('encryptedId', constraint.subjectIds))
+            subCriteria.add(Restrictions.eq('source', SUBJECT_ID_SOURCE))
+            Subqueries.propertyIn('patient', subCriteria.setProjection(Projections.property("patient")))
+        } else {
             throw new QueryBuilderException("Constraint value not specified: ${constraint.class}")
         }
     }

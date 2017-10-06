@@ -6,11 +6,11 @@ import annotations.RequiresStudy
 import base.RESTSpec
 import groovy.json.JsonBuilder
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.PATH_OBSERVATIONS
 import static config.Config.RNASEQ_TRANSCRIPT_ID
-import static tests.rest.v2.constraints.*
+import static tests.rest.constraints.*
 
 /**
  *  TMPREQ-4 Storing transcript level RNA-Seq data
@@ -77,9 +77,9 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -137,9 +137,9 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         assert responseData1 != responseData2
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -177,9 +177,9 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         assert responseData.type == 'InvalidArgumentsException'
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -229,9 +229,9 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         assert responseData1 != responseData2
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -290,9 +290,9 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -372,8 +372,8 @@ class TranscriptLevelRnaSeqSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 }

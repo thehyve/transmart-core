@@ -22,7 +22,7 @@ package org.transmartproject.db.ontology
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.TransmartSpecification
@@ -38,7 +38,7 @@ class StudiesResourceServiceSpec extends TransmartSpecification {
 
     StudiesResource studiesResourceService
 
-    ConceptsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     void setupData() {
         studyTestData.saveAll()
@@ -110,7 +110,7 @@ class StudiesResourceServiceSpec extends TransmartSpecification {
 
     void testGetStudyByOntologyTerm() {
         setupData()
-        def concept = conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\study1\\')
+        def concept = ontologyTermsResourceService.getByKey('\\\\i2b2 main\\foo\\study1\\')
 
         def result = studiesResourceService.getStudyByOntologyTerm(concept)
 
@@ -155,7 +155,7 @@ class StudiesResourceServiceSpec extends TransmartSpecification {
 
     void testGetStudyByOntologyTermBadTerm() {
         setupData()
-        def concept = conceptsResourceService.getByKey('\\\\i2b2 main\\foo\\study1\\bar\\')
+        def concept = ontologyTermsResourceService.getByKey('\\\\i2b2 main\\foo\\study1\\bar\\')
 
         when:
         studiesResourceService.getStudyByOntologyTerm(concept)

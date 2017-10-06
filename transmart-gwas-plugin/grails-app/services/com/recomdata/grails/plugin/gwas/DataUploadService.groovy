@@ -1,7 +1,7 @@
 package com.recomdata.grails.plugin.gwas
 
-import au.com.bytecode.opencsv.CSVReader
-import au.com.bytecode.opencsv.CSVWriter
+import com.opencsv.CSVReader
+import com.opencsv.CSVWriter
 import com.recomdata.upload.DataUploadResult
 
 import java.math.MathContext

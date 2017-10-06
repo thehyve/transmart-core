@@ -15,7 +15,8 @@ CREATE TABLE study (
     study_num numeric(38,0) NOT NULL,
     bio_experiment_id bigint,
     study_id character varying(100) NOT NULL,
-    secure_obj_token character varying(200) NOT NULL
+    secure_obj_token character varying(200) NOT NULL,
+    study_blob text
 );
 
 --
@@ -59,3 +60,4 @@ COMMENT ON COLUMN study.study_num IS 'Primary key.';
 COMMENT ON COLUMN study.bio_experiment_id IS 'Foreign key: bio_experiment_id in bio_experiment.';
 COMMENT ON COLUMN study.study_id IS 'E.g., GSE8581.';
 COMMENT ON COLUMN study.secure_obj_token IS 'Token needed for access to the study. E.g., ‘PUBLIC’ or ‘EXP:GSE8581’.';
+COMMENT ON COLUMN study.study_blob IS 'Stores arbitrary information about the study';

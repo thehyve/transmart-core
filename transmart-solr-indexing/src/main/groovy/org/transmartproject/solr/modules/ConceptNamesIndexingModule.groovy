@@ -10,7 +10,6 @@ import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
 import org.springframework.stereotype.Component
 import org.transmartproject.core.concept.ConceptFullName
-import org.transmartproject.core.ontology.*
 import org.transmartproject.solr.FacetsDocId
 import org.transmartproject.solr.FacetsDocument
 import org.transmartproject.solr.FacetsFieldDisplaySettings
@@ -22,6 +21,11 @@ import static org.transmartproject.solr.FacetsFieldImpl.create
 import static org.transmartproject.solr.FacetsIndexingService.FIELD_NAME_CONCEPT_PATH
 import static org.transmartproject.solr.FacetsIndexingService.FIELD_FOLDER_ID
 import static org.transmartproject.solr.FacetsIndexingService.FIELD_CONCEPT_PATH
+
+import org.transmartproject.core.ontology.OntologyTermsResource
+import org.transmartproject.core.ontology.OntologyTermTagsResource
+import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.OntologyTermTag
 
 
 @Component
@@ -45,7 +49,7 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
     }
 
     @Autowired
-    private ConceptsResource conceptsResource
+    private OntologyTermsResource ontologyTermsResource
 
     @Autowired
     private OntologyTermTagsResource ontologyTermTagsResource
@@ -107,7 +111,7 @@ class ConceptNamesIndexingModule implements FacetsIndexingModule {
     private Map<String /* full name */, OntologyTerm> getAllCategories() {
         Map<String, OntologyTerm> result = cache.get(ALL_CATEGORIES_KEY, Map)
         if (result == null) {
-            result = conceptsResource.allCategories.collectEntries {
+            result = ontologyTermsResource.allCategories.collectEntries {
                 [it.fullName, it]
             }
             cache.put(ALL_CATEGORIES_KEY, result)

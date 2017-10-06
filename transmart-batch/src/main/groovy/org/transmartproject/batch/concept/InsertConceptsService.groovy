@@ -232,15 +232,34 @@ class InsertConceptsService {
     }
 
     private String visualAttributesFor(ConceptNode concept) {
-        def res = conceptTree.childrenFor(concept).isEmpty() ?
-                (concept.type == ConceptType.HIGH_DIMENSIONAL ? 'LAH' : 'LA') :
-                'FA'
-        if (res == 'FA' && concept.path == topNode) {
-            // add the study modifier for the top node
-            res = 'FAS'
+        if (conceptTree.childrenFor(concept).isEmpty()) {
+            // leaf node
+            switch (concept.type) {
+                case ConceptType.HIGH_DIMENSIONAL:
+                    return 'LAH'
+                case ConceptType.CATEGORICAL:
+                    return 'LAC'
+                case ConceptType.CATEGORICAL_OPTION:
+                    return 'LAO'
+                case ConceptType.TEXT:
+                    return 'LAT'
+                case ConceptType.NUMERICAL:
+                    return 'LAN'
+                case ConceptType.DATE:
+                    return 'LAD'
+                default:
+                    return 'LA '
+            }
+        } else {
+            if (concept.path == topNode) {
+                // add the study modifier for the top node
+                return 'FAS'
+            } else if (concept.type == ConceptType.CATEGORICAL) {
+                return 'FAC'
+            } else {
+                return 'FA '
+            }
         }
-
-        res
     }
 
     static final String generateMetadataXml() {

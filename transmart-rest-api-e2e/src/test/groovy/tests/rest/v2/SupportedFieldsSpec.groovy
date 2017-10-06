@@ -5,7 +5,7 @@ package tests.rest.v2
 import annotations.RequiresStudy
 import base.RESTSpec
 
-import static base.ContentTypeFor.contentTypeForJSON
+import static base.ContentTypeFor.JSON
 import static config.Config.EHR_ID
 import static config.Config.PATH_SUPPORTED_FIELDS
 
@@ -23,7 +23,7 @@ class SupportedFieldsSpec extends RESTSpec {
         when: "I request all supported fields"
         def responseData = get([
                 path      : PATH_SUPPORTED_FIELDS,
-                acceptType: contentTypeForJSON
+                acceptType: JSON
         ])
 
         then: "I get a list of fields with dimension, fieldName and type"

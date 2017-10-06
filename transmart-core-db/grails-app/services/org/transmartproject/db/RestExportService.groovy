@@ -1,4 +1,5 @@
 package org.transmartproject.db
+
 import grails.transaction.Transactional
 import groovy.json.JsonException
 import groovy.json.JsonSlurper
@@ -7,8 +8,8 @@ import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.export.Datatypes
 import org.transmartproject.export.Tasks.DataExportFetchTask
 import org.transmartproject.export.Tasks.DataExportFetchTaskFactory
@@ -24,14 +25,14 @@ class RestExportService {
     @Autowired
     HighDimensionResource highDimensionResourceService
 
-    ConceptsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResource
 
     List<File> export(arguments) {
         DataExportFetchTask task = dataExportFetchTaskFactory.createTask(arguments)
         task.getTsv()
     }
 
-    public List<Datatypes> retrieveDataTypes(params) {
+    List<Datatypes> retrieveDataTypes(params) {
         if (!(params.containsKey('concepts'))) {
             throw new NoSuchResourceException("No parameter named concepts was given.")
         }
@@ -63,7 +64,7 @@ class RestExportService {
     }
 
     private void getDataType(String conceptKey, List dataTypes, int cohortNumber) {
-        OntologyTerm term = conceptsResourceService.getByKey(conceptKey)
+        OntologyTerm term = ontologyTermsResource.getByKey(conceptKey)
         // Retrieve all descendant terms that have the HIGH_DIMENSIONAL attribute
         def terms = term.getAllDescendants() + term
         def highDimTerms = terms.findAll { it.visualAttributes.contains(HIGH_DIMENSIONAL) }

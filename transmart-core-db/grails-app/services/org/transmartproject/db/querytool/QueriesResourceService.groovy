@@ -21,7 +21,6 @@ package org.transmartproject.db.querytool
 
 import grails.transaction.Transactional
 import org.hibernate.jdbc.Work
-import org.hibernate.jdbc.Work
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
@@ -30,6 +29,7 @@ import org.transmartproject.core.querytool.QueryDefinition
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultSummary
 import org.transmartproject.core.querytool.QueryResultSummaryImplementation
+import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
 import org.transmartproject.db.user.User
 
@@ -79,9 +79,10 @@ class QueriesResourceService implements QueriesResource {
 
         // 3. Populate qt_query_result_instance
         QtQueryResultInstance resultInstance = new QtQueryResultInstance(
-                statusTypeId  : QueryStatus.PROCESSING.id,
-                startDate     : new Date(),
-                queryInstance : queryInstance
+                statusTypeId    : QueryStatus.PROCESSING.id,
+                startDate       : new Date(),
+                queryInstance   : queryInstance,
+                queryResultType : QtQueryResultType.load(QueryResultType.PATIENT_SET_ID)
         )
         queryInstance.addToQueryResults(resultInstance)
 
@@ -214,7 +215,7 @@ class QueriesResourceService implements QueriesResource {
             deleteFlag == 'N'
         }
         query.collect { new QueryResultSummaryImplementation(it)}
-}
+    }
 
     //@Override
     List<QueryResult> getQueryResultsByUsername(String username) {

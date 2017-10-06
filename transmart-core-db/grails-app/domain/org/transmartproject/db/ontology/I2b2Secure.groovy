@@ -19,7 +19,19 @@
 
 package org.transmartproject.db.ontology
 
+/**
+ * Domain class for storing an ontology tree.
+ */
 class I2b2Secure extends AbstractI2b2Metadata implements Serializable {
+
+    public static final String ROOT = '\\'
+
+    /**
+     * The source system code usually contains the study id
+     * of the study the node belongs to.
+     */
+    @Deprecated
+    String sourceSystemCd
 
     String secureObjectToken
 
@@ -31,6 +43,7 @@ class I2b2Secure extends AbstractI2b2Metadata implements Serializable {
 
         id composite: ['fullName', 'name']
 
+        sourceSystemCd column: 'sourcesystem_cd'
         secureObjectToken column: 'secure_obj_token'
 
         AbstractI2b2Metadata.mapping.delegate = delegate
@@ -38,7 +51,8 @@ class I2b2Secure extends AbstractI2b2Metadata implements Serializable {
     }
 
     static constraints = {
-        cSynonymCd          nullable:   false
+        sourceSystemCd      nullable: true
+        cSynonymCd          nullable: false
 
         AbstractI2b2Metadata.constraints.delegate = delegate
         AbstractI2b2Metadata.constraints()

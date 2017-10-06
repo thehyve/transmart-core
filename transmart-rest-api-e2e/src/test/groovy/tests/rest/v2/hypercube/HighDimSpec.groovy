@@ -6,14 +6,14 @@ import annotations.RequiresStudy
 import base.RESTSpec
 import groovy.json.JsonBuilder
 
-import static base.ContentTypeFor.contentTypeForJSON
-import static base.ContentTypeFor.contentTypeForProtobuf
+import static base.ContentTypeFor.JSON
+import static base.ContentTypeFor.PROTOBUF
 import static config.Config.*
 import static org.hamcrest.Matchers.is
 import static spock.util.matcher.HamcrestSupport.that
-import static tests.rest.v2.Operator.*
-import static tests.rest.v2.ValueType.*
-import static tests.rest.v2.constraints.*
+import static tests.rest.Operator.*
+import static tests.rest.ValueType.*
+import static tests.rest.constraints.*
 
 class HighDimSpec extends RESTSpec {
 
@@ -58,9 +58,9 @@ class HighDimSpec extends RESTSpec {
         assert responseData.cells.size() == biomarkers * assays * projections
 
         where:
-        acceptType             | _
-        contentTypeForJSON     | _
-        contentTypeForProtobuf | _
+        acceptType | _
+        JSON       | _
+        PROTOBUF   | _
     }
 
     /**
@@ -112,9 +112,9 @@ class HighDimSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -154,9 +154,9 @@ class HighDimSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -193,9 +193,9 @@ class HighDimSpec extends RESTSpec {
         assert responseData.cells == result
 
         where:
-        acceptType             | newSelector      | result
-        contentTypeForJSON     | jsonSelector     | []
-        contentTypeForProtobuf | protobufSelector | null
+        acceptType | newSelector      | result
+        JSON       | jsonSelector     | []
+        PROTOBUF   | protobufSelector | null
     }
 
     /**
@@ -252,9 +252,9 @@ class HighDimSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -293,9 +293,9 @@ class HighDimSpec extends RESTSpec {
         assert selector.cellCount == 12
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -349,9 +349,9 @@ class HighDimSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -405,9 +405,9 @@ class HighDimSpec extends RESTSpec {
         }
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -436,9 +436,9 @@ class HighDimSpec extends RESTSpec {
         that responseData.message, is('Constraint not supported: invalidConstraint.')
 
         where:
-        acceptType             | newSelector
-        contentTypeForJSON     | jsonSelector
-        contentTypeForProtobuf | protobufSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
+        PROTOBUF   | protobufSelector
     }
 
     /**
@@ -464,9 +464,9 @@ class HighDimSpec extends RESTSpec {
         assert responseData.cells == result
 
         where:
-        acceptType             | newSelector      | result
-        contentTypeForJSON     | jsonSelector     | []
-        contentTypeForProtobuf | protobufSelector | null
+        acceptType | newSelector      | result
+        JSON       | jsonSelector     | []
+        PROTOBUF   | protobufSelector | null
     }
 
     @RequiresStudy(CLINICAL_TRIAL_HIGHDIM_ID)
@@ -499,8 +499,8 @@ class HighDimSpec extends RESTSpec {
         assert listSexCd.containsAll("Female", "Male")
 
         where:
-        acceptType         | newSelector
-        contentTypeForJSON | jsonSelector
+        acceptType | newSelector
+        JSON       | jsonSelector
 
 
     }

@@ -49,7 +49,7 @@ import static org.springframework.beans.factory.support.BeanDefinitionReaderUtil
  * {@link grails.converters.JSON} knows how to handle them.
  */
 @Slf4j
-public class MarshallersRegistrar implements FactoryBean {
+class MarshallersRegistrar implements FactoryBean {
 
     @Autowired
     ApplicationContext ctx
@@ -61,7 +61,11 @@ public class MarshallersRegistrar implements FactoryBean {
     EnumMarshaller enumMarshaller
 
     @Autowired
+    @Lazy
     TreeNodeMarshaller treeNodeMarshaller
+
+    @Autowired
+    ConstraintMarshaller constraintMarshaller
 
     String packageName
 
@@ -118,6 +122,7 @@ public class MarshallersRegistrar implements FactoryBean {
         JSON.registerObjectMarshaller iteratorMarshaller, DEFAULT_PRIORITY - 10
         JSON.registerObjectMarshaller enumMarshaller
         JSON.registerObjectMarshaller treeNodeMarshaller
+        JSON.registerObjectMarshaller constraintMarshaller
     }
 
     @Override
