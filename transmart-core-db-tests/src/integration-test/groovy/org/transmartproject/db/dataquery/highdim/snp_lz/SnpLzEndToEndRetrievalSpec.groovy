@@ -39,7 +39,6 @@ import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Rollback
-@Ignore("SNP development has lower priority")
 class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
 
     /* scale of the zscore column is 5, so this is the max rounding error */
@@ -139,10 +138,10 @@ class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
                                     closeTo(snpData.gtProbabilityThreshold, DELTA)),
                             hasProperty('minorAlleleFrequency', closeTo(snpData.maf, DELTA)),
                             hasProperty('minorAllele', is(snpData.minorAllele)),
-                            hasProperty('a1a1Count', is(snpData.getCA1A1() as Long)),
-                            hasProperty('a1a2Count', is(snpData.getCA1A2() as Long)),
-                            hasProperty('a2a2Count', is(snpData.getCA2A2() as Long)),
-                            hasProperty('noCallCount', is(snpData.getCNocall() as Long)),
+                            hasProperty('a1a1Count', is(snpData.countA1A1)),
+                            hasProperty('a1a2Count', is(snpData.countA1A2)),
+                            hasProperty('a2a2Count', is(snpData.countA2A2)),
+                            hasProperty('noCallCount', is(snpData.countNocall)),
                     )
                 }
         )
@@ -172,30 +171,6 @@ class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
         rows.collect { row ->
             dataMatcherFor(row, testData.annotations, testData.orderedAssays)
         }
-    }
-
-    //No more retrieveAssays in HighDimensionDataTypeResourceImpl, therefore this test is ignored for now.
-    @Ignore
-    void testRetrieveAssaysEqualsIndicesList() {
-        setupData()
-        dataQueryResult = snpLzResource.retrieveData(
-                [trialConstraint, conceptConstraint0], [], allDataProjection)
-
-        expect:
-        /*
-         * Test if the list of assay ids returning from the query is
-         * the same as in the test data and that the assays are ordered by
-         * assay id.
-         */
-        assert dataQueryResult.indicesList*.id == testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM]*.id
-
-        def assays = snpLzResource.retrieveAssays([trialConstraint, conceptConstraint0])
-
-        /*
-         * Test if retrieveAssays returns the same list as indicesList in the
-         * TabularResult.
-         */
-        assert dataQueryResult.indicesList == assays
     }
 
     void testIndexingByNumber() {
@@ -286,6 +261,7 @@ class SnpLzEndToEndRetrievalSpec extends TransmartSpecification {
         List rows = Lists.newArrayList(dataQueryResult.rows)
 
         expect:
+        that rows, hasSize(1)
         // test correspondence between testData and dataQueryResult rows
         rows.each { row ->
             dataMatcherFor(row, [selectedAnnotation], testData.orderedAssaysByPlatform[SnpLzTestData.PLATFORM])

@@ -251,10 +251,10 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
                 property 'snp.gtProbabilityThreshold', 'gtProbabilityThreshold'
                 property 'snp.maf',                    'maf'
                 property 'snp.minorAllele',            'minorAllele'
-                property 'snp.CA1A1',                  'CA1A1'
-                property 'snp.CA1A2',                  'CA1A2'
-                property 'snp.CA2A2',                  'CA2A2'
-                property 'snp.CNocall',                'CNocall'
+                property 'snp.countA1A1',              'countA1A1'
+                property 'snp.countA1A2',              'countA1A2'
+                property 'snp.countA2A2',              'countA2A2'
+                property 'snp.countNocall',            'countNocall'
                 property 'snp.trialName',              'trialName'
 
                 property 'ann.geneInfo',               'geneInfo'
@@ -340,7 +340,7 @@ class SnpLzModule extends AbstractHighDimensionDataTypeModule {
 
             fetchSize SNP_PATIENTS_FETCH_SIZE
             fetchMode 'patient', FetchMode.JOIN
-        }
+        } as List<SnpSubjectSortedDef>
         log.debug "Found ${sssList.size()} subject ordering entries for assays."
 
         LinkedHashMap<AssayColumn, Integer> assayIndexMap = [:] as LinkedHashMap

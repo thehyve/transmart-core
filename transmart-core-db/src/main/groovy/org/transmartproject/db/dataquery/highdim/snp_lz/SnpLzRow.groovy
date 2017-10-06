@@ -189,22 +189,22 @@ class SnpLzRow<T> implements BioMarkerDataRow<T> {
 
     @CompileStatic(TypeCheckingMode.SKIP)
     Long getA1a1Count() {
-        probeData.CA1A1.longValue()
+        (probeData.countA1A1 as Long).longValue()
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
     Long getA1a2Count() {
-        (probeData.CA1A2).longValue()
+        (probeData.countA1A2 as Long).longValue()
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
     Long getA2a2Count() {
-        probeData.CA2A2.longValue()
+        (probeData.countA2A2 as Long).longValue()
     }
 
     @CompileStatic(TypeCheckingMode.SKIP)
     Long getNoCallCount() {
-        probeData.CNocall.longValue()
+        (probeData.countNocall as Long).longValue()
     }
 
 }

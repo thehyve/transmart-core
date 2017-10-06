@@ -19,7 +19,6 @@
 
 package org.transmartproject.db.dataquery.highdim.snp_lz
 
-import com.google.common.collect.ImmutableMap
 import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.criterion.ProjectionList
 import org.hibernate.criterion.Projections
@@ -28,8 +27,6 @@ import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 
 /**
  * Implements {@link AllDataProjection} for the snp_lz module.
- * {@link AllDataProjectionImpl} is not appropriate because it tries to add
- * projections to the Hibernate query based on the value of dataProperties.
  */
 class SnpLzAllDataProjection implements
         AllDataProjection, CriteriaProjection<Map<String, Object>> {

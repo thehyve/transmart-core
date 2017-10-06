@@ -37,10 +37,10 @@ class SnpDataByProbeCoreDb {
     BigDecimal gtProbabilityThreshold
     BigDecimal maf
     String minorAllele
-    Long CA1A1
-    Long CA1A2
-    Long CA2A2
-    Long CNocall
+    Long countA1A1
+    Long countA1A2
+    Long countA2A2
+    Long countNocall
 
     /* other columns are ignored */
 
@@ -64,10 +64,10 @@ class SnpDataByProbeCoreDb {
         lastUpdated             column: 'modified_date'
         a1Clob                  column: 'a1_clob'
         a2Clob                  column: 'a2_clob'
-        'CA1A1'                 column: 'c_a1_a1'
-        'CA1A2'                 column: 'c_a1_a2'
-        'CA2A2'                 column: 'c_a2_a2'
-        'CNocall'               column: 'c_nocall'
+        countA1A1               column: 'c_a1_a1'
+        countA1A2               column: 'c_a1_a2'
+        countA2A2               column: 'c_a2_a2'
+        countNocall             column: 'c_nocall'
 
         version false
     }
@@ -87,10 +87,10 @@ class SnpDataByProbeCoreDb {
         gtProbabilityThreshold  nullable: true, scale:   17
         maf                     nullable: true, scale:   17
         minorAllele             nullable: true, maxSize: 2
-        'CA1A1'                 nullable: true
-        'CA1A2'                 nullable: true
-        'CA2A2'                 nullable: true
-        'CNocall'               nullable: true
+        countA1A1               nullable: true
+        countA1A2               nullable: true
+        countA2A2               nullable: true
+        countNocall             nullable: true
 
         createdBy               nullable: true, maxSize: 30
         dateCreated             nullable: true

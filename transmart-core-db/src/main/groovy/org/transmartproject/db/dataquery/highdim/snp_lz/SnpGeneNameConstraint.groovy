@@ -20,29 +20,25 @@
 package org.transmartproject.db.dataquery.highdim.snp_lz
 
 import groovy.util.logging.Slf4j
-
-import java.util.List;
+import org.hibernate.criterion.DetachedCriteria
+import org.hibernate.criterion.Order
+import org.hibernate.criterion.Projections
+import org.hibernate.criterion.Restrictions
+import org.hibernate.criterion.Subqueries
 
 import grails.orm.HibernateCriteriaBuilder
 
-import org.transmartproject.db.dataquery.highdim.snp_lz.DeSnpGeneMap
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 
 /**
  * A data constraint that limits the returned SNPs to those that belong to
  * the selected gene names.
- * The SNP names are fetched from the {@link DeSnpGeneMap} table and added as
- * constraints on the <var>property</var> field.
- *
- * Ideally, the constraint would be implemented as a subquery, instead of
- * enumerating the SNP names. However, that is not yet supported in Grails 2.3.7.
- *
- * To prevent Oracle errors about the maximum number of elements in an 'in'
- * constraint, the constraint is split into multiple disjunctive constraints.
+ * The SNP names are selected using subqueries on the {@link DeSnpGeneMap} table.
+ * A constraint is added that the <var>property</var> field should be in the selected
+ * set of SNP names.
  *
  * @author gijs@thehyve.nl
  */
-
 @Slf4j
 class SnpGeneNameConstraint implements CriteriaDataConstraint {
 
@@ -51,39 +47,15 @@ class SnpGeneNameConstraint implements CriteriaDataConstraint {
     List<String> geneNames = []
 
     /**
-     * Get the SNP names for a list of gene names from {@link DeSnpGeneMap}.
-     *
-     * @return the list of SNP names.
+     * Add a constraint to select SNPs that are associated with any of the gene names
+     * in {@link #geneNames} with a link in {@link DeSnpGeneMap}.
      */
-    List<String> getSnpNamesForGeneNames(List<String> geneNames) {
-        SortedSet<String> snpNames = [] as SortedSet
-        for (String geneName: geneNames) {
-            List<String> names = DeSnpGeneMap.createCriteria()
-            .list {
-                eq 'geneName', geneName
-                order 'snpName', 'asc'
-                projections {
-                  distinct('snpName')
-                }
-            }
-            snpNames.addAll(names)
-        }
-        snpNames.toList()
-    }
-
     @Override
     void doWithCriteriaBuilder(HibernateCriteriaBuilder criteria) {
-        List<String> snpNames = getSnpNamesForGeneNames(geneNames)
-        // split the list of SNP names into chuncks of max. 500.
-        List<List<String>> chunks = snpNames.collate(500)
-        log.debug "Number of SNP names: ${snpNames.size()}"
-        log.debug "Number of chunks: ${chunks.size()}"
-        criteria.with {
-            or {
-                chunks.collect { names ->
-                    'in' property, names
-                }
-            }
-        }
+        log.debug "Number of gene names: ${geneNames.size()}"
+        criteria.add(Subqueries.propertyIn(property,
+                DetachedCriteria.forClass(DeSnpGeneMap)
+                        .setProjection(Projections.distinct(Projections.property('snpName')))
+                        .add(Restrictions.in('geneName', geneNames))))
     }
 }
