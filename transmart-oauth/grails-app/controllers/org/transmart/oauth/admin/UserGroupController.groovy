@@ -1,9 +1,9 @@
-package org.transmartproject.app
+package org.transmart.oauth.admin
 
-import command.UserGroupCommand
 import grails.converters.JSON
 import grails.transaction.Transactional
 import grails.validation.ValidationException
+import org.transmart.oauth.command.UserGroupCommand
 import org.transmart.searchapp.AccessLog
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.Principal

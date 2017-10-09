@@ -27,9 +27,9 @@
         <tr>
             <g:sortableColumn property="id" title="#" />
             <g:sortableColumn property="clientId" title="Client ID" />
-            <g:sortableColumn property="clientSecret" title="Client secret" />
-            <g:sortableColumn property="redirectUris" title="Redirect URIs" />
-            <g:sortableColumn property="authorizedGrantTypes" title="Authorized grant types " />
+            <th>Client secret</th>
+            <th>Redirect URIs</th>
+            <th>Authorized grant types</th>
             <th>&nbsp;</th>
         </tr>
         </thead>
@@ -63,7 +63,7 @@
 
     <h3>Notes:</h3>
     <p>
-        Clients in <span class="configclient">colour</span> are configured in <code>Config.groovy</code>. To configure it, you have to edit it directly
+        Clients in <span class="configclient">colour</span> are configured in <code>application.groovy</code>. To configure it, you have to edit it directly
     in the file.
     </p>
 </div>

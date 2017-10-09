@@ -1,6 +1,7 @@
-package org.transmartproject.app.user
+package org.transmart.oauth.user
 
 import org.springframework.web.servlet.support.RequestContextUtils
+import org.transmart.oauth.command.ChangePasswordCommand
 import org.transmart.searchapp.AuthUser
 
 class ChangeMyPasswordController {
@@ -35,39 +36,3 @@ class ChangeMyPasswordController {
 
 }
 
-class ChangePasswordCommand implements grails.validation.Validateable {
-
-    def grailsApplication
-    def springSecurityService
-
-    String oldPassword
-    String newPassword
-    String newPasswordRepeated
-
-    static constraints = {
-
-        oldPassword(blank: false, validator: { oldPsw, thisCmd ->
-            if (!thisCmd.springSecurityService.passwordEncoder
-                    .isPasswordValid(thisCmd.springSecurityService.currentUser.getPersistentValue('passwd'), oldPsw, null)) {
-                'doesNotMatch'
-            }
-        })
-
-        newPassword(blank: false,
-                validator: { newPsw, thisCmd ->
-            if (newPsw == thisCmd.oldPassword) {
-                'hasToBeChanged'
-            } else if (thisCmd.grailsApplication.config.user.password.strength.regex.with { it && !(newPsw ==~ it)}) {
-                'lowPasswordStrength'
-            }
-        })
-
-        newPasswordRepeated(blank: false, validator: { newPsw2, thisCmd ->
-            if (newPsw2 != thisCmd.newPassword) {
-                'doesNotEqual'
-            }
-        })
-
-    }
-
-}

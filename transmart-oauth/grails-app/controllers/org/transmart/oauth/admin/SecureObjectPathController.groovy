@@ -1,4 +1,4 @@
-package org.transmartproject.app
+package org.transmart.oauth.admin
 
 import org.transmart.searchapp.SecureObjectPath;
 

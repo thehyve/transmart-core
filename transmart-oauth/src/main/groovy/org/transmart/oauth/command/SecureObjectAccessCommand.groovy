@@ -2,9 +2,11 @@
  * @author JIsikoff
  *
  */
-package command
+package org.transmart.oauth.command
 
-public class SecureObjectAccessCommand implements grails.validation.Validateable {
+import grails.validation.Validateable
+
+class SecureObjectAccessCommand implements Validateable {
     String[] sobjectstoadd
     String[] sobjectstoremove
     String[] groupstoadd

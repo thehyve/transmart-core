@@ -26,18 +26,14 @@
 
             <div class="adm-input-group ${hasErrors(bean:client,field:'clientId','errors')}">
                 <label for="clientId">Client ID</label>
-                <input type="text" id="clientId" name="clientId" required maxlength="128" value="${client.clientId?.encodeAsHTML()}"/>
+                <input id="clientId" name="clientId" required maxlength="128" value="${client.clientId?.encodeAsHTML()}"/>
             </div>
 
             <div class="adm-input-group ${hasErrors(bean:client,field:'clientSecret','errors')}">
-                <label for="clientSecret">Client secret*</label>
+                <label for="clientSecret">Client secret</label>
                 <div style="display: inline-block;">
-                    <input type="text" id="clientSecret" name="clientSecret" ${client.clientSecret ? '':'required'} maxlength="512" value=""/>
+                    <input id="clientSecret" name="clientSecret" ${client.clientSecret ? '':'required'} maxlength="512" value=""/>
                     <g:if test="${client.clientSecret}"><br /><em class="remark adm-view-val">Not changed if empty.</em></g:if>
-                    <br/>
-                    %{--A remark below should be here until we resolve  a bug related to encrypting clientSecret in Client.groovy domain class.
-                    https://github.com/thehyve/transmart-core/blob/lodz2-dev/transmartApp/grails-app/domain/org/transmart/oauth2/Client.groovy#L68--}%
-                    <p style="margin-left: 20px;"><i>*Entered client secret should be BCrypt Hash encrypted.</i></p>
                 </div>
             </div>
 

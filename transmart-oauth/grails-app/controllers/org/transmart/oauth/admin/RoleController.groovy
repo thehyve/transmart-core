@@ -1,4 +1,4 @@
-package org.transmartproject.app
+package org.transmart.oauth.admin
 /**
  * $Id: RoleController.groovy 9178 2011-08-24 13:50:06Z mmcduffie $
  * @author $Author: mmcduffie $

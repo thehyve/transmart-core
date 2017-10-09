@@ -1,4 +1,4 @@
-package org.transmartproject.app
+package org.transmart.oauth
 /**
  * $Id: LogoutController.groovy 10098 2011-10-19 18:39:32Z mmcduffie $
  * @author $Author: mmcduffie $

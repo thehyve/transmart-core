@@ -1,4 +1,4 @@
-package org.transmart.oauth.authentication
+package org.transmart.oauth.admin
 
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.AuthUserSecureAccess

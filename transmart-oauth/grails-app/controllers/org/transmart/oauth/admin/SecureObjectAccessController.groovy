@@ -1,6 +1,6 @@
-package org.transmartproject.app
+package org.transmart.oauth.admin
 
-import command.SecureObjectAccessCommand
+import org.transmart.oauth.command.SecureObjectAccessCommand
 import org.transmart.searchapp.*
 import org.transmartproject.core.users.User
 

@@ -1,4 +1,4 @@
-package org.transmartproject.app
+package org.transmart.oauth
 /**
  * $Id: LoginController.groovy 10098 2011-10-19 18:39:32Z mmcduffie $
  * @author $Author: mmcduffie $
@@ -9,7 +9,6 @@ import org.springframework.security.authentication.AccountExpiredException
 import org.springframework.security.authentication.CredentialsExpiredException
 import org.springframework.security.authentication.DisabledException
 import org.springframework.security.authentication.LockedException
-import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder as SCH
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -40,12 +39,13 @@ class LoginController {
         if (springSecurityService.isLoggedIn()) {
             redirect uri: SpringSecurityUtils.securityConfig.successHandler.defaultTargetUrl
         } else {
-            redirect action: "auth", params: params
+            redirect action: 'authPage', params: params
         }
     }
+
     def forceAuth = {
-        session.invalidate();
-        render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
+        session.invalidate()
+        render view: 'authPage', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
     }
 
     /**
@@ -57,7 +57,6 @@ class LoginController {
         def guestAutoLogin = grailsApplication.config.com.recomdata.guestAutoLogin;
         boolean guestLoginEnabled = (guestAutoLogin == 'true' || guestAutoLogin.is(true))
         log.info("enable guest login: " + guestLoginEnabled)
-        //log.info("requet:"+request.getQueryString())
         boolean forcedFormLogin = request.getQueryString() != null
         log.info("User is forcing the form login? : " + forcedFormLogin)
 
@@ -77,7 +76,7 @@ class LoginController {
             }
         }
 
-        render view: 'auth', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
+        render view: 'authPage', model: [postUrl: request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
     }
 
     /**
@@ -89,13 +88,14 @@ class LoginController {
             // have cookie but the page is guarded with IS_AUTHENTICATED_FULLY
             redirect action: "full", params: params
         }
+        render view: 'deniedPage'
     }
 
     /**
      * Login page for users with a remember-me cookie but accessing a IS_AUTHENTICATED_FULLY page.
      */
     def full = {
-        render view: 'auth', params: params,
+        render view: 'authPage', params: params,
                 model: [hasCookie: authenticationTrustResolver.isRememberMe(SCH.context?.authentication),
                         postUrl  : request.contextPath + SpringSecurityUtils.securityConfig.apf.filterProcessesUrl]
     }
@@ -142,7 +142,7 @@ class LoginController {
             }
         }
         flash.message = msg
-        redirect action: "auth", params: params
+        redirect action: 'authPage', params: params
     }
 
     /** cache controls */
@@ -151,6 +151,6 @@ class LoginController {
         response.addDateHeader('Expires', 0)
         response.setDateHeader('max-age', 0)
         response.setIntHeader('Expires', -1) //prevents caching at the proxy server
-        response.addHeader('cache-Control', 'private') //IE5.x only
+        response.addHeader('Cache-Control', 'private') //IE5.x only
     }
 }

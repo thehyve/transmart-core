@@ -1,4 +1,4 @@
-package org.transmartproject.app
+package org.transmart.oauth.user
 
 import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
@@ -7,16 +7,16 @@ import org.transmart.oauth.AccessToken
 
 @Transactional
 class UserApplicationsController {
-    
+
     @Autowired
     private TokenStore tokenStore
-    
+
     def springSecurityService
-    
+
     def list = {
         def principal = springSecurityService.principal
-        
-        log.debug 'Fetching access tokens for ' + principal.username
+
+        log.debug "Fetching access tokens for ${principal.username}"
         def tokens = AccessToken.findAll { username == principal.username }
         def refreshTokenExpiration = [:]
         tokens.each {
@@ -25,15 +25,15 @@ class UserApplicationsController {
         }
         render view: 'list', model: [tokens: tokens, refreshTokenExpiration: refreshTokenExpiration]
     }
-    
+
     private removeTokens(token) {
-        log.debug 'Removing access token ' + token.id
+        log.debug "Removing access token ${token.id}"
         if (token.refreshToken) {
             tokenStore.removeRefreshToken token.refreshToken
         }
         tokenStore.removeAccessToken token.value
     }
-    
+
     def revoke = {
         def principal = springSecurityService.principal
         def token = AccessToken.find { id == params.id }
@@ -43,7 +43,7 @@ class UserApplicationsController {
         flash.message = 'The access token has been revoked.'
         redirect (action: 'list')
     }
-    
+
     def revokeAll = {
         def principal = springSecurityService.principal
         def tokens = AccessToken.findAll { username == principal.username }
@@ -53,5 +53,5 @@ class UserApplicationsController {
         flash.message = 'All access tokens have been revoked.'
         redirect (action: 'list')
     }
-    
+
 }

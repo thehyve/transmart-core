@@ -2,9 +2,11 @@
  * @author JIsikoff
  *
  */
-package command
+package org.transmart.oauth.command
 
-public class UserGroupCommand implements grails.validation.Validateable {
+import grails.validation.Validateable
+
+class UserGroupCommand implements Validateable {
     String[] userstoadd
     String[] userstoremove
     String[] groupstoadd

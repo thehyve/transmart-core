@@ -1,8 +1,9 @@
-package org.transmartproject.app.user
+package org.transmart.oauth.user
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.web.ControllerUnitTestMixin
 import org.junit.Before
+import org.transmart.oauth.command.ChangePasswordCommand
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.*

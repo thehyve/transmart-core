@@ -70,8 +70,8 @@ class Client {
 ========================================================================================================================
 
 Congratulations! It looks like bug https://github.com/grails/grails-core/issues/10451 has been solved which prevented event handler methods form being called on 
-domain objects of non-default datastores. Please remove this exception in transmartApp/grails-app/domain/org.transmart
-.oauth.Client and the accompanying workaround in transmartApp/grails-app/init/BootStrap.groovy and try again. The 
+domain objects of non-default datastores. Please remove this exception in transmart-oauth/grails-app/domain/org.transmart
+.oauth.Client and the accompanying workaround in transmart-oauth/grails-app/init/BootStrap.groovy and try again. The 
 primary symptom of this bug was that oauth2 authentication was not working due to the password encoder not receiving a 
 properly encoded password. So if that keeps working without this workaround you should be fine. 
 
