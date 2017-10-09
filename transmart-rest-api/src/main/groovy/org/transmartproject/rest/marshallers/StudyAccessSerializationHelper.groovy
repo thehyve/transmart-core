@@ -26,17 +26,14 @@
 package org.transmartproject.rest.marshallers
 
 import grails.rest.Link
-import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.ontology.StudyAccess
 import org.transmartproject.db.ontology.StudyAccessImpl
-import org.transmartproject.rest.StudyLoadingService
-
-import javax.annotation.Resource
 
 import static grails.rest.render.util.AbstractLinkingRenderer.RELATIONSHIP_SELF
 
 class StudyAccessSerializationHelper extends AbstractHalOrJsonSerializationHelper<StudyAccessImpl> {
 
-    final Class targetType = StudyAccessImpl
+    final Class targetType = StudyAccess
     final String collectionName = 'studiesAccess'
     private static final String VERSION = "v1"
 
