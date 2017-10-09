@@ -12,10 +12,10 @@ interface StudyAccess {
     Study getStudy()
 
     /**
-     * A map with different types of accessibility, used for letting the front-end know
+     * A map with different types of accessibility (e.g. view, export), used for letting the front-end know
      * which kind of access the user has.
      * @return boolean to determine if the user has access to the study or not.
      */
-    Map getAccessibleByUser()
+    Map<String, Boolean> getAccessibleByUser()
 
 }
