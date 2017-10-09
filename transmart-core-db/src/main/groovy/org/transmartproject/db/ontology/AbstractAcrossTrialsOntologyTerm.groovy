@@ -103,7 +103,7 @@ abstract class AbstractAcrossTrialsOntologyTerm
 	
 	@Override
 	List<OntologyTerm> getHDforAllDescendants() {
-		getAllDescendants(true, false, false)
+		throw new UnsupportedOperationException('XTrial concept does not support returning HD descendants.')
 	}
 
 	@Override
