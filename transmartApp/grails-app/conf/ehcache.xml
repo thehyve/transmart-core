@@ -148,6 +148,11 @@
            timeToIdleSeconds="300"
     />
 
+    <cache name="org.transmartproject.db.tree.TreeService"
+           maxElementsInMemory="10000"
+           timeToIdleSeconds="300"
+    />
+
     <cache name="misc_cache"
            maxElementsInMemory="10000"
            timeToIdleSeconds="300" />
