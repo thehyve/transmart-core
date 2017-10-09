@@ -17,14 +17,6 @@ class FacetsSearchControllerTests {
     @Autowired
     FacetsIndexingService facetsIndexingService
 
-//    @BeforeClass
-//    static void beforeClass() {
-//        facetsIndexingService.clearIndex()
-//        facetsIndexingService.fullIndex()
-////        Holders.applicationContext.getBean(FacetsIndexingService).clearIndex()
-////        Holders.applicationContext.getBean(FacetsIndexingService).fullIndex()
-//    }
-
     @Before
     void before() {
         facetsIndexingService.clearIndex()

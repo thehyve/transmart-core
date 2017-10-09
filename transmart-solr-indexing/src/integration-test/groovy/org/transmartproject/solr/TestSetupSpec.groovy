@@ -72,8 +72,6 @@ class TestSetupSpec extends Specification {
 
         then:
         assert obfs.size() == 4
-        facetsIndexingService.fullIndex()
-        assert 'hoi' == 'hoi'
     }
 
     @Test

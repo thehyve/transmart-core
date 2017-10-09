@@ -377,23 +377,6 @@ function gwasGetRangeSymbol(string) {
 	}
 }
 
-
-//jQuery(document).ready(function() {
-//
-//    console.log('GWAS Plugin Present');
-//
-//    popupWindowPropertiesMap['Region of Interest'] = {
-//	'URLToUse' : regionBrowseWindow,
-//	'filteringFunction' : gwasApplyPopupFiltersRegions,
-//	'dialogHeight' : 450,
-//	'dialogWidth' : 900
-//    }
-//    popupWindowPropertiesMap Transcript Gene'] = {
-//	'URLToUse' : eqtlTranscriptGeneWindow,
-//	'filteringFunction' : gwasApplyPopupFiltersEqtlTranscriptGene
-//    }
-//});
-
 // Adding rwg.js script
 ////////////////////////////////////////////////////////////////////
 //Globals
@@ -3713,25 +3696,6 @@ function gwasGetHeatmapPaginator(divID, analysisId, analysisIndex, maxProbeIndex
  }); 	
 	
 }
-
-//function gwasLoadHeatmapPaginator(divID, analysisId, page) {
-//
-//	var analysisIndex = gwasGetAnalysisIndex(analysisId);
-//		
-//	gwasAJAXManager.add({
-//		url:gwasGetHeatmapNumberProbesURL,		
-//		data: {id: analysisId, page:page},
-//		success: function(response) {
-//			var maxProbeIndex = response['maxProbeIndex']
-//			
-//			gwasGetHeatmapPaginator(divID, analysisId, analysisIndex, maxProbeIndex, page);
-//	
-//		},
-//		error: function(xhr) {
-//			console.log('Error!  Status = ' + xhr.status + xhr.statusText);
-//		}
-//	});
-//}
 
 function gwasUpdateSelectedAnalyses() {
 	var selectedboxes = jQuery(".analysischeckbox:checked");
