@@ -13,5 +13,5 @@ migrate:
 	$(PGSQL_BIN)/psql -f qt_query_master.sql
 	$(PGSQL_BIN)/psql -f async_job.sql
 	$(PGSQL_BIN)/psql -f biomart_pf_to_tf.sql
-    $(PGSQL_BIN)/psql -f deapp_pf_to_tf.sql
-    $(PGSQL_BIN)/psql -f bio_marker_correl_mv.sql
+	$(PGSQL_BIN)/psql -f deapp_pf_to_tf.sql
+	$(PGSQL_BIN)/psql -f bio_marker_correl_mv.sql
