@@ -24,42 +24,6 @@ hibernate {
     singleSession = true // configure OSIV singleSession mode
 }
 
-
-// environment specific settings
-environments {
-    development {
-        dataSources {
-            dataSource {
-                driverClassName = 'oracle.jdbc.driver.OracleDriver'
-                url             = 'jdbc:oracle:thin:@dev5.thehyve.net:47526:ORCL'
-                username        = 'biomart_user'
-                password        = 'biomart_user'
-                dbCreate        = 'none'
-                logSql = true
-                formatSql = true
-                properties {
-                    maxActive = 10
-                    maxIdle = 5
-                    minIdle = 2
-                    initialSize = 2
-                }
-            }
-        }
-    }
-    test {
-        dataSource {
-            driverClassName = 'org.h2.Driver'
-            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'"
-            dialect = 'org.hibernate.dialect.H2Dialect'
-            username = 'sa'
-            password = ''
-            dbCreate = 'create'
-            logSql = false
-            formatSql = true
-        }
-    }
-}
-
 grails.mime.types = [
         all          : '*/*',
         atom         : 'application/atom+xml',
