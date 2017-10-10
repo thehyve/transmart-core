@@ -217,8 +217,7 @@ grails { plugin { springsecurity {
     // requestmap in db
     securityConfigType = grails.plugin.springsecurity.SecurityConfigType.Requestmap
     // url to redirect after login in
-    // just_rest branch provides alternative default via org.transmart.defaultLoginRedirect
-    successHandler.defaultTargetUrl = org.transmart.defaultLoginRedirect ?: '/userLanding'
+    successHandler.defaultTargetUrl = '/userLanding'
     // logout url
     logout.afterLogoutUrl = '/login/forceAuth'
 
