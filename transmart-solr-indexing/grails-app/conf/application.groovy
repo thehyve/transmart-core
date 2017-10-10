@@ -20,7 +20,7 @@ grails{
 hibernate {
     cache.use_second_level_cache = false
     cache.use_query_cache = false
-    cache.region.factory_class = 'org.hibernate.cache.SingletonEhCacheRegionFactory' // Hibernate 4
+    cache.region.factory_class = 'org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory'
     singleSession = true // configure OSIV singleSession mode
 }
 
@@ -41,27 +41,19 @@ grails.mime.types = [
         protobuf     : 'application/x-protobuf',
 ]
 
-grails.mime.use.accept.header = true
+grails.mime.disable.accept.header.userAgents = []
+grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 
-// Legacy setting for codec used to encode data with ${}
-grails.views.default.codec = "html"
+grails.views.default.codec = "none"
 
 grails.controllers.defaultScope = 'singleton' //default is prototype
 
 grails.converters.encoding = "UTF-8"
-// scaffolding templates configuration
-grails.scaffolding.templates.domainSuffix = 'Instance'
+grails.converters.encoding = "UTF-8"
+grails.converters.default.pretty.print = true
 
-// Set to false to use the new Grails 1.2 JSONBuilder in the render method
-grails.json.legacy.builder = false
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
-// packages to include in Spring bean scanning
-//grails.spring.bean.packages = ["org.transmartproject.solr"]
-// whether to disable processing of multi part requests
-grails.web.disable.multipart = true
-
-
 
 environments {
     test {
@@ -69,15 +61,18 @@ environments {
     }
 }
 
-grails.converters.json.pretty.print = true
-
-grails.mime.disable.accept.header.userAgents = false
-
 environments {
     production {
-        grails.converters.json.pretty.print = false
+        grails.converters.default.pretty.print = false
     }
 }
 
-
-
+dataSource {
+    url = 'jdbc:postgresql://localhost:5432/transmart'
+    driverClassName = 'org.postgresql.Driver'
+    username = 'biomart_user'
+    password = 'biomart_user'
+    dbCreate = 'none'
+    logSql = true
+    formatSql = true
+}
