@@ -15,7 +15,7 @@ class ObservationCountsSpec extends RESTSpec {
     /**
      *  given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"
      *  when: "I count observations for the concept Heart Rate"
-     *  then: "I get a count including observations from the restricted study"
+     *  then: "I get a count excluding observations from the restricted study"
      */
     def "restricted count"() {
         given: "Study SHARED_CONCEPTS_RESTRICTED_LOADED is loaded, and I do not have access"

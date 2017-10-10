@@ -788,11 +788,10 @@ paths:
                 Dimensions are described in the `header`. The order in which they appear in the header, determines the order in which they appear in the `cells` and footer. The value in the `dimensionIndexes` corresponds to the values in the `footer`.
               schema:
                 $ref: '#/definitions/observations'
-  /v2/observations/aggregate:
+  /v2/observations/aggregates_per_concept:
     get:
       description: |
-        Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'count', and
-        'values'. The first three require numeric variables, the last one categorical variables.
+        Calculates and returns an aggregates for both types of concepts, categorical and numerical.
       tags:
         - v2
       parameters:
@@ -801,31 +800,11 @@ paths:
           in: query
           description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\"}`.'
           type: string
-        - name: type
-          required: true
-          in: query
-          description: |
-            'min', 'max', 'average', 'count', or 'values'. This parameter can be specified multiple times to retrieve
-            multiple aggregates at once. The 'values' aggregate cannot be combined with the numeric aggregate types.
-          type: string
       responses:
         200:
           description: 'return the result in a json object. Example: `{min: 56}`.'
           schema:
-            type: object
-            description: 'only the value of the requested aggregate type will be present.'
-            properties:
-              min:
-                type: number
-              max:
-                type: number
-              average:
-                type: number
-              values:
-                type: array
-                items:
-                  type: string
-                description: A list of the distinct values for categorical variables
+            $ref: '#/definitions/aggregates'
     post:
       description: |
         Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -842,23 +821,12 @@ paths:
               constraint:
                 type: string
                 description: see GET parameters
-              type:
-                type: string
-                description: see GET parameters. Can be either a string or an array of strings.
-            required: [ "constraint", "type" ]
+            required: [ "constraint" ]
       responses:
         200:
-          description: 'return the result in a json object. Example: `{min: 56}`.'
+          description: 'return the result in a json object. Example: `{"aggregatesPerConcept": "GENDER": { "categoricalValueAggregatesPerConcept": { "valueCounts": { "Female": 323, "Male": 312} } }}`.'
           schema:
-            type: object
-            description: 'only the value of the requested aggregate type will be present.'
-            properties:
-              min:
-                type: number
-              max:
-                type: number
-              average:
-                type: number
+            $ref: '#/definitions/aggregates'
   /v2/observations/count:
     get:
       description: |
@@ -2395,3 +2363,24 @@ definitions:
       updateDate:
         type: string
         format: 'date-time'
+  aggregates:
+    type: object
+    description: 'only the value of the requested aggregate type will be present.'
+    properties:
+      aggregatesPerConcept:
+        default:
+         numericalValueAggregatesPerConcept:
+          min:
+            type: number
+          max:
+            type: number
+          average:
+            type: number
+          count:
+            type: number
+          std_dev:
+            type: number
+         categoricalValueAggregatesPerConcept:
+          valueCounts:
+            default:
+            type: number

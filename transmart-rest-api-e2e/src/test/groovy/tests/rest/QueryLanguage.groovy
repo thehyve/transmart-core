@@ -23,8 +23,7 @@ interface Operator {
 }
 
 interface QueryType {
-    String VALUES = 'values',
-           MIN = 'min',
+    String MIN = 'min',
            MAX = 'max',
            AVERAGE = 'average',
            COUNT = 'count',

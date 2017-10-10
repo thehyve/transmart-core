@@ -17,6 +17,7 @@ import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
+import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
@@ -50,7 +51,6 @@ import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
-import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.Study
@@ -316,69 +316,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         )
     }
 
-    Class aggregateReturnType(AggregateType at) {
-        switch (at) {
-            case AggregateType.COUNT:
-                return Long
-            case AggregateType.VALUES:
-                return List
-            default:
-                return Number
-        }
-    }
-
-    private String aggregateFieldType(AggregateType at) {
-        switch (at) {
-            case AggregateType.VALUES:
-                return ObservationFact.TYPE_TEXT
-            case AggregateType.COUNT:
-                return null
-            default:
-                return ObservationFact.TYPE_NUMBER
-        }
-    }
-
-    private static org.hibernate.criterion.Projection projectionForAggregate(AggregateType at) {
-        switch (at) {
-            case AggregateType.MIN:
-                return Projections.min('numberValue')
-            case AggregateType.AVERAGE:
-                return Projections.avg('numberValue')
-            case AggregateType.MAX:
-                return Projections.max('numberValue')
-            case AggregateType.COUNT:
-                return Projections.rowCount()
-            case AggregateType.PATIENT_COUNT:
-                return Projections.countDistinct('patient')
-            case AggregateType.VALUES:
-                return Projections.distinct(Projections.property('textValue'))
-            default:
-                throw new QueryBuilderException("Query type not supported: ${at}")
-        }
-    }
-
-    private Map getAggregate(List<AggregateType> aggregateTypes, DetachedCriteria criteria) {
-        List<Class> rts = aggregateTypes.collect { aggregateReturnType(it) }
-
-        if(rts.any { List.isAssignableFrom(it) }) {
-            if (rts.size() != 1) throw new InvalidQueryException("aggregates that return a list of values cannot be " +
-                    "combined with other aggregates in the same call")
-
-            criteria = criteria.setProjection(projectionForAggregate(aggregateTypes[0]))
-            def res = getList(criteria)
-            return [(aggregateTypes[0].toString()): res]
-
-        } else {
-            def projections = Projections.projectionList()
-            aggregateTypes.each {
-                projections.add(projectionForAggregate(it), it.toString())
-            }
-            criteria = criteria.setProjection(projections).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
-            def rv = get(criteria)
-            return rv
-        }
-    }
-
     private def get(DetachedCriteria criteria) {
         getExecutableCriteria(criteria).uniqueResult()
     }
@@ -434,8 +371,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         checkAccess(constraint, user)
         QueryBuilder builder = getCheckedQueryBuilder(user)
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
-                .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
-                .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .add(Projections.rowCount(), 'observationCount')
+                .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         def row = get(criteria) as Map
         def t2 = new Date()
@@ -458,8 +395,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         QueryBuilder builder = getCheckedQueryBuilder(user)
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
                 .add(Projections.groupProperty('conceptCode'), 'conceptCode')
-                .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
-                .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .add(Projections.rowCount(), 'observationCount')
+                .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List rows = getList(criteria)
         def t2 = new Date()
@@ -479,8 +416,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
                 .setProjection(Projections.projectionList()
                     .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
-                    .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
-                    .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                    .add(Projections.rowCount(), 'observationCount')
+                    .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List rows = getList(criteria)
         def t2 = new Date()
@@ -508,8 +445,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 .setProjection(Projections.projectionList()
                     .add(Projections.groupProperty('conceptCode'), 'conceptCode')
                     .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
-                    .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
-                    .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                    .add(Projections.rowCount(), 'observationCount')
+                    .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List result = getList(criteria)
         def t2 = new Date()
@@ -761,113 +698,53 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    /**
-     * @description Function for getting a aggregate value of a single field.
-     * The allowed queryTypes are MIN, MAX and AVERAGE.
-     * The responsibility for checking the queryType is allocated to the controller.
-     * @param query
-     * @param user
-     */
-    @Override Map aggregate(List<AggregateType> types, MultiDimConstraint constraint_, User user) {
-        def constraint = (Constraint) constraint_
+    @Override Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept(
+            MultiDimConstraint constraint, User user) {
+        assert constraint instanceof Constraint
         checkAccess(constraint, user)
 
         def builder = getCheckedQueryBuilder(user)
-
-        def fieldTypes = types.collect { aggregateFieldType(it) }.unique()
-        if(fieldTypes.findAll().size() > 1) throw new InvalidQueryException(
-                "aggregate queries on numeric and textual values can not be combined in a single call")
-
-        if(fieldTypes.size() == 0) return [:]
-
-        def typedConstraint = fieldTypes.size() != 1 ? constraint :
-                new AndConstraint(args: [constraint, new FieldConstraint(
-                    operator: Operator.EQUALS,
-                    field: valueTypeField,
-                    value: fieldTypes[0],
-                )])
-
-        // get aggregate value
-        DetachedCriteria queryCriteria = builder.buildCriteria(typedConstraint)
-        def result = getAggregate(types, queryCriteria)
-
-        if (result == null || result.values().any {it == null || (it instanceof List && ((List) it).empty)}) {
-            // results not found, do some diagnosis to discover why not so we can return a useful error message
-            diagnoseEmptyAggregate(types, constraint, builder)
-
-            // If diagnoseEmptyAggregate didn't throw any kind of exception, nothing left to do but to return the
-            // (empty) result
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
+        def projections = Projections.projectionList()
+        projections.add(Projections.groupProperty('conceptCode'), 'conceptCode')
+        projections.add(Projections.min('numberValue'), 'min')
+        projections.add(Projections.max('numberValue'), 'max')
+        projections.add(Projections.avg('numberValue'), 'avg')
+        projections.add(Projections.count('numberValue'), 'count')
+        projections.add(Projections.sqlProjection(
+                'STDDEV_SAMP(nval_num) as stdDev',
+                [ 'stdDev' ] as String[],
+                [ StandardBasicTypes.DOUBLE ] as org.hibernate.type.Type[]))
+        criteria
+                .setProjection(projections)
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+                .add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
+        getList(criteria).collectEntries { Map rowMap ->
+            String conceptCode = rowMap.remove('conceptCode')
+            [conceptCode, new NumericalValueAggregates(rowMap)]
         }
-
-        return result
     }
 
-    private void diagnoseEmptyAggregate(List<AggregateType> at, Constraint constraint,
-                                        HibernateCriteriaQueryBuilder builder) {
+    @Override Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept(
+            MultiDimConstraint constraint, User user) {
+        assert constraint instanceof Constraint
+        checkAccess(constraint, user)
 
-        // Find the concept
-        List<ConceptConstraint> conceptConstraintList = findConceptConstraints(constraint)
-
-        // check if the concept exists
-        def foundConceptPaths = ConceptDimension.getAll(conceptConstraintList*.path)*.conceptPath as Set
-        def nonexistantConstraints = conceptConstraintList.findAll { !(it.path in foundConceptPaths) }
-        if (nonexistantConstraints) {
-            throw new InvalidQueryException("Concept path(s) not found. Supplied path(s): " + nonexistantConstraints*.path.join(', '))
-        }
-        // check if there are any observations for the concept
-        if (!exists(builder, constraint)) {
-            throw new InvalidQueryException("No observations found for query")
-        }
-
-        at.collect {aggregateFieldType(it)}.unique().findAll().each {
-            def wrongValueTypeConstraint = new FieldConstraint(
-                    operator: Operator.NOT_EQUALS,
-                    field: valueTypeField,
-                    value: it,
-            )
-            if(exists(builder, new AndConstraint(args: [(Constraint) constraint, wrongValueTypeConstraint]))) {
-                throw new InvalidQueryException('One of the concepts/observations has the wrong type for this aggregation')
-            }
-        }
-
-        // check if the concept is truly numerical (all textValue are E and all numberValue have a value) or textual
-
-        def textTypeConstraint = new FieldConstraint(
-                operator: Operator.EQUALS,
-                field: valueTypeField,
-                value: ObservationFact.TYPE_TEXT,
-        )
-
-        def numberTypeConstraint = new FieldConstraint(
-                operator: Operator.EQUALS,
-                field: valueTypeField,
-                value: ObservationFact.TYPE_NUMBER,
-        )
-
-        def textValueEConstraint = new FieldConstraint(
-                operator: Operator.EQUALS,
-                field: textValueField,
-                value: "E"
-        )
-
-        // Transmart currently does not allow null values in the ObservationFacts, but it could be extended to allow
-        // that.
-        def numberValueNotNullConstraint = new Negation(arg: new NullConstraint(field: numberValueField))
-        def textValueNotNullConstraint = new Negation(arg: new NullConstraint(field: textValueField))
-
-        def invalidObservationConstraint = new Negation(arg: new OrConstraint(args: [
-                new AndConstraint(args: [numberTypeConstraint, textValueEConstraint, numberValueNotNullConstraint]),
-                new AndConstraint(args: [textTypeConstraint, textValueNotNullConstraint])
-        ]))
-
-        def invalidObservations = getIterable(builder.buildCriteria(
-                new AndConstraint(args: [(Constraint) constraint, invalidObservationConstraint])))
-
-        invalidObservations.withCloseable {
-            for(ObservationFact o in invalidObservations) {
-                // Retrieving the value will throw an exception
-                o.value
-            }
+        def builder = getCheckedQueryBuilder(user)
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
+        def projections = Projections.projectionList()
+        projections.add(Projections.groupProperty('conceptCode'), 'conceptCode')
+        projections.add(Projections.groupProperty('textValue'), 'textValue')
+        projections.add(Projections.rowCount(), 'count')
+        criteria.setProjection(projections)
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+                .add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
+        getList(criteria).groupBy { it.conceptCode }.collectEntries { String conceptCode, List<Map> rows ->
+            Map<String, Integer> valueCounts = rows.collectEntries { [ it.textValue, it.count ] }
+            [
+                    conceptCode,
+                    new CategoricalValueAggregates(valueCounts: valueCounts)
+            ]
         }
     }
 
