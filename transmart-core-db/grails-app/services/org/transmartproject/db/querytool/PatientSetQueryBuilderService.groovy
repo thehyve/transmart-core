@@ -23,6 +23,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
@@ -36,7 +37,7 @@ import static org.transmartproject.db.support.DatabasePortabilityService.Databas
 
 class PatientSetQueryBuilderService {
 
-    def conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
 
     def databasePortabilityService
 
@@ -52,7 +53,7 @@ class PatientSetQueryBuilderService {
             def itemPredicates = panel.items.collect { Item it ->
                 OntologyTerm term
                 try {
-                    term = conceptsResourceService.getByKey(it.conceptKey)
+                    term = ontologyTermsResourceService.getByKey(it.conceptKey)
                     if (!(term instanceof MetadataSelectQuerySpecification)) {
                         throw new InvalidArgumentsException("Ontology term " +
                                 "with key ${it.conceptKey} does not specify " +

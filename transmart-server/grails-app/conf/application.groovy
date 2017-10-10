@@ -22,6 +22,9 @@ grails.assets.bundle = true
 
 grails.resources.pattern = '/**'
 
+server.compression.enabled = true
+server.compression.mimeTypes = ['application/json', 'application/xml', 'text/html', 'text/xml', 'text/plain']
+
 grails.mime.disable.accept.header.userAgents = []
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.types = [html         : [

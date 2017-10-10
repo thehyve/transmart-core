@@ -25,7 +25,7 @@ import groovy.transform.CompileStatic
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory
 import org.hibernate.ScrollableResults
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.exceptions.UnexpectedResultException
 
@@ -82,7 +82,7 @@ import org.transmartproject.core.exceptions.UnexpectedResultException
  * @param < R > the type for the rows
  */
 @CompileStatic
-abstract class CollectingTabularResult<C, R extends DataRow>
+abstract class CollectingTabularResult<C, R extends ColumnOrderAwareDataRow>
         implements TabularResult<C, R>, Iterable<R> {
 
     static Log LOG = LogFactory.getLog(this.class)

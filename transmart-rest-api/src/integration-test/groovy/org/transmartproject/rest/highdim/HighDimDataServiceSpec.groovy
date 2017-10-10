@@ -32,7 +32,7 @@ import org.hamcrest.Description
 import org.hamcrest.DiagnosingMatcher
 import org.hamcrest.Matcher
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -69,8 +69,8 @@ class HighDimDataServiceSpec extends Specification {
     SampleBioMarkerTestData sampleBioMarkerTestData
     I2b2 concept
 
-    TabularResult<AssayColumn, DataRow> collectedTable
-    List<DataRow> expectedRows
+    TabularResult<AssayColumn, ColumnOrderAwareDataRow> collectedTable
+    List<ColumnOrderAwareDataRow> expectedRows
     boolean checkBioMarker
     boolean isDoubleType
 
@@ -78,7 +78,7 @@ class HighDimDataServiceSpec extends Specification {
         svc.resultTransformer = { TabularResult source ->
             collectedTable = new InMemoryTabularResult(source) //collecting the result
             expectedRows = collectedTable.rows.collect()
-            DataRow firstRow = expectedRows[0]
+            ColumnOrderAwareDataRow firstRow = expectedRows[0]
             checkBioMarker = firstRow instanceof BioMarkerDataRow
             isDoubleType = (firstRow.getAt(0) instanceof Number)
             collectedTable
@@ -298,10 +298,10 @@ class HighDimResultRowsMatcher extends DiagnosingMatcher<HighDimResult> {
 
     boolean multiProjection
 
-    List<DataRow> expectedRows
+    List<ColumnOrderAwareDataRow> expectedRows
 
     static HighDimResultRowsMatcher hasRowsMatchingSpecsAndDataRow(
-            List<DataRow> expectedRows, boolean multiProjection) {
+            List<ColumnOrderAwareDataRow> expectedRows, boolean multiProjection) {
         new HighDimResultRowsMatcher(
                 expectedRows: expectedRows,
                 multiProjection: multiProjection)
@@ -321,7 +321,7 @@ class HighDimResultRowsMatcher extends DiagnosingMatcher<HighDimResult> {
         }
 
         int i = 0
-        for (DataRow expectedRow in expectedRows) {
+        for (ColumnOrderAwareDataRow expectedRow in expectedRows) {
             Row gottenRow = result.rows[i]
 
             if (expectedRow instanceof BioMarkerDataRow) {
@@ -346,7 +346,7 @@ class HighDimResultRowsMatcher extends DiagnosingMatcher<HighDimResult> {
                 String propertyName = resultDataSpecs[j].name
                 ColumnType propertyType = resultDataSpecs[j].type
 
-                // for each DataRow, data is laid out assay first, but for
+                // for each ColumnOrderAwareDataRow, data is laid out assay first, but for
                 // the protobuf result it is data property ("column") first
 
                 def expectedValues = expectedRowValues.collect { assayValue ->

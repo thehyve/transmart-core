@@ -33,7 +33,7 @@ class SolrService {
         def termMap = [:]
 
         //For each of the categories, run a faceted search.
-        fieldMap.columns.each()
+        fieldMap.getDiscoveredColumns.each()
                 {
                     currentTerm ->
 

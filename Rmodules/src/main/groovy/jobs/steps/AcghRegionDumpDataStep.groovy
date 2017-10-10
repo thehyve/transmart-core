@@ -1,7 +1,7 @@
 package jobs.steps
 
 import com.google.common.collect.Lists
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.acgh.AcghValues
 import org.transmartproject.core.dataquery.highdim.chromoregion.RegionRow
@@ -18,7 +18,7 @@ class AcghRegionDumpDataStep extends AbstractDumpHighDimensionalDataStep {
     @Override
     protected computeCsvRow(String subsetName,
                             String seriesName,
-                            DataRow genericRow,
+                            ColumnOrderAwareDataRow genericRow,
                             AssayColumn column /* null */,
                             Object cell /* null */) {
         RegionRow<AcghValues> row = genericRow

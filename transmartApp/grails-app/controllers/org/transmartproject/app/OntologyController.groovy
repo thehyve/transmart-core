@@ -8,9 +8,8 @@ import grails.converters.JSON
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AuthUser
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
-import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTagsResource
 import org.transmartproject.core.ontology.Study
@@ -25,7 +24,7 @@ class OntologyController {
     def ontologyService
     def amTagTemplateService
     def amTagItemService
-    ConceptsResource conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
     OntologyTermTagsResource ontologyTermTagsResourceService
     HighDimensionResource highDimensionResourceService
 
@@ -88,7 +87,7 @@ class OntologyController {
     def showConceptDefinition = {
         def model = [:]
 
-        OntologyTerm term = conceptsResourceService.getByKey(params.conceptKey)
+        OntologyTerm term = ontologyTermsResourceService.getByKey(params.conceptKey)
 
         //high dimensional information
         if (term.visualAttributes.contains(HIGH_DIMENSIONAL)) {

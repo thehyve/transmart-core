@@ -3,14 +3,15 @@
 package org.transmartproject.db.multidimquery.query
 
 import groovy.transform.CompileStatic
+import groovy.transform.Memoized
 import org.grails.orm.hibernate.cfg.GrailsDomainBinder
 import org.grails.orm.hibernate.cfg.Mapping
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.dataquery.highdim.AssayColumnImpl
 import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
 import org.transmartproject.db.multidimquery.HddTabularResultHypercubeAdapter
@@ -29,19 +30,15 @@ class DimensionMetadata {
 
     static final Mapping observationFactMapping = GrailsDomainBinder.getMapping(ObservationFact)
 
-    protected static final Map<Dimension, DimensionMetadata> dimensionMetadataMap = DimensionDescription.allDimensions.
-            collectEntries([((Dimension) DimensionImpl.VALUE): new DimensionMetadata(DimensionImpl.VALUE)]) {
-                [it, new DimensionMetadata(it)]
-            }
-
     static final DimensionMetadata forDimensionName(String dimensionName) {
         def dim = DimensionImpl.fromName(dimensionName)
         if (dim == null) throw new QueryBuilderException("Dimension not found: ${dimensionName}")
         forDimension(dim)
     }
 
+    @Memoized
     static final DimensionMetadata forDimension(Dimension dimension) {
-        dimensionMetadataMap[dimension]
+        new DimensionMetadata(dimension)
     }
 
     static final Field getField(String dimensionName, String fieldName) {
@@ -54,8 +51,10 @@ class DimensionMetadata {
     }
 
     static final List<Field> getSupportedFields() {
-        dimensionMetadataMap.values().collectMany {
-            (it.type in [COLUMN, TABLE, VISIT]) ? it.fields : [] as List<Field> }
+        (DimensionDescription.allDimensions + DimensionImpl.VALUE)
+                .collect{ forDimension(it) }
+                .collectMany {
+                    (it.type in [COLUMN, TABLE, VISIT]) ? it.fields : [] as List<Field> }
     }
 
     DimensionImpl.ImplementationType getType() { dimension.implementationType }

@@ -21,11 +21,11 @@ package org.transmartproject.db.dataquery
 
 import groovy.transform.CompileStatic
 import org.transmartproject.core.dataquery.DataColumn
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 
 @CompileStatic
-class InMemoryTabularResult<I extends DataColumn, R extends DataRow> implements TabularResult<I,R> {
+class InMemoryTabularResult<I extends DataColumn, R extends ColumnOrderAwareDataRow> implements TabularResult<I,R> {
 
     @Delegate
     private TabularResult delegate

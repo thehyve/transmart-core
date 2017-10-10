@@ -52,7 +52,9 @@ class PatientDimension implements Patient {
 
     static transients = ['sex', 'trial', 'inTrialId']
 
-    static hasMany = [assays: DeSubjectSampleMapping]
+    static hasMany = [assays: DeSubjectSampleMapping, mappings: PatientMapping]
+
+    static mappedBy = [mappings: 'patient']
 
     static mapping = {
         table         name:      'patient_dimension', schema: 'i2b2demodata'

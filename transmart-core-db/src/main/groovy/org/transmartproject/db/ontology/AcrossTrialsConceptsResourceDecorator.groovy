@@ -20,16 +20,24 @@
 package org.transmartproject.db.ontology
 
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.concept.ConceptKey
 
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TABLE_CODE
 import static org.transmartproject.db.ontology.AbstractAcrossTrialsOntologyTerm.ACROSS_TRIALS_TOP_TERM_NAME
 
-class AcrossTrialsConceptsResourceDecorator implements ConceptsResource {
+/**
+ * Across trial functionality by means of special 'Across trial' nodes and modifiers
+ * is deprecated.
+ * Instead, patients, concepts and nodes are shared by default and observations can be associated
+ * with studies through the trial visit dimension (@see {@link org.transmartproject.db.i2b2data.TrialVisit}).
+ * Tree nodes can still be made study specific (@see {@link I2b2Secure}).
+ */
+@Deprecated
+class AcrossTrialsConceptsResourceDecorator implements OntologyTermsResource {
 
-    ConceptsResource inner
+    OntologyTermsResource inner
 
     private final OntologyTerm topTerm = new AcrossTrialsTopTerm()
 

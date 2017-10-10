@@ -27,7 +27,6 @@ import org.transmartproject.db.i2b2data.PatientDimension
 
 class QtQueryResultInstance implements QueryResult {
 
-    Short resultTypeId = 1
     Long setSize
     Date startDate
     Date endDate
@@ -38,6 +37,7 @@ class QtQueryResultInstance implements QueryResult {
     Long realSetSize
     String obfuscMethod
     QtQueryInstance queryInstance
+    QtQueryResultType queryResultType
 
     static belongsTo = QtQueryInstance
 
@@ -55,6 +55,7 @@ class QtQueryResultInstance implements QueryResult {
                 params: [sequence: 'qt_sq_qri_qriid', schema: 'i2b2demodata']
         errorMessage column: 'message'
         queryInstance column: 'query_instance_id', fetch: 'join'
+        queryResultType column: 'result_type_id', fetch: 'join'
 
         patientsA joinTable: [name  : 'qt_patient_set_collection',
                               key   : 'result_instance_id',

@@ -10,7 +10,7 @@ import org.transmartproject.core.IterableResult
  * @param < I > The type for the row indexes
  * @param < R > The type for the rows themselves
  */
-public interface TabularResult<I extends DataColumn, R extends DataRow> extends IterableResult<R> {
+interface TabularResult<I extends DataColumn, R extends DataRow> extends IterableResult<R> {
 
     /**
      * Used to obtain the "columns" of the result set' the indices used to

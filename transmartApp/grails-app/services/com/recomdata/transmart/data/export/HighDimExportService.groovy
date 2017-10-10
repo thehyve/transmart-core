@@ -1,7 +1,7 @@
 package com.recomdata.transmart.data.export
 
 import au.com.bytecode.opencsv.CSVWriter
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
@@ -11,6 +11,7 @@ import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstra
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.export.HighDimExporter
 
 class HighDimExportService {
@@ -40,7 +41,7 @@ class HighDimExportService {
     def highDimensionResourceService
     def highDimExporterRegistry
     def queriesResourceService
-    def conceptsResourceService
+    OntologyTermsResource ontologyTermsResourceService
     def ontologyTermTagsResourceService
 
     def jobResultsService
@@ -77,7 +78,7 @@ class HighDimExportService {
 
         def ontologyTerms
         if (conceptKeys) {
-            ontologyTerms = conceptKeys.collect { conceptsResourceService.getByKey it }
+            ontologyTerms = conceptKeys.collect { ontologyTermsResourceService.getByKey it }
         } else {
             def queryResult = queriesResourceService.getQueryResultFromId(resultInstanceId)
             ontologyTerms = dataTypeResource.getAllOntologyTermsForDataTypeBy(queryResult)
@@ -143,7 +144,7 @@ class HighDimExportService {
             log.debug("[job=${jobName} key=${term.key}] " +
                     "Retrieving the HD data for the term and a patient set: ${resultInstanceId}.")
         }
-        TabularResult<AssayColumn, DataRow> tabularResult =
+        TabularResult<AssayColumn, ColumnOrderAwareDataRow> tabularResult =
                 dataTypeResource.retrieveData(assayConstraints, [], projection)
 
         File nodeDataFolder = new File(studyDir, getRelativeFolderPathForSingleNode(term))

@@ -1,10 +1,8 @@
 package org.transmartproject.core.dataquery
 
-public interface DataRow<COL, CELL> extends Iterable<CELL> {
+interface DataRow<COL extends DataColumn, CELL> {
 
     String getLabel()
-
-    CELL getAt(int index)
 
     CELL getAt(COL column)
 }

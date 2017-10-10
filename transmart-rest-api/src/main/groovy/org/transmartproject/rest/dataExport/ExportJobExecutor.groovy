@@ -2,7 +2,6 @@ package org.transmartproject.rest.dataExport
 
 import grails.persistence.support.PersistenceContextInterceptor
 import grails.util.Holders
-
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.StringUtils
 import org.quartz.Job
@@ -25,7 +24,7 @@ class ExportJobExecutor implements Job {
 
     final String tempFolderDirectory = Holders.config.com.recomdata.plugins.tempFolderDirectory
 
-    public void execute(JobExecutionContext jobExecutionContext) {
+    void execute(JobExecutionContext jobExecutionContext) {
         Map jobDataMap = jobExecutionContext.jobDetail.getJobDataMap()
 
         PersistenceContextInterceptor interceptor
@@ -35,6 +34,7 @@ class ExportJobExecutor implements Job {
             zipData(jobDataMap)
         } catch (UnexpectedResultException e) {
             asyncJobService.updateStatus(jobDataMap.jobId, JobStatus.ERROR, null, e.message)
+            log.error("Error during exporting data.", e)
         } finally {
             interceptor.flush()
             interceptor.destroy()
@@ -54,12 +54,10 @@ class ExportJobExecutor implements Job {
         try {
             asyncJobService.updateStatus(jobId, JobStatus.GATHERING_DATA)
             exportService.exportData(jobDataMap, zipFile)
-        }
-        catch (all) {
-            log.error 'An exception occurred during data export job', all.message
-            throw new UnexpectedResultException("An exception occurred during data export job: $all.message")
-        }
-        finally {
+        } catch (Exception e) {
+            log.error 'An exception occurred during data export job', e
+            throw e
+        } finally {
             zipFile.close()
         }
         asyncJobService.updateStatus(jobId, JobStatus.COMPLETED, fileName)
@@ -67,7 +65,7 @@ class ExportJobExecutor implements Job {
 
     private String getFilePath(String inputFileName, String userName) {
 
-        String jobTmpDirectory = ''
+        String jobTmpDirectory
         if (StringUtils.isEmpty(tempFolderDirectory)) {
             jobTmpDirectory = '/var/tmp/jobs/'
         } else {

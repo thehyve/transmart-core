@@ -27,7 +27,7 @@ import org.transmartproject.db.dataquery.clinical.InnerClinicalTabularResultFact
 import org.transmartproject.db.dataquery.clinical.variables.ClinicalVariableFactory
 import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeModule
 import org.transmartproject.db.ontology.AcrossTrialsConceptsResourceDecorator
-import org.transmartproject.db.ontology.DefaultConceptsResource
+import org.transmartproject.db.ontology.DefaultOntologyTermsResource
 import org.transmartproject.db.support.DatabasePortabilityService
 
 class TransmartCoreGrailsPlugin extends Plugin {
@@ -76,11 +76,11 @@ A runtime dependency for tranSMART that implements the Core API
         innerClinicalTabularResultFactory(InnerClinicalTabularResultFactory)
 
         if (haveAcrossTrials) {
-            conceptsResourceService(AcrossTrialsConceptsResourceDecorator) {
-                inner = new DefaultConceptsResource()
+            ontologyTermsResourceService(AcrossTrialsConceptsResourceDecorator) {
+                inner = new DefaultOntologyTermsResource()
             }
         } else {
-            conceptsResourceService(DefaultConceptsResource)
+            ontologyTermsResourceService(DefaultOntologyTermsResource)
         }
 
         context.'component-scan'('base-package': 'org.transmartproject.db.dataquery.highdim') {

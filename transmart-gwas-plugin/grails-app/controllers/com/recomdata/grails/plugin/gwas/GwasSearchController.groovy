@@ -1,6 +1,6 @@
 package com.recomdata.grails.plugin.gwas
 
-import au.com.bytecode.opencsv.CSVWriter
+import com.opencsv.CSVWriter
 import com.recomdata.transmart.domain.searchapp.FormLayout
 import grails.converters.JSON
 import grails.web.mapping.LinkGenerator

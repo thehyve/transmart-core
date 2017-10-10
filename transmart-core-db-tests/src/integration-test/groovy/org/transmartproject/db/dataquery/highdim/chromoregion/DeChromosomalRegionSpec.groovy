@@ -30,9 +30,10 @@ import org.transmartproject.db.TransmartSpecification
 @Rollback
 class DeChromosomalRegionSpec extends TransmartSpecification {
 
-    AcghTestData testData = new AcghTestData()
+    AcghTestData testData
 
     void setupData() {
+        testData = new AcghTestData()
         assert testData.regionPlatform.save() instanceof Platform
         testData.regions*.save()
         //testData.regions.each { assert it instanceof Region}

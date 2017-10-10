@@ -2,12 +2,9 @@
 
 package org.transmartproject.db.tree
 
-import groovy.util.logging.Slf4j
+import groovy.transform.CompileStatic
 import org.hibernate.SessionFactory
-import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.DetachedCriteria
-import org.hibernate.criterion.MatchMode
-import org.hibernate.criterion.Order
 import org.hibernate.criterion.Restrictions
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
@@ -15,20 +12,21 @@ import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
 import org.transmartproject.core.ontology.OntologyTermTagsResource
+import org.transmartproject.core.tree.TreeNode
+import org.transmartproject.core.tree.TreeResource
+import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
-import org.transmartproject.db.metadata.DimensionDescription
-import org.transmartproject.db.multidimquery.DimensionImpl
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.ConstraintFactory
 import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User
 import org.transmartproject.db.util.StringUtils
 
 import javax.annotation.Resource
 
-@Slf4j
-class TreeService {
+class TreeService implements TreeResource {
+
+    @Autowired
+    UsersResource usersResource
 
     @Autowired
     AccessControlChecks accessControlChecks
@@ -39,99 +37,29 @@ class TreeService {
     @Resource
     OntologyTermTagsResource tagsResource
 
+    @Autowired
+    TreeCacheService treeCacheService
+
     SessionFactory sessionFactory
 
-    public static final String ROOT = '\\'
-
-    /**
-     * Create a forest from a flat list of tree nodes, i.e., children will be attached
-     * to their parents.
-     *
-     * @param nodes a flat list of tree nodes.
-     * @return a forest of nodes.
-     */
-    static List<TreeNode> buildForest(List<I2b2Secure> nodes) {
-        Map<Integer, List<I2b2Secure>> leveledNodes = nodes.groupBy { it.level }
-        Map<Integer, List<TreeNode>> forest = [:]
-        def levels = leveledNodes.keySet().sort().reverse()
-        if (levels.empty) {
-            return []
-        }
-        levels.each { int level ->
-            def levelNodes = leveledNodes[level]
-            def lowerBranches = forest[level + 1] ?: []
-            def levelForest = []
-            levelNodes.each { I2b2Secure currentNode ->
-                def children = lowerBranches.findAll { TreeNode branch ->
-                    branch.fullName.startsWith(currentNode.fullName)
-                }.sort { it.name }
-                if (children.empty) {
-                    children = null
-                }
-                def node = new TreeNode(
-                        currentNode,
-                        children
-                )
-                node.conceptPath = getConceptPath(node.tableName, node.dimensionCode)
-                node.dimension = getDimension(node.tableName, currentNode.code)
-                node.children.each { child ->
-                    child.parent = node
-                }
-                levelForest.add(node)
-            }
-            forest[level] = levelForest
-        }
-        def topLevel = levels.min()
-        forest[topLevel]
-    }
-
-    static Criterion startsWith(String propertyName, String value) {
-        StringUtils.like(propertyName, value, MatchMode.START)
-    }
-
-    static Criterion like(String propertyName, String value) {
-        StringUtils.like(propertyName, value, MatchMode.EXACT)
-    }
-
-    static Criterion contains(String propertyName, String value) {
-        StringUtils.like(propertyName, value, MatchMode.ANYWHERE)
-    }
-
-    static String getDimension(String table, String modifierCode) {
-        switch (table) {
-            case 'concept_dimension':
-                return DimensionImpl.CONCEPT.name
-            case 'patient_dimension':
-                return DimensionImpl.PATIENT.name
-            case 'modifier_dimension':
-                return DimensionDescription.findByModifierCode(modifierCode)?.name
-            case 'trial_visit_dimension':
-                return DimensionImpl.TRIAL_VISIT.name
-            case 'study':
-                return DimensionImpl.STUDY.name
-        }
-        return 'UNKNOWN'
-    }
-
-    static String getConceptPath(String table, String code){
-        return table == 'concept_dimension' ? code : null
-    }
-    
     /**
      * Adds observation counts and patient counts to leaf nodes.
      */
+    @CompileStatic
     void enrichWithCounts(List<TreeNode> forest, User user) {
-        forest.each { TreeNode node ->
+        if (!forest) {
+            return
+        }
+        forest.each { TreeNode it ->
+            def node = it as TreeNodeImpl
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
                 if (node.tableName == 'concept_dimension' && node.constraint) {
-                    Constraint constraint = ConstraintFactory.create(node.constraint)
-                    node.observationCount = multiDimensionalDataResource.cachedCount(constraint, user)
-                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(constraint, user)
+                    node.observationCount = multiDimensionalDataResource.cachedCount(node.constraint, user)
+                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(node.constraint, user)
                 }
             } else {
                 if (OntologyTerm.VisualAttributes.STUDY in node.visualAttributes && node.constraint) {
-                    Constraint constraint = ConstraintFactory.create(node.constraint)
-                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(constraint, user)
+                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(node.constraint, user)
                 }
                 enrichWithCounts(node.children, user)
             }
@@ -141,13 +69,46 @@ class TreeService {
     /**
      * Adds metadata tags to tree nodes.
      */
+    @CompileStatic
     void enrichWithTags(List<TreeNode> forest, User user) {
-        def terms = forest*.delegate as Set<I2b2Secure>
-        Map<OntologyTerm, List<OntologyTermTag>> map = tagsResource.getTags(terms, false)
-        forest.each { TreeNode node ->
-            node.tags = map.get(node.delegate)
+        if (!forest) {
+            return
+        }
+        def termPaths = forest*.fullName as Set<String>
+        Map<String, List<OntologyTermTag>> map = tagsResource.getTags(termPaths)
+        forest.each { TreeNode it ->
+            def node = it as TreeNodeImpl
+            node.tags = map.get(node.fullName)
             enrichWithTags(node.children, user)
         }
+    }
+
+    private List<String> getStudyTokens(User user) {
+        List<String> studyTokens = []
+        if (!user.admin) {
+            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user) as Collection<Study>
+            studyTokens = studies*.secureObjectToken
+        }
+        studyTokens
+    }
+
+    private I2b2Secure fetchRootNode(User user, String rootKey) {
+        if (rootKey == I2b2Secure.ROOT) {
+            return null
+        }
+        DetachedCriteria criteria = DetachedCriteria.forClass(I2b2Secure)
+                .add(StringUtils.like('fullName', rootKey))
+
+        if (!user.admin) {
+            List<String> tokens = [Study.PUBLIC, 'EXP:PUBLIC'] + getStudyTokens(user)
+            criteria = criteria.add(Restrictions.in('secureObjectToken', tokens))
+        }
+
+        I2b2Secure root = criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult() as I2b2Secure
+        if (!root) {
+            throw new AccessDeniedException("Access denied to path: ${rootKey}")
+        }
+        root
     }
 
     /**
@@ -165,56 +126,23 @@ class TreeService {
      * @return a forest, represented as a list of the top level nodes. Lower nodes will be children
      * of their ancestor nodes.
      */
-    List<TreeNode> findNodesForUser(String rootKey, Integer depth, Boolean includeCounts, Boolean includeTags, User user) {
-        rootKey = rootKey ?: ROOT
+    @CompileStatic
+    List<TreeNode> findNodesForUser(String rootKey, Integer depth, Boolean includeCounts, Boolean includeTags, org.transmartproject.core.users.User currentUser) {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        rootKey = rootKey ?: I2b2Secure.ROOT
         depth = depth ?: 0
         includeCounts = includeCounts ?: Boolean.FALSE
         includeTags = includeTags ?: Boolean.FALSE
 
-        List<String> tokens = [Study.PUBLIC, 'EXP:PUBLIC']
-        if (!user.admin) {
-            Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user)
-            tokens += studies*.secureObjectToken
+        I2b2Secure root = fetchRootNode(user, rootKey)
+        int maxLevel = depth
+        if (depth > 0 && root) {
+            maxLevel += root.level
         }
+        List<TreeNode> forest = treeCacheService.fetchCachedSubtree(user.admin, getStudyTokens(user), rootKey, maxLevel)
 
-        int toplevel = -1
-        String prefix = ROOT
-        if (rootKey != ROOT) {
-            DetachedCriteria criteria = DetachedCriteria.forClass(I2b2Secure)
-                    .add(like('fullName', rootKey))
-            if (!user.admin) {
-                criteria = criteria.add(Restrictions.in('secureObjectToken', tokens))
-            }
-
-            def root = criteria.getExecutableCriteria(sessionFactory.currentSession).uniqueResult() as I2b2Secure
-            if (!root) {
-                throw new AccessDeniedException("Access denied to path: ${rootKey}")
-            }
-            toplevel = root.level
-            prefix = root.fullName
-        }
-
-        DetachedCriteria criteria = DetachedCriteria.forClass(I2b2Secure)
-                .add(startsWith('fullName', prefix))
-                .add(Restrictions.ge('level', toplevel))
-        if (!user.admin) {
-            criteria = criteria.add(Restrictions.in('secureObjectToken', tokens))
-        }
-        if (depth > 0) {
-            criteria.add(Restrictions.lt('level', toplevel + depth))
-        }
-        criteria.addOrder(Order.desc('level'))
-        criteria.addOrder(Order.desc('fullName'))
-        def t1 = new Date()
-        List<I2b2Secure> nodes = criteria.getExecutableCriteria(sessionFactory.currentSession).list()
-        nodes.unique { it.fullName }
-        def t2 = new Date()
-        log.debug "Found ${nodes.size()} nodes. Query took ${t2.time - t1.time} ms."
-
-        def forest = buildForest(nodes)
-        def t3 = new Date()
-        log.debug "Forest growing took ${t3.time - t2.time} ms."
         if (includeCounts) {
+            def t3 = new Date()
             enrichWithCounts(forest, user)
             def t4 = new Date()
             log.debug "Adding counts took ${t4.time - t3.time} ms."
@@ -227,4 +155,21 @@ class TreeService {
         }
         forest
     }
+
+    /**
+     * Clears the tree node cache. This function should be called after loading, removing or updating
+     * tree nodes in the database.
+     * Only available for administrators.
+     *
+     * @param currentUser the current user.
+     *
+     */
+    void clearCache(org.transmartproject.core.users.User currentUser) {
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        if (!user.admin) {
+            throw new AccessDeniedException('Only allowed for administrators.')
+        }
+        treeCacheService.clearAllCacheEntries()
+    }
+
 }

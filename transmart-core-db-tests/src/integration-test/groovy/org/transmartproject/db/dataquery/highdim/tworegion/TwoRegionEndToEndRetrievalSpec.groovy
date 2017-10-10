@@ -22,7 +22,7 @@ package org.transmartproject.db.dataquery.highdim.tworegion
 import com.google.common.collect.Lists
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.transmartproject.core.dataquery.DataRow
+import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -164,12 +164,12 @@ class TwoRegionEndToEndRetrievalSpec extends TransmartSpecification {
 
         when:
         dataQueryResult = resource.retrieveData([trialNameConstraint], [], projection)
-        List<DataRow<AssayColumn, Junction>> resultList = Lists.newArrayList(dataQueryResult)
+        List<ColumnOrderAwareDataRow<AssayColumn, Junction>> resultList = Lists.newArrayList(dataQueryResult)
 
         then:
         dataQueryResult.indicesList.size() == testData.assays.size()
         resultList.size() == testData.junctions.size()
-        resultList.every { DataRow<AssayColumn, Junction> row ->
+        resultList.every { ColumnOrderAwareDataRow<AssayColumn, Junction> row ->
             def foundIndex
             def foundAssayColumn
             dataQueryResult.indicesList.eachWithIndex { AssayColumn assayColumn, int index ->

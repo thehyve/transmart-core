@@ -23,7 +23,6 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Property
 import org.transmartproject.core.ontology.MDStudy
-import org.transmartproject.db.clinical.MultidimensionalDataResourceService
 import org.transmartproject.db.clinical.Query
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.TrialVisit
@@ -327,9 +326,12 @@ trait CompositeElemDim<ELT,ELKey> {
     }
 }
 
+interface AliasAwareDimension {
+    String getAlias()
+}
 
 @CompileStatic @InheritConstructors
-abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> {
+abstract class I2b2Dimension<ELT,ELKey> extends DimensionImpl<ELT,ELKey> implements AliasAwareDimension {
     SessionFactory sessionFactory
     abstract String getAlias()
     abstract String getColumnName()
@@ -546,7 +548,7 @@ class PatientDimension extends I2b2Dimension<I2B2PatientDimension, Long> impleme
 class ConceptDimension extends I2b2NullablePKDimension<I2b2ConceptDimensions, String> implements
         CompositeElemDim<I2b2ConceptDimensions, String> {
     Class elemType = I2b2ConceptDimensions
-    List elemFields = ["conceptPath", "conceptCode"]
+    List elemFields = ["conceptPath", "conceptCode", "name"]
     String joinProperty = 'conceptCode'
     String name = 'concept'
     String alias = 'conceptCode'
@@ -640,12 +642,12 @@ class LocationDimension extends I2b2Dimension<String,String> implements Serializ
 
 @CompileStatic @InheritConstructors
 class VisitDimension extends DimensionImpl<I2b2VisitDimension, VisitKey> implements
-        CompositeElemDim<I2b2VisitDimension, VisitKey> {
+        CompositeElemDim<I2b2VisitDimension, VisitKey>, AliasAwareDimension {
     Class elemType = I2b2VisitDimension
     List elemFields = ["patientInTrialId", "encounterNum", "activeStatusCd", "startDate", "endDate", "inoutCd",
                                       "locationCd"]
     String name = 'visit'
-    static String alias = 'encounterNum'
+    String alias = 'encounterNum'
     ImplementationType implementationType = ImplementationType.VISIT
 
     @Override def selectIDs(Query query) {

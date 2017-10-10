@@ -13,4 +13,12 @@ interface OntologyTermTagsResource {
      */
     Map<OntologyTerm, List<OntologyTermTag>> getTags(Set<OntologyTerm> ontologyTerms, boolean includeDescendantsTags)
 
+    /**
+     * Retrieve the tags associated with ontology terms.
+     *
+     * @param ontologyTermPaths the paths of the terms for which to retrieve the tags.
+     * @return a map from the path of the terms to the list of associated tags.
+     */
+    Map<String, List<OntologyTermTag>> getTags(Set<String> ontologyTermPaths)
+
 }

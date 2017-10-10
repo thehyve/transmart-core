@@ -27,10 +27,12 @@ package org.transmartproject.rest.marshallers
 
 import grails.converters.JSON
 import grails.rest.Link
+import groovy.util.logging.Slf4j
 import org.grails.web.converters.marshaller.ObjectMarshaller
 
 import static grails.rest.render.util.AbstractLinkingRenderer.*
 
+@Slf4j
 class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
 
     public static final String LINKS_ATTRIBUTE = '_links'
@@ -57,6 +59,7 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
             segregateEmbedded mapRepresentation, object
         }
 
+        log.error(mapRepresentation.toString())
         json.value mapRepresentation
     }
 

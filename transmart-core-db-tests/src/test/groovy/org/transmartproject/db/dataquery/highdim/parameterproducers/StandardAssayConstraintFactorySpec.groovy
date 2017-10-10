@@ -23,7 +23,7 @@ import org.transmartproject.core.concept.ConceptKey
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.querytool.QueriesResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.db.dataquery.highdim.assayconstraints.*
@@ -39,7 +39,7 @@ class StandardAssayConstraintFactorySpec extends Specification {
 
     void setup() {
         testee = new StandardAssayConstraintFactory()
-        testee.conceptsResource = Mock(ConceptsResource)
+        testee.conceptsResource = Mock(OntologyTermsResource)
         testee.queriesResource = Mock(QueriesResource)
     }
 

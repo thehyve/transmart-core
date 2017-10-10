@@ -20,6 +20,7 @@ public interface Patient {
      *
      * @return the trial name (all uppercase) or null
      */
+    @Deprecated
     String getTrial()
 
     /**
@@ -29,6 +30,7 @@ public interface Patient {
      *
      * @return the trial-specific id or null
      */
+    @Deprecated
     String getInTrialId()
 
     /**

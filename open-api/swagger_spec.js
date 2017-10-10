@@ -904,6 +904,219 @@ var spec = {
         }
       }
     },
+    "/v2/observations/counts_per_study": {
+      "get": {
+        "description": "Counts the number of observations and patients that satisfy the given constraint and groups them by study.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "query",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from study id to counts. Example: `{countsPerStudy: {SHARED_A: 2, SHARED_B: 3}}`.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerStudy": {
+                  "$ref": "#/definitions/CountsMap"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                }
+              },
+              "required": [
+                "constraint"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from study id to counts. Example: `{countsPerStudy: {SHARED_A: 2, SHARED_B: 3}}`.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerStudy": {
+                  "$ref": "#/definitions/CountsMap"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/observations/counts_per_concept": {
+      "get": {
+        "description": "Counts the number of observations and patients that satisfy the given constraint and groups them by concept.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "query",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from concept code to counts. Example: `{countsPerConcept: {\"DEM:AGE\": 2, \"HR\": 3}}`.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerConcept": {
+                  "$ref": "#/definitions/CountsMap"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                }
+              },
+              "required": [
+                "constraint"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from concept code to counts. Example: `{countsPerConcept: {\"DEM:AGE\": 2, \"HR\": 3}}`.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerConcept": {
+                  "$ref": "#/definitions/CountsMap"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/observations/counts_per_study_and_concept": {
+      "get": {
+        "description": "Counts the number of observations and patients that satisfy the given constraint and groups them by study and concept.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "query",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from study id to a map from concept code to counts.\nExample: `{countsPerStudy: {\"SHARED_A\": {\"DEM:AGE\": 2, \"HR\": 3}, \"SHARED_B\": {\"DEM:AGE\": 1}}}`.\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerStudy": {
+                  "$ref": "#/definitions/CountsMapMap"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                }
+              },
+              "required": [
+                "constraint"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result as a json object with a map from study id to a map from concept code to counts.\nExample: `{countsPerStudy: {\"SHARED_A\": {\"DEM:AGE\": 2, \"HR\": 3}, \"SHARED_B\": {\"DEM:AGE\": 1}}}`.\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "countsPerStudy": {
+                  "$ref": "#/definitions/CountsMapMap"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/patients": {
       "get": {
         "description": "Gets all patients that have an observation that satisfy the given constaint. Only patients that the calling user has access to are returned.\n",
@@ -1072,6 +1285,58 @@ var spec = {
             "schema": {
               "$ref": "#/definitions/patient_set"
             }
+          }
+        }
+      }
+    },
+    "/v2/concepts": {
+      "get": {
+        "description": "Gets all concepts the user has access to.\nSimilar to `/v2/dimensions/concept/elements` without any constraint.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the concepts that the user has access to.\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "concepts": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/concept"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/concepts/{conceptCode}": {
+      "get": {
+        "description": "Gets the concepts with the provided concept code if it exists and the user has access to it.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "conceptCode",
+            "required": true,
+            "in": "path",
+            "description": "Concept code of the concept.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the concept if it exists and the user has access to it.\n",
+            "schema": {
+              "$ref": "#/definitions/concept"
+            }
+          },
+          "404": {
+            "description": "No concept exists with the concept code, or the user does not have access to the concept.\n"
           }
         }
       }
@@ -1712,24 +1977,23 @@ var spec = {
             "schema": {
               "type": "object",
               "properties": {
-                "typeOfSet": {
-                  "type": "string",
-                  "description": "specifies the type of the set you want to retrieve. For patient_set specify `patient`, for observation_set specify `observation`"
-                },
                 "id": {
                   "type": "array",
-                  "description": "IDs of the set specified by `typeOfSet`. To specify more than one value, multiple parameter instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`.",
+                  "description": "result instance ids. To specify more than one value, multiple parameter instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`.",
                   "items": {
                     "type": "integer"
                   }
                 },
+                "constraint": {
+                  "type": "string",
+                  "description": "observations that meet this constraint get exported. Note: whether id or constraint has to be supplied, not both. Example: `constraint={\"type\": \"study_name\", \"studyId\": \"EHR\"}`."
+                },
                 "elements": {
                   "type": "string",
-                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:$(fileFormat}]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. Example: `[{\"dataType\":clinical, \"format\":TSV},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`."
+                  "description": "json that specifies the list of pairs: `[{dataType:${dataType}, format:${fileFormat}, tabular:<boolean>]`, where `dataType` is a type of the data you want to retrieve, either `clinical` for clinical data, or one of the supported high dimensional data types and `format` is one of the supported file formats you want to export current data type to. The tabular flag (optional, false by default) specifies whether represent hypercube data as wide filer format where patients are rows and columns are variables. Example: `[{\"dataType\":clinical, \"format\":TSV, \"tabular\":true},{\"dataType\":rnaseq_transcript, \"format\":TSV}]`."
                 }
               },
               "required": [
-                "typeOfSet",
                 "id",
                 "elements"
               ]
@@ -1829,19 +2093,12 @@ var spec = {
             "name": "id",
             "required": true,
             "in": "query",
-            "description": "IDs of the set specified by `typeOfSet`. To specify more than one value, multiple parameter instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`",
+            "description": "Result instance ids. To specify more than one value, multiple parameter instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`",
             "type": "array",
             "collectionFormat": "multi",
             "items": {
               "type": "integer"
             }
-          },
-          {
-            "name": "typeOfSet",
-            "required": true,
-            "in": "query",
-            "description": "specifies the type of the set you want to retrieve. For patient_set specify `patient`, for observation_set specify `observation`.",
-            "type": "string"
           }
         ],
         "responses": {
@@ -1885,6 +2142,152 @@ var spec = {
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v2/queries": {
+      "get": {
+        "description": "Gets a list of all queries for current user.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "an object that contains an array with all queries for current user.\n",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "queries": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/userQuery"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new user query with the properties provided in the body.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "patientsQuery": {
+                  "type": "object"
+                },
+                "observationsQuery": {
+                  "type": "object"
+                },
+                "bookmarked": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "returns the added user query object.\n",
+            "schema": {
+              "$ref": "#/definitions/userQuery"
+            }
+          }
+        }
+      }
+    },
+    "/v2/queries/{id}": {
+      "get": {
+        "description": "Gets the user query with the given `id`\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns the user query object.\n",
+            "schema": {
+              "$ref": "#/definitions/userQuery"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Updates the user query with given id with the values in the body.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "patientsQuery": {
+                  "type": "object"
+                },
+                "observationsQuery": {
+                  "type": "object"
+                },
+                "bookmarked": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "replies with the 204 http status if the update finished successfully."
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes the user query with the given id.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "returns null"
           }
         }
       }
@@ -2308,6 +2711,53 @@ var spec = {
         }
       }
     },
+    "concept": {
+      "type": "object",
+      "properties": {
+        "conceptCode": {
+          "type": "string"
+        },
+        "conceptPath": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Counts": {
+      "type": "object",
+      "properties": {
+        "observationCount": {
+          "type": "integer"
+        },
+        "patientCount": {
+          "type": "integer"
+        }
+      }
+    },
+    "CountsMap": {
+      "description": "a map from string to Counts. `default` is an example key.",
+      "properties": {
+        "default": {
+          "$ref": "#/definitions/Counts"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/Counts"
+      }
+    },
+    "CountsMapMap": {
+      "description": "a map from string to a map from string to Counts. `default` is an example key.",
+      "properties": {
+        "default": {
+          "$ref": "#/definitions/CountsMap"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/CountsMap"
+      }
+    },
     "observation": {
       "type": "object",
       "properties": {
@@ -2506,6 +2956,37 @@ var spec = {
         },
         "viewerURL": {
           "type": "string"
+        }
+      }
+    },
+    "userQuery": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "patientsQuery": {
+          "type": "object"
+        },
+        "observationsQuery": {
+          "type": "object"
+        },
+        "apiVersion": {
+          "type": "string"
+        },
+        "bookmarked": {
+          "type": "boolean"
+        },
+        "createDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updateDate": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     }

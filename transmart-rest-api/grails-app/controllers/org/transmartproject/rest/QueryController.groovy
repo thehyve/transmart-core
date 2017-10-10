@@ -8,12 +8,12 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.core.multidimquery.AggregateType
-import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
 
-import static MultidimensionalDataService.*
+import static org.transmartproject.rest.MultidimensionalDataService.Format
+import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 @Slf4j
 class QueryController extends AbstractQueryController {
@@ -61,7 +61,7 @@ class QueryController extends AbstractQueryController {
      */
     def observations() {
         def args = getGetOrPostParams()
-        checkParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
+        checkForUnsupportedParams(args, ['type', 'constraint', 'assay_constraint', 'biomarker_constraint', 'projection'])
 
         if (args.type == null) throw new InvalidArgumentsException("Parameter 'type' is required")
 
@@ -94,7 +94,7 @@ class QueryController extends AbstractQueryController {
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            multidimensionalDataService.writeClinical([:], format, constraint, user, out)
+            multidimensionalDataService.writeClinical(format, constraint, user, out)
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         } finally {
@@ -122,7 +122,7 @@ class QueryController extends AbstractQueryController {
      */
     def count() {
         def args = getGetOrPostParams()
-        checkParams(args, ['constraint'])
+        checkForUnsupportedParams(args, ['constraint'])
 
         Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
@@ -131,6 +131,76 @@ class QueryController extends AbstractQueryController {
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         def count = multiDimService.count(constraint, user)
         def result = [count: count]
+        render result as JSON
+    }
+
+    /**
+     * Count endpoint:
+     * <code>/v2/observations/counts_per_concept?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a map from concept code to the number of observations that satisfy the constraint for that concept.
+     */
+    def countsPerConcept() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def counts = multiDimService.countsPerConcept(constraint, user)
+        def result = [countsPerConcept: counts]
+        render result as JSON
+    }
+
+    /**
+     * Count endpoint:
+     * <code>/v2/observations/counts_per_study?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a map from study if to the number of observations that satisfy the constraint for that study.
+     */
+    def countsPerStudy() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def counts = multiDimService.countsPerStudy(constraint, user)
+        def result = [countsPerStudy: counts]
+        render result as JSON
+    }
+
+    /**
+     * Count endpoint:
+     * <code>/v2/observations/counts_per_study_and_concept?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a map from study id to a map from concept code to the number of observations that satisfy the constraint
+     * for that combination of study and concept.
+     */
+    def countsPerStudyAndConcept() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def counts = multiDimService.countsPerStudyAndConcept(constraint, user)
+        counts.collectEntries { studyId, countsPerConcept ->
+            [(studyId): [countsPerConcept: countsPerConcept]]
+        }
+        def result = [countsPerStudy: counts]
         render result as JSON
     }
 
@@ -152,7 +222,7 @@ class QueryController extends AbstractQueryController {
      */
     def aggregate() {
         def args = getGetOrPostParams()
-        checkParams(args, ['constraint', 'type'])
+        checkForUnsupportedParams(args, ['constraint', 'type'])
         def type = args.type
 
         if (!type) {
@@ -217,7 +287,7 @@ class QueryController extends AbstractQueryController {
      * @return the list of fields supported by {@link org.transmartproject.db.multidimquery.query.FieldConstraint}.
      */
     def supportedFields() {
-        checkParams(params, [])
+        checkForUnsupportedParams(params, [])
 
         List<Field> fields = DimensionMetadata.supportedFields
         render fields as JSON

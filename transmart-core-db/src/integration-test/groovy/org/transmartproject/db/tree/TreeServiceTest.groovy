@@ -6,6 +6,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.user.User
 import spock.lang.Specification
@@ -37,7 +38,10 @@ class TreeServiceTest extends Specification {
         forest*.name == [
                 'Vital Signs',
                 'Public Studies',
-                'Private Studies'
+                'Projects',
+                'Private Studies',
+                'General',
+                'Demographics',
         ]
     }
 
@@ -73,7 +77,7 @@ class TreeServiceTest extends Specification {
     void 'test tree retrieval with limited depth for admin user'() {
         User user = (User) usersResource.getUserFromUsername(ADMIN_USER)
         def rootKey = '\\'
-        def depth = 2
+        def depth = 1
         def counts = false
 
         when: "retrieving the tree with depth 1 for admin user"
@@ -83,7 +87,10 @@ class TreeServiceTest extends Specification {
         forest*.name == [
                 'Vital Signs',
                 'Public Studies',
-                'Private Studies'
+                'Projects',
+                'Private Studies',
+                'General',
+                'Demographics',
         ]
         forest*.children.unique() == [null]
     }
@@ -101,7 +108,10 @@ class TreeServiceTest extends Specification {
         forest*.name == [
                 'Vital Signs',
                 'Public Studies',
-                'Private Studies'
+                'Projects',
+                'Private Studies',
+                'General',
+                'Demographics',
         ]
     }
 
@@ -140,7 +150,10 @@ class TreeServiceTest extends Specification {
         forest*.name == [
                 'Vital Signs',
                 'Public Studies',
-                'Private Studies'
+                'Projects',
+                'Private Studies',
+                'General',
+                'Demographics',
         ]
     }
 

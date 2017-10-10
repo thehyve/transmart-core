@@ -32,8 +32,7 @@ import org.springframework.stereotype.Component
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.Dimension
-import org.transmartproject.core.ontology.ConceptsResource
-import org.transmartproject.core.ontology.MDStudy
+import org.transmartproject.core.ontology.OntologyTermsResource
 import org.transmartproject.core.ontology.StudiesResource
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.core.querytool.Item
@@ -65,7 +64,7 @@ class AccessControlChecks {
     public static final String PUBLIC_SOT = 'EXP:PUBLIC'
 
     @Autowired
-    ConceptsResource conceptsResource
+    OntologyTermsResource conceptsResource
 
     @Autowired
     StudiesResource studiesResource
@@ -232,7 +231,7 @@ class AccessControlChecks {
     }
 
     /* Study is included if the user has ANY kind of access */
-    Collection<MDStudy> getDimensionStudiesForUser(User user) {
+    Collection<org.transmartproject.db.i2b2data.Study> getDimensionStudiesForUser(User user) {
         if (user.admin) {
             return org.transmartproject.db.i2b2data.Study.findAll()
         }
