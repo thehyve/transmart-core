@@ -826,6 +826,22 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         return result
     }
 
+    @Override
+    Map<String, Long> categoricalValueFrequencies(MultiDimConstraint constraint, User user) {
+        assert constraint instanceof Constraint
+        checkAccess(constraint, user)
+
+        def builder = getCheckedQueryBuilder(user)
+        DetachedCriteria criteria = builder.buildCriteria(constraint)
+        def projections = Projections.projectionList()
+        projections.add(Projections.groupProperty('textValue'))
+        projections.add(Projections.rowCount())
+        criteria.setProjection(projections)
+                .setResultTransformer(Transformers.TO_LIST)
+                .add(Restrictions.eq('valueType', ObservationFact.TYPE_TEXT))
+        getList(criteria).collectEntries()
+    }
+
     private void diagnoseEmptyAggregate(List<AggregateType> at, Constraint constraint,
                                         HibernateCriteriaQueryBuilder builder) {
 

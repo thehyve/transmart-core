@@ -16,6 +16,10 @@ enum AggregateType {
     AVERAGE,
     COUNT,
     PATIENT_COUNT,
+    /**
+     * @deprecated use {@link org.transmartproject.core.multidimquery.MultiDimensionalDataResource#categoricalValueFrequencies}
+     */
+    @Deprecated
     VALUES
 
     private static final Map<String, AggregateType> mapping = values().collectEntries {

@@ -7,32 +7,19 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.multidimquery.AggregateType
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
-import org.transmartproject.db.multidimquery.query.AndConstraint
-import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.db.multidimquery.query.Combination
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.Field
-import org.transmartproject.db.multidimquery.query.FieldConstraint
-import org.transmartproject.db.multidimquery.query.ModifierConstraint
-import org.transmartproject.db.multidimquery.query.Operator
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
-import org.transmartproject.db.multidimquery.query.TimeConstraint
-import org.transmartproject.db.multidimquery.query.TrueConstraint
-import org.transmartproject.db.multidimquery.query.Type
-import org.transmartproject.db.multidimquery.query.ValueConstraint
+import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 import spock.lang.Specification
+
 import java.text.SimpleDateFormat
 
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
@@ -617,6 +604,72 @@ class QueryServicePgSpec extends Specification {
         observationCount == countsPerStudyAndConcept.values().sum { Map<String, Counts> countsMap ->
             countsMap.values().sum { Counts counts -> counts.observationCount }
         }
+    }
+
+    void 'test aggregates'() {
+        def expectedMax = 102
+        def expectedMin = 56
+        def expectedAverage = 74.78
+        def expectedCount = 9
+        def expectedPatientCount = 3
+        def user = User.findByUsername('test-public-user-1')
+        def heartRate = new ConceptConstraint(
+                path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\')
+
+        when:
+        def maxMap = multiDimService.aggregate([AggregateType.MAX], heartRate, user)
+        then:
+        maxMap == [ max: expectedMax ]
+
+        when:
+        def minMap = multiDimService.aggregate([AggregateType.MIN], heartRate, user)
+        then:
+        minMap == [ min: expectedMin ]
+
+        when:
+        def avgMap = multiDimService.aggregate([AggregateType.AVERAGE], heartRate, user)
+        then:
+        avgMap.size() == 1
+        'average' in avgMap
+        avgMap.average.round(2) == expectedAverage
+
+        //FIXME
+        /*when:
+        def countMap = multiDimService.aggregate([AggregateType.COUNT], heartRate, user)
+        then:
+        countMap == [ count: expectedCount ]*/
+
+        when:
+        def patientCountMap = multiDimService.aggregate([AggregateType.PATIENT_COUNT], heartRate, user)
+        then:
+        patientCountMap == [ patient_count: expectedPatientCount ]
+
+        when:
+        def compositeMap = multiDimService.aggregate([AggregateType.MAX, AggregateType.MIN, AggregateType.AVERAGE,
+                                                      AggregateType.COUNT, AggregateType.PATIENT_COUNT], heartRate, user)
+        then:
+        compositeMap.size() == 5
+        compositeMap.max == expectedMax
+        compositeMap.min == expectedMin
+        compositeMap.average.round(2) == expectedAverage
+        compositeMap.count == expectedCount
+        compositeMap.patient_count == expectedPatientCount
+    }
+
+    void 'test categorical value frequencies'() {
+        def user = User.findByUsername('test-public-user-1')
+        def race = new ConceptConstraint(
+                path: '\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\')
+        when:
+        def categoricalValueFreqMap = multiDimService.categoricalValueFrequencies(race, user)
+        then:
+        categoricalValueFreqMap == [ Caucasian: 2L, Latino: 1L ]
+
+        when: 'only numerical observations selected'
+        def emptyMap = multiDimService.categoricalValueFrequencies(new ConceptConstraint(
+                path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\'), user)
+        then: 'map is empty'
+        emptyMap.isEmpty()
     }
 
 }

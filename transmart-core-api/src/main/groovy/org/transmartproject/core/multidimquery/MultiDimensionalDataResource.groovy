@@ -101,6 +101,14 @@ interface MultiDimensionalDataResource {
      */
     Map aggregate(List<AggregateType> types, MultiDimConstraint constraint, User user)
 
+    /**
+     * Calculate categorical values frequencies
+     * @param constraint specifies from which observations you want to collect values statistics
+     * @param user The user whose access rights to consider
+     * @return value frequency map where keys are categorical values and values are counts
+     */
+    Map<String, Long> categoricalValueFrequencies(MultiDimConstraint constraint, User user)
+
     Hypercube highDimension(
             MultiDimConstraint assayConstraint_,
             MultiDimConstraint biomarkerConstraint,
