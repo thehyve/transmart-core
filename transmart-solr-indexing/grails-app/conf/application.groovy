@@ -68,11 +68,12 @@ environments {
 }
 
 dataSource {
-    url = 'jdbc:postgresql://localhost:5432/transmart'
-    driverClassName = 'org.postgresql.Driver'
-    username = 'biomart_user'
-    password = 'biomart_user'
-    dbCreate = 'none'
+    driverClassName = 'org.h2.Driver'
+    url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'"
+    dialect = 'org.hibernate.dialect.H2Dialect'
+    username = 'sa'
+    password = ''
+    dbCreate = 'create'
     logSql = true
     formatSql = true
 }

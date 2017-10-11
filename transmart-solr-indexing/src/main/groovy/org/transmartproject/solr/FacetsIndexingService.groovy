@@ -74,7 +74,7 @@ class FacetsIndexingService implements InitializingBean {
     }
 
     void fullIndex() {
-        indexByTypes(null)
+        indexByTypes(modules.collectMany { it.supportedDocumentTypes } as Set)
     }
 
     private void index(Multimap<FacetsDocId, FacetsIndexingModule> idModuleMap) {
@@ -110,10 +110,6 @@ class FacetsIndexingService implements InitializingBean {
 
 
     void indexByTypes(Set<String> types) {
-        if (types == null) {
-            types = modules.collectMany { it.supportedDocumentTypes } as Set
-        }
-
         types.each { String type ->
             Multimap<FacetsDocId, FacetsIndexingModule> ids = HashMultimap.create()
 

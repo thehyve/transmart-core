@@ -1,35 +1,13 @@
-package transmart.solr.indexing
+package org.transmartproject.solr
 
 import com.google.common.collect.ImmutableMultimap
-import com.google.common.collect.Sets
 import grails.test.mixin.integration.Integration
-import grails.transaction.Transactional
+import grails.transaction.Rollback
 import org.apache.solr.client.solrj.SolrQuery
-import org.hamcrest.Matchers
-import org.junit.After
-import org.junit.Test
-import org.junit.Before
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.i2b2data.ObservationFact
-import spock.lang.Specification
-import transmart.solr.indexing.BrowseStudiesView
-import transmart.solr.indexing.FacetsDocId
-import transmart.solr.indexing.FacetsDocument
-import transmart.solr.indexing.FacetsIndexingService
-import transmart.solr.indexing.FacetsQueryingService
-import transmart.solr.indexing.FolderStudyMappingView
-import transmart.solr.indexing.SolrFacetsCore
-import transmart.solr.indexing.modules.BrowseAssaysIndexingModule
-import transmart.solr.indexing.modules.FilesIndexingModule
-
-import static org.hamcrest.MatcherAssert.assertThat
-import static transmart.solr.indexing.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
-import grails.test.mixin.integration.Integration
-import grails.transaction.Transactional
-import org.apache.solr.client.solrj.SolrQuery
-import org.junit.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.db.i2b2data.ObservationFact
+import org.transmartproject.solr.modules.BrowseAssaysIndexingModule
+import org.transmartproject.solr.modules.FilesIndexingModule
 import spock.lang.Specification
 
 /**
@@ -37,7 +15,7 @@ import spock.lang.Specification
  */
 
 @Integration
-@Transactional
+@Rollback
 class TestSetupSpec extends Specification {
 
     @Autowired
@@ -55,40 +33,31 @@ class TestSetupSpec extends Specification {
     @Autowired
     FilesIndexingModule filesIndexingModule
 
-    @Before
-    void before() {
+    def setup() {
         facetsIndexingService.fullIndex()
     }
 
-//    @After
-//    void after () {
-//        facetsIndexingService.clearIndex()
-//    }
-
-    @Test
-    void 'test h2 connection' () {
+    void 'test h2 connection'() {
         when:
         List obfs = ObservationFact.all
 
         then:
-        assert obfs.size() == 4
+        obfs.size() == 4
     }
 
-    @Test
-    void 'test add solr info folderstudymapping' () {
+    void 'test add solr info folderstudymapping'() {
         when:
-        FolderStudyMappingView f = new FolderStudyMappingView([root:false, conceptPath: "\\\\Nikskkk\\hoi\\", folderId: 100, id: "Test123"])
+        FolderStudyMappingView f = new FolderStudyMappingView([root: false, conceptPath: "\\\\Nikskkk\\hoi\\", folderId: 100, id: "Test123"])
         f.save()
         facetsIndexingService.indexByIds([
                 new FacetsDocId('CONCEPT:\\Niks\\hoi\\'),] as Set)
         facetsIndexingService.flush()
 
         then:
-        assert FolderStudyMappingView.all.size() == 1
+        FolderStudyMappingView.all.size() == 1
     }
 
-    @Test
-    void 'test add browse studies' () {
+    void 'test add browse studies'() {
         when:
         BrowseStudiesView b = new BrowseStudiesView(id: "test", title: "test", description: "this is a test",
                 design: "niemand", biomarkerType: "voet", accessType: "iedereen", accession: "noppe",
@@ -99,12 +68,11 @@ class TestSetupSpec extends Specification {
         facetsIndexingService.flush()
 
         then:
-        assert BrowseStudiesView.all.size() == 1
+        BrowseStudiesView.all.size() == 1
 
     }
 
-    @Test
-    void 'addDocument' () {
+    void addDocument() {
         when:
         String id = 'FOO:12345'
 
@@ -115,11 +83,10 @@ class TestSetupSpec extends Specification {
         facetsIndexingService.flush()
 
         then:
-        assert countDocuments("id:\"$id\"") == 1
+        countDocuments("id:\"$id\"") == 1
     }
 
-    @Test
-    void 'testRemoveDocument' () {
+    void testRemoveDocument() {
         when:
         def id = new FacetsDocId('FOO:12345')
 
@@ -133,40 +100,19 @@ class TestSetupSpec extends Specification {
         facetsIndexingService.flush()
 
         then:
-        assert countDocuments('id:"FOO:12345"') == 0
+        countDocuments('id:"FOO:12345"') == 0
     }
 
-    @Test
-    void 'testGetAllDisplaySettings' () {
+    void testGetAllDisplaySettings() {
         when:
         def allSettings = facetsQueryingService.allDisplaySettings
         def firstEntry = allSettings.entrySet()[0]
 
         then:
-        //assert allSettings.size() == 2
-        assert firstEntry.key == 'TEXT'
-        assert firstEntry.value.displayName == 'Full Text'
-        assert !firstEntry.value.hideFromListings
-    }
-
-    @Test
-    void 'testGetTopTerms' () {
-        when:
-        def topTerms = facetsQueryingService.getTopTerms("CONCEPT")
-
-        then:
-        //order by count, then by name
-        assert topTerms.size() > 0
-    }
-
-    @Test
-    void 'testAssays' () {
-        when:
-        def docs = browseAssaysIndexingModule
-                .collectDocumentsWithIds(Sets.newHashSet(browseAssaysIndexingModule.fetchAllIds(FOLDER_DOC_TYPE)))
-
-        then:
-        assert docs.size() == 1
+        //allSettings.size() == 2
+        firstEntry.key == 'TEXT'
+        firstEntry.value.displayName == 'Full Text'
+        !firstEntry.value.hideFromListings
     }
 
     private int countDocuments(obj) {

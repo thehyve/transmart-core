@@ -2,7 +2,6 @@ package org.transmartproject.solr
 
 import com.google.common.collect.Sets
 import org.hamcrest.Matchers
-import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.solr.modules.BrowsePlainFoldersIndexingModule
 import org.transmartproject.solr.modules.BrowseAssaysIndexingModule
@@ -11,12 +10,10 @@ import org.transmartproject.solr.modules.BrowseStudiesIndexingModule
 import org.transmartproject.solr.modules.BrowseTagsIndexingModule
 import org.transmartproject.solr.modules.FilesIndexingModule
 import spock.lang.Ignore
-import org.transmartproject.solr.indexing.modules.*
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.transmartproject.solr.modules.AbstractFacetsIndexingFolderModule.FOLDER_DOC_TYPE
 
-@Ignore
 class BrowseIndexingModulesSpec {
 
     @Autowired
@@ -37,7 +34,7 @@ class BrowseIndexingModulesSpec {
     @Autowired
     FilesIndexingModule filesIndexingModule
 
-    @Test
+    @Ignore
     void testAssays() {
         def docs = browseAssaysIndexingModule
                 .collectDocumentsWithIds(Sets.newHashSet(browseAssaysIndexingModule.fetchAllIds(FOLDER_DOC_TYPE)))
@@ -59,7 +56,7 @@ class BrowseIndexingModulesSpec {
                 ))
     }
 
-    @Test
+    @Ignore
     void testFolders() {
         def docs = browsePlainFoldersIndexingModule
                 .collectDocumentsWithIds(Sets.newHashSet(browsePlainFoldersIndexingModule.fetchAllIds(FOLDER_DOC_TYPE)))
@@ -89,7 +86,7 @@ class BrowseIndexingModulesSpec {
         )
     }
 
-    @Test
+    @Ignore
     void testOneStudy() {
         def doc = browseStudiesIndexingModule.collectDocumentsWithIds([new FacetsDocId('FOLDER:1992454')] as Set)
         assertThat doc.first(), Matchers.is(FacetsDocumentMatcher.documentWithFields('FOLDER:1992454',
@@ -115,7 +112,7 @@ class BrowseIndexingModulesSpec {
         ))
     }
 
-    @Test
+    @Ignore
     void testOneProgram() {
         def doc = browseProgramsIndexingModule.collectDocumentsWithIds([new FacetsDocId('FOLDER:1992447')] as Set)
         assertThat doc.first(), Matchers.is(FacetsDocumentMatcher.documentWithFields('FOLDER:1992447',
@@ -127,7 +124,7 @@ class BrowseIndexingModulesSpec {
         ))
     }
 
-    @Test
+    @Ignore
     void testTagsForOneFolder() {
         def doc = browseTagsIndexingModule.collectDocumentsWithIds([new FacetsDocId('FOLDER:1992450')] as Set)
         assertThat doc.first(), Matchers.is(FacetsDocumentMatcher.documentWithFields('FOLDER:1992450',
@@ -141,14 +138,14 @@ class BrowseIndexingModulesSpec {
         ))
     }
 
-    @Test
+    @Ignore
     void testFindSpecificFile() {
         def doc = filesIndexingModule.collectDocumentsWithIds([new FacetsDocId('FILE:1992460')] as Set)
         assert doc.size() == 1
         assert doc[0].facetsDocId == new FacetsDocId('FILE:1992460')
     }
 
-    @Test
+    @Ignore
     void testBrowseTagsFieldDisplaySettings() {
         def res = browseTagsIndexingModule.getDisplaySettingsForIndex('tag_study_pubmed_id_t')
         assert res.displayName == 'Study PubMed ID'
