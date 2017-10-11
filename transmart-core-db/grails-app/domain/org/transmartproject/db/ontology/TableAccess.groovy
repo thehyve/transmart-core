@@ -33,8 +33,6 @@ import org.transmartproject.db.util.GormWorkarounds
 import org.transmartproject.db.util.StringUtils
 import org.transmartproject.core.concept.ConceptKey
 
-import static org.transmartproject.db.util.StringUtils.asLikeLiteral
-
 //TODO Whether table access used as ontology node ever?
 //if yes do we use get desc. nodes call?
 @EqualsAndHashCode(includes = ['tableCode'])
@@ -269,11 +267,6 @@ class TableAccess extends AbstractQuerySpecifyingType implements
     @Override
     List<Patient> getPatients() {
         return super.getPatients(this)
-    }
-
-    @Override
-    int getPatientCount() {
-        super.countPatients(this)
     }
 
     @Override

@@ -250,11 +250,6 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
     }
 
     @Override
-    int getPatientCount() {
-        super.countPatients(this)
-    }
-
-    @Override
     String toString() {
         getClass().canonicalName + "[${attached?'attached':'not attached'}" +
                 "] [ fullName=$fullName, level=$level,  ]"

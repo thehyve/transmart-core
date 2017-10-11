@@ -54,8 +54,6 @@ class StubStudyLoadingService extends StudyLoadingService {
                             getStudy: { -> study },
                             getChildren: { -> [] },
                             getLevel: { -> 0 }, //just to make sure we have no parent
-                            //getLevel: { -> key.split('\\\\').length },
-                            getPatientCount: { -> 0}
                     ] as OntologyTerm
                 }
         ] as Study
@@ -75,8 +73,6 @@ class StubStudyLoadingService extends StudyLoadingService {
                                         getStudy           : { -> createStudy(studyId, key) },
                                         getChildren        : { -> [] },
                                         getLevel           : { -> 0 }, //just to make sure we have no parent
-                                        //getLevel: { -> key.split('\\\\').length },
-                                        getPatientCount    : { -> 0 }
                                 ] as OntologyTerm
                             },
                     ] as Study

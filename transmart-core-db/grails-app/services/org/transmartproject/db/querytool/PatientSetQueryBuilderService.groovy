@@ -327,28 +327,4 @@ class PatientSetQueryBuilderService {
         spec.postProcessQuery "$spec.factTableColumn IN ($res)", userInContext
     }
 
-    /**
-     * Build query to retrieve patient counts from table with precalculated counts.
-     *
-     * @param OntologyTerm term
-     * @return sql query as a String
-     */
-    public String buildPatientCountQuery(OntologyTerm term) {
-        String path
-        def term2 = ontologyTermsResourceService.getByKey(term.key)
-        if (term2 instanceof AbstractI2b2Metadata) {
-            if (term2.dimensionTableName.toLowerCase() == 'concept_dimension'
-                    && term2.operator.toLowerCase() in ['=', 'like']) {
-                path = term2.dimensionCode
-            }
-        }
-        if (!path || path.empty) {
-            return ""
-        }
-        if (!path.endsWith("\\")) {
-            path += "\\";
-        }
-        "select patient_count from i2b2demodata.concept_counts where concept_path='$path'"
-    }
-
 }

@@ -132,13 +132,6 @@ interface OntologyTerm {
      */
     List<Patient> getPatients()
 
-    /**
-     * Fetches number of patients with at least one observation for this OntologyTerm.
-     *
-     * @return number of patients
-     */
-    int getPatientCount()
-
     enum VisualAttributes {
 
         /**

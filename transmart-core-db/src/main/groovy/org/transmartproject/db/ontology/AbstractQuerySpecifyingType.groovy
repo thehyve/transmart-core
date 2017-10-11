@@ -21,7 +21,6 @@
 
 package org.transmartproject.db.ontology
 
-import grails.orm.HibernateCriteriaBuilder
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.Item
@@ -89,17 +88,6 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
         }
 
         InQuery.addIn(PatientDimension.createCriteria(), 'id', patientIdList).list()
-    }
-
-    protected int countPatients(OntologyTerm term) {
-        def patientsCount = 0
-        String sqlQuery = patientSetQueryBuilderService.buildPatientCountQuery(term)
-        if (sqlQuery.length() > 0) {
-            def query = sessionFactory.currentSession.createSQLQuery(sqlQuery)
-            patientsCount = query.list()[0] ?: 0 as int
-        }
-
-        patientsCount
     }
 
     @Override
