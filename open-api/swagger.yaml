@@ -791,8 +791,7 @@ paths:
   /v2/observations/aggregate:
     get:
       description: |
-        Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'count', and
-        'values'. The first three require numeric variables, the last one categorical variables.
+        Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average' and 'count'
       tags:
         - v2
       parameters:
@@ -805,8 +804,8 @@ paths:
           required: true
           in: query
           description: |
-            'min', 'max', 'average', 'count', or 'values'. This parameter can be specified multiple times to retrieve
-            multiple aggregates at once. The 'values' aggregate cannot be combined with the numeric aggregate types.
+            'min', 'max', 'average' or 'count'. This parameter can be specified multiple times to retrieve
+            multiple aggregates at once.
           type: string
       responses:
         200:
@@ -821,11 +820,6 @@ paths:
                 type: number
               average:
                 type: number
-              values:
-                type: array
-                items:
-                  type: string
-                description: A list of the distinct values for categorical variables
     post:
       description: |
         Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -859,6 +853,23 @@ paths:
                 type: number
               average:
                 type: number
+  /v2/observations/categorical_value_frequencies:
+    get:
+      description: |
+        Calculates and returns categorical values frequencies
+      tags:
+        - v2
+      parameters:
+        - name: constraint
+          required: true
+          in: query
+          description: 'json that specifies the constraint. Example: `{"type":"concept","path":"\\Public Studies\\Study1\\Demography\\Sex\\"}`.'
+          type: string
+      responses:
+        200:
+          description: 'return the result in a json object. Example: `{"Female": 354, "Male": 310}`.'
+          schema:
+            type: object
   /v2/observations/count:
     get:
       description: |

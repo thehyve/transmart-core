@@ -16,25 +16,20 @@ enum AggregateType {
     AVERAGE,
     COUNT,
     PATIENT_COUNT,
-    /**
-     * @deprecated use {@link org.transmartproject.core.multidimquery.MultiDimensionalDataResource#categoricalValueFrequencies}
-     */
-    @Deprecated
-    VALUES
 
     private static final Map<String, AggregateType> mapping = values().collectEntries {
         [(it.name().toLowerCase()): it]
     }
 
-    public String toString() {
+    String toString() {
         name().toLowerCase()
     }
 
-    public static AggregateType forName(String name) {
-        name = name.toLowerCase()
-        return mapping[name] ?: {
+    static AggregateType forName(String name) {
+        String key = name.toLowerCase()
+        if (!mapping.containsKey(key)) {
             throw new IllegalArgumentException("Unknown aggregate type: $name")
-            null as AggregateType // because Groovy wants a return type
-        }()
+        }
+        return mapping[key]
     }
 }

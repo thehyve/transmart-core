@@ -633,11 +633,10 @@ class QueryServicePgSpec extends Specification {
         'average' in avgMap
         avgMap.average.round(2) == expectedAverage
 
-        //FIXME
-        /*when:
+        when:
         def countMap = multiDimService.aggregate([AggregateType.COUNT], heartRate, user)
         then:
-        countMap == [ count: expectedCount ]*/
+        countMap == [ count: expectedCount ]
 
         when:
         def patientCountMap = multiDimService.aggregate([AggregateType.PATIENT_COUNT], heartRate, user)

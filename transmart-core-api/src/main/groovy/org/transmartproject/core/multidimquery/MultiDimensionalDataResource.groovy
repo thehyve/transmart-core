@@ -99,7 +99,7 @@ interface MultiDimensionalDataResource {
      * @param user The user whose access rights to consider
      * @return a map of aggregates. The keys are the names of the aggregates.
      */
-    Map aggregate(List<AggregateType> types, MultiDimConstraint constraint, User user)
+    Map<String, Number> aggregate(List<AggregateType> types, MultiDimConstraint constraint, User user)
 
     /**
      * Calculate categorical values frequencies

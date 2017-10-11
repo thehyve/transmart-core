@@ -215,8 +215,6 @@ class QueryController extends AbstractQueryController {
      * aggregations is only valid for a single concept. If the concept is not found or
      * no observations are found for the concept, an {@link org.transmartproject.db.multidimquery.query.InvalidQueryException}
      * is thrown.
-     * Also, if the concept is not numerical, has null values or values with an operator
-     * other than 'E'.
      *
      * @return a map with the aggregate type as key and the result as value.
      */
@@ -245,8 +243,25 @@ class QueryController extends AbstractQueryController {
             throw new InvalidQueryException(e)
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Map aggregateValues = multiDimService.aggregate(aggregateTypes, constraint, user)
+        Map<String, Number> aggregateValues = multiDimService.aggregate(aggregateTypes, constraint, user)
         render aggregateValues as JSON
+    }
+
+    /**
+     * Categorical value frequency endpoint:
+     * <code>/v2/observations/categorical_value_frequencies?constraint=${constraint}</code>
+     *
+     * Expects an {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a map with the categorical values as keys and the counts as values. e.g. {"Female": 354, "Male": 310}
+     */
+    def categoricalValueFrequencies() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['constraint'])
+        Constraint constraint = bindConstraint(args.constraint)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        Map<String, Long> valueFrequencies = multiDimService.categoricalValueFrequencies(constraint, user)
+        render valueFrequencies as JSON
     }
 
     /**
