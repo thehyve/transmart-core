@@ -5,21 +5,22 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
-import static org.transmartproject.core.multidimquery.AggregateType.*
+import org.transmartproject.core.multidimquery.AggregateType
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.db.TestData
 import org.transmartproject.db.TransmartSpecification
-import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.Study
+import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.AccessLevelTestData
 import spock.lang.Ignore
 
 import java.sql.Timestamp
 
+import static org.transmartproject.core.multidimquery.AggregateType.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 @Rollback
@@ -284,47 +285,48 @@ class QueryServiceSpec extends TransmartSpecification {
         def query = createQueryForConcept(observationFact)
 
         when:
-        def result = multiDimService.aggregate([MAX], query, accessLevelTestData.users[0])
+        def result = multiDimService.aggregate(EnumSet.of(MAX), query, accessLevelTestData.users[0])
 
         then:
-        result.max == 50
+        result[MAX] == 50
 
         when:
-        result = multiDimService.aggregate([MIN], query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate(EnumSet.of(MIN), query, accessLevelTestData.users[0])
 
         then:
-        result.min == 10
+        result[MIN] == 10
 
         when:
-        result = multiDimService.aggregate([AVERAGE], query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate(EnumSet.of(AVERAGE), query, accessLevelTestData.users[0])
 
         then:
-        result.average == 30 //(10+50) / 2
+        result[AVERAGE] == 30 //(10+50) / 2
 
         when:
-        result = multiDimService.aggregate([COUNT], query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate(EnumSet.of(COUNT), query, accessLevelTestData.users[0])
 
         then:
-        result.count == 2
+        result[COUNT] == 2
 
 
         when:
-        result = multiDimService.aggregate([STD_DEV], query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate(EnumSet.of(STD_DEV), query, accessLevelTestData.users[0])
 
         then:
-        result.std_dev.round(2) == 28.28
+        result[STD_DEV].round(2) == 28.28
 
         when:
         result = multiDimService.aggregate(
-                [MIN, MAX, AVERAGE, STD_DEV, COUNT],
+                EnumSet.allOf(AggregateType),
                 query,
                 accessLevelTestData.users[0])
         then:
-        result.min == 10
-        result.max == 50
-        result.average == 30
-        result.count == 2
-        result.std_dev.round(2) == 28.28
+        result[MIN] == 10
+        result[MAX] == 50
+        result[AVERAGE] == 30
+        result[COUNT] == 2
+        result[PATIENT_COUNT] == 2
+        result[STD_DEV].round(2) == 28.28
     }
 
     void "test for values aggregate"() {

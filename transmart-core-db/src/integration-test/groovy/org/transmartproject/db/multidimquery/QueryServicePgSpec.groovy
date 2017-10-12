@@ -22,6 +22,7 @@ import spock.lang.Specification
 
 import java.text.SimpleDateFormat
 
+import static org.transmartproject.core.multidimquery.AggregateType.*
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 @Rollback
@@ -618,51 +619,49 @@ class QueryServicePgSpec extends Specification {
                 path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\')
 
         when:
-        def maxMap = multiDimService.aggregate([AggregateType.MAX], heartRate, user)
+        def maxMap = multiDimService.aggregate(EnumSet.of(MAX), heartRate, user)
         then:
-        maxMap == [ max: expectedMax ]
+        maxMap == [ (MAX): expectedMax ]
 
         when:
-        def minMap = multiDimService.aggregate([AggregateType.MIN], heartRate, user)
+        def minMap = multiDimService.aggregate(EnumSet.of(MIN), heartRate, user)
         then:
-        minMap == [ min: expectedMin ]
+        minMap == [ (MIN): expectedMin ]
 
         when:
-        def avgMap = multiDimService.aggregate([AggregateType.AVERAGE], heartRate, user)
+        def avgMap = multiDimService.aggregate(EnumSet.of(AVERAGE), heartRate, user)
         then:
         avgMap.size() == 1
-        'average' in avgMap
-        avgMap.average.round(2) == expectedAverage
+        AVERAGE in avgMap
+        avgMap[AVERAGE].round(2) == expectedAverage
 
         when:
-        def countMap = multiDimService.aggregate([AggregateType.COUNT], heartRate, user)
+        def countMap = multiDimService.aggregate(EnumSet.of(COUNT), heartRate, user)
         then:
-        countMap == [ count: expectedCount ]
+        countMap == [ (COUNT): expectedCount ]
 
         when:
-        def patientCountMap = multiDimService.aggregate([AggregateType.PATIENT_COUNT], heartRate, user)
+        def patientCountMap = multiDimService.aggregate(EnumSet.of(PATIENT_COUNT), heartRate, user)
         then:
-        patientCountMap == [ patient_count: expectedPatientCount ]
+        patientCountMap == [ (PATIENT_COUNT): expectedPatientCount ]
 
         when:
-        def sdMap = multiDimService.aggregate([AggregateType.STD_DEV], heartRate, user)
+        def sdMap = multiDimService.aggregate(EnumSet.of(STD_DEV), heartRate, user)
         then:
         sdMap.size() == 1
-        'std_dev' in sdMap
-        sdMap.std_dev.round(2) == expectedStandardDiviation
+        STD_DEV in sdMap
+        sdMap[STD_DEV].round(2) == expectedStandardDiviation
 
         when:
-        def compositeMap = multiDimService.aggregate([AggregateType.MAX, AggregateType.MIN, AggregateType.AVERAGE,
-                                                      AggregateType.COUNT, AggregateType.PATIENT_COUNT,
-                                                      AggregateType.STD_DEV], heartRate, user)
+        def compositeMap = multiDimService.aggregate(EnumSet.allOf(AggregateType), heartRate, user)
         then:
         compositeMap.size() == 6
-        compositeMap.max == expectedMax
-        compositeMap.min == expectedMin
-        compositeMap.average.round(2) == expectedAverage
-        compositeMap.count == expectedCount
-        compositeMap.patient_count == expectedPatientCount
-        compositeMap.std_dev.round(2) == expectedStandardDiviation
+        compositeMap[MAX] == expectedMax
+        compositeMap[MIN] == expectedMin
+        compositeMap[AVERAGE].round(2) == expectedAverage
+        compositeMap[COUNT] == expectedCount
+        compositeMap[PATIENT_COUNT] == expectedPatientCount
+        compositeMap[STD_DEV].round(2) == expectedStandardDiviation
     }
 
     void 'test categorical value frequencies'() {

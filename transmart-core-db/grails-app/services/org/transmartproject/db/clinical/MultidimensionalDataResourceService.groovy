@@ -747,11 +747,12 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     /**
      * @description Function for getting a aggregate value of a single field.
-     * The allowed queryTypes are MIN, MAX and AVERAGE.
+     *
+     * @param types set of aggregate functions to calculate
      * @param query
      * @param user
      */
-    @Override Map<String, Number> aggregate(List<AggregateType> types, MultiDimConstraint constraint, User user) {
+    @Override Map<AggregateType, Number> aggregate(Set<AggregateType> types, MultiDimConstraint constraint, User user) {
         assert constraint instanceof Constraint
         checkAccess(constraint, user)
 
@@ -767,7 +768,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 .setProjection(projections)
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
                 .add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
-        get(criteria)
+        get(criteria).collectEntries { key, value -> [ AggregateType.forName(key), value ] }
     }
 
     @Override
