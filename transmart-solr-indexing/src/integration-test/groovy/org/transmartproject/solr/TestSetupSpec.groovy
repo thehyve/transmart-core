@@ -1,18 +1,14 @@
 package org.transmartproject.solr
 
 import com.google.common.collect.ImmutableMultimap
-import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import grails.test.mixin.integration.Integration
 import org.apache.solr.client.solrj.SolrQuery
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.solr.modules.BrowseAssaysIndexingModule
 import org.transmartproject.solr.modules.FilesIndexingModule
 import spock.lang.Specification
-
-/**
- * Created by jarno@thehyve.nl
- */
 
 @Integration
 @Rollback
@@ -33,46 +29,30 @@ class TestSetupSpec extends Specification {
     @Autowired
     FilesIndexingModule filesIndexingModule
 
-    def setup() {
-        facetsIndexingService.fullIndex()
+
+    void clearIndex() {
+        facetsIndexingService.clearIndex()
+        facetsQueryingService.clearCaches()
     }
 
-    void 'test h2 connection'() {
+    void reindex() {
+        facetsIndexingService.clearIndex()
+        facetsIndexingService.fullIndex()
+        facetsQueryingService.clearCaches()
+    }
+
+    void 'test database initialisation' () {
         when:
         List obfs = ObservationFact.all
 
         then:
-        obfs.size() == 4
+        assert obfs.size() > 0
     }
 
-    void 'test add solr info folderstudymapping'() {
-        when:
-        FolderStudyMappingView f = new FolderStudyMappingView([root: false, conceptPath: "\\\\Nikskkk\\hoi\\", folderId: 100, id: "Test123"])
-        f.save()
-        facetsIndexingService.indexByIds([
-                new FacetsDocId('CONCEPT:\\Niks\\hoi\\'),] as Set)
-        facetsIndexingService.flush()
+    void 'test add document' () {
+        given:
+        clearIndex()
 
-        then:
-        FolderStudyMappingView.all.size() == 1
-    }
-
-    void 'test add browse studies'() {
-        when:
-        BrowseStudiesView b = new BrowseStudiesView(id: "test", title: "test", description: "this is a test",
-                design: "niemand", biomarkerType: "voet", accessType: "iedereen", accession: "noppe",
-                institution: "the hyve", country: "The Netherlands", disease: "kroketten", compound: "vlees",
-                studyObjective: "niets", organism: "Human", studyPhase: "einde")
-        b.save()
-        facetsIndexingService.fullIndex()
-        facetsIndexingService.flush()
-
-        then:
-        BrowseStudiesView.all.size() == 1
-
-    }
-
-    void addDocument() {
         when:
         String id = 'FOO:12345'
 
@@ -86,7 +66,10 @@ class TestSetupSpec extends Specification {
         countDocuments("id:\"$id\"") == 1
     }
 
-    void testRemoveDocument() {
+    void 'test remove document' () {
+        given:
+        clearIndex()
+
         when:
         def id = new FacetsDocId('FOO:12345')
 
@@ -103,7 +86,10 @@ class TestSetupSpec extends Specification {
         countDocuments('id:"FOO:12345"') == 0
     }
 
-    void testGetAllDisplaySettings() {
+    void 'testGetAllDisplaySettings' () {
+        given:
+        reindex()
+
         when:
         def allSettings = facetsQueryingService.allDisplaySettings
         def firstEntry = allSettings.entrySet()[0]
@@ -115,7 +101,19 @@ class TestSetupSpec extends Specification {
         !firstEntry.value.hideFromListings
     }
 
-    private int countDocuments(obj) {
+    void 'testGetTopTerms' () {
+        given:
+        reindex()
+
+        when:
+        def topTerms = facetsQueryingService.getTopTerms('CONCEPT_PATH')
+
+        then:
+        //order by count, then by name
+        assert topTerms.size() > 0
+    }
+
+    private int countDocuments(String obj) {
         SolrQuery q = new SolrQuery(obj)
         q.set('rows', 0)
         solrFacetsCore.query(q).results.numFound

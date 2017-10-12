@@ -2,46 +2,47 @@ package org.transmartproject.solr
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Transactional
-import org.junit.Ignore
-import org.junit.Test
+import org.hamcrest.CoreMatchers
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
+import spock.util.matcher.HamcrestMatchers
+
+import static org.hamcrest.Matchers.hasKey
+import static org.hamcrest.Matchers.hasSize
+import static spock.util.matcher.HamcrestSupport.that
 
 @Integration
 @Transactional
-@Ignore
-class FacetsQueryingServiceSpec extends Specification{
+class FacetsQueryingServiceSpec extends Specification {
 
     @Autowired
     FacetsQueryingService facetsQueryingService
 
-    //@Rule
-    //public TestRule skipIfSolrNotAvailableRule = new SkipIfSolrNotAvailableRule()
-
     @Autowired
     FacetsIndexingService facetsIndexingService
 
-    @Test
     void 'testGetAllDisplaySettings' () {
         when:
         def allSettings = facetsQueryingService.allDisplaySettings
         def firstEntry = allSettings.entrySet()[0]
 
         then:
-        assert allSettings.size() == 34
+        assert allSettings.size() == 4
         assert firstEntry.key == 'TEXT'
         assert firstEntry.value.displayName == 'Full Text'
         assert !firstEntry.value.hideFromListings
     }
 
-    @Test
     void 'testGetTopTerms' () {
         when:
-        def topTerms = facetsQueryingService.topTerms
+        def topTerms = facetsQueryingService.getTopTerms('*')
 
         then:
         //order by count, then by name
-        assert topTerms['access_type_s'][0] == new TermCount(term: 'Commercial', count: 2)
-        assert topTerms['access_type_s'][1] == new TermCount(term: 'Consortium', count: 2)
+        that topTerms, hasKey('data_type_s')
+        that topTerms, hasKey('test_tag_s')
+        topTerms['data_type_s'][0] == new TermCount(term: 'Messenger RNA data (Microarray)', count: 8)
+        topTerms['data_type_s'][1] == new TermCount(term: 'Transcript Level Messenger RNA data (Sequencing)', count: 2)
+        topTerms['test_tag_s'][0] == new TermCount(term: 'Test option 1', count: 1)
     }
 }

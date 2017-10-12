@@ -55,6 +55,8 @@ grails.converters.default.pretty.print = true
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
 
+grails.plugin.springsecurity.active = false
+
 environments {
     test {
         grails.dbconsole.enabled = true
@@ -67,13 +69,15 @@ environments {
     }
 }
 
-dataSource {
-    driverClassName = 'org.h2.Driver'
-    url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'"
-    dialect = 'org.hibernate.dialect.H2Dialect'
-    username = 'sa'
-    password = ''
-    dbCreate = 'create'
-    logSql = true
-    formatSql = true
+environments {
+    test {
+        dataSource {
+            url = 'jdbc:postgresql://localhost:5432/transmart'
+            driverClassName = 'org.postgresql.Driver'
+            username = 'biomart_user'
+            password = 'biomart_user'
+            logSql = true
+            formatSql = true
+        }
+    }
 }

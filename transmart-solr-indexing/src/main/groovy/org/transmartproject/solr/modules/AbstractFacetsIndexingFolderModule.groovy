@@ -92,7 +92,7 @@ abstract class AbstractFacetsIndexingFolderModule<T> implements FacetsIndexingMo
     final protected List<BioDataValuesView> resolveUniqueIds(List<String> uniqueIds) {
 
         List<BioDataValuesView> results =
-                BioDataValuesView.findAllByUniqueIdInList(uniqueIds)
+                BioDataValuesView.findAllByIdInList(uniqueIds)
 
         if (results.size() != uniqueIds.size()) {
             log.warn(

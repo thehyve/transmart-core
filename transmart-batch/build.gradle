@@ -147,6 +147,25 @@ task functionalTestPrepare(type: JavaExec) {
     classpath += sourceSets.functionalTest.runtimeClasspath
 }
 
+task loadPublicTestStudy << {
+    exec {
+        commandLine './transmart-batch.sh', '-p', 'studies/GPL570_bogus/annotation.params'
+    }
+    exec {
+        commandLine './transmart-batch.sh', '-p', 'global/tagtypes.params'
+    }
+    exec {
+        commandLine './transmart-batch.sh', '-p', 'studies/GSE8581/clinical.params'
+    }
+    exec {
+        commandLine './transmart-batch.sh', '-p', 'studies/GSE8581/expression.params'
+    }
+    exec {
+        commandLine './transmart-batch.sh', '-p', 'studies/GSE8581/tags.params', '-d', 'TAGS_FILE=tags_4.txt'
+    }
+}
+loadPublicTestStudy.dependsOn 'shadowJar'
+
 task functionalTest(type: Test) {
     description = 'Runs the functional tests.'
     group = 'verification'
@@ -167,16 +186,11 @@ task functionalTest(type: Test) {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.12'
-}
-
 codenarc {
     configFile = new File("${project.projectDir.absolutePath}/gradle/codenarc/ruleset.groovy")
 
     reportFormat = 'html'
 }
-
 
 jacocoTestReport {
     reports {

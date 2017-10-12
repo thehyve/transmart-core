@@ -17,8 +17,10 @@ dependencies {
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails.plugins:geb"
+    testCompile 'org.grails:grails-datastore-rest-client'
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+    compile "org.grails.plugins:spring-security-core:${springSecurityPluginVersion}"
 
     compile "org.apache.solr:solr-solrj:4.5.1"
 
@@ -28,7 +30,6 @@ dependencies {
     compile project(':transmart-core-db')
     compile project(':biomart-domain')
     compile project(':folder-management-plugin')
-    compile project(':transmart-core-db-tests')
 }
 
 assets {
