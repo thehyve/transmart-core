@@ -76,7 +76,7 @@ environments {
             driverClassName = 'org.postgresql.Driver'
             username = 'biomart_user'
             password = 'biomart_user'
-            logSql = true
+            logSql = false
             formatSql = true
         }
     }
