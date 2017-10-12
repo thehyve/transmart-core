@@ -51,7 +51,6 @@ import org.transmartproject.core.users.User
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.HighDimensionResourceService
-import org.transmartproject.db.i2b2data.ConceptDimension
 import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
 import org.transmartproject.db.i2b2data.Study
@@ -315,19 +314,19 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         )
     }
 
-    private static org.hibernate.criterion.Projection projectionForAggregate(AggregateType at) {
+    private static org.hibernate.criterion.Projection projectionForAggregate(AggregateFunction at) {
         switch (at) {
-            case AggregateType.MIN:
+            case AggregateFunction.MIN:
                 return Projections.min('numberValue')
-            case AggregateType.AVERAGE:
+            case AggregateFunction.AVERAGE:
                 return Projections.avg('numberValue')
-            case AggregateType.MAX:
+            case AggregateFunction.MAX:
                 return Projections.max('numberValue')
-            case AggregateType.COUNT:
+            case AggregateFunction.COUNT:
                 return Projections.rowCount()
-            case AggregateType.PATIENT_COUNT:
+            case AggregateFunction.PATIENT_COUNT:
                 return Projections.countDistinct('patient')
-            case AggregateType.STD_DEV:
+            case AggregateFunction.STD_DEV:
                 return Projections.sqlProjection(
                         'STDDEV(nval_num) as SD',
                         [ 'SD' ] as String[],
@@ -394,8 +393,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         QueryBuilder builder = getCheckedQueryBuilder(user)
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
                 .add(Projections.groupProperty('conceptCode'), 'conceptCode')
-                .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
-                .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .add(projectionForAggregate(AggregateFunction.COUNT), 'observationCount')
+                .add(projectionForAggregate(AggregateFunction.PATIENT_COUNT), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List rows = getList(criteria)
         def t2 = new Date()
@@ -415,8 +414,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
                 .setProjection(Projections.projectionList()
                     .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
-                    .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
-                    .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                    .add(projectionForAggregate(AggregateFunction.COUNT), 'observationCount')
+                    .add(projectionForAggregate(AggregateFunction.PATIENT_COUNT), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List rows = getList(criteria)
         def t2 = new Date()
@@ -444,8 +443,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 .setProjection(Projections.projectionList()
                     .add(Projections.groupProperty('conceptCode'), 'conceptCode')
                     .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
-                    .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
-                    .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                    .add(projectionForAggregate(AggregateFunction.COUNT), 'observationCount')
+                    .add(projectionForAggregate(AggregateFunction.PATIENT_COUNT), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List result = getList(criteria)
         def t2 = new Date()
@@ -752,7 +751,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
      * @param query
      * @param user
      */
-    @Override Map<AggregateType, Number> aggregate(Set<AggregateType> types, MultiDimConstraint constraint, User user) {
+    @Override Map<AggregateFunction, Number> aggregate(Set<AggregateFunction> types, MultiDimConstraint constraint, User user) {
         assert constraint instanceof Constraint
         checkAccess(constraint, user)
 
@@ -761,14 +760,14 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def builder = getCheckedQueryBuilder(user)
         DetachedCriteria criteria = builder.buildCriteria(constraint)
         def projections = Projections.projectionList()
-        types.each { AggregateType aggregateType ->
+        types.each { AggregateFunction aggregateType ->
             projections.add(projectionForAggregate(aggregateType), aggregateType.toString())
         }
         criteria
                 .setProjection(projections)
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
                 .add(Restrictions.eq('valueType', ObservationFact.TYPE_NUMBER))
-        get(criteria).collectEntries { key, value -> [ AggregateType.forName(key), value ] }
+        get(criteria).collectEntries { key, value -> [AggregateFunction.forName(key), value ] }
     }
 
     @Override

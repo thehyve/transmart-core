@@ -7,7 +7,7 @@ import groovy.util.logging.Slf4j
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
-import org.transmartproject.core.multidimquery.AggregateType
+import org.transmartproject.core.multidimquery.AggregateFunction
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
@@ -208,7 +208,7 @@ class QueryController extends AbstractQueryController {
      * Aggregate endpoint:
      * <code>/v2/observations/aggregate?type=${type}&constraint=${constraint}</code>
      *
-     * Expects an {@link org.transmartproject.core.multidimquery.AggregateType} parameter <code>type</code> and {@link Constraint}
+     * Expects an {@link AggregateFunction} parameter <code>type</code> and {@link Constraint}
      * parameter <code>constraint</code>.
      *
      * Checks if the supplied constraint contains a concept constraint on top level, because
@@ -238,12 +238,12 @@ class QueryController extends AbstractQueryController {
         }
         Set aggregateTypes
         try {
-            aggregateTypes = type.collect { AggregateType.forName(it as String) }
+            aggregateTypes = type.collect { AggregateFunction.forName(it as String) }
         } catch (IllegalArgumentException e) {
             throw new InvalidQueryException(e)
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Map<AggregateType, Number> aggregateValues = multiDimService.aggregate(aggregateTypes, constraint, user)
+        Map<AggregateFunction, Number> aggregateValues = multiDimService.aggregate(aggregateTypes, constraint, user)
         render aggregateValues as JSON
     }
 

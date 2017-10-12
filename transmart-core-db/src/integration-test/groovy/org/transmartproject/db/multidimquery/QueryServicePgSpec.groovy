@@ -7,7 +7,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
-import org.transmartproject.core.multidimquery.AggregateType
+import org.transmartproject.core.multidimquery.AggregateFunction
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
@@ -22,7 +22,7 @@ import spock.lang.Specification
 
 import java.text.SimpleDateFormat
 
-import static org.transmartproject.core.multidimquery.AggregateType.*
+import static org.transmartproject.core.multidimquery.AggregateFunction.*
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 @Rollback
@@ -653,7 +653,7 @@ class QueryServicePgSpec extends Specification {
         sdMap[STD_DEV].round(2) == expectedStandardDiviation
 
         when:
-        def compositeMap = multiDimService.aggregate(EnumSet.allOf(AggregateType), heartRate, user)
+        def compositeMap = multiDimService.aggregate(EnumSet.allOf(AggregateFunction), heartRate, user)
         then:
         compositeMap.size() == 6
         compositeMap[MAX] == expectedMax

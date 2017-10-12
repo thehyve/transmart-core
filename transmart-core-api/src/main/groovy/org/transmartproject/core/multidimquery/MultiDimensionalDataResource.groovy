@@ -92,14 +92,14 @@ interface MultiDimensionalDataResource {
     Long cachedPatientCount(MultiDimConstraint constraint, User user)
 
     /**
-     * Retrieve aggregate information
+     * Retrieve aggregate information of numerical observations
      *
      * @param types the list of aggregates you want
      * @param constraint specifies which observations you want to aggregate
      * @param user The user whose access rights to consider
-     * @return a map of aggregates. The keys are the names of the aggregates and values are the results.
+     * @return a map of aggregates. The keys are the names of the aggregate functions and values are their results.
      */
-    Map<AggregateType, Number> aggregate(Set<AggregateType> types, MultiDimConstraint constraint, User user)
+    Map<AggregateFunction, Number> aggregate(Set<AggregateFunction> types, MultiDimConstraint constraint, User user)
 
     /**
      * Calculate categorical values frequencies

@@ -6,11 +6,11 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 
 /**
- * Result types for observation queries.
+ * Aggregate functions to run on numerical observations.
  */
 @Slf4j
 @CompileStatic
-enum AggregateType {
+enum AggregateFunction {
     MIN,
     MAX,
     AVERAGE,
@@ -18,7 +18,7 @@ enum AggregateType {
     PATIENT_COUNT,
     STD_DEV,
 
-    private static final Map<String, AggregateType> mapping = values().collectEntries {
+    private static final Map<String, AggregateFunction> mapping = values().collectEntries {
         [(it.name().toLowerCase()): it]
     }
 
@@ -26,7 +26,7 @@ enum AggregateType {
         name().toLowerCase()
     }
 
-    static AggregateType forName(String name) {
+    static AggregateFunction forName(String name) {
         String key = name.toLowerCase()
         if (!mapping.containsKey(key)) {
             throw new IllegalArgumentException("Unknown aggregate type: $name")

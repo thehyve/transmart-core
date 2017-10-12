@@ -5,7 +5,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.multidimquery.AggregateType
+import org.transmartproject.core.multidimquery.AggregateFunction
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.db.TestData
@@ -20,7 +20,7 @@ import spock.lang.Ignore
 
 import java.sql.Timestamp
 
-import static org.transmartproject.core.multidimquery.AggregateType.*
+import static org.transmartproject.core.multidimquery.AggregateFunction.*
 import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 
 @Rollback
@@ -317,7 +317,7 @@ class QueryServiceSpec extends TransmartSpecification {
 
         when:
         result = multiDimService.aggregate(
-                EnumSet.allOf(AggregateType),
+                EnumSet.allOf(AggregateFunction),
                 query,
                 accessLevelTestData.users[0])
         then:
