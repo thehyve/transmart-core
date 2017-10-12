@@ -107,7 +107,7 @@ interface MultiDimensionalDataResource {
      * @param user The user whose access rights to consider
      * @return value frequency map where keys are categorical values and values are counts
      */
-    Map<String, Long> categoricalValueFrequencies(MultiDimConstraint constraint, User user)
+    Map<String, Long> countCategoricalValues(MultiDimConstraint constraint, User user)
 
     Hypercube highDimension(
             MultiDimConstraint assayConstraint_,

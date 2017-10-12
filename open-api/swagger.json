@@ -802,7 +802,7 @@
         }
       }
     },
-    "/v2/observations/categorical_value_frequencies": {
+    "/v2/observations/count_categorical_values": {
       "get": {
         "description": "Calculates and returns categorical values frequencies\n",
         "tags": [

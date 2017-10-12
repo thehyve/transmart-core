@@ -58,8 +58,8 @@ class RestApiUrlMappings {
                 action = [GET: 'aggregate', POST: 'aggregate']
                 apiVersion = 'v2'
             }
-            "/observations/categorical_value_frequencies"(controller: 'query') {
-                action = [GET: 'categoricalValueFrequencies', POST: 'categoricalValueFrequencies']
+            "/observations/count_categorical_values"(controller: 'query') {
+                action = [GET: 'countCategoricalValues', POST: 'countCategoricalValues']
                 apiVersion = 'v2'
             }
             "/observations/count"(controller: 'query') {

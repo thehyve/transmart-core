@@ -347,7 +347,7 @@ class QueryServiceSpec extends TransmartSpecification {
         def query = createQueryForConcept(facts[0])
 
         when:
-        def result = multiDimService.categoricalValueFrequencies(query, accessLevelTestData.users[0])
+        def result = multiDimService.countCategoricalValues(query, accessLevelTestData.users[0])
 
         then:
         [fact.textValue, "hello", "you", "there"] as Set == result.keySet()

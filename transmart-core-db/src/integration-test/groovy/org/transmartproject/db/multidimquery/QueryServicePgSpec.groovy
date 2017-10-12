@@ -669,12 +669,12 @@ class QueryServicePgSpec extends Specification {
         def race = new ConceptConstraint(
                 path: '\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\')
         when:
-        def categoricalValueFreqMap = multiDimService.categoricalValueFrequencies(race, user)
+        def categoricalValueFreqMap = multiDimService.countCategoricalValues(race, user)
         then:
         categoricalValueFreqMap == [ Caucasian: 2L, Latino: 1L ]
 
         when: 'only numerical observations selected'
-        def emptyMap = multiDimService.categoricalValueFrequencies(new ConceptConstraint(
+        def emptyMap = multiDimService.countCategoricalValues(new ConceptConstraint(
                 path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\'), user)
         then: 'map is empty'
         emptyMap.isEmpty()

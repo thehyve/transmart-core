@@ -771,7 +771,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     @Override
-    Map<String, Long> categoricalValueFrequencies(MultiDimConstraint constraint, User user) {
+    Map<String, Long> countCategoricalValues(MultiDimConstraint constraint, User user) {
         assert constraint instanceof Constraint
         checkAccess(constraint, user)
 

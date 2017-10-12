@@ -249,18 +249,18 @@ class QueryController extends AbstractQueryController {
 
     /**
      * Categorical value frequency endpoint:
-     * <code>/v2/observations/categorical_value_frequencies?constraint=${constraint}</code>
+     * <code>/v2/observations/count_categorical_values?constraint=${constraint}</code>
      *
      * Expects an {@link Constraint} parameter <code>constraint</code>.
      *
      * @return a map with the categorical values as keys and the counts as values. e.g. {"Female": 354, "Male": 310}
      */
-    def categoricalValueFrequencies() {
+    def countCategoricalValues() {
         def args = getGetOrPostParams()
         checkForUnsupportedParams(args, ['constraint'])
         Constraint constraint = bindConstraint(args.constraint)
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Map<String, Long> valueFrequencies = multiDimService.categoricalValueFrequencies(constraint, user)
+        Map<String, Long> valueFrequencies = multiDimService.countCategoricalValues(constraint, user)
         render valueFrequencies as JSON
     }
 
