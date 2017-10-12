@@ -16,6 +16,7 @@ enum AggregateType {
     AVERAGE,
     COUNT,
     PATIENT_COUNT,
+    STD_DEV,
 
     private static final Map<String, AggregateType> mapping = values().collectEntries {
         [(it.name().toLowerCase()): it]

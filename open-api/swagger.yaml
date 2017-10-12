@@ -791,7 +791,7 @@ paths:
   /v2/observations/aggregate:
     get:
       description: |
-        Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average' and 'count'
+        Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'std_dev' and 'count'
       tags:
         - v2
       parameters:
@@ -804,7 +804,7 @@ paths:
           required: true
           in: query
           description: |
-            'min', 'max', 'average' or 'count'. This parameter can be specified multiple times to retrieve
+            'min', 'max', 'average', 'std_dev' or 'count'. This parameter can be specified multiple times to retrieve
             multiple aggregates at once.
           type: string
       responses:
@@ -819,6 +819,8 @@ paths:
               max:
                 type: number
               average:
+                type: number
+              std_dev:
                 type: number
     post:
       description: |
@@ -852,6 +854,8 @@ paths:
               max:
                 type: number
               average:
+                type: number
+              std_dev:
                 type: number
   /v2/observations/categorical_value_frequencies:
     get:

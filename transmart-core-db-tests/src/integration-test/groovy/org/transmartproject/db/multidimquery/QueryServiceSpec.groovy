@@ -303,12 +303,21 @@ class QueryServiceSpec extends TransmartSpecification {
         result.average == 30 //(10+50) / 2
 
         when:
-        result = multiDimService.aggregate([AggregateType.MIN, AggregateType.MAX, AggregateType.AVERAGE], query,
+        result = multiDimService.aggregate([AggregateType.STD_DEV], query, accessLevelTestData.users[0])
+
+        then:
+        result.std_dev.round(2) == 28.28
+
+        when:
+        result = multiDimService.aggregate(
+                [AggregateType.MIN, AggregateType.MAX, AggregateType.AVERAGE, AggregateType.STD_DEV],
+                query,
                 accessLevelTestData.users[0])
         then:
         result.min == 10
         result.max == 50
         result.average == 30
+        result.std_dev.round(2) == 28.28
     }
 
     void "test for values aggregate"() {

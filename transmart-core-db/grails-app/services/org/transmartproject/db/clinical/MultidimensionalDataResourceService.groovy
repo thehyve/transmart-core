@@ -19,6 +19,7 @@ import org.hibernate.criterion.*
 import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
+import org.hibernate.type.StandardBasicTypes
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient
@@ -326,6 +327,11 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 return Projections.rowCount()
             case AggregateType.PATIENT_COUNT:
                 return Projections.countDistinct('patient')
+            case AggregateType.STD_DEV:
+                return Projections.sqlProjection(
+                        'STDDEV(nval_num) as SD',
+                        [ 'SD' ] as String[],
+                        [ StandardBasicTypes.DOUBLE ] as org.hibernate.type.Type[])
             default:
                 throw new QueryBuilderException("Query type not supported: ${at}")
         }

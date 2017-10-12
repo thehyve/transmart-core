@@ -612,6 +612,7 @@ class QueryServicePgSpec extends Specification {
         def expectedAverage = 74.78
         def expectedCount = 9
         def expectedPatientCount = 3
+        def expectedStandardDiviation = 14.7
         def user = User.findByUsername('test-public-user-1')
         def heartRate = new ConceptConstraint(
                 path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\')
@@ -644,15 +645,24 @@ class QueryServicePgSpec extends Specification {
         patientCountMap == [ patient_count: expectedPatientCount ]
 
         when:
-        def compositeMap = multiDimService.aggregate([AggregateType.MAX, AggregateType.MIN, AggregateType.AVERAGE,
-                                                      AggregateType.COUNT, AggregateType.PATIENT_COUNT], heartRate, user)
+        def sdMap = multiDimService.aggregate([AggregateType.STD_DEV], heartRate, user)
         then:
-        compositeMap.size() == 5
+        sdMap.size() == 1
+        'std_dev' in sdMap
+        sdMap.std_dev.round(2) == expectedStandardDiviation
+
+        when:
+        def compositeMap = multiDimService.aggregate([AggregateType.MAX, AggregateType.MIN, AggregateType.AVERAGE,
+                                                      AggregateType.COUNT, AggregateType.PATIENT_COUNT,
+                                                      AggregateType.STD_DEV], heartRate, user)
+        then:
+        compositeMap.size() == 6
         compositeMap.max == expectedMax
         compositeMap.min == expectedMin
         compositeMap.average.round(2) == expectedAverage
         compositeMap.count == expectedCount
         compositeMap.patient_count == expectedPatientCount
+        compositeMap.std_dev.round(2) == expectedStandardDiviation
     }
 
     void 'test categorical value frequencies'() {
