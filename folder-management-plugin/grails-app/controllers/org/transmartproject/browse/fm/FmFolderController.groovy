@@ -17,7 +17,9 @@ import i2b2.OntNode
 import org.apache.commons.lang.StringUtils
 import org.slf4j.LoggerFactory
 import org.transmart.biomart.BioAssayAnalysis
+import org.transmart.biomart.BioAssayAnalysisData
 import org.transmart.biomart.BioAssayPlatform
+import org.transmart.biomart.BioDataExternalCode
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.SearchKeyword
@@ -26,7 +28,6 @@ import javax.activation.MimetypesFileTypeMap
 
 class FmFolderController {
 
-    def formLayoutService
     def amTagTemplateService
     def amTagItemService
     def fmFolderService
@@ -250,7 +251,7 @@ class FmFolderController {
             render result as JSON
         } catch (Exception ex) {
             log.error "Exception in FmFolderController.saveProgram", ex
-            def result = [errors: "<ul><li>An unexpected error has occurred. If this error persits, please click \"Close\" or \"Cancel\" to close this dialog box.<br><br>Error details: " + ex.getMessage() + "</li></ul>"]
+            def result = [errors: "<ul><li>An unexpected error has occurred. If this error persists, please click \"Close\" or \"Cancel\" to close this dialog box.<br><br>Error details: " + ex.getMessage() + "</li></ul>"]
             render result as JSON
         }
 
@@ -290,7 +291,7 @@ class FmFolderController {
             render result as JSON
         } catch (Exception ex) {
             log.error "Exception in FmFolderController.saveStudy", ex
-            def result = [errors: "<ul><li>An unexpected error has occurred. If this error persits, please click \"Close\" or \"Cancel\" to close this dialog box.<br><br>Error details: " + ex.getMessage() + "</li></ul>"]
+            def result = [errors: "<ul><li>An unexpected error has occurred. If this error persists, please click \"Close\" or \"Cancel\" to close this dialog box.<br><br>Error details: " + ex.getMessage() + "</li></ul>"]
             render result as JSON
         }
 
@@ -325,7 +326,7 @@ class FmFolderController {
             render result as JSON
         } catch (Exception ex) {
             log.error "Exception in FmFolderController.saveAssay", ex
-            def result = [errors: "<ul><li>An unexpected error has occurred. If this error persits, please click \"Close\" or \"Cancel\" to close this dialog box.<br><br>Error details: " + ex.getMessage() + "</li></ul>"]
+            def result = [errors: "<ul><li>An unexpected error has occurred. If this error persists, please click \"Close\" or \"Cancel\" to close this dialog box.<br><br>Error details: " + ex.getMessage() + "</li></ul>"]
             render result as JSON
         }
 
@@ -376,7 +377,7 @@ class FmFolderController {
             render result as JSON
         } catch (Exception ex) {
             log.error "Exception in FmFolderController.saveAnalysis", ex
-            def result = [errors: "<ul><li>An unexpected error has occurred. If this error persits, please click \"Close\" or \"Cancel\" to close this dialog box.<br><br>Error details: " + ex.getMessage() + "</li></ul>"]
+            def result = [errors: "<ul><li>An unexpected error has occurred. If this error persists, please click \"Close\" or \"Cancel\" to close this dialog box.<br><br>Error details: " + ex.getMessage() + "</li></ul>"]
             render result as JSON
         }
 
@@ -896,11 +897,11 @@ class FmFolderController {
         def folderId = params.id
         log.debug "PARAMS = $params"
 
-        def folder
+        FmFolder folder
         def subFolders
         def bioDataObject
         def amTagTemplate
-        def metaDataTagItems
+        List<AmTagItem> metaDataTagItems
         def jSONForGrids = []
         def subjectLevelDataAvailable = false
         def measurements
@@ -1003,7 +1004,7 @@ class FmFolderController {
             def rows = BioAssayAnalysisData.createCriteria().list(criteriaParams) {
                 eq('analysis', BioAssayAnalysis.get(analysisId))
                 order('rawPvalue', 'asc')
-            }
+            } as List<BioAssayAnalysisData>
 
             ExportTableNew table = new ExportTableNew()
             table.putColumn("probe", new ExportColumn("probe", "Probe", "", 'String'));
@@ -1029,7 +1030,7 @@ class FmFolderController {
 
                 if (foundGene || !genes) {
                     ExportRowNew newrow = new ExportRowNew()
-                    newrow.put("probe", it.probeset);
+                    newrow.put("probe", it.featureGroupName);
                     newrow.put("gene", rowGenes.join(", "));
                     newrow.put("pvalue", it.rawPvalue.toString());
                     newrow.put("apvalue", it.adjustedPvalue.toString());
@@ -1252,7 +1253,7 @@ class FmFolderController {
             fmFolderService.deleteFolder(folder)
             render(template: 'deletedFolder')
         } else {
-            render(status: 500, text: "FmFolder not found")
+            render(status: 404, text: "FmFolder not found")
         }
     }
 
@@ -1304,6 +1305,8 @@ class FmFolderController {
 
     def ajaxTechnologies =
             {
+                // This way of building a query is unsafe and should be rewritten if it is still being used.
+                throw new RuntimeException("Functionality is disabled.")
                 def queryString = " where 1=1"
                 if (params.measurementName != null && params.measurementName != 'null') {
                     queryString += " and platformType = '" + params.measurementName + "'"
@@ -1320,6 +1323,8 @@ class FmFolderController {
 
     def ajaxVendors =
             {
+                // This way of building a query is unsafe and should be rewritten if it is still being used.
+                throw new RuntimeException("Functionality is disabled.")
                 log.info params.toMapString()
                 def queryString = " where 1=1"
 
@@ -1339,6 +1344,8 @@ class FmFolderController {
 
     def ajaxMeasurements =
             {
+                // This way of building a query is unsafe and should be rewritten if it is still being used.
+                throw new RuntimeException("Functionality is disabled.")
                 log.info params.toMapString()
                 def queryString = " where 1=1"
 
@@ -1358,6 +1365,8 @@ class FmFolderController {
 
     def ajaxPlatforms =
             {
+                // This way of building a query is unsafe and should be rewritten if it is still being used.
+                throw new RuntimeException("Functionality is disabled.")
                 log.info params.toMapString()
                 def queryString = " where 1=1"
 
@@ -1383,11 +1392,11 @@ class FmFolderController {
         if ("anonymousUser" != springSecurityService.getPrincipal()) {
             def user = AuthUser.findByUsername(springSecurityService.getPrincipal().username)
             if (!user.isAdmin()) {
-                render(status: 200, text: "You do not have permission to edit this object's metadata.")
+                render(status: 403, text: "You do not have permission to edit this object's metadata.")
                 return false
             }
         } else {
-            render(status: 200, text: "You do not have permission to edit this object's metadata.")
+            render(status: 403, text: "You do not have permission to edit this object's metadata.")
             return false
         }
         return true
@@ -1396,7 +1405,6 @@ class FmFolderController {
 
     def getFolderFiles = {
         //Get the folder ID for the study selected
-        def paramMap = params
         def experiment = null
 
         if (params.id) {
@@ -1428,7 +1436,6 @@ class FmFolderController {
     }
 
     def getFolderHasFiles = {
-        def paramMap = params
         def experiment = null
 
         OntNode ont = OntNode.findByName(params.accession)

@@ -146,12 +146,7 @@ function toggleDetailDiv(trialNumber, dataURL, forceOpen, highlightFolder, manua
 	// If data attribute is undefined then this is the first time opening the div, load the analysis... 
 	if (typeof jQuery(trialDetail).attr('data') == 'undefined')	{
 		//add node
-		if(manual){
-			jQuery.ajax({
-				url:addNodeRwgURL+"?node=FOL:"+trialNumber
-			});
-		}
-		var src = jQuery(imgExpand).attr('src').replace('folderplus.png', 'ajax-loader-flat.gif');	
+		var src = jQuery(imgExpand).attr('src').replace('folderplus.png', 'ajax-loader-flat.gif');
 		jQuery(imgExpand).attr('src',src);
 		jQuery.ajax({
 			url:dataURL,			
@@ -176,20 +171,10 @@ function toggleDetailDiv(trialNumber, dataURL, forceOpen, highlightFolder, manua
 		var src = jQuery(imgExpand).attr('src').replace('folderminus.png', 'folderplus.png');
 		if (jQuery(trialDetail).attr('data') == "true" && !forceOpen)	{
 			//remove node
-			if(manual){
-				jQuery.ajax({
-					url:removeNodeRwgURL+"?node=FOL:"+trialNumber
-				});
-			}
-			
+
 			jQuery(trialDetail).attr('data',false);
 			jQuery(trialDetail).removeClass("analysesopen");
 		} else	{
-			if(manual){
-				jQuery.ajax({
-					url:addNodeRwgURL+"?node=FOL:"+trialNumber
-				});
-			}
 			src = jQuery(imgExpand).attr('src').replace('folderplus.png', 'folderminus.png');
 			jQuery(trialDetail).attr('data',true);
 			jQuery(trialDetail).addClass("analysesopen");
@@ -563,20 +548,6 @@ function analysisMenuEvent(id){
 	default:
 		
 		console.log("Invalid option: " +id);	
-	}
-	
-}
-
-//Remove the search term that the user has de-selected from filter tree.
-function removeFilterTreeSearchTerm(termID)	{
-	var idx = currentSearchTerms.indexOf(termID);
-	if (idx > -1)	{
-		currentSearchTerms.splice(idx, 1);
-
-		// check if there are any remaining terms for this category; remove category from list if none
-		var fields = termID.split(":");
-		var category = fields[0];
-		clearCategoryIfNoTerms(category);
 	}
 	
 }
@@ -2571,48 +2542,6 @@ function updateSelectedAnalyses() {
 	}
 }
 
-function startPlotter() {
-	var selectedboxes = jQuery(".analysischeckbox:checked");
-	if (selectedboxes.length == 0) {
-		alert("No analyses are selected! Please select analyses to plot.");
-	}
-	else {
-		var analysisIds = "";
-		analysisIds += jQuery(selectedboxes[0]).attr('name');
-		for (var i = 1; i < selectedboxes.length; i++) {
-			analysisIds += "," + jQuery(selectedboxes[i]).attr('name');
-		}
-		
-		var snpSource = jQuery('#plotSnpSource').val();
-		var geneSource = jQuery('#plotGeneSource').val();
-		var pvalueCutoff = jQuery('#plotPvalueCutoff').val();
-		
-		window.location = webStartURL + "?analysisIds=" + analysisIds + "&snpSource=" + snpSource + "&geneSource=GRCh37&pvalueCutoff=" + pvalueCutoff;
-		jQuery('#divPlotOptions').dialog("destroy");
-	}
-}
-
-function openPlotOptions() {
-	var selectedboxes = jQuery(".analysischeckbox:checked");
-	if (selectedboxes.length == 0) {
-		alert("No analyses are selected! Please select analyses to plot.");
-	}
-	else {
-		jQuery('#divPlotOptions').dialog("destroy");
-		jQuery('#divPlotOptions').dialog(
-			{
-				modal: false,
-				height: 250,
-				width: 400,
-				title: "Manhattan Plot Options",
-				show: 'fade',
-				hide: 'fade',
-				resizable: false,
-				buttons: {"Plot" : startPlotter}
-			});
-	}
-}
-
 function updateAnalysisData(analysisId, full) {
 	jQuery('#partialanalysiswarning').hide();
 	jQuery('#analysisgenefilteredwarning').hide();
@@ -2652,3 +2581,30 @@ function updateAnalysisData(analysisId, full) {
 jQuery.ajaxSetup({
 	cache: false
 });
+
+
+function rwg_onFoldersListChanges(newFolderList) {
+    var isSearch = newFolderList !== undefined;
+    var data = {
+        search: isSearch,
+    };
+
+    if (isSearch) {
+        data.folderIds = newFolderList;
+    }
+
+    jQuery.ajax({
+        url: renderRootURL,
+        data: jQuery.param(data, true /* no brackets */),
+        success: function(response) {
+            jQuery('#results-div').removeClass('ajaxloading').html(response);
+            updateAnalysisData(null, false);
+            if (isSearch) {
+                displayResultsNumber();
+            }
+        },
+        error: function(xhr) {
+            console.log('Error rendering root folders (possibly after search)', xhr);
+        }
+    });
+}

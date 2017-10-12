@@ -19,7 +19,10 @@
     var sessionSearch = "${rwgSearchFilter}";
     var sessionOperators = "${rwgSearchOperators}";
     var sessionSearchCategory = "${rwgSearchCategory}";
-    var searchPage = "RWG";
+
+    window.rwgSearchConfig = {
+        onFoldersListChanges: function() { window.rwg_onFoldersListChanges.apply(this, arguments); },
+    };
 
     var $j = window.$j = jQuery.noConflict();
 
@@ -208,7 +211,6 @@
                             jQuery('#displayProgramErrors').empty().html('<div class="errors">' + response.errors + '</div>');
                             jQuery('#saveprogrambutton').removeClass('buttonloading').text('Save');
                         } else {
-                            showSearchResults();
                             jQuery('#createProgramOverlay').fadeOut();
                             showDetailDialog(response.id);
                         }

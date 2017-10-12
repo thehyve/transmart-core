@@ -915,7 +915,7 @@ class FmFolderService {
      * @param parentId
      * @return list of folders which are the children of the folder of which the identifier is passed as parameter
      */
-    List getChildrenFolderTypes(Long parentId) {
+    List<String> getChildrenFolderTypes(Long parentId) {
         def folder = FmFolder.get(parentId)
         return FmFolder.executeQuery("select distinct(fd.folderType) from FmFolder as fd where fd.activeInd = true and fd.folderFullName like :fn and fd.folderLevel= :fl ", [fl: folder.folderLevel + 1, fn: folder.folderFullName + "%"])
     }

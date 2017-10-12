@@ -124,7 +124,7 @@ class FileExportController {
                     manifestList.push(fmFile)
                     manifestMap.put(dirName, manifestList)
 
-                    //for each folder of the hieararchy of the file path, add file with metadata
+                    //for each folder of the hierarchy of the file path, add file with metadata
                     def path = fmFile.folder.folderFullName
                     if (metadataExported.add(path)) exportMetadata(path, zipStream);
 

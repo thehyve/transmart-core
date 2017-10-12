@@ -24,6 +24,9 @@ class ProxyController {
 
 
     private doProcess(HttpServletRequest req, HttpServletResponse res, boolean isPost) {
+        // This way of providing a proxy is unsafe and should be rewritten if it is still being used.
+        // The url should be filtered for allowed domains, to be specified in a config file.
+        throw new RuntimeException("Functionality is disabled.")
 
         boolean allowXDomain = true;
         boolean requireSession = false;

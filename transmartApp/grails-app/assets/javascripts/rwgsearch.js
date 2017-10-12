@@ -590,26 +590,6 @@ window.rwgController = {
     }
 };
 
-//Method to load the search results in the search results panel and facet counts into tree
-//This occurs whenever a user add/removes a search term
-function showSearchResults(openInAnalyze, datasetExplorerPath)	{
-
-    // clear stored probe Ids for each analysis
-    analysisProbeIds = new Array();
-
-    // clear stored analysis results
-    jQuery('body').removeData();
-
-    jQuery('#results-div').empty();
-
-    // call method which retrieves facet counts and search results
-    showFacetResults(openInAnalyze, datasetExplorerPath);
-
-    //all analyses will be closed when doing a new search, so clear this array
-    openAnalyses = [];
-
-}
-
 jQuery(document).ready(function() {
 
     jQuery('#sidebartoggle').click(function() {

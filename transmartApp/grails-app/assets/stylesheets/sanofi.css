@@ -167,6 +167,10 @@ table.menuDetail th.menuVisited {
     background: #FFFFFF;
 }
 
+.search-error {
+	background-color: rgb(255,200,200) !important;
+}
+
 .boxcontent {
 	position: relative;
 	border-bottom-left-radius: 8px;
@@ -241,6 +245,10 @@ table.menuDetail th.menuVisited {
 	line-height: 1.4em;
 }
 
+
+.literal-term {
+    font-style: italic;
+}
 
 .term-remove img a:hover {
 	text-decoration:none;

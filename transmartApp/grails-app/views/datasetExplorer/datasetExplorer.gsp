@@ -100,10 +100,10 @@
             analysisTabExtensions: ${grailsApplication.mainContext.getBean('transmartExtensionsRegistry').analysisTabExtensions as JSON}
         };
 
-        var sessionSearch = "${rwgSearchFilter}";
-        var sessionOperators = "${rwgSearchOperators}";
-        var sessionSearchCategory = "${rwgSearchCategory}";
-        var searchPage = "datasetExplorer";
+        window.rwgSearchConfig = {
+            onConceptsListChanges: function() { window.datasetExplorer_conceptsListChanges.apply(this, arguments); },
+        };
+
         var dseOpenedNodes = "${dseOpenedNodes}";
         var dseClosedNodes = "${dseClosedNodes}";
         var helpURL = '${grailsApplication.config.com.recomdata.adminHelpURL}';
