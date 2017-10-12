@@ -1,8 +1,4 @@
-<%@ page import="com.recomdata.util.*" %>
-<%
-	def ontologyService = grailsApplication.classLoader.loadClass('transmartapp.OntologyService').newInstance()
-	def fmFolderService = grailsApplication.classLoader.loadClass('org.transmartproject.browse.fm.FmFolderService').newInstance()
-%>
+<%@ page import="org.transmartproject.browse.fm.FmFolder; com.recomdata.util.*" %>
 
 <g:set var="ontologyService" bean="ontologyService"/>
 <g:set var="fmFolderService" bean="fmFolderService"/>
@@ -22,7 +18,7 @@
 </script>
 
 <div class="search-results-table">
-	<g:each in="${folders}" status="ti" var="folder">
+	<g:each in="${folders as List<FmFolder>}" status="ti" var="folder">
 		<g:set var="folderAccessLevel" value="${folderContentsAccessLevelMap[folder]}"/>
 		<g:if test="${!auto || folder.folderLevel > 1 || !folderSearchString || folderSearchString?.indexOf(folder.folderFullName) > -1 || (folder.folderLevel == 1 && fmFolderService.searchMatchesParentProgram(folderSearchString, folder.folderFullName))}">
 			<table id="folder-header-${folder.id}" class="folderheader"
@@ -32,7 +28,7 @@
 					<td class="foldertitle">
 						<g:set var="folderIconType"
 							   value="${folder.folderType.toLowerCase()}"/>
-						<g:if test="${folder.folderType.equalsIgnoreCase(FolderType.STUDY.name()) && ontologyService.checkSubjectLevelData(fmFolderService.getAssociatedAccession(folder))}">
+						<g:if test="${folder.folderType.equalsIgnoreCase(FolderType.STUDY.name()) && fm.checkSubjectLevelData(folder: folder)}">
 							<g:set var="folderIconType" value="studywsubject"/>
 						</g:if>
 						<span>

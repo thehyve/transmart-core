@@ -1,17 +1,24 @@
-package annotation
+package org.transmartproject.browse.fm
 
+import annotation.AmTagDisplayValue
+import annotation.AmTagItem
+import annotation.MetaDataService
 import grails.artefact.TagLibrary
 import grails.gsp.TagLib
 import org.transmart.biomart.ConceptCode
-import org.transmartproject.browse.fm.FmFolder
 
 @TagLib
-class MetadataTagLib implements TagLibrary {
+class FmTagLib implements TagLibrary {
 
-    static namespace = 'metadata'
-    static returnObjectForTags = ['tagValues', 'tagValue', 'codes', 'viewValues']
+    static namespace = 'fm'
+    static returnObjectForTags = [
+            'tagValues', 'tagValue', 'codes', 'viewValues',
+            'checkSubjectLevelData'
+    ]
 
     MetaDataService metaDataService
+    def ontologyService
+    FmFolderService fmFolderService
 
     Closure<List<AmTagDisplayValue>> tagValues = { attrs ->
         def folder = attrs.folder as FmFolder
@@ -33,6 +40,11 @@ class MetadataTagLib implements TagLibrary {
     Closure viewValues = { attrs ->
         def fieldValue = attrs.fieldValue as String
         metaDataService.getViewValues(fieldValue)
+    }
+
+    Closure<Boolean> checkSubjectLevelData = { attrs ->
+        def folder = attrs.folder as FmFolder
+        ontologyService.checkSubjectLevelData(fmFolderService.getAssociatedAccession(folder))
     }
 
 }
