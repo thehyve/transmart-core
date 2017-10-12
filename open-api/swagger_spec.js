@@ -756,22 +756,7 @@ var spec = {
           "200": {
             "description": "return the result in a json object. Example: `{min: 56}`.",
             "schema": {
-              "type": "object",
-              "description": "only the value of the requested aggregate type will be present.",
-              "properties": {
-                "min": {
-                  "type": "number"
-                },
-                "max": {
-                  "type": "number"
-                },
-                "average": {
-                  "type": "number"
-                },
-                "std_dev": {
-                  "type": "number"
-                }
-              }
+              "$ref": "#/definitions/aggregates"
             }
           }
         }
@@ -811,22 +796,7 @@ var spec = {
           "200": {
             "description": "return the result in a json object. Example: `{min: 56}`.",
             "schema": {
-              "type": "object",
-              "description": "only the value of the requested aggregate type will be present.",
-              "properties": {
-                "min": {
-                  "type": "number"
-                },
-                "max": {
-                  "type": "number"
-                },
-                "average": {
-                  "type": "number"
-                },
-                "std_dev": {
-                  "type": "number"
-                }
-              }
+              "$ref": "#/definitions/aggregates"
             }
           }
         }
@@ -3011,6 +2981,27 @@ var spec = {
         "updateDate": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "aggregates": {
+      "type": "object",
+      "description": "only the value of the requested aggregate type will be present.",
+      "properties": {
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "average": {
+          "type": "number"
+        },
+        "count": {
+          "type": "number"
+        },
+        "std_dev": {
+          "type": "number"
         }
       }
     }

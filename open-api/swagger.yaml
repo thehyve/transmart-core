@@ -811,17 +811,7 @@ paths:
         200:
           description: 'return the result in a json object. Example: `{min: 56}`.'
           schema:
-            type: object
-            description: 'only the value of the requested aggregate type will be present.'
-            properties:
-              min:
-                type: number
-              max:
-                type: number
-              average:
-                type: number
-              std_dev:
-                type: number
+            $ref: '#/definitions/aggregates'
     post:
       description: |
         Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.
@@ -846,17 +836,7 @@ paths:
         200:
           description: 'return the result in a json object. Example: `{min: 56}`.'
           schema:
-            type: object
-            description: 'only the value of the requested aggregate type will be present.'
-            properties:
-              min:
-                type: number
-              max:
-                type: number
-              average:
-                type: number
-              std_dev:
-                type: number
+            $ref: '#/definitions/aggregates'
   /v2/observations/categorical_value_frequencies:
     get:
       description: |
@@ -2369,3 +2349,17 @@ definitions:
       updateDate:
         type: string
         format: 'date-time'
+  aggregates:
+    type: object
+    description: 'only the value of the requested aggregate type will be present.'
+    properties:
+      min:
+        type: number
+      max:
+        type: number
+      average:
+        type: number
+      count:
+        type: number
+      std_dev:
+        type: number

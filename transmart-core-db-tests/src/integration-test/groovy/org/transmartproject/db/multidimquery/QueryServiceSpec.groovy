@@ -5,8 +5,7 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.transmartproject.core.exceptions.DataInconsistencyException
-import org.transmartproject.core.multidimquery.AggregateType
+import static org.transmartproject.core.multidimquery.AggregateType.*
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.db.TestData
@@ -285,38 +284,46 @@ class QueryServiceSpec extends TransmartSpecification {
         def query = createQueryForConcept(observationFact)
 
         when:
-        def result = multiDimService.aggregate([AggregateType.MAX], query, accessLevelTestData.users[0])
+        def result = multiDimService.aggregate([MAX], query, accessLevelTestData.users[0])
 
         then:
         result.max == 50
 
         when:
-        result = multiDimService.aggregate([AggregateType.MIN], query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate([MIN], query, accessLevelTestData.users[0])
 
         then:
         result.min == 10
 
         when:
-        result = multiDimService.aggregate([AggregateType.AVERAGE], query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate([AVERAGE], query, accessLevelTestData.users[0])
 
         then:
         result.average == 30 //(10+50) / 2
 
         when:
-        result = multiDimService.aggregate([AggregateType.STD_DEV], query, accessLevelTestData.users[0])
+        result = multiDimService.aggregate([COUNT], query, accessLevelTestData.users[0])
+
+        then:
+        result.count == 2
+
+
+        when:
+        result = multiDimService.aggregate([STD_DEV], query, accessLevelTestData.users[0])
 
         then:
         result.std_dev.round(2) == 28.28
 
         when:
         result = multiDimService.aggregate(
-                [AggregateType.MIN, AggregateType.MAX, AggregateType.AVERAGE, AggregateType.STD_DEV],
+                [MIN, MAX, AVERAGE, STD_DEV, COUNT],
                 query,
                 accessLevelTestData.users[0])
         then:
         result.min == 10
         result.max == 50
         result.average == 30
+        result.count == 2
         result.std_dev.round(2) == 28.28
     }
 
