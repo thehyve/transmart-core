@@ -14,7 +14,6 @@ dependencies {
     compile "org.apache.httpcomponents:httpmime:4.5.2"
     compile "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
 
-    compile project(':transmart-java')
     compile project(':search-domain')
     compile project(':biomart-domain')
     compile project(':transmart-legacy-db')

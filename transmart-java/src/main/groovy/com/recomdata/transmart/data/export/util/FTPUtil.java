@@ -31,7 +31,8 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Map;
@@ -42,8 +43,7 @@ import java.util.Map;
  */
 public class FTPUtil {
 	
-	private static org.apache.log4j.Logger log =
-            Logger.getLogger(FTPUtil.class);
+	private static Logger log = LoggerFactory.getLogger(FTPUtil.class);
 	@SuppressWarnings("rawtypes")
 	private static final Map config = TransmartContextHolder.getGrailsApplication().getConfig();
 	

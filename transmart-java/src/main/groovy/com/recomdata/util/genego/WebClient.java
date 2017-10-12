@@ -25,7 +25,8 @@
  */
 package com.recomdata.util.genego;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.rpc.ServiceException;
 import java.rmi.RemoteException;
@@ -34,7 +35,7 @@ public class WebClient {
     static final String DEMO_USER = "demo";
     static final String DEMO_PWD = "demo";
         
-    static Logger log = Logger.getLogger(WebClient.class);
+    static Logger log = LoggerFactory.getLogger(WebClient.class);
     
     GeneGOLocator ggL = null;    
     

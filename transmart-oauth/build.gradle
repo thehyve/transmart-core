@@ -19,10 +19,11 @@ dependencies {
     compile "org.grails.plugins:spring-security-core:${springSecurityPluginVersion}"
     compile "org.grails.plugins:spring-security-oauth2-provider:${springSecurityOauth2PluginVersion}"
     compile "org.springframework.security:spring-security-ldap:${springSecurityVersion}"
-    
+
     /* for SAML authentication */
     compile('org.springframework.security.extensions:spring-security-saml2-core:1.0.0.RELEASE')
-    
+
+    compile project(':transmart-core-api')
     compile project(':search-domain')
 }
 
