@@ -49,43 +49,6 @@ class TestSetupSpec extends Specification {
         assert obfs.size() > 0
     }
 
-    void 'test add document' () {
-        given:
-        clearIndex()
-
-        when:
-        String id = 'FOO:12345'
-
-        facetsIndexingService.addDocument(new FacetsDocument(
-                facetsDocId: new FacetsDocId(id),
-                fieldValues: ImmutableMultimap.of(),
-        ))
-        facetsIndexingService.flush()
-
-        then:
-        countDocuments("id:\"$id\"") == 1
-    }
-
-    void 'test remove document' () {
-        given:
-        clearIndex()
-
-        when:
-        def id = new FacetsDocId('FOO:12345')
-
-        facetsIndexingService.addDocument(new FacetsDocument(
-                facetsDocId: id,
-                fieldValues: ImmutableMultimap.of(),
-        ))
-        facetsIndexingService.flush()
-
-        facetsIndexingService.removeDocuments([id] as Set)
-        facetsIndexingService.flush()
-
-        then:
-        countDocuments('id:"FOO:12345"') == 0
-    }
-
     void 'testGetAllDisplaySettings' () {
         given:
         reindex()
