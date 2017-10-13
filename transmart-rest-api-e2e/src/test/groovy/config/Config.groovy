@@ -59,7 +59,6 @@ class Config {
     public static final String PATH_TREE_NODES_CLEAR_CACHE = "/v2/tree_nodes/clear_cache"
     public static final String PATH_STUDIES = "/v2/studies"
     public static final String PATH_PATIENT_SET = "/v2/patient_sets"
-    public static final String PATH_OBSERVATION_SET = "/v2/observation_sets"
     public static final String PATH_STORAGE = "/v2/storage"
     public static final String PATH_FILES = "/v2/files"
     public static final String PATH_ARVADOS_WORKFLOWS = "/v2/arvados/workflows"

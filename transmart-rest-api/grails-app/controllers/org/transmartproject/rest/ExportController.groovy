@@ -57,7 +57,6 @@ class ExportController {
      * Request body:
      * <code>
      * {
-     *      id: [id1,....idx], //list of query result ids. Could be "observation sets" or "patient sets"
      *      criteria: <criteria json>
      *      elements: {
      *          dataType: "<clinical/mrna/...>" //supported data type
@@ -67,7 +66,7 @@ class ExportController {
      *      }
      * }
      * </code>
-     * Creates a hypercube for each element from ${elements} that satisfies ${id} or ${criteria} (one of two could be supplied)
+     * Creates a hypercube for each element from ${elements} that satisfies ${criteria}
      * and serialises it to specified $(fileFormat}.
      * Output stream is saved as .zip file in <code>tempFolderDirectory</code>, specified in configuration file.
      *
@@ -78,9 +77,12 @@ class ExportController {
     def run(@PathVariable('jobId') Long jobId) {
         checkForUnsupportedParams(params, ['jobId'])
         def requestBody = request.JSON as Map
-        def notSupportedFields = requestBody.keySet() - ['id', 'elements', 'constraint']
+        def notSupportedFields = requestBody.keySet() - ['elements', 'constraint']
         if (notSupportedFields) {
             throw new InvalidArgumentsException("Following fields are not supported ${notSupportedFields}.")
+        }
+        if (!requestBody.constraint) {
+            throw new InvalidArgumentsException("No constraint provided.")
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
         checkJobAccess(jobId, user)
@@ -88,7 +90,7 @@ class ExportController {
             throw new InvalidArgumentsException('Empty elements map.')
         }
 
-        Constraint constraint = getConstraintFromJson(requestBody, user)
+        Constraint constraint = ConstraintFactory.create(requestBody.constraint)
 
         def job = exportAsyncJobService.exportData(constraint, requestBody.elements, user, jobId)
 
@@ -149,18 +151,19 @@ class ExportController {
     }
 
     /**
-     * Get available types of the data for specified set id,
+     * Analyses the constraint and gets result types of the data,
      * `clinical` for clinical data and supported high dimensional data types.
-     * <code>/v2/export/data_formats?id=${id1}&...&id=${idx}
+     * <code>/v2/export/data_formats?criteria=${criteria}
      *
-     * @param id - list of sets ids, multiple parameter instances format
+     * @param criteria to fetch all data for which data format is detected
      * @return data formats
      */
     def dataFormats() {
-
-        checkForUnsupportedParams(params, ['id'])
+        def requestBody = request.JSON as Map
+        checkForUnsupportedParams(params, ['constraint'])
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        MultiDimConstraint constraint = multiDimService.createQueryResultsDisjunctionConstraint(parseId(params), user)
+
+        Constraint constraint = ConstraintFactory.create(requestBody.constraint)
         def formats = ['clinical'] + multiDimService.retrieveHighDimDataTypes(constraint, user)
         def results = [
                 dataFormats: formats
@@ -202,17 +205,6 @@ class ExportController {
         }
     }
 
-    private static List<Long> parseId(params) {
-        if (!params.id){
-            throw new InvalidArgumentsException('Empty id parameter.')
-        }
-        try {
-            return params.getList('id').collect { it as Long }
-        } catch (NumberFormatException e) {
-            throw new InvalidArgumentsException('Id parameter should be a number.')
-        }
-    }
-
     private static Map<String, Object> convertToMap(AsyncJobCoreDb job) {
         [
                 id           : job.id,
@@ -220,7 +212,8 @@ class ExportController {
                 jobStatus    : job.jobStatus,
                 jobStatusTime: job.jobStatusTime,
                 userId       : job.userId,
-                viewerUrl    : job.viewerURL
+                viewerUrl    : job.viewerURL,
+                message      : job.results
         ]
     }
 
@@ -246,13 +239,4 @@ class ExportController {
         )
     }
 
-    private Constraint getConstraintFromJson(json, User user) {
-        if (!(json.containsKey('id') ^ json.containsKey('constraint'))) {
-            throw new InvalidArgumentsException("Whether id or constraint parameters can be supplied.")
-        } else if (json.containsKey('id')) {
-            return multiDimService.createQueryResultsDisjunctionConstraint(json.id instanceof Number ? [json.id] : json.id, user)
-        } else if (json.containsKey('constraint')) {
-            return ConstraintFactory.create(json.constraint)
-        }
-    }
 }

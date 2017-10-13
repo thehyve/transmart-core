@@ -55,27 +55,16 @@ class DataExportSpec extends RESTSpec {
 
     @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
     def "get data formats for patientSet"() {
-        given: "A patientset for TUMOR_NORMAL_SAMPLES study is created"
-        def request = [
-                path      : PATH_PATIENT_SET,
-                acceptType: JSON,
-                query     : [name: 'test_set'],
-                body      : toJSON([
-                        type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
-                        values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
-                ]),
-                statusCode: 201
-        ]
-        def createPatientSetResponse = post(request)
-        def patientSetId = createPatientSetResponse.id
-
-        when: "I check data_formats for created patient_set"
-        def getDataFormatsResponse = get([
+        when: "I check data_formats for the constraint"
+        def getDataFormatsResponse = post([
                 path      : "$PATH_DATA_EXPORT/data_formats",
                 acceptType: JSON,
-                query     : [
-                        id: patientSetId,
-                ],
+                body      : toJSON([
+                        constraint: [
+                                type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                                values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
+                        ],
+                ]),
         ])
 
         then: "I get data formats for both clinical and highDim types"
@@ -111,8 +100,8 @@ class DataExportSpec extends RESTSpec {
         def responseData = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
                 body      : toJSON([
-                        id      : patientSetId,
-                        elements:
+                        constraint: [type: PatientSetConstraint, patientSetId: patientSetId],
+                        elements  :
                                 [[
                                          dataType: 'clinical',
                                          format  : 'TSV'
@@ -122,30 +111,42 @@ class DataExportSpec extends RESTSpec {
                                          format  : 'TSV'
                                  ]],
                 ]),
-                statusCode: 403,
                 user      : DEFAULT_USER
         ])
-        then: "I get an access error"
-        assert responseData.httpStatus == 403
-        assert responseData.type == 'AccessDeniedException'
+        then: "Job instance with status: 'Started' is returned"
+        responseData != null
+        responseData.exportJob.id == jobId
+        responseData.exportJob.jobStatus == 'Started'
+        responseData.exportJob.jobStatusTime != null
+        responseData.exportJob.userId == DEFAULT_USER
+        responseData.viewerUrl == null
+
+        when: "Check the status of the job"
+        int maxAttemptNumber = 10 // max number of status check attempts
+        def statusRequest = [
+                path      : "$PATH_DATA_EXPORT/$jobId/status",
+                acceptType: JSON,
+                user      : DEFAULT_USER
+        ]
+        def statusResponse = get(statusRequest)
+
+        then: "Returned status is 'Error'"
+        statusResponse != null
+        def status = statusResponse.exportJob.jobStatus
+
+        // waiting for async process to end (increase number of attempts if needed)
+        for (int attempNum = 0; status != 'Error' && status != 'Completed' && attempNum < maxAttemptNumber; attempNum++) {
+            sleep(500)
+            statusResponse = get(statusRequest)
+            status = statusResponse.exportJob.jobStatus
+        }
+
+        status == 'Error'
+        statusResponse.exportJob.message == "Access denied to patient set or patient set does not exist: ${patientSetId}"
     }
 
     @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)
-    def "run data export with 'Export' permission"() {
-        def patientSetRequest = [
-                path      : PATH_PATIENT_SET,
-                acceptType: JSON,
-                query     : [name: 'export_test_set'],
-                body      : toJSON([
-                        type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
-                        values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
-                ]),
-                user      : ADMIN_USER,
-                statusCode: 201
-        ]
-        def createPatientSetResponse = post(patientSetRequest)
-        def patientSetId = createPatientSetResponse.id
-
+    def "run data export"() {
         def newJobRequest = [
                 path      : "$PATH_DATA_EXPORT/job",
                 acceptType: JSON,
@@ -159,15 +160,18 @@ class DataExportSpec extends RESTSpec {
         def runResponse = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
                 body      : toJSON([
-                        id      : patientSetId,
-                        elements: [[
-                                           dataType: 'clinical',
-                                           format  : 'TSV'
-                                   ],
-                                   [
-                                           dataType: 'mrna',
-                                           format  : 'TSV'
-                                   ]],
+                        constraint: [
+                                type  : ModifierConstraint, path: "\\Public Studies\\TUMOR_NORMAL_SAMPLES\\Sample Type\\",
+                                values: [type: ValueConstraint, valueType: STRING, operator: EQUALS, value: "Tumor"]
+                        ],
+                        elements  : [[
+                                             dataType: 'clinical',
+                                             format  : 'TSV'
+                                     ],
+                                     [
+                                             dataType: 'mrna',
+                                             format  : 'TSV'
+                                     ]],
                 ]),
                 acceptType: JSON,
                 user      : ADMIN_USER
@@ -216,6 +220,18 @@ class DataExportSpec extends RESTSpec {
         then: "ZipStream is returned"
         assert downloadResponse != null
         assert new File(fileName).isFile()
+
+        when: "Try to download the file"
+        def downloadRequest2 = [
+                path      : "$PATH_DATA_EXPORT/$jobId/download",
+                acceptType: ZIP,
+                user      : DEFAULT_USER,
+                statusCode: 403
+        ]
+        def downloadResponse2 = get(downloadRequest2)
+
+        then: "error is returned"
+        downloadResponse2.message == "Job ${jobId} was not created by this user"
 
         cleanup: "Remove created file"
         if (fileName) {
@@ -267,7 +283,7 @@ class DataExportSpec extends RESTSpec {
         def jobId = newJobResponse.exportJob.id
 
         when: "I run a newly created job without id nor constraint parameter supplied."
-        def runResponse1 = post([
+        def runResponse = post([
                 path      : "$PATH_DATA_EXPORT/$jobId/run",
                 body      : toJSON([
                         elements: [[
@@ -279,24 +295,7 @@ class DataExportSpec extends RESTSpec {
                 statusCode: 400,
         ])
         then: "I get the error."
-        runResponse1.message == 'Whether id or constraint parameters can be supplied.'
-
-        when: "I run a newly created job with both id and constraint parameter."
-        def runResponse2 = post([
-                path      : "$PATH_DATA_EXPORT/$jobId/run",
-                body      : toJSON([
-                        id        : -1,
-                        constraint: [type: TrueConstraint],
-                        elements  : [[
-                                             dataType: 'clinical',
-                                             format  : 'TSV'
-                                     ]],
-                ]),
-                acceptType: JSON,
-                statusCode: 400
-        ])
-        then: "I get the error."
-        runResponse2.message == 'Whether id or constraint parameters can be supplied.'
+        runResponse.message == 'No constraint provided.'
     }
 
     @RequiresStudy(EHR_ID)

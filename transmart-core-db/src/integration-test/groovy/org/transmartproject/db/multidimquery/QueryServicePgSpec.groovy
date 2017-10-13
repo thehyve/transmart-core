@@ -504,57 +504,6 @@ class QueryServicePgSpec extends Specification {
         patientSetEntries*.patient.id != null
     }
 
-    void "test generic query"() {
-        def user = User.findByUsername('test-public-user-1')
-
-        ConceptConstraint constraint = new ConceptConstraint(path:
-                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
-
-        when:
-        QueryResult patientSetQueryResult = multiDimService.createObservationSetQueryResult(
-                "Test generic query without patient set.",
-                user,
-                (constraint as JSON).toString(),
-                'v2')
-
-        then:
-        patientSetQueryResult.id > 0
-        patientSetQueryResult.queryResultType.id == QueryResultType.GENERIC_QUERY_RESULT_ID
-        patientSetQueryResult.setSize == -1L
-        patientSetQueryResult.status == QueryStatus.FINISHED
-        patientSetQueryResult.username == user.name
-        !patientSetQueryResult.description.empty
-        patientSetQueryResult.errorMessage == null
-        def patientSetEntries = QtPatientSetCollection
-                .findAllByResultInstance(QtQueryResultInstance.load(patientSetQueryResult.id))
-        !patientSetEntries
-    }
-
-    void "test find query results per type"() {
-        def user = User.findByUsername('test-public-user-1')
-
-        ConceptConstraint constraint = new ConceptConstraint(path:
-                '\\Public Studies\\CLINICAL_TRIAL_HIGHDIM\\High Dimensional data\\Expression Lung\\')
-
-        def qr1 = multiDimService.createPatientSetQueryResult('Patient set query result', constraint,
-                user, (constraint as JSON).toString(), 'v2')
-        def qr2 = multiDimService.createObservationSetQueryResult('Generic query result',
-                user, (constraint as JSON).toString(), 'v2')
-
-        when:
-        def patientSetQueryResults = multiDimService.findPatientSetQueryResults(user).toList()
-        then:
-        qr1 in patientSetQueryResults
-        !(qr2 in patientSetQueryResults)
-
-        when:
-        def queryResults = multiDimService.findObservationSetQueryResults(user).toList()
-        then:
-        !(qr1 in queryResults)
-        qr2 in queryResults
-    }
-
-
     /**
      * Test the functionality to count patients and observations grouped by
      * study, concept, or concept and study.
