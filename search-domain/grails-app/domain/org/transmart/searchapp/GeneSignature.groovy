@@ -19,10 +19,6 @@
 
 package org.transmart.searchapp
 
-import com.recomdata.util.ExcelGenerator
-import com.recomdata.util.ExcelSheet
-import com.recomdata.util.IDomainExcelWorkbook
-
 import org.transmart.biomart.BioAssayPlatform
 import org.transmart.biomart.CellLine
 import org.transmart.biomart.Compound
@@ -32,7 +28,7 @@ import org.transmart.biomart.ConceptCode
  * GeneSignature domain class
  */
 
-class GeneSignature implements Cloneable, IDomainExcelWorkbook {
+class GeneSignature implements Cloneable {
 
     static def DOMAIN_KEY = "GENESIG"
     static def DISPLAY_TAG = "Gene Signature"
@@ -321,116 +317,4 @@ class GeneSignature implements Cloneable, IDomainExcelWorkbook {
         gs.versionNumber = versionNumber
     }
 
-    /**
-     * create a workbook showing the details of this gene signature
-     */
-    public byte[] createWorkbook() {
-
-        def descr
-
-        // gs sheet
-        def headers = []
-        def values = []
-
-        // general section
-        values.add(["1) General Info"])
-        values.add([])
-        values.add(["Name:", name])
-        values.add(["Description:", description])
-        values.add(["Public?:", publicFlag ? "Public" : "Private"])
-        values.add(["Author:", createdByAuthUser?.userRealName])
-        values.add(["Create Date:", dateCreated])
-        values.add(["Modified By:", modifiedByAuthUser?.userRealName])
-        values.add(["Modified Date:", modifiedByAuthUser != null ? lastUpdated : ""])
-
-        // meta section
-        values.add([])
-        values.add(["2) Meta-Data"])
-        values.add([])
-
-        descr = sourceConceptCode?.id == 1 ? sourceOther : sourceConceptCode?.codeName
-        values.add(["Source of list:", descr])
-
-        values.add(["Owner of data:", ownerConceptCode?.codeName])
-
-        values.add(["Stimulus>>"])
-        values.add(["- Description:", stimulusDescription])
-        values.add(["- Dose, units, and time:", stimulusDosing])
-
-        values.add(["Treatment>>"])
-        values.add(["- Description:", treatmentDescription])
-        values.add(["- Dose, units, and time:", treatmentDosing])
-        descr = ""
-        if (treatmentCompound != null) descr = treatmentCompound?.codeName + ' [' + treatmentCompound?.genericName + ' / ' + treatmentCompound?.brandName + ']'
-        values.add(["- Compound:", descr])
-        values.add(["- Protocol Number:", treatmentProtocolNumber])
-
-        values.add(["PMIDs (comma separated):", pmIds])
-
-        values.add(["Species:", speciesConceptCode?.codeName])
-        if (speciesMouseSrcConceptCode != null) values.add(["- Mouse Source:", speciesMouseSrcConceptCode?.codeName])
-        if (speciesMouseDetail != null) values.add(["- knockout/transgenic' or 'other' mouse strain:", speciesMouseDetail])
-
-        descr = ""
-        if (techPlatform != null) descr = techPlatform?.vendor + ' - ' + techPlatform?.array + ' [' + techPlatform?.accession + ']'
-        values.add(["Technology Platform:", descr])
-
-        values.add(["Tissue Type:", tissueTypeConceptCode?.codeName])
-
-        values.add(["Experiment Info>>"])
-        values.add(["- Type:", experimentTypeConceptCode?.codeName])
-        if (experimentTypeCellLine != null) values.add(["- Established Cell Line:", experimentTypeCellLine.cellLineName])
-        if (experimentTypeConceptCode?.bioConceptCode == 'IN_VIVO_ANIMAL' || experimentTypeConceptCode?.bioConceptCode == 'IN_VIVO_HUMAN') values.add(["- 'in vivo' model:", experimentTypeInVivoDescr])
-        values.add(["- ATCC Designation:", experimentTypeATCCRef])
-
-        // analysis section
-        values.add([])
-        values.add(["3) Analysis Meta-Data"])
-        values.add([])
-        values.add(["Analysis Performed By:", analystName])
-
-        descr = normMethodConceptCode?.id == 1 ? normMethodOther : normMethodConceptCode?.codeName
-        values.add(["Normalization Method:", descr])
-
-        descr = analyticCatConceptCode?.id == 1 ? analyticCatOther : analyticCatConceptCode?.codeName
-        values.add(["Analytic Category:", descr])
-
-        descr = analysisMethodConceptCode?.id == 1 ? analysisMethodOther : analysisMethodConceptCode?.codeName
-        values.add(["Analysis Method:", descr])
-
-        values.add(["Multiple Testing Correction?", (multipleTestingCorrection != null) ? (multipleTestingCorrection == 1 ? "Yes" : "No") : ""])
-        values.add(["P-value Cutoff:", pValueCutoffConceptCode?.codeName])
-        values.add(["Fold-change metric:", foldChgMetricConceptCode?.codeName])
-        values.add(["Original upload file:", uploadFile])
-
-        def metaSheet = new ExcelSheet("Gene Signature Info", headers, values);
-
-        values = []
-
-        //This is a quick fix. These booleans will tell us whether a gene signature was entered with probes or genes. In the future we should add some indicator field to the "gene" list to say what it is made of.
-        Boolean hasGenes = false;
-        Boolean hasProbes = false;
-        geneSigItems.each
-                {
-                    if (it.bioMarker != null) {
-                        hasGenes = true;
-                        values.add([it.bioMarker.name, it.foldChgMetric])
-                    } else if (it.probesetId != null) {
-                        hasProbes = true;
-                        def annot = de.DeMrnaAnnotation.find("from DeMrnaAnnotation as a where a.probesetId=? ", [it.probesetId]);
-                        if (annot != null) {
-                            for (a in annot) {
-                                values.add([annot.geneSymbol, annot.probeId, it.foldChgMetric])
-                            }
-                        }
-                    }
-                }
-
-        if (hasGenes) headers = ["Gene Symbol", "Fold Change Metric"]
-        if (hasProbes) headers = ["Gene Symbol", "Probe ID", "Fold Change Metric"]
-
-        def itemsSheet = new ExcelSheet("Gene Signature Items", headers, values);
-        // return Excel bytes
-        return ExcelGenerator.generateExcel([metaSheet, itemsSheet])
-    }
 }

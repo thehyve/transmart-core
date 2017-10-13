@@ -25,9 +25,7 @@
 
 package org.transmart.biomart
 
-import com.recomdata.util.IExcelProfile
-
-class Experiment implements IExcelProfile {
+class Experiment {
     Long id
     String type
     String title

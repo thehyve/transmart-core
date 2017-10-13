@@ -1,6 +1,9 @@
 package org.transmartproject.browse.fm
 
 import grails.transaction.Transactional
+import groovyx.net.http.HTTPBuilder
+import groovyx.net.http.Method
+import org.apache.http.HttpEntity
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.mongodb.DB
@@ -9,10 +12,8 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSInputFile
 import grails.util.Holders
 import org.transmart.mongo.MongoUtils;
-import groovyx.net.http.HTTPBuilder;
-import groovyx.net.http.Method;
 
-import org.apache.http.entity.mime.MultipartEntity
+import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.entity.mime.HttpMultipartMode
 import org.apache.http.entity.mime.content.InputStreamBody
 
@@ -22,9 +23,8 @@ class UploadFilesService {
     def fmFolderService
 
     def upload(CommonsMultipartFile fileToUpload, String parentId){
-        def fmFile;
+        FmFile fmFile
         try{
-            byte[] fileBytes=null;
             def fileName = fileToUpload.getOriginalFilename().toString()
             def fileType = fileName.split("\\.", -1)[fileName.split("\\.",-1).length-1]
             def fileSize = fileToUpload.getSize()
@@ -38,7 +38,7 @@ class UploadFilesService {
                     return "Folder with id " + parentId + " does not exist.";
                 }
             } catch (NumberFormatException ex) {
-                log.error("Loading failed: "+e.toString())
+                log.error("Loading failed: "+ex.toString())
                 return "Loading failed";
             }
 
@@ -99,11 +99,13 @@ class UploadFilesService {
                 def apiURL = Holders.config.fr.sanofi.mongoFiles.apiURL
                 def apiKey = Holders.config.fr.sanofi.mongoFiles.apiKey
                 def http = new HTTPBuilder( apiURL+"insert/"+fmFile.filestoreName )
-                http.request(Method.POST) {request ->
+                http.request(Method.POST) { request ->
                     headers.'apikey' = MongoUtils.hash(apiKey)
                     requestContentType: "multipart/form-data"
-                    MultipartEntity multiPartContent = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE)
-                    multiPartContent.addPart(fmFile.filestoreName, new InputStreamBody(fileToUpload.inputStream, fileToUpload.contentType, fileToUpload.originalFilename))
+                    HttpEntity multiPartContent = MultipartEntityBuilder.create()
+                            .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                            .addPart(fmFile.filestoreName, new InputStreamBody(fileToUpload.inputStream, fileToUpload.contentType, fileToUpload.originalFilename))
+                            .build()
 
                     request.setEntity(multiPartContent)
 

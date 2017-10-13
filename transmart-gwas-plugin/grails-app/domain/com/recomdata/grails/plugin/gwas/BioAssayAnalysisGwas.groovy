@@ -27,10 +27,9 @@ package com.recomdata.grails.plugin.gwas
 
 
 
-import com.recomdata.util.IExcelProfile
 import org.transmart.biomart.BioAssayAnalysisPlatform
 
-class BioAssayAnalysisGwas implements IExcelProfile {
+class BioAssayAnalysisGwas {
 
 	BioAssayAnalysisPlatform analysis
 	String rsId

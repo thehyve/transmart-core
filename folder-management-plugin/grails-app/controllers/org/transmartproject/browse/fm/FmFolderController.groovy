@@ -20,6 +20,7 @@ import org.transmart.biomart.BioAssayAnalysis
 import org.transmart.biomart.BioAssayAnalysisData
 import org.transmart.biomart.BioAssayPlatform
 import org.transmart.biomart.BioDataExternalCode
+import org.transmart.biomart.ConceptCode
 import org.transmart.biomart.Experiment
 import org.transmart.searchapp.AuthUser
 import org.transmart.searchapp.SearchKeyword

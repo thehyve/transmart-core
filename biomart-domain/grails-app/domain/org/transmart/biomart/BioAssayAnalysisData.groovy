@@ -25,9 +25,7 @@
 
 package org.transmart.biomart
 
-import com.recomdata.util.IExcelProfile
-
-class BioAssayAnalysisData implements IExcelProfile {
+class BioAssayAnalysisData {
     String featureGroupName
     Experiment experiment
     BioAssayPlatform assayPlatform
