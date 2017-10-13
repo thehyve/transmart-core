@@ -26,7 +26,7 @@ CREATE TABLE de_subject_rbm_data (
 );
 
 --
--- Name: pk_de_subject_rbm_data; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_subject_rbm_data pk_de_subject_rbm_data; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_subject_rbm_data
     ADD CONSTRAINT pk_de_subject_rbm_data PRIMARY KEY (id);
@@ -46,7 +46,7 @@ end;
 $$;
 
 --
--- Name: trg_de_subj_rbm_data_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_subject_rbm_data trg_de_subj_rbm_data_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_de_subj_rbm_data_id BEFORE INSERT ON de_subject_rbm_data FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_subj_rbm_data_id();
 

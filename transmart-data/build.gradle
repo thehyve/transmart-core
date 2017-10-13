@@ -99,15 +99,13 @@ task setupOracle << {
 task setupSolr << {
     make('-C solr solr_home')
 }
+setupSolr.dependsOn 'createVars'
 distTar.dependsOn 'setupSolr'
 
 task startSolr << {
-    make('-C solr start_solr')
+    make('-C solr start')
 }
-
-task stopSolr << {
-    make('-C solr stop_solr')
-}
+startSolr.dependsOn 'setupSolr'
 
 task dataloadingTest << {
     make('-C env data-integration')

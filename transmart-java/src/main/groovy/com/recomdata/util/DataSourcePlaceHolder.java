@@ -20,7 +20,8 @@
 
 package com.recomdata.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 
@@ -29,7 +30,7 @@ import javax.sql.DataSource;
  */
 public class DataSourcePlaceHolder {
 
-	static Logger log = Logger.getLogger(DataSourcePlaceHolder.class);
+	static Logger log = LoggerFactory.getLogger(DataSourcePlaceHolder.class);
 	public static DataSource s_dataSource = null;
 	
 	public void setDataSource(DataSource ds) {

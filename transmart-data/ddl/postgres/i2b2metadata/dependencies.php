@@ -4,5 +4,13 @@ $dependencies = array (
   array (
     0 => 'i2b2',
   ),
+  'i2b2_tag_options' =>
+  array (
+    0 => 'i2b2_tag_types',
+  ),
+  'i2b2_tags' =>
+    array (
+      0 => 'i2b2_tag_types',
+    ),
 )
 ;

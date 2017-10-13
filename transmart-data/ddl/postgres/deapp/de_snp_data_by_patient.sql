@@ -12,7 +12,7 @@ CREATE TABLE de_snp_data_by_patient (
 );
 
 --
--- Name: sys_c0020602; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_snp_data_by_patient sys_c0020602; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_snp_data_by_patient
     ADD CONSTRAINT sys_c0020602 PRIMARY KEY (snp_data_by_patient_id);
@@ -32,12 +32,12 @@ end;
 $$;
 
 --
--- Name: trg_snp_data_by_patient_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_snp_data_by_patient trg_snp_data_by_patient_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_snp_data_by_patient_id BEFORE INSERT ON de_snp_data_by_patient FOR EACH ROW EXECUTE PROCEDURE tf_trg_snp_data_by_patient_id();
 
 --
--- Name: fk_snp_dataset_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_snp_data_by_patient fk_snp_dataset_id; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_snp_data_by_patient
     ADD CONSTRAINT fk_snp_dataset_id FOREIGN KEY (snp_dataset_id) REFERENCES de_subject_snp_dataset(subject_snp_dataset_id);

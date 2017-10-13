@@ -80,7 +80,7 @@ class CorrelatedBiomarkersDataConstraint implements CriteriaDataConstraint {
 
         CorrelatedBiomarkersCriterion(CorrelatedBiomarkersDataConstraint c) {
             super(
-                    "CAST ({property} AS VARCHAR(200)) IN (\n" +
+                    "CAST ({alias}.{property} AS VARCHAR(200)) IN (\n" +
                             '   SELECT bm.primary_external_id\n' +
                             '   FROM biomart.bio_marker bm\n' +
                             "       INNER JOIN $c.correlationTable correl\n" +
@@ -118,15 +118,14 @@ class CorrelatedBiomarkersDataConstraint implements CriteriaDataConstraint {
                         relevantCriteria.criteriaEntityNames)
             }
 
-            def propertyPath = "${outer.entityAlias}.${outer.propertyToRestrict}"
-            log.debug("Finding column for property ${propertyPath}")
-            String propertyColumn = criteriaQuery.getColumn(criteria, propertyPath)
-            if (propertyColumn == null) {
-                throw new HibernateException("Could not find column name " +
-                        "for criteria ${relevantCriteria}.")
-            }
+            // Yikes!
+            String propertyColumn = Holders.applicationContext.sessionFactory.
+                    getClassMetadata(entityName).
+                    getPropertyColumnNames(outer.propertyToRestrict)[0]
 
-            toString().replaceAll(/\{property\}/, propertyColumn)
+            String sqlAlias = criteriaQuery.getSQLAlias(relevantCriteria)
+            toString().replaceAll(/\{alias\}/, sqlAlias).
+                    replaceAll(/\{property\}/, propertyColumn)
         }
     }
 }

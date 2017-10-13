@@ -12,7 +12,7 @@ CREATE TABLE de_mrna_annotation (
 );
 
 --
--- Name: de_mrna_annotation_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_mrna_annotation de_mrna_annotation_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_mrna_annotation
     ADD CONSTRAINT de_mrna_annotation_pkey PRIMARY KEY (de_mrna_annotation_id);
@@ -42,7 +42,7 @@ end;
 $$;
 
 --
--- Name: trg_de_mrna_annotation_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_mrna_annotation trg_de_mrna_annotation_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_de_mrna_annotation_id BEFORE INSERT ON de_mrna_annotation FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_mrna_annotation_id();
 

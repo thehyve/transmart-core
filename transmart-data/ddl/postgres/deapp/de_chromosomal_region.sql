@@ -26,13 +26,13 @@ CREATE TABLE de_chromosomal_region (
 );
 
 --
--- Name: de_chromosomal_region_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_chromosomal_region de_chromosomal_region_pkey; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_chromosomal_region
     ADD CONSTRAINT de_chromosomal_region_pkey PRIMARY KEY (region_id);
 
 --
--- Name: de_chrom_region_gpl_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_chromosomal_region de_chrom_region_gpl_id_fkey; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_chromosomal_region
     ADD CONSTRAINT de_chrom_region_gpl_id_fkey FOREIGN KEY (gpl_id) REFERENCES de_gpl_info(platform);

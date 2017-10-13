@@ -33,6 +33,17 @@ interface QueriesResource {
     QueryResult runQuery(QueryDefinition definition, String username) throws InvalidRequestException
 
     /**
+     * Creates and executes a query in one go to update queries resource data. The query is run synchronously.
+     *
+     * @param id ID of the cohort that is getting disabled.
+     * @param username the user that issued the query. This is the username of
+     * a tranSMART user (for usages in tranSMART) or an i2b2 user, for
+     * compatibility with i2b2.
+     * @return the resulting query result
+     */
+    QueryResult disablingQuery(Long id, String username) throws InvalidRequestException
+
+    /**
      * Fetches a {@link QueryResult} using its id.
      *
      * @param id the id of the query result to be fetched
@@ -50,4 +61,13 @@ interface QueriesResource {
      * @throws NoSuchResourceException if the definition cannot be found
      */
     QueryDefinition getQueryDefinitionForResult(QueryResult result) throws NoSuchResourceException
+
+    /**
+     * Fetches a list of {@link QueryResult} by username.
+     *
+     * @param username of the creator of queries from which QueryResult originated
+     * @return List of all QueryResults created by given user
+     */
+    List<QueryResultSummary> getQueryResultsSummaryByUsername(String username)
+
 }

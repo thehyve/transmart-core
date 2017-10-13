@@ -9,7 +9,7 @@ CREATE TABLE bio_ad_hoc_property (
 );
 
 --
--- Name: bio_ad_hoc_property_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_ad_hoc_property bio_ad_hoc_property_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_ad_hoc_property
     ADD CONSTRAINT bio_ad_hoc_property_pk PRIMARY KEY (ad_hoc_property_id);
@@ -29,7 +29,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_ad_hoc_prop_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_ad_hoc_property trg_bio_ad_hoc_prop_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_ad_hoc_prop_id BEFORE INSERT ON bio_ad_hoc_property FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_ad_hoc_prop_id();
 

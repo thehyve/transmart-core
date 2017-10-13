@@ -14,7 +14,7 @@ CREATE TABLE bio_assay_dataset (
 );
 
 --
--- Name: bio_dataset_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_dataset bio_dataset_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_dataset
     ADD CONSTRAINT bio_dataset_pk PRIMARY KEY (bio_assay_dataset_id);
@@ -40,12 +40,12 @@ end;
 $$;
 
 --
--- Name: trg_bio_assay_dataset_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_assay_dataset trg_bio_assay_dataset_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_assay_dataset_id BEFORE INSERT ON bio_assay_dataset FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_assay_dataset_id();
 
 --
--- Name: bio_dataset_experiment_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_dataset bio_dataset_experiment_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_dataset
     ADD CONSTRAINT bio_dataset_experiment_fk FOREIGN KEY (bio_experiment_id) REFERENCES bio_experiment(bio_experiment_id);

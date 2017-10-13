@@ -137,10 +137,25 @@ class TagsInputFileInvalidTests implements JobRunningTestTrait {
         ))
     }
 
+    @Test
+    void testValueNotInTagOptions() {
+        def loadTagTypes = runJob('-p', 'global/tagtypes.params')
+        assertThat loadTagTypes.exitStatus, hasProperty('exitCode', is('COMPLETED'))
+
+        def execution = runJob('-p',
+                'studies/' + STUDY_ID + '/tags.params',
+                '-d', 'TAGS_FILE=corruption/tags_3_invalid_option.txt')
+        assertThat execution.exitStatus, allOf(
+                hasProperty('exitCode', is('FAILED')),
+                hasProperty('exitDescription',
+                        containsString("Tag description not in the set of allowed descriptions for tag")))
+    }
 
     @After
     void cleanBatchTables() {
         truncator.truncate(Tables.I2B2_TAGS)
+        truncator.truncate(Tables.I2B2_TAG_OPTIONS)
+        truncator.truncate(Tables.I2B2_TAG_TYPES)
     }
 
     @AfterClass

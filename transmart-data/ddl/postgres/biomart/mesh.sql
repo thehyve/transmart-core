@@ -9,7 +9,7 @@ CREATE TABLE mesh (
 );
 
 --
--- Name: mesh_pkey; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: mesh mesh_pkey; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY mesh
     ADD CONSTRAINT mesh_pkey PRIMARY KEY (ui);

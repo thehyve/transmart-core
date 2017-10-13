@@ -13,7 +13,14 @@ FILES = \
 	linked_file_collection \
 	data_migration \
 	qt_query_master \
-	async_job
+	async_job \
+	biomart_pf_to_tf \
+	deapp_pf_to_tf \
+	bio_marker_correl_mv \
+	de_snp_subject_sorted_def \
+	de_snp_subject_sorted_def_bk \
+	i2b2_create_genotype_tree \
+	i2b2_load_security_bystudy
 
 RUN_SQL   = groovy -cp '$(CP_ORA)' ../../../ddl/oracle/_scripts/run_sql.groovy
 

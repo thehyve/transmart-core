@@ -20,7 +20,7 @@ CREATE TABLE bio_assay_data_stats (
 );
 
 --
--- Name: bio_asy_dt_stats_s_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_data_stats bio_asy_dt_stats_s_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_data_stats
     ADD CONSTRAINT bio_asy_dt_stats_s_pk PRIMARY KEY (bio_assay_data_stats_id);
@@ -46,25 +46,25 @@ CREATE INDEX bio_a_d_s_f_g_s_idx ON bio_assay_data_stats USING btree (feature_gr
 CREATE INDEX bio_a_d_s_fgi_s_idx ON bio_assay_data_stats USING btree (bio_assay_feature_group_id, bio_assay_data_stats_id);
 
 --
--- Name: bio_asy_dt_fg_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_data_stats bio_asy_dt_fg_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_data_stats
     ADD CONSTRAINT bio_asy_dt_fg_fk FOREIGN KEY (bio_assay_feature_group_id) REFERENCES bio_assay_feature_group(bio_assay_feature_group_id);
 
 --
--- Name: bio_asy_dt_stat_exp_s_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_data_stats bio_asy_dt_stat_exp_s_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_data_stats
     ADD CONSTRAINT bio_asy_dt_stat_exp_s_fk FOREIGN KEY (bio_experiment_id) REFERENCES bio_experiment(bio_experiment_id);
 
 --
--- Name: bio_asy_dt_stats_ds_s_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_data_stats bio_asy_dt_stats_ds_s_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_data_stats
     ADD CONSTRAINT bio_asy_dt_stats_ds_s_fk FOREIGN KEY (bio_assay_dataset_id) REFERENCES bio_assay_dataset(bio_assay_dataset_id);
 
 --
--- Name: bio_asy_dt_stats_smp_s_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_data_stats bio_asy_dt_stats_smp_s_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_data_stats
     ADD CONSTRAINT bio_asy_dt_stats_smp_s_fk FOREIGN KEY (bio_sample_id) REFERENCES bio_sample(bio_sample_id);

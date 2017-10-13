@@ -29,13 +29,13 @@ COMMENT ON COLUMN de_two_region_event_gene.gene_id IS 'HUGO gene identifier';
 COMMENT ON COLUMN de_two_region_event_gene.effect IS 'effect of the event on the gene: FUSION, CONTAINED, DISRUPTED, ...';
 
 --
--- Name: two_region_event_gene_id_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_two_region_event_gene two_region_event_gene_id_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_two_region_event_gene
     ADD CONSTRAINT two_region_event_gene_id_pk PRIMARY KEY (two_region_event_gene_id);
 
 --
--- Name: two_region_event_gene_id_event_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_two_region_event_gene two_region_event_gene_id_event_fk; Type: FK CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_two_region_event_gene
     ADD CONSTRAINT two_region_event_gene_id_event_fk FOREIGN KEY (event_id) REFERENCES de_two_region_event(two_region_event_id);

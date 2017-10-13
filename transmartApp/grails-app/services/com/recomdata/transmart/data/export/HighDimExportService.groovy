@@ -1,6 +1,6 @@
 package com.recomdata.transmart.data.export
 
-import au.com.bytecode.opencsv.CSVWriter
+import com.opencsv.CSVWriter
 import org.transmartproject.core.dataquery.ColumnOrderAwareDataRow
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay

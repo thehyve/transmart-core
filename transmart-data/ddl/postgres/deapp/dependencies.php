@@ -4,6 +4,10 @@ $dependencies = array (
   array (
     0 => 'de_rc_snp_info',
   ),
+  'views/de_snp_info_hg19_mv' => 
+  array (
+    0 => 'de_rc_snp_info',
+  ),
   'views/de_variant_summary_detail_gene' => 
   array (
     0 => 'de_variant_population_data',
@@ -27,13 +31,13 @@ $dependencies = array (
   array (
     0 => 'de_rbm_annotation',
   ),
-  'de_rnaseq_transcript_annotation' => 
+  'de_rnaseq_transcript_annot' => 
   array (
     0 => 'de_gpl_info',
   ),
   'de_rnaseq_transcript_data' => 
   array (
-    0 => 'de_rnaseq_transcript_annotation',
+    0 => 'de_rnaseq_transcript_annot',
   ),
   'de_subject_metabolomics_data' => 
   array (
@@ -80,6 +84,10 @@ $dependencies = array (
   array (
     0 => 'de_snp_info',
   ),
+  'de_variant_dataset' => 
+  array (
+    0 => 'de_gpl_info',
+  ),
   'de_two_region_event_gene' => 
   array (
     0 => 'de_two_region_event',
@@ -88,10 +96,6 @@ $dependencies = array (
   array (
     0 => 'de_two_region_event',
     1 => 'de_two_region_junction',
-  ),
-  'de_variant_dataset' => 
-  array (
-    0 => 'de_gpl_info',
   ),
   'de_variant_metadata' => 
   array (

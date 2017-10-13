@@ -68,8 +68,8 @@ jQuery(document).ready(function() {
 <%-- Tag box (visual display of tags) --%>
 <div id="${fieldName}-tags" class="tagBox" name="${fieldName}">
 	<g:each in="${values}" var="value">
-	<span class="tag" id="${fieldName}-tag-${value.uniqueId}" name="${value.uniqueId}">${value.codeName}</span>
-		</g:each>
+		<span class="tag" id="${fieldName}-tag-${value.uniqueId}" name="${value.uniqueId}">${value.codeName}</span>
+	</g:each>
 </div>
 
 <%-- Hidden select field, keeps actual selected values --%>

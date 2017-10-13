@@ -66,6 +66,9 @@ ui {
  * the transmart-data checkout. That file will be appended to this one whenever
  * the Config.groovy target is run */
 
+//A string specifying the server URL portion of absolute links, including server name e.g. grails.serverURL="http://my.transmart.com".
+grails.serverURL = org.transmartproject.app.transmartURL - ~'\\/$'
+
 environments { production {
     if (org.transmartproject.app.transmartURL.startsWith('http://localhost:')) {
         println "[WARN] transmartURL not overridden. Some settings (e.g. help page) may be wrong"
@@ -447,14 +450,23 @@ if (org.transmartproject.app.gwavaEnabled) {
     com { recomdata { rwg { webstart {
         def url       = new URL(org.transmartproject.app.transmartURL)
         codebase      = "$url.protocol://$url.host${url.port != -1 ? ":$url.port" : ''}/gwava"
-        jar           = './ManhattanViz2.1g.jar'
+        jar           = './ManhattanViz2.1k.jar'
         mainClass     = 'com.pfizer.mrbt.genomics.Driver'
-        gwavaInstance = 'transmartstg'
+        gwavaInstance = 'transmartstage'
         transmart.url = org.transmartproject.app.transmartURL - ~'\\/$'
    } } } }
-   com { recomdata { rwg { qqplots {
-       cacheImages = new File(jobsDirectory, 'cachedQQplotImages').toString()
-   } } } }
+   com { recomdata { rwg {
+       qqplots {
+           cacheImages = jobsDirectory + '/cachedQQplotImages/'
+           temporaryImageFolder = '/images/tempImages/'
+           temporaryImageFolderFullPath = explodedWarDir + temporaryImageFolder
+       }
+       manhattanplots {
+           cacheImages = jobsDirectory + '/cachedManhattanplotImages/'
+           temporaryImageFolder = '/images/tempImages/'
+           temporaryImageFolderFullPath = explodedWarDir + temporaryImageFolder
+       }
+   } } }
 }
 /* }}} */
 

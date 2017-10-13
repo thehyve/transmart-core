@@ -27,7 +27,7 @@ CREATE TABLE bio_assay_analysis_data_tea (
 );
 
 --
--- Name: bio_aa_data_t_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis_data_tea bio_aa_data_t_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis_data_tea
     ADD CONSTRAINT bio_aa_data_t_pk PRIMARY KEY (bio_asy_analysis_data_id);
@@ -68,6 +68,16 @@ CREATE INDEX baad_idx_tea_probe_name ON bio_assay_analysis_data_tea USING btree 
 CREATE INDEX baad_idx_tea_rank ON bio_assay_analysis_data_tea USING btree (bio_assay_analysis_id, tea_rank);
 
 --
+-- Name: baadt_idx17; Type: INDEX; Schema: biomart; Owner: -
+--
+CREATE INDEX baadt_idx17 ON bio_assay_analysis_data_tea USING btree (bio_assay_analysis_id, tea_rank);
+
+--
+-- Name: baadt_idx7; Type: INDEX; Schema: biomart; Owner: -
+--
+CREATE INDEX baadt_idx7 ON bio_assay_analysis_data_tea USING btree (bio_assay_analysis_id, bio_asy_analysis_data_id);
+
+--
 -- Name: idx_baad_idx_tea_experiment_type; Type: INDEX; Schema: biomart; Owner: -
 --
 CREATE INDEX idx_baad_idx_tea_experiment_type ON bio_assay_analysis_data_tea USING btree (bio_experiment_type, bio_asy_analysis_data_id);
@@ -78,25 +88,35 @@ CREATE INDEX idx_baad_idx_tea_experiment_type ON bio_assay_analysis_data_tea USI
 CREATE INDEX idx_baad_idx_tea_probe_analysis ON bio_assay_analysis_data_tea USING btree (bio_assay_feature_group_id, bio_assay_analysis_id);
 
 --
--- Name: bio_assay_analysis_data_t_fk1; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: idx_baadt_fg_ad; Type: INDEX; Schema: biomart; Owner: -
+--
+CREATE INDEX idx_baadt_fg_ad ON bio_assay_analysis_data_tea USING btree (bio_assay_feature_group_id, bio_assay_analysis_id);
+
+--
+-- Name: idx_baadt_idx10; Type: INDEX; Schema: biomart; Owner: -
+--
+CREATE INDEX idx_baadt_idx10 ON bio_assay_analysis_data_tea USING btree (bio_experiment_type, bio_asy_analysis_data_id);
+
+--
+-- Name: bio_assay_analysis_data_tea bio_assay_analysis_data_t_fk1; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis_data_tea
     ADD CONSTRAINT bio_assay_analysis_data_t_fk1 FOREIGN KEY (bio_assay_analysis_id) REFERENCES bio_assay_analysis(bio_assay_analysis_id);
 
 --
--- Name: bio_assay_analysis_data_t_fk2; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis_data_tea bio_assay_analysis_data_t_fk2; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis_data_tea
     ADD CONSTRAINT bio_assay_analysis_data_t_fk2 FOREIGN KEY (bio_experiment_id) REFERENCES bio_experiment(bio_experiment_id);
 
 --
--- Name: bio_assay_analysis_data_t_fk3; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis_data_tea bio_assay_analysis_data_t_fk3; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis_data_tea
     ADD CONSTRAINT bio_assay_analysis_data_t_fk3 FOREIGN KEY (bio_assay_platform_id) REFERENCES bio_assay_platform(bio_assay_platform_id);
 
 --
--- Name: bio_asy_ad_tea_fg_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_analysis_data_tea bio_asy_ad_tea_fg_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_analysis_data_tea
     ADD CONSTRAINT bio_asy_ad_tea_fg_fk FOREIGN KEY (bio_assay_feature_group_id) REFERENCES bio_assay_feature_group(bio_assay_feature_group_id);

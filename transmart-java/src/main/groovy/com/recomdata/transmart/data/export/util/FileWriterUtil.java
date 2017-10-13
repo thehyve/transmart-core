@@ -25,7 +25,8 @@ package com.recomdata.transmart.data.export.util;
 
 import com.opencsv.CSVWriter;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -42,12 +43,11 @@ import java.sql.SQLException;
  * 
  */
 public class FileWriterUtil {
-	
+
+	private static Logger log = LoggerFactory.getLogger(FileWriterUtil.class);
+
 	private File outputFile;
 	private CSVWriter writer;
-
-	private static org.apache.log4j.Logger log = Logger
-			.getLogger(FileWriterUtil.class);
 
 	/** Maximum loop count when creating temp directories. */
 	private final int TEMP_DIR_ATTEMPTS = 10000;

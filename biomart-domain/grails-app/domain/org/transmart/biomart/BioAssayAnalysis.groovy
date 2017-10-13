@@ -25,9 +25,7 @@
  */
 package org.transmart.biomart
 
-import com.recomdata.util.IExcelProfile
-
-class BioAssayAnalysis implements IExcelProfile {
+class BioAssayAnalysis {
 	String name
 	String shortDescription
 	String longDescription

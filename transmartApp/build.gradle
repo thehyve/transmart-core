@@ -12,7 +12,6 @@ dependencies {
 
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
     compile "org.springframework.boot:spring-boot-starter-security"
     compile "org.grails:grails-core"
     compile "org.grails:grails-dependencies"
@@ -38,7 +37,7 @@ dependencies {
     compile "org.apache.lucene:lucene-core:2.4.0"
     compile "org.apache.lucene:lucene-demos:2.4.0"
     compile "org.apache.lucene:lucene-highlighter:2.4.0"
-    compile "org.apache.solr:solr-solrj:6.3.0"
+    compile "org.apache.solr:solr-solrj:4.5.1"
     compile 'commons-net:commons-net:3.3' // used for ftp transfers
     compile 'org.apache.commons:commons-math:2.2' //>2MB lib briefly used in ChartController
     compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.1'
@@ -59,10 +58,10 @@ dependencies {
     compile project(':transmart-core-api')
     compile project(':transmart-core-db')
     compile project(':transmart-rest-api')
-    compile project(':transmart-java')
     compile project(':search-domain')
     compile project(':biomart-domain')
     compile project(':transmart-legacy-db')
+    compile project(':transmart-java')
     compile project(':transmart-oauth')
 
     testCompile project(':transmart-core-db-tests')
@@ -81,6 +80,8 @@ dependencies {
     compile project(':Rmodules')
     compile project(':transmart-gwas-plugin')
     compile project(':folder-management-plugin')
+    compile project(':transmart-solr-indexing')
+
 }
 
 grails {

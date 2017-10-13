@@ -4,6 +4,26 @@
 ALTER SEQUENCE de_gene_info_gene_info_id_seq OWNED BY de_gene_info.gene_info_id;
 
 --
+-- Name: TABLE de_gpl_info; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON TABLE de_gpl_info IS 'Definition of GPL platforms';
+
+--
+-- Name: TABLE de_rnaseq_transcript_data; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON TABLE de_rnaseq_transcript_data IS 'Table holds rnaseq transcript level values.';
+
+--
+-- Name: TABLE de_subject_microarray_data; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON TABLE de_subject_microarray_data IS 'Table holds microarray data values.';
+
+--
+-- Name: TABLE de_subject_sample_mapping; Type: COMMENT; Schema: deapp; Owner: -
+--
+COMMENT ON TABLE de_subject_sample_mapping IS 'Table to store information about assays, which are associated with high dimensional observations. Assays are typically associated with a patient. There can be many assays per patient, which may be distinguished by sample code, tissue type, platform, etc.';
+
+--
 -- Name: metabolite_sub_pth_id; Type: SEQUENCE; Schema: deapp; Owner: -
 --
 CREATE SEQUENCE metabolite_sub_pth_id

@@ -1,7 +1,8 @@
 package com.recomdata.util;
 
 import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined;
+import org.apache.poi.ss.usermodel.FillPatternType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,12 +38,12 @@ public class ExcelGenerator {
             //set font 1 to 12 point type
             f.setFontHeightInPoints((short) 10);
             //make it blue
-            f.setColor(HSSFColor.BLACK.index);
+            f.setColor(HSSFColorPredefined.BLACK.getIndex());
             //arial is the default font
-            f.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+            f.setBold(true);
             cs.setFont(f);
-            cs.setFillForegroundColor((HSSFColor.LIGHT_BLUE.index));
-            cs.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+            cs.setFillForegroundColor(HSSFColorPredefined.LIGHT_BLUE.getIndex());
+            cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
             HSSFRow headerRow = s.createRow(0);
             short hCount = 0;

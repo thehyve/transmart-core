@@ -2,7 +2,6 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
     provided "org.springframework.boot:spring-boot-starter-tomcat"
     compile "org.grails:grails-dependencies"
     compile "org.grails:grails-web-boot"
@@ -13,9 +12,10 @@ dependencies {
     provided "org.grails:grails-plugin-services"
     provided "org.grails:grails-plugin-domain-class"
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
-    compile 'net.sf.opencsv:opencsv:2.3'
+    compile "com.opencsv:opencsv:${openCsvVersion}"
     compile 'org.rosuda:Rserve:1.7.3'
     compile 'org.mapdb:mapdb:0.9.10'
+    compile 'org.json:json:20170516'
 
     compile "com.google.guava:guava:$guavaVersion"
     compile project(':transmart-core-api') 

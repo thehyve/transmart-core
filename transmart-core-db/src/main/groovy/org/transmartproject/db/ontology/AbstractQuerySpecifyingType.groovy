@@ -21,7 +21,6 @@
 
 package org.transmartproject.db.ontology
 
-import grails.orm.HibernateCriteriaBuilder
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.querytool.Item
@@ -45,8 +44,10 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
     String       dimensionCode
 
     def patientSetQueryBuilderService
-    def sessionFactory
+
     def databasePortabilityService
+
+    def sessionFactory
 
     static constraints = {
         factTableColumn      nullable:   false,   maxSize:   50

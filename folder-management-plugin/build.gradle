@@ -2,7 +2,6 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
     provided "org.springframework.boot:spring-boot-starter-tomcat"
     compile "org.grails:grails-dependencies"
     compile "org.grails:grails-web-boot"
@@ -15,10 +14,10 @@ dependencies {
     compile "org.apache.httpcomponents:httpmime:4.5.2"
     compile "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
 
-    compile project(':transmart-java')
     compile project(':search-domain')
     compile project(':biomart-domain')
-
+    compile project(':transmart-legacy-db')
+    compile project(':transmart-java')
 
     console "org.grails:grails-console"
     profile "org.grails.profiles:web-plugin"

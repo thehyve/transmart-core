@@ -28,6 +28,8 @@ package org.transmartproject.rest.test
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
+import org.transmartproject.core.ontology.StudyAccess
+import org.transmartproject.db.ontology.StudyAccessImpl
 import org.transmartproject.rest.StudyLoadingService
 
 class StubStudyLoadingService extends StudyLoadingService {
@@ -51,11 +53,32 @@ class StubStudyLoadingService extends StudyLoadingService {
                             getVisualAttributes: { -> EnumSet.of(VisualAttributes.STUDY)},
                             getStudy: { -> study },
                             getChildren: { -> [] },
-                            getLevel: { -> 0 } //just to make sure we have no parent
-                            //getLevel: { -> key.split('\\\\').length }
+                            getLevel: { -> 0 }, //just to make sure we have no parent
                     ] as OntologyTerm
                 }
         ] as Study
+    }
+
+    static StudyAccessImpl createStudyAccess(String studyId, String key, Map accessibleByUser) {
+        def study = [
+                getStudy: { ->
+                    [
+                            getId          : { -> studyId },
+                            getOntologyTerm: { ->
+                                [
+                                        getName            : { -> getComponents(key, -1) },
+                                        getFullName        : { -> '\\' + getComponents(key, 3, -1) + '\\' },
+                                        getKey             : { -> key },
+                                        getVisualAttributes: { -> EnumSet.of(VisualAttributes.STUDY) },
+                                        getStudy           : { -> createStudy(studyId, key) },
+                                        getChildren        : { -> [] },
+                                        getLevel           : { -> 0 }, //just to make sure we have no parent
+                                ] as OntologyTerm
+                            },
+                    ] as Study
+                }]
+        StudyAccessImpl studyAccess = new StudyAccessImpl(study : study, accessibleByUser: accessibleByUser)
+        studyAccess
     }
 
     private static String getComponents(String key, int a, int b = a) {

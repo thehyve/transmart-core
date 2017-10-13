@@ -22,6 +22,8 @@ final class Tables {
     public static final String I2B2                     = 'i2b2metadata.i2b2'
     public static final String I2B2_SECURE              = 'i2b2metadata.i2b2_secure'
     public static final String I2B2_TAGS                = 'i2b2metadata.i2b2_tags'
+    public static final String I2B2_TAG_TYPES           = 'i2b2metadata.i2b2_tag_types'
+    public static final String I2B2_TAG_OPTIONS         = 'i2b2metadata.i2b2_tag_options'
     public static final String PATIENT_TRIAL            = 'i2b2demodata.patient_trial'
     public static final String PATIENT_DIMENSION        = 'i2b2demodata.patient_dimension'
     public static final String PATIENT_MAPPING          = 'i2b2demodata.patient_mapping'

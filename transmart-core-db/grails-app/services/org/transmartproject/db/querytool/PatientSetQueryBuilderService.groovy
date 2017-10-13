@@ -28,6 +28,7 @@ import org.transmartproject.core.querytool.ConstraintByValue
 import org.transmartproject.core.querytool.Item
 import org.transmartproject.core.querytool.Panel
 import org.transmartproject.core.querytool.QueryDefinition
+import org.transmartproject.db.ontology.AbstractI2b2Metadata
 import org.transmartproject.db.ontology.MetadataSelectQuerySpecification
 import org.transmartproject.db.user.User
 import org.transmartproject.db.util.StringUtils
@@ -40,6 +41,8 @@ class PatientSetQueryBuilderService {
     OntologyTermsResource ontologyTermsResourceService
 
     def databasePortabilityService
+
+    def sessionFactory
 
     String buildPatientIdListQuery(QueryDefinition definition,
                                    User user = null)
@@ -85,7 +88,7 @@ class PatientSetQueryBuilderService {
             }
 
             [
-                    id: panelNum++,
+                    id    : panelNum++,
                     select: "SELECT patient_num " +
                             "FROM observation_fact WHERE $bigPredicate AND concept_cd != 'SECURITY'",
                     invert: panel.invert,
@@ -152,11 +155,11 @@ class PatientSetQueryBuilderService {
      * value constraint may correspond to one or two SQL predicates ORed
      * together */
     private static final def NUMBER_QUERY_MAPPING = [
-            (LOWER_THAN):          [['<',  ['E', 'LE']], ['<=', ['L']]],
-            (LOWER_OR_EQUAL_TO):   [['<=', ['E', 'LE', 'L']]],
-            (EQUAL_TO):            [['=',  ['E']]],
-            (BETWEEN):             [['BETWEEN', ['E']]],
-            (GREATER_THAN):        [['>',  ['E', 'GE']], ['>=', ['G']]],
+            (LOWER_THAN)         : [['<', ['E', 'LE']], ['<=', ['L']]],
+            (LOWER_OR_EQUAL_TO)  : [['<=', ['E', 'LE', 'L']]],
+            (EQUAL_TO)           : [['=', ['E']]],
+            (BETWEEN)            : [['BETWEEN', ['E']]],
+            (GREATER_THAN)       : [['>', ['E', 'GE']], ['>=', ['G']]],
             (GREATER_OR_EQUAL_TO): [['>=', ['E', 'GE', 'G']]]
     ]
 
@@ -178,8 +181,8 @@ class PatientSetQueryBuilderService {
             def predicates = spec.collect {
                 "valtype_cd = 'N' AND nval_num ${it[0]} $constraintValue AND " +
                         "tval_char " + (it[1].size() == 1
-                                        ? "= '${it[1][0]}'"
-                                        : "IN (${it[1].collect { "'$it'" }.join ', '})")
+                        ? "= '${it[1][0]}'"
+                        : "IN (${it[1].collect { "'$it'" }.join ', '})")
             }
 
             clause += " AND (" + predicates.collect { "($it)" }.join(' OR ') + ")"
@@ -269,9 +272,11 @@ class PatientSetQueryBuilderService {
             throw new InvalidRequestException('Found item constraint with ' +
                     'null value type')
         }
-        if (anyItem { Item it -> it.constraint && it.constraint.valueType ==
-                ConstraintByValue.ValueType.FLAG &&
-                it.constraint.operator != EQUAL_TO }) {
+        if (anyItem { Item it ->
+            it.constraint && it.constraint.valueType ==
+                    ConstraintByValue.ValueType.FLAG &&
+                    it.constraint.operator != EQUAL_TO
+        }) {
             throw new InvalidRequestException('Found item flag constraint ' +
                     'with an operator different from EQUAL_TO')
         }
@@ -321,4 +326,5 @@ class PatientSetQueryBuilderService {
 
         spec.postProcessQuery "$spec.factTableColumn IN ($res)", userInContext
     }
+
 }

@@ -100,6 +100,16 @@ abstract class AbstractAcrossTrialsOntologyTerm
     List<OntologyTerm> getAllDescendants(boolean showHidden, boolean showSynonyms) {
         getAllDescendants(true, showHidden, showSynonyms)
     }
+	
+	@Override
+	List<OntologyTerm> getHDforAllDescendants() {
+		throw new UnsupportedOperationException('XTrial concept does not support returning HD descendants.')
+	}
+
+	@Override
+	List<String> getAllDescendantsForFacets() {
+		getAllDescendants()*.fullName
+	}
 
     private List<OntologyTerm> getDescendants(boolean allDescendants,
                                               boolean showHidden = false /* ignored */,

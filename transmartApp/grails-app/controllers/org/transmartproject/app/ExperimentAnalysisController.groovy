@@ -1,4 +1,5 @@
 package org.transmartproject.app
+
 /**
  * $Id: ExperimentAnalysisController.groovy 10098 2011-10-19 18:39:32Z mmcduffie $
  * @author $Author: mmcduffie $
@@ -10,11 +11,10 @@ import com.recomdata.export.ExportRowNew
 import com.recomdata.export.ExportTableNew
 import com.recomdata.util.DomainObjectExcelHelper
 import com.recomdata.util.ElapseTimer
-import fm.FmFolder
-import fm.FmFolderAssociation
 import org.transmart.SearchResult
 import org.transmart.biomart.BioAssayAnalysis
 import org.transmart.biomart.Experiment
+import org.transmartproject.browse.fm.FmFolderAssociation
 
 class ExperimentAnalysisController {
 
@@ -64,7 +64,7 @@ class ExperimentAnalysisController {
         session.searchFilter.datasource = "experiment"
         bindData(session.searchFilter.expAnalysisFilter, params)
 
-        //  log.info params
+        //  log.info params.toMapString()
         searchService.doResultCount(sResult, session.searchFilter)
         render(view: '/search/list', model: [searchresult: sResult, page: false])
     }
@@ -77,7 +77,7 @@ class ExperimentAnalysisController {
         //log.info diseases
         def stimer = new ElapseTimer();
 
-        //	log.info params
+        //	log.info params.toMapString()
         def max = grailsApplication.config.com.recomdata.search.paginate.max
         def paramMap = searchService.createPagingParamMap(params, max, 0)
 
@@ -147,7 +147,7 @@ class ExperimentAnalysisController {
 
     def expDetail = {
         log.info "** action: expDetail called!"
-        log.info params
+        log.info(params.toString())
         def expid = params.id
         def expaccession = params.accession
 
@@ -312,7 +312,7 @@ class ExperimentAnalysisController {
      * This will render a UI where the user can pick an experiment from a list of all the experiments in the system. Selection of multiple studies is allowed.
      */
     def browseAnalysisMultiSelect = {
-        def analyses = org.transmart.biomart.BioAssayAnalysis.executeQuery("select id, name, etlId from BioAssayAnalysis b order by b.name");
+        def analyses = org.transmart.biomart.BioAssayAnalysis.executeQuery("select id, name, etlId from BioAssayAnalysis b where assayDataType in ('GWAS', 'EQTL', 'Metabolic GWAS', 'GWAS Fail') order by b.name");//"select id, name, etlId from BioAssayAnalysis b order by b.name");
         render(template: 'browseMulti', model: [analyses: analyses])
     }
 

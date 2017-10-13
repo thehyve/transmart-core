@@ -8,7 +8,7 @@ CREATE TABLE bio_assay_feature_group (
 );
 
 --
--- Name: bio_asy_feature_grp_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_assay_feature_group bio_asy_feature_grp_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_assay_feature_group
     ADD CONSTRAINT bio_asy_feature_grp_pk PRIMARY KEY (bio_assay_feature_group_id);
@@ -33,7 +33,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_assay_f_g_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_assay_feature_group trg_bio_assay_f_g_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_assay_f_g_id BEFORE INSERT ON bio_assay_feature_group FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_assay_f_g_id();
 

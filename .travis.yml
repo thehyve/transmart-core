@@ -8,15 +8,18 @@ jdk:
 php:
   - 5.6
 env:
+  global:
+    - TERM=dumb
   matrix:
-    - TERM=dumb; DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
-    - TERM=dumb; DIR=transmart-rest-api; TEST=check
-    - TERM=dumb; DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST="-Dgrails.env=test_postgresql check"
-    - TERM=dumb; DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=shadowJar; TEST="test functionalTest"
-    - TERM=dumb; DIR=.; TEST=":transmart-core-api:publishToMavenLocal :transmart-data:publishToMavenLocal :transmart-server:publishToMavenLocal :transmart-batch:publishToMavenLocal"
+    - DIR=transmart-core-db-tests; PREPARE=assemble; TEST=check
+    - DIR=transmart-rest-api; TEST=check
+    - DIR=transmart-core-db; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest"; TEST="-Dgrails.env=test_postgresql check"
+    - DIR=transmart-batch; INSTALL=":transmart-data:createVars :transmart-data:setupPostgres travisPreparePostgres"; PREPARE=shadowJar; TEST="test functionalTest"
+    - DIR=transmart-solr-indexing; INSTALL=":transmart-data:createVars :transmart-data:setupPostgresTest :transmart-batch:travisProperties :transmart-batch:loadPublicTestStudy"; TEST="check"; START_SOLR=true
+    - DIR=.; TEST=":transmart-core-api:publishToMavenLocal :transmart-data:publishToMavenLocal :transmart-server:publishToMavenLocal :transmart-batch:publishToMavenLocal"
 
 addons:
-  postgres: 9.4
+  postgresql: 9.4
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -48,19 +51,24 @@ before_install:
   - echo $PWD
 
 install:
-  - echo $DIR; cd $DIR
+  - pushd "$DIR"
   - ([ -z "$INSTALL" ] && echo "Skipping install.") || (echo $INSTALL; ${GRADLE_SCRIPT} $INSTALL)
-  - cd -
+  - popd
 
 before_script:
-  - echo $DIR; cd $DIR
+  - pushd "$DIR"
   - ([ -z "$PREPARE" ] && echo "Skipping prepare.") || (echo $PREPARE; ${GRADLE_SCRIPT} $PREPARE)
-  - cd -
+  - popd
+  - pushd transmart-data
+  - >
+    (( ! [ "$START_SOLR" == "true" ]) && echo "Skipping Solr.") || (${GRADLE_SCRIPT} setupSolr; echo "Starting Solr ...";
+    source vars; (make -C solr start > solr.log 2> solr.err &); sleep 10; echo "Solr started.")
+  - popd
 
 script:
-  - echo $DIR; cd $DIR
+  - pushd "$DIR"
   - ([ -z "$TEST" ] && echo "Skipping test.") || (echo $TEST; ${GRADLE_SCRIPT} $TEST)
-  - cd -
+  - popd
 
 after_success:
   - echo "Writing summary..."
@@ -72,6 +80,7 @@ after_failure:
   - for f in "$DIR"/build/reports/tests/classes/*.html; do echo "$f"; html2text "$f"; done
   - ([ -d "$DIR/build/reports/tests/functional" ]) && (html2text "$DIR/build/reports/tests/functional/index.html")
   - ([ -d "$DIR/build/reports/tests/functional" ]) && (for f in "$DIR"/build/reports/tests/functional/classes/*.html; do echo "$f"; html2text "$f"; done)
+  - ([ "$START_SOLR" == "true" ]) && (echo "solr.log"; cat transmart-data/solr.log; echo "solr.err"; cat transmart-data/solr.err)
 
 notifications:
   hipchat:

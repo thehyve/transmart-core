@@ -21,13 +21,10 @@ package org.transmartproject.db.querytool
 
 import grails.transaction.Transactional
 import org.hibernate.jdbc.Work
+import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.NoSuchResourceException
-import org.transmartproject.core.querytool.QueriesResource
-import org.transmartproject.core.querytool.QueryDefinition
-import org.transmartproject.core.querytool.QueryResult
-import org.transmartproject.core.querytool.QueryResultType
-import org.transmartproject.core.querytool.QueryStatus
+import org.transmartproject.core.querytool.*
 import org.transmartproject.db.user.User
 
 import java.sql.Connection
@@ -166,26 +163,58 @@ class QueriesResourceService implements QueriesResource {
         resultInstance
     }
 
+    QueryResult disablingQuery(Long id,
+                               String username) throws InvalidRequestException
+    {
+        QtQueryResultInstance resultInstance = getQueryResultFromId(id)
+
+        if (resultInstance.queryInstance.userId != username) {
+            throw new AccessDeniedException("User ${username} has no permission" +
+                    " to disable query result instance with id $id")
+        }
+        resultInstance.deleteFlag = "Y"
+
+        def newResultInstance = resultInstance.save()
+        if (!newResultInstance) {
+            throw new RuntimeException('Failure disabling resultInstance ' +
+                    'Errors: ' +
+                    resultInstance.errors)
+        }
+
+        resultInstance
+    }
+
     @Override
     QueryResult getQueryResultFromId(Long id) throws NoSuchResourceException {
-        QtQueryResultInstance.get(id) ?:
-                {  throw new NoSuchResourceException(
-                        "Could not find query result instance with id $id") }()
+        QtQueryResultInstance qtQueryResultInstance = QtQueryResultInstance.findByIdAndDeleteFlag(id, 'N')
+        if (!qtQueryResultInstance) {
+            throw new NoSuchResourceException(
+                    "Could not find query result instance with id $id and delete_flag = 'N'")
+        }
+        qtQueryResultInstance
+    }
+
+    @Override
+    List<QueryResultSummary> getQueryResultsSummaryByUsername(String username) {
+        def query = QtQueryResultInstance.where {
+            queryInstance.userId == username
+            deleteFlag == 'N'
+        }
+        query.collect { new QueryResultSummaryImplementation(it)}
     }
 
     @Override
     QueryDefinition getQueryDefinitionForResult(QueryResult result)
             throws NoSuchResourceException {
-        List answer = QtQueryResultInstance.executeQuery(
-                '''SELECT R.queryInstance.queryMaster.requestXml FROM
-                        QtQueryResultInstance R WHERE R = ?''',
-                [result])
-        if (!answer) {
-            throw new NoSuchResourceException('Could not find definition for ' +
-                    'query result with id=' + result.id)
+        QtQueryResultInstance qtQueryResultInstance = result instanceof QtQueryResultInstance ? result
+                : QtQueryResultInstance.get(result.id)
+
+        if (!qtQueryResultInstance) {
+            throw new NoSuchResourceException('Could not find definition for query result with id=' + result.id)
         }
 
-        queryDefinitionXmlService.fromXml(new StringReader(answer[0]))
+        String requestXml = qtQueryResultInstance.queryInstance.queryMaster.requestXml
+        queryDefinitionXmlService.fromXml(new StringReader(requestXml))
     }
 
     User tryLoadingUser(String user) {

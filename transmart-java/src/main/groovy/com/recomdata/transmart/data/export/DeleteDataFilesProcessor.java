@@ -22,9 +22,9 @@ package com.recomdata.transmart.data.export;
 
 import com.recomdata.transmart.TransmartContextHolder;
 import com.recomdata.transmart.data.export.util.FTPUtil;
-import grails.config.Config;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Map;
@@ -32,8 +32,7 @@ import java.util.Map;
 
 
 public class DeleteDataFilesProcessor {
-	private static org.apache.log4j.Logger log = Logger
-			.getLogger(DeleteDataFilesProcessor.class);
+	private static Logger log = LoggerFactory.getLogger(DeleteDataFilesProcessor.class);
 	
 	@SuppressWarnings("rawtypes")
 	private static final Map config = TransmartContextHolder.getGrailsApplication().getConfig();

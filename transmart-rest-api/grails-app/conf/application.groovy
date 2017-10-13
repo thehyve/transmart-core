@@ -142,6 +142,7 @@ environments {
         dataSource {
             driverClassName = 'org.h2.Driver'
             url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE;INIT=RUNSCRIPT FROM '../transmart-core-db/h2_init.sql'"
+            dialect = 'org.hibernate.dialect.H2Dialect'
             username = 'sa'
             password = ''
             dbCreate = 'create-drop'
@@ -151,7 +152,7 @@ environments {
     }
     development {
         dataSource {
-            url = 'jdbc:postgresql://localhost:5433/transmart'
+            url = 'jdbc:postgresql://localhost:5432/transmart'
             driverClassName = 'org.postgresql.Driver'
             username = 'tm_cz'
             password = 'tm_cz'

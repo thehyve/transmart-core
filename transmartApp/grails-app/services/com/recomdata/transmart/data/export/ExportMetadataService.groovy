@@ -1,11 +1,14 @@
 package com.recomdata.transmart.data.export
 
+import grails.transaction.Transactional
 import grails.util.Holders
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.ontology.OntologyTerm
-import org.transmartproject.export.HighDimExporter
+
+import static org.transmartproject.core.ontology.OntologyTerm.VisualAttributes.HIGH_DIMENSIONAL
 
 //TODO Remove duplicated code for both subset. Make code more generic for any number of subsets
+@Transactional
 class ExportMetadataService {
 
     def dataCountService
@@ -13,7 +16,7 @@ class ExportMetadataService {
     def highDimExporterRegistry
     def queriesResourceService
 
-    def Map createJSONFileObject(fileData, patientsNumber) {
+    Map createJSONFileObject(fileData, patientsNumber) {
         def file = [:]
         if (patientsNumber != null) {
             file['patientsNumber'] = patientsNumber
@@ -99,6 +102,37 @@ class ExportMetadataService {
         }
 
         hdMetaData
+    }
+
+    def getHighDimMetaData(OntologyTerm term) {
+
+        // Retrieve all descendant terms that have the HIGH_DIMENSIONAL attribute
+        def terms = term.getHDforAllDescendants() + term
+        def highDimTerms = terms.findAll { it.visualAttributes.contains(HIGH_DIMENSIONAL) }
+
+        if (highDimTerms) {
+            // Put all high dimensional term keys in a disjunction constraint
+            def constraint = highDimensionResourceService.createAssayConstraint(
+                    AssayConstraint.DISJUNCTION_CONSTRAINT,
+                    subconstraints: [
+                            (AssayConstraint.ONTOLOGY_TERM_CONSTRAINT):
+                                    highDimTerms.collect({
+                                        [concept_key: it.key]
+                                    })
+                    ]
+            )
+
+            def datatypes = highDimensionResourceService.getSubResourcesAssayMultiMap([constraint])
+            def dataTypeDescriptions = datatypes.keySet().collect({
+                it.dataTypeDescription
+            })
+
+            [ dataTypes: dataTypeDescriptions ]
+        }
+        else {
+            // No high dimensional data found for this term
+            [ dataTypes: ["No high dimensional data found"] ]
+        }
     }
 
     /*
@@ -231,7 +265,7 @@ class ExportMetadataService {
         // on how it was specified previously, as well as on the types of data that were allowed
         // for different datatypes
         highDimensionalData.collect { highDimRow ->
-            // Determine the types of files that can be exported for this 
+            // Determine the types of files that can be exported for this
             // datatype
             def exporters = highDimExporterRegistry
                     .findExporters(dataType: highDimRow.datatype.dataTypeName)

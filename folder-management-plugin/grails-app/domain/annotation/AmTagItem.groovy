@@ -23,7 +23,7 @@ class AmTagItem implements Comparable<AmTagItem> {
 //	AmTagAssociation amTagAssociation
 
     static mapping = {
-        table 'am_tag_item'
+        table schema: 'amapp'
         version false
         cache true
         sort "displayOrder"
@@ -38,11 +38,12 @@ class AmTagItem implements Comparable<AmTagItem> {
     public int compareTo(AmTagItem itemIn) {
 
         if (itemIn.displayOrder != null && displayOrder != null) {
-            return displayOrder?.compareTo(itemIn.displayOrder);
+            displayOrder?.compareTo(itemIn.displayOrder)
+        } else if (displayName && itemIn.displayName) {
+            displayName.compareTo(itemIn.displayName)
         } else {
-            return displayName?.compareTo(itemIn.displayName);
+            id <=> itemIn.id
         }
-        return 0;
     }
 
     static constraints = {

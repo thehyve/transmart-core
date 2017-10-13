@@ -8,7 +8,7 @@ CREATE TABLE mesh_copy (
 );
 
 --
--- Name: mesh_copy_pkey; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: mesh_copy mesh_copy_pkey; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY mesh_copy
     ADD CONSTRAINT mesh_copy_pkey PRIMARY KEY (ui);

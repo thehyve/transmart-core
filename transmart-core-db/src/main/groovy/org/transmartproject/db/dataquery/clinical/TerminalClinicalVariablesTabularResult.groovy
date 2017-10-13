@@ -28,6 +28,7 @@ import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.db.dataquery.CollectingTabularResult
 import org.transmartproject.db.dataquery.clinical.variables.TerminalClinicalVariable
+import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
 
 @CompileStatic
 class TerminalClinicalVariablesTabularResult extends
@@ -105,6 +106,11 @@ class TerminalClinicalVariablesTabularResult extends
 
 
     final String columnEntityName = 'concept'
+
+    //@Override
+    protected Object getIndexObjectId(TerminalConceptVariable object) {
+        object.conceptCode
+    }
 
     protected void finalizeCollectedEntries(ArrayList collectedEntries) {
         /* nothing to do here. All the logic in finalizePatientGroup */

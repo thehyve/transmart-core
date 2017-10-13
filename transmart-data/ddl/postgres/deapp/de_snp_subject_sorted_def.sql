@@ -6,11 +6,13 @@ CREATE TABLE de_snp_subject_sorted_def (
     trial_name character varying(255),
     patient_position integer,
     patient_num bigint,
-    subject_id character varying(255)
+    subject_id character varying(255),
+    bio_assay_platform_id bigint,
+    assay_id bigint
 );
 
 --
--- Name: sys_c0020607; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_snp_subject_sorted_def sys_c0020607; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_snp_subject_sorted_def
     ADD CONSTRAINT sys_c0020607 PRIMARY KEY (snp_subject_sorted_def_id);
@@ -30,7 +32,7 @@ end;
 $$;
 
 --
--- Name: trg_de_subject_sorted_def_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_snp_subject_sorted_def trg_de_subject_sorted_def_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_de_subject_sorted_def_id BEFORE INSERT ON de_snp_subject_sorted_def FOR EACH ROW EXECUTE PROCEDURE tf_trg_de_subject_sorted_def_id();
 
@@ -52,7 +54,7 @@ $$;
 SET default_with_oids = false;
 
 --
--- Name: trg_snp_subject_sorted_def_id; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_snp_subject_sorted_def trg_snp_subject_sorted_def_id; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER trg_snp_subject_sorted_def_id BEFORE INSERT ON de_snp_subject_sorted_def FOR EACH ROW EXECUTE PROCEDURE tf_trg_snp_subject_sorted_def_id();
 

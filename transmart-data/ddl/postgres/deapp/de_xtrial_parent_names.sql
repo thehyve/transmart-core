@@ -8,13 +8,13 @@ CREATE TABLE de_xtrial_parent_names (
 );
 
 --
--- Name: dextpn_parent_node_u; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_xtrial_parent_names dextpn_parent_node_u; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_xtrial_parent_names
     ADD CONSTRAINT dextpn_parent_node_u UNIQUE (across_path);
 
 --
--- Name: sys_c0020604; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_xtrial_parent_names sys_c0020604; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_xtrial_parent_names
     ADD CONSTRAINT sys_c0020604 PRIMARY KEY (parent_cd);
@@ -34,7 +34,7 @@ END;
 $$;
 
 --
--- Name: de_parent_cd_trg; Type: TRIGGER; Schema: deapp; Owner: -
+-- Name: de_xtrial_parent_names de_parent_cd_trg; Type: TRIGGER; Schema: deapp; Owner: -
 --
 CREATE TRIGGER de_parent_cd_trg BEFORE INSERT ON de_xtrial_parent_names FOR EACH ROW WHEN ((COALESCE((new.parent_cd)::text, ''::text) = ''::text)) EXECUTE PROCEDURE tf_de_parent_cd_trg();
 

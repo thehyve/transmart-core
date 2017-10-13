@@ -51,6 +51,11 @@ grails.mime.types = [html         : [
                      jnlp         : 'application/x-java-jnlp-file',
                      protobuf     : 'application/x-protobuf',
 ]
+
+//Sets upload file size limit
+grails.controllers.upload.maxFileSize = 10 * 1024 * 1024 //10mb
+grails.controllers.upload.maxRequestSize = 10 * 1024 * 1024
+
 // The default codec used to encode data with ${}
 grails.views.javascript.library="jquery"
 grails.views.default.codec = "none" // none, html, base64
@@ -146,6 +151,10 @@ com.recomdata.analysis.genepattern.file.dir = "data"; // Relative to the app roo
 
 com.recomdata.analysis.data.file.dir = "data"; // Relative to the app root "web-app"
 
+// Directories to write R scripts to for use by RServe. Resources are copied at startup.
+org.transmartproject.rmodules.deployment.rscripts = new File(System.getProperty("user.home"), '.grails/transmart-rscripts')
+org.transmartproject.rmodules.deployment.dataexportRscripts = new File(System.getProperty("user.home"), '.grails/transmart-dataexport-rscripts')
+
 // Disclaimer
 StringBuilder disclaimer = new StringBuilder()
 disclaimer.append("<p></p>")
@@ -153,12 +162,7 @@ com.recomdata.disclaimer = disclaimer.toString()
 
 // customization views
 //com.recomdata.view.studyview='_clinicaltrialdetail'
-
-/* }}} */
-
-// Directories to write R scripts to for use by RServe. Resources are copied at startup.
-org.transmartproject.rmodules.deployment.rscripts = new File(System.getProperty("user.home"), '.grails/transmart-rscripts')
-org.transmartproject.rmodules.deployment.dataexportRscripts = new File(System.getProperty("user.home"), '.grails/transmart-dataexport-rscripts')
+com.recomdata.skipdisclaimer = true
 
 grails.spring.bean.packages = []
 
@@ -253,6 +257,9 @@ grails { plugin { springsecurity {
                 [pattern: '/authUserSecureAccess/**',    access: ['ROLE_ADMIN']],
                 [pattern: '/secureObjectPath/**',        access: ['ROLE_ADMIN']],
                 [pattern: '/userGroup/**',               access: ['ROLE_ADMIN']],
+                //TODO This looks dangerous. It opens acess to the gwas data for everybody.
+                [pattern: '/gwasWeb/**',                 access: ['IS_AUTHENTICATED_ANONYMOUSLY']],
+                [pattern: '/oauthAdmin/**',              access: ['ROLE_ADMIN']],
                 [pattern: '/secureObjectAccess/**',      access: ['ROLE_ADMIN']]
         ] +
                 (org.transmartproject.app.oauthEnabled ?  oauthEndpoints : []) +

@@ -23,7 +23,9 @@ class Tag implements Serializable {
 
     String tagDescription
 
-    int index
+    Integer index
+
+    Integer tagOptionId
 
 }
 

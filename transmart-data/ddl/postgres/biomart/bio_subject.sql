@@ -12,7 +12,7 @@ CREATE TABLE bio_subject (
 );
 
 --
--- Name: bio_subject_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_subject bio_subject_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_subject
     ADD CONSTRAINT bio_subject_pk PRIMARY KEY (bio_subject_id);
@@ -32,7 +32,7 @@ end;
 $$;
 
 --
--- Name: trg_bio_subject_id; Type: TRIGGER; Schema: biomart; Owner: -
+-- Name: bio_subject trg_bio_subject_id; Type: TRIGGER; Schema: biomart; Owner: -
 --
 CREATE TRIGGER trg_bio_subject_id BEFORE INSERT ON bio_subject FOR EACH ROW EXECUTE PROCEDURE tf_trg_bio_subject_id();
 

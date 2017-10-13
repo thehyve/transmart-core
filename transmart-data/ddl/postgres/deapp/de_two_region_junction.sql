@@ -72,7 +72,7 @@ COMMENT ON COLUMN de_two_region_junction.down_strand IS 'strand of down stream j
 COMMENT ON COLUMN de_two_region_junction.is_in_frame IS 'whether junction is frame-shift or in-frame-shift';
 
 --
--- Name: de_two_region_junction_id_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
+-- Name: de_two_region_junction de_two_region_junction_id_pk; Type: CONSTRAINT; Schema: deapp; Owner: -
 --
 ALTER TABLE ONLY de_two_region_junction
     ADD CONSTRAINT de_two_region_junction_id_pk PRIMARY KEY (two_region_junction_id);

@@ -19,19 +19,22 @@
 
 package org.transmartproject.db.ontology
 
-//import grails.orm.HibernateCriteriaBuilder
+
 import grails.orm.HibernateCriteriaBuilder
 import grails.util.Holders
 import groovy.transform.EqualsAndHashCode
 import org.hibernate.criterion.MatchMode
-import org.transmartproject.core.concept.ConceptKey
+
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.ontology.Study
 import org.transmartproject.db.util.GormWorkarounds
 import org.transmartproject.db.util.StringUtils
+import org.transmartproject.core.concept.ConceptKey
 
+//TODO Whether table access used as ontology node ever?
+//if yes do we use get desc. nodes call?
 @EqualsAndHashCode(includes = ['tableCode'])
 class TableAccess extends AbstractQuerySpecifyingType implements
         OntologyTerm, Serializable {
@@ -118,7 +121,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         }
     }
 
-    Class getOntologyTermDomainClassReferred() {
+    Class<AbstractI2b2Metadata> getOntologyTermDomainClassReferred() {
         def domainClass = Holders.getGrailsApplication().domainClasses.find
                 {
                     AbstractI2b2Metadata.class.isAssignableFrom(it.clazz) &&
@@ -163,12 +166,32 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         getDescendants(true, showHidden, showSynonyms)
     }
 
+    @Override
+    List<OntologyTerm> getHDforAllDescendants() {
+        getHDDescendants(true, false, false, false)
+    }
+
+    List<String> getAllDescendantsForFacets() {
+        getAllDescendants().fullName
+    }
+
+    private List<OntologyTerm> getHDDescendants(boolean allDescendants,
+                                                boolean showHidden = false,
+                                                boolean showSynonyms = false,
+                                                boolean isOrdered = true) {
+
+        getDescendants(allDescendants, showHidden, showSynonyms, isOrdered, true)
+    }
+
     private List<OntologyTerm> getDescendants(boolean allDescendants,
                                               boolean showHidden = false,
-                                              boolean showSynonyms = false) {
+                                              boolean showSynonyms = false,
+                                              boolean isOrdered = true,
+                                              boolean showHighDimensionalOnly = false) {
 
         //HibernateCriteriaBuilder c
         HibernateCriteriaBuilder c
+
         /* extract table code from concept key and resolve it to a table name */
         c = TableAccess.createCriteria()
         String tableName = c.get {
@@ -202,6 +225,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                     "could not find it in ${domainClass}'s table (fullname: " +
                     "$fullName)")
 
+        /* Finally select the relevant stuff */
         c = domainClass.createCriteria()
         c.list {
             and {
@@ -218,8 +242,12 @@ class TableAccess extends AbstractQuerySpecifyingType implements
                 if (!showSynonyms) {
                     eq 'cSynonymCd', 'N' as char
                 }
+                if (showHighDimensionalOnly) {
+                    like 'cVisualattributes', '__H%'
+                }
             }
-            order('name')
+            if (isOrdered)
+                order('name')
         }
     }
 
@@ -243,7 +271,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
 
     @Override
     String toString() {
-        getClass().canonicalName + "[${attached ? 'attached' : 'not attached'}" +
+        getClass().canonicalName + "[${attached?'attached':'not attached'}" +
                 "] [ fullName=$fullName ]"
     }
 }

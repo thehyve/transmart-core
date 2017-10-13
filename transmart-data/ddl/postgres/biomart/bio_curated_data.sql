@@ -11,7 +11,7 @@ CREATE TABLE bio_curated_data (
 );
 
 --
--- Name: bio_externalanalysis_fact_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_curated_data bio_externalanalysis_fact_pk; Type: CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_curated_data
     ADD CONSTRAINT bio_externalanalysis_fact_pk PRIMARY KEY (bio_data_id);
@@ -22,7 +22,7 @@ ALTER TABLE ONLY bio_curated_data
 CREATE UNIQUE INDEX bio_curated_data_pk ON bio_curated_data USING btree (bio_data_id);
 
 --
--- Name: bio_ext_analys_ext_anl_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
+-- Name: bio_curated_data bio_ext_analys_ext_anl_fk; Type: FK CONSTRAINT; Schema: biomart; Owner: -
 --
 ALTER TABLE ONLY bio_curated_data
     ADD CONSTRAINT bio_ext_analys_ext_anl_fk FOREIGN KEY (bio_curation_dataset_id) REFERENCES bio_curation_dataset(bio_curation_dataset_id);

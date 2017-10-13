@@ -100,7 +100,7 @@ class ConceptsService implements ConceptsResource, ApplicationRunner {
 
     @Override
     @Cacheable('org.transmartproject.db.concept.ConceptsService')
-    final String getConceptCodeByConceptPath(String conceptPath) throws NoSuchResourceException {
+    String getConceptCodeByConceptPath(String conceptPath) throws NoSuchResourceException {
         String code = null
         if (conceptPathToConceptCode) {
             code = conceptPathToConceptCode[conceptPath]

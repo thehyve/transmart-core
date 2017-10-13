@@ -36,10 +36,12 @@ var assayCount = 3
         <thead style="border-radius:8px;-moz-border-radius: 8px;">
             <tr style="border-radius:8px;-moz-border-radius: 8px;">   
                 <th style="border-radius:8px;-moz-border-radius: 8px;">&nbsp;</th>
-                <th align="right"><g:remoteLink controller="fmFolder" action="editMetaData" update="${overlayDiv}" 
-                    params="[eleId:overlayDiv, experimentId:experimentInstance.id]" 
-                    before="initLoadingDialog('${overlayDiv}')" onComplete="centerDialog('${overlayDiv}')">
-                    <img align="right" src="${resource(dir:'images', file:'pencil.png')}"/></g:remoteLink>
+                <th align="right">
+                    %{--<g:remoteLink controller="fmFolder" action="editMetaData" update="${overlayDiv}"--}%
+                    %{--params="[eleId:overlayDiv, experimentId:experimentInstance.id]" --}%
+                    %{--before="initLoadingDialog('${overlayDiv}')" onComplete="centerDialog('${overlayDiv}')">--}%
+                        <asset:image src="pencil.png"/>
+                    %{--</g:remoteLink>--}%
                 </th>
             </tr>
         </thead>
@@ -69,12 +71,16 @@ var assayCount = 3
                                                                   displayLabel="${file.content.repository.repositoryType}"/>
                                             </g:if>
                                             <g:elseif test="${file.content.type=='Dataset Explorer Node Link'&&search==1}">
-                                                <g:link controller="datasetExplorer" action="index" params="[path:file.content.location]">Dataset Explorer<img src="${resource(dir:'images', file:'internal-link.gif')}"/></g:link>
+                                                <g:link controller="datasetExplorer" action="index" params="[path:file.content.location]">Dataset Explorer
+                                                    <asset:image src="internal-link.gif"/>
+                                                </g:link>
                                             </g:elseif>
                                         </g:each>
                                     </g:if>
                                     <g:if test="${searchId!=null}">
-                                        | <g:link controller="search" action="newSearch" id="${searchId}">Search analyzed Data <img src="${resource(dir:'images', file:'internal-link.gif')}"/></g:link>
+                                        | <g:link controller="search" action="newSearch" id="${searchId}">Search analyzed Data
+                                        <asset:image src="internal-link.gif"/>
+                                    </g:link>
                                     </g:if>
                                 </g:if>
                                 <g:elseif test="${layoutRow.column == 'platforms'}">
@@ -108,7 +114,9 @@ var assayCount = 3
                 <th>&nbsp;</th>
                 <th align="right">
                     <div align="right">Subject1&nbsp;Level&nbsp;Data&nbsp;is&nbsp;available&nbsp;
-                        <a href="#subjectFake" onclick="showTab('analyze')"><img src="${resource(dir:'images', file:'application_go.png')}"/></a>
+                        <a href="#subjectFake" onclick="showTab('analyze')">
+                            <asset:image src="application_go.png"/>
+                        </a>
                     </div>
                 </th>
             </tr>

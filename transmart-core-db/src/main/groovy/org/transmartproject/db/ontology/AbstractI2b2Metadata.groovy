@@ -192,17 +192,29 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
         getDescendants(false, showHidden, showSynonyms)
     }
 
-    //@Override
+    @Override
     List<OntologyTerm> getAllDescendants(boolean showHidden = false,
                                          boolean showSynonyms = false) {
         getDescendants(true, showHidden, showSynonyms)
     }
 
+	@Override
+	List<OntologyTerm> getHDforAllDescendants() {
+		getDescendants(true, false, false, false, true)
+	}
+
+    @Override
+    List<String> getAllDescendantsForFacets() {
+        getAllDescendants()*.fullName
+    }
+
     private List<OntologyTerm> getDescendants(boolean allDescendants,
                                               boolean showHidden = false,
-                                              boolean showSynonyms = false) {
+                                              boolean showSynonyms = false,
+											  boolean isOrdered = true,
+                                              boolean shodHighDimensionalOnly = false) {
         HibernateCriteriaBuilder c
-        def fullNameSearch = this.conceptKey.conceptFullName.toString()
+        def fullNameSearch =  this.conceptKey.conceptFullName.toString()
 
         c = createCriteria()
         def ret = c.list {
@@ -220,8 +232,13 @@ abstract class AbstractI2b2Metadata extends AbstractQuerySpecifyingType
                 if (!showSynonyms) {
                     eq 'cSynonymCd', 'N' as char
                 }
+                if (shodHighDimensionalOnly) {
+                    like 'cVisualattributes', '__H%'
+                }
             }
-            order('name')
+			if (isOrdered) {
+                order('name')
+            }
         }
         ret.each { it.setTableCode(getTableCode()) }
         ret
