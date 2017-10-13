@@ -55,7 +55,7 @@ class PatientSetController {
         currentUser.checkAccess(READ, queryResult)
 
         respond new QueryResultWrapper(
-                apiVersion: '/v1',
+                apiVersion: VERSION,
                 queryResult: queryResult,
                 embedPatients: true
         )
@@ -83,7 +83,7 @@ class PatientSetController {
         currentUser.checkAccess(BUILD_COHORT, queryDefinition)
 
         respond new QueryResultWrapper(
-                apiVersion: 'v1',
+                apiVersion: VERSION,
                 queryResult: queriesResource.runQuery(queryDefinition, currentUser.username),
                 embedPatients: true
         ),
