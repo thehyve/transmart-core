@@ -1,11 +1,22 @@
-gradle/
+# OS system files
+Thumbs.db
+.DS_Store
+
+# Gradle
 .gradle
+build/
 gradlew*
+
+# IDEs
+# - IntelliJ IDEA
 .idea
-out
-.class
-.jar
-*/build/
-/build/
-*.iml
-logs
+*.ipr
+*.iws
+# - Eclipse
+.project
+.settings
+.classpath
+
+# Misc
+/logs
+/out
