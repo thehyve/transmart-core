@@ -5,7 +5,6 @@ package org.transmartproject.db.clinical
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import grails.orm.HibernateCriteriaBuilder
-import grails.plugin.cache.Cacheable
 import grails.util.Holders
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
@@ -19,6 +18,8 @@ import org.hibernate.internal.CriteriaImpl
 import org.hibernate.internal.StatelessSessionImpl
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.Patient
 import org.transmartproject.core.dataquery.TabularResult
@@ -426,6 +427,28 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     @Override
+    Counts counts(MultiDimConstraint constraint, User user) {
+        def t1 = new Date()
+        checkAccess(constraint, user)
+        QueryBuilder builder = getCheckedQueryBuilder(user)
+        DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
+                .add(projectionForAggregate(AggregateType.COUNT), 'observationCount')
+                .add(projectionForAggregate(AggregateType.PATIENT_COUNT), 'patientCount'))
+                .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
+        def row = get(criteria) as Map
+        def t2 = new Date()
+        log.debug "Computed counts (took ${t2.time - t1.time} ms.)"
+        new Counts(observationCount: row.observationCount as Long, patientCount: row.patientCount as Long)
+    }
+
+    @Override
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedCounts',
+            key = '{ #constraint.toString(), #user.username }')
+    Counts cachedCounts(MultiDimConstraint constraint, User user) {
+        counts(constraint, user)
+    }
+
+    @Override
     Map<String, Counts> countsPerConcept(MultiDimConstraint constraint, User user) {
         log.debug "Computing counts per concept ..."
         def t1 = new Date()
@@ -499,12 +522,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             } as Map<String, Counts>
             ]
         } as Map<String, Map<String, Counts>>
-    }
-
-    @Override
-    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService', key = '{#constraint, #user.username}')
-    Long cachedCount(MultiDimConstraint constraint, User user) {
-        count(constraint, user)
     }
 
     /**
@@ -696,9 +713,10 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
     }
 
     @Override
-    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService', key = '{#constraint, #user.username}')
+    @Cacheable(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedPatientCount',
+            key = '{ #constraint.toString(), #user.username }')
     Long cachedPatientCount(MultiDimConstraint constraint, User user) {
-        getDimensionElementsCount(DimensionImpl.PATIENT, constraint, user)
+        getDimensionElementsCount(PATIENT, constraint, user)
     }
 
     static List<StudyNameConstraint> findStudyNameConstraints(MultiDimConstraint constraint) {
@@ -939,6 +957,28 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         def dataType = 'clinical'
         def accessibleStudies = accessControlChecks.getDimensionStudiesForUser(DbUser.load(user.id))
         retrieveData(dataType, accessibleStudies, constraint: constraint, sort: orderByDimensions)
+    }
+
+    /**
+     * Clears the counts cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @Override
+    @CacheEvict(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedCounts',
+            allEntries = true)
+    void clearCountsCache() {
+        log.info 'Clearing counts cache ...'
+    }
+
+    /**
+     * Clears the patient count cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    @Override
+    @CacheEvict(value = 'org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedPatientCount',
+            allEntries = true)
+    void clearPatientCountCache() {
+        log.info 'Clearing patient count cache ...'
     }
 
 }

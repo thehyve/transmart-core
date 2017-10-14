@@ -13,6 +13,8 @@ import org.transmartproject.core.tree.TreeResource
 import org.transmartproject.rest.marshallers.ContainerResponseWrapper
 import org.transmartproject.rest.misc.CurrentUser
 
+import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
+
 @Slf4j
 class TreeController {
 
@@ -43,12 +45,7 @@ class TreeController {
               @RequestParam('depth') Integer depth,
               @RequestParam('counts') Boolean counts,
               @RequestParam('tags') Boolean tags) {
-        def acceptedParams = ['action', 'controller', 'apiVersion', 'root', 'depth', 'counts', 'tags']
-        params.keySet().each { param ->
-            if (!acceptedParams.contains(param)) {
-                throw new InvalidArgumentsException("Parameter not supported: $param.")
-            }
-        }
+        checkForUnsupportedParams(params, ['root', 'depth', 'counts', 'tags'])
         if (root) {
             root = URLDecoder.decode(root, 'UTF-8')
         }
@@ -72,7 +69,9 @@ class TreeController {
      * Only available for administrators.
      */
     def clearCache() {
+        checkForUnsupportedParams(params, [])
         treeResource.clearCache(currentUser)
+        response.status = 200
     }
 
     private setVersion(String apiVersion, List<TreeNode> nodes) {

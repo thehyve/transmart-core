@@ -2,6 +2,7 @@
 
 package org.transmartproject.db.multidimquery.query
 
+import grails.converters.JSON
 import grails.databinding.BindUsing
 import grails.validation.Validateable
 import grails.web.databinding.DataBinder
@@ -192,7 +193,14 @@ class Field implements Validateable {
  * can be created using the constructors of the subclasses or by using the
  * {@link ConstraintFactory}.
  */
-abstract class Constraint implements Validateable, MultiDimConstraint { }
+abstract class Constraint implements Validateable, MultiDimConstraint {
+
+    @Override
+    String toString() {
+        (this as JSON).toString()
+    }
+
+}
 
 @Canonical
 class TrueConstraint extends Constraint {

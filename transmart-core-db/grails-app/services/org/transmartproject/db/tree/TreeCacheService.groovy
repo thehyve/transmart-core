@@ -2,8 +2,6 @@
 
 package org.transmartproject.db.tree
 
-import grails.plugin.cache.CacheEvict
-import grails.plugin.cache.Cacheable
 import groovy.transform.CompileStatic
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
@@ -12,6 +10,8 @@ import org.hibernate.criterion.Restrictions
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.transaction.annotation.Transactional
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.db.accesscontrol.AccessControlChecks
