@@ -152,6 +152,10 @@ class TreeNodeImpl implements TreeNode {
             OntologyTermType.CATEGORICAL_OPTION
         } else if (CATEGORICAL in visualAttributes) {
             OntologyTermType.CATEGORICAL
+        } else if (DATE in visualAttributes) {
+            OntologyTermType.DATE
+        } else if (TEXT in visualAttributes) {
+            OntologyTermType.TEXT
         } else {
             OntologyTermType.UNKNOWN
         }
