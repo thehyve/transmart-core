@@ -10,5 +10,7 @@ enum OntologyTermType {
     CATEGORICAL_OPTION,
     FOLDER,      // reserved
     CATEGORICAL, // reserved
+    DATE,
+    TEXT,
     UNKNOWN,
 }
