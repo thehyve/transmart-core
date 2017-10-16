@@ -5,6 +5,7 @@ Thumbs.db
 # Gradle
 .gradle
 build/
+gradle/
 gradlew*
 
 # IDEs
@@ -18,5 +19,6 @@ gradlew*
 .classpath
 
 # Misc
-/logs
-/out
+logs/
+out/
+
