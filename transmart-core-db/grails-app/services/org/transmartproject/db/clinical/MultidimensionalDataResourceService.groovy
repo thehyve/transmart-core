@@ -323,7 +323,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             case AggregateFunction.MAX:
                 return Projections.max('numberValue')
             case AggregateFunction.COUNT:
-                return Projections.rowCount()
+                return Projections.count('numberValue')
             case AggregateFunction.PATIENT_COUNT:
                 return Projections.countDistinct('patient')
             case AggregateFunction.STD_DEV:
@@ -393,8 +393,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         QueryBuilder builder = getCheckedQueryBuilder(user)
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint).setProjection(Projections.projectionList()
                 .add(Projections.groupProperty('conceptCode'), 'conceptCode')
-                .add(projectionForAggregate(AggregateFunction.COUNT), 'observationCount')
-                .add(projectionForAggregate(AggregateFunction.PATIENT_COUNT), 'patientCount'))
+                .add(Projections.rowCount(), 'observationCount')
+                .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List rows = getList(criteria)
         def t2 = new Date()
@@ -414,8 +414,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         DetachedCriteria criteria = builder.buildCriteria((Constraint) constraint)
                 .setProjection(Projections.projectionList()
                     .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
-                    .add(projectionForAggregate(AggregateFunction.COUNT), 'observationCount')
-                    .add(projectionForAggregate(AggregateFunction.PATIENT_COUNT), 'patientCount'))
+                    .add(Projections.rowCount(), 'observationCount')
+                    .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List rows = getList(criteria)
         def t2 = new Date()
@@ -443,8 +443,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 .setProjection(Projections.projectionList()
                     .add(Projections.groupProperty('conceptCode'), 'conceptCode')
                     .add(Projections.groupProperty("${builder.getAlias('trialVisit')}.study"), 'study')
-                    .add(projectionForAggregate(AggregateFunction.COUNT), 'observationCount')
-                    .add(projectionForAggregate(AggregateFunction.PATIENT_COUNT), 'patientCount'))
+                    .add(Projections.rowCount(), 'observationCount')
+                    .add(Projections.countDistinct('patient'), 'patientCount'))
                 .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
         List result = getList(criteria)
         def t2 = new Date()

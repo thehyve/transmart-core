@@ -711,7 +711,7 @@ class QueryServicePgSpec extends Specification {
         missingValuesMap[MAX] == 169
         missingValuesMap[MIN] == 169
         missingValuesMap[AVERAGE] == 169
-        missingValuesMap[COUNT] == 2
+        missingValuesMap[COUNT] == 1
         missingValuesMap[PATIENT_COUNT] == 2
         missingValuesMap[STD_DEV] == null
     }
