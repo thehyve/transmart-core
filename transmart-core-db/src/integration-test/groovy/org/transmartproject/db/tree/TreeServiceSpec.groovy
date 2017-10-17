@@ -6,14 +6,19 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.ontology.OntologyTerm.VisualAttributes
 import org.transmartproject.core.tree.TreeNode
 import org.transmartproject.core.users.UsersResource
+import org.transmartproject.db.i2b2data.ConceptDimension
+import org.transmartproject.db.ontology.I2b2Secure
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 
+import static org.transmartproject.core.ontology.OntologyTermType.*
+
 @Rollback
 @Integration
-class TreeServiceTest extends Specification {
+class TreeServiceSpec extends Specification {
 
     static final String ADMIN_USER = 'admin'
     static final String PUBLIC_ACCESS_USER = 'test-public-user-1'
@@ -176,6 +181,86 @@ class TreeServiceTest extends Specification {
 
         then: "the result should be the node and its subtree"
         forest*.name == ['SHARED_CONCEPTS_STUDY_C_PRIV']
+    }
+
+    /**
+     * Collects all tree nodes in one list. Assumes all entries in the argument to be
+     * acyclic (otherwise this recurses infinitely).
+     * @param forest a list of directed acyclic graphs.
+     * @return the list of all nodes in the forest.
+     */
+    private List<TreeNode> flatten(List<TreeNode> forest) {
+        forest ? (forest + forest.collectMany { flatten(it.children) }) : [] as List<TreeNode>
+    }
+
+    void 'test correctness of test data'() {
+        User user = (User) usersResource.getUserFromUsername(ADMIN_USER)
+
+        when: 'retrieving the full tree for the admin user and all i2b2 entries in the database'
+        List<TreeNode> forest = treeService.findNodesForUser(null, null, false, false, user)
+        List<TreeNode> nodes = flatten(forest)
+        List<I2b2Secure> i2b2Nodes = I2b2Secure.all
+        List<ConceptDimension> concepts = ConceptDimension.all
+        Set<String> i2b2NodesConceptPaths = i2b2Nodes.findAll {
+            it.dimensionTableName.toLowerCase() == 'concept_dimension' && it.columnName.toLowerCase() == 'concept_path'}
+        .collect { it.dimensionCode } as Set<String>
+        Set<String> allConceptsMinusTreeConcepts = (concepts*.conceptPath as Set<String>) - i2b2NodesConceptPaths
+        Set<String> treeConceptsMinusAllConcepts = i2b2NodesConceptPaths - (concepts*.conceptPath as Set<String>)
+        Set<String> i2b2NodesMinusTreeNodes = (i2b2Nodes*.fullName as Set<String>) - (nodes*.fullName as Set<String>)
+        Set<String> treeNodesMinusI2b2Nodes = (nodes*.fullName as Set<String>) - (i2b2Nodes*.fullName as Set<String>)
+
+        then: 'all paths in the database should be present in the tree'
+        i2b2NodesMinusTreeNodes == ([] as Set)
+
+        and: 'all paths in the tree should also exists in the database'
+        treeNodesMinusI2b2Nodes == ([] as Set)
+
+        and: 'the set of paths in the database is equal to the set of paths in the tree'
+        i2b2Nodes.size() == nodes.size()
+        (i2b2Nodes*.fullName as Set<String>) == (nodes*.fullName as Set<String>)
+
+        and: 'all concepts should be referred to by a tree node'
+        allConceptsMinusTreeConcepts == ([] as Set)
+
+        // and: 'all concept nodes should refer to an existing concept'
+        // treeConceptsMinusAllConcepts == ([] as Set)
+
+        and: 'all leaf nodes have a type'
+        nodes.each { TreeNode node ->
+            if (VisualAttributes.LEAF in node.visualAttributes) {
+                assert node.ontologyTermType in [
+                        NUMERIC,
+                        TEXT,
+                        CATEGORICAL,
+                        CATEGORICAL_OPTION,
+                        DATE,
+                        HIGH_DIMENSIONAL
+                ]
+            } else if (VisualAttributes.MODIFIER_LEAF in node.visualAttributes) {
+                assert node.ontologyTermType == MODIFIER
+            }
+        }
+
+        and: 'all leaf nodes have a non-empty constraint'
+        nodes.each { TreeNode node ->
+            if ([VisualAttributes.LEAF, VisualAttributes.MODIFIER_LEAF].any { it in node.visualAttributes}) {
+                assert node.constraint != null
+            }
+        }
+
+        and: 'all study nodes have a study id'
+        nodes.each { TreeNode node ->
+            if (VisualAttributes.STUDY in node.visualAttributes) {
+                assert node.studyId && !node.studyId.empty
+            }
+        }
+
+        and: 'all study nodes have a non-empty constraint'
+        nodes.each { TreeNode node ->
+            if (VisualAttributes.STUDY in node.visualAttributes) {
+                assert node.constraint != null
+            }
+        }
     }
 
 }

@@ -14,8 +14,8 @@ if(!host || host == '/tmp') {
 }
 String url = "jdbc:postgresql://${host}:${getenv('PGPORT')}/${getenv('PGDATABASE')}"
 Connection connection = DriverManager.getConnection(url,
-        getenv('PGUSER'),
-        getenv('PGPASSWORD'))
+        'tm_cz',
+        getenv('TM_CZ_PWD') ?: 'tm_cz')
 
 def sql = new Sql(connection)
 
