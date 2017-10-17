@@ -324,8 +324,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 return Projections.max('numberValue')
             case AggregateFunction.COUNT:
                 return Projections.count('numberValue')
-            case AggregateFunction.PATIENT_COUNT:
-                return Projections.countDistinct('patient')
             case AggregateFunction.STD_DEV:
                 return Projections.sqlProjection(
                         'STDDEV_SAMP(nval_num) as SD',

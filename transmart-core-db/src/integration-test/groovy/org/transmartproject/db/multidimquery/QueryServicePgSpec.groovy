@@ -612,7 +612,6 @@ class QueryServicePgSpec extends Specification {
         def expectedMin = 56
         def expectedAverage = 74.78
         def expectedCount = 9
-        def expectedPatientCount = 3
         def expectedStandardDiviation = 14.7
         def user = User.findByUsername('test-public-user-1')
         def heartRate = new ConceptConstraint(
@@ -641,11 +640,6 @@ class QueryServicePgSpec extends Specification {
         countMap == [ (COUNT): expectedCount ]
 
         when:
-        def patientCountMap = multiDimService.aggregate(EnumSet.of(PATIENT_COUNT), heartRate, user)
-        then:
-        patientCountMap == [ (PATIENT_COUNT): expectedPatientCount ]
-
-        when:
         def sdMap = multiDimService.aggregate(EnumSet.of(STD_DEV), heartRate, user)
         then:
         sdMap.size() == 1
@@ -655,12 +649,11 @@ class QueryServicePgSpec extends Specification {
         when:
         def compositeMap = multiDimService.aggregate(EnumSet.allOf(AggregateFunction), heartRate, user)
         then:
-        compositeMap.size() == 6
+        compositeMap.size() == 5
         compositeMap[MAX] == expectedMax
         compositeMap[MIN] == expectedMin
         compositeMap[AVERAGE].round(2) == expectedAverage
         compositeMap[COUNT] == expectedCount
-        compositeMap[PATIENT_COUNT] == expectedPatientCount
         compositeMap[STD_DEV].round(2) == expectedStandardDiviation
     }
 
@@ -684,35 +677,32 @@ class QueryServicePgSpec extends Specification {
         when: 'aggregate run for emtpy dataset'
         def compositeMap = multiDimService.aggregate(EnumSet.allOf(AggregateFunction), noResultConstraint, user)
         then: 'aggregation entries are present with empty results'
-        compositeMap.size() == 6
+        compositeMap.size() == 5
         compositeMap[MAX] == null
         compositeMap[MIN] == null
         compositeMap[AVERAGE] == null
         compositeMap[COUNT] == 0
-        compositeMap[PATIENT_COUNT] == 0
         compositeMap[STD_DEV] == null
 
         when: 'aggregate only on categorical observations'
         def categObsMap = multiDimService.aggregate(EnumSet.allOf(AggregateFunction), categoricalConceptConstraint, user)
         then: 'aggregation entries are present with empty results'
-        categObsMap.size() == 6
+        categObsMap.size() == 5
         categObsMap[MAX] == null
         categObsMap[MIN] == null
         categObsMap[AVERAGE] == null
         categObsMap[COUNT] == 0
-        categObsMap[PATIENT_COUNT] == 0
         categObsMap[STD_DEV] == null
 
         when: 'aggregate run for dataset with one value and one missing value'
         def missingValuesMap = multiDimService
                 .aggregate(EnumSet.allOf(AggregateFunction), missingValuesConstraint, user)
         then: 'aggregation entries are present with corresponding results'
-        missingValuesMap.size() == 6
+        missingValuesMap.size() == 5
         missingValuesMap[MAX] == 169
         missingValuesMap[MIN] == 169
         missingValuesMap[AVERAGE] == 169
         missingValuesMap[COUNT] == 1
-        missingValuesMap[PATIENT_COUNT] == 2
         missingValuesMap[STD_DEV] == null
     }
 

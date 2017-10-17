@@ -732,7 +732,7 @@ var spec = {
     },
     "/v2/observations/aggregate": {
       "get": {
-        "description": "Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'std_dev', 'count' and 'patient_count'\n",
+        "description": "Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'std_dev' and 'count'\n",
         "tags": [
           "v2"
         ],
@@ -748,7 +748,7 @@ var spec = {
             "name": "type",
             "required": true,
             "in": "query",
-            "description": "'min', 'max', 'average', 'std_dev', 'count' or 'patient_count'. This parameter can be specified multiple times to retrieve\nmultiple aggregates at once.\n",
+            "description": "'min', 'max', 'average', 'std_dev' or 'count'. This parameter can be specified multiple times to retrieve\nmultiple aggregates at once.\n",
             "type": "string"
           }
         ],
@@ -2998,9 +2998,6 @@ var spec = {
           "type": "number"
         },
         "count": {
-          "type": "number"
-        },
-        "patient_count": {
           "type": "number"
         },
         "std_dev": {

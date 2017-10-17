@@ -325,7 +325,6 @@ class QueryServiceSpec extends TransmartSpecification {
         result[MAX] == 50
         result[AVERAGE] == 30
         result[COUNT] == 2
-        result[PATIENT_COUNT] == 2
         result[STD_DEV].round(2) == 28.28
     }
 

@@ -15,7 +15,6 @@ enum AggregateFunction {
     MAX,
     AVERAGE,
     COUNT,
-    PATIENT_COUNT,
     STD_DEV,
 
     private static final Map<String, AggregateFunction> mapping = values().collectEntries {
