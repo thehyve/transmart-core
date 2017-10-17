@@ -7,34 +7,22 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
+import org.transmartproject.core.multidimquery.AggregateFunction
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
-import org.transmartproject.db.multidimquery.query.AndConstraint
-import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.db.multidimquery.query.Combination
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.Field
-import org.transmartproject.db.multidimquery.query.FieldConstraint
-import org.transmartproject.db.multidimquery.query.ModifierConstraint
-import org.transmartproject.db.multidimquery.query.Operator
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
-import org.transmartproject.db.multidimquery.query.TimeConstraint
-import org.transmartproject.db.multidimquery.query.TrueConstraint
-import org.transmartproject.db.multidimquery.query.Type
-import org.transmartproject.db.multidimquery.query.ValueConstraint
+import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 import spock.lang.Specification
+
 import java.text.SimpleDateFormat
 
+import static org.transmartproject.core.multidimquery.AggregateFunction.*
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 
 @Rollback
@@ -567,5 +555,127 @@ class QueryServicePgSpec extends Specification {
             countsMap.values().sum { Counts counts -> counts.observationCount }
         }
     }
+
+    void 'test aggregates'() {
+        def expectedMax = 102
+        def expectedMin = 56
+        def expectedAverage = 74.78
+        def expectedCount = 9
+        def expectedStandardDiviation = 14.7
+        def user = User.findByUsername('test-public-user-1')
+        def heartRate = new ConceptConstraint(
+                path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\')
+
+        when:
+        def maxMap = multiDimService.aggregate(EnumSet.of(MAX), heartRate, user)
+        then:
+        maxMap == [ (MAX): expectedMax ]
+
+        when:
+        def minMap = multiDimService.aggregate(EnumSet.of(MIN), heartRate, user)
+        then:
+        minMap == [ (MIN): expectedMin ]
+
+        when:
+        def avgMap = multiDimService.aggregate(EnumSet.of(AVERAGE), heartRate, user)
+        then:
+        avgMap.size() == 1
+        AVERAGE in avgMap
+        avgMap[AVERAGE].round(2) == expectedAverage
+
+        when:
+        def countMap = multiDimService.aggregate(EnumSet.of(COUNT), heartRate, user)
+        then:
+        countMap == [ (COUNT): expectedCount ]
+
+        when:
+        def sdMap = multiDimService.aggregate(EnumSet.of(STD_DEV), heartRate, user)
+        then:
+        sdMap.size() == 1
+        STD_DEV in sdMap
+        sdMap[STD_DEV].round(2) == expectedStandardDiviation
+
+        when:
+        def compositeMap = multiDimService.aggregate(EnumSet.allOf(AggregateFunction), heartRate, user)
+        then:
+        compositeMap.size() == 5
+        compositeMap[MAX] == expectedMax
+        compositeMap[MIN] == expectedMin
+        compositeMap[AVERAGE].round(2) == expectedAverage
+        compositeMap[COUNT] == expectedCount
+        compositeMap[STD_DEV].round(2) == expectedStandardDiviation
+    }
+
+    void 'aggregates for datasets with not sufficient information'() {
+        def user = User.findByUsername('test-public-user-1')
+        def noResultConstraint = new AndConstraint(args: [
+                new ConceptConstraint(
+                        path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\'),
+                new ValueConstraint(
+                        valueType: "NUMERIC",
+                        operator: Operator.EQUALS,
+                        value: -1
+                ),
+                new StudyNameConstraint(studyId: "EHR")
+        ])
+        def missingValuesConstraint = new ConceptConstraint(
+                path: '\\Demographics\\Height\\')
+        def categoricalConceptConstraint = new ConceptConstraint(
+                path: '\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\')
+
+        when: 'aggregate run for emtpy dataset'
+        def compositeMap = multiDimService.aggregate(EnumSet.allOf(AggregateFunction), noResultConstraint, user)
+        then: 'aggregation entries are present with empty results'
+        compositeMap.size() == 5
+        compositeMap[MAX] == null
+        compositeMap[MIN] == null
+        compositeMap[AVERAGE] == null
+        compositeMap[COUNT] == 0
+        compositeMap[STD_DEV] == null
+
+        when: 'aggregate only on categorical observations'
+        def categObsMap = multiDimService.aggregate(EnumSet.allOf(AggregateFunction), categoricalConceptConstraint, user)
+        then: 'aggregation entries are present with empty results'
+        categObsMap.size() == 5
+        categObsMap[MAX] == null
+        categObsMap[MIN] == null
+        categObsMap[AVERAGE] == null
+        categObsMap[COUNT] == 0
+        categObsMap[STD_DEV] == null
+
+        when: 'aggregate run for dataset with one value and one missing value'
+        def missingValuesMap = multiDimService
+                .aggregate(EnumSet.allOf(AggregateFunction), missingValuesConstraint, user)
+        then: 'aggregation entries are present with corresponding results'
+        missingValuesMap.size() == 5
+        missingValuesMap[MAX] == 169
+        missingValuesMap[MIN] == 169
+        missingValuesMap[AVERAGE] == 169
+        missingValuesMap[COUNT] == 1
+        missingValuesMap[STD_DEV] == null
+    }
+
+    void 'test categorical value frequencies'() {
+        def user = User.findByUsername('test-public-user-1')
+        def race = new ConceptConstraint(
+                path: '\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\')
+        when:
+        def categoricalValueFreqMap = multiDimService.countCategoricalValues(race, user)
+        then:
+        categoricalValueFreqMap == [ Caucasian: 2L, Latino: 1L ]
+
+        when: 'only numerical observations selected'
+        def emptyMap = multiDimService.countCategoricalValues(new ConceptConstraint(
+                path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\'), user)
+        then: 'map is empty'
+        emptyMap.isEmpty()
+
+        when: 'count on missing values'
+        def missingValuesMap = multiDimService.countCategoricalValues(new ConceptConstraint(
+                path: '\\Demographics\\Gender\\'), user)
+        then: 'answer contains count for null values'
+        missingValuesMap[null] == 1L
+    }
+
 
 }

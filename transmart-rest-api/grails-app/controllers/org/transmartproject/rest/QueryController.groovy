@@ -7,7 +7,7 @@ import groovy.util.logging.Slf4j
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
-import org.transmartproject.core.multidimquery.AggregateType
+import org.transmartproject.core.multidimquery.AggregateFunction
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
@@ -208,15 +208,13 @@ class QueryController extends AbstractQueryController {
      * Aggregate endpoint:
      * <code>/v2/observations/aggregate?type=${type}&constraint=${constraint}</code>
      *
-     * Expects an {@link org.transmartproject.core.multidimquery.AggregateType} parameter <code>type</code> and {@link Constraint}
+     * Expects an {@link AggregateFunction} parameter <code>type</code> and {@link Constraint}
      * parameter <code>constraint</code>.
      *
      * Checks if the supplied constraint contains a concept constraint on top level, because
      * aggregations is only valid for a single concept. If the concept is not found or
      * no observations are found for the concept, an {@link org.transmartproject.db.multidimquery.query.InvalidQueryException}
      * is thrown.
-     * Also, if the concept is not numerical, has null values or values with an operator
-     * other than 'E'.
      *
      * @return a map with the aggregate type as key and the result as value.
      */
@@ -238,15 +236,32 @@ class QueryController extends AbstractQueryController {
         if (constraint == null) {
             return
         }
-        def aggregateTypes
+        Set aggregateTypes
         try {
-            aggregateTypes = type.collect { AggregateType.forName(it as String) }
+            aggregateTypes = type.collect { AggregateFunction.forName(it as String) }
         } catch (IllegalArgumentException e) {
             throw new InvalidQueryException(e)
         }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Map aggregateValues = multiDimService.aggregate(aggregateTypes, constraint, user)
+        Map<AggregateFunction, Number> aggregateValues = multiDimService.aggregate(aggregateTypes, constraint, user)
         render aggregateValues as JSON
+    }
+
+    /**
+     * Categorical value frequency endpoint:
+     * <code>/v2/observations/count_categorical_values?constraint=${constraint}</code>
+     *
+     * Expects an {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a map with the categorical values as keys and the counts as values. e.g. {"Female": 354, "Male": 310}
+     */
+    def countCategoricalValues() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['constraint'])
+        Constraint constraint = bindConstraint(args.constraint)
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        Map<String, Long> valueFrequencies = multiDimService.countCategoricalValues(constraint, user)
+        render valueFrequencies as JSON
     }
 
     /**

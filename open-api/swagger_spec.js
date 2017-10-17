@@ -732,7 +732,7 @@ var spec = {
     },
     "/v2/observations/aggregate": {
       "get": {
-        "description": "Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'count', and\n'values'. The first three require numeric variables, the last one categorical variables.\n",
+        "description": "Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'std_dev' and 'count'\n",
         "tags": [
           "v2"
         ],
@@ -748,7 +748,7 @@ var spec = {
             "name": "type",
             "required": true,
             "in": "query",
-            "description": "'min', 'max', 'average', 'count', or 'values'. This parameter can be specified multiple times to retrieve\nmultiple aggregates at once. The 'values' aggregate cannot be combined with the numeric aggregate types.\n",
+            "description": "'min', 'max', 'average', 'std_dev' or 'count'. This parameter can be specified multiple times to retrieve\nmultiple aggregates at once.\n",
             "type": "string"
           }
         ],
@@ -756,26 +756,7 @@ var spec = {
           "200": {
             "description": "return the result in a json object. Example: `{min: 56}`.",
             "schema": {
-              "type": "object",
-              "description": "only the value of the requested aggregate type will be present.",
-              "properties": {
-                "min": {
-                  "type": "number"
-                },
-                "max": {
-                  "type": "number"
-                },
-                "average": {
-                  "type": "number"
-                },
-                "values": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "description": "A list of the distinct values for categorical variables"
-                }
-              }
+              "$ref": "#/definitions/aggregates"
             }
           }
         }
@@ -815,19 +796,32 @@ var spec = {
           "200": {
             "description": "return the result in a json object. Example: `{min: 56}`.",
             "schema": {
-              "type": "object",
-              "description": "only the value of the requested aggregate type will be present.",
-              "properties": {
-                "min": {
-                  "type": "number"
-                },
-                "max": {
-                  "type": "number"
-                },
-                "average": {
-                  "type": "number"
-                }
-              }
+              "$ref": "#/definitions/aggregates"
+            }
+          }
+        }
+      }
+    },
+    "/v2/observations/count_categorical_values": {
+      "get": {
+        "description": "Calculates and returns categorical values frequencies\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "query",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\Study1\\\\Demography\\\\Sex\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "return the result in a json object. Example: `{\"Female\": 354, \"Male\": 310}`.",
+            "schema": {
+              "type": "object"
             }
           }
         }
@@ -2983,6 +2977,27 @@ var spec = {
         "updateDate": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "aggregates": {
+      "type": "object",
+      "description": "only the value of the requested aggregate type will be present.",
+      "properties": {
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "average": {
+          "type": "number"
+        },
+        "count": {
+          "type": "number"
+        },
+        "std_dev": {
+          "type": "number"
         }
       }
     }
