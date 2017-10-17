@@ -156,6 +156,8 @@ class TreeNodeImpl implements TreeNode {
             OntologyTermType.DATE
         } else if (TEXT in visualAttributes) {
             OntologyTermType.TEXT
+        } else if (MODIFIER_LEAF in visualAttributes) {
+            OntologyTermType.MODIFIER
         } else {
             OntologyTermType.UNKNOWN
         }
