@@ -4,7 +4,6 @@ package org.transmartproject.db.clinical
 
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
-import grails.converters.JSON
 import grails.orm.HibernateCriteriaBuilder
 import grails.plugin.cache.Cacheable
 import grails.util.Holders
@@ -665,15 +664,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         }
     }
 
-    @Override QueryResult createObservationSetQueryResult(String name, User user, String constraintText, String apiVersion) {
-        createQueryResult(
-                name,
-                user,
-                constraintText,
-                apiVersion,
-                QtQueryResultType.load(QueryResultType.GENERIC_QUERY_RESULT_ID)) { QtQueryResultInstance queryResult -> -1 }
-    }
-
     @Override QueryResult findQueryResult(Long queryResultId, User user) {
         QueryResult queryResult = QtQueryResultInstance.findById(queryResultId)
         if (queryResult == null) {
@@ -683,36 +673,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
             throw new AccessDeniedException("Access denied to patient set with id ${queryResultId}.")
         }
         queryResult
-    }
-
-    @Override
-    MultiDimConstraint createQueryResultsDisjunctionConstraint(List<Long> queryResultIds, User user) {
-        List<QueryResult> queryResults = queryResultIds.collect { findQueryResult(it, user) }
-
-        Map<Long, List<QueryResult>> queryResultTypeByType = queryResults
-                .groupBy { it.queryResultType.id }
-                .withDefault { [] }
-
-        Set<Long> foundNotSupportedQueryTypeIds = queryResultTypeByType.keySet() -
-                [QueryResultType.PATIENT_SET_ID, QueryResultType.GENERIC_QUERY_RESULT_ID]
-        assert !foundNotSupportedQueryTypeIds:
-                "Query types with following ids are not supported: ${foundNotSupportedQueryTypeIds}"
-
-        List<Constraint> patientSetConstraints = queryResultTypeByType[QueryResultType.PATIENT_SET_ID]
-                .collect { QueryResult qr -> new PatientSetConstraint(patientSetId: qr.id) }
-        List<Constraint> observationSetConstraints = queryResultTypeByType[QueryResultType.GENERIC_QUERY_RESULT_ID]
-                .collect { QueryResult qr ->
-            String constraintString = qr.queryInstance.queryMaster.requestConstraints
-            ConstraintFactory.create(JSON.parse(constraintString) as Map)
-        }
-
-        List<Constraint> constraints = patientSetConstraints + observationSetConstraints
-
-        if (constraints.size() == 1) {
-            constraints.first()
-        } else {
-            new OrConstraint(args: constraints)
-        }
     }
 
     Iterable<QueryResult> findQueryResults(final User user, QueryResultType resultType) {
@@ -733,10 +693,6 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
 
     @Override Iterable<QueryResult> findPatientSetQueryResults(User user) {
         findQueryResults(user, QtQueryResultType.load(QueryResultType.PATIENT_SET_ID))
-    }
-
-    @Override Iterable<QueryResult> findObservationSetQueryResults(User user) {
-        findQueryResults(user, QtQueryResultType.load(QueryResultType.GENERIC_QUERY_RESULT_ID))
     }
 
     @Override
@@ -977,8 +933,8 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
         ]
     }
 
-    @Override Hypercube retrieveClinicalData(MultiDimConstraint constraint_, User user, List<Dimension> orderByDimensions = []) {
-        Constraint constraint = (Constraint) constraint_
+    @Override Hypercube retrieveClinicalData(MultiDimConstraint constraint, User user, List<Dimension> orderByDimensions = []) {
+        assert constraint instanceof Constraint
         checkAccess(constraint, user)
         def dataType = 'clinical'
         def accessibleStudies = accessControlChecks.getDimensionStudiesForUser(DbUser.load(user.id))

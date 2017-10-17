@@ -1732,21 +1732,17 @@ paths:
             items:
               $ref: '#/definitions/export_job'
   /v2/export/data_formats:
-    get:
+    post:
       description: |
-        Gets data formats for specified sets, including `clinical` type and high dimensional types.
+        Analyses the constraint and gets result data formats, including `clinical` type and high dimensional types.
       tags:
         - v2
       parameters:
-        - name: id
+        - name: constraint
           required: true
-          in: query
-          description: 'Result instance ids. To specify more than one value, multiple parameter
-          instances format is required instead of multiple values for a single instance. Example: `id=3425&id=98532&id=...`'
-          type: array
-          collectionFormat: multi
-          items:
-            type: integer
+          in: body
+          description: 'json that specifies the constraint. Example: `{"type":"study_name","studyId":"EHR"}`.'
+          type: object
       responses:
         200:
           description:  |

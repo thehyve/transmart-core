@@ -77,15 +77,9 @@ interface MultiDimensionalDataResource {
 
     QueryResult createPatientSetQueryResult(String name, MultiDimConstraint constraint, User user, String constraintText, String apiVersion)
 
-    QueryResult createObservationSetQueryResult(String name, User user, String constraintText, String apiVersion)
-
     QueryResult findQueryResult(Long queryResultId, User user)
 
-    MultiDimConstraint createQueryResultsDisjunctionConstraint(List<Long> queryResultIds, User user)
-
     Iterable<QueryResult> findPatientSetQueryResults(User user)
-
-    Iterable<QueryResult> findObservationSetQueryResults(User user)
 
     Long getDimensionElementsCount(Dimension dimension, MultiDimConstraint constraint, User user)
 
