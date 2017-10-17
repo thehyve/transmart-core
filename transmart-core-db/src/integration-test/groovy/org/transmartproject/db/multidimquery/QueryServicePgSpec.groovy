@@ -664,6 +664,58 @@ class QueryServicePgSpec extends Specification {
         compositeMap[STD_DEV].round(2) == expectedStandardDiviation
     }
 
+    void 'aggregates for datasets with not sufficient information'() {
+        def user = User.findByUsername('test-public-user-1')
+        def noResultConstraint = new AndConstraint(args: [
+                new ConceptConstraint(
+                        path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\'),
+                new ValueConstraint(
+                        valueType: "NUMERIC",
+                        operator: Operator.EQUALS,
+                        value: -1
+                ),
+                new StudyNameConstraint(studyId: "EHR")
+        ])
+        def missingValuesConstraint = new ConceptConstraint(
+                path: '\\Demographics\\Height\\')
+        def categoricalConceptConstraint = new ConceptConstraint(
+                path: '\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\')
+
+        when: 'aggregate run for emtpy dataset'
+        def compositeMap = multiDimService.aggregate(EnumSet.allOf(AggregateFunction), noResultConstraint, user)
+        then: 'aggregation entries are present with empty results'
+        compositeMap.size() == 6
+        compositeMap[MAX] == null
+        compositeMap[MIN] == null
+        compositeMap[AVERAGE] == null
+        compositeMap[COUNT] == 0
+        compositeMap[PATIENT_COUNT] == 0
+        compositeMap[STD_DEV] == null
+
+        when: 'aggregate only on categorical observations'
+        def categObsMap = multiDimService.aggregate(EnumSet.allOf(AggregateFunction), categoricalConceptConstraint, user)
+        then: 'aggregation entries are present with empty results'
+        categObsMap.size() == 6
+        categObsMap[MAX] == null
+        categObsMap[MIN] == null
+        categObsMap[AVERAGE] == null
+        categObsMap[COUNT] == 0
+        categObsMap[PATIENT_COUNT] == 0
+        categObsMap[STD_DEV] == null
+
+        when: 'aggregate run for dataset with one value and one missing value'
+        def missingValuesMap = multiDimService
+                .aggregate(EnumSet.allOf(AggregateFunction), missingValuesConstraint, user)
+        then: 'aggregation entries are present with corresponding results'
+        missingValuesMap.size() == 6
+        missingValuesMap[MAX] == 169
+        missingValuesMap[MIN] == 169
+        missingValuesMap[AVERAGE] == 169
+        missingValuesMap[COUNT] == 2
+        missingValuesMap[PATIENT_COUNT] == 2
+        missingValuesMap[STD_DEV] == null
+    }
+
     void 'test categorical value frequencies'() {
         def user = User.findByUsername('test-public-user-1')
         def race = new ConceptConstraint(
@@ -678,6 +730,13 @@ class QueryServicePgSpec extends Specification {
                 path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\'), user)
         then: 'map is empty'
         emptyMap.isEmpty()
+
+        when: 'count on missing values'
+        def missingValuesMap = multiDimService.countCategoricalValues(new ConceptConstraint(
+                path: '\\Demographics\\Gender\\'), user)
+        then: 'answer contains count for null values'
+        missingValuesMap[null] == 1L
     }
+
 
 }

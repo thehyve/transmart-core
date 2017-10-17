@@ -328,7 +328,7 @@ class MultidimensionalDataResourceService implements MultiDimensionalDataResourc
                 return Projections.countDistinct('patient')
             case AggregateFunction.STD_DEV:
                 return Projections.sqlProjection(
-                        'STDDEV(nval_num) as SD',
+                        'STDDEV_SAMP(nval_num) as SD',
                         [ 'SD' ] as String[],
                         [ StandardBasicTypes.DOUBLE ] as org.hibernate.type.Type[])
             default:
