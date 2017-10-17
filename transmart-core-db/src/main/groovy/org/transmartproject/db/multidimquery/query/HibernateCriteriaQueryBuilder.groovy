@@ -48,6 +48,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     final Field valueTypeField = valueMetadata.fields.find { it.fieldName == 'valueType' }
     final Field numberValueField = valueMetadata.fields.find { it.fieldName == 'numberValue' }
     final Field textValueField = valueMetadata.fields.find { it.fieldName == 'textValue' }
+    final Field rawValueField = valueMetadata.fields.find { it.fieldName == 'rawValue' }
     final Field patientIdField = new Field(dimension: PATIENT, fieldName: 'id', type: Type.ID)
     final Field startTimeField = new Field(dimension: START_TIME, fieldName: 'startDate', type: Type.DATE)
 
@@ -153,6 +154,10 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             case Type.STRING:
                 valueTypeCode = ObservationFact.TYPE_TEXT
                 valueField = textValueField
+                break
+            case Type.TEXT:
+                valueTypeCode = ObservationFact.TYPE_RAW_TEXT
+                valueField = rawValueField
                 break
             default:
                 throw new QueryBuilderException("Value type not supported: ${constraint.valueType}.")

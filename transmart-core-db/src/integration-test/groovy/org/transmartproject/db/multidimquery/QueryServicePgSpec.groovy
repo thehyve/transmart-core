@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.multidimquery.Counts
 import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
@@ -35,7 +36,11 @@ import org.transmartproject.db.user.User
 import spock.lang.Specification
 import java.text.SimpleDateFormat
 
+import static org.hamcrest.Matchers.containsString
+import static org.hamcrest.Matchers.hasItems
+import static org.hamcrest.Matchers.hasSize
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
+import static spock.util.matcher.HamcrestSupport.that
 
 @Rollback
 @Integration
@@ -502,6 +507,41 @@ class QueryServicePgSpec extends Specification {
         patientSetEntries.size() == 3
         (patientSetEntries*.setIndex - (1..3 as List)).empty
         patientSetEntries*.patient.id != null
+    }
+
+    void "test large text values (raw data type)"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        ConceptConstraint constraint = new ConceptConstraint(conceptCode: 'favouritebook')
+
+        when:
+        Long observationCount = multiDimService.count(constraint, user)
+        Hypercube data = multiDimService.retrieveClinicalData(constraint, user)
+        def values = data.collect { HypercubeValue value -> value.value as String }
+
+        then:
+        observationCount == 2
+        that values, hasSize(2)
+        that values, hasItems(containsString('The Brothers Karamazov'), containsString('funny dialogues'))
+    }
+
+    void "test searching for large text values (raw data type)"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        Constraint constraint = new AndConstraint(args: [
+                new ConceptConstraint(conceptCode: 'favouritebook'),
+                new ValueConstraint(Type.TEXT, Operator.CONTAINS, 'Karamazov')
+                ])
+
+        when:
+        Long observationCount = multiDimService.count(constraint, user)
+        Hypercube data = multiDimService.retrieveClinicalData(constraint, user)
+        def values = data.collect { HypercubeValue value -> value.value as String }
+
+        then:
+        observationCount == 1
+        that values, hasSize(1)
+        that values, hasItems(containsString('The Brothers Karamazov'))
     }
 
     /**

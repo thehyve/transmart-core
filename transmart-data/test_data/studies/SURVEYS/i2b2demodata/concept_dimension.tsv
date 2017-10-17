@@ -27,3 +27,9 @@ description	\General\Description\	Description	"{
     ""columns"": 210,
     ""measure"": ""Nominal""
 }"						
+favouritebook	\Interests\Favourite Book\	Favourite Book	"{
+    ""type"": ""String"",
+    ""width"": 400,
+    ""columns"": 400,
+    ""measure"": ""Nominal""
+}"						

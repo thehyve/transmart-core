@@ -45,6 +45,7 @@ class TreeServiceSpec extends Specification {
                 'Public Studies',
                 'Projects',
                 'Private Studies',
+                'Interests',
                 'General',
                 'Demographics',
         ]
@@ -94,6 +95,7 @@ class TreeServiceSpec extends Specification {
                 'Public Studies',
                 'Projects',
                 'Private Studies',
+                'Interests',
                 'General',
                 'Demographics',
         ]
@@ -115,6 +117,7 @@ class TreeServiceSpec extends Specification {
                 'Public Studies',
                 'Projects',
                 'Private Studies',
+                'Interests',
                 'General',
                 'Demographics',
         ]
@@ -157,6 +160,7 @@ class TreeServiceSpec extends Specification {
                 'Public Studies',
                 'Projects',
                 'Private Studies',
+                'Interests',
                 'General',
                 'Demographics',
         ]

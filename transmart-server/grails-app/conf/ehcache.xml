@@ -138,7 +138,12 @@
         timeToIdleSeconds="300"
         />
 
-    <cache name="org.transmartproject.db.clinical.MultidimensionalDataResourceService"
+    <cache name="org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedPatientCount"
+           maxElementsInMemory="100000"
+           timeToIdleSeconds="0"
+    />
+
+    <cache name="org.transmartproject.db.clinical.MultidimensionalDataResourceService.cachedCounts"
            maxElementsInMemory="100000"
            timeToIdleSeconds="0"
     />

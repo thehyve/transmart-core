@@ -201,8 +201,8 @@ class TreeNodesSpec extends RESTSpec {
                 acceptType: JSON,
                 user      : ADMIN_USER,
         ])
-        then: "a success code is returned"
-        assert responseData.httpStatus == 200
+        then: "an empty body is returned"
+        assert responseData == null
     }
 
     def "clear tree node cache"() {

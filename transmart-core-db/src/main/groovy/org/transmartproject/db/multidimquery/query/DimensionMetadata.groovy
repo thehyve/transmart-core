@@ -132,6 +132,7 @@ class DimensionMetadata {
                     this.fields << getMappedField('valueType')
                     this.fields << getMappedField('textValue')
                     this.fields << getMappedField('numberValue')
+                    this.fields << getMappedField('rawValue')
                     break
                 case COLUMN:
                     this.fields << getMappedField(fieldName)

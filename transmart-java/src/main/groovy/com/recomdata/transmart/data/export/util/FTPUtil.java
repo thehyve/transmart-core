@@ -23,9 +23,9 @@
  */
 package com.recomdata.transmart.data.export.util;
 
-import com.recomdata.transmart.TransmartContextHolder;
 import com.recomdata.transmart.data.export.exception.FTPAuthenticationException;
 import com.recomdata.transmart.data.export.exception.InvalidFTPParamsException;
+import grails.util.Holders;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.net.ftp.FTP;
@@ -45,7 +45,7 @@ public class FTPUtil {
 	
 	private static Logger log = LoggerFactory.getLogger(FTPUtil.class);
 	@SuppressWarnings("rawtypes")
-	private static final Map config = TransmartContextHolder.getGrailsApplication().getConfig();
+	private static final Map config = Holders.getConfig();
 	
 	private static final String FTP_SERVER = (String) config.get("com.recomdata.transmart.data.export.ftp.server");
 	private static final String FTP_SERVER_PORT = (String) config.get("com.recomdata.transmart.data.export.ftp.serverport");

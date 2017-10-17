@@ -9,11 +9,14 @@ import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.db.multidimquery.query.StudyNameConstraint
 import org.transmartproject.db.user.User
 import spock.lang.Specification
+
+import static org.hamcrest.CoreMatchers.containsString
 import static org.transmartproject.core.dataquery.VariableDataType.NUMERIC
 import static org.transmartproject.core.dataquery.VariableDataType.STRING
 import static org.transmartproject.core.dataquery.VariableDataType.DATE
 import static org.transmartproject.core.dataquery.Measure.NOMINAL
 import static org.transmartproject.core.dataquery.Measure.SCALE
+import static spock.util.matcher.HamcrestSupport.that
 
 @Rollback
 @Integration
@@ -39,32 +42,36 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         )
         then: 'header matches expectations'
         def columns = transformedView.indicesList
-        columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'gender1', 'gender1.date']
+        columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'favouritebook', 'favouritebook.date', 'gender1', 'gender1.date']
         then: 'columns metadata matches expectations'
         def metadata = columns*.metadata
-        metadata*.type == [NUMERIC, DATE, DATE, NUMERIC, DATE]
-        metadata*.measure == [SCALE, SCALE, SCALE, NOMINAL, SCALE]
-        metadata*.description == ['FIS Number', 'Birth Date', 'Date of measurement', 'Gender', 'Date of measurement']
-        metadata*.width == [12, 22, 22, 12, 22]
-        metadata*.decimals == [0, null, null, null, null]
-        metadata*.columns == [12, 22, 22, 14, 22]
+        metadata*.type == [NUMERIC, DATE, DATE, STRING, DATE, NUMERIC, DATE]
+        metadata*.measure == [SCALE, SCALE, SCALE, NOMINAL, SCALE, NOMINAL, SCALE]
+        metadata*.description == ['FIS Number', 'Birth Date', 'Date of measurement', 'Favourite Book', 'Date of measurement', 'Gender', 'Date of measurement']
+        metadata*.width == [12, 22, 22, 400, 22, 12, 22]
+        metadata*.decimals == [0, null, null, null, null, null, null]
+        metadata*.columns == [12, 22, 22, 400, 22, 14, 22]
         def height1Metadata = columns.find { it.label == 'gender1' }.metadata
         height1Metadata.valueLabels == [(1): 'Female', (2): 'Male', (-2): 'Not Specified']
         height1Metadata.missingValues == [-2]
 
         when: 'get row'
         def rows = transformedView.rows.toList()
-        then: 'content matches expactations'
+        then: 'content matches expectations'
         rows[0][columns[0]] == '123457'
         rows[0][columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1986-10-22 00:00:00', UTC)
         rows[0][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2010-12-16 20:23:15')
-        rows[0][columns[3]] == -2
-        rows[0][columns[4]] == null
+        that rows[0][columns[3]] as String, containsString('Dostoyevsky')
+        rows[0][columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
+        rows[0][columns[5]] == -2
+        rows[0][columns[6]] == null
         rows[1][columns[0]] == '123456'
         rows[1][columns[1]] == Date.parse('yyyy-MM-dd hh:mm:ss', '1980-08-12 00:00:00', UTC)
         rows[1][columns[2]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2015-11-14 19:05:00')
-        rows[1][columns[3]] == 2
-        rows[1][columns[4]] == null
+        that rows[1][columns[3]] as String, containsString('Hofstadter')
+        rows[1][columns[4]] == Date.parse('yyyy-MM-dd hh:mm:ss', '2016-03-21 10:36:01')
+        rows[1][columns[5]] == 2
+        rows[1][columns[6]] == null
 
         cleanup:
         if(transformedView) transformedView.close()

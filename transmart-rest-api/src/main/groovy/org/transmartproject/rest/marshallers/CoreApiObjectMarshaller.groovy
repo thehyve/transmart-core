@@ -59,7 +59,6 @@ class CoreApiObjectMarshaller implements ObjectMarshaller<JSON> {
             segregateEmbedded mapRepresentation, object
         }
 
-        log.error(mapRepresentation.toString())
         json.value mapRepresentation
     }
 

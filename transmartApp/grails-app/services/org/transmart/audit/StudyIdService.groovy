@@ -19,8 +19,9 @@
 
 package org.transmart.audit
 
+import org.springframework.cache.annotation.Cacheable
+
 import javax.annotation.Resource
-import grails.plugin.cache.Cacheable
 import org.transmartproject.core.exceptions.NoSuchResourceException
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.Study
@@ -49,7 +50,7 @@ class StudyIdService {
      *         or the concept could not be found.
      */
     @Cacheable('org.transmart.audit.StudyIdService')
-    public String getStudyIdForConceptKey(Map options = [:], String concept_key) {
+    String getStudyIdForConceptKey(Map options = [:], String concept_key) {
         if (concept_key == null) {
             return null
         }
@@ -98,7 +99,7 @@ class StudyIdService {
      *        are passed as string.
      * @return a string with the comma-separated list study ids.
      */
-    public String getStudyIdsForQueries(List<String> queryIds) {
+    String getStudyIdsForQueries(List<String> queryIds) {
         Set<String> studyIds = []
         for (String queryId: queryIds) {
             if (queryId != null) {

@@ -2,6 +2,8 @@
 
 package org.transmartproject.core.multidimquery
 
+import groovy.transform.Canonical
+import groovy.transform.Immutable
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.User
@@ -35,7 +37,17 @@ interface MultiDimensionalDataResource {
      */
     Long count(MultiDimConstraint constraint, User user)
 
-    Long cachedCount(MultiDimConstraint constraint, User user)
+    /**
+     * Observation and patient counts: counts the number of observations that satisfy the constraint and that
+     * the user has access to, and the number of associated patients.
+     *
+     * @param constraint the constraint.
+     * @param user the current user.
+     * @return the number of observations and patients.
+     */
+    Counts counts(MultiDimConstraint constraint, User user)
+
+    Counts cachedCounts(MultiDimConstraint constraint, User user)
 
     /**
      * Observation and patient counts per concept:
@@ -109,5 +121,17 @@ interface MultiDimensionalDataResource {
     List<String> retrieveHighDimDataTypes(MultiDimConstraint assayConstraint, User user)
 
     Iterable<Dimension> getSupportedDimensions(MultiDimConstraint constraint)
+
+    /**
+     * Clears the counts cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    void clearCountsCache()
+
+    /**
+     * Clears the patient count cache. This function should be called after loading, removing or updating
+     * observations in the database.
+     */
+    void clearPatientCountCache()
 
 }

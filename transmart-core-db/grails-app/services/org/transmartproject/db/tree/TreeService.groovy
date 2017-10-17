@@ -54,8 +54,9 @@ class TreeService implements TreeResource {
             def node = it as TreeNodeImpl
             if (OntologyTerm.VisualAttributes.LEAF in node.visualAttributes) {
                 if (node.tableName == 'concept_dimension' && node.constraint) {
-                    node.observationCount = multiDimensionalDataResource.cachedCount(node.constraint, user)
-                    node.patientCount = multiDimensionalDataResource.cachedPatientCount(node.constraint, user)
+                    def counts = multiDimensionalDataResource.cachedCounts(node.constraint, user)
+                    node.observationCount = counts.observationCount
+                    node.patientCount = counts.patientCount
                 }
             } else {
                 if (OntologyTerm.VisualAttributes.STUDY in node.visualAttributes && node.constraint) {
@@ -157,8 +158,9 @@ class TreeService implements TreeResource {
     }
 
     /**
-     * Clears the tree node cache. This function should be called after loading, removing or updating
-     * tree nodes in the database.
+     * Clears the tree node cache and the counts caches.
+     * This function should be called after loading, removing or updating
+     * tree nodes or observations in the database.
      * Only available for administrators.
      *
      * @param currentUser the current user.
@@ -170,6 +172,8 @@ class TreeService implements TreeResource {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
         treeCacheService.clearAllCacheEntries()
+        multiDimensionalDataResource.clearCountsCache()
+        multiDimensionalDataResource.clearPatientCountCache()
     }
 
 }
