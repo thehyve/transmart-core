@@ -12,5 +12,6 @@ enum OntologyTermType {
     CATEGORICAL, // reserved
     DATE,
     TEXT,
-    UNKNOWN,
+    MODIFIER,
+    UNKNOWN
 }
