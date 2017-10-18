@@ -48,7 +48,8 @@ class Config {
 
     public static final String PATH_OBSERVATIONS = "/v2/observations"
     public static final String PATH_AGGREGATE = "/v2/observations/aggregate"
-    public static final String PATH_COUNTS = "/v2/observations/count"
+    public static final String PATH_COUNT = "/v2/observations/count"
+    public static final String PATH_COUNTS = "/v2/observations/counts"
     public static final String PATH_COUNTS_PER_CONCEPT = "/v2/observations/counts_per_concept"
     public static final String PATH_COUNTS_PER_STUDY = "/v2/observations/counts_per_study"
     public static final String PATH_COUNTS_PER_STUDY_AND_CONCEPT = "/v2/observations/counts_per_study_and_concept"

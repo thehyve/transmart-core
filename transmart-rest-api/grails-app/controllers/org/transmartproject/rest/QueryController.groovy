@@ -118,8 +118,11 @@ class QueryController extends AbstractQueryController {
      *
      * Expects a {@link Constraint} parameter <code>constraint</code>.
      *
+     * Deprecated in favour of {@link #counts()}.
+     *
      * @return a the number of observations that satisfy the constraint.
      */
+    @Deprecated
     def count() {
         def args = getGetOrPostParams()
         checkForUnsupportedParams(args, ['constraint'])
@@ -132,6 +135,27 @@ class QueryController extends AbstractQueryController {
         def count = multiDimService.count(constraint, user)
         def result = [count: count]
         render result as JSON
+    }
+
+    /**
+     * Count endpoint:
+     * <code>/v2/observations/counts?constraint=${constraint}</code>
+     *
+     * Expects a {@link Constraint} parameter <code>constraint</code>.
+     *
+     * @return a the number of observations that satisfy the constraint and the number of associated patients.
+     */
+    def counts() {
+        def args = getGetOrPostParams()
+        checkForUnsupportedParams(args, ['constraint'])
+
+        Constraint constraint = bindConstraint(args.constraint)
+        if (constraint == null) {
+            return
+        }
+        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        def counts = multiDimService.counts(constraint, user)
+        render counts as JSON
     }
 
     /**

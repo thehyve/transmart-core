@@ -835,7 +835,8 @@ var spec = {
     },
     "/v2/observations/count": {
       "get": {
-        "description": "Counts the number of observations that satisfy the given constraint.\n",
+        "description": "Counts the number of observations that satisfy the given constraint.\nDeprecated in favour of `/v2/observations/counts`.\n",
+        "deprecated": true,
         "tags": [
           "v2"
         ],
@@ -863,7 +864,8 @@ var spec = {
         }
       },
       "post": {
-        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "description": "Works the same as GET, but with support for longer constraints.\nUse this, if the total length of the URL may be longer than the maximum length.\nDeprecated in favour of `/v2/observations/counts`.\n",
+        "deprecated": true,
         "tags": [
           "v2"
         ],
@@ -899,6 +901,67 @@ var spec = {
                   "type": "integer"
                 }
               }
+            }
+          }
+        }
+      }
+    },
+    "/v2/observations/counts": {
+      "get": {
+        "description": "Counts the number of observations that satisfy the given constraint and the number of associated patients.\n",
+        "tags": [
+          "v2"
+        ],
+        "parameters": [
+          {
+            "name": "constraint",
+            "required": true,
+            "in": "query",
+            "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return the result as a json object. Example: `{observationCount: 56, patientCount: 12}`.",
+            "schema": {
+              "$ref": "#/definitions/Counts"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Works the same as GET, but with support for longer constraints. Use this, if the total length of the URL may be longer than the maximum length.\n",
+        "tags": [
+          "v2"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "constraint": {
+                  "type": "string",
+                  "description": "see GET parameters"
+                }
+              },
+              "required": [
+                "constraint"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return the result as a json object. Example: `{observationCount: 56, patientCount: 12}`.",
+            "schema": {
+              "$ref": "#/definitions/Counts"
             }
           }
         }

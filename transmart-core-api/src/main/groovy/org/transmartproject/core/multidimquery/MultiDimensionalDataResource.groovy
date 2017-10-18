@@ -31,10 +31,13 @@ interface MultiDimensionalDataResource {
      * Observation count: counts the number of observations that satisfy the constraint and that
      * the user has access to.
      *
+     * Deprecated in favour of {@link #counts(MultiDimConstraint, User)}.
+     *
      * @param constraint the constraint.
      * @param user the current user.
      * @return the number of observations.
      */
+    @Deprecated
     Long count(MultiDimConstraint constraint, User user)
 
     /**
