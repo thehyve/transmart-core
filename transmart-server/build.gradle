@@ -31,7 +31,6 @@ dependencies {
 
     // local gradle submodule deps
     compile project(':transmart-oauth')
-    compile project(':search-domain')
     compile project(':transmart-rest-api')
 
     runtime project(':transmartApp')
