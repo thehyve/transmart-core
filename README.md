@@ -7,6 +7,7 @@ is maintained by the [tranSMART Foundation](http://transmartfoundation.org). Off
 can be found on the tranSMART Foundation website, and the tranSMART Foundation's development repositories
 can be found at <https://github.com/transmart/>.
 
+
 ## Overview
 
 The platform provides an API, which is available under [transmart-rest-api](transmart-rest-api).
@@ -18,13 +19,22 @@ The OAuth2 authentication of the API is managed by [transmart-oauth](transmart-o
 Database definitions and installation instructions are in [transmart-data](transmart-data).
 A data loading tool based on Spring Batch is available as [transmart-batch](transmart-batch).
 
-## Relation to other transmart repositories
 
-Before version 17.1, the tranSMART source code was split over a number of different repositories with names such
-as transmartApp, transmart-core-api, transmart-core-db, transmart-rest-api, RModules, etc. As of version 17.1 the
-components that make up the core server have been merged into a single repository. If you want the source for
-tranSMART 16.x or older, look at the separate repositores, if you want the sources for version 17+, you will want
-this repository.
+## Relation to other tranSMART repositories and Git history
+
+This repository is a merge of several, previously separated, repositories from [github.com/transmart](https://github.com/transmart/),
+with names such as transmartApp, transmart-core-api, transmart-core-db, transmart-rest-api, RModules, etc.
+As of version 17.1, the components that make up the core server have been merged into this repository.
+If you want the source for tranSMART 16.x or older, look at the separate repositores.
+
+The history of those repositories is merged into this one as well (branch [transmart-history](../../tree/transmart-history)),
+but the current `master` branch is disconnected from these histories.
+The master branch can locally be connected to the history with `git replace`.
+```bash
+# replace the master-base object with transmart-history
+git replace 58a48ff dd57ce1
+```
+
 
 ## Build and run
 
@@ -40,6 +50,7 @@ java -jar transmart-server/build/libs/transmart-server-17.1-SNAPSHOT.war
 ```
 
 The application expects configuration in `~/.grails/transmartConfig`. Check [transmart-data](transmart-data) on how to set up the database and generate the required configuration files.
+
 
 ## Deployment
 
@@ -93,16 +104,6 @@ sudo apt-get install transmart-r
 ```
 For `yum`, use the following repository url with `gpgcheck=0`: `https://repo.thehyve.nl/content/repositories/releases`.
 
-
-## Git history
-
-This repository is a merge of several, previously separated, repositories from [github.com/transmart](https://github.com/transmart/).
-The history of those repositories is merged in as well (branch [transmart-history](../../tree/transmart-history)), but the current `master` branch is disconnected from
-these histories. The master branch can locally be connected to the history with `git replace`.
-```bash
-# replace the master-base object with transmart-history
-git replace 58a48ff dd57ce1
-```
 
 ## License
 
