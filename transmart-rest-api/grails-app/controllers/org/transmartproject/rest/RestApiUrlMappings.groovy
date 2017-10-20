@@ -54,8 +54,8 @@ class RestApiUrlMappings {
             "/supported_fields"(method: 'GET', controller: 'query', action: 'supportedFields') {
                 apiVersion = 'v2'
             }
-            "/observations/aggregate"(controller: 'query') {
-                action = [GET: 'aggregate', POST: 'aggregate']
+            "/observations/aggregates_per_concept"(controller: 'query') {
+                action = [GET: 'aggregatesPerConcept', POST: 'aggregatesPerConcept']
                 apiVersion = 'v2'
             }
             "/observations/count"(controller: 'query') {

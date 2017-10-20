@@ -1,3 +1,4 @@
 "Public Studies"	"I2B2"	"N"	"0"	"\Public Studies\"	"Public Studies"	"N"	"CAE"				"concept_cd"	"concept_dimension"	"concept_path"	"T"	"LIKE"	"\Public Studies\"						
 "Private Studies"	"I2B2"	"N"	"0"	"\Private Studies\"	"Private Studies"	"N"	"CAE"				"concept_cd"	"concept_dimension"	"concept_path"	"T"	"LIKE"	"\Private Studies\"						
 "Vital Signs"	"I2B2"	"N"	"0"	"\Vital Signs\"	"Vital Signs"	"N"	"CAE"				"concept_cd"	"concept_dimension"	"concept_path"	"T"	"LIKE"	"\Vital Signs\"						
+"Demographics"	"I2B2"	"N"	"0"	"\Demographics\"	"Demographics"	"N"	"CAE"				"concept_cd"	"concept_dimension"	"concept_path"	"T"	"LIKE"	"\Demographics\"						

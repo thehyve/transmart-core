@@ -7,7 +7,8 @@ import groovy.util.logging.Slf4j
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.exceptions.LegacyStudyException
-import org.transmartproject.core.multidimquery.AggregateType
+import org.transmartproject.core.multidimquery.CategoricalValueAggregates
+import org.transmartproject.core.multidimquery.NumericalValueAggregates
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
@@ -230,47 +231,47 @@ class QueryController extends AbstractQueryController {
 
     /**
      * Aggregate endpoint:
-     * <code>/v2/observations/aggregate?type=${type}&constraint=${constraint}</code>
+     * <code>/v2/observations/aggregates_per_concept?constraint=${constraint}</code>
      *
-     * Expects an {@link org.transmartproject.core.multidimquery.AggregateType} parameter <code>type</code> and {@link Constraint}
+     * Expects a {@link Constraint} parameter
      * parameter <code>constraint</code>.
      *
-     * Checks if the supplied constraint contains a concept constraint on top level, because
-     * aggregations is only valid for a single concept. If the concept is not found or
-     * no observations are found for the concept, an {@link org.transmartproject.db.multidimquery.query.InvalidQueryException}
-     * is thrown.
-     * Also, if the concept is not numerical, has null values or values with an operator
-     * other than 'E'.
-     *
-     * @return a map with the aggregate type as key and the result as value.
+     * @return a map with the aggregates.
      */
-    def aggregate() {
+    def aggregatesPerConcept() {
         def args = getGetOrPostParams()
-        checkForUnsupportedParams(args, ['constraint', 'type'])
-        def type = args.type
+        checkForUnsupportedParams(args, ['constraint'])
 
-        if (!type) {
-            throw new InvalidArgumentsException("Type parameter is missing.")
-        }
-        if (!(type instanceof String || type instanceof List)) throw new InvalidArgumentsException(
-                "invalid type parameter (not a string or a list of strings)")
-
-        if (type instanceof String) {
-            type = [type]
-        }
         Constraint constraint = bindConstraint(args.constraint)
         if (constraint == null) {
             return
         }
-        def aggregateTypes
-        try {
-            aggregateTypes = type.collect { AggregateType.forName(it as String) }
-        } catch (IllegalArgumentException e) {
-            throw new InvalidQueryException(e)
-        }
         User user = (User) usersResource.getUserFromUsername(currentUser.username)
-        Map aggregateValues = multiDimService.aggregate(aggregateTypes, constraint, user)
-        render aggregateValues as JSON
+        Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept = multiDimService
+                .numericalValueAggregatesPerConcept(constraint, user)
+        Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept = multiDimService
+                .categoricalValueAggregatesPerConcept(constraint, user)
+
+        Map resultMap = buildResultMap(numericalValueAggregatesPerConcept, categoricalValueAggregatesPerConcept)
+        render resultMap as JSON
+    }
+
+    private static Map buildResultMap(Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept,
+                                      Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept) {
+        Set<String> foundConceptCodes = numericalValueAggregatesPerConcept.keySet() + categoricalValueAggregatesPerConcept.keySet()
+        def aggregatesPerConcept = foundConceptCodes.collectEntries { String conceptCode ->
+            Map<String, Object> valueAggregates = [:]
+            NumericalValueAggregates numericalValueAggregates = numericalValueAggregatesPerConcept[conceptCode]
+            if (numericalValueAggregates) {
+                valueAggregates.numericalValueAggregates = numericalValueAggregates
+            }
+            CategoricalValueAggregates categoricalValueAggregates = categoricalValueAggregatesPerConcept[conceptCode]
+            if (categoricalValueAggregates) {
+                valueAggregates.categoricalValueAggregates = categoricalValueAggregates
+            }
+            [conceptCode, valueAggregates]
+        }
+        [ aggregatesPerConcept: aggregatesPerConcept ]
     }
 
     /**

@@ -2,8 +2,6 @@
 
 package org.transmartproject.core.multidimquery
 
-import groovy.transform.Canonical
-import groovy.transform.Immutable
 import org.transmartproject.core.ontology.MDStudy
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.users.User
@@ -101,14 +99,22 @@ interface MultiDimensionalDataResource {
     Long cachedPatientCount(MultiDimConstraint constraint, User user)
 
     /**
-     * Retrieve aggregate information
+     * Calculate numerical values aggregates
      *
-     * @param types the list of aggregates you want
-     * @param constraint specifies which observations you want to aggregate
+     * @param constraint specifies from which observations you want to collect values statistics
      * @param user The user whose access rights to consider
-     * @return a map of aggregates. The keys are the names of the aggregates.
+     * @return a map where keys are concept keys and values are aggregates
      */
-    Map aggregate(List<AggregateType> types, MultiDimConstraint constraint, User user)
+    Map<String, NumericalValueAggregates> numericalValueAggregatesPerConcept(MultiDimConstraint constraint, User user)
+
+    /**
+     * Calculate categorical values aggregates
+     *
+     * @param constraint specifies from which observations you want to collect values statistics
+     * @param user The user whose access rights to consider
+     * @return a map where keys are concept keys and values are aggregates
+     */
+    Map<String, CategoricalValueAggregates> categoricalValueAggregatesPerConcept(MultiDimConstraint constraint, User user)
 
     Hypercube highDimension(
             MultiDimConstraint assayConstraint_,

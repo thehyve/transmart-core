@@ -19,7 +19,7 @@ import static FacetsIndexingService.FIELD_NAME_FOLDER_ID
 @Transactional
 class FacetsIndexingServiceSpec extends Specification {
 
-    public static final int NUMBER_OF_CONCEPTS = 233
+    public static final int NUMBER_OF_CONCEPTS = 234
     public static final int TOTAL_NUMBER_OF_DOCUMENTS = NUMBER_OF_CONCEPTS
 
     @Autowired

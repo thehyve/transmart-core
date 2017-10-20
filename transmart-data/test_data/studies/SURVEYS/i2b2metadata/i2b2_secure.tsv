@@ -1,4 +1,3 @@
-0	\Demographics\	Demographics	N	FA 				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\			@	2016-11-09 13:44:06									PUBLIC
 1	\Demographics\Gender\	Gender	N	LAC 		gender		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Gender\			@	2016-11-09 13:44:06									PUBLIC
 1	\Demographics\Height\	Height	N	LAN 		height		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Height\			@	2016-11-09 13:44:06									PUBLIC
 1	\Demographics\Birth Date\	Birth Date	N	LAD 		birthdate		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Demographics\Birth Date\			@	2016-11-09 13:44:06									PUBLIC

@@ -730,9 +730,9 @@ var spec = {
         }
       }
     },
-    "/v2/observations/aggregate": {
+    "/v2/observations/aggregates_per_concept": {
       "get": {
-        "description": "Calculates and returns an aggregate value. Supported aggregate types are 'min', 'max', 'average', 'count', and\n'values'. The first three require numeric variables, the last one categorical variables.\n",
+        "description": "Calculates and returns an aggregates for both types of concepts, categorical and numerical.\n",
         "tags": [
           "v2"
         ],
@@ -743,39 +743,13 @@ var spec = {
             "in": "query",
             "description": "json that specifies the constraint. Example: `{\"type\":\"concept\",\"path\":\"\\\\Public Studies\\\\EHR\\\\Vital Signs\\\\Heart Rate\\\\\"}`.",
             "type": "string"
-          },
-          {
-            "name": "type",
-            "required": true,
-            "in": "query",
-            "description": "'min', 'max', 'average', 'count', or 'values'. This parameter can be specified multiple times to retrieve\nmultiple aggregates at once. The 'values' aggregate cannot be combined with the numeric aggregate types.\n",
-            "type": "string"
           }
         ],
         "responses": {
           "200": {
             "description": "return the result in a json object. Example: `{min: 56}`.",
             "schema": {
-              "type": "object",
-              "description": "only the value of the requested aggregate type will be present.",
-              "properties": {
-                "min": {
-                  "type": "number"
-                },
-                "max": {
-                  "type": "number"
-                },
-                "average": {
-                  "type": "number"
-                },
-                "values": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "description": "A list of the distinct values for categorical variables"
-                }
-              }
+              "$ref": "#/definitions/aggregates"
             }
           }
         }
@@ -798,36 +772,19 @@ var spec = {
                 "constraint": {
                   "type": "string",
                   "description": "see GET parameters"
-                },
-                "type": {
-                  "type": "string",
-                  "description": "see GET parameters. Can be either a string or an array of strings."
                 }
               },
               "required": [
-                "constraint",
-                "type"
+                "constraint"
               ]
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "return the result in a json object. Example: `{min: 56}`.",
+            "description": "return the result in a json object. Example: `{\"aggregatesPerConcept\": \"GENDER\": { \"categoricalValueAggregatesPerConcept\": { \"valueCounts\": { \"Female\": 323, \"Male\": 312} } }}`.",
             "schema": {
-              "type": "object",
-              "description": "only the value of the requested aggregate type will be present.",
-              "properties": {
-                "min": {
-                  "type": "number"
-                },
-                "max": {
-                  "type": "number"
-                },
-                "average": {
-                  "type": "number"
-                }
-              }
+              "$ref": "#/definitions/aggregates"
             }
           }
         }
@@ -3046,6 +3003,39 @@ var spec = {
         "updateDate": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "aggregates": {
+      "type": "object",
+      "description": "only the value of the requested aggregate type will be present.",
+      "properties": {
+        "aggregatesPerConcept": {
+          "default": {
+            "numericalValueAggregatesPerConcept": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              },
+              "average": {
+                "type": "number"
+              },
+              "count": {
+                "type": "number"
+              },
+              "std_dev": {
+                "type": "number"
+              }
+            },
+            "categoricalValueAggregatesPerConcept": {
+              "valueCounts": {
+                "default": null,
+                "type": "number"
+              }
+            }
+          }
         }
       }
     }

@@ -7,38 +7,19 @@ import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
-import org.transmartproject.core.multidimquery.Counts
-import org.transmartproject.core.multidimquery.Hypercube
-import org.transmartproject.core.multidimquery.HypercubeValue
-import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
+import org.transmartproject.core.multidimquery.*
 import org.transmartproject.core.querytool.QueryResult
 import org.transmartproject.core.querytool.QueryResultType
 import org.transmartproject.core.querytool.QueryStatus
-import org.transmartproject.db.multidimquery.query.AndConstraint
-import org.transmartproject.db.multidimquery.query.BiomarkerConstraint
-import org.transmartproject.db.multidimquery.query.Combination
-import org.transmartproject.db.multidimquery.query.ConceptConstraint
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.Field
-import org.transmartproject.db.multidimquery.query.FieldConstraint
-import org.transmartproject.db.multidimquery.query.ModifierConstraint
-import org.transmartproject.db.multidimquery.query.Operator
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.StudyNameConstraint
-import org.transmartproject.db.multidimquery.query.SubSelectionConstraint
-import org.transmartproject.db.multidimquery.query.TimeConstraint
-import org.transmartproject.db.multidimquery.query.TrueConstraint
-import org.transmartproject.db.multidimquery.query.Type
-import org.transmartproject.db.multidimquery.query.ValueConstraint
+import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.querytool.QtQueryResultInstance
 import org.transmartproject.db.user.User
 import spock.lang.Specification
+
 import java.text.SimpleDateFormat
 
-import static org.hamcrest.Matchers.containsString
-import static org.hamcrest.Matchers.hasItems
-import static org.hamcrest.Matchers.hasSize
+import static org.hamcrest.Matchers.*
 import static org.transmartproject.db.multidimquery.DimensionImpl.*
 import static spock.util.matcher.HamcrestSupport.that
 
@@ -288,7 +269,7 @@ class QueryServicePgSpec extends Specification {
     }
 
 
-    void 'HD data selected based on sample type (modifier)'(){
+    void 'HD data selected based on sample type (modifier)'() {
         def user = User.findByUsername('test-public-user-1')
         def modifierConstraint = new ModifierConstraint(
                 modifierCode: 'TNS:SMPL',
@@ -301,7 +282,7 @@ class QueryServicePgSpec extends Specification {
                 )
         )
         def conceptConstraint = new ConceptConstraint(
-                path:'\\Public Studies\\TUMOR_NORMAL_SAMPLES\\HD\\Breast\\'
+                path: '\\Public Studies\\TUMOR_NORMAL_SAMPLES\\HD\\Breast\\'
         )
 
         def combination = new Combination(
@@ -319,7 +300,7 @@ class QueryServicePgSpec extends Specification {
         if (hypercube) hypercube.close()
     }
 
-    void 'Test for empty set of assayIds'(){
+    void 'Test for empty set of assayIds'() {
         def user = User.findByUsername('test-public-user-1')
         def sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
         def conceptConstraint = new ConceptConstraint(path: '\\Public Studies\\EHR_HIGHDIM\\High Dimensional data\\Expression Lung\\')
@@ -458,9 +439,9 @@ class QueryServicePgSpec extends Specification {
 
         Constraint constraint = new StudyNameConstraint(studyId: "EHR")
         def results = multiDimService.retrieveClinicalData(constraint, user).asList()
-        def expectedResult = results.collect { it[VISIT] }.findAll{it} as Set
+        def expectedResult = results.collect { it[VISIT] }.findAll { it } as Set
 
-        when:"I query for all visits for a constraint"
+        when: "I query for all visits for a constraint"
         def visits = multiDimService.getDimensionElements(dimension, constraint, user).collect {
             dimension.asSerializable(it)
         }
@@ -531,7 +512,7 @@ class QueryServicePgSpec extends Specification {
         Constraint constraint = new AndConstraint(args: [
                 new ConceptConstraint(conceptCode: 'favouritebook'),
                 new ValueConstraint(Type.TEXT, Operator.CONTAINS, 'Karamazov')
-                ])
+        ])
 
         when:
         Long observationCount = multiDimService.count(constraint, user)
@@ -607,5 +588,105 @@ class QueryServicePgSpec extends Specification {
             countsMap.values().sum { Counts counts -> counts.observationCount }
         }
     }
+
+    void 'test numerical value aggregates'() {
+        def user = User.findByUsername('test-public-user-1')
+        def userWithAccessToMoreData = User.findByUsername('test-public-user-2')
+
+        when:
+        def heartRate = new ConceptConstraint(path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\')
+        def result = multiDimService.numericalValueAggregatesPerConcept(heartRate, user)
+        then: 'expected aggregates are calculated'
+        result.size() == 1
+        'EHR:VSIGN:HR' in result
+        result['EHR:VSIGN:HR'].min == 56d
+        result['EHR:VSIGN:HR'].max == 102d
+        result['EHR:VSIGN:HR'].avg.round(2) == 74.78d
+        result['EHR:VSIGN:HR'].count == 9
+        result['EHR:VSIGN:HR'].stdDev.round(2) == 14.7d
+
+        when: 'numerical aggregates run on categorical measures'
+        def categoricalConceptConstraint = new ConceptConstraint(
+                path: '\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\')
+        def emptyResult = multiDimService.numericalValueAggregatesPerConcept(categoricalConceptConstraint, user)
+        then: 'no numerical aggregates returned'
+        emptyResult.isEmpty()
+
+        when: 'aggregate runs for dataset with one value and one missing value'
+        def missingValuesConstraint = new ConceptConstraint(path: '\\Demographics\\Height\\')
+        def oneValueResult = multiDimService.numericalValueAggregatesPerConcept(missingValuesConstraint, user)
+        then: 'aggregates calculates on the single value'
+        oneValueResult.size() == 1
+        'height' in oneValueResult
+        oneValueResult['height'].min == 169d
+        oneValueResult['height'].max == 169d
+        oneValueResult['height'].avg == 169d
+        oneValueResult['height'].count == 1
+        oneValueResult['height'].stdDev == null
+
+        when: 'we calculate aggregates for shared concept with user that don\'t have access to one study'
+        def crossStudyHeartRate = new ConceptConstraint(path: '\\Vital Signs\\Heart Rate\\')
+        def excludingSecuredRecords = multiDimService
+                .numericalValueAggregatesPerConcept(crossStudyHeartRate, user)
+        then: 'only values user have access are taken to account'
+        excludingSecuredRecords.size() == 1
+        'VSIGN:HR' in excludingSecuredRecords
+        excludingSecuredRecords['VSIGN:HR'].count == 5
+
+        when: 'we calculate the same aggregates with user that have access right to the protected study'
+        def includingSecuredRecords = multiDimService
+                .numericalValueAggregatesPerConcept(crossStudyHeartRate, userWithAccessToMoreData)
+        then: 'the protected study numerical observations are taken to account'
+        includingSecuredRecords.size() == 1
+        'VSIGN:HR' in includingSecuredRecords
+        includingSecuredRecords['VSIGN:HR'].count == 7
+    }
+
+    void 'test categorical value aggregates'() {
+        def user = User.findByUsername('test-public-user-1')
+        def userWithAccessToMoreData = User.findByUsername('test-public-user-2')
+
+        when:
+        def race = new ConceptConstraint(path: '\\Public Studies\\CATEGORICAL_VALUES\\Demography\\Race\\')
+        def result = multiDimService.categoricalValueAggregatesPerConcept(race, user)
+        then: 'expected categorical values counts have been returned'
+        result.size() == 1
+        'CV:DEM:RACE' in result
+        result['CV:DEM:RACE'].valueCounts == [ Caucasian: 2, Latino: 1 ]
+
+        when: 'categorical aggregates run on numerical measures'
+        def heartRate = new ConceptConstraint(path: '\\Public Studies\\EHR\\Vital Signs\\Heart Rate\\')
+        def emptyResult = multiDimService.categoricalValueAggregatesPerConcept(heartRate, user)
+        then: 'no categorical aggregates returned'
+        emptyResult.isEmpty()
+
+        when: 'aggregate runs for dataset with one value and one missing value'
+        def gender = new ConceptConstraint(path: '\\Demographics\\Gender\\')
+        def withMissingValueResult = multiDimService.categoricalValueAggregatesPerConcept(gender, user)
+        then: 'answer contains count for the value and count for null value'
+        withMissingValueResult.size() == 1
+        'gender' in withMissingValueResult
+        withMissingValueResult['gender'].valueCounts[null] == 1
+        withMissingValueResult['gender'].valueCounts['Male'] == 1
+
+        when: 'categorical aggregates runs on crosstudy concept with user that have limite access'
+        def placeOfBirth = new ConceptConstraint(path: '\\Demographics\\Place of birth\\')
+        def excludingSecuredRecords = multiDimService.categoricalValueAggregatesPerConcept(placeOfBirth, user)
+        then: 'answer excludes not visible observations for the user'
+        excludingSecuredRecords.size() == 1
+        'DEMO:POB' in excludingSecuredRecords
+        excludingSecuredRecords['DEMO:POB'].valueCounts['Place1'] == 1
+        excludingSecuredRecords['DEMO:POB'].valueCounts['Place2'] == 3
+
+        when: 'now by user who has access to the private study'
+        def includingSecuredRecords = multiDimService.categoricalValueAggregatesPerConcept(placeOfBirth,
+                userWithAccessToMoreData)
+        then: 'answer includes observations from the private study'
+        includingSecuredRecords.size() == 1
+        'DEMO:POB' in includingSecuredRecords
+        includingSecuredRecords['DEMO:POB'].valueCounts['Place1'] == 2
+        includingSecuredRecords['DEMO:POB'].valueCounts['Place2'] == 4
+    }
+
 
 }
