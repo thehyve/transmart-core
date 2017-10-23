@@ -689,4 +689,30 @@ class QueryServicePgSpec extends Specification {
     }
 
 
+    void "test time values constraint"() {
+        def user = User.findByUsername('test-public-user-1')
+        SimpleDateFormat sdf = new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')
+
+        Constraint constraint = new AndConstraint(
+                args: [
+                        new ConceptConstraint(path: '\\Demographics\\Birth Date\\'),
+                        new TimeConstraint(
+                            field: new Field(
+                                    dimension: VALUE,
+                                    fieldName: 'numberValue',
+                                    type: 'DATE'
+                            ),
+                            values: [sdf.parse('1986-10-21 00:00:00'), sdf.parse('1986-10-23 00:00:00')],
+                            operator: Operator.BETWEEN
+                        )
+                ]
+        )
+
+        when:
+        def result = multiDimService.retrieveClinicalData(constraint, user).asList()
+
+        then:
+        result.size() == 1
+    }
+
 }
