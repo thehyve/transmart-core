@@ -103,9 +103,8 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
                 return metadata.fieldName
             case DimensionImpl.ImplementationType.MODIFIER:
             case DimensionImpl.ImplementationType.VALUE:
-                return field.fieldName
             case DimensionImpl.ImplementationType.VISIT:
-                throw new QueryBuilderException("Field '${field.fieldName}' of class ${metadata.domainClass.simpleName} is not directly accessible.")
+                return field.fieldName
             default:
                 break
         }
@@ -240,22 +239,30 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * type <code>OBJECT</code> or <code>ID</code>.
      * Otherwise, the field type as declared in the dimension domain class is used.
      */
-    protected static Object convertValue(Field field, Object value) {
-        def typedValue = value
+    protected static convertValue(Field field, Object value) {
+        def convertedValue = value
         if (value instanceof Collection){
-            typedValue = value.collect{convertValue(field, it)}
+            convertedValue = value.collect{ convertValue(field, it) }
         }
         else {
             if (field.type == Type.OBJECT || field.type == Type.ID) {
-                typedValue = value as Long
+                convertedValue = value as Long
             } else {
                 def fieldType = DimensionMetadata.forDimension(field?.dimension).fieldTypes[field.fieldName]
                 if (fieldType != null && !fieldType.isInstance(value)) {
-                    typedValue = fieldType.newInstance(value)
+                    if (Number.isAssignableFrom(fieldType) && value instanceof Date) {
+                        convertedValue = toNumber(value)
+                    } else {
+                        convertedValue = fieldType.newInstance(value)
+                    }
                 }
             }
         }
-        return typedValue
+        return convertedValue
+    }
+
+    private static Number toNumber(Date value) {
+        value.getTime() / 1000
     }
 
     /**
@@ -324,14 +331,16 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
      * Adds a not null and not empty check for fields of type {@link Type#DATE}.
      *
      * @param operator the operator to apply
-     * @param propertyName the name of the property used as left hand side of the operation
-     * @param type the type of the property
+     * @param field the field used as left hand side of the operation
      * @param value the value used as right hand side of the operation
      * @return a {@link Criterion} object representing the operation.
      */
-    static Criterion applyOperator(Operator operator, String propertyName, Type type, Object value) {
-        Criterion criterion = criterionForOperator(operator, propertyName, type, value)
-        if (type == Type.DATE) {
+    Criterion applyOperator(Operator operator, Field field, Object value) {
+        String propertyName = getFieldPropertyName(field)
+        def convertedValue = convertValue(field, value)
+        Criterion criterion = criterionForOperator(operator, propertyName, field.type, convertedValue)
+        def fieldType = DimensionMetadata.forDimension(field.dimension).fieldTypes[propertyName]
+        if (fieldType instanceof Date) {
             Restrictions.and(
                     Restrictions.isNotNull(propertyName),
                     Restrictions.ne(propertyName, EMPTY_DATE),
@@ -369,23 +378,21 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
                 throw new QueryBuilderException("Value of class ${constraint.value?.class?.simpleName} not supported for field type '${constraint.field.type}'.")
             }
         }
-        constraint.value = convertValue(constraint.field, constraint.value)
+        Criterion criterion = applyOperator(constraint.operator, constraint.field, constraint.value)
         if (constraint.field.dimension == VISIT) {
             /**
              * special case that requires a subquery, because there is no proper
              * reference to the visit dimension in {@link ObservationFact}.
              */
             DetachedCriteria subCriteria = DetachedCriteria.forClass(org.transmartproject.db.i2b2data.VisitDimension, 'visit')
-            String propertyName = constraint.field.fieldName
-            subCriteria.add(applyOperator(constraint.operator, propertyName, constraint.field.type, constraint.value))
+            subCriteria.add(criterion)
             return Subqueries.propertiesIn(['encounterNum', 'patient'] as String[],
                     subCriteria.setProjection(Projections.projectionList()
                             .add(Projections.property('encounterNum'))
                             .add(Projections.property('patient'))
                     ))
         } else {
-            String propertyName = getFieldPropertyName(constraint.field)
-            applyOperator(constraint.operator, propertyName, constraint.field.type, constraint.value)
+            criterion
         }
     }
 
