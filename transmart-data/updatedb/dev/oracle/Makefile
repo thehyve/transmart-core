@@ -3,6 +3,8 @@ include ../../../lib/makefile.inc
 FILES = \
 	../common/data_migration
 	../../../ddl/oracle/biomart_user/query
+	../../../ddl/oracle/i2b2demodata/relation_type
+	../../../ddl/oracle/i2b2demodata/relation
 
 RUN_SQL   = groovy -cp '$(CP_ORA)' ../../../ddl/oracle/_scripts/run_sql.groovy
 
