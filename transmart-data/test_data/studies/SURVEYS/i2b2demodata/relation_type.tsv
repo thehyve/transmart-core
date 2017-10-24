@@ -1,0 +1,7 @@
+1	PAR	Parent-child	f	f
+2	SPO	Spouse	t	f
+3	SIB	Sibling	t	f
+4	MZ	Monozygotic twin	t	t
+5	DZ	Dizygotic twin	t	t
+6	COT	Twin with unknown zygosity	t	t
+7	HH	Same address (household)	t	f
