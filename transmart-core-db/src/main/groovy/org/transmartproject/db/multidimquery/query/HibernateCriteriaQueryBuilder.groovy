@@ -340,7 +340,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
         def convertedValue = convertValue(field, value)
         Criterion criterion = criterionForOperator(operator, propertyName, field.type, convertedValue)
         def fieldType = DimensionMetadata.forDimension(field.dimension).fieldTypes[propertyName]
-        if (fieldType instanceof Date) {
+        if (fieldType && Date.isAssignableFrom(fieldType)) {
             Restrictions.and(
                     Restrictions.isNotNull(propertyName),
                     Restrictions.ne(propertyName, EMPTY_DATE),
