@@ -63,6 +63,7 @@ class BusinessExceptionResolver implements ServletContextAware,
             (UnsupportedByDataTypeException): SC_BAD_REQUEST,
             (UnexpectedResultException)     : SC_INTERNAL_SERVER_ERROR,
             (AccessDeniedException)         : SC_FORBIDDEN,
+            (ServiceNotAvailableException)  : SC_SERVICE_UNAVAILABLE
     ]
 
     private Throwable resolveCause(Throwable t) {
