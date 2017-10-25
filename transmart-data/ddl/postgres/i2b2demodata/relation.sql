@@ -5,7 +5,8 @@ CREATE TABLE i2b2demodata.relation (
     left_subject_id NUMERIC(38,0) NOT NULL,
     relation_type_id INTEGER NOT NULL,
     right_subject_id NUMERIC(38,0) NOT NULL,
-    biological BOOLEAN
+    biological BOOLEAN,
+    share_household BOOLEAN
 );
 
 --
@@ -39,3 +40,4 @@ COMMENT ON COLUMN i2b2demodata.relation.left_subject_id IS 'Id of the left subje
 COMMENT ON COLUMN i2b2demodata.relation.relation_type_id IS 'Relation type id.';
 COMMENT ON COLUMN i2b2demodata.relation.right_subject_id IS 'Id of the right subject in the relation.';
 COMMENT ON COLUMN i2b2demodata.relation.biological IS 'Specifies whether relation biological.';
+COMMENT ON COLUMN i2b2demodata.relation.share_household IS 'Specifies whether subjects share household.';

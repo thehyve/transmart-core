@@ -29,6 +29,7 @@ class RelationSpec extends Specification {
         then:
         relation.relationType.description == 'Spouse'
         !relation.biological
+        relation.shareHousehold
     }
 
 }

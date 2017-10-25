@@ -10,6 +10,7 @@ class Relation implements Serializable {
     RelationType relationType
     PatientDimension rightSubject
     Boolean biological
+    Boolean shareHousehold
 
     static mapping = {
         table schema: 'I2B2DEMODATA'
