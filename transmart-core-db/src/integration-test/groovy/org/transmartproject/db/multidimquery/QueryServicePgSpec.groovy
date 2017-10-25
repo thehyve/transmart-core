@@ -327,14 +327,14 @@ class QueryServicePgSpec extends Specification {
 
     void 'get data for the patient with given id'() {
         def user = User.findByUsername('test-public-user-1')
-        Constraint subjectIdConstraint = new PatientSetConstraint(subjectIds: ['123457'])
+        Constraint subjectIdConstraint = new PatientSetConstraint(subjectIds: ['2'])
 
 
         when:
         Hypercube hypercube = multiDimService.retrieveClinicalData(subjectIdConstraint, user)
         then:
         hypercube.dimensionElements(PATIENT).size() == 1
-        hypercube.dimensionElements(PATIENT).first().id == -3001L
+        hypercube.dimensionElements(PATIENT).first().id == -3002L
 
         cleanup:
         if (hypercube) hypercube.close()
@@ -667,7 +667,8 @@ class QueryServicePgSpec extends Specification {
         withMissingValueResult.size() == 1
         'gender' in withMissingValueResult
         withMissingValueResult['gender'].valueCounts[null] == 1
-        withMissingValueResult['gender'].valueCounts['Male'] == 1
+        withMissingValueResult['gender'].valueCounts['Male'] == 8
+        withMissingValueResult['gender'].valueCounts['Female'] == 5
 
         when: 'categorical aggregates runs on crosstudy concept with user that have limite access'
         def placeOfBirth = new ConceptConstraint(path: '\\Demographics\\Place of birth\\')

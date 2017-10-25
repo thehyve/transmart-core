@@ -22,8 +22,8 @@ class RelationSpec extends Specification {
     }
 
     void 'test relation domain object mapping'() {
-        def subject1 = PatientDimension.get(-3000)
-        def subject2 = PatientDimension.get(-3001)
+        def subject1 = PatientDimension.get(-3001)
+        def subject2 = PatientDimension.get(-3002)
         when:
         def relation = Relation.findByLeftSubjectAndRightSubject(subject1, subject2)
         then:

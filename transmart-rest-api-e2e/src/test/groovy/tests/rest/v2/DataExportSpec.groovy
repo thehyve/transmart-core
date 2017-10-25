@@ -338,7 +338,7 @@ class DataExportSpec extends RESTSpec {
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         filesLineNumbers.size() == 3
-        filesLineNumbers['data.tsv'] == 3
+        filesLineNumbers['data.tsv'] == 15
         filesLineNumbers['variables.tsv'] == 8
         filesLineNumbers['value_labels.tsv'] == 4
 
@@ -360,7 +360,7 @@ class DataExportSpec extends RESTSpec {
         assert downloadResponse != null
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         filesLineNumbers.size() == 2
-        filesLineNumbers['data.tsv'] == 3
+        filesLineNumbers['data.tsv'] == 15
         filesLineNumbers['data.sps'] == 32
     }
 
