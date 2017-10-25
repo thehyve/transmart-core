@@ -21,4 +21,5 @@ gradlew*
 # Misc
 logs/
 out/
+lib/
 
