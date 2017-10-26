@@ -40,6 +40,7 @@ ext {
     openCsvVersion = '4.0'
     postgresqlVersion = '42.1.4'
     protobufVersion = '3.1.0'
+    quartzVersion = '2.0.8'
     springSecurityOauth2PluginVersion = '3.0.0-RC2'
     springSecurityPluginVersion = '3.1.1'
     springSecurityVersion = '3.2.3.RELEASE'
@@ -60,6 +61,7 @@ allprojects {
         openCsvVersion = openCsvVersion
         postgresqlVersion = postgresqlVersion
         protobufVersion = protobufVersion
+        quartzVersion = quartzVersion
         springSecurityOauth2PluginVersion = springSecurityOauth2PluginVersion
         springSecurityPluginVersion = springSecurityPluginVersion
         springSecurityVersion = springSecurityVersion

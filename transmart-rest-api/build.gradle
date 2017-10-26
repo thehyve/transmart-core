@@ -29,8 +29,8 @@ dependencies {
     testCompile "org.grails:grails-plugin-testing"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     testCompile 'org.grails:grails-datastore-rest-client'
-    compile 'org.quartz-scheduler:quartz:2.2.1'
     compile "com.opencsv:opencsv:${openCsvVersion}"
+    compile "org.grails.plugins:quartz:${quartzVersion}"
 
     compile "org.grails.plugins:spring-security-core:${springSecurityPluginVersion}"
     compile project(':transmart-core-api')
