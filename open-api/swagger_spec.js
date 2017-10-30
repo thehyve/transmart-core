@@ -2307,6 +2307,25 @@ var spec = {
           }
         }
       }
+    },
+    "/v2/pedigree/relation_types": {
+      "get": {
+        "description": "Gets the list of the relation types.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "returns the list of the relation types.\n",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/relation_type"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -3048,6 +3067,26 @@ var spec = {
               }
             }
           }
+        }
+      }
+    },
+    "relation_type": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "symmetrical": {
+          "type": "boolean"
+        },
+        "biological": {
+          "type": "boolean"
         }
       }
     }

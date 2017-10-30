@@ -6,7 +6,7 @@ import annotations.RequiresStudy
 import base.RESTSpec
 
 import static base.ContentTypeFor.JSON
-import static config.Config.PATH_OBSERVATIONS
+import static config.Config.PATH_RELATION_TYPES
 import static config.Config.PATH_PATIENTS
 import static config.Config.SURVEY1_ID
 import static tests.rest.constraints.PatientSetConstraint
@@ -26,10 +26,8 @@ class RelationSpec extends RESTSpec {
                         relationTypeLabel        : 'PAR',
                         relatedSubjectsConstraint: [type: PatientSetConstraint, subjectIds: ['7']],
                 ]),
-                //type      : 'clinical'
         ]
         def request = [
-                //path      : PATH_OBSERVATIONS,
                 path: PATH_PATIENTS,
                 acceptType: JSON,
         ]
@@ -45,6 +43,21 @@ class RelationSpec extends RESTSpec {
         method | _
         "POST" | _
         "GET"  | _
+    }
+
+    def "get relation types"() {
+        when:
+        def responseData = get([
+                path      : PATH_RELATION_TYPES,
+                acceptType: JSON,
+        ])
+        then:
+        responseData.relationTypes.size() == 6
+        def mz = responseData.relationTypes.find { it.label == 'MZ' }
+        mz.id == 4
+        mz.biological == true
+        mz.description == 'Monozygotic twin'
+        mz.symmetrical == true
     }
 
 }

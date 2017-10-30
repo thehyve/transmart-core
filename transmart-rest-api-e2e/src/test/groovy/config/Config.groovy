@@ -66,6 +66,7 @@ class Config {
     public static final String PATH_DIMENSION = "/v2/dimensions"
     public static final String PATH_DATA_EXPORT = "/v2/export"
     public static final String PATH_QUERY = "/v2/queries"
+    public static final String PATH_RELATION_TYPES = "/v2/pedigree/relation_types"
 
     //study ids
     public static final String ORACLE_1000_PATIENT_ID = 'ORACLE_1000_PATIENT'

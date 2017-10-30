@@ -1908,6 +1908,20 @@ paths:
       responses:
         204:
           description: 'returns null'
+  /v2/pedigree/relation_types:
+    get:
+      description: |
+        Gets the list of the relation types.
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            returns the list of the relation types.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/relation_type'
 definitions:
   version:
     type: object
@@ -2412,3 +2426,16 @@ definitions:
                 type: object
                 additionalProperties:
                   type: number
+  relation_type:
+    type: object
+    properties:
+      id:
+        type: integer
+      label:
+        type: string
+      description:
+        type: string
+      symmetrical:
+        type: boolean
+      biological:
+        type: boolean
