@@ -2,19 +2,13 @@
 
 package org.transmartproject.rest.serialization
 
-import grails.converters.JSON
+import com.google.gson.stream.JsonWriter
 import groovy.transform.CompileStatic
 import org.transmartproject.core.multidimquery.Dimension
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
-import org.transmartproject.db.i2b2data.ObservationFact
-import org.transmartproject.db.multidimquery.EndTimeDimension
-import org.transmartproject.db.multidimquery.LocationDimension
-import org.transmartproject.db.multidimquery.ModifierDimension
-import org.transmartproject.db.multidimquery.ProjectionDimension
-import org.transmartproject.db.multidimquery.ProviderDimension
-import org.transmartproject.db.multidimquery.StartTimeDimension
-import org.transmartproject.db.multidimquery.query.DimensionMetadata
+
+import java.time.Instant
 
 /**
  * <code>
@@ -65,13 +59,6 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
     static class Field {
         String name
         Type type
-
-        final Map<String, Object> toMap() {
-            [
-                    name: name,
-                    type: type.jsonType
-            ] as Map<String, Object>
-        }
     }
 
     /**
@@ -82,20 +69,6 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         Type type
         List<Field> fields
         boolean inline = false
-
-        final Map<String, Object> toMap() {
-            def map = [
-                    name: name,
-                    type: type?.jsonType ?: "Object"
-            ] as Map<String, Object>
-            if (fields) {
-                map['fields'] = fields.collect { it.toMap() }
-            }
-            if (inline) {
-                map['inline'] = Boolean.TRUE
-            }
-            map
-        }
     }
 
     /**
@@ -118,31 +91,17 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
          * The string value of this observation if it is of type text.
          */
         String stringValue
-
-        final Map<String, Object> toMap() {
-            def map = [
-                    inlineDimensions: inlineDimensions,
-                    dimensionIndexes: dimensionIndexes
-            ] as Map<String, Object>
-            if (numericValue != null) {
-                map['numericValue'] = numericValue
-            } else if (stringValue) {
-                map['stringValue'] = stringValue
-            }
-            map
-        }
     }
 
     protected Hypercube cube
-    protected Writer writer
-//    protected Map<Dimension, DimensionProperties> dimensionDeclarations = [:]
+    protected JsonWriter writer
 
     /**
      * Begins the output message.
      * @param out the stream to write to.
      */
     protected void begin() {
-        writer.print('{\n')
+        writer.beginObject()
     }
 
     /**
@@ -150,7 +109,7 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
      * @param out the stream to write to.
      */
     protected void end() {
-        writer.print('\n}\n')
+        writer.endObject()
         writer.flush()
     }
 
@@ -160,7 +119,7 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
      * @param dimElement the value to serialize.
      * @return an object to use for writing.
      */
-    protected Object buildDimensionElement(Dimension dim, Object dimElement) {
+    protected static Object buildDimensionElement(Dimension dim, Object dimElement) {
         if (dimElement == null) return null
         if (dim.elementsSerializable) {
             return dimElement
@@ -200,6 +159,52 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         cell
     }
 
+    protected void writeValue(Object value) {
+        if (value == null) {
+            writer.nullValue()
+        } else if (value instanceof String) {
+            writer.value(value as String)
+        } else if (value instanceof Number) {
+            writer.value(value as Double)
+        } else if (value instanceof Date) {
+            def time = Instant.ofEpochMilli((value as Date).time).toString()
+            writer.value(time)
+        } else if (value instanceof Map) {
+            def obj = value as Map
+            writer.beginObject()
+            obj.each { k, v ->
+                writer.name(k as String)
+                writeValue(v)
+            }
+            writer.endObject()
+        } else {
+            writer.value(value.toString())
+        }
+    }
+
+    protected void writeCell(Cell cell) {
+        writer.beginObject()
+        writer.name('inlineDimensions')
+        writer.beginArray()
+        cell.inlineDimensions.each {
+            writeValue(it)
+        }
+        writer.endArray()
+        writer.name('dimensionIndexes')
+        writer.beginArray()
+        cell.dimensionIndexes.each {
+            writer.value(it)
+        }
+        writer.endArray()
+        if (cell.numericValue != null) {
+            writer.name('numericValue').value(cell.numericValue)
+        } else if (cell.stringValue) {
+            writer.name('stringValue').value(cell.stringValue)
+        }
+        writer.endObject()
+        writer.flush()
+    }
+
     /**
      * Writes the sequence of messages representing the values passed by the
      * value iterator.
@@ -208,16 +213,13 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
      */
     protected void writeCells() {
         Iterator<HypercubeValue> it = cube.iterator()
-        writer.print('"cells": [')
+        writer.name('cells')
+        writer.beginArray()
         while (it.hasNext()) {
             def message = createCell(it.next())
-            writer.print("\n")
-            writer.print(message.toMap() as JSON)
-            if (it.hasNext()) {
-                writer.print(',')
-            }
+            writeCell(message)
         }
-        writer.print('],\n')
+        writer.endArray()
     }
 
     /**
@@ -242,16 +244,43 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
         declarations
     }
 
+    protected void writeField(Field field) {
+        writer.beginObject()
+        writer.name('name').value(field.name)
+        writer.name('type').value(field.type.jsonType)
+        writer.endObject()
+    }
+
+    protected void writeDimensionProperties(DimensionProperties dimension) {
+        writer.beginObject()
+        writer.name('name').value(dimension.name)
+        writer.name('type').value(dimension.type?.jsonType ?: 'Object')
+        if (dimension.fields) {
+            writer.name('fields')
+            writer.beginArray()
+            dimension.fields.each {
+                writeField(it)
+            }
+            writer.endArray()
+        }
+        if (dimension.inline) {
+            writer.name('inline').value(true)
+        }
+        writer.endObject()
+    }
+
     /**
      * Writes a header message describing the dimensions of the value messages that
      * will be written.
      * @param out the stream to write to.
      */
     protected void writeHeader() {
-        writer.print('"dimensionDeclarations": ')
-        def declarations = buildDimensionDeclarations().collect { it.toMap() }
-        writer.print(declarations as JSON)
-        writer.print(',\n')
+        writer.name('dimensionDeclarations')
+        writer.beginArray()
+        buildDimensionDeclarations().each {
+            writeDimensionProperties(it)
+        }
+        writer.endArray()
     }
 
     /**
@@ -260,12 +289,17 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
      * @param out the stream to write to.
      */
     protected void writeFooter() {
-        writer.print('"dimensionElements": ')
-        def dimensionElements= [:]
+        writer.name('dimensionElements')
+        writer.beginObject()
         for(dim in cube.dimensions.findAll { it.density.isDense }) {
-            dimensionElements[dim.name] = cube.dimensionElements(dim).collect { buildDimensionElement(dim, it) }
+            writer.name(dim.name)
+            writer.beginArray()
+            cube.dimensionElements(dim).each {
+                writeValue(buildDimensionElement(dim, it))
+            }
+            writer.endArray()
         }
-        writer.print(dimensionElements as JSON)
+        writer.endObject()
     }
 
     /**
@@ -279,9 +313,7 @@ class HypercubeJsonSerializer extends HypercubeSerializer {
      */
     void write(Map args, Hypercube cube, OutputStream out) {
         this.cube = cube
-
-        writer = new PrintWriter(new BufferedOutputStream(out))
-
+        this.writer = new JsonWriter(new PrintWriter(new BufferedOutputStream(out)))
         begin()
         writeHeader()
         writeCells()

@@ -50,7 +50,7 @@ class ObservationCountsSpec extends RESTSpec {
 
         then: "I get a count excluding observations from the restricted study"
         assert responseData.observationCount == 5
-        assert responseData.patientCount == 5
+        assert responseData.patientCount == 4
     }
 
     /**
@@ -102,7 +102,7 @@ class ObservationCountsSpec extends RESTSpec {
 
         then: "I get a count including observations from the restricted study"
         assert responseData.observationCount == 7
-        assert responseData.patientCount == 7
+        assert responseData.patientCount == 6
 
         where:
         method | _
