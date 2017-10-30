@@ -36,3 +36,11 @@ TABLESPACE "TRANSMART" ;
 CREATE INDEX "I2B2DEMODATA"."PM_ENCPNUM_IDX" ON "I2B2DEMODATA"."PATIENT_MAPPING" ("PATIENT_IDE", "PATIENT_IDE_SOURCE", "PATIENT_NUM")
 TABLESPACE "TRANSMART" ;
 
+--
+-- Table documentation
+--
+COMMENT ON TABLE i2b2demodata.patient_mapping IS 'Table with subject identifiers from different sources.';
+
+COMMENT ON COLUMN patient_mapping.patient_ide IS 'Primary key. Subject identifier associated with a patient.';
+COMMENT ON COLUMN patient_mapping.patient_ide_source IS 'Primary key. Source of the subject identifier.';
+COMMENT ON COLUMN patient_mapping.patient_num IS 'The id of the patient in TranSMART. Refers to patient_num in patient_dimension.';

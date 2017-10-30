@@ -3,11 +3,10 @@ package org.transmartproject.db.multidimquery
 import groovy.util.logging.Slf4j
 import org.transmartproject.core.concept.Concept
 import org.transmartproject.core.dataquery.*
+import org.transmartproject.core.exceptions.UnexpectedResultException
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.HypercubeValue
 import org.transmartproject.core.ontology.MDStudy
-
-import java.rmi.UnexpectedException
 
 import static VariableDataType.*
 import static org.transmartproject.core.dataquery.Measure.NOMINAL
@@ -82,10 +81,11 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
 
         @Override
         String getValue(HypercubeDataRow row) {
-            org.transmartproject.db.i2b2data.PatientDimension patient = row.getDimensionElement(DimensionImpl.PATIENT)
+            def patient = row.getDimensionElement(DimensionImpl.PATIENT) as Patient
             if (patient) {
-                return patient.mappings.find { it.source == subjectIdSource }?.encryptedId
+                return patient.subjectIds[subjectIdSource]
             }
+            null
         }
     }
 
@@ -110,8 +110,9 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         Date getValue(HypercubeDataRow row) {
             def hValue = row.getHypercubeValue(originalColumn.index)
             if (hValue && DimensionImpl.START_TIME in hValue.availableDimensions) {
-                hValue[DimensionImpl.START_TIME] as Date
+                return hValue[DimensionImpl.START_TIME] as Date
             }
+            null
         }
     }
 
@@ -126,9 +127,8 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         VariableColumn(String label, HypercubeDataColumn originalColumn) {
             this.label = label
             this.originalColumn = originalColumn
-            org.transmartproject.db.i2b2data.ConceptDimension conceptDimension =
-                    originalColumn.getDimensionElement(DimensionImpl.CONCEPT)
-            metadata = conceptDimension.metadata ?: computeColumnMetadata()
+            def concept = originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
+            metadata = concept.metadata ?: computeColumnMetadata()
             labelsToValues = metadata.valueLabels.collectEntries { key, value -> [value, key] }
         }
 
@@ -142,11 +142,11 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
                     String label = value == null ? getMissingValueLabel(hValue) : value
                     if (labelsToValues.containsKey(label)) return labelsToValues[label]
                     if (value == null) return null
-                    throw new UnexpectedException("${value} is not of a number type.")
+                    throw new UnexpectedResultException("${value} is not of a number type.")
                 case DATE:
                     if (value == null) return null
                     if (value instanceof Number) return toDate(value)
-                    throw new UnexpectedException("${value} can't be converted to the date type.")
+                    throw new UnexpectedResultException("${value} can't be converted to the date type.")
                 case STRING:
                     return value as String
                 default:
@@ -176,9 +176,9 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
     }
 
     private static String getVariableName(HypercubeDataColumn originalColumn) {
-        MDStudy study = originalColumn.getDimensionElement(DimensionImpl.STUDY)
-        Concept concept =
-                originalColumn.getDimensionElement(DimensionImpl.CONCEPT)
+        def study = originalColumn.getDimensionElement(DimensionImpl.STUDY) as MDStudy
+        def concept =
+                originalColumn.getDimensionElement(DimensionImpl.CONCEPT) as Concept
 
         def studyMetadata = study.metadata
         if (studyMetadata?.conceptToVariableName?.containsKey(concept.conceptCode)) {
