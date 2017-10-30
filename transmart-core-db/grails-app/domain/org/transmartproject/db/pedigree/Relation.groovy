@@ -26,5 +26,6 @@ class Relation implements Serializable {
         relationType nullable: false
         rightSubject nullable: false
         biological nullable: true
+        shareHousehold nullable: true
     }
 }

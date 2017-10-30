@@ -4,12 +4,25 @@ package org.transmartproject.db.pedigree
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.multidimquery.Hypercube
+import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.i2b2data.PatientDimension
+import org.transmartproject.db.multidimquery.query.Constraint
+import org.transmartproject.db.multidimquery.query.PatientSetConstraint
+import org.transmartproject.db.multidimquery.query.QueryBuilderException
+import org.transmartproject.db.multidimquery.query.RelationConstraint
+import org.transmartproject.db.user.User
 import spock.lang.Specification
+
+import static org.transmartproject.db.multidimquery.DimensionImpl.getPATIENT
 
 @Rollback
 @Integration
 class RelationSpec extends Specification {
+
+    @Autowired
+    MultiDimensionalDataResource multiDimService
 
     void 'test relation type domain object mapping'() {
         when:
@@ -30,6 +43,77 @@ class RelationSpec extends Specification {
         relation.relationType.description == 'Spouse'
         !relation.biological
         relation.shareHousehold
+    }
+
+    void "get clinical data applying relation constraint"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        Constraint constraint = new RelationConstraint(
+                relationTypeLabel: 'SPO'
+        )
+
+        when:
+        Hypercube hypercube = multiDimService.retrieveClinicalData(constraint, user)
+
+        then:
+        def subjects = hypercube.dimensionElements(PATIENT)
+        subjects*.id as Set == [-3001L, -3002L, -3004L, -3005L, -3010L, -3011L] as Set
+    }
+
+    void "get patients applying relation constraint"() {
+        def user = User.findByUsername('test-public-user-1')
+
+        when: 'no relation type specified'
+        multiDimService.getDimensionElements(PATIENT, new RelationConstraint(), user)
+        then: 'exception is thrown'
+        def e1 = thrown(QueryBuilderException)
+        e1.message == 'No null relation type found.'
+
+        when: 'not-existed relation type specified'
+        multiDimService.getDimensionElements(PATIENT,
+                new RelationConstraint(
+                        relationTypeLabel: 'NON-EXISTENT'
+                ), user)
+        then: 'exception is thrown'
+        def e2 = thrown(QueryBuilderException)
+        e2.message == 'No NON-EXISTENT relation type found.'
+
+        when: 'get parents for the subject'
+        def allParents = multiDimService.getDimensionElements(PATIENT,
+                new RelationConstraint(
+                        relationTypeLabel: 'PAR'
+                ), user)
+        then: 'all parents selected'
+        allParents*.id as Set == [-3001L, -3002L, -3003L, -3004L, -3005L, -3010L, -3011L] as Set
+
+        when: 'get parents for the subject'
+        def parentsForSubject = multiDimService.getDimensionElements(PATIENT,
+                new RelationConstraint(
+                        relatedSubjectsConstraint: new PatientSetConstraint(
+                                patientIds: [-3014]
+                        ),
+                        relationTypeLabel: 'PAR'
+                ), user)
+        then: 'both parents selected'
+        parentsForSubject*.id as Set == [-3010L, -3011L] as Set
+
+        when: 'get all step parents'
+        def stepParents = multiDimService.getDimensionElements(PATIENT,
+                new RelationConstraint(
+                        relationTypeLabel: 'PAR',
+                        biological: false
+                ), user)
+        then: 'both step parents selected'
+        stepParents*.id as Set == [-3004L, -3005L] as Set
+
+        when: 'get all parents that don\'t live with theirs kids at the same address'
+        def parentsThatLiveSeparateFromTheirKids = multiDimService.getDimensionElements(PATIENT,
+                new RelationConstraint(
+                        relationTypeLabel: 'PAR',
+                        shareHousehold: false
+                ), user)
+        then: 'all such parents selected'
+        parentsThatLiveSeparateFromTheirKids*.id as Set == [-3002L, -3003L, -3004, -3005] as Set
     }
 
 }

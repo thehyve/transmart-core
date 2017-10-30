@@ -20,6 +20,8 @@ import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.i2b2data.TrialVisit
 import org.transmartproject.db.metadata.DimensionDescription
 import org.transmartproject.db.multidimquery.DimensionImpl
+import org.transmartproject.db.pedigree.Relation
+import org.transmartproject.db.pedigree.RelationType
 import org.transmartproject.db.querytool.QtPatientSetCollection
 import org.transmartproject.db.ontology.ModifierDimensionCoreDb
 import org.transmartproject.db.util.StringUtils
@@ -603,6 +605,34 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
             default:
                 throw new QueryBuilderException("Operator not supported: ${constraint.operator.name()}")
         }
+    }
+
+    /**
+     * Builds a hibernate criterion to find observations for the patients that have a relation
+     * of the given type (e.g. Parent-child) and with optionally specified, by constraint, patients.
+     */
+    Criterion build(RelationConstraint relationConstraint) {
+        DetachedCriteria relationCriteria = DetachedCriteria.forClass(Relation, 'relation')
+        if (relationConstraint.relatedSubjectsConstraint) {
+            DetachedCriteria patientCriteria = subQueryBuilder().buildElementsCriteria(PATIENT, relationConstraint.relatedSubjectsConstraint)
+            //I get NPE when I use whole object instead of id projection
+            //TODO For some cases the sub-query could be made more efficient to execute bypassing unnecessary table joins/nested sub-queries.
+            relationCriteria.add(Subqueries.propertyIn('rightSubject.id',
+                    patientCriteria.setProjection(Projections.id())))
+        }
+        def relationType = RelationType.findByLabel(relationConstraint.relationTypeLabel)
+        if (!relationType) {
+            throw new QueryBuilderException("No ${relationConstraint.relationTypeLabel} relation type found.")
+        }
+        relationCriteria.add(Restrictions.eq('relationType', relationType))
+        if (relationConstraint.biological != null) {
+            relationCriteria.add(Restrictions.eq('biological', relationConstraint.biological))
+        }
+        if (relationConstraint.shareHousehold != null) {
+            relationCriteria.add(Restrictions.eq('shareHousehold', relationConstraint.shareHousehold))
+        }
+        //def patientAlias = getAlias('patient')
+        Subqueries.propertyIn('patient', relationCriteria.setProjection(Projections.property("leftSubject")))
     }
 
     Criterion build(Constraint constraint) {
