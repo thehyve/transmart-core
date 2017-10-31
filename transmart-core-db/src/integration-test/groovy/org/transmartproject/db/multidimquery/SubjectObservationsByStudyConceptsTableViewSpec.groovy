@@ -42,15 +42,20 @@ class SubjectObservationsByStudyConceptsTableViewSpec extends Specification {
         )
         then: 'header matches expectations'
         def columns = transformedView.indicesList
-        columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'favouritebook', 'favouritebook.date', 'gender1', 'gender1.date']
+        columns*.label == ['FISNumber', 'birthdate1', 'birthdate1.date', 'favouritebook', 'favouritebook.date',
+                           'gender1', 'gender1.date', 'nmultbab', 'nmultbab.date', 'nmultfam', 'nmultfam.date',
+                           'twin', 'twin.date']
         then: 'columns metadata matches expectations'
         def metadata = columns*.metadata
-        metadata*.type == [NUMERIC, DATE, DATE, STRING, DATE, NUMERIC, DATE]
-        metadata*.measure == [SCALE, SCALE, SCALE, NOMINAL, SCALE, NOMINAL, SCALE]
-        metadata*.description == ['FIS Number', 'Birth Date', 'Date of measurement', 'Favourite Book', 'Date of measurement', 'Gender', 'Date of measurement']
-        metadata*.width == [12, 22, 22, 400, 22, 12, 22]
-        metadata*.decimals == [0, null, null, null, null, null, null]
-        metadata*.columns == [12, 22, 22, 400, 22, 14, 22]
+        metadata*.type == [NUMERIC, DATE, DATE, STRING, DATE, NUMERIC, DATE, STRING, DATE, STRING, DATE, STRING, DATE]
+        metadata*.measure == [SCALE, SCALE, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE, NOMINAL, SCALE]
+        metadata*.description == ['FIS Number', 'Birth Date', 'Date of measurement', 'Favourite Book',
+                                  'Date of measurement', 'Gender', 'Date of measurement', 'Has multiple babies',
+                                  'Date of measurement', 'Numbers of multiples in family', 'Date of measurement',
+                                  'Is a Twin', 'Date of measurement']
+        metadata*.width == [12, 22, 22, 400, 22, 12, 22, 25, 22, 25, 22, 25, 22]
+        metadata*.decimals == [0, null, null, null, null, null, null, null, null, null, null, null, null]
+        metadata*.columns == [12, 22, 22, 400, 22, 14, 22, 25, 22, 25, 22, 25, 22]
         def height1Metadata = columns.find { it.label == 'gender1' }.metadata
         height1Metadata.valueLabels == [(1): 'Female', (2): 'Male', (-2): 'Not Specified']
         height1Metadata.missingValues == [-2]

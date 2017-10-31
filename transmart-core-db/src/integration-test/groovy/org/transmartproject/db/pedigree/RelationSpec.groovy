@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.transmartproject.core.multidimquery.Hypercube
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.db.i2b2data.PatientDimension
-import org.transmartproject.db.multidimquery.query.Constraint
-import org.transmartproject.db.multidimquery.query.PatientSetConstraint
-import org.transmartproject.db.multidimquery.query.QueryBuilderException
-import org.transmartproject.db.multidimquery.query.RelationConstraint
+import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import spock.lang.Specification
 
@@ -114,6 +111,19 @@ class RelationSpec extends Specification {
                 ), user)
         then: 'all such parents selected'
         parentsThatLiveSeparateFromTheirKids*.id as Set == [-3002L, -3003L, -3004, -3005] as Set
+
+        when: 'get all biological siblings that have twin kids.'
+        def siblingsWitTwins = multiDimService.getDimensionElements(PATIENT,
+                new RelationConstraint(
+                        relatedSubjectsConstraint: new AndConstraint(args: [
+                                new ConceptConstraint(path: '\\Pedigree\\Has multiple babies\\'),
+                                new ValueConstraint(Type.NUMERIC, Operator.GREATER_THAN, 0)
+                        ]),
+                        relationTypeLabel: 'SIB',
+                        biological: true,
+                ), user)
+        then: 'the sisters ids have been returned'
+        siblingsWitTwins*.id as Set == [-3002L, -3004L] as Set
     }
 
 }

@@ -339,7 +339,7 @@ class DataExportSpec extends RESTSpec {
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         filesLineNumbers.size() == 3
         filesLineNumbers['data.tsv'] == 15
-        filesLineNumbers['variables.tsv'] == 8
+        filesLineNumbers['variables.tsv'] == 14
         filesLineNumbers['value_labels.tsv'] == 4
 
     }
@@ -361,7 +361,7 @@ class DataExportSpec extends RESTSpec {
         def filesLineNumbers = getFilesLineNumbers(downloadResponse as byte[])
         filesLineNumbers.size() == 2
         filesLineNumbers['data.tsv'] == 15
-        filesLineNumbers['data.sps'] == 32
+        filesLineNumbers['data.sps'] == 44
     }
 
     @RequiresStudy(CATEGORICAL_VALUES_ID)
