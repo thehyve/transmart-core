@@ -5,8 +5,20 @@ import org.transmartproject.core.exceptions.NoSuchResourceException
 /**
  * Resource related with users.
  */
-public interface UsersResource {
+interface UsersResource {
 
+    /**
+     * Retrieves the user with the username if it exists, throws an exception otherwise.
+     * @param username the username of the user.
+     * @return the user entity.
+     * @throws NoSuchResourceException iff no user exists with the username.
+     */
     User getUserFromUsername(String username) throws NoSuchResourceException
+
+    /**
+     * Retrieves the list of all users.
+     * @return the list of all users.
+     */
+    List<User> getUsers()
 
 }

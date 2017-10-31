@@ -107,6 +107,9 @@ class RestApiUrlMappings {
             "/tree_nodes/clear_cache"(method: 'GET', controller: 'tree', action: 'clearCache') {
                 apiVersion = 'v2'
             }
+            "/tree_nodes/rebuild_cache"(method: 'GET', controller: 'tree', action: 'rebuildCache') {
+                apiVersion = 'v2'
+            }
             "/files"(method: 'GET', controller: 'storage', action: 'index') {
                 apiVersion = "v2"
             }

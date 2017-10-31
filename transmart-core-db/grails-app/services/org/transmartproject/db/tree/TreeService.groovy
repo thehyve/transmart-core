@@ -3,11 +3,14 @@
 package org.transmartproject.db.tree
 
 import groovy.transform.CompileStatic
+import org.grails.core.util.StopWatch
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Restrictions
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.scheduling.annotation.Async
 import org.transmartproject.core.exceptions.AccessDeniedException
+import org.transmartproject.core.exceptions.ServiceNotAvailableException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.core.ontology.OntologyTermTag
@@ -22,6 +25,8 @@ import org.transmartproject.db.user.User
 import org.transmartproject.db.util.StringUtils
 
 import javax.annotation.Resource
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 
 class TreeService implements TreeResource {
 
@@ -174,6 +179,41 @@ class TreeService implements TreeResource {
         treeCacheService.clearAllCacheEntries()
         multiDimensionalDataResource.clearCountsCache()
         multiDimensionalDataResource.clearPatientCountCache()
+    }
+
+    final private Lock cacheRebuildLock = new ReentrantLock()
+
+    /**
+     * Clears the tree node cache and the counts caches, and
+     * rebuild the tree node cache for every user.
+     *
+     * This function should be called after loading, removing or updating
+     * tree nodes or observations in the database.
+     * Only available for administrators.
+     *
+     * Asynchronous call. The call returns when rebuilding has started.
+     *
+     * @param currentUser the current user.
+     * @throws ServiceNotAvailableException iff a rebuild operation is already in progress.
+     */
+    @Async
+    void rebuildCache(org.transmartproject.core.users.User currentUser) throws ServiceNotAvailableException {
+        if (!cacheRebuildLock.tryLock()) {
+            throw new ServiceNotAvailableException("Rebuild operation already in progress.")
+        }
+        log.info "Clearing all caches ..."
+        def stopWatch = new StopWatch('Rebuild cache')
+        stopWatch.start("Clearing the caches")
+        clearCache(currentUser)
+        stopWatch.stop()
+        usersResource.getUsers().each { User user ->
+            log.info "Rebuilding the cache for user ${user.username} ..."
+            stopWatch.start("Rebuild the cache for ${user.username}")
+            treeCacheService.fetchCachedSubtree(user.admin, getStudyTokens(user), I2b2Secure.ROOT, 0)
+            stopWatch.stop()
+        }
+        log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
+        cacheRebuildLock.unlock()
     }
 
 }

@@ -1415,6 +1415,35 @@ var spec = {
         }
       }
     },
+    "/v2/tree_nodes/clear_cache": {
+      "get": {
+        "description": "Clears tree node and counts caches.\nOnly for administrators.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "The cache has been cleared.\n"
+          }
+        }
+      }
+    },
+    "/v2/tree_nodes/rebuild_cache": {
+      "get": {
+        "description": "Clears tree node and counts caches and rebuilds the tree node cache per user.\nOnly for administrators.\n",
+        "tags": [
+          "v2"
+        ],
+        "responses": {
+          "200": {
+            "description": "Clearing and rebuilding the cache has been started.\n"
+          },
+          "503": {
+            "description": "A rebuild operation is already in progress.\n"
+          }
+        }
+      }
+    },
     "/v2/storage": {
       "get": {
         "description": "Gets a list of all storage systems.\n",

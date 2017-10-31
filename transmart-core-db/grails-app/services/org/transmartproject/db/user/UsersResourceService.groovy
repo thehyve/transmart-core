@@ -55,4 +55,10 @@ class UsersResourceService implements UsersResource {
         
         user
     }
+
+    @Override
+    List<org.transmartproject.core.users.User> getUsers() {
+        User.all
+    }
+
 }
