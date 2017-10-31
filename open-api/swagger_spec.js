@@ -3011,28 +3011,40 @@ var spec = {
       "description": "only the value of the requested aggregate type will be present.",
       "properties": {
         "aggregatesPerConcept": {
-          "default": {
-            "numericalValueAggregatesPerConcept": {
-              "min": {
-                "type": "number"
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "numericalValueAggregatesPerConcept": {
+                "type": "object",
+                "properties": {
+                  "min": {
+                    "type": "number"
+                  },
+                  "max": {
+                    "type": "number"
+                  },
+                  "average": {
+                    "type": "number"
+                  },
+                  "count": {
+                    "type": "number"
+                  },
+                  "std_dev": {
+                    "type": "number"
+                  }
+                }
               },
-              "max": {
-                "type": "number"
-              },
-              "average": {
-                "type": "number"
-              },
-              "count": {
-                "type": "number"
-              },
-              "std_dev": {
-                "type": "number"
-              }
-            },
-            "categoricalValueAggregatesPerConcept": {
-              "valueCounts": {
-                "default": null,
-                "type": "number"
+              "categoricalValueAggregatesPerConcept": {
+                "type": "object",
+                "properties": {
+                  "valueCounts": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "number"
+                    }
+                  }
+                }
               }
             }
           }
