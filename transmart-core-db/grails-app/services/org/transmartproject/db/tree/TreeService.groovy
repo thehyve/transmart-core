@@ -2,13 +2,13 @@
 
 package org.transmartproject.db.tree
 
+import grails.transaction.Transactional
 import groovy.transform.CompileStatic
 import org.grails.core.util.StopWatch
 import org.hibernate.SessionFactory
 import org.hibernate.criterion.DetachedCriteria
 import org.hibernate.criterion.Restrictions
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.scheduling.annotation.Async
 import org.transmartproject.core.exceptions.AccessDeniedException
 import org.transmartproject.core.exceptions.ServiceNotAvailableException
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
@@ -21,13 +21,18 @@ import org.transmartproject.core.users.UsersResource
 import org.transmartproject.db.accesscontrol.AccessControlChecks
 import org.transmartproject.db.i2b2data.Study
 import org.transmartproject.db.ontology.I2b2Secure
-import org.transmartproject.db.user.User
+import org.transmartproject.db.user.User as DbUser
+import org.transmartproject.core.users.User
 import org.transmartproject.db.util.StringUtils
 
 import javax.annotation.Resource
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 
+import static grails.async.Promises.task
+
+@Transactional(readOnly = true)
+@CompileStatic
 class TreeService implements TreeResource {
 
     @Autowired
@@ -50,7 +55,6 @@ class TreeService implements TreeResource {
     /**
      * Adds observation counts and patient counts to leaf nodes.
      */
-    @CompileStatic
     void enrichWithCounts(List<TreeNode> forest, User user) {
         if (!forest) {
             return
@@ -75,7 +79,6 @@ class TreeService implements TreeResource {
     /**
      * Adds metadata tags to tree nodes.
      */
-    @CompileStatic
     void enrichWithTags(List<TreeNode> forest, User user) {
         if (!forest) {
             return
@@ -89,7 +92,7 @@ class TreeService implements TreeResource {
         }
     }
 
-    private List<String> getStudyTokens(User user) {
+    private List<String> getStudyTokens(DbUser user) {
         List<String> studyTokens = []
         if (!user.admin) {
             Collection<Study> studies = accessControlChecks.getDimensionStudiesForUser(user) as Collection<Study>
@@ -98,7 +101,7 @@ class TreeService implements TreeResource {
         studyTokens
     }
 
-    private I2b2Secure fetchRootNode(User user, String rootKey) {
+    private I2b2Secure fetchRootNode(DbUser user, String rootKey) {
         if (rootKey == I2b2Secure.ROOT) {
             return null
         }
@@ -132,9 +135,8 @@ class TreeService implements TreeResource {
      * @return a forest, represented as a list of the top level nodes. Lower nodes will be children
      * of their ancestor nodes.
      */
-    @CompileStatic
     List<TreeNode> findNodesForUser(String rootKey, Integer depth, Boolean includeCounts, Boolean includeTags, org.transmartproject.core.users.User currentUser) {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+        DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
         rootKey = rootKey ?: I2b2Secure.ROOT
         depth = depth ?: 0
         includeCounts = includeCounts ?: Boolean.FALSE
@@ -171,8 +173,8 @@ class TreeService implements TreeResource {
      * @param currentUser the current user.
      *
      */
-    void clearCache(org.transmartproject.core.users.User currentUser) {
-        User user = (User) usersResource.getUserFromUsername(currentUser.username)
+    void clearCache(User currentUser) {
+        DbUser user = (DbUser) usersResource.getUserFromUsername(currentUser.username)
         if (!user.admin) {
             throw new AccessDeniedException('Only allowed for administrators.')
         }
@@ -181,7 +183,30 @@ class TreeService implements TreeResource {
         multiDimensionalDataResource.clearPatientCountCache()
     }
 
-    final private Lock cacheRebuildLock = new ReentrantLock()
+    static class SimpleLock {
+        boolean locked
+    }
+
+    static final private SimpleLock sharedLock = new SimpleLock(locked: false)
+    static final private Lock lockLock = new ReentrantLock()
+
+    boolean tryLock() {
+        lockLock.lock()
+        if (sharedLock.locked) {
+            lockLock.unlock()
+            return false
+        } else {
+            sharedLock.locked = true
+            lockLock.unlock()
+            return true
+        }
+    }
+
+    void unlock() {
+        lockLock.lock()
+        sharedLock.locked = false
+        lockLock.unlock()
+    }
 
     /**
      * Clears the tree node cache and the counts caches, and
@@ -196,24 +221,42 @@ class TreeService implements TreeResource {
      * @param currentUser the current user.
      * @throws ServiceNotAvailableException iff a rebuild operation is already in progress.
      */
-    @Async
-    void rebuildCache(org.transmartproject.core.users.User currentUser) throws ServiceNotAvailableException {
-        if (!cacheRebuildLock.tryLock()) {
-            throw new ServiceNotAvailableException("Rebuild operation already in progress.")
+    void rebuildCache(User currentUser) throws ServiceNotAvailableException {
+        DbUser dbUser = (DbUser) usersResource.getUserFromUsername(currentUser.username)
+        if (!dbUser.admin) {
+            throw new AccessDeniedException('Only allowed for administrators.')
         }
-        log.info "Clearing all caches ..."
-        def stopWatch = new StopWatch('Rebuild cache')
-        stopWatch.start("Clearing the caches")
-        clearCache(currentUser)
-        stopWatch.stop()
-        usersResource.getUsers().each { User user ->
-            log.info "Rebuilding the cache for user ${user.username} ..."
-            stopWatch.start("Rebuild the cache for ${user.username}")
-            treeCacheService.fetchCachedSubtree(user.admin, getStudyTokens(user), I2b2Secure.ROOT, 0)
-            stopWatch.stop()
+        if (!tryLock()) {
+            throw new ServiceNotAvailableException('Rebuild operation already in progress.')
         }
-        log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
-        cacheRebuildLock.unlock()
+        log.debug "Starting task (lock: ${sharedLock.locked})"
+        task {
+            log.debug "Task started (lock: ${sharedLock.locked})"
+            def session = sessionFactory.openSession()
+            try {
+                def stopWatch = new StopWatch('Rebuild cache')
+                log.info 'Clearing all caches ...'
+                stopWatch.start('Clearing the caches')
+                clearCache(currentUser)
+                stopWatch.stop()
+                usersResource.getUsers().each {
+                    DbUser user = (DbUser)it
+                    log.info "Rebuilding the cache for user ${user.username} ..."
+                    stopWatch.start("Rebuild the cache for ${user.username}")
+                    treeCacheService.fetchCachedSubtree(user.admin, getStudyTokens(user), I2b2Secure.ROOT, 0)
+                    stopWatch.stop()
+                }
+                log.info "Done rebuilding the cache.\n${stopWatch.prettyPrint()}"
+            } catch (Exception e) {
+                log.error "Unexpected error while rebuilding cache: ${e.message}", e
+                throw e
+            } finally {
+                log.debug "Closing task (lock: ${sharedLock.locked})"
+                session?.close()
+                unlock()
+                log.debug "Task closed (lock: ${sharedLock.locked})"
+            }
+        }
     }
 
 }
