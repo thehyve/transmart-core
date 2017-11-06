@@ -1,5 +1,6 @@
 package org.transmartproject.rest.dataExport
 
+import grails.core.GrailsApplication
 import grails.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -17,6 +18,9 @@ class ExportService {
 
     @Autowired
     MultidimensionalDataService multidimensionalDataService
+
+    @Autowired
+    GrailsApplication grailsApplication
 
     static enum FileFormat {
         TSV('TSV'), // TODO add support for other file formats
@@ -50,7 +54,7 @@ class ExportService {
         dataTypeAndFormatList.each { typeFormatPair ->
             MultidimensionalDataService.Format outFormat = MultidimensionalDataService.Format[typeFormatPair.format]
             String dataType = typeFormatPair.dataType
-            String dataView = typeFormatPair.dataView
+            String dataView = typeFormatPair.dataView ?: grailsApplication.config.export.clinical.defaultDataView
 
             if (dataType == 'clinical') {
                 try {

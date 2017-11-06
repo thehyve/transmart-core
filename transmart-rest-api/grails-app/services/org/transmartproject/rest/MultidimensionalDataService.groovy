@@ -116,9 +116,7 @@ class MultidimensionalDataService {
                        OutputStream out,
                        String view = null) {
 
-        String dataView = view ?: grailsApplication.config.export.clinical.defaultDataView
-
-        if (!dataView) {
+        if (!view) {
             Hypercube result = multiDimService.retrieveClinicalData(constraint, user)
 
             try {
@@ -127,7 +125,7 @@ class MultidimensionalDataService {
             } finally {
                 result.close()
             }
-        } else if (dataView == 'subjectObservationsByStudyConceptsTableView') {
+        } else if (view == 'subjectObservationsByStudyConceptsTableView') {
             def patientDimension = multiDimService.getDimension('patient')
             def hypercube = multiDimService.retrieveClinicalData(constraint, user, [patientDimension])
             def customizations = grailsApplication.config
@@ -140,7 +138,7 @@ class MultidimensionalDataService {
                 tabularView.close()
             }
         } else {
-            throw new UnsupportedOperationException("${dataView} data view is not supported.")
+            throw new UnsupportedOperationException("${view} data view is not supported.")
         }
     }
 
