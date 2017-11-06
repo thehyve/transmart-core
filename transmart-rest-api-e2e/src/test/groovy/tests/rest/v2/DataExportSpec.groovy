@@ -258,8 +258,6 @@ class DataExportSpec extends RESTSpec {
     }
 
     def "get supported file formats"() {
-        def supportedFormat = 'TSV'
-
         def request = [
                 path      : "$PATH_DATA_EXPORT/file_formats",
                 acceptType: JSON,
@@ -269,8 +267,9 @@ class DataExportSpec extends RESTSpec {
         def responseData = get(request)
 
         then:
-        "I get a list of fields containing $supportedFormat format"
-        assert supportedFormat in responseData.fileFormats
+        "I get a list of fields containing the supported formats"
+        assert 'TSV' in responseData.fileFormats
+        assert 'SPSS' in responseData.fileFormats
     }
 
     @RequiresStudy(TUMOR_NORMAL_SAMPLES_ID)

@@ -9,8 +9,11 @@ import org.transmartproject.core.exceptions.LegacyStudyException
 import org.transmartproject.db.job.AsyncJobCoreDb
 import org.transmartproject.db.multidimquery.query.Constraint
 import org.transmartproject.rest.MultidimensionalDataService
+import org.transmartproject.rest.serialization.Format
 
 import java.util.zip.ZipOutputStream
+
+import static org.transmartproject.rest.serialization.Format.*
 
 @Transactional
 @Component("restExportService")
@@ -22,19 +25,7 @@ class ExportService {
     @Autowired
     GrailsApplication grailsApplication
 
-    static enum FileFormat {
-        TSV('TSV'), // TODO add support for other file formats
-
-        final String value
-
-        FileFormat(String value) { this.value = value }
-
-        String toString() { value }
-
-        String getKey() { name() }
-    }
-
-    static supportedFileFormats = FileFormat.values().collect { it.toString() }
+    static supportedFileFormats = EnumSet.of(TSV, SPSS)
 
     def downloadFile(AsyncJobCoreDb job) {
         if(job.jobStatus != JobStatus.COMPLETED.value) {
@@ -52,7 +43,10 @@ class ExportService {
         Constraint constraint = jobDataMap.constraint
 
         dataTypeAndFormatList.each { typeFormatPair ->
-            MultidimensionalDataService.Format outFormat = MultidimensionalDataService.Format[typeFormatPair.format]
+            Format outFormat = from(typeFormatPair.format)
+            if (!supportedFileFormats.contains(outFormat)) {
+                throw new InvalidRequestException("Export for ${outFormat} format is not supported.")
+            }
             String dataType = typeFormatPair.dataType
             String dataView = typeFormatPair.dataView ?: grailsApplication.config.export.clinical.defaultDataView
 

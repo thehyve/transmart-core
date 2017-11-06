@@ -11,6 +11,7 @@ import org.transmartproject.core.multidimquery.MultiDimConstraint
 import org.transmartproject.core.multidimquery.MultiDimensionalDataResource
 import org.transmartproject.core.users.User
 import org.transmartproject.db.multidimquery.SubjectObservationsByStudyConceptsTableView
+import org.transmartproject.rest.serialization.Format
 import org.transmartproject.rest.serialization.HypercubeCSVSerializer
 import org.transmartproject.rest.serialization.HypercubeJsonSerializer
 import org.transmartproject.rest.serialization.HypercubeProtobufSerializer
@@ -27,33 +28,6 @@ class MultidimensionalDataService {
     MultiDimensionalDataResource multiDimService
     @Autowired
     GrailsApplication grailsApplication
-
-    /**
-     * Type to represent the requested serialization format.
-     */
-    static enum Format {
-        JSON('application/json'),
-        PROTOBUF('application/x-protobuf'),
-        TSV('TSV'),
-        SPSS('SPSS'),
-        NONE('none')
-
-        private String format
-
-        Format(String format) {
-            this.format = format
-        }
-
-        public static Format from(String format) {
-            Format f = values().find { it.format == format }
-            if (f == null) throw new Exception("Unknown format: ${format}")
-            f
-        }
-
-        public String toString() {
-            format
-        }
-    }
 
     /**
      * Serialises hypercube data to <code>out</code>.

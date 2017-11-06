@@ -12,8 +12,8 @@ import org.transmartproject.core.multidimquery.NumericalValueAggregates
 import org.transmartproject.db.multidimquery.query.*
 import org.transmartproject.db.user.User
 import org.transmartproject.rest.misc.LazyOutputStreamDecorator
+import org.transmartproject.rest.serialization.Format
 
-import static org.transmartproject.rest.MultidimensionalDataService.Format
 import static org.transmartproject.rest.misc.RequestUtils.checkForUnsupportedParams
 
 @Slf4j
