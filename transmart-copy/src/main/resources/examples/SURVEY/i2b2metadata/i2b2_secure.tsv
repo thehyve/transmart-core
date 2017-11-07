@@ -1,0 +1,22 @@
+c_hlevel	c_fullname	c_name	c_synonym_cd	c_visualattributes	c_totalnum	c_basecode	c_metadataxml	c_facttablecolumn	c_tablename	c_columnname	c_columndatatype	c_operator	c_dimcode	c_comment	c_tooltip	m_applied_path	update_date	download_date	import_date	sourcesystem_cd	valuetype_cd	m_exclusion_cd	c_path	c_symbol	i2b2_id	secure_obj_token
+3	\Projects\Survey 1\General\Description\	Description	N	LAC		description		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\General\Description\			@				SURVEY						SURVEY
+3	\Projects\Survey 1\Interests\Favourite book quote\	Favourite book quote	N	LAT		favouritebook		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\Interests\Favourite book quote\			@				SURVEY						SURVEY
+3	\Projects\Survey 1\Demographics\Gender\	Gender	N	LAC		gender		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\Demographics\Gender\			@				SURVEY						SURVEY
+3	\Projects\Survey 1\Demographics\Age\	Age	N	LAN		age		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\Demographics\Age\			@				SURVEY						SURVEY
+3	\Projects\Survey 1\Demographics\Height\	Height	N	LAN		height		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\Demographics\Height\			@				SURVEY						SURVEY
+3	\Projects\Survey 1\Demographics\Birth date\	Birth date	N	LAD		birthdate		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\Demographics\Birth date\			@				SURVEY						SURVEY
+1	\Projects\Survey 1\	Survey 1	N	FAS				@	STUDY	STUDY_ID	T	=	SURVEY			@				SURVEY						SURVEY
+0	\Projects\	Projects	N	CA				@	@	@	T	=	\Projects\Survey 1\			@										PUBLIC
+2	\Ontology\Demographics\Height\	Height	N	LAN		height		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\Demographics\Height\			@										PUBLIC
+2	\Ontology\Demographics\Age\	Age	N	LAN		age		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\Demographics\Age\			@										PUBLIC
+2	\Ontology\Demographics\Gender\	Gender	N	LAC		gender		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\Demographics\Gender\			@										PUBLIC
+2	\Ontology\Demographics\Birth date\	Birth date	N	LAD		birthdate		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\Demographics\Birth date\			@										PUBLIC
+2	\Ontology\Interests\Favourite book quote\	Favourite book quote	N	LAT		favouritebook		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\Interests\Favourite book quote\			@										PUBLIC
+2	\Ontology\General\Description of weekend\	Description of weekend	N	LAC		description		CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE	\Projects\Survey 1\General\Description\			@										PUBLIC
+2	\Projects\Survey 1\General\	General	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE				@				SURVEY						SURVEY
+2	\Projects\Survey 1\Interests\	Interests	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE				@				SURVEY						SURVEY
+2	\Projects\Survey 1\Demographics\	Demographics	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE				@				SURVEY						SURVEY
+1	\Ontology\Demographics\	Demographics	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE				@										PUBLIC
+0	\Ontology\	Ontology	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE				@										PUBLIC
+1	\Ontology\Interests\	Interests	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE				@										PUBLIC
+1	\Ontology\General\	General	N	FA				CONCEPT_CD	CONCEPT_DIMENSION	CONCEPT_PATH	T	LIKE				@										PUBLIC

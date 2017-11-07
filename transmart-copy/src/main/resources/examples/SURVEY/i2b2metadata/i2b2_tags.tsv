@@ -1,0 +1,9 @@
+tag_id	path	tag	tag_type	tags_idx	tag_option_id
+0	\Projects\Survey 1\Demographics\Gender\	keyword1, keyword2	keywords	5	
+1	\Projects\Survey 1\Demographics\Gender\	sex	item_name	5	
+2	\Projects\Survey 1\Demographics\Gender\	1	project_versions	5	
+3	\Projects\Survey 1\Demographics\Gender\	S	project_name	5	
+4	\Projects\Survey 1\Demographics\Gender\	survey	project_type	5	
+5	\Projects\Survey 1\Demographics\Gender\	line1	project_line_of_research	5	
+6	\Projects\Survey 1\Demographics\Gender\	description	project_description	5	
+7	\Projects\Survey 1\Demographics\Gender\	a, b, c	coding	5	

@@ -119,7 +119,7 @@ subprojects { project ->
         }
 
     }
-    if (project.name =~ /^(transmart-server|transmart-core-api|transmart-data|transmart-batch)$/) {
+    if (project.name =~ /^(transmart-server|transmart-core-api|transmart-data|transmart-batch|transmart-copy)$/) {
         apply plugin: 'net.linguica.maven-settings'
         apply plugin: 'maven-publish'
         publishing {
