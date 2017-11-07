@@ -25,6 +25,7 @@ class Observations {
     final int patientNumIndex
     final int trialVisitNumIndex
     final int conceptCodeIndex
+    final int instanceNumIndex
 
     final Studies studies
     final Concepts concepts
@@ -36,6 +37,7 @@ class Observations {
         this.patientNumIndex = columns.collect { it.key }.indexOf('patient_num')
         this.trialVisitNumIndex = columns.collect { it.key }.indexOf('trial_visit_num')
         this.conceptCodeIndex = columns.collect { it.key }.indexOf('concept_cd')
+        this.instanceNumIndex = columns.collect { it.key }.indexOf('instance_num')
         this.studies = studies
         this.concepts = concepts
         this.patients = patients
@@ -48,7 +50,13 @@ class Observations {
         }
     }
 
-    String[] transformRow(final String[] data) {
+    int getMaxInstanceNum() {
+        database.sql.firstRow(
+                "select max(instance_num) as max_instance_num from ${table}".toString(),
+        )['max_instance_num'] as int
+    }
+
+    String[] transformRow(final String[] data, final int baseInstanceNum) {
         String[] result = Arrays.copyOf(data, data.length)
         // replace patient index with patient num
         def patientIndex = data[patientNumIndex] as int
@@ -65,6 +73,8 @@ class Observations {
         if (!(conceptCode in concepts.conceptCodes)) {
             throw new InvalidInput("Unknown concept code: ${conceptCode}")
         }
+        def instanceIndex = data[instanceNumIndex] as int
+        result[instanceNumIndex] = baseInstanceNum + instanceIndex
         result
     }
 
@@ -76,6 +86,8 @@ class Observations {
         log.info 'Reading and transforming observations data ...'
         log.info "Writing to temporary file ${tempFile.path} ..."
         int n = 0
+        int baseInstanceNum = maxInstanceNum + 1
+        log.info "Using ${baseInstanceNum} as lowest instance num."
         inputFile.withReader { reader ->
             tempFile.withPrintWriter { writer ->
                 def tsvReader = Util.tsvReader(reader)
@@ -90,7 +102,7 @@ class Observations {
                         if (columns.size() != data.length) {
                             throw new InvalidInput("Data row length (${data.length}) does not match number of columns (${columns.size()}).")
                         }
-                        String[] result = transformRow(data)
+                        String[] result = transformRow(data, baseInstanceNum)
                         tsvWriter.writeNext(result)
                         if (i % 1000 == 0) {
                             log.info "${i} rows read ..."
