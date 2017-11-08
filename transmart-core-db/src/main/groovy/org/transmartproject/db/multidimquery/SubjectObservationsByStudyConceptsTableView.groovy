@@ -155,7 +155,7 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         }
 
         private Date toDate(Number value) {
-            new Date((value * 1000) as Long)
+            new Date(value as Long)
         }
 
         private VariableMetadata computeColumnMetadata() {

@@ -262,7 +262,7 @@ class HibernateCriteriaQueryBuilder implements QueryBuilder<Criterion, DetachedC
     }
 
     private static Number toNumber(Date value) {
-        value.getTime() / 1000
+        new BigDecimal(value.getTime())
     }
 
     /**
