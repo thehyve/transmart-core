@@ -92,9 +92,10 @@ class Observations {
             tempFile.withPrintWriter { writer ->
                 def tsvReader = Util.tsvReader(reader)
                 def tsvWriter = Util.tsvWriter(writer)
+                LinkedHashMap<String, Class> header = [:]
                 tsvReader.eachWithIndex { String[] data, int i ->
                     if (i == 0) {
-                        Util.verifyHeader(tempFile.path, data, columns)
+                        header = Util.verifyHeader(observations_file, data, columns)
                         return
                     }
                     n = i

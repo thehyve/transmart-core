@@ -40,13 +40,27 @@ class Util {
         new CSVWriter(writer, '\t' as char, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER)
     }
 
-    static void verifyHeader(String filename, String[] entry, LinkedHashMap<String, Class> columns) {
+    /**
+     * Verify that the column names in {@code header} are the same as the column names in {@code columns}.
+     * Returns a map from column name to type, where the columns are ordered as in {@code header}.
+     *
+     * @param filename The filename to check the header for.
+     * @param header The column names in the header.
+     * @param columns The column names and types as defined in the database table.
+     * @return a map from column name to type, where the columns are ordered as in {@code header}.
+     */
+    static LinkedHashMap<String, Class> verifyHeader(String filename, String[] header, LinkedHashMap<String, Class> columns) {
         List<String> columnNames = columns.collect { it.key }
-        if (entry.toList() != columnNames) {
+        if ((header as Set) != (columnNames as Set)) {
             log.error "Expected: ${columnNames}"
-            log.error "Was: ${entry.toList()}"
+            log.error "Was: ${header.toList()}"
             throw new InvalidInput("Incorrect headers in file ${filename}.")
         }
+        LinkedHashMap result = [:]
+        header.each { String column ->
+            result[column] = columns[column]
+        }
+        result
     }
 
     static final <T> T parseIfNotEmpty(String value, Closure<T> parser) {
