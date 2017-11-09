@@ -61,7 +61,7 @@ class ExportController {
      *      elements: {
      *          dataType: "<clinical/mrna/...>" //supported data type
      *          format: "<TSV/SPSS/...>" //supported file format
-     *          tabular: <true/false> //optional, false by default.
+     *          dataView: "<data view>" //optional
      *          //When tabular = true => represent hypercube as table with a subject per row and variable per column
      *      }
      * }
