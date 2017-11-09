@@ -69,7 +69,7 @@ class VersionController {
                         'values_aggregate',
                         'inline-selections',
                         'observation-sets',
-                        'subject-observations-by-study-concepts-table-view',
+                        'survey-table-view',
                 ]
             ]
     ])

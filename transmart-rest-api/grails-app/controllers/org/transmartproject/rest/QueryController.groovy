@@ -21,8 +21,6 @@ class QueryController extends AbstractQueryController {
 
     static responseFormats = ['json', 'hal', 'protobuf']
 
-    MultidimensionalDataService multidimensionalDataService
-
     protected Format getContentFormat() {
         Format format = Format.NONE
         withFormat {
@@ -95,7 +93,7 @@ class QueryController extends AbstractQueryController {
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            multidimensionalDataService.writeClinical(format, constraint, user, out)
+            hypercubeDataSerializationService.writeClinical(format, constraint, user, out)
         } catch(LegacyStudyException e) {
             throw new InvalidRequestException("This endpoint does not support legacy studies.", e)
         } finally {
@@ -298,7 +296,7 @@ class QueryController extends AbstractQueryController {
         OutputStream out = getLazyOutputStream(format)
 
         try {
-            multidimensionalDataService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection, user, out)
+            hypercubeDataSerializationService.writeHighdim(format, type, assayConstraint, biomarkerConstraint, projection, user, out)
         } finally {
             out.close()
         }

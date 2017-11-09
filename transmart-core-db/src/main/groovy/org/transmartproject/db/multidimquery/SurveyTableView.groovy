@@ -22,14 +22,14 @@ import static org.transmartproject.core.dataquery.Measure.SCALE
  * - Returns back original codebook values
  */
 @Slf4j
-class SubjectObservationsByStudyConceptsTableView implements TabularResult<MetadataAwareDataColumn, DataRow> {
+class SurveyTableView implements TabularResult<MetadataAwareDataColumn, DataRow> {
 
     @Delegate
     final HypercubeTabularResultView hypercubeTabularResultView
 
     final Hypercube hypercube
 
-    SubjectObservationsByStudyConceptsTableView(Hypercube hypercube) {
+    SurveyTableView(Hypercube hypercube) {
         this.hypercube = hypercube
 
         def rowDimensions = [DimensionImpl.PATIENT]
