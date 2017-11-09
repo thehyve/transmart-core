@@ -48,7 +48,7 @@ class ExportService {
                 throw new InvalidRequestException("Export for ${outFormat} format is not supported.")
             }
             String dataType = typeFormatPair.dataType
-            String dataView = typeFormatPair.dataView ?: grailsApplication.config.export.clinical.defaultDataView
+            String dataView = typeFormatPair.dataView
 
             if (dataType == 'clinical') {
                 try {

@@ -29,51 +29,37 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
 
     final Hypercube hypercube
 
-    public static final String DEFAULT_SUBJ_ID_COL_NAME = 'subject'
-    public static final String DEFAULT_SUBJ_ID_COL_DESCRIPTION = 'Subject Id'
-    public static final String DEFAULT_SUBJ_ID_SOURCE = 'SUBJ_ID'
-    public static final String DEFAULT_DATE_COL_DESCRIPTION = 'Date and time of observation'
-
-    final String subjectIdColumnName
-    final String subjectIdColumnDescription
-    final String subjectIdSource
-    final String dateColDescription
-
-    SubjectObservationsByStudyConceptsTableView(Map<String, String> customizations, Hypercube hypercube) {
+    SubjectObservationsByStudyConceptsTableView(Hypercube hypercube) {
         this.hypercube = hypercube
 
         def rowDimensions = [DimensionImpl.PATIENT]
         def columnDimensions = [DimensionImpl.STUDY, DimensionImpl.CONCEPT]
         hypercubeTabularResultView = new HypercubeTabularResultView(hypercube, rowDimensions, columnDimensions)
-
-        subjectIdColumnName = customizations?.subjectIdColumnName ?: DEFAULT_SUBJ_ID_COL_NAME
-        subjectIdColumnDescription = customizations?.subjectIdColumnDescription ?: DEFAULT_SUBJ_ID_COL_DESCRIPTION
-        subjectIdSource = customizations?.subjectIdSource ?: DEFAULT_SUBJ_ID_SOURCE
-        dateColDescription = customizations?.dateColDescription ?: DEFAULT_DATE_COL_DESCRIPTION
     }
 
     @Lazy
     List<MetadataAwareDataColumn> indicesList = {
         def originalColumns = hypercubeTabularResultView.indicesList
         def transformedColumns = []
-        transformedColumns << new SubjectIdColumn()
+        transformedColumns << new FisNumberColumn()
         transformedColumns.addAll(originalColumns.collect { originalColumn ->
             String varName = getVariableName(originalColumn)
             [
                     new VariableColumn(varName, originalColumn),
-                    new StartDateColumn("${varName}.date", originalColumn)
+                    new MeasurementDateColumn("${varName}.date", originalColumn)
             ]
         }.flatten().sort { DataColumn a, DataColumn b -> a.label <=> b.label })
         transformedColumns
     }()
 
-    class SubjectIdColumn implements ValueFetchingDataColumn<String, HypercubeDataRow>, MetadataAwareDataColumn {
-        String label = subjectIdColumnName
+    class FisNumberColumn implements ValueFetchingDataColumn<String, HypercubeDataRow>, MetadataAwareDataColumn {
+        String label = 'FISNumber'
+        static final String SUBJ_ID_SOURCE = 'SUBJ_ID'
 
         VariableMetadata metadata = new VariableMetadata(
                 type: NUMERIC,
                 measure: SCALE,
-                description: subjectIdColumnDescription,
+                description: 'FIS Number',
                 width: 12,
                 decimals: 0,
                 columns: 12,
@@ -83,13 +69,13 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         String getValue(HypercubeDataRow row) {
             def patient = row.getDimensionElement(DimensionImpl.PATIENT) as Patient
             if (patient) {
-                return patient.subjectIds[subjectIdSource]
+                return patient.subjectIds[SUBJ_ID_SOURCE]
             }
             null
         }
     }
 
-    class StartDateColumn implements ValueFetchingDataColumn<Date, HypercubeDataRow>, MetadataAwareDataColumn {
+    class MeasurementDateColumn implements ValueFetchingDataColumn<Date, HypercubeDataRow>, MetadataAwareDataColumn {
 
         final String label
         final HypercubeDataColumn originalColumn
@@ -97,12 +83,12 @@ class SubjectObservationsByStudyConceptsTableView implements TabularResult<Metad
         VariableMetadata metadata = new VariableMetadata(
                 type: DATE,
                 measure: SCALE,
-                description: dateColDescription,
+                description: 'Date of measurement',
                 width: 22,
                 columns: 22,
         )
 
-        StartDateColumn(String label, HypercubeDataColumn originalColumn) {
+        MeasurementDateColumn(String label, HypercubeDataColumn originalColumn) {
             this.label = label
             this.originalColumn = originalColumn
         }

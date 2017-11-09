@@ -102,9 +102,7 @@ class MultidimensionalDataService {
         } else if (view == 'subjectObservationsByStudyConceptsTableView') {
             def patientDimension = multiDimService.getDimension('patient')
             def hypercube = multiDimService.retrieveClinicalData(constraint, user, [patientDimension])
-            def customizations = grailsApplication.config
-                    .export.clinical.subjectObservationsByStudyConceptsTableView
-            def tabularView = new SubjectObservationsByStudyConceptsTableView(customizations, hypercube)
+            def tabularView = new SubjectObservationsByStudyConceptsTableView(hypercube)
             try {
                 log.info "Writing tabular data in ${format} format."
                 serialise(tabularView, format, out)
