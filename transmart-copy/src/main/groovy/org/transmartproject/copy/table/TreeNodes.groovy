@@ -114,7 +114,7 @@ class TreeNodes {
                         log.debug "Found existing tree node path: ${path}."
                     } else {
                         insertCount++
-                        log.info "Inserting new tree node: ${path} ..."
+                        log.debug "Inserting new tree node: ${path} ..."
                         database.insertEntry(table, columns, treeNodeData)
                         paths.add(path)
                     }

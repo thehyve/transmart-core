@@ -106,7 +106,7 @@ class Patients {
                         if (patientIndex in missingPatients) {
                             insertCount++
                             Long patientNum = database.insertEntry(patient_dimension_table, patient_dimension_columns, 'patient_num', patientData)
-                            log.info "Patient inserted [patient_num: ${patientNum}]."
+                            log.debug "Patient inserted [patient_num: ${patientNum}]."
                             indexToPatientNum.add(patientIndex, patientNum)
                             def patientMappingData = missingPatientsMappingData[patientIndex]
                             patientMappingData['patient_num'] = patientNum

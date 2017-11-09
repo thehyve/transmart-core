@@ -34,9 +34,8 @@ class Copy {
 
     static Options options = new Options()
     static {
-        options.addOption('h', 'help', false, 'Help')
-        options.addOption('d', 'delete', true, 'Delete study by id')
-        //options.addRequiredOption('s', 'study', true, 'Study id')
+        options.addOption('h', 'help', false, 'Help.')
+        options.addOption('d', 'delete', true, 'Delete study by id.')
     }
 
     static printHelp() {
@@ -97,6 +96,8 @@ class Copy {
             def observations = new Observations(database, studies, concepts, patients)
             observations.checkFiles(rootPath)
             observations.load(rootPath, tmpDir)
+
+            database.vacuumAnalyze()
         }
     }
 
@@ -106,6 +107,8 @@ class Copy {
         studies = new Studies(database, dimensions)
         studies.delete(studyId)
         log.info "Study ${studyId} deleted."
+
+        database.vacuumAnalyze()
     }
 
     static void main(String[] args) {
@@ -123,7 +126,7 @@ class Copy {
                 try {
                     copy.deleteStudy(studyId)
                 } catch(Exception e) {
-                    log.error "Error deleting study ${studyId}", e
+                    log.error "Error deleting study ${studyId}"
                 }
             } else {
                 copy.run('.')
@@ -134,7 +137,7 @@ class Copy {
             printHelp()
             System.exit(2)
         } catch (Exception e) {
-            log.error e.message, e
+            log.error e.message
             System.exit(1)
         }
     }

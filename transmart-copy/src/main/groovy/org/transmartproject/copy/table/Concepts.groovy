@@ -65,7 +65,7 @@ class Concepts {
                         log.debug "Found existing concept: ${conceptCode}."
                     } else {
                         insertCount++
-                        log.info "Inserting new concept: ${conceptCode} ..."
+                        log.debug "Inserting new concept: ${conceptCode} ..."
                         database.insertEntry(table, columns, conceptData)
                         conceptCodes.add(conceptCode)
                         conceptPaths.add(conceptPath)

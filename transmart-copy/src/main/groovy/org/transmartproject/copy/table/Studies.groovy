@@ -215,6 +215,8 @@ class Studies {
         studyDimensionsFile.withReader { reader ->
             def tsvReader = Util.tsvReader(reader)
             database.sql.withTransaction {
+                log.info "Reading study dimensions from file ..."
+                def insertCount = 0
                 tsvReader.eachWithIndex { String[] data, int i ->
                     if (i == 0) {
                         Util.verifyHeader(study_dimensions_file, data, study_dimensions_columns)
@@ -235,12 +237,14 @@ class Studies {
                         def dimensionId = dimensions.indexToDimensionId[dimensionIndex]
                         studyDimensionData['dimension_description_id'] = dimensionId
                         database.insertEntry(study_dimensions_table, study_dimensions_columns, studyDimensionData)
-                        log.info "Study dimension inserted [study_id: ${studyNum}, dimension_description_id: ${dimensionId}]."
+                        insertCount++
+                        log.debug "Study dimension inserted [study_id: ${studyNum}, dimension_description_id: ${dimensionId}]."
                     } catch(Exception e) {
                         log.error "Error on line ${i} of ${study_dimensions_file}: ${e.message}."
                         throw e
                     }
                 }
+                log.info "${insertCount} study dimensions inserted."
             }
         }
     }

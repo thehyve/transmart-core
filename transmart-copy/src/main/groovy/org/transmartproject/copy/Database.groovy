@@ -82,7 +82,7 @@ class Database {
     }
 
     LinkedHashMap<String, Class> getColumnMetadata(String table) {
-        log.info "Fetching metadata for ${table} ..."
+        log.debug "Fetching metadata for ${table} ..."
         List<String> parts = table.tokenize('.')
         assert (parts.size() == 2)
         def schemaDef = parts[0]
@@ -97,10 +97,12 @@ class Database {
         result
     }
 
-    void copyFile(String tableName, File file) {
+    void copyFile(String tableName, File file, int rowCount) {
         file.withReader { reader ->
+            def progressReportingReader = new ProgressReportingReader(reader, tableName, rowCount)
             log.info "Loading into ${tableName} from ${file} ..."
-            long count = copyManager.copyIn("COPY ${tableName} FROM STDIN CSV DELIMITER E'\t'", reader)
+            long count = copyManager.copyIn("COPY ${tableName} FROM STDIN CSV DELIMITER E'\t'", progressReportingReader)
+            progressReportingReader.progressBar.stop()
             log.info "${count} rows inserted."
         }
     }
@@ -124,6 +126,12 @@ class Database {
 
         def result = sql.executeInsert(data, statement)
         assert result.size() == 1
+    }
+
+    void vacuumAnalyze() {
+        log.info 'Running VACUUM ANALYZE ...'
+        sql.execute('vacuum analyze')
+        log.info 'Done.'
     }
 
 }

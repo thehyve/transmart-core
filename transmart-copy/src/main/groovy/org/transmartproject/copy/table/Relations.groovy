@@ -182,7 +182,7 @@ class Relations {
             log.info "Done reading and transforming relations data. ${n} rows read."
             // Insert transformed data
             log.info 'Loading relations data into the database ...'
-            database.copyFile(relation_table, tempFile)
+            database.copyFile(relation_table, tempFile, n)
             log.info 'Done loading observations data.'
         }
     }
