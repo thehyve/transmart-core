@@ -38,7 +38,9 @@ class TreeNodeImpl implements TreeNode {
     EnumSet<OntologyTerm.VisualAttributes> visualAttributes
 
     String dimension
-    
+
+    String conceptCode
+
     String conceptPath
 
     TreeNodeImpl(I2b2Secure term, List<TreeNode> children) {

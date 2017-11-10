@@ -1278,6 +1278,31 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/treeNode'
+  /v2/tree_nodes/clear_cache:
+    get:
+      description: |
+        Clears tree node and counts caches.
+        Only for administrators.
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            The cache has been cleared.
+  /v2/tree_nodes/rebuild_cache:
+    get:
+      description: |
+        Clears tree node and counts caches and rebuilds the tree node cache per user.
+        Only for administrators.
+      tags:
+        - v2
+      responses:
+        200:
+          description: |
+            Clearing and rebuilding the cache has been started.
+        503:
+          description: |
+            A rebuild operation is already in progress.
   /v2/storage:
     get:
       description: |

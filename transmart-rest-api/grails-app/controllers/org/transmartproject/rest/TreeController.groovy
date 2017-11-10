@@ -61,7 +61,7 @@ class TreeController {
     }
 
     /**
-     * Clear tree node cache:
+     * Clears tree node and counts caches:
      * <code>/${apiVersion}/tree_nodes/clear_cache</code>
      *
      * This endpoint should be called after loading, deleting or updating
@@ -71,6 +71,23 @@ class TreeController {
     def clearCache() {
         checkForUnsupportedParams(params, [])
         treeResource.clearCache(currentUser)
+        response.status = 200
+    }
+
+    /**
+     * Clears tree node and counts caches and rebuilds the tree node cache:
+     * <code>/${apiVersion}/tree_nodes/rebuild_cache</code>
+     *
+     * This endpoint should be called after loading, deleting or updating
+     * tree nodes in the database.
+     * Only available for administrators.
+     *
+     * Asynchronous call. The call returns when rebuilding has started.
+     * Code 503 is returned iff a rebuild operation is already in progress.
+     */
+    def rebuildCache() {
+        checkForUnsupportedParams(params, [])
+        treeResource.rebuildCache(currentUser)
         response.status = 200
     }
 
